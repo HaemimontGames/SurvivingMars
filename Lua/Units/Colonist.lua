@@ -185,7 +185,7 @@ function Colonist:GameInit()
 	end	
 	self.city:AddToLabel("Colonist", self)	
 	self.city:AddToLabel(self.gender == "OtherGender" and "ColonistOther" or self.gender == "Male" and "ColonistMale" or "ColonistFemale", self)
-	self.city:AddToLabel(self.specialist, self)
+	self:UpdateSpecialistLabels()
 
 	if HintsEnabled then
 		local num_colonists = #self.city.labels.Colonist
@@ -993,6 +993,7 @@ function OnMsg.TechResearched(tech_id, city)
 		city:ForEachLabelObject("Workplace", "UpdatePerformance")
 	elseif tech_id == "ForeverYoung" then
 		g_SeniorsCanWork = true
+		city:ForEachLabelObject("Colonist", "UpdateSpecialistLabels")
 	elseif tech_id == "MartianbornIngenuity" then
 		local amount = TechDef[tech_id].param1
 		local display_text = T{7587, "<green>Martianborn Ingenuity <amount></color>"}
@@ -1251,6 +1252,7 @@ function Colonist:Idle()
 		self:RemoveTrait(self.age_trait)
 		self.age_trait = next_age_trait
 		self:AddTrait(next_age_trait)
+		self:UpdateSpecialistLabels()
 	end
 
 	local transport = self.transport_task
@@ -1497,15 +1499,22 @@ function Colonist:CanTrain()
 	return self:CanChangeCommand()
 end
 
+-- can be employed according to traits, discounting status effects
+function Colonist:IsInWorkforce()
+	local traits = self.traits
+	return
+		(not traits.Senior or g_SeniorsCanWork)
+		and not traits.Child
+		and not traits.Tourist
+end
+
 -- can be employed; colonists for which this returns false should quit their jobs
 function Colonist:CanWork()
 	local traits = self.traits
 	local status_effects = self.status_effects
 	return 	
 		self:CanChangeCommand()
-		and (not traits.Senior or g_SeniorsCanWork)
-		and not traits.Child
-		and not traits.Tourist
+		and self:IsInWorkforce()
 		and (traits.Fit or not (self.stat_health < g_Consts.LowStatLevel))
 		and not status_effects.StatusEffect_Earthsick
 		and not status_effects.StatusEffect_StressedOut
@@ -1797,11 +1806,21 @@ function Colonist:SetSpecialization(specialist, init)
 	self.specialist = specialist or "none"
 	self:ChooseEntity()
 
-	self.city:AddToLabel(self.specialist, self)
+	self:UpdateSpecialistLabels()
+
 	if not init then
 		self:AddTrait(specialist)
 	end
 end
+
+function Colonist:UpdateSpecialistLabels()
+	if self:IsInWorkforce() then
+		self.city:AddToLabel(self.specialist, self)
+	else
+		self.city:RemoveFromLabel(self.specialist, self)
+	end
+end
+
 -------------------------------------- Transport -----------------------------------------------
 
 function Colonist:FindEmigrationDome()
@@ -2762,6 +2781,7 @@ function Colonist:ChangeComfort(amount, reason)
 		if self.traits.Tourist then
 			self:RemoveTrait("Tourist")
 			self:UpdateEmploymentLabels()
+			self:UpdateSpecialistLabels()
 		end
 	end
 end

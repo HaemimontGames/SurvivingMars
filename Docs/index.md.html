@@ -1,0 +1,231 @@
+**Surving Mars Modding**
+
+Welcome to Modding *Surviving Mars*!
+====================================
+
+Overview
+--------
+
+*Surviving Mars* packages user modifications in bundles called **Mods**, consisting of several **ModItem** items.
+For example, a mod introducing a new building may contain a ModItem **Entity** holding the visuals, a ModItem **Building Template** with the building parameters, and a ModItem **Code** with some custom Lua code for the building.
+
+Mods are authored and stored as folders under *`%AppData%/Surviving Mars/Mods`*.
+When published via Steam Workshop, the same folders go into system Steam folders.
+
+Mods are created using the in-game **Mod Editor**. Art assets are authored separately in content creation tools e.g. Blender and imported into the mod.
+
+Please report problems with the modding tools or the modding documentation to mars-modding@haemimontgames.com.
+
+Mod Editor
+----------
+
+The **Mod Editor** is a companion application launched by the *Surviving Mars* main executable. It is only used to display and edit the mods and the ModItem items. All mod loading, saving, uploading to Steam Workshop and testing of the mod content is done by the main game itself - if you close the main game without saving, the Mod Editor will also close and you will lose all unsaved changes.
+
+The Mod Editor has two windows. One lists all mods in the left column, and displays any diagnostic messages produced by the tools in the wider right column:
+
+![Mod Editor Main View](mod_editor.png)
+
+The other is used to edit a specific mod, and is opened by double-clicking the mod's entry in the main editor window.
+
+![Mod Editor - Editing a single mod](mod_editor_item.png)
+
+The Mod Editor window lists all mod items in a tree view in the left column, and their properties in the right column. From the menu you can add new ModItem items, test the mod, or upload it to Steam Workshop.
+
+## Gameplay
+In the [Gameplay](LuaFunctionDoc_Gameplay.md.html) section you can find more information about implementing gameplay effects related to [Technologies](ModItemTechnology.md.html), [Mission Sponsors](ModItemMissionSponsor.md.html), [Commander Profiles](ModItemCommanderProfile.md.html), [Research](Research.md.html) or [Colonists](Colonists.md.html).
+
+Mod Items
+---------
+
+Here are the supported mod item types:
+
+[Entity](ModItemEntity.md.html)
+: Import art assets from Blender.
+
+[Mission Sponsor](ModItemMissionSponsor.md.html)
+: Define new mission sponsors.
+
+[Commander Profile](ModItemCommanderProfile.md.html)
+: Define new commander profiles.
+
+[Mission Logo](ModItemMissionLogo.md.html)
+: Allows you to create new mission logos to decorate your buildings.
+
+[Technology](ModItemTechnology.md.html)
+: Define new technologies.
+
+[Code](ModItemCode.md.html)
+: Do almost anything - but make sure you read the Lua Environment section first!
+
+[Building Template](ModItemBuildingTemplate.md.html)
+: Make new versions of existing buildings with different parameters.
+
+[Farm Crop](ModItemCrop.md.html)
+: Define new crops for the farms.
+
+[Colonist Trait](ModItemTrait.md.html)
+: Define new colonist trait.
+
+[Attachment](ModItemAttachment.md.html)
+: Attach decorative objects to buildings.
+
+[Game Value](ModItemGameValue.md.html)
+: Modify any of hundreds gameplay constants.
+
+[Photo Filter](ModItemPhotoFilter.md.html)
+: Define new postprocessing filters used in the Photo Mode.
+
+[RadioStation](ModItemRadioStation.md.html)
+: Import a set of tracks to define a new radio station.
+
+[Lightmodel](ModItemLightmodel.md.html)
+: Define a set of lighting parameters controlling the look of the day/night cycle.
+
+[Localization Table](ModItemLocTable.md.html)
+: Add translation tables to localize the game in other languages.
+
+
+Lua Environment
+---------------
+
+Most of *Surviving Mars* is written in the [Lua](LuaBasics.md.html) programming language, and mods can add Lua code to replace, modify or extend large parts of the base game. *Surviving Mars* uses [Lua 5.3](http://www.lua.org/manual/5.3/).
+
+This section documents some of the basic concepts and the systems built on top of Lua:
+
+[Classes](LuaClasses.md.html)
+: Lua doesn't come with a built-in class system, only with tools for creating one. Here is how our works.
+
+[Threads](LuaThreads.md.html)
+: Cooperative threads are built on top of Lua coroutines and allow for natural expression of game logic.
+
+[Messages](LuaMessages.md.html)
+: Messages are a mechanism for hooking functionality to specific events in the game code, and for synchronizing Lua threads.
+
+[CObjects](LuaCObject.md.html)
+: This is what the C++ rendering engine knows about the world of the game: objects' position, appearence, animations, etc.
+
+[Map Enumeration](LuaMapEnumeration.md.html)
+: This is how Lua code can efficiently query the C++ side about what's where in the world.
+
+[Savegames](LuaSavegame.md.html)
+: Savegames work by serializing the entire state of the game world, and work mostly automatically.
+
+[Terrain](LuaTerrain.md.html)
+: The functions available in Lua concerning the terrain in the game.
+
+[Hex Grids](LuaMarsHexGrids.md.html)
+: General information about the specialised hex grids used in the game.
+
+[Labels](LuaMarsLabels.md.html)
+: Information about the label system for objects with shared traits.
+
+[Pathfinding](Pathfinding.md.html)
+: Information about the pathfinding algorithm.
+
+Lua Reference
+-------------
+
+The following documents describe some of the functions available in Lua, organized by area:
+
+[CObject functions](LuaFunctionDoc_CObject.md.html)
+: Functions for manipulating [CObjects](LuaCObject.md.html).
+
+[*point* and *box* functions](LuaFunctionDoc_point.md.html)
+: The *point* and *box* are custom userdata types hold 2D/3D coordinates and 2D/3D ranges and are used for positions, areas, etc. Besides the expected overridden operators, these functions can be used to manipulate them.
+
+[I/O functions](LuaFunctionDoc_AsyncIO.md.html)
+: These functions can be used to implement efficient file input/output.
+
+[Global Lua functions](LuaFunctionDoc__G.md.html)
+: These are functions that don't fall in any of the other categories.
+
+[Hex grid functions](LuaFunctionDoc_hex.md.html)
+: Functions for working with hex grids coordinates.
+
+[ObjectGrid functions](LuaFunctionDoc_GridObject.md.html)
+: Functions for working with the hex grids holding information about buildings and how they take up space in the hex grid.
+
+[SupplyGrid functions](LuaFunctionDoc_SupplyGrid.md.html)
+: Functions for working with the hex grids holding information about the electricity and water/air supply networks.
+
+[Selection functions](LuaFunctionDoc_Selection.md.html)
+: Functions for working with cursor position and selection.
+
+[Gameplay functions](LuaFunctionDoc_Gameplay.md.html)
+: These are functions for implementing gameplay effects.
+
+[Camera functions](LuaFunctionDoc_camera.md.html)
+: Functions for working with the camera. The [fly camera](LuaFunctionDoc_cameraFly.md.html), [max camrea](LuaFunctionDoc_cameraMax.md.html) and [RTS camera](LuaFunctionDoc_cameraRTS.md.html) could also be separately modified.
+
+[Messages](LuaFunctionDoc_Msg.md.html)
+: Functions for working with messages. They are used to affect the game at certain important points, such as the begining of a new day, death of a colonist, etc. 
+
+[Terrain](LuaFunctionDoc_terrain.md.html)
+: Functions for working with terrain
+
+Sample Mods
+-----------
+
+Several sample mods are provided for demonstration and starting point. The Lua code is extensively documented. You can find them in the *`/ModTools/Samples`*.
+
+You can't load them directly, as the game doesn't look for mods in this folder. You need to copy them to the *`%AppData%/Surviving Mars/Mods`* folder, or review them and pick just bits and pieces from them as appropriate.
+
+Cactus Crop
+: Demonstrates how to create a new farm crop that can interact with its farm.
+
+Cel Shading
+: Demonstrates how to write photo mode filter shaders. Adds two new photo mode filters - Cel Shading Day and Cel Shading Night.
+
+Cemetery
+: Demonstrates how to create game logic for new buildings, how to interact with colonists, how to handle game messages. Adds a new building - Cemetery, with its own new entity, and the following gameplay effects:
+  * Reduces the sanity damage to deceased colonists' neighbours;
+  * Newborn colonists receive random positive traits from the deceased.
+
+Idiocracy
+: Demonstrates how to create a new mission sponsor and tweak gameplay rules from it. Don't forget to pack electrolytes on your trip to Mars - plants crave them.
+
+Medical Researcher
+: Demonstrates how to create a new commander profile.
+
+Shadowed Solar Panels
+: Demonstrates how to examine the Martian terrain, and how to override building methods and properties. Solar panels suffer 75% penalty to their production when in the shadow of a mountain. 
+
+Synthetic Meat
+: Demonstrates how to create a new farm crop.
+
+Time Capsule
+: Demonstrates how to work with files, examine and create objects on map. When you play on a planet location where you have already played, find artefacts from your previous colonies. 
+
+
+Sample Mod Assets
+-----------------
+
+Several sample Blender scenes are provided to demonstrate how to structure scenes. They are ready to export and can be used as a starting point for [Entity mods items](ModItemEntity.md.html).
+
+SubsurfaceHeater
+: This is the Subsurface Heater building from the game, with a slightly different material. It demonstrates the various metadata necessary for an entity to serve as a building - [spots](LuaCObject.md.html#toc1.5), [surfaces](LuaCObject.md.html#toc1.6), etc.
+
+Cemetery
+: This is a scene for the sample Cemetery mod. It includes the building entity itself, as well as several gravestone entities attached to it by the game logic.
+
+HexGridExamples
+: Required configuration of hex grid shapes (one, three, ten hexes) for in-dome buildings. There are no restrictions for outdoors buildings.
+
+MissionLogos
+: This is a sample _Colony Logo_. It contains both a UI logo, used in the _New Game_ screen, and a decal texture, used ingame.
+
+
+Reference Code
+--------------
+
+A significant part of the Lua source code and data of Surviving Mars is available at:
+
+	https://github.com/HaemimontGames/SurvivingMars
+
+It is not the entire source of the game and cannot be used to build the game. Surviving Mars and this source code will be frequently updated which may break your mods if they rely on any parts of it. You are not allowed to modify or redistribute any part of this source code except embedded in Surviving Mars mods.
+
+(insert footer.md.html here)
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="markdeep.min.js"></script>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

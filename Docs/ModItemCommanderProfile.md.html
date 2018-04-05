@@ -1,0 +1,44 @@
+[*Back to Index*](index.md.html)
+Commander Profile
+=================
+
+This mod item allows you to define a commander profile. It can be selected in the new game menu and has a significant effect over gameplay. Each commander profile has some specific properties and game effects. [Here](LuaFunctionDoc_Gameplay.md.html) can be found some useful functions for creating effects.
+
+Properties
+----------
+Name (self.name)
+: This is the internal unique name of commander profile. It is not visible by users.
+
+Display Name (self.display_name)
+: This is the user-visible name of the commander profile, visible when choose commander in game combo.
+
+Challenge Mod (%) (self.challenge_mod)
+: Challenge difficulty bonus (in percent) apply to calculate map difficulty bonus.
+ 
+Description (self.description)
+: Short, user-visible description of that commander profile and its effects.
+
+Filter (self.filter)
+: Lua expression that will be evaluated to check whether to show this command profile in game combo.
+
+**Bonus Breakthrough Anomalies (self.anomaly_bonus_breakthrough)**<br>
+**Bonus event Anomalies (self.anomaly_bonus_event)**<br>
+**Bonus free Tech Anomalies (self.anomaly_bonus_free_tech)**
+: When generating a new map anomalies are placed depending on some chance range. These properties increase the probabilities.
+
+Bonus Rockets (self.bonus_rockets)
+: Starting rockets bonus.
+
+Parameters (self.param1, self.param2, self.param3, self.param4, self.param5)
+: Properties that contain number values - use them in additional code in the Filter and Game Apply properties, if necessary.
+
+Game Apply (function self:game_apply(city))
+: Code that is executed at game start. Use functions to implement command profile effects here.
+
+
+
+(insert footer.md.html here)
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="markdeep.min.js"></script>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

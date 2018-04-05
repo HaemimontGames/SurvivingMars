@@ -1,0 +1,39 @@
+# Documentation for *Object*
+
+## Overview
+
+Object are CObject that have also allocated Lua memory and thus can participate in more sophisticated game logic instead of just being vizualized.<br>
+## Parent classes
+
+* [CObject](LuaFunctionDoc_CObject.md.html) 
+* ColorizableObject
+* FXObject
+* InitDone
+* PropertyObject
+
+## Object:Done
+
+Called when the object is being destroyed. The method isn't overriden by chuild classes, but instead all implementations are called starting from the last child class.<br>
+
+void **Object:Done**()
+
+## Object:GameInit
+
+Called after the object's creation has been completed and the game is running. The method isn't overriden by chuild classes, but instead all implementations are called starting from the topmost parent.<br>
+
+void **Object:GameInit**()
+
+## Object:Init
+
+Called in the beginning of the object's creation. The method isn't overriden by chuild classes, but instead all implementations are called starting from the topmost parent.<br>
+
+void **Object:Init**()
+
+
+
+
+(insert footer.md.html here)
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="markdeep.min.js"></script>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

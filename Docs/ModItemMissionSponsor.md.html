@@ -1,0 +1,80 @@
+[*Back to Index*](index.md.html)
+Mission Sponsor
+===============
+
+This mod item allows you to define a mission sponsor. It can be selected in the new game menu and has a significant effect over gameplay. [Here](LuaFunctionDoc_Gameplay.md.html) can be found some useful functions for creating effects.
+
+Properties
+----------
+Name (self.name)
+: This is the internal unique name of mission sponsor. It is not visible by users.
+
+Display Name (self.display_name)
+: This is the user-visible name of the mission sponsor, visible when choose it in game combo.
+
+Challenge Mod (%) (self.challenge_mod)
+: Challenge difficulty bonus (in percent) apply to calculate map difficulty bonus.
+
+Starting Funding (M) (self.funding)
+: Starting game funding value.
+
+Tech Funding (M) (self.funding_per_tech)
+: Funding earned when tech is researched.
+
+Breakthrough Funding (M) (self.funding_per_breakthrough)
+: Funding earned when breakthrough tech is researched.
+
+Breakthrough applicants (self.applicants_per_breakthrough)
+: The number of new applicants that are added to waiting ones  for each researched breakthrough tech.
+
+Starting Rockets (self.initial_rockets)
+: Number of available rockets at game start.
+
+Rocket price (M) (self.rocket_price)
+: Rocket price, set to 0 for free rockets.
+
+Applicants price (M) (self.applicants_price)
+: Applicants price when not enough and buy new ones for resupply.Set to 0 for getting them free.
+
+Cargo Capacity (self.cargo)
+: The maximum payload (in kg) of a resupply Rocket.
+
+Starting Techs to research (self.initial_techs_unlocked)
+: The number of initially available Techs to research.
+
+Trait given to colonists (self.trait)
+: The trait that each colonist will get. 
+
+**Bonus Breakthrough Anomalies (self.anomaly_bonus_breakthrough)**<br>
+**Bonus event Anomalies (self.anomaly_bonus_event)**<br>
+**Bonus free Tech Anomalies (self.anomaly_bonus_free_tech)**<br>
+: When generating a new map anomalies are placed depending on some chance range. These properties increase the probabilities.
+
+Effect (self.effect)
+: Text description for users of this sponsor effects. Add implementation in 'Game Apply' function.
+
+Flavor text (self.flavor)
+: Artistic text or quote that describes the mission sponsor. It is visible by users.
+
+Parameters (self.param1, self.param2, self.param3, self.param4, self.param5)
+: Properties that contain number values - use them in additional code in the Filter and Game Apply properties, if necessary.
+
+Filter (self.filter)
+: Lua expression that will be evaluated to check whether to show this mission sponsor in game combo.
+
+Game Apply (function self:game_apply(city))
+: Code that is executed at game start. Sponsor effects, sich as research points or travel time, are stored in [global consts](LuaFunctionDoc_Consts.md.html) and can be modified here. 
+
+Here is an example game_apply function, which increases the sponsor research points by 20 and drops the time to travel from earth to mars and back by 50%
+
+~~~~~~~~~ Lua
+CreateLabelModifier("SponsorRocketSpeed", "Consts", "TravelTimeEarthMars", 0, -50)
+CreateLabelModifier("SponsorRocketSpeed", "Consts", "TravelTimeMarsEarth", 0, -50)
+CreateLabelModifier("SponsorResearchPoints", "Consts", "SponsorResearch", 20, 0)
+~~~~~~~~~
+
+(insert footer.md.html here)
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="markdeep.min.js"></script>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

@@ -1,0 +1,317 @@
+# Documentation for *terrain*
+
+## Overview
+
+The terrain in Surviving Mars is represented by two raster grids - type grid and height grid.<br>
+The materials used to texture the terrain are in the TerrainTextures table.Each material consists of several PBR textures similar to other materials in the game - base color, normal map, roughness / metallic, etc.<br>
+The layout of these materials on the terrain is controlled by the terrain type grid, which describes what material to use for each pixel(1x1 meters in Surviving Mars).Each pixel can reference only one material.However, materials are blended along type pixel boundaries with a fairly wide blending border, to avoid obvious pixelation.The values in the pixels are 8 - bit indices in the TerrainTextures table.<br>
+The geometry of the terrain is described by a dense heightfield, again with a 1x1 meters density. Each pixel indicates the height in this point, as a 16 - bit number in game units(i.e.centimeters). The maximum height is thus 655.35 meters.<br>
+The map size in Surviving Mars is approximately 6 km x 6 km - or more precisely, 6144 m x 6144 m. Only the inner 4096 x 4096 m is playable, the exterior 1024 m zone exists and is fully renderable and modifiable, but the player can't move the camera or place buildings there.<br>
+Buildings and code can modify the terrain arbitrarily, and the entire terrain - both type and height grids - is stored as part of the savegame.When starting a game, the type and height grids are initialized by the random map generator; when loading a savegame, they are loaded directly.<br>
+Note that the interfaces of all the functions using or modifying these grids accept distances, coordinates etc.in game units, not type or height grid pixels - ideally, you shouldn't need to know the exact density of these grids, and they may change in the future.<br>
+
+## terrain.ChangeHeight
+
+Modifies all values in the height grid by given value<br>
+
+void **terrain.ChangeHeight**(diff)
+int diff
+: value to add.
+
+
+## terrain.ClampPoint
+
+Clamp a position with the map bounding box.<br>
+
+point **terrain.ClampPoint**(pos, border)
+point pos
+: position to clamp
+
+int border
+: optional, if specified the function will shrink the map boundaries by this amount for the purpose of the clamp.
+
+
+## terrain.GetAreaHeight
+
+Returns the average height of the specified circle area. If no parameters are specified, then the average for the whole map is computed.<br>
+
+int **terrain.GetAreaHeight**(pos, radius)
+point pos
+: optional, center of the circle area.
+
+int radius
+: optional, radius of the circle area.
+
+
+## terrain.GetHeight
+
+Returns the terrain height at given position.<br>
+
+int **terrain.GetHeight**(pos)
+point pos
+: position to check.
+
+
+## terrain.GetHeight
+
+Returns the maximum possible height value.<br>
+
+int **terrain.GetHeight**()
+
+## terrain.GetIntersection
+
+Returns the intersection point of a ray with the terrain.<br>
+
+point **terrain.GetIntersection**(pt1, pt2)
+point pt1
+: start point of the ray.
+
+point pt2
+: end point of the ray.
+
+
+## terrain.GetMapHeight
+
+Returns the map height/sizey.<br>
+
+int **terrain.GetMapHeight**()
+
+## terrain.GetMapSize
+
+Returns the size of the map (terrain) rectangle as two integers (sizex and sizey).<br>
+
+int, int **terrain.GetMapSize**()
+
+## terrain.GetMapWidth
+
+Returns the map width/sizex.<br>
+
+int **terrain.GetMapWidth**()
+
+## terrain.GetSurfaceHeight
+
+Returns the surface height at given position.<br>
+
+int **terrain.GetSurfaceHeight**(pos)
+point pos
+: position to check.
+
+
+## terrain.GetSurfaceNormal
+
+Returns the normal to the terrain surface, with all components multiplied by 100.<br>
+
+point **terrain.GetSurfaceNormal**(pos)
+point pos
+: position to check.
+
+
+## terrain.GetTerrainNormal
+
+Returns the normal to the terrain, with all components multiplied by 100.<br>
+
+point **terrain.GetTerrainNormal**(pos)
+point pos
+: position to check.
+
+
+## terrain.GetTerrainSlope
+
+Returns the slope angle of the terrain at the given position, as determined by the terrain normal.<br>
+
+int **terrain.GetTerrainSlope**(pos)
+point pos
+: position to check.
+
+
+## terrain.GetTerrainType
+
+Returns the terrain type at the given map position.<br>
+
+int **terrain.GetTerrainType**(pos)
+point pos
+: position to check.
+
+
+## terrain.GetTerrainsCount
+
+Returns the number of available terrain types.<br>
+
+int **terrain.GetTerrainsCount**()
+
+## terrain.HeightMapSize
+
+Returns the x and y sizes of the heightmap grid.<br>
+
+int, int **terrain.HeightMapSize**()
+
+## terrain.HeightTileSize
+
+Returns the size of the heightmap tile.<br>
+
+int **terrain.HeightTileSize**()
+
+## terrain.InvalidateType
+
+Forces a recalculation of the typemap in the specified area or the entire map.<br>
+
+void **terrain.InvalidateType**(area)
+box area
+: optional, area to recalculate.
+
+
+## terrain.InvlidateHeight
+
+Forces a recalculation of the height values in the specified area or the entire map.<br>
+
+void **terrain.InvlidateHeight**(area)
+box area
+: optional, area to recalculate.
+
+
+## terrain.IsPointInBounds
+
+Returns true if the specified point is inside the terrain boundaries.<br>
+
+bool **terrain.IsPointInBounds**(pos, [border])
+point pos
+: position to check.
+
+int border
+: optional, if specified the function will shrink the map boundaries by this amount for the purpose of the check.
+
+
+## terrain.IsVerticalTerrain
+
+Returns true if the specified point is s considered vertical terrain depending on the terrain normal.<br>
+
+bool **terrain.IsVerticalTerrain**(pos)
+point pos
+: position to check.
+
+
+## terrain.ScaleHeight
+
+Scales all values in the height grid by given nominator and denominator.<br>
+
+void **terrain.ScaleHeight**(mul, div)
+int mul
+: nominator value to apply.
+
+int div
+: denominator value to apply.
+
+
+## terrain.SetHeight
+
+Sets the terrain height at the given position to the specified value.<br>
+
+void **terrain.SetHeight**(pos, height)
+point pos
+: the position to alter.
+
+int height
+: the new height to set.
+
+
+## terrain.SetHeightCircle
+
+Sets the height values in the given circle, smoothing the height in the outer ring toward the existing values<br>
+
+void **terrain.SetHeightCircle**(pt, nInnerRadius, nOuterRadius, nHeight, mode)
+point pt
+: the center of the circle area to alter.
+
+int nInnerRadius
+: radius of the inner circle, where the desired height will be set without smoothing.
+
+int nOuterRadius
+: radius of the outer ring, where the new height will be smoothed toward the current values.
+
+int nHeight
+: new height to set.
+
+int mode
+: optional, can be const.hsDefault (default, set target values directly), const.hsMin (new_height = Min(new_height, current)) or const.hsMax (new_height = Max(new_height, current)).
+
+
+## terrain.SetHeightCircle
+
+Calculates the average height in the given circle, then modifies it by the given value<br>
+
+void **terrain.SetHeightCircle**(pt, nInnerRadius, nOuterRadius, nHeightDiff)
+point pt
+: the center of the circle area to alter.
+
+int nInnerRadius
+: radius of the inner circle, where the desired height will be set without smoothing.
+
+int nOuterRadius
+: radius of the outer ring, where the new height will be smoothed toward the current values.
+
+int nHeightDiff
+: value to add to the computed average height.
+
+
+## terrain.SetTerrainType
+
+Sets the terrain type at the given position.<br>
+
+void **terrain.SetTerrainType**(pos, type)
+point pos
+: position to change.
+
+int type
+: new terrain type.
+
+
+## terrain.SetTypeCircle
+
+Sets the terrain type in a circle area.<br>
+
+void **terrain.SetTypeCircle**(ptCenter, nRadius, hType, vType)
+point ptCenter
+: center of the circle area to change.
+
+int nRadius
+: radius of the circle area to change.
+
+int hType
+: terrain type to apply.
+
+int vType
+: optional, alternative terrain type to apply on vertical terrain areas.
+
+
+## terrain.SmoothHeightCircle
+
+Smooths the terrain height in the given circle.<br>
+
+void **terrain.SmoothHeightCircle**(pt, radius)
+point pt
+: the center of the circle area to smooth.
+
+int radius
+: the radius of circle area to smooth.
+
+
+## terrain.TypeMapSize
+
+Returns the x and y sizes of the typemap grid.<br>
+
+int, int **terrain.TypeMapSize**()
+
+## terrain.TypeTileSize
+
+Returns the size of the typemap tile.<br>
+
+int **terrain.TypeTileSize**()
+
+
+
+
+(insert footer.md.html here)
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="markdeep.min.js"></script>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

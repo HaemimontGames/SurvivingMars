@@ -1,0 +1,143 @@
+[*Back to Index*](index.md.html)
+Entity
+======
+
+An **entity** in the game's engine holds together everything necessary to visualize a single object in the game - meshes, animations, materials and their corresponding textures, as well as some metadata like building entrances, collision geometry etc. Virtually everything visible in the *Surviving Mars* world - with the notable exception of sky, terrain, and particle system effects - is an entity.
+
+Entities are authored in an application such as Blender and exported into a game-friendly format by tools provided with the game. A mod can contain multiple entities. They usually need to be referenced by another ModItem item to be usable - e.g. a building entity won't automatically be recognized as a building and integrated into the build menu; you need another type of ModItem for that - a BuildingTemplate.
+
+Exporting an Entity from Blender into the game
+----------------------------------------------
+
+!!! WARNING
+    Please use Blender 2.78. Blender 2.79 has known issues with exporting scene scale, and your objects might come out as 100x smaller or larger. This will be resolved in a future update.
+
+!!! WARNING
+    Make sure you've run the game at least once before attempting export from Blender.
+
+To export entities into the game from Blender, you need to first install the exporter add-on into Blender. Open Blender 2.78a or later, open the *User Preferences* Panel -> *Add-ons -> Install from File...*. Navigate to the game installation folder and select *`ModTools/HGBlenderExporter.zip`*. Make sure it is enabled (checked) in the list of Blender Add-ons.
+If it is properly installed, a tab called *HGE Tools* will appear in the Blender UI.
+
+Load a Blender scene (e.g. one of the sample mod assets in *`ModTools/Samples/Assets`* and from the *HGE Tools* tab, click *Export All*. When the export process completes successfully, the entity file with an *.ent* extension will appear at the root of *`%AppData%/Surviving Mars/ExportedEntities`*, and its associated items - meshes, animations, textures etc. - in the appropriate subfolders.
+
+Run the game and select Mod Editor from the main menu.
+
+From the Mod Editor toolbar, click the New icon and enter a name. Double-click the new mod from the leftmost column, and it will open in a new window. Add a new *Entity* from the *New Item* menu. In the rightmost column, look for the *Import* field and click on the "..." button. Navigate to *`%AppData%/Surviving Mars/ExportedEntities`* and choose the *.ent* file exported from Blender in the previous step. Press the *Import* button to the right of the filename. This will copy the entity file and the necessary files around it to the mod folder, 
+*`%AppData%/Surviving Mars/Mods/.../Entities`*. You can press the *Test* button in the Mod editor toolbar (the icon looks like an eye) and the game will place the newly imported entity on the terrain near the center of the screen.
+
+Metadata in Scenes
+------------------
+
+Besides the meshes that will go into the game as visible objects, some specially named objects in the Blender scene are used to supply metadata about the exported entity. Review the provided sample assets for working examples.
+
+All spots and surfaces should be linked to the marked mesh as shown in scene examples. Spots' names, must start with a minus sign (e.g. *-Top*). Surfaces should be low-poly meshes.
+For spots and origin, Empty Blender object can be used.
+
+Here's an incomplete list of some of the object names that must be used to provide metadata:
+
+	* *Origin* of the object - For buildings it should be placed at the exact center of a hex; for other objects there are no restrictions. If the exported entity consists of more than one mesh, all meshes should be linked to common origin. Required for all objects.
+	* *hex_shape* surface - A simple plane denoting which hexes of the hex grid will be occupied by the building. For buildings only, not required for smaller decorative objects such as benches, trees, etc and vehicles. Inside the dome, buildings must occupy 1, 3, or 10 hexes in the exact hex configurations shown in SampleHexShapes.blend. For outside buildings, there are no restrictions.
+	* *Selection* surface - When the building is selected, how selection will be visualised. For buildings only, not required for decors, vehicles and units.
+	* *Collision* surface - approximate, low-poly representation of the shape of the object, required for all objects except vehicles and units. Used to block pathfinding units; when the building is taller than 1m, place a horizontal collision surface 1 m above the ground (see samples).
+	* *-Top* - spot where the signs for object status will appear (e.g. "this building needs electricity"). Not required for decors, vehicles and units. Should be placed at least 3m above the object
+	* *-WorkDrone* and *-WorkRover* - spots around the object where drones and rovers will position themselves to construct, repair, resupply the building etc. *-WorkDrone* should be at least 3 m from the object, *-WorkRover* - at least 10 m. The -Y axis should point at the object.
+	* *L* - spot where a light will be automatically attached. It can be used for two types of lights: *point* and *spot* lights.
+		- To create a point light (spherical), the spot name must follow this pattern (without square brackets): `-L;[color name],srad:[in cm]:rad:[in m],int:[from 0-200],imp,sim`
+		- To create a spot light (conical), the spot must have its -Z axis aligned in the direction of the light and its name must follow this pattern (without square brackets): `-L;sp,[color name],srad:[in cm],rad:[in m],int:[from 0-200],angle:[angle of the outer cone]/[angle of the inner cone],imp,sim`
+		- The *color* parameter can have one of three values: *warm*, *neutral* or *cool*.
+		- *rad* - the attenuation radius of the light.
+		- *int* - the intensity of the light.
+		- *srad* - Optional; Defines the physical dimensions of the light source (its radius).
+		- *imp* - Optional; If marked as important, the light will always be turned on at night. Otherwise the game might ignore it for optimization purposes.
+		- *sim* - Optional; All lights marked with *sim* will light up simultaneously, instead of one by one in random order (think of apartment building rooms vs. vehicle headlights).
+	* *Autoattach;att,Logo,show* - spot where the Colony Logo will be attached. It must have a specific orientation:
+		- The *+Z* axis must point away from the surface of the object (parallel to the normal vector at that point).
+		- The *-Y* axis must point up.
+
+
+Marking Static Objects for Export
+---------------------------------
+
+To let the exporter know what parts of the scene to export to what entities and states, you need to "mark" them by using a specific naming convention:
+
+~~~~~
+	hgm:<entity_name>:<mesh_name>:<lod>:<distance>:s=<state_name>:<blender_name>
+~~~~~
+
+entity_name
+: The name of the entity, as it will appear in the game. It should be an identifier (Latin letters, digits, underscore permitted).
+
+mesh_name
+: Static objects need to have one mesh per state. By convention, the "normal" mesh (e.g. for the default *idle* state) is called *mesh*.
+
+lod
+: LOD (level of detail) variant of the mesh, 1-based; 1 is the most detailed mesh
+
+distance
+: Distance from the camera (in meters) where the engine starts to use this LOD; must be 0 for LOD 1
+
+state_name
+: The name of the state in which this state will be used. Optional; defaults to *idle*.
+
+blender_name
+: Additional string you can use to distinguish between several objects which need to be separate meshes in Blender, but will be merged by the exporter into one in-game mesh.
+
+
+Marking Animated Objects for Export
+-----------------------------------
+
+The mesh should be named similarly to static meshes as described above, with a ":dyn" added at the end.
+
+~~~~~
+	hgm:<entity_name>:<mesh_name>:<lod>:<distance>:<blender_name>:dyn
+~~~~~
+
+The animation needs to be marked using the tools in the *HGE Tools* Blender palette:
+
+1. First set the timeline to the range of the animation that you want to mark.
+2. From the HGE Tools tab on the left side of Blender viewport choose:
+	* Entity name - see <entity_name> above.
+	* Mesh name - see <mesh_name> above.
+	* State name - name of the state/animation as it will appear in game.
+	* Root motion - method of motion compensation for "moving" animations like run, walk - pick CME.
+3. Select a root bone - select the armature pose in Blender.
+4. Add new and a new state (animation) should appear.
+
+Exporting
+---------
+
+After the meshes and animations are marked, click one of the Export buttons in the *HGE Tools* Panels. Open the Blender console (*Menu -> Window -> Toggle System Console*) and watch for errors. If the export process is successful, the exported entity should appear in *`%AppData%/Surviving Mars/ExportedEntities`* and you can import it in a Entity Mod Item.
+
+
+A Note on Materials
+-------------------
+
+*Surviving Mars* uses PBR-based materials using the *Metalness* workflow. Textures should be supplied in 24- or 32-bit uncompressed TGA format. The following textures can be associated with an object:
+
+BaseColor
+: The albedo for diffuse surfaces, or the specular color for glossy surfaces. On UVChannel_1. If the *BaseColor* texture contains alpha channel, the option *Use Alpha Test*  under *Haemimont Material* in *Material* tab, should be checked.
+
+Normal
+: Normal map. On UVChannel_1.
+
+RoughnessMetallic
+: RG channels - "roughness" (0 - polished surface, 1 - rough surface)
+: B channel - "metalness" (0 - dielectric, 1 - metal).
+ On UVChannel_1. The texture slot in Blender must be named *RoughnessMetallic* (see samples).
+
+AO
+: Grayscale ambient occlusion. On UVChannel_1
+
+Emissive
+: Grayscale emissive level (self-illumination). Pure white (1.0) is treated as extra emissive (HDR), e.g. the surface of light sources. Should be on second map channel (UVChannel_2).
+
+Dust
+: Grayscale; controls the gradual covering of the object with dust. (1 - dust first, 0 - remain un-dusted last). Should be on second map channel (UVChannel_2). The texture slot in Blender must be named *Dust* (see samples).
+
+
+
+(insert footer.md.html here)
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="markdeep.min.js"></script>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

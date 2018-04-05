@@ -1,0 +1,732 @@
+# Documentation for *ElectricityProducer*
+
+## Overview
+
+Building derived [building template](ModItemBuildingTemplate.md.html) class. Handles power production for a building. All buildings in the game that produce power inherit or are this class.<br>
+## Parent classes
+
+* [AutoAttachObject](LuaFunctionDoc_AutoAttachObject.md.html) 
+* [BaseBuilding](LuaFunctionDoc_BaseBuilding.md.html) 
+* [Building](LuaFunctionDoc_Building.md.html) 
+* BuildingVisualDustComponent
+* [CObject](LuaFunctionDoc_CObject.md.html) 
+* CityObject
+* ClassTemplate
+* ClassTemplateObject
+* ColorizableObject
+* [ComponentAttach](LuaFunctionDoc_ComponentAttach.md.html) 
+* ComponentCustomData
+* [Constructable](LuaFunctionDoc_Constructable.md.html) 
+* [Demolishable](LuaFunctionDoc_Demolishable.md.html) 
+* ElectricityGridObject
+* FXObject
+* [GridObject](LuaFunctionDoc_GridObject.md.html) 
+* [HasConsumption](LuaFunctionDoc_HasConsumption.md.html) 
+* Holder
+* [InfopanelObj](LuaFunctionDoc_InfopanelObj.md.html) 
+* InitDone
+* Modifiable
+* NightLightObject
+* [Object](LuaFunctionDoc_Object.md.html) 
+* [PinnableObject](LuaFunctionDoc_PinnableObject.md.html) 
+* PropertyObject
+* Renamable
+* [RequiresMaintenance](LuaFunctionDoc_RequiresMaintenance.md.html) 
+* [Shapeshifter](LuaFunctionDoc_Shapeshifter.md.html) 
+* [SkinChangeable](LuaFunctionDoc_SkinChangeable.md.html) 
+* SupplyGridObject
+* SyncObject
+* [TaskRequester](LuaFunctionDoc_TaskRequester.md.html) 
+* [UpgradableBuilding](LuaFunctionDoc_UpgradableBuilding.md.html) 
+* WaypointsObj
+## Class properties
+
+### Modifiable Properties
+
+#### Power Production
+
+
+**electricity_production**
+: This is the amount produced per hour.
+### Template Properties
+
+#### Power Production
+
+
+**electricity_production**
+: This is the amount produced per hour.
+## Derived properties
+
+### Modifiable Properties
+
+#### Construction
+
+
+**construction_cost_Concrete**
+: Concrete Cost
+
+**construction_cost_Metals**
+: Metals Cost
+
+**construction_cost_Polymers**
+: Polymers Cost
+
+**construction_cost_Electronics**
+: Electronics Cost
+
+**construction_cost_MachineParts**
+: Machine Parts Cost
+
+**construction_cost_PreciousMetals**
+: Rare Metals Cost
+
+**construction_cost_BlackCube**
+: Black Cubes Cost
+
+**in_dome_construction_modifier**
+: If constructed inside a dome, this mod will be applied to construction cost.
+#### General
+
+
+**disable_maintenance**
+: So maintenance can be turned off with modifiers
+
+**dome_comfort**
+: Dome Comfort
+
+**salvage_modifier**
+: Salvage Modifier
+#### Maintenance
+
+
+**maintenance_resource_amount**
+: The amount of resources required to maintain this building in working order.
+
+**maintenance_threshold_base**
+: This base value is randomized within 50% - 150% range to determine the maintenance threshold. When the threshold is reached the building requests maintenance.
+
+**maintenance_build_up_per_hr**
+: Amount of maintenance pnts accumulated per hr.
+#### Resource Consumption
+
+
+**consumption_amount**
+: Amount of stored consumption resources needed for consumption op. In other words, the convertion rate of consumption resources to other stuff.
+#### Upgrade 1
+
+
+**upgrade1_consumption_amount**
+: Amount of stored consumption resources needed for consumption op. In other words, the convertion rate of consumption resources to other stuff.
+#### Upgrade 2
+
+
+**upgrade2_consumption_amount**
+: Amount of stored consumption resources needed for consumption op. In other words, the convertion rate of consumption resources to other stuff.
+#### Upgrade 3
+
+
+**upgrade3_consumption_amount**
+: Amount of stored consumption resources needed for consumption op. In other words, the convertion rate of consumption resources to other stuff.
+### Template Properties
+
+#### Alternative Entities
+
+
+**entity2**
+: Alternative Entity 2
+
+**entitydlc2**
+: Alternative Entity 2 DLC
+
+**entity3**
+: Alternative Entity 3
+
+**entitydlc3**
+: Alternative Entity 3 DLC
+
+**entity4**
+: Alternative Entity 4
+
+**entitydlc4**
+: Alternative Entity 4 DLC
+
+**entity5**
+: Alternative Entity 5
+
+**entitydlc5**
+: Alternative Entity 5 DLC
+
+**entity6**
+: Alternative Entity 6
+
+**entitydlc6**
+: Alternative Entity 6 DLC
+#### Construction
+
+
+**construction_cost_Concrete**
+: Concrete Cost
+
+**construction_cost_Metals**
+: Metals Cost
+
+**construction_cost_Polymers**
+: Polymers Cost
+
+**construction_cost_Electronics**
+: Electronics Cost
+
+**construction_cost_MachineParts**
+: Machine Parts Cost
+
+**construction_cost_PreciousMetals**
+: Rare Metals Cost
+
+**construction_cost_BlackCube**
+: Black Cubes Cost
+
+**construction_entity**
+: Construction Entity
+
+**build_points**
+: Build Points
+
+**instant_build**
+: Instant Build
+
+**require_prefab**
+: Requires Prefab
+
+**can_rotate_during_placement**
+: Whether the building can be rotated during placement.
+
+**is_tall**
+: Whether the building can be placed under life support pipes.
+
+**construction_site_applies_height_surfaces**
+: Whether the construction site should apply it's height surfaces.
+
+**dome_required**
+: Whether the building should be placed inside a dome.
+
+**dome_spot**
+: Only for buildings that can be built in a dome, will snap to the cursor closest such dome spot during placement.
+
+**dome_forbidden**
+: Whether the building is prohibited from placement inside a dome.
+
+**wonder**
+: Whether the building is considered a Wonder or not.
+
+**force_extend_bb_during_placement_checks**
+: During placement, entity bb will be extended this much to catch obstructors in the hex shape way out of the entity bb.
+
+**can_cancel**
+: Can cancel?
+
+**can_user_change_prio**
+: Can change prio?
+
+**hide_from_build_menu**
+: Don’t show in Build Menu
+
+**construction_state**
+: Construction State
+
+**show_decals_on_placement**
+: Show Decals During Placement
+
+**show_range_class**
+: Show range of specific building
+
+**achievement**
+: Achievement unlocked when completely constructing this building
+
+**lights_on_during_placement**
+: Lights On During Placement
+
+**construction_mode**
+: The type of construction controller to launch
+
+**refund_on_salvage**
+: Refund on Salvage
+#### Custom Labels
+
+
+**label1**
+: Label 1
+
+**label2**
+: Label 2
+
+**label3**
+: Label 3
+#### Demolish
+
+
+**can_demolish**
+: Specify if the building can be destroyed by demolishing.
+
+**use_demolished_state**
+: If true, the building will transofrm into ruins, instead of disappearing after destruction.
+
+**indestructible**
+: Specify if the building can be destroyed at all (by demolishing, by explosions, by meteors, etc).
+
+**demolish_sinking**
+: Building part sinking into the ground in demolished state. Valid only for buildings without terrain modification surfaces.
+
+**demolish_tilt_angle**
+: Building tilt angle in demolished state
+
+**demolish_color**
+: Color modifier for the destroyed building.
+
+**demolish_debris**
+: Percentage of debris left after destruction.
+
+**demolish_return_resources**
+: If true, the building will return resources upon destruction.
+#### Encyclopedia
+
+
+**encyclopedia_exclude**
+: Exclude From Encyclopedia
+
+**encyclopedia_text**
+: Encyclopedia Text
+
+**encyclopedia_image**
+: Encyclopedia Image
+#### General
+
+
+**disable_maintenance**
+: So maintenance can be turned off with modifiers
+
+**display_name**
+: Display Name
+
+**display_name_pl**
+: Display Name (pl)
+
+**description**
+: Description
+
+**build_category**
+: Build Menu Category
+
+**display_icon**
+: Build Menu Icon
+
+**build_pos**
+: Build Menu Pos
+
+**entity**
+: Entity
+
+**dome_comfort**
+: Dome Comfort
+
+**show_range_all**
+: Show range radii for all buildings of that class when selected
+
+**ip_template**
+: Template used for building infopanel
+
+**suspend_on_dust_storm**
+: Suspend on Dust Storm
+
+**color_modifier**
+: Color Modifier
+
+**palettes**
+: Available Palettes
+
+**requires_dlc**
+: Hide this building from build menu if dlc is not available.
+#### Maintenance
+
+
+**maintenance_resource_type**
+: The type of resource associated with maintenance demands.
+
+**maintenance_resource_amount**
+: The amount of resources required to maintain this building in working order.
+
+**maintenance_threshold_base**
+: This base value is randomized within 50% - 150% range to determine the maintenance threshold. When the threshold is reached the building requests maintenance.
+
+**maintenance_build_up_per_hr**
+: Amount of maintenance pnts accumulated per hr.
+#### Pin
+
+
+**pin_rollover_context**
+: Pin Rollover Context
+
+**pin_rollover**
+: Pin Rollover
+
+**pin_rollover_hint**
+: Pin Rollover Hint
+
+**pin_rollover_hint_xbox**
+: Pin Rollover Hint Xbox
+
+**pin_summary1**
+: Pin Summary 1
+
+**pin_progress_value**
+: Pin Progress Value
+
+**pin_progress_max**
+: Pin Progress Max
+
+**pin_on_start**
+: Pin on Start
+
+**pin_blink**
+: Blink
+
+**pin_obvious_blink**
+: Obvious Blink
+#### Resource Consumption
+
+
+**consumption_resource_type**
+: The type of resource associated with consumption demands.
+
+**consumption_max_storage**
+: The max amount of storage for consumption resource.
+
+**consumption_amount**
+: Amount of stored consumption resources needed for consumption op. In other words, the convertion rate of consumption resources to other stuff.
+
+**consumption_type**
+: Determines the purpose of the consumption resource.
+
+**consumption_resource_stockpile_spot_name**
+: If there is any consumption, will try to attacha purely visual stockpile at this spot.
+#### Shortcuts
+
+
+**build_shortcut1**
+: Build Shortcut
+
+**build_shortcut2**
+: Build Shortcut 2
+
+**build_shortcut_gamepad**
+: Gamepad Shortcut
+#### UI
+
+
+**on_off_button**
+: Has On/Off button
+
+**prio_button**
+: Has Priority button
+#### Upgrade 1
+
+
+**upgrade1_restore_defaults**
+: Restore Upgrade Defaults
+
+**upgrade1_id**
+: ID
+
+**upgrade1_display_name**
+: Display Name
+
+**upgrade1_description**
+: Description
+
+**upgrade1_icon**
+: Icon
+
+**upgrade1_upgrade_cost_Concrete**
+: Concrete Cost
+
+**upgrade1_upgrade_cost_Metals**
+: Metals Cost
+
+**upgrade1_upgrade_cost_Polymers**
+: Polymers Cost
+
+**upgrade1_upgrade_cost_Electronics**
+: Electronics Cost
+
+**upgrade1_upgrade_cost_MachineParts**
+: Machine Parts Cost
+
+**upgrade1_upgrade_cost_PreciousMetals**
+: Rare Metals Cost
+
+**upgrade1_upgrade_time**
+: Upgrade Time Cost
+
+**upgrade1_mod_target_1**
+: Modifier Target 1
+
+**upgrade1_mod_label_1**
+: Modifier Label 1
+
+**upgrade1_mod_prop_id_1**
+: Modified Property 1
+
+**upgrade1_mul_value_1**
+: Percent Modifier 1
+
+**upgrade1_add_value_1**
+: Amount Modifier 1
+
+**upgrade1_mod_target_2**
+: Modifier Target 2
+
+**upgrade1_mod_label_2**
+: Modifier Label 2
+
+**upgrade1_mod_prop_id_2**
+: Modified Property 2
+
+**upgrade1_mul_value_2**
+: Percent Modifier 2
+
+**upgrade1_add_value_2**
+: Amount Modifier 2
+
+**upgrade1_mod_target_3**
+: Modifier Target 3
+
+**upgrade1_mod_label_3**
+: Modifier Label 3
+
+**upgrade1_mod_prop_id_3**
+: Modified Property 3
+
+**upgrade1_mul_value_3**
+: Percent Modifier 3
+
+**upgrade1_add_value_3**
+: Amount Modifier 3
+
+**upgrade1_consumption_resource_type**
+: The type of resource associated with consumption demands.
+
+**upgrade1_consumption_max_storage**
+: The max amount of storage for consumption resource.
+
+**upgrade1_consumption_amount**
+: Amount of stored consumption resources needed for consumption op. In other words, the convertion rate of consumption resources to other stuff.
+
+**upgrade1_consumption_type**
+: Determines the purpose of the consumption resource.
+
+**upgrade1_consumption_resource_stockpile_spot_name**
+: If there is any consumption, will try to attacha purely visual stockpile at this spot.
+#### Upgrade 2
+
+
+**upgrade2_restore_defaults**
+: Restore Upgrade Defaults
+
+**upgrade2_id**
+: ID
+
+**upgrade2_display_name**
+: Display Name
+
+**upgrade2_description**
+: Description
+
+**upgrade2_icon**
+: Icon
+
+**upgrade2_upgrade_cost_Concrete**
+: Concrete Cost
+
+**upgrade2_upgrade_cost_Metals**
+: Metals Cost
+
+**upgrade2_upgrade_cost_Polymers**
+: Polymers Cost
+
+**upgrade2_upgrade_cost_Electronics**
+: Electronics Cost
+
+**upgrade2_upgrade_cost_MachineParts**
+: Machine Parts Cost
+
+**upgrade2_upgrade_cost_PreciousMetals**
+: Rare Metals Cost
+
+**upgrade2_upgrade_time**
+: Upgrade Time Cost
+
+**upgrade2_mod_target_1**
+: Modifier Target 1
+
+**upgrade2_mod_label_1**
+: Modifier Label 1
+
+**upgrade2_mod_prop_id_1**
+: Modified Property 1
+
+**upgrade2_mul_value_1**
+: Percent Modifier 1
+
+**upgrade2_add_value_1**
+: Amount Modifier 1
+
+**upgrade2_mod_target_2**
+: Modifier Target 2
+
+**upgrade2_mod_label_2**
+: Modifier Label 2
+
+**upgrade2_mod_prop_id_2**
+: Modified Property 2
+
+**upgrade2_mul_value_2**
+: Percent Modifier 2
+
+**upgrade2_add_value_2**
+: Amount Modifier 2
+
+**upgrade2_mod_target_3**
+: Modifier Target 3
+
+**upgrade2_mod_label_3**
+: Modifier Label 3
+
+**upgrade2_mod_prop_id_3**
+: Modified Property 3
+
+**upgrade2_mul_value_3**
+: Percent Modifier 3
+
+**upgrade2_add_value_3**
+: Amount Modifier 3
+
+**upgrade2_consumption_resource_type**
+: The type of resource associated with consumption demands.
+
+**upgrade2_consumption_max_storage**
+: The max amount of storage for consumption resource.
+
+**upgrade2_consumption_amount**
+: Amount of stored consumption resources needed for consumption op. In other words, the convertion rate of consumption resources to other stuff.
+
+**upgrade2_consumption_type**
+: Determines the purpose of the consumption resource.
+
+**upgrade2_consumption_resource_stockpile_spot_name**
+: If there is any consumption, will try to attacha purely visual stockpile at this spot.
+#### Upgrade 3
+
+
+**upgrade3_restore_defaults**
+: Restore Upgrade Defaults
+
+**upgrade3_id**
+: ID
+
+**upgrade3_display_name**
+: Display Name
+
+**upgrade3_description**
+: Description
+
+**upgrade3_icon**
+: Icon
+
+**upgrade3_upgrade_cost_Concrete**
+: Concrete Cost
+
+**upgrade3_upgrade_cost_Metals**
+: Metals Cost
+
+**upgrade3_upgrade_cost_Polymers**
+: Polymers Cost
+
+**upgrade3_upgrade_cost_Electronics**
+: Electronics Cost
+
+**upgrade3_upgrade_cost_MachineParts**
+: Machine Parts Cost
+
+**upgrade3_upgrade_cost_PreciousMetals**
+: Rare Metals Cost
+
+**upgrade3_upgrade_time**
+: Upgrade Time Cost
+
+**upgrade3_mod_target_1**
+: Modifier Target 1
+
+**upgrade3_mod_label_1**
+: Modifier Label 1
+
+**upgrade3_mod_prop_id_1**
+: Modified Property 1
+
+**upgrade3_mul_value_1**
+: Percent Modifier 1
+
+**upgrade3_add_value_1**
+: Amount Modifier 1
+
+**upgrade3_mod_target_2**
+: Modifier Target 2
+
+**upgrade3_mod_label_2**
+: Modifier Label 2
+
+**upgrade3_mod_prop_id_2**
+: Modified Property 2
+
+**upgrade3_mul_value_2**
+: Percent Modifier 2
+
+**upgrade3_add_value_2**
+: Amount Modifier 2
+
+**upgrade3_mod_target_3**
+: Modifier Target 3
+
+**upgrade3_mod_label_3**
+: Modifier Label 3
+
+**upgrade3_mod_prop_id_3**
+: Modified Property 3
+
+**upgrade3_mul_value_3**
+: Percent Modifier 3
+
+**upgrade3_add_value_3**
+: Amount Modifier 3
+
+**upgrade3_consumption_resource_type**
+: The type of resource associated with consumption demands.
+
+**upgrade3_consumption_max_storage**
+: The max amount of storage for consumption resource.
+
+**upgrade3_consumption_amount**
+: Amount of stored consumption resources needed for consumption op. In other words, the convertion rate of consumption resources to other stuff.
+
+**upgrade3_consumption_type**
+: Determines the purpose of the consumption resource.
+
+**upgrade3_consumption_resource_stockpile_spot_name**
+: If there is any consumption, will try to attacha purely visual stockpile at this spot.
+
+
+
+
+(insert footer.md.html here)
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="markdeep.min.js"></script>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

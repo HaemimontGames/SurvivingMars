@@ -1,0 +1,199 @@
+# Documentation for *Msg*
+
+## AnomalyAnalyzed
+
+
+function OnMsg.**AnomalyAnalyzed**(anomaly)
+: fired when a new anomaly has been completely analized.
+
+
+## AnomalyRevealed
+
+
+function OnMsg.**AnomalyRevealed**(anomaly)
+: fired when an anomaly has been releaved.
+
+
+## ChangeMap
+
+
+function OnMsg.**ChangeMap**()
+: message fired when a new map loading beggins
+
+
+## ClassesBuilt
+
+
+function OnMsg.**ClassesBuilt**()
+: use this message to perform post-built actions on the final classes
+
+
+## ClassesGenerate
+
+
+function OnMsg.**ClassesGenerate**()
+: use this message to mess with the classdefs (before classes are built)
+
+
+## ClassesPostprocess
+
+
+function OnMsg.**ClassesPostprocess**()
+: use this message to make modifications to the built classes (before they are declared final)
+
+
+## ClassesPreprocess
+
+
+function OnMsg.**ClassesPreprocess**()
+: use this message to do some processing to the already final classdefs (still before classes are built)
+
+
+## ColonistArrived
+
+
+function OnMsg.**ColonistArrived**(colonist)
+: fired when a colonist has arrived on Mars with a rocket.
+
+
+## ColonistBorn
+
+
+function OnMsg.**ColonistBorn**(colonist, event)
+: fired when a colonist has been born/cloned/reborn/spawned/...
+
+
+## ColonistDied
+
+
+function OnMsg.**ColonistDied**(colonist, reason)
+: fired when a colonist has died.
+
+
+## ColonyApprovalPassed
+
+
+function OnMsg.**ColonyApprovalPassed**()
+: fired when the _Founder Stage_ has been passed successfully.
+
+
+## ConstructionComplete
+
+
+function OnMsg.**ConstructionComplete**( building )
+: fired when the construction of a building is complete
+
+
+## LoadGame
+
+
+function OnMsg.**LoadGame**()
+: fired after a game has been loaded.
+
+
+## NewDay
+
+
+function OnMsg.**NewDay**(day)
+: fired every Sol.
+
+
+## NewHour
+
+
+function OnMsg.**NewHour**(hour)
+: fired every _GameTime_ hour.
+
+
+## NewMapLoaded
+
+
+function OnMsg.**NewMapLoaded**()
+: fired after a new map has been loaded
+
+
+## OnSetWorking
+
+
+function OnMsg.**OnSetWorking**(building, working)
+: fired when a buildings working state has been changed.
+
+
+## PreLoadGame
+
+
+function OnMsg.**PreLoadGame**()
+: fired before a game is loaded.
+
+
+## RocketLanded
+
+
+function OnMsg.**RocketLanded**(rocket)
+: fired when a rocket has landed on Mars.
+
+
+## RocketLaunchFromEarth
+
+
+function OnMsg.**RocketLaunchFromEarth**(rocket )
+: fired when a rocket is launched toward Mars
+
+
+## RocketLaunched
+
+
+function OnMsg.**RocketLaunched**(rocket )
+: fired when a rocket takes off from Mars
+
+
+## RocketReachedEarth
+
+
+function OnMsg.**RocketReachedEarth**(rocket )
+: fired when a rocket finishes its travel from Mars to Earth
+
+
+## RocketRefueled
+
+
+function OnMsg.**RocketRefueled**(rocket )
+: fired when a rocket is completely refueled for its trip back to Earth
+
+
+## RocketStatusUpdate
+
+
+function OnMsg.**RocketStatusUpdate**(rocket,status )
+: fired when rocket's status is updated. 'status' can be one of "on earth", "arriving", "in orbit", "suspended in orbit", "landing", "landed", "refueling", "ready for launch", "launch suspended", "countdown", "takeoff" or "departing"
+
+
+## SaveGame
+
+
+function OnMsg.**SaveGame**()
+: fired before the game is saved.
+
+
+## SelectedObjChange
+
+
+function OnMsg.**SelectedObjChange**(object, previous)
+: fired when the user changes the selected object.
+
+
+## TechResearched
+
+
+function OnMsg.**TechResearched**(tech_id, city, first_time)
+: fired when a tech has been researched.
+
+
+
+
+
+(insert footer.md.html here)
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="markdeep.min.js"></script>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

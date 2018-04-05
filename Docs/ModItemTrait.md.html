@@ -1,0 +1,185 @@
+[*Back to Index*](index.md.html)
+Trait
+===============
+Traits are attributes that describe specific parts of the Colonists' behaviour or abilities.  
+The Colonist's gender, work specialization, birthplace are modelled as Traits, determined when the Colonist is first generated (e.g. born on Mars, or added to the Applicants pool). In addition, they may have positive or negative traits such as *Survivor*, *Genius*, *Lazy* or *Alcoholic* that affect various aspects of their life on Mars. Temporary effects can also be modelled as Traits; e.g. *Infected*.
+
+Every Colonist gets their specific Traits when he or she reaches Youth age. They are up to 3, randomly generated trough base Traits. Some of them are mutually exclusive - a citizen can't be *Workaholic* and *Lazy* at the same time.
+
+Positive Traits are called *Perks*. They improve the Colonist - increasing their performance or giving other benefits to their life and or to the life of other citizens. Negative traits are called *Flaws* and give penalties. There are buildings that manipulate Traits; e.g. the Sanatorium can remove negative Traits and the School can add positive ones.
+
+There are also Rare Traits that provide great benefits to the whole Colony, but the chance to get Colonists with one of them is very low.
+
+Here is how Traits can be checked, added and removed from code:
+~~~~Lua
+-- Check if the colonist has that trait.
+if colonist.traits.Lazy then
+	...
+end
+-- Adds new trait, and apply its effect. Adding the same trait many times applies its effect only once.
+-- Note: There is no check if this trait is incompatible with current colonist traits.
+colonist:AddTrait("Workaholic") 
+
+-- Remove trait and its effect.
+colonist:RemoveTrait("Workaholic") 
+~~~~
+
+Domes maintain labels per Trait which provides a quick way to access all Colonists with that Trait living in the Dome:
+
+~~~~Lua
+local colonist
+local dome = colonist.dome
+dome.labels.Lazy -- Array with all 'Lazy' colonists living in this dome.
+~~~~
+
+Properties
+----------
+Name (self.name)
+: This is the internal unique name of the Trait Mod item. It is not visible by players and is used to refer to the Trait in code.
+
+Display Name (self.display_name)
+: This is the player-visible name of the Trait.
+
+Description (self.description)
+: Short, player-visible description of the Trait and its effects.
+
+Category (self.category)
+: This is the Trait's group that can be found in Trait-filter interfaces. It can be "Age Group" ("Age Group"), "Specialization" ("Specialization"), "Gender" ("Gender"),"Perks" ("Positive"), "Flaws" ("Negative"), "Quirks" ("other"). The first name is the player-visible category name and in brackets is the in-game identifier. It can be used in functions that generate Traits from specific category or filter UI.
+
+Rare (self.rare)
+: Whether the trait is a Rare one.
+
+Rarity weight (self.weight)
+: The weight (random chance) of the Trait when randomly picking Traits.
+
+Incompatible (self.incompatible)
+: The comma separated string with Trait names incompatible with this one.
+
+Used in base auto generated (self.auto)
+: Traits with that property can be randomly assigned to Colonists on generation. Traits without this set to false will need to be specially set by code.
+
+Initial filter (self.initial_filter)
+: The Trait is marks as *undesired* in the Applicants Traits filter screen.
+
+Hidden on start (self.hidden_on_start)
+: Some Traits can be hidden on game start.
+: They are not shown in game interfaces and can not be used in generation.
+: All of them are added in `g_HiddenTraits` table.
+: That _auto_ property can have any value.
+: The traits are marked as "visible" once they have been added to any colonist.
+
+Show in traits UI (self.show_in_traits_ui)
+: Show in Colonist's infopanel and count Traits for Project Morpheus.
+
+Show in traits Dome filters UI (self.dome_filter_only)
+: Traits that are shown in Dome filter interface but not in Applicants filter interface, like *Founder*, *Android*, *Martianborn*.
+
+Add/Remove interest (self.add_interest/self.remove_interest)
+: Adding/removing daily interest to choose from. That is prefered service and service buildings that can be visited during Colonists day cycle visit.
+: The list is ServiceInterestsList = {"interestSocial", "interestRelaxation", "interestExercise", "interestGaming", "interestShopping", "interestLuxury", "interestDrinking", "interestGambling", "interestPlaying", "interestDining", "needFood", "needMedical"}.
+
+Parameter (self.param)
+: Number value that can be used to save any information needed to Trait effect implementation.
+
+function daily_update_func(colonist, trait_id)
+: This function is called once a day for each Colonist for each Trait. You can use it to hook any effects that don't fit elsewhere.
+
+function apply_func(colonist, trait_id, init)
+: This function is called when the colonist gains the trait.
+
+function unapply_func(colonist, trait_id)
+: This function is called when the Colonist loses the Trait.
+
+Traits can apply modifiers to a single property of either the Colonist or all other Colonists in the same Dome.
+
+Modifier target (self.modify_target)
+: Controls whether modified property belongs to the Colonist themselves ('self') or to other Colonists in the same Dome ('dome colonists').
+
+Target only Colonists with trait (self.modify_trait)
+: If modify_target is 'dome colonists', choose only these that have that Trait.
+
+Modified property (self.modify_property)
+: Colonist property that will be modified.
+
+Modification amount/percent (self.modify_amount/self.modify_percent)
+: Modifier properties - see [Modifier documentation](ModItemGameValue.md.html) for details on modifiers.
+
+Infopanel effect text (self.infopanel_effect_text)
+: The text that is used in infopanel for describing the Trait effect over any of the Colonist stats.
+
+Is School Trait (self.school_trait)
+: If this trait will be added to the list of traits taught by the School.
+
+Is Sanatorium Trait (self.sanatorium_trait)
+: If this trait will be added to the list of traits cured by the Sanatorium.
+
+
+Here is an example of how the properties of some of the existing Traits in the game look like:
+~~~~Lua
+-- Lazy - Individual performance decreased by 20 at all jobs.
+self.modify_target   = self
+self.modify_property =  "performance"
+self.modify_amount   =  -20
+	
+-- Saint - Raises the Morale of all Religious people in the Dome. Benefits stack with each additional Saint.
+self.rare            = true
+self.weight          = 1
+self.modify_target   = "dome colonists"
+self.modify_trait    = "Religious"
+self.modify_property = "base_morale"
+self.modify_amount   =  10,
+self.infopanel_effect_text = T{"Blessed by a Saint +<amount>"}
+~~~~
+
+Functions
+----------
+Some useful functions for working with Traits.
+
+function colonist:AddTrait(trait_id)
+: Assigns the Colonist the specified Trait by name. Safe to call multiple times - it will do nothing if the Colonist already has the Trait.
+
+function colonist:RemoveTrait(trait_id)
+: Remove the Trait from the Colonist. Safe to call multiple times - it will do nothing if the Colonist doesn't have the Trait.
+
+function ret_nonerare, ret_rare GetCompatibleTraits(compatible, nonerare, rare, category)
+: Returns Traits that are compatible with the table, separated in two tables: none-rare and rare. Parameters nonerare and rare can be empty tables or a set to choose from. Category is Trait category property and 'Rare' or 'Common' for Traits from all categories but with property rare set or not. All trait-tables formats are `{ trait1_id = true, trait2_id = true}`
+Parameters: rare and none rare are changed after execution.
+
+~~~~Lua
+-- return all nonerare and all rare traits from the category
+local nonerare, rare = GetCompatibleTraits({}, {}, {}, category)
+
+-- return all nonerare and all rare traits compatible with colonist's current traits
+local nonerare, rare = GetCompatibleTraits(colonist.traits, {}, {})
+~~~~
+
+function trait_id GetRandomTrait(compatible, nonerare, rare, category, base_only, rare_weight_mod)
+: Returns random Trait that is compatible with others and is from specified `category`. Parameters `compatible`, `nonerare`, `rare`, `category` are the same as in `GetCompatibleTraits` function. Setting `base_only` to true force the function to choose between not hidden Traits with property `auto`. Parameter `rare_weight_mod` is optional and is additonal modifier to rare weight in percents.
+This function is commonly used from buildings to add choose and add new Positive or Negative Trait to Colonists.
+
+function match TraitFilterColonist(trait_filter, colonist_traits)
+: Evaluate a match between `trait_filer` and `colonist_traits`. Returns a positive number or 0 if the Colonist matches the filter and a negative in the other case. 
+
+Filter format is `{trait1_id = true, trait2_id = false, trait_id = nil }` To match the fileter the Colonist must have at least one of the Traits that are true, and does not have no one from Traits with false.
+
+~~~~Lua
+for _, dome in ipairs(domes or empty_table) do
+	local eval = TraitFilterColonist(dome.traits_filter, applicant_traits)
+	if not best_dome or (free_space[dome] > 0 or best_free <= free_space[dome]) and best_eval < eval then
+		best_dome = dome
+		best_eval = eval
+		best_free = free_space[dome]
+	end
+end
+~~~~
+
+[*LockTrait*](LuaFunctionDoc_Gameplay.md.html)
+[*UnlockTrait*](LuaFunctionDoc_Gameplay.md.html)
+[*IsTraitAvailable*](LuaFunctionDoc_Gameplay.md.html)
+
+
+<link rel="stylesheet" type="text/css" href="Style.css" />
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="markdeep.min.js"></script>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

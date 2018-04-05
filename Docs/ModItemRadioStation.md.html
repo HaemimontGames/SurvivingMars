@@ -1,0 +1,94 @@
+[*Back to Index*](index.md.html)
+Radio Station
+=============
+
+Radio Station mods allow you to add new radio stations to the game - bundles of audio tracks that are played in random order. The user can select which radio stations to play via the button in the in-game interface.
+
+Audio tracks must be stereo files compressed with the [Opus codec](http://opus-codec.org/) and must be placed in a subfolder of the mod folder.
+
+Properties
+----------
+
+Name
+: This is the internal name of the radio station, by which the Lua code will see identify it. Use something unique that won't clash with other mods' radio stations.
+
+Comment
+: Not used by the game - feel free to add anything for your reference.
+
+Display Name
+: This is the user-visible name of the radio station, as will appear in the game's Radio Station menu.
+
+Folder
+: This is the name of the folder containing the audio tracks, relative to the mod folder.
+
+Silence between tracks
+: This is the pause made between tracks by the default play logic.
+
+function Play(self)
+: This function performs the track selection and playback of the tracks in the radio station - leave blank for the default behaviour that plays the tracks randomly. It is started in its own [Lua thread](LuaThreads.md.html) and should run an infinite loop, choosing and playing tracks forever. It will be killed externally when the user selects another radio station.
+
+:The default play function distinguishes between three types of files - Blurb, Talks and Commercials. Everything else found in the tracks folder is percieved as a song. For a track to be perceived as a commercial, the name has to contain "_ Commercials_ ". Simularly, for Blurb and Talks the name has to include "_ Blurb_ " or "_ Talks_ " respectively, as well as indeces in the form of "_ [index1]_ [index2]". For example, a file containing a talk might be named like that - "NewWaveRadio_Talk_8_2.opus". The order of playing the tracks is generelly speaking as follows: a small random number of songs, followed by a blurb and a commercial, then again a small number of songs, followed by a talk. 
+
+
+Here's an example play function that lists all files in the tracks folder, shuffles them randomly and plays them one by one:
+
+~~~~~~~~~ Lua
+local err, files = AsyncListFiles(self:GetTracksFolder(), "*.opus") -- find all files in the folder with opus extension
+if err or not next(files) then return end	-- skip if enumeration fails or folder is empty
+for i = 1, #files do
+	files[i] = string.sub(files[i], 1, -6) -- strip the opus extension
+end
+while true do
+	table.permute(files, AsyncRand())           -- shuffle files list, with random seed
+	for _, file in ipairs(files) do
+		Music:PlayTrack({ path = file })        -- start playing one track via the music subsystem
+		WaitMsg("MusicTrackEnded", 30*60*1000)  -- wait till it ends, or at most 30 minutes
+		Sleep(self.silence * 1000)              -- pause for silence
+	end
+end
+~~~~~~~~~
+
+
+Here's another example play function, which finds files containing "music" and "dj" in the tracks folder, shuffles them and plays them alternatingly
+
+~~~~~~~~~ Lua
+local err, files = AsyncListFiles(self:GetTracksFolder(), "*.opus") -- find all files in the folder with opus extension
+if err or not next(files) then return end	-- skip if enumeration fails or folder is empty
+local dj = {}
+local music = {}
+for i = 1, #files do
+	files[i] = string.sub(files[i], 1, -6) -- strip the opus extension
+	if files[i]:find("music",1,true) then	-- check if the file name contains "music"
+		music[#music+1] = files[i]	-- if so, add it to the music files list
+	elseif files[i]:find("dj",1,true)then	--check if the file name contains "dj"
+		dj[#dj +1] = files[i]	-- if so, add it to the DJ announcement files list
+	end
+end
+local music_index = #music +1
+local dj_index = #dj +1
+while true do
+	if(music_index >#music) then	-- if at the end of the music list, shuffle and start from the beginning
+		table.permute(music)
+		music_index =1
+	end
+	if(dj_index> #dj) then	-- if at the end of the DJ anouncment list, shuffle and start from the beginning
+		table.permute(dj)
+		dj_index = 1
+	end
+	Music:PlayTrack({ path = dj[dj_index] }) -- play a DJ announcement
+	WaitMsg("MusicTrackEnded", 30*60*1000)  -- wait till it ends, or at most 30 minutes
+	Music:PlayTrack({ path = music[music_index] }) -- play a music piece
+	WaitMsg("MusicTrackEnded", 30*60*1000)  -- wait till it ends, or at most 30 minutes
+	Sleep(self.silence * 1000) -- pause for silence
+	-- increment the indices so you can access the next file in the list
+	dj_index = dj_index+1 
+	music_index = music_index+1
+end
+~~~~~~~~~
+
+
+(insert footer.md.html here)
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="markdeep.min.js"></script>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

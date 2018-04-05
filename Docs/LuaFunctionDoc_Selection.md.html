@@ -1,0 +1,126 @@
+# Documentation for *Selection*
+
+## GetCursorObjSel
+
+Returns the closest object to the specified screen position or to the current position of the cursor.<br>
+The objects which are tested are from the specified list.<br>
+
+object **GetCursorObjSel**(point screen_pos, table objects, [bool test_walkables])
+point screen_pos
+: Screen position. Game cursor by default.
+
+table objects
+: list of objects to be tested
+
+bool test_walkables
+: test objects walkable surfaces (false by default)
+
+_returns_ object
+: the object on the specified screen position
+
+
+## GetPreciseCursorObj
+
+Get the solid and transparent objects with efSelectable enum flag below the cursor. Parent objects are returned when the objects are attached.<br>
+
+object, object **GetPreciseCursorObj**()
+_returns_ object, object
+: the first object is the solid object below the cursor, the second object is a transparent object (dome glass) or the first object.
+
+
+## GetTerrainCursor
+
+Returns the point on the terrain where the cursor points currently.<br>
+
+point **GetTerrainCursor**([int border])
+int border
+: shrink terrain bounds (0 by default)
+
+_returns_ point
+: the terrain point where the cursor points currently clamped in the shrinked bounds.
+
+
+## GetTerrainCursorObj
+
+Get the closest object to the specified screen position or current position of the cursor.<br>
+
+object **GetTerrainCursorObj**([point screen_pos])
+point screen_pos
+: Screen position. Game cursor by default.
+
+_returns_ object
+: the object on the specified screen position
+
+
+## GetTerrainCursorObjSel
+
+Get the closest object with efSelectable enum flag to the specified screen position or current position of the cursor.<br>
+
+object **GetTerrainCursorObjSel**([point screen_pos])
+point screen_pos
+: Screen position. Game cursor by default.
+
+_returns_ object
+: the object on the specified screen position
+
+
+## GetTerrainCursorXY
+
+Returns the point on the terrain on the specified screen position.<br>
+
+point **GetTerrainCursorXY**(point screen_pos, [int border])
+point screen_pos
+: screen position
+
+int border
+: shrink terrain bounds (0 by default)
+
+_returns_ point
+: point on the terrain on the specified screen position clamped in the shrinked bounds.
+
+
+## GetTerrainGamepadCursor
+
+Returns the point on the terrain where the gamepad cursor points currently.<br>
+
+point **GetTerrainGamepadCursor**([int border])
+int border
+: shrink terrain bounds (0 by default).
+
+_returns_ point
+: the terrain point where the gamepad cursor points currently clamped in the shrinked bounds.
+
+<br>
+
+## SelectObj
+
+Select object in the game. Clear the current selection if no object is passed.<br>
+
+void **SelectObj**(object obj)
+
+## SelectionGamepadObj
+
+Gets the object that would be selected on the current gamepad position by default<br>
+
+object **SelectionGamepadObj**()
+
+## SelectionMouseObj
+
+Gets the object that would be selected on the current mouse cursor position by default<br>
+
+object **SelectionMouseObj**()
+
+## SelectionPropagate
+
+Gets the parent or another associated selectable object or the object itself<br>
+
+object **SelectionPropagate**(object obj)
+
+
+
+
+(insert footer.md.html here)
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="markdeep.min.js"></script>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

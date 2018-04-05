@@ -1,0 +1,196 @@
+[*Back to Index*](index.md.html)
+Map Enumeration
+===============
+
+The Haemimont Games Engine keeps 3D coordinates of objects, but due to the focus on strategy and outdoors games the underlying map structures are optimized for 2D queries in the XY plane - XY being the plane of the terrain, and Z being "up". The family of map query functions accept a 2D area and enumerate all objects with XY coordinates falling within that area.
+
+If you need 3D enumeration, you'll need to perform an additional pass over the objects.
+
+Only objects of classes inheriting from *CObject* exist as part of the C++ map structure, and thus can be returned by the enumeration functions.
+
+Map Enumeration Functions
+-------------------------
+
+The map enumeration functions all take similar parameters in a "query" table which may have some of the parameters listed below. Each parameter "narrows down" the list of objects enumerated, e.g. if you don't specify an area, all objects on the map will be enumerated; if you don't specify a class, objects of all classes will be enumerated, etc.
+
+Note that while map enumeration is in general very fast, creating a list of objects to return to Lua is less so, so try to always use the most specific function doing as much as possible of the job in C++ - e.g. if you only need the number of objects satisfying certain criteria, use **CountObjects**, instead of using **GetObjects** and taking the size of the returned array in Lua.
+
+list = GetObjects(*query*, ... )
+:	Returns a Lua table with a list of objects matching *query* in the array part. Any additional parameters are passed to the *filter* function in *query*, if supplied (see below).
+
+count = CountObjects(*query*, ...)
+:	Returns the number of objects matching *query*. Any additional parameters are passed to the *filter* function in *query*, if supplied (see below). *CountObjects(...)* is equivalent to *#GetObjects(...)*, but potentially more efficient.
+
+ForEach(*query*, ...)
+:	Runs the *exec* function supplied in *query* for all objects that match *query*. Any additional parameters are passed to the *exec* function.
+
+obj, distance = FindNearest(*query*, pt, ...)
+:	Of all objects that match *query*, returns the one nearest to the point or object *pt*, and the distance (or nil, 0 if no objects match *query*). Any additional parameters are passed to the *filter* function in *query*, if supplied.
+
+obj, eval = FindMinObject(*query*, ...)
+:	Of all objects that match *query*, returns the one for which the *eval* function supplied in *query* returns the lowest number, and the number itself. Any additional parameters are passed to the *eval* function.
+
+obj = FindShortestPath(*query*, pt, ...)
+:	*query* needs to specify a circular area by center and radius. Of all objects that match *query*, returns the object which is closest by pathfinding distance to the point or object *pt* (or to the center of the area, if *pt* is nil). Any additional parameters are passed to the *filter* function.
+
+filtered_list = FilterObjects( *query*, *list*, ...)
+:	Does not actually do any map enumeration, but filters the objects in array table *list* according to the same rules used when the *query* table is used for map enumeration.
+
+Query Parameters Table
+----------------------
+
+The table supplied to the enumeration functions may contain some of the parameters below. 
+
+All parameters that represent a point can also be passed as objects, in which case the object positions are used.
+
+Query tables for frequent enumerations should be stored and reused, rather then recreated every time.
+
+### Area
+
+The enumerated area of the map can be specified via one of the following. If no *area* parameter is specified, the entire map is enumerated.
+
+area = *point*, arearadius = *radius*
+:	Enumerates all objects within a radius of *radius* around *point*.
+
+area = *box*
+:	Enumerates all objects in a 2D box.
+
+area = "line", areapoint1=*point1*, areapoint2=*point2*, arearadius=*radius*
+:	Enumerates all objects in a 2D capsule, i.e. at a distance of less than or equal to *radius* from segment defined by *point1* and *point2*.
+
+area = "detached"
+:	Enumerates all objects that are in the world, but logically at no valid position.
+
+area = "outsiders"
+:	Enumerates all objects that are outside the boundaries of the map, but still on valid positions.
+  
+
+### Classes
+
+If no *class* or *classes* parameters are specified, objects of all classes are enumerated.
+
+class = "*classname*"
+:	Enumerates only objects inheriting from *classname*.
+
+classes = "*class1*, *class2*, *class3*,..."
+:	Enumerates only objects inheriting from one of the classes specified as a comma-separates list of classnames.
+
+classes = { "*class1*", "*class2*", ...}
+:	Enumerates only objects inheriting from one of the classes specified as a Lua array table of classname strings.
+
+
+### Flags
+
+enum_flags_all = *flags*
+:	Only objects having all of the enum flags *flags* set are enumerated.
+
+enum_flags_any = *flags*
+:	Only objects having at least one of the enum flags *flags* set are enumerated.
+  
+game_flags_all = *flags*
+:	Only objects having all of the game flags *flags* set are enumerated.
+  
+game_flags_any = *flags*
+:	Only objects having at least one of the game flags *flags* set are enumerated.
+  
+class_flags_all = *flags*
+:	Only objects having all of the class flags *flags* set are enumerated.
+  
+class_flags_any = *flags*
+:	Only objects having at least one of the class flags *flags* set are enumerated.
+
+### Actions
+
+You can perform a few simple actions on objects during enumeration in C++ by specifying the following parameters in the *query* table. Using these actions where appropriate is more efficient than the equivalents using *ForEach* + *exec* or *GetObjects* + Lua loop over the result.
+
+action = "delete"
+:	Deletes the object.
+  
+action = "SetGameFlags", action_data = *flags*
+:	Sets the game flags *flags* of the object.
+  
+action = "ClearGameFlags", action_data = *flags*
+:	Clears the game flags *flags* of the object.
+  
+action = "SetEnumFlags", action_data = *flags*
+:	Sets the enum flags *flags* of the object.
+  
+action = "ClearEnumFlags", action_data = *flags*
+:	Clears the enum flags *flags* of the object.
+  
+action = "SetHierarchyEnumFlags", action_data = *flags*
+:	Sets the enum flags *flags* of the object and all its attaches recursively.
+  
+action = "ClearHierarchyEnumFlags", action_data = *flags*
+:	Clears the enum flags *flags* of the object and all its attaches recursively.
+
+
+### Functions
+
+Some enumeration functions accept function parameters in the *query* table which are evaluated for each object. These functions can be Lua closures defined in-place, Lua functions defined elsewhere, or even C functions, as long as they accept the appropriate parameters.
+
+exec = function(obj, ...) end
+:	Accepted by *ForEach*. Called once for each object as a first parameter and any additional parameters supplied to *ForEach*. If it returns **"break"**, the enumeration is interrupted.
+ 
+filter = function(obj, ...) end
+:	Accepted by *GetObjects*, *FilterObjects*, *CountObjects*, *FindNearest*, *FindShortestPath*. Called once for each object as a first parameter and any additional parameters supplied to the enumeration function after that. Must return **true** if the object should be included in the enumeration, **false** otherwise, or **"break"** if the enumeration should stop.
+ 
+eval = function(obj, ...) end
+:	Accepted by *FindMinObject*. Called once for each object as a first parameter and any additional parameters supplied to *FindMinObject* after that. Must return a number - the object for which this number is the lowest, is returned from *FindMinObject*. If it returns **"break"**, the enumeration is interrupted.
+  
+### Other Parameters
+
+attached = *true/false*
+:	 **True** means only attached objects are enumerated; **false** means only non-attached objects are enumerated. Leave out to enumerate both attached and unattached objects.
+ 
+collection = *col*
+:	Only enumerates objects of collection *col*.
+
+collection = *col*, recursive = true
+:	Only enumerates objects of collection *col* and its subcollections.
+
+random_percent = *n*, random_seed = *seed*
+:	Only enumerates a certain random % of the objects that would be enumerated otherwise. Use *seed* for seeding the random generator.
+
+ 
+## Sample Code
+
+Gather all objects of class Tree (and descendants) 100 m around the cursor:
+~~~~~~~~~~ Lua
+local trees = GetObjects { class = "Tree", area = GetTerrainCursor(), arearadius = 100*guim }
+~~~~~~~~~~
+
+Make all trees invisible:
+~~~~~~~~~~ Lua
+ForEach { class = "Tree", exec = function(obj) obj:ClearEnumFlags(const.efVisible) end}
+~~~~~~~~~~
+
+Make all trees invisible, more efficient version:
+~~~~~~~~~~ Lua
+GetObjects { class = "Tree", action = "ClearEnumFlags", action_data = const.efVisible } 
+~~~~~~~~~~
+
+Delete all non-attached objects of class Resource on the map:
+~~~~~~~~~~ Lua
+GetObjects { class = "Resource", attached = false, action = "delete" } 
+~~~~~~~~~~
+
+Calculate total amount of resources of a particular kind in a circle around a building:
+~~~~~~~~~~ Lua
+function GetTotalResourcesAroundBuilding(building, radius, resource_member)
+  local total = 0
+  ForEach{ class = "ResourceDeposit", area = building, arearadius = radius, 
+    exec = function(obj) 
+      total = total + obj[resource_member]
+  end }
+  return total
+end
+~~~~~~~~~~
+
+
+
+(insert footer.md.html here)
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="markdeep.min.js"></script>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

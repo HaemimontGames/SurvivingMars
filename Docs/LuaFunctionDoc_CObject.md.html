@@ -1,0 +1,1204 @@
+# Documentation for *CObject*
+
+## Overview
+
+CObjects are objects, accessible to Lua, which have a counterpart in the C++ side of the engine.<br>
+They do not have allocated memory in the Lua side, and therefore cannot store any information.<br>
+Reference: [CObject](LuaCObject.md.html)<br>
+## Parent classes
+
+* ColorizableObject
+* FXObject
+* PropertyObject
+
+## CObject:Attach
+
+Attaches one object to another at a specified spot.<br>
+
+void **CObject:Attach**(object child, int spot)
+object child
+: object to be attached
+
+int spot
+: spot numeric index
+
+
+## CObject:ChangeEntity
+
+Changes the object's entity.<br>
+
+void **CObject:ChangeEntity**(string entity)
+string entity
+: the entity name
+
+
+## CObject:ClearEnumFlags
+
+Clear the object's enumeration flags.<br>
+
+void **CObject:ClearEnumFlags**(int mask)
+int mask
+: mask containing the flags to be cleared.
+
+Example:<br>
+~~~~ Lua
+obj:ClearEnumFlags(const.efVisible)
+-- the object is now invisible
+~~~~
+
+## CObject:ClearGameFlags
+
+Clear the object's game flags.<br>
+
+void **CObject:ClearGameFlags**(int mask)
+int mask
+: mask containing the flags to be cleared.
+
+Example:<br>
+~~~~ Lua
+obj:ClearGameFlags(const.gofAlwaysRenderable)
+-- the object wont be drawn when outside the camera view
+~~~~
+
+## CObject:CountAttaches
+
+Counts object attaches based on certain criteria<br>
+
+int **CObject:CountAttaches**([string classes], [function filter], ...)
+string classes
+: an optional comma separated list of classes, to filter the attached objects. If not provided, all attaches shall be processed.
+
+function filter
+: an optional function to test if an attach is to be counted. Any parameter provided after the callback, would be passed to it when called.
+
+_returns_ int
+: the count of matched attaches.
+
+Example:<br>
+~~~~ Lua
+local count = obj:CountAttaches("foo, bar", function(obj) return not obj:GetVisible() end)
+-- 'count' equals the number of the invisible attaches form the classes "foo" and "bar"
+~~~~
+
+## CObject:DestroyAttaches
+
+Destroys object attaches based on certain criteria<br>
+
+int **CObject:DestroyAttaches**([string classes], [function filter], ...)
+string classes
+: an optional comma separated list of classes, to filter the attached objects. If not provided, all attaches shall be processed.
+
+function filter
+: an optional function to test if an attach is to be deleted. Any parameter provided after the callback, would be passed to it when called.
+
+_returns_ int
+: the count of matched attaches.
+
+Example:<br>
+~~~~ Lua
+obj:DestroyAttaches("foo, bar", function(obj) return not obj:GetVisible() end)
+-- all invisible attaches form the classes "foo" and "bar" are now destroyed
+~~~~
+
+## CObject:Detach
+
+Detach an attached object from its parent.<br>
+
+void **CObject:Detach**()
+
+## CObject:DetachFromMap
+
+Removes the object from the map. The object's position wont be valid any more.<br>
+
+void **CObject:DetachFromMap**()
+
+## CObject:ForEachAttach
+
+Calls a function callback for each attached object from a list of classes<br>
+
+int **CObject:ForEachAttach**([string classes], function callback, ...)
+string classes
+: an optional comma separated list of classes, to filter the attached objects. If not provided, all attaches shall be processed.
+
+function callback
+: a function to call for each attach. Any parameter provided after the callback, would be passed to it when called.
+
+_returns_ int
+: the count of matched attaches.
+
+Example:<br>
+~~~~ Lua
+obj:ForEachAttach("foo, bar", function(obj, visible) obj:SetVisible(visible) end, false)
+-- all attaches form the classes "foo" and "bar" are now invisible
+~~~~
+
+## CObject:GetAccelerationAndTime
+
+Computes the linear acceleration and the time needed to reach a target position with a given final speed.<br>
+
+int, int **CObject:GetAccelerationAndTime**(point pos, int speed, [int speed0])
+
+int, int **CObject:GetAccelerationAndTime**(int x, int y, int z, int speed, [int speed0])
+point pos
+: the target position as a point
+
+int x, y, z
+: the target position as coordinates
+
+int speed
+: the desired final speed
+
+int speed0
+: the initial speed (optional, the current speed by default)
+
+_returns_ int, int
+: the acceleration and the time
+
+Example:<br>
+~~~~ Lua
+local accel, time = obj:GetAccelerationAndTime(pos, 0)
+obj:SetAcceleration(accel)
+obj:SetPos(pos, time)
+-- the object will slowly stop at the target position
+~~~~
+
+## CObject:GetAngle
+
+Returns the final rotation angle of an object.<br>
+The visual angle is different from the final angle, only when the object is still rotating.<br>
+
+int **CObject:GetAngle**()
+_returns_ int
+: final rotation angle.
+
+
+## CObject:GetAttaches
+
+Collects the attaches from given class(es). If no class is specified, then all attached objects shall be collected.<br>
+
+table **CObject:GetAttaches**([string class])
+
+table **CObject:GetAttaches**([table classes])
+string class
+: an optional class name, to filter the attached objects.
+
+table classes
+: an optional class list, to filter the attached objects.
+
+_returns_ table
+: a list containing the matched attaches, or nil if none has been found.
+
+Example:<br>
+~~~~ Lua
+local attaches = obj:GetAttaches("foo")
+-- 'attaches' containts all attached objects form the class "foo"
+~~~~
+
+## CObject:GetAxis
+
+Returns the rotation axis of an object.<br>
+
+point **CObject:GetAxis**()
+_returns_ point
+: rotation axis vector as point
+
+
+## CObject:GetClassFlags
+
+Returns the object's class flags. All object flags are represented as a single bit (0 or 1).<br>
+
+int **CObject:GetClassFlags**([int mask])
+int mask
+: optional flag mask, used to check if the object contains specific flags.
+
+_returns_ int
+: the object's enumeration flags, masked with the mask if provided.
+
+Example:<br>
+~~~~ Lua
+if obj:GetClassFlags(const.cfDecal) ~= 0 then
+-- the object is a decal
+end
+~~~~
+
+## CObject:GetDist
+
+Computes the distance from the object's final position to another position.<br>
+
+int **CObject:GetDist**(object obj)
+
+int **CObject:GetDist**(box bx)
+
+int **CObject:GetDist**(point pos)
+object obj
+: check distance to an object
+
+box bx
+: check distance to a box
+
+point pos
+: check distance to a position
+
+_returns_ int
+: the computed distance
+
+
+## CObject:GetEntityBBox
+
+Returns the bounding box of the current state of the object with mirroring applied, but without applying object's position, scale and orientation.<br>
+
+box **CObject:GetEntityBBox**()
+_returns_ box
+: the bounding box of the entity.
+
+
+## CObject:GetEnumFlags
+
+Returns the object's enumeration flags. All object flags are represented as a single bit (0 or 1).<br>
+
+int **CObject:GetEnumFlags**([int mask])
+int mask
+: optional flag mask, used to check if the object contains specific flags.
+
+_returns_ int
+: the object's enumeration flags, masked with the mask if provided.
+
+Example:<br>
+~~~~ Lua
+if obj:GetEnumFlags(const.efVisible) ~= 0 then
+-- the object is visible
+end
+~~~~
+
+## CObject:GetGameFlags
+
+Returns the object's game flags. All object flags are represented as a single bit (0 or 1).<br>
+
+int **CObject:GetGameFlags**([int mask])
+int mask
+: optional flag mask, used to check if the object contains specific flags.
+
+_returns_ int
+: the object's game flags, masked with the mask if provided.
+
+Example:<br>
+~~~~ Lua
+if obj:GetGameFlags(const.gofAlwaysRenderable) ~= 0 then
+-- the object is drawn even when outside the camera view
+end
+~~~~
+
+## CObject:GetMaxRadius
+
+Returns the maximim object's entity radius in any of its states (animations).<br>
+
+int **CObject:GetMaxRadius**()
+_returns_ int
+: object's max radius.
+
+
+## CObject:GetNearestSpot
+
+Returns the index of the nearest spot to a specified location<br>
+
+int **CObject:GetNearestSpot**(string spot, point pos)
+
+int **CObject:GetNearestSpot**(string spot, object obj)
+string spot
+: spot type name
+
+point pos
+: location as point
+
+object obj
+: location as object
+
+_returns_ int
+: the spot index, -1 if not found.
+
+
+## CObject:GetNumStates
+
+Returns the number of valid states (animations) for current object.<br>
+
+int **CObject:GetNumStates**()
+_returns_ int
+: number of states
+
+
+## CObject:GetObjectBBox
+
+Returns the object's bounding box in its current state (animation).<br>
+
+box **CObject:GetObjectBBox**()
+_returns_ box
+: the object's bounding box.
+
+
+## CObject:GetParent
+
+Returns the parent object (if the current object is attached).<br>
+
+object **CObject:GetParent**()
+_returns_ object
+: the parent object if any, nil otherwise
+
+
+## CObject:GetPos
+
+Returns the final map position of an object .<br>
+The visual position is different from the final position, only when the object is still moving.<br>
+
+point **CObject:GetPos**()
+_returns_ point
+: final map position.
+
+
+## CObject:GetRadius
+
+Returns the object's entity radius in its current state (animation). For objects without entity, the radius can be specified as a member 'radius' in the class definition.<br>
+
+int **CObject:GetRadius**()
+_returns_ int
+: object's radius.
+
+
+## CObject:GetRandomSpot
+
+Returns the index of a random spot from a given type<br>
+
+int **CObject:GetRandomSpot**(string spot)
+string spot
+: spot type name
+
+_returns_ int
+: the spot index, -1 if not found.
+
+
+## CObject:GetRelativePoint
+
+Computes the world position of a point relative to an object.<br>
+
+point **CObject:GetRelativePoint**(point pos)
+
+point **CObject:GetRelativePoint**(int x, int y, int z)
+point pos
+: position relative to the object as a point.
+
+int x, y, z
+: position relative to the object as coordinates.
+
+Example:<br>
+~~~~ Lua
+local pos = obj:GetRelativePoint(0, 0, 10*guim)
+-- 'pos' is located 10 meters above the object
+~~~~
+
+## CObject:GetScale
+
+Returns the object's scale.<br>
+
+int **CObject:GetScale**()
+_returns_ int
+: the object's scale in percent (100% is the default).
+
+
+## CObject:GetSpotBeginIndex
+
+Returns the first spot index from a given spot type for an object<br>
+
+int, int **CObject:GetSpotBeginIndex**(string spot)
+string spot
+: spot name
+
+_returns_ int
+: the spot index, -1 if not found.
+
+
+## CObject:GetSpotEndIndex
+
+Returns the last spot index from a given spot type for an object<br>
+
+int, int **CObject:GetSpotEndIndex**(string spot)
+string spot
+: spot name
+
+_returns_ int
+: the spot index, -1 if not found.
+
+
+## CObject:GetSpotPos
+
+Returns the final world position of the specified spot.<br>
+
+point **CObject:GetSpotPos**(int spot)
+int spot
+: spot index.
+
+_returns_ point
+: the spot position.
+
+
+## CObject:GetSpotPosXYZ
+
+Same as GetSpotPos but the returned values are the position's coordinates.<br>
+
+int, int, int **CObject:GetSpotPosXYZ**(int spot)
+int spot
+: spot index.
+
+_returns_ int, int, int
+: the coordinates of the spot position.
+
+
+## CObject:GetSpotRange
+
+Returns the first and the last spot indexes from a given spot type for an object<br>
+
+int, int **CObject:GetSpotRange**(string spot)
+string spot
+: spot name
+
+_returns_ int, int
+: the spot indexes, -1 if not found.
+
+
+## CObject:GetSpotRotation
+
+Returns the rotation of the specified spot around it's rotation axis.<br>
+
+angle axis **CObject:GetSpotRotation**(int spot)
+int spot
+: spot index.
+
+_returns_ int angle
+: the spot rotation.
+
+_returns_ point axis
+: the spot rotation axis vector as point.
+
+
+## CObject:GetState
+
+Gets the object's current state index (animation index).<br>
+
+int **CObject:GetState**()
+_returns_ int
+: the state index
+
+
+## CObject:GetTimeToMoment
+
+Returns the time left/passed to/since the i-th occurrence of a given moment type to happen for the given animation channel, taking in mind looping property of animation also.<br>
+Positive indices are used for the next occurrences, negative for the previous ones. The indices are 1-base, i.e. 1 means the first incoming moment, 0 means the last moment.<br>
+
+int **CObject:GetTimeToMoment**(int channel, string type, [int index = 1])
+int channel
+: the index of the channel, one based
+
+string type
+: the type of the moment we are interested in
+
+int index
+: the index of the moment, one based (optional)
+
+_returns_ int
+: time in milliseconds to the given moment, taking into account animation speeds and object's speed modifier, false if no moments of that type/index and a huge number if the speed is zero.
+
+
+## CObject:GetVisualAngle
+
+Returns the visual rotation angle of an object.<br>
+The visual angle is different from the final angle, only when the object is still rotating.<br>
+
+int **CObject:GetVisualAngle**()
+_returns_ int
+: visual rotation angle.
+
+
+## CObject:GetVisualDist
+
+Computes the distance from the object's visual position to another position.<br>
+
+int **CObject:GetVisualDist**(object obj)
+
+int **CObject:GetVisualDist**(box bx)
+
+int **CObject:GetVisualDist**(point pos)
+object obj
+: check distance to an object
+
+box bx
+: check distance to a box
+
+point pos
+: check distance to a position
+
+_returns_ int
+: the computed distance
+
+
+## CObject:GetVisualPos
+
+Returns the visual position of an object.<br>
+The visual position is different from the final position, only when the objects is still moving.<br>
+
+point **CObject:GetVisualPos**([int time], [bool extrapolate = false])
+int time
+: optional parameter to specify a different moment than now.
+
+bool extrapolate
+: if true and if the provided time exceeds the movement time, avoids the clamping.
+
+_returns_ point
+: visual position.
+
+
+## CObject:GetVisualPos2D
+
+Same as GetVisualPos, but the returned position is only two dimensional.<br>
+
+point **CObject:GetVisualPos2D**([int time], [bool extrapolate = false])
+_returns_ point
+: visual 2D position.
+
+
+## CObject:GetVisualPosXYZ
+
+Same as GetVisualPos, but the returned values are the object coordinates.<br>
+
+int, int, int **CObject:GetVisualPosXYZ**([int time], [bool extrapolate = false])
+_returns_ int, int, int
+: visual coordinates X, Y and Z.
+
+
+## CObject:HasAllSurfaces
+
+Checks if the object's entity has specific surfaces.<br>
+
+bool **CObject:HasAllSurfaces**(int mask)
+int mask
+: A mask of the surfaces in question. See the 'EntitySurfaces' global for a list of surfaces and their masks.
+
+_returns_ bool
+: Returns true if the entity has all of those surfaces.
+
+
+## CObject:HasAnySurfaces
+
+Checks if the object's entity has specific surfaces.<br>
+
+bool **CObject:HasAnySurfaces**(int mask)
+int mask
+: A mask of the surfaces in question. See the 'EntitySurfaces' global for a list of surfaces and their masks.
+
+_returns_ bool
+: Returns true if the entity has any of those surfaces.
+
+
+## CObject:HasEntity
+
+Checks if an object has an entity.<br>
+
+bool **CObject:HasEntity**()
+_returns_ bool
+: true if entity is present.
+
+
+## CObject:HasSpot
+
+Checks if an object has a given spot type.<br>
+
+bool **CObject:HasSpot**(string spot)
+string spot
+: the spot name to be checked
+
+_returns_ bool
+: true if the spot is present.
+
+
+## CObject:HasState
+
+Checks if the object's entity has a given state (animation).<br>
+
+bool **CObject:HasState**(string name)
+
+bool **CObject:HasState**(int index)
+string name
+: the state name to check for
+
+int index
+: the state index to check for
+
+_returns_ bool
+: Returns true if the state is present
+
+
+## CObject:IsValidPos
+
+Checks if an object is present on the map<br>
+
+bool **CObject:IsValidPos**()
+_returns_ bool
+: returns true, if the object has a position on the map.
+
+
+## CObject:IsValidZ
+
+Checks if the object position has a valid Z coordinate. Objects with invalid Z are always drawn on the terrain surface.<br>
+
+bool **CObject:IsValidZ**()
+_returns_ bool
+: returns true, if the object has a valid Z coordinate.
+
+
+## CObject:PlayState
+
+Similar to SetState, but waits until the state animation is played before returning.<br>
+
+void **CObject:PlayState**(string name, [int count = 1, int flags = 0])
+
+void **CObject:PlayState**(int index, [int count = 1, int flags = 0])
+string name
+: the state name to check for
+
+string index
+: the state index to check for
+
+int count
+: optional count of animation replays (for looped animations only)
+
+int flags
+: optional animation control flags (see object documentation for details)
+
+
+## CObject:SetAcceleration
+
+Sets linear acceleration as easing function when moving the object.<br>
+
+void **CObject:SetAcceleration**(int accel)
+int accel
+: the linear acceleration value
+
+
+## CObject:SetAngle
+
+Smoothly changes the object's rotation angle over the specified time.<br>
+
+void **CObject:SetAngle**(int angle, [int time = 0])
+int angle
+: the new angle (in minutes, 1 degree equals 60 minutes)
+
+int time
+: the time (ms) to change the axis (optional)
+
+
+## CObject:SetAnimPhase
+
+Advance the object's animation to a specific moment (phase). For nonlooping animations, the phase is clamped between 0 and the normal duration of the animation (without considering any speed modifications).<br>
+
+void **CObject:SetAnimPhase**(int channel, int phase)
+int channel
+: animation channel index (first channel is 1)
+
+int phase
+: the animation time to set.
+
+Example:<br>
+~~~~ Lua
+local duration = obj:SetState("step")
+obj:SetAnimPhase(1, duration - 1)
+-- the object animation is forced to advance to its last frame
+~~~~
+
+## CObject:SetAnimSpeed
+
+Sets the new object's animation channel speed.<br>
+The channel speed is a property of the animation channel alone and doesn't affect the animations played on other channels.<br>
+
+void **CObject:SetAnimSpeed**(int channel, int speed, [int time = 0])
+int channel
+: animation channel (the first channel is 1)
+
+int speed
+: the new speed to set in promilles
+
+int time
+: the time we want the animation to reach smoothly the given speed (optional)
+
+
+## CObject:SetAnimSpeedModifier
+
+Sets the new object's animation speed modifier.<br>
+The speed modifier is a property of the object and affects all animation channels.<br>
+
+void **CObject:SetAnimSpeedModifier**(int speed)
+int speed
+: the new speed modifier to set in promilles
+
+
+## CObject:SetAttachAngle
+
+Specifies the angle for the rotation offset when the object is attached.<br>
+
+void **CObject:SetAttachAngle**(int angle)
+int angle
+: attach rotation angle
+
+
+## CObject:SetAttachAxis
+
+Specifies the axis for the rotation offset when the object is attached.<br>
+
+void **CObject:SetAttachAxis**(point axis)
+
+void **CObject:SetAttachAxis**(int dx, int dy, int dz)
+point axis
+: attach rotation axis vector as point
+
+int dx, dy, dz
+: the axis vector as coordinates
+
+
+## CObject:SetAttachOffset
+
+Specifies a linear offset when the object is attached.<br>
+
+void **CObject:SetAttachOffset**(point offset)
+
+void **CObject:SetAttachOffset**(int dx, int dy, int dz)
+point offset
+: offset vector from the spot position as point
+
+int dx, dy, dz
+: the offset vector as coordinates
+
+
+## CObject:SetAxis
+
+Smoothly changes the object's rotation axis over the specified time.<br>
+
+void **CObject:SetAxis**(point axis, [int time = 0])
+
+void **CObject:SetAxis**(int dx, int dy, int dz, [int time = 0])
+point axis
+: the new rotation axis vector as point
+
+int dx, dy, dz
+: the new rotation axis vector as coordinates
+
+int time
+: the time (ms) to change the axis (optional).
+
+
+## CObject:SetColorModifier
+
+Modifies the colorization of the entire object.<br>
+
+void **CObject:SetColorModifier**(int color, [int time])
+int color
+: the modification color in integer format. Each color component ranges between 0 and 255. For values above 100 the color component's value is being increased, while for values below, it's being reduced. To disable any modification, use RGB(100, 100, 100).
+
+int time
+: optional parameter allowing to make the modification smoothly over an interval of time.
+
+Example:<br>
+~~~~ Lua
+obj:SetColorModifier(RGB(200, 100, 50))
+-- the object is now with increased red color, reduced blue color and unchanged green
+obj:SetColorModifier(RGB(100, 100, 100))
+-- the object's true colors are now restored
+~~~~
+
+## CObject:SetColorizationMaterial
+
+Specifies object's material properties.<br>
+
+void **CObject:SetColorizationMaterial**(int idx, int color, int roughness, int metallic)
+int idx
+: colorization index, depends on the number of colorization masks available in the object's entity
+
+int color
+: the material color to be used, in RGB format represented as an unsigned integer (one byte per color component).
+
+int roughness
+: the material roughness, represented as an integer between 0 and 255
+
+int metallic
+: the metallic degree, represented as an integer between 0 and 255
+
+
+## CObject:SetDust
+
+Changes the object's dust visuals. Has an effect only if the entity has a dust mask.<br>
+
+void **CObject:SetDust**(int value, int material, int color)
+int value
+: the degree of dust, ranging from 0 to 255
+
+int material
+: material index, can be 0 (exterior) or 1 (interior)
+
+
+## CObject:SetEnumFlags
+
+Sets the object's enumeration flags.<br>
+
+void **CObject:SetEnumFlags**(int mask)
+int mask
+: mask containing the flags to be set.
+
+Example:<br>
+~~~~ Lua
+obj:SetEnumFlags(const.efVisible)
+-- the object is now visible
+~~~~
+
+## CObject:SetGameFlags
+
+Sets the object's game flags.<br>
+<br>
+Example:<br>
+~~~~ Lua
+obj:SetGameFlags(const.gofAlwaysRenderable)
+-- the object is now drawn even when outside the camera view
+~~~~
+
+void **CObject:SetGameFlags**(int mask)
+int mask
+: mask containing the flags to be set.
+
+
+## CObject:SetGravity
+
+Sets gravity acceleration as easing function when moving the object.<br>
+
+void **CObject:SetGravity**([int gravity = 980])
+int gravity
+: the gravity acceleration value (optional)
+
+
+## CObject:SetMirrored
+
+Specifies the the object entity should be mirrored.<br>
+
+void **CObject:SetMirrored**(bool mirrored)
+bool mirrored
+: true if mirrored
+
+
+## CObject:SetOpacity
+
+Sets the current object opacity.<br>
+
+void **CObject:SetOpacity**(int opacity, [int time = 0, bool recursive = false])
+int opacity
+: 0 for full transparency; 100 for full opacity
+
+int time
+: time for smooth transition (optional)
+
+int recursive
+: if true, apply to attached objects too (optional)
+
+
+## CObject:SetPos
+
+Smoothly changes the object's position over the specified time.<br>
+The map position of the object is changed immediately, but its visual position will change over the given interval of time.<br>
+
+void **CObject:SetPos**(point pos, [int time = 0])
+
+void **CObject:SetPos**(int x, int y, int z, [int time = 0])
+point pos
+: the new position as a point
+
+int x, y, z
+: the new position as three coordinates.
+
+int time
+: the time (ms) to change the position (optional).
+
+
+## CObject:SetSIModulation
+
+Sets the current self illumination modulation.<br>
+
+void **CObject:SetSIModulation**(int modulation)
+int modulation
+: 0 for no self illumination; 100 for max self illumination
+
+
+## CObject:SetScale
+
+Changes the object's scale.<br>
+
+void **CObject:SetScale**(int scale)
+int scale
+: the object's scale in percent (100% is the default).
+
+
+## CObject:SetSound
+
+Associates a sound to be played from this object.<br>
+
+void **CObject:SetSound**(string sound, [string type, int volume, int crossfade, bool looping])
+string sound
+: a sound name (sound bank) or a sound filename
+
+string type
+: a sound type name, necessary only if a sound file is provided instead of a sound name
+
+int volume
+: forces the volume of the sound between 0 and 1000 (the sound bank volume is used by default).
+
+int crossfade
+: optional cross-fade time if changing the sound state.
+
+bool looping
+: specifies if the sound should be looping (uses the sound bank flag by default).
+
+
+## CObject:SetSoundVolume
+
+Changes the sound volume for an object.<br>
+
+void **CObject:SetSoundVolume**(int volume, [int time = 0])
+int volume
+: specifies the volume of the sound between 0 and 1000.
+
+int time
+: optional time for smooth change.
+
+
+## CObject:SetState
+
+Changes the object's state (animation).<br>
+
+int **CObject:SetState**(string name, [int flags = 0, int speed = 1000])
+
+int **CObject:SetState**(int index, [int flags = 0, int speed = 1000])
+string name
+: the state name to check for
+
+string index
+: the state index to check for
+
+int flags
+: optional animation control flags (see object documentation for details) 
+
+int speed
+: optional animation speed in promilles
+
+_returns_ int
+: Returns the duration of the state animation
+
+
+## CObject:StopSound
+
+Stopss the sound of an object.<br>
+
+void **CObject:StopSound**([int time = 0])
+int time
+: optional time for smoothly muting the sound.
+
+
+## CObject:TimeToAnimEnd
+
+Returns remaining time to the end of currently played animation of the object (the result is depending on the current animation speed).<br>
+
+int **CObject:TimeToAnimEnd**([int channel = 1])
+int channel
+: optional animation channel
+
+_returns_ int
+: the time remaining
+
+
+## GetEntityBBox
+
+Returns the bounding box of and entity in a given state.<br>
+
+box **GetEntityBBox**(string entity, string state)
+
+box **GetEntityBBox**(string entity, int state)
+string entity
+: entity name
+
+string state
+: state name
+
+int state
+: state idx
+
+_returns_ box
+: the bounding box of the entity.
+
+
+## GetNumStates
+
+Returns the number of valid states (animations) for a given entity.<br>
+
+int **GetNumStates**(string entity)
+string entity
+: the entity name
+
+_returns_ int
+: number of states
+
+
+## GetSpotBeginIndex
+
+Returns the first spot index from a given spot type for an entity in a given state<br>
+
+int, int **GetSpotBeginIndex**(string entity, string state, string spot)
+
+int, int **GetSpotBeginIndex**(string entity, int state, string spot)
+string entity
+: entity name
+
+string state
+: state name
+
+int state
+: state index
+
+string spot
+: spot name
+
+_returns_ int
+: the spot index, -1 if not found.
+
+
+## GetSpotEndIndex
+
+Returns the last spot index from a given spot type for an entity in a given state<br>
+
+int, int **GetSpotEndIndex**(string entity, string state, string spot)
+
+int, int **GetSpotEndIndex**(string entity, int state, string spot)
+string entity
+: entity name
+
+string state
+: state name
+
+int state
+: state index
+
+string spot
+: spot name
+
+_returns_ int
+: the spot index, -1 if not found.
+
+
+## GetSpotRange
+
+Returns the first and the last spot indexes from a given spot type for an entity in a given state<br>
+
+int, int **GetSpotRange**(string entity, string state, string spot)
+
+int, int **GetSpotRange**(string entity, int state, string spot)
+string entity
+: entity name
+
+string state
+: state name
+
+int state
+: state index
+
+string spot
+: spot name
+
+_returns_ int, int
+: the spot indexes, -1 if not found.
+
+
+## HasAllSurfaces
+
+Checks if an entity has specific surfaces.<br>
+
+bool **HasAllSurfaces**(string entity, int mask)
+string entity
+: The entity name.
+
+int mask
+: A mask of the surfaces in question. See the 'EntitySurfaces' global for a list of surfaces and their masks.
+
+_returns_ bool
+: Returns true if the entity has all of those surfaces.
+
+
+## HasAnySurfaces
+
+Checks if an entity has specific surfaces.<br>
+
+bool **HasAnySurfaces**(string entity, int mask)
+string entity
+: The entity name.
+
+int mask
+: A mask of the surfaces in question. See the 'EntitySurfaces' global for a list of surfaces and their masks.
+
+_returns_ bool
+: Returns true if the entity has any of those surfaces.
+
+
+## HasSpot
+
+Checks if an entity has a given spot type in a specified state.<br>
+
+bool **HasSpot**(string entity, string state, string spot)
+string entity
+: the entity name
+
+#param string state - the state to check<br>
+string spot
+: the spot name to be checked
+
+_returns_ bool
+: true if the spot is present.
+
+
+## HasState
+
+Checks if an entity has a given state (animation).<br>
+
+bool **HasState**(string entity, string name)
+
+bool **HasState**(string entity, int index)
+string entity
+: the entity name
+
+string name
+: the state name to check for
+
+int index
+: the state index to check for
+
+_returns_ bool
+: Returns true if the state is present
+
+
+## IsValid
+
+Returns if the given param is a valid, non yet destroyed object.<br>
+
+bool **IsValid**(object obj)
+object obj
+: the object to be tested
+
+_returns_ bool
+: true if the object is valid
+
+
+
+
+
+(insert footer.md.html here)
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="markdeep.min.js"></script>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

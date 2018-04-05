@@ -1,0 +1,258 @@
+[*Back to Index*](index.md.html)
+Messages
+========
+
+Messages are a way to invoke code in potentially multiple locations and to unblock waiting threads.
+For each sent message, all handlers registered for this particular message are called, 
+and all threads waiting on the message are resumed. Execution at the sender continues after all the handlers are executed. Handlers cannot sleep.
+
+The messages are identified by a message name, which can be an arbitrary Lua value, 
+and can be supplied an arbitrary number of parameters which are passed to message handlers or unblocked threads.
+
+Messages are used to hook code execution to specific events in the game, 
+decoupling the sender from the receivers - e.g. when a new map is loaded, or when the game is about to be saved.
+Messages are also an efficient way to make a thread sleep until a certain event occurs - 
+e.g. open a window and resume execution once it is closed is frequently implemented 
+by waiting on the window object itself, and sending it as a message in its Close() function.
+
+When a thread is waiting for a certain message it will wake up 
+from the first message of that type being fired. 
+If more messages are fired after the first one but before the thread resumed execution, 
+the thread would have no knowledge of the subsequent messages. 
+This effect could be both desirable and unexpected.
+
+The message handlers are executed in the order of registration. 
+Therefore message handlers registered at file scope will be executed 
+in the order of file execution (see [Lua startup](LuaStartup.html)). 
+
+It is possible to register message handlers at any time and in particular after 
+the startup process. Such handlers are executed after the handlers registered 
+during startup (at file scope).
+
+
+Reference
+---------
+
+**Msg(*message*, ...)**
+:	Sends the message *message* with parameters *...*. *message* can be an arbitrary Lua value except nil - use a string for predefined, "hook"-type of messages, an object for synchronizing threads against its lifecycle, or a specially created empty table when you need a unique token to wait on.
+
+**function OnMsg.*message*(...)**
+:	Registers a message handler function which will be executed whenever *message* is sent. The function receives the parameters passed to the Msg function at the sending site. You can register as many handlers for the same message as you want.
+
+**WaitMsg(*message*, timeout)**
+:	Suspends the calling thread (see [Threads](LuaThreads.md.html)) until *message* is sent. Returns remaining time (or true in case there was no timeout) followed by the parameters passed to the Msg function which led to the thread being resumed. If the function times out it returns nothing.
+
+**MsgClear(*message*)**
+:	Removes all registered message handlers for *message*. It is used to free memory when it is certain that *message* will never be sent again. (Used for the messages sent during the startup process.) Note that this removes *all* message handlers - it's not possible to remove just a single handler.
+
+Examples
+--------
+
+Notify when the current map changes.<br>
+Also shows that messages can be registered at a later time, not only at file scope; such registration will put the message handler after all handlers registered at file scope:
+
+~~~~~~~~~~ Lua
+function OnMsg.Autorun()
+	function OnMsg.ChangeMap(map_name)
+		print("Changing map to ", map_name)
+	end
+end
+~~~~~~~~~~
+
+Runs a function with a timeout.<br>
+Returns a positive value and the function's results, nothing in case of a timeout:
+
+~~~~~~~~~~ Lua
+function RunWithTimeout(timeout, func, ...)
+	local params = {...}
+	CreateRealTimeThread(function()
+		Msg(params, func(unpack(params)))
+	end)
+	return WaitMsg(params, timeout)
+end
+~~~~~~~~~~
+
+Execute a function at most once per frame:
+
+~~~~~~~~~~ Lua
+CreateGameTimeThread(function()
+	while true do
+		WaitMsg("OnRender")
+		FrameProcess()
+	end
+end)
+~~~~~~~~~~
+
+Wait until the player has certain amount of a resource; assumes that "ResourcesChanged" is sent when resources are changed:
+~~~~~~~~~~ Lua
+function WaitResource(resource, amount, timeout)
+	while Resources[resource] < amount and timeout > 0 do
+		timeout = WaitMsg("ResourcesChanged", timeout)
+	end
+end
+~~~~~~~~~~
+
+Parametrised message names:
+~~~~~~~~~~ Lua
+function PlayerDefeated(player)
+	Msg("PlayerDefeated " .. player)
+end
+
+function WaitPlayerDefeat(player)
+	WaitMsg("PlayerDefeated " .. player)
+end
+~~~~~~~~~~
+
+
+### Notable messages
+
+Here's a few of the important messages that are normally sent by the game, listed with their names and parameters:
+
+Msg("ChangeMap", map)
+: Sent when the map change procedure begins.
+
+Msg("DoneMap")
+: Sent when leaving a map.
+
+Msg("NewMap")
+: Sent before objects are loaded on the map.
+
+Msg("PostNewMapLoaded")
+: Sent after template objects are loaded on the map; at this point the map is fully initialized.
+
+Msg("GameTimeStart")
+: Sent when the game time clock starts ticking (see [Threads](LuaThreads.html)).
+
+Msg("OnRender")
+: Sent when a frame is rendered.
+
+Msg("Pause")
+: Sent when the game is paused.
+
+Msg("Resume")
+: Sent when the game is resumed.
+
+Msg("PersistSave", data)
+: Sent during the save game process; *data* is a table which will be included in the savegame, so you can add whatever you need to it.
+
+Msg("PersistLoad", data)
+: Sent during the load game process; *data* is the table that was supplied in the *PersistSave* message.
+
+Msg("LoadGame", metadata)
+: Sent after a savegame is loaded.
+
+Msg("AchievementUnlocked", player_id, achievement_id)
+: Sent when an achievement is unlocked.
+
+Msg("AnomalyAnalyzed", anomaly_obj)
+: Sent when an anomaly is analyzed.
+
+Msg("AnomalyRevealed", anomaly_obj)
+: Sent when an anomaly is revealed.
+
+Msg("BuildingUpgraded", building_obj, upgrade_id)
+: Sent when a building gets upgraded.
+
+Msg("ColdWave")
+: Sent when a cold wave starts.
+
+Msg("ColdWaveEnded")
+: Sent when a cold wave ends.
+
+Msg("DomeHitByMeteor", dome, meteor)
+: Sent when a dome is hit by a meteor.
+
+Msg("DustStorm", duration)
+: Sent when a dust storm starts.
+
+Msg("DustStormEnded")
+: Sent when a dust storm ends.
+
+Msg("MeteorStorm")
+: Sent when a meteor storm starts.
+
+Msg("MeteorStormEnded")
+: Sent when a meteor storm ends.
+
+Msg("Meteor", meteor)
+: Sent when a meteor starts falling.
+
+Msg("MeteorIntercepted", meteor, laser)
+: Sent when a defense laser intercepts a meteor.
+
+Msg("ColonistAddTrait", colonist, trait_id, init)
+: Sent when a colonist receives a new trait; init is true if this happens on creation of the colonist.
+
+Msg("ColonistRemoveTrait", self, trait_id)
+: Sent when a colonist loses a trait.
+
+Msg("ColonistArrived", colonist)
+: Sent when a colonist arrives with a rocket from Earth.
+
+Msg("ColonistBorn", colonist, origin)
+: Sent when a new colonist is created on Mars; origin is one of "born", "reborn", "android", "cloned".
+
+Msg("ColonistCured", colonist, building, removed_trait_id, added_trait_id)
+: Sent when a colonist completes treatment at a Sanatorium. The Sanatorium removes one negative trait, and if upgraded, can also add one positive trait, so *added_trait_id* may be nil.
+
+Msg("ColonistDied", colonist, reason_id)
+: Sent when a colonist dies.
+
+Msg("ColonistLeavingMars", colonist, rocket)
+: Sent when a colonist leaves Mars to return to Earth.
+
+Msg("ColonistStatusEffect", colonist, status_effect_id, gain, game_time)
+: Sent when a colonist gains or loses (depending on the bool value of gain) a status effect (one of "StatusEffect_Suffocating", "StatusEffect_Dehydrated", "StatusEffect_Freezing", "StatusEffect_Starving").
+
+Msg("ColonyApprovalPassed")
+: Sent when the colony is deemed viable by Earth and a second passenger rocket can be called.
+
+Msg("ConstructionSitePlaced", site)
+: Sent when the player places a construction site and construction begins.
+
+Msg("ConstructionComplete", building)
+: Sent when a construction is complete.
+
+Msg("Demolished", building)
+: Sent when a building is demolished.
+
+Msg("MarkPreciousMetalsExport", colony, amount)
+: Sent when precious metals are exported back to Earth.
+
+Msg("ColonistJoinsDome", colonist, dome)
+: Sent when a colonist starts living in a new dome - on arrival, birth, relocation etc.
+
+Msg("ColonistLeavesDome", colonist, dome)
+: Sent when a colonist stops living in a dome - on departure, death, relocation etc.
+
+Msg("NewWorkshift", workshift)
+: Sent when a new workshift begins. Workshift is 1, 2 or 3.
+
+Msg("SectorScanned", status, x, y)
+: Sents when a new sector is scanned. Status is "scanned" or "deep scanned". x/y are coordinates of the sector in the sector grid.
+
+Msg("ResourceExtracted", resource, amount)
+: Sent when resource is extracted from a deposit.
+
+Msg("SubsurfaceDepositRevealed", deposit)
+: Sent when a subsurface deposit is revealed.
+
+Msg("RocketLanded", rocket)
+: Sent when a rocket lands on Mars.
+
+Msg("RocketLaunched", self)
+: Sent when a rocket is launched from Mars.
+
+Msg("RocketLaunchFromEarth", self)
+: Sent when a rocket departs from Earth.
+
+Msg("TechResearched", tech_id, city, first_time)
+: Sent when a tech is researched. *first_time* can be false for repeatable research technologies.
+
+
+
+(insert footer.md.html here)
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="markdeep.min.js"></script>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

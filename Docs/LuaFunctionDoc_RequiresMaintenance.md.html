@@ -1,0 +1,69 @@
+# Documentation for *RequiresMaintenance*
+
+## Overview
+
+class overview...<br>
+## Parent classes
+
+* [BaseBuilding](LuaFunctionDoc_BaseBuilding.md.html) 
+* BuildingVisualDustComponent
+* [CObject](LuaFunctionDoc_CObject.md.html) 
+* ColorizableObject
+* FXObject
+* Holder
+* InitDone
+* [Object](LuaFunctionDoc_Object.md.html) 
+* PropertyObject
+* SyncObject
+* [TaskRequester](LuaFunctionDoc_TaskRequester.md.html) 
+* WaypointsObj
+## Class properties
+
+### Modifiable Properties
+
+#### General
+
+
+**disable_maintenance**
+: So maintenance can be turned off with modifiers
+#### Maintenance
+
+
+**maintenance_resource_amount**
+: The amount of resources required to maintain this building in working order.
+
+**maintenance_threshold_base**
+: This base value is randomized within 50% - 150% range to determine the maintenance threshold. When the threshold is reached the building requests maintenance.
+
+**maintenance_build_up_per_hr**
+: Amount of maintenance pnts accumulated per hr.
+### Template Properties
+
+#### General
+
+
+**disable_maintenance**
+: So maintenance can be turned off with modifiers
+#### Maintenance
+
+
+**maintenance_resource_type**
+: The type of resource associated with maintenance demands.
+
+**maintenance_resource_amount**
+: The amount of resources required to maintain this building in working order.
+
+**maintenance_threshold_base**
+: This base value is randomized within 50% - 150% range to determine the maintenance threshold. When the threshold is reached the building requests maintenance.
+
+**maintenance_build_up_per_hr**
+: Amount of maintenance pnts accumulated per hr.
+
+
+
+
+(insert footer.md.html here)
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="markdeep.min.js"></script>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

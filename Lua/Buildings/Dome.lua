@@ -1181,10 +1181,14 @@ function Dome:CheckCrimeEvents()
 end
 
 function Dome:CanPreventCrimeEvents()
-	local officers = #(self.labels.security or empty_table)
+	local stations = self.labels.SecurityStation or empty_table
+	local officers = 0
+	for i=1, #stations do
+		officers =  officers + stations[i]:GetNegatedRenegades()
+	end
 	local renegades = #(self.labels.Renegade or empty_table)
 	if renegades>=officers then return false end
-	if officers>renegades*3 then return false end
+	if officers>renegades*3 then return true end
 	local chance = MulDivRound(officers, 100, 6*renegades)
 	return Random(0,100)<=chance
 end

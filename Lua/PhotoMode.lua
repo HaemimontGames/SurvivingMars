@@ -38,19 +38,21 @@ function AbortPhotoMode()
 end
 
 local function ActivateFreeCamera()
-	if not GetUIStyleGamepad() then
-		local dlg = GetDialog("PhotoMode")
-		if dlg then
-			dlg.idFreeCameraWarning:SetVisible(true)
-		end
+	local dlg = GetDialog("PhotoMode")
+	if dlg then
+		dlg.idFreeCameraWarning:SetVisible(true)
 	end
 	cameraFly.Activate(1)
-	SetMouseDeltaMode(true)
+	if g_MouseConnected then
+		SetMouseDeltaMode(true)
+	end
 end
 
 local function DeactivateFreeCamera()
 	if cameraFly.IsActive() then
-		SetMouseDeltaMode(false)
+		if g_MouseConnected then
+			SetMouseDeltaMode(false)
+		end
 		SetDefaultCameraRTS()
 	end
 	local dlg = GetDialog("PhotoMode")

@@ -26,6 +26,7 @@ DefineClass.Colonist =
 	dome = false,
 	city = false,
 	display_name = T{4290, "Colonist"},-- class's display name uinit name is in 'name'
+	pfclass = 3,
 	radius = 30*guic,
 	collision_radius = 30*guic,
 
@@ -73,9 +74,9 @@ DefineClass.Colonist =
 	inner_entity = false,
 	food_seeking  = false,
 
-	lock_workplace = false, --lock does not change 
 	avoid_workplace = false, -- last workplace , avoid when choose new workplace and reset when new workplace is set
 	avoid_workplace_start = false,
+	fulfill_workshift_boost = false,-- workshop boost is get if the laast time when the unit was in work the workplace is working
 
 	work_spot_task = "Workdrone",
 	direction_arrow_scale = 50,
@@ -245,14 +246,16 @@ end
 
 function Colonist:SetDome(dome)
 	dome = dome or false
-	if self.dome == dome then return end
-	if IsValid(self.dome) then
-		self.dome:RemoveFromLabel("Colonist", self)
-		self.dome:RemoveFromLabel("Homeless", self)
-		self.dome:RemoveFromLabel("Unemployed", self)
-		self.dome:RemoveFromLabel("DeadColonist", self)
+	local prev_dome = self.dome
+	self.dome = dome
+	if prev_dome == dome then return end
+	if IsValid(prev_dome) then
+		prev_dome:RemoveFromLabel("Colonist", self)
+		prev_dome:RemoveFromLabel("Homeless", self)
+		prev_dome:RemoveFromLabel("Unemployed", self)
+		prev_dome:RemoveFromLabel("DeadColonist", self)
 		for trait_id, _ in pairs(self.traits) do
-			self.dome:RemoveFromLabel(trait_id,self)
+			prev_dome:RemoveFromLabel(trait_id,self)
 			local trait = DataInstances.Trait[trait_id]
 			if trait and trait.modify_target == "dome colonists" then
 				trait:RemoveDomeColonistsModifier(self, trait.modify_trait)
@@ -260,10 +263,9 @@ function Colonist:SetDome(dome)
 		end
 		self:SetWorkplace(false)
 		self:SetResidence(false)
-		Msg("ColonistLeavesDome", self, self.dome)
+		Msg("ColonistLeavesDome", self,prev_dome)
 	end
-	
-	self.dome = dome
+
 	if IsValid(dome) then
 		assert(not self:IsValidPos() or IsInWalkingDist(self, dome))
 		dome:AddToLabel("Colonist", self)
@@ -291,6 +293,9 @@ function Colonist:ApplyTraits(traits, init)
 end
 
 function Colonist:AddTrait(trait_id, init)
+	if not IsTraitAvailable(trait_id) then
+		return -- try to add locked trait
+	end
 	g_HiddenTraits[trait_id] = nil
 	local has_trait = self.traits[trait_id]
 	self.traits[trait_id]= true
@@ -518,6 +523,7 @@ function Colonist:LeavingMars(rocket)
 			SelectObj()
 		end
 		DoneObject(self)
+		--@@@msg ColonistLeavingMars, colonist, rocket - fired when any colonist is leaving Mars
 		Msg("ColonistLeavingMars", self, rocket)
 		RebuildInfopanel(self)
 	end)
@@ -535,6 +541,8 @@ end)
 function Colonist:Die(reason)
 	reason = DeathReasons[reason] and reason or "low health"
  -- for not interupting 'die' command from other commands
+	--@@@msg ColonistDie, colonist, reason - fired when any colonist dies
+	Msg("ColonistDie", self, reason)
 	self:PushDestructor(function(self)
 		local city = self.city
 		local dome = self.dome
@@ -674,19 +682,22 @@ function Colonist:OnEnterDomeFail(dome)
 end
 
 function Colonist:Abandoned()
+	assert(not self.current_dome)
 	assert(self.outside_start)
 	assert(self:IsValidPos())
-	if IsValid(self.current_dome) then
-		return
-	end
+	
 	if not self:IsValidPos() then
-		local dome = self.dome or self.city:LabelRand("Dome")
+		local dome = self.dome or self.current_dome or self.city:LabelRand("Dome")
 		if dome then
 			dome:RandPlaceColonist(self)
+			return
 		end
+	end
+	if IsValid(self.current_dome) then
+		self:SetDome(self.current_dome)
 		return
 	end
-		
+	
 	self:ClearTransportRequest()
 	local dome = self.dome
 	if not dome then
@@ -702,7 +713,7 @@ function Colonist:Abandoned()
 			end
 		end
 	end
-	if dome and self:GotoSameDomeAsObj(dome) then
+	if dome and self:EnterBuilding(dome) then
 		assert(self.dome_enter_fails == 0)
 		self:RemoveOutsideNeeds()
 		local sanity_change = 30 * stat_scale - self.stat_sanity
@@ -711,13 +722,15 @@ function Colonist:Abandoned()
 		end
 		return
 	end
+	assert(not dome or self.dome_enter_fails > 0)
+	local fail_count = Max(1, self.dome_enter_fails)
 	-- the colonist have an assigned dome but he have failed to reached several times, therefore we have to try to change it
 	self:SetDome(false)
 	self:CancelResidenceReservation()
-	local max_wonder_dist = Min(100*guim, self.dome_enter_fails * 20 * guim)
+	local max_wonder_dist = Min(100*guim, fail_count * 20 * guim)
 	self:GoToRandomPos(max_wonder_dist, 5*guim)
 	self:SetState("idle")
-	local sleep_until = GameTime() + Min(60000, self.dome_enter_fails * (5000 + AsyncRand(5000)))
+	local sleep_until = GameTime() + Min(60000, fail_count * (5000 + AsyncRand(5000)))
 	local dome_version = g_DomeVersion
 	while dome_version == g_DomeVersion and GameTime() < sleep_until do
 		WaitMsg("BuildingPlaced", 1000)
@@ -727,18 +740,8 @@ end
 function Colonist:Roam(duration)
 	local tEnd = GameTime() + duration
 	self:ExitBuilding()
-	local dome = self.dome
-	if self.current_dome ~= dome then
-		if not self:EnterBuilding(dome) then
-			self:PlayState("idle", -1000)
-			return
-		elseif self.current_dome ~= dome then
-			self:PlayState("idle", -1000)
-			return
-		end
-	end
 	while tEnd - GameTime() > 0 do
-		self:GoToRandomPosInDome(dome)
+		self:GoToRandomPosInDome(self.dome)
 		self:PlayState("idle", -1000)
 	end
 end
@@ -778,16 +781,9 @@ function Colonist:Suicide()
 end
 
 function Colonist:SafeMode()
-	-- pick a random pos in the home dome, sleep there for some time and get back on track
-	self:ExitBuilding()
-	if self.current_dome ~= self.dome and not self:EnterBuilding(self.dome) then
-		return
-	end
-
-	local def = TechDef.SafeMode
-
 	self:GoToRandomPosInDome(self.dome)
 	
+	local def = TechDef.SafeMode
 	self:SetAnim(1, "sleepStart")
 	Sleep(self:TimeToAnimEnd())
 	self:SetAnim(1, "sleepIdle")
@@ -950,18 +946,19 @@ function Colonist:SetWorkplace(building, shift)
 		--remove overtime from daily routine
 		self.workplace:RemoveWorker(self)
 	end
-	
+	local old_workplace = self.workplace
 	self.workplace = building
 	self.workplace_shift = shift or 1
 	
 	if building then
+		assert(building:IsSuitable(self))
 		building:AddWorker(self, shift)
 		self.avoid_workplace = false -- last workplace , avoid when choose new workplace and reset when new workplace is set
 		self.avoid_workplace_start = false
 	end
-	
-	self.lock_workplace = building and building.force_lock_workplace or false
-	
+	--@@@msg ColonistChangeWorkplace,colonist, new_workplace, old_workplace - fired when any colonist changes its workplace and the new and old are different
+	Msg("ColonistChangeWorkplace",self, self.workplace, old_workplace)
+	 
 	self:UpdateEmploymentLabels()
 	if refresh then
 		RebuildInfopanel(self)
@@ -1004,12 +1001,9 @@ function OnMsg.TechResearched(tech_id, city)
 	end
 end
 
+local max_priority = const.MaxBuildingPriority
+
 function Colonist:UpdateWorkplace()
-	local current_workplace = self.workplace
-	if current_workplace
-	and (not ValidateBuilding(current_workplace) or not current_workplace:IsSuitable(self)) then
-		self:SetWorkplace(false)
-	end
 	--	look for dome before choosing workplace
 	local my_dome = self.dome
 	if not IsValid(my_dome) then
@@ -1034,51 +1028,77 @@ function Colonist:UpdateWorkplace()
 		self.user_forced_workplace[2] = shift
 	end
 	
-	if not workplace and self:CanTrain() then
-		 -- try train buidings
-		workplace, shift = ChooseTraining(self)
-		local nxt_dome = next(my_dome.connected_domes)
-		while nxt_dome and not workplace do
-			workplace, shift = ChooseTraining(self, nxt_dome.labels.TrainingBuilding, workplace, shift)
-			nxt_dome = next(my_dome.connected_domes, nxt_dome)
-		end
-	end
-	if not workplace and self:CanWork() then
-		-- try workplaces buidings
-		local specialist_match = false
-		local lst = my_dome.labels.Workplaces
-		workplace, shift, to_kick, specialist_match = ChooseWorkplace(self, lst, true)
-		
-		if (not workplace or not specialist_match) and next(my_dome.connected_domes) then
-			for connected_dome, connections in pairs(my_dome.connected_domes) do
-				lst = connected_dome.labels.Workplaces
-				local od_wp, od_shift, od_kick, od_sm = ChooseWorkplace(self, lst)
-				local cpy = false
-				local brk = false
-				if od_sm and not specialist_match then
-					--found specialist match in other dome
-					cpy = true
-					brk = true
-				elseif CompareWorkplaces(workplace, od_wp, self) == od_wp then
-					cpy = true
-				end
-				
-				if cpy then
-					workplace = od_wp
-					shift = od_shift
-					to_kick = od_kick
-					specialist_match = od_sm
-				end
-				if brk then break end
+	if not workplace then
+		local current_workplace = self.workplace
+		if current_workplace then
+			if not ValidateBuilding(current_workplace) or not current_workplace:IsSuitable(self) then
+				self:SetWorkplace(false)
+			elseif current_workplace.force_lock_workplace then
+				return
 			end
 		end
+		if self:CanTrain() then
+			 -- try train buidings
+			workplace, shift = ChooseTraining(self)
+			if my_dome.allow_work_in_connected and my_dome.accept_colonists then
+				local nxt_dome = next(my_dome.connected_domes)
+				while nxt_dome and not workplace do
+					if nxt_dome:CanColonistsFromDifferentDomesWorkServiceTrainHere() then
+						workplace, shift = ChooseTraining(self, nxt_dome.labels.TrainingBuilding, workplace, shift)
+					end
+					nxt_dome = next(my_dome.connected_domes, nxt_dome)
+				end
+			end
+		end
+		local work_bld, work_shift, work_to_kick
+		if self:CanWork() and (not workplace or workplace.priority < max_priority) then
+			-- try workplaces buidings
+			local specialist_match = false
+			local lst = my_dome.labels.Workplaces
+			work_bld, work_shift, work_to_kick, specialist_match = ChooseWorkplace(self, lst, true)
+			
+			if my_dome.allow_work_in_connected and my_dome.accept_colonists and (not work_bld or not specialist_match) and next(my_dome.connected_domes) then
+				for connected_dome, connections in pairs(my_dome.connected_domes) do
+					if connected_dome:CanColonistsFromDifferentDomesWorkServiceTrainHere() then
+						lst = connected_dome.labels.Workplaces
+						local od_wp, od_shift, od_kick, od_sm = ChooseWorkplace(self, lst)
+						local cpy = false
+						local brk = false
+						if od_sm and not specialist_match then
+							--found specialist match in other dome
+							cpy = true
+							brk = true
+						elseif CompareWorkplaces(work_bld, od_wp, self) == od_wp then
+							cpy = true
+						end
+						
+						if cpy then
+							work_bld = od_wp
+							work_shift = od_shift
+							work_to_kick = od_kick
+							specialist_match = od_sm
+						end
+						if brk then break end
+					end
+				end
+			end
+		end
+		if work_bld and (not workplace or work_bld.priority > workplace.priority) then
+			-- workplace is prefered over training only if having higher priority
+			workplace, shift, to_kick = work_bld, work_shift, work_to_kick
+		end
+	end
+	
+	if not workplace and not self.workplace
+	or workplace == self.workplace and shift == self.workplace_shift then
+		return
 	end
 
 	--Print("workplace",workplace and workplace.class, workplace and workplace.specialist	)
 	if to_kick then 
 		to_kick:SetWorkplace(false)
 	end	
-	self:SetWorkplace(workplace or false, shift)
+	self:SetWorkplace(workplace, shift)
 	--Print(self.name, self.specialist, "set workplace")
 	if to_kick then 
 		--Print(self.name, self.specialist,"kicks", to_kick.name, to_kick.specialist, to_kick.prefer_workplace)
@@ -1093,7 +1113,6 @@ function Colonist:GetFired()
 	self:SetWorkplace(false)
 	self.avoid_workplace = self.workplace
 	self.avoid_workplace_start = self.city.day
-	self.lock_workplace = nil
 	self:ChangeWorkplacePerformance()
 end
 
@@ -1390,15 +1409,6 @@ function Colonist:VisitService(service)
 	self:AssignToService(service, "force")
 	self:PushDestructor(self.AssignToService)
 
-	local holder = self.holder
-	if holder then
-		self:ExitBuilding(holder, service)
-	end
-	assert(self:IsValidPos())
-	if not IsValid(service) then --bld can die while we exit
-		self:PopAndCallDestructor()
-		return
-	end
 	if self:EnterBuilding(service) and IsValid(service) then
 		local interest = self.daily_interest
 		if service:IsOneOfInterests(interest) then
@@ -1440,7 +1450,7 @@ function Colonist:Rest()
 
 		if dome and dome.working then
 			local commander_profile = GetCommanderProfile()
-			local psyho = commander_profile.name=="psychologist" and commander_profile.param1*stat_scale or 0
+			local psyho = commander_profile.id=="psychologist" and commander_profile.param1*stat_scale or 0
 			self:ChangeSanity(psyho, "psychologist" )		
 			self:ChangeSanity(dome.DailySanityRecoverDome, "dome" )
 		end
@@ -1513,7 +1523,7 @@ end
 
 function Colonist:Work()
 	local bld = self.workplace
-	if self:GotoSameDomeAsObj(bld) and self:EnterBuilding(bld) and bld == self.workplace then
+	if self:EnterBuilding(bld) and bld == self.workplace then
 		self:SetCommand("WorkCycle")
 	end
 	self:PlayState("idle", -1000)
@@ -1599,9 +1609,8 @@ function Colonist:InterceptRogueDrone(drone, dome, dist, sent_by_station)
 		drone.rogue_intercepted[dome] = true
 	end
 	
-	if self:GotoSameDomeAsObj(drone) then
-		self:Goto(drone, 2*guim, 0)
-	end
+	self:ExitHolder(drone)
+	self:Goto(drone, 2*guim, 0)
 	
 	self:PopAndCallDestructor()
 end
@@ -1866,6 +1875,8 @@ function Colonist:Goto(pos, ...)
 end
 
 function Colonist:TransportByFoot(dest_dome)
+	assert(IsInWalkingDist(self, dest_dome))
+	
 	local source_dome = self.dome
 	self.emigration_dome = dest_dome
 	--abandon old life
@@ -1873,7 +1884,7 @@ function Colonist:TransportByFoot(dest_dome)
 		self:SetDome(false)
 	end
 	
-	if not self:GotoSameDomeAsObj(dest_dome) then
+	if not self:EnterBuilding(dest_dome) then
 		self:CancelResidenceReservation()
 		self:SetCommand("Abandoned")
 	end
@@ -1893,17 +1904,29 @@ end
 function Colonist:IsTransported()
 	local task = self.transport_task
 	local shuttle = task and task.shuttle
-	local transported = IsValid(shuttle) and shuttle.transport_task == task and task.state == "transporting"
-	assert(not transported or self:GetParent() == shuttle and shuttle.command == "TransportColonist")
-	return transported
+	if IsValid(shuttle) and shuttle.transport_task == task and task.state == "transporting" then
+		assert(self:GetParent() == shuttle)
+		return true
+	end
+	assert(self:GetParent() ~= shuttle)
 end
 
-function Colonist:IsWaitingTransport()
+function Colonist:IsWaitingTransport(shuttle)
+	if not self:CanChangeCommand() then
+		return
+	end
 	local task = self.transport_task
-	return task and task.state == "ready_for_pickup" and self:CanChangeCommand() and IsLRTransportAvailable(self.city)
+	if not task or task.state ~= "ready_for_pickup" then
+		return
+	end
+	if not task.shuttle and not IsLRTransportAvailable(self.city) then
+		return
+	end
+	return true
 end
 
 local working_anims = { "idle" }
+
 function Colonist:Transport(dest_dome)
 	assert(dest_dome)
 	local source_dome = self.dome
@@ -1911,11 +1934,16 @@ function Colonist:Transport(dest_dome)
 	self:PushDestructor(function(self)
 		local transport_task = self.transport_task
 		if transport_task then
-			while self:IsTransported() do
-				--shuttle is still transporting, while we somehow exited the cmd
-				WaitWakeup(999)
+			if self:IsTransported() then
+				self:SetDome(false)
+				while self:IsTransported() do
+					--shuttle is still transporting, while we somehow exited the cmd
+					WaitWakeup(999)
+				end
 			end
-			if transport_task.state == "done" then
+			local state = transport_task.state
+			if state == "done"
+			or state == "transporting" and IsInWalkingDist(self, dest_dome) then
 				self:SetDome(dest_dome)
 			else
 				self:CancelResidenceReservation()
@@ -1927,8 +1955,7 @@ function Colonist:Transport(dest_dome)
 	
 	local pickup_pos = GetPassablePointNearby(self.transport_task.source_landing_site[1])
 	
-	if not self:GotoSameDomeAsObj(pickup_pos)
-	or not self:Goto(pickup_pos) and not self:IsCloser2D(pickup_pos, 10*guim) then
+	if not self:ExitHolder() or not self:Goto(pickup_pos) and not self:IsCloser2D(pickup_pos, 10*guim) then
 		--failed to reach landing site
 		self:PopAndCallDestructor()
 		return
@@ -1936,6 +1963,7 @@ function Colonist:Transport(dest_dome)
 	
 	--reached landing site.
 	self.transport_task.state = "ready_for_pickup"
+	assert(not self.current_dome)
 	
 	if self.transport_task.shuttle then
 		Wakeup(self.transport_task.shuttle.command_thread) --wake the shuttle if it's already waiting for us.
@@ -1955,9 +1983,6 @@ function Colonist:Transport(dest_dome)
 	while self:IsWaitingTransport() and GameTime() - start_wait_ts < max_wait do
 		self:PlayState(working_anims[idx + 1])
 		idx = (idx + 1) % count
-	end
-	if self:IsTransported() then
-		self:SetDome(false)
 	end
 	self:PopAndCallDestructor()
 end
@@ -2092,6 +2117,10 @@ function Colonist:UIStatUpdate(win, stat)
 			if obj.dome and obj.dome:HasSpire() and obj.city:IsTechResearched("InspiringArchitecture") then	
 				texts = texts or {def.description, "", T{4370, "Effects:"}}
 				texts[#texts + 1] = T{4371, "<green>Spire in Dome: <spire_name></green>", spire_name = obj.dome.labels.Spire[1]:GetDisplayName()}
+			end
+			if IsKindOf(obj.workplace, "Workshop") and obj.fulfill_workshift_boost then	
+				texts = texts or {def.description, "", T{4370, "Effects:"}}
+				texts[#texts + 1] = T{8803, "<green>Works in: <WorkplaceDisplayName> <amount></green>",obj, amount = Untranslated("+")..(g_Consts.WorkInWorkshopMoraleBoost/const.Scale.Stat)}
 			end
 			local trait_defs = DataInstances.Trait
 			for _,mod in ipairs(obj.modifications and obj.modifications.base_morale or empty_table) do
@@ -2658,7 +2687,7 @@ function Colonist:GetFoodConsumptionPerVisit()
 	return g_Consts.eat_food_per_visit
 end
 
-function Colonist:Eat(max_amount)
+function Colonist:GetEatPerVisit()
 	local eat_per_visit = self:GetFoodConsumptionPerVisit()
 	if self.traits.Glutton then
 		eat_per_visit = 2 * eat_per_visit
@@ -2666,6 +2695,12 @@ function Colonist:Eat(max_amount)
 	if DayStart - self.last_meal > const.DayDuration then -- if we have not eaten for more than a day
 		eat_per_visit = 2 * eat_per_visit
 	end
+	
+	return eat_per_visit
+end
+
+function Colonist:Eat(max_amount)
+	local eat_per_visit = self:GetEatPerVisit()
 	if max_amount < eat_per_visit then
 		return 0
 	end
@@ -2748,7 +2783,7 @@ function Colonist:ChangeComfort(amount, reason)
 	self:UpdateMorale()
 	if new_value == 0 then
 		local traits = self.traits
-		if not traits.Martianborn and not traits.Refugee and GetMissionSponsor().name ~= "IMM" then
+		if not traits.Martianborn and not traits.Refugee and GetMissionSponsor().id ~= "IMM" then
 			self:Affect("StatusEffect_Earthsick", "start")
 			if HintsEnabled then
 				HintTrigger("HintEarthsick")
@@ -2815,6 +2850,10 @@ function Colonist:UpdateMorale()
 	
 	if self.dome and self.dome:HasSpire() and self.city:IsTechResearched("InspiringArchitecture") then	
 		new_value = new_value + TechDef.InspiringArchitecture.param1*const.Scale.Stat
+	end
+	
+	if IsKindOf(self.workplace, "Workshop") and self.fulfill_workshift_boost then
+		new_value = new_value + g_Consts.WorkInWorkshopMoraleBoost
 	end
 	
 	self.stat_morale = new_value

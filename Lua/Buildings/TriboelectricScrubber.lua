@@ -122,6 +122,7 @@ function TriboelectricScrubber:ChargedClean()
 	end, self)
 	Sleep(self.sphere:TimeToAnimEnd())
 	self.sphere:PlayState("workingEnd")
+	self.sphere:SetState("idle", const.eDontCrossfade)
 	PlayFX("ChargedClean", "end", self.sphere)
 	self.charging = false
 	Msg(self)

@@ -18,9 +18,15 @@ DefineClass.MysteryBase = { --data holder for mysteries
 	resource_entity = "ResourceMystery", 
 	resource_description = T{8065, "Mystery Resource Description"},
 	
+	--display names for mystery storage depots are stored here and they override the building template
+	--this is done so multiple misteriese don't have to use hacks to set their own names, as the mystery resource is shared between games
+	
 	depot_display_name = T{8112, --[[BuildingTemplate StorageMysteryResource display_name]] "Mystery Depot"},
 	depot_display_name_pl = T{8112, --[[BuildingTemplate StorageMysteryResource display_name_pl]] "Mystery Depot"},
 	depot_description = T{8113, --[[BuildingTemplate StorageMysteryResource description]] "It's very mysterious."},
+	mech_depot_display_name = T{8794, "Mystery Storage"},
+	mech_depot_display_name_pl = T{8795, "Mystery Storages"},
+	mech_depot_description = T{8113, "It's very mysterious."},
 	
 	order_pos = 0,
 	dlc = false,
@@ -94,7 +100,7 @@ function City:SelectMystery()
 			mystery = self:TableRand(mysteries)
 		end
 	end
-	if mystery ~= "none" then
+	if mystery ~= "none" and not g_Tutorial then
 		self.mystery_id = mystery
 	end
 end
@@ -130,6 +136,16 @@ function OnMsg.MysteryBegin()
 	if current_mystery and not played_mysteries[current_mystery.class] then
 		played_mysteries[current_mystery.class] = true
 		AccountStorage.PlayedMysteries = played_mysteries
+		SaveAccountStorage()
+	end
+end
+
+function OnMsg.MysteryEnd(outcome)
+	local current_mystery = UICity.mystery
+	local finished_mysteries = AccountStorage.FinishedMysteries or {}
+	if current_mystery and not finished_mysteries[current_mystery.class] then
+		finished_mysteries[current_mystery.class] = true
+		AccountStorage.FinishedMysteries = finished_mysteries
 		SaveAccountStorage()
 	end
 end

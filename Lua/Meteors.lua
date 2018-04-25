@@ -89,7 +89,6 @@ function SpawnMeteor(meteors, dir, angle, pos)
 	end
 	
 	pos = pos:SetZ(terrain.GetHeight(pos))
-	--pos = point(283405, 244259, 8006)
 	dir = GenerateDir(dir, angle)
 	local start = pos + SetLen(dir, meteors.travel_dist)
 	
@@ -463,18 +462,19 @@ DefineClass.BaseMeteorSmall =
 	__parents = {"BaseMeteor"},
 	prefabs =
 	{
-		["Rocks"] = { "Any.Gameplay.MeteorImpactS_01", "Any.Gameplay.MeteorImpactS_03" },
+		["Rocks"] = { "Any.Gameplay.MeteorImpactAutoRemoveS_01", "Any.Gameplay.MeteorImpactAutoRemoveS_03" },
 		["Metals"] = { "Any.Gameplay.MeteorImpMetalS_01", "Any.Gameplay.MeteorImpMetalS_03" },
 		["Polymers"] = { "Any.Gameplay.MeteorImpPolyS_01", "Any.Gameplay.MeteorImpPolyS_03" },
 		["Anomaly"] = { "Any.Gameplay.MeteorImpAnomalyS_01", "Any.Gameplay.MeteorImpAnomalyS_03" },
 	},
-	targets = { "Drone", "Building", "BaseRover", "ResourceStockpileBase", "ElectricityGridElement", "LifeSupportGridElement", "Colonist"},
+	targets = { "Drone", "Building", "BaseRover", "ResourceStockpileBase", "ElectricityGridElement", "LifeSupportGridElement", "Colonist", "PassageGridElement"},
 }
 
 function BaseMeteorSmall:Explode()
 	UICity:SetCableCascadeDeletion(false, "meteor")
 	local objects = GetObjects(self:CreateQuery())
 	meteor_query.area = false
+	local passages_fractured = {}
 	local buildings_hit = {}
 	local chain_id_counter = 1
 	local destroyed_pipes = {}
@@ -495,11 +495,14 @@ function BaseMeteorSmall:Explode()
 				PlayFX("MeteorMalfunction", "start", obj)
 				obj:SetCommand("Malfunction")
 			end
-		elseif IsKindOf(obj, "UniversalStorageDepot") then
+		elseif IsKindOfClasses(obj, "UniversalStorageDepot", "MechanizedDepot") then
 			if not IsKindOf(obj, "SupplyRocket") and obj:GetStoredAmount("Fuel") > 0 then
 				PlayFX("FuelExplosion", "start", obj)
 				obj:CheatEmpty()
 				AddOnScreenNotification("FuelDestroyed", nil, {}, {obj})
+			end
+			if IsKindOf(obj, "MechanizedDepot") then
+				obj:SetMalfunction()
 			end
 		elseif IsKindOf(obj, "ResourceStockpileBase") then
 			local amount = obj:GetStoredAmount()
@@ -507,6 +510,11 @@ function BaseMeteorSmall:Explode()
 				PlayFX("FuelExplosion", "start", obj)
 				obj:AddResourceAmount(-amount, true)
 				AddOnScreenNotification("FuelDestroyed", nil, {}, {obj})
+			end
+		elseif IsKindOf(obj, "PassageGridElement") then
+			if not passages_fractured[obj.passage_obj] then
+				obj:AddFracture(self:GetPos())
+				passages_fractured[obj.passage_obj] = true
 			end
 		elseif obj:IsKindOf("Building") then
 			if not IsKindOfClasses(obj, "Dome", "StorageDepot", "ConstructionSite") then
@@ -580,13 +588,13 @@ DefineClass.BaseMeteorLarge =
 	__parents = {"BaseMeteor"},
 	prefabs =
 	{
-		["Rocks"] = { "Any.Gameplay.MeteorImpactB_01", "Any.Gameplay.MeteorImpactB_03" },
+		["Rocks"] = { "Any.Gameplay.MeteorImpactAutoRemoveB_01", "Any.Gameplay.MeteorImpactAutoRemoveB_03" },
 		["Metals"] = { "Any.Gameplay.MeteorImpMetalB_01", "Any.Gameplay.MeteorImpMetalB_03" },
 		["Polymers"] = { "Any.Gameplay.MeteorImpPolyB_01", "Any.Gameplay.MeteorImpPolyB_03" },
 		["Anomaly"] = { "Any.Gameplay.MeteorImpAnomalyB_01", "Any.Gameplay.MeteorImpAnomalyB_03" },
 	},
 	crack_type = "Large",
-	targets = { "Drone", "Colonist", "Building", "BaseRover", "ResourceStockpileBase", "ElectricityGridElement", "LifeSupportGridElement"  },
+	targets = { "Drone", "Colonist", "Building", "BaseRover", "ResourceStockpileBase", "ElectricityGridElement", "LifeSupportGridElement", "PassageGridElement"  },
 }
 
 function BaseMeteorLarge:Init()
@@ -598,6 +606,7 @@ function BaseMeteorLarge:Explode()
 	local objects = GetObjects(self:CreateQuery())
 	meteor_query.area = false
 	local chain_id_counter = 1
+	local passages_fractured = {}
 	local destroyed_pipes = {}
 	local destroyed_cables = {}
 	local cablesnpipes_to_kill = {}
@@ -623,6 +632,11 @@ function BaseMeteorLarge:Explode()
 			if obj.resource == "Fuel" and amount > 0 then
 				PlayFX("FuelExplosion", "start", obj)
 				obj:AddResourceAmount(-amount, true)
+			end
+		elseif IsKindOf(obj, "PassageGridElement") then
+			if not passages_fractured[obj.passage_obj] then
+				obj:AddFracture(self:GetPos())
+				passages_fractured[obj.passage_obj] = true
 			end
 		elseif IsKindOf(obj, "Building") then
 			if not IsKindOfClasses(obj, "Dome", "ConstructionSite") then

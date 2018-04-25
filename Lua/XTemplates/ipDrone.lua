@@ -48,7 +48,7 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateTemplate', {
 			'comment', "salvage",
 			'__context_of_kind', "Demolishable",
-			'__condition', function (parent, context) return context:CanDemolish() end,
+			'__condition', function (parent, context) return context:ShouldShowDemolishButton() end,
 			'__template', "InfopanelButton",
 			'RolloverDisabledText', T{367823728879, --[[XTemplate ipDrone RolloverDisabledText]] "Vehicle inactive."},
 			'RolloverTitle', T{3973, --[[XTemplate ipDrone RolloverTitle]] "Salvage"},

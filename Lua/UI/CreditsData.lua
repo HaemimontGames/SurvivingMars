@@ -752,6 +752,12 @@ Marcin Gorniak
 
 
 
+QA COMPLIANCE MANAGER
+
+James Small
+
+
+
 QA LAB MANAGERS
 
 Lukasz Miroslawski

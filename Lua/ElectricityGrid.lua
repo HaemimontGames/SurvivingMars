@@ -255,6 +255,14 @@ function ElectricityGridElement:GetInfopanelTemplate()
 	if self.auto_connect then return "ipLeak" end
 end
 
+function ElectricityGridElement:GetDisplayName()
+	if self.repair_resource_request then
+		return T{3890, "Cable Fault"}
+	else
+		return SupplyGridSwitch.GetDisplayName(self)
+	end
+end
+
 local full_connections = { 63 * 256 + 128 }
 local full_connections_switched = { 63 * 256 + 128 + 16384}
 local pipe_connections = { (1 + 8) * 256 + 128 }
@@ -1162,7 +1170,7 @@ function ElectricityStorage:OnModifiableValueChanged(prop)
 			self.electricity.grid.current_storage = self.electricity.grid.current_storage - delta
 		end
 		
-		self.electricity:SetStorage(self.max_electricity_charge, self.max_electricity_discharge)
+		self.electricity:UpdateStorage()
 	end
 end
 

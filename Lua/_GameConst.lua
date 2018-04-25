@@ -162,11 +162,11 @@ const.ConstructBorder = 50 * guim -- construction forbiden zone near map end
 const.HeatGridBorder = 100 * guim
 const.HeatGridTileSize = 512
 const.SubsurfaceHeaterFrameRange = const.HeatGridTileSize * 4
-const.DefaultPanaltyHeat = 210
-const.DefaultPanaltyPct = 60
-const.DefaultFreezeHeat = 100
-const.DefaultFreezeTime = 8 * const.HourDuration
-const.DefaultDefrostTime = 4 * const.HourDuration
+const.DefaultPanaltyHeat = 210 -- Heat at which the cold penalty is applied
+const.DefaultPanaltyPct = 60   -- Cold penalty percents
+const.DefaultFreezeHeat = 100  -- Heat at which the building begins to freeze
+const.DefaultFreezeTime = 8 * const.HourDuration   -- Freeze time if under the freeze heat
+const.DefaultDefrostTime = 4 * const.HourDuration  -- Defrost time if above the freeze heat
 const.DustStormSuspendBuildings = {"MOXIE", "MoistureVaporator", "ShuttleHub"}
 
 -- color tags

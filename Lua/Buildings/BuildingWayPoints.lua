@@ -137,10 +137,13 @@ function WaypointsObj:GameInit()
 end
 
 function WaypointsObj:BuildWaypointChains()
-	local waypoint_chains = {}
-	self.waypoint_chains = waypoint_chains
+	local waypoint_chains
 	local GetHeight = terrain.GetHeight
 	for _, chain in ipairs(GetEntityWaypointChains(self:GetEntity())) do
+		if not waypoint_chains then
+			waypoint_chains = {}
+			self.waypoint_chains = waypoint_chains
+		end
 		local instance_chain = {
 			openInside = chain.openInside,
 			openOutside = chain.openOutside,
@@ -347,14 +350,18 @@ end
 function WaypointsObj:LeadIn(unit, entrance)
 	assert(type(entrance) == "table")
 	if not entrance then return end
+	assert(not unit.lead_in_out)
 	unit.lead_in_out = self
 	self:OnEnterUnit(unit)
-	-- execute FollowWaypointPath in the destructor to make it uninterruptible
 	unit:PushDestructor(function(unit)
-		FollowWaypointPath(unit, entrance, #entrance, 1)
 		unit.lead_in_out = false
 		unit:SetOutside(false)
+		if unit.lead_interrupted then
+			unit.lead_interrupted = nil
+			unit:InterruptCommand()
+		end
 	end)
+	FollowWaypointPath(unit, entrance, #entrance, 1)
 	unit:PopAndCallDestructor()
 end
 
@@ -362,21 +369,25 @@ function WaypointsObj:LeadOut(unit, entrance)
 	assert(type(entrance) == "table")
 	if not entrance then return end
 	unit.lead_in_out = self
-	-- execute FollowWaypointPath in the destructor to make it uninterruptible
+	unit:SetOutside(not unit.current_dome)
 	unit:PushDestructor(function(unit)
-		FollowWaypointPath(unit, entrance, 1, #entrance)
 		if not unit:IsValidPos() then
 			unit:SetPos(entrance[#entrance])
 			unit:SetAngle(CalcOrientation(entrance[#entrance-1], entrance[#entrance]))
 		end
 		unit.lead_in_out = false
-		unit:SetOutside(not unit.current_dome)
+		if unit.lead_interrupted then
+			unit.lead_interrupted = nil
+			unit:InterruptCommand()
+		end
 		self:OnExitUnit(unit)
 	end)
+	FollowWaypointPath(unit, entrance, 1, #entrance)
 	unit:PopAndCallDestructor()
 end
 
 function WaypointsObj:OnEnterUnit(unit)
+	assert(unit.current_dome == self.parent_dome)
 	unit:SetHolder(self)
 	unit:ShowAttachedSigns(false)
 end

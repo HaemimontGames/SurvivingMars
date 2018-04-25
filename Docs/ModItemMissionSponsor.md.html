@@ -4,10 +4,12 @@ Mission Sponsor
 
 This mod item allows you to define a mission sponsor. It can be selected in the new game menu and has a significant effect over gameplay. [Here](LuaFunctionDoc_Gameplay.md.html) can be found some useful functions for creating effects.
 
+Gameplay effects for the Mission Sponsor can be defined using [Effects](ModItemEffect.md.html). They can influence global consts in different ways, unlock various gameplay items at game start and impact player structures at different stages of creation. Game effects are the most conveninent way to implement functionality for your Mission Sponsor. 
+
 Properties
 ----------
-Name (self.name)
-: This is the internal unique name of mission sponsor. It is not visible by users.
+Id (self.id)
+: This is the internal unique id of mission sponsor. It is not visible by users.
 
 Display Name (self.display_name)
 : This is the user-visible name of the mission sponsor, visible when choose it in game combo.
@@ -63,14 +65,16 @@ Filter (self.filter)
 : Lua expression that will be evaluated to check whether to show this mission sponsor in game combo.
 
 Game Apply (function self:game_apply(city))
-: Code that is executed at game start. Sponsor effects, sich as research points or travel time, are stored in [global consts](LuaFunctionDoc_Consts.md.html) and can be modified here. 
+: Code that is executed at game start. Use functions to implement conditional mission sponsor effects which cannot be defined via [Effects](ModItemEffect.md.html).
 
-Here is an example game_apply function, which increases the sponsor research points by 20 and drops the time to travel from earth to mars and back by 50%
-
+Here is an example of a very generous sponsor
 ~~~~~~~~~ Lua
-CreateLabelModifier("SponsorRocketSpeed", "Consts", "TravelTimeEarthMars", 0, -50)
-CreateLabelModifier("SponsorRocketSpeed", "Consts", "TravelTimeMarsEarth", 0, -50)
-CreateLabelModifier("SponsorResearchPoints", "Consts", "SponsorResearch", 20, 0)
+if IsGameRuleActive("ColonyPrefab") then
+	GrantTech("SoilAdaptation")
+	city:AddPrefabs("StirlingGenerator", 2)
+	city:AddPrefabs("MoistureVaporator", 2)
+	city:AddPrefabs("Farm", 2)
+end
 ~~~~~~~~~
 
 (insert footer.md.html here)

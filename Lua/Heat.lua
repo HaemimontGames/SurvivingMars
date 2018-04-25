@@ -239,11 +239,11 @@ DefineClass.ColdSensitive = {
 	__parents = { "BaseBuilding"},
 
 	properties = {
-		{ template = true, name = T{664, "Penalty Heat"},         id = "penalty_heat",            category = "Cold", editor = "number",       default = const.DefaultPanaltyHeat,min = 0, max = const.MaxHeat, slider = true },
-		{ template = true, name = T{665, "Penalty Percent"},      id = "penalty_pct",             category = "Cold", editor = "number",       default = const.DefaultPanaltyPct, min = 0, max = 100, slider = true },
-		{ template = true, name = T{666, "Freeze Time"},          id = "freeze_time",             category = "Cold", editor = "number",       default = const.DefaultFreezeTime, scale = const.HourDuration },
-		{ template = true, name = T{8526, "Defrost Time"},              id = "defrost_time",            category = "Cold", editor = "number",       default = const.DefaultDefrostTime, scale = const.HourDuration },
-		{ template = true, name = T{667, "Freeze Heat"},          id = "freeze_heat",             category = "Cold", editor = "number",       default = const.DefaultFreezeHeat, min = 0, max = const.MaxHeat, slider = true },
+		{ template = true, name = T{664, "Penalty Heat"},         id = "penalty_heat",            category = "Cold", editor = "number", default = const.DefaultPanaltyHeat, min = 0, max = const.MaxHeat, slider = true, help = "Heat at which the cold penalty is applied" },
+		{ template = true, name = T{665, "Penalty Percent"},      id = "penalty_pct",             category = "Cold", editor = "number", default = const.DefaultPanaltyPct,  min = 0, max = 300, slider = true, help = "Cold penalty percents" },
+		{ template = true, name = T{666, "Freeze Time"},          id = "freeze_time",             category = "Cold", editor = "number", default = const.DefaultFreezeTime,  scale = const.HourDuration, help = "Freeze time if under the freeze heat" },
+		{ template = true, name = T{8526, "Defrost Time"},        id = "defrost_time",            category = "Cold", editor = "number", default = const.DefaultDefrostTime, scale = const.HourDuration, help = "Defrost time if above the freeze heat" },
+		{ template = true, name = T{667, "Freeze Heat"},          id = "freeze_heat",             category = "Cold", editor = "number", default = const.DefaultFreezeHeat,  min = 0, max = const.MaxHeat, slider = true, help = "Heat at which the building begins to freeze" },
 	},
 	
 	is_electricity_consumer = false, --el consumer child flips this
@@ -275,7 +275,8 @@ function ColdSensitive:OnFrozenStateChanged()
 end
 
 function ColdSensitive:GetColdPenalty()
-	return IsValid(self) and not IsObjInDome(self) and GetHeatAt(self) < self.penalty_heat and self.penalty_pct or 0
+	local penalty = IsGameRuleActive("WinterIsComing") and g_ColdWave and 2*self.penalty_pct or self.penalty_pct
+	return IsValid(self) and not IsObjInDome(self) and GetHeatAt(self) < self.penalty_heat and penalty or 0
 end
 
 function ColdSensitive:IsFreezing()

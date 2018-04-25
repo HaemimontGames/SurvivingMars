@@ -269,6 +269,17 @@ int percent
 : percent to change with.
 
 
+## RemoveBuildingLock
+
+Unlocks a building in the build menu, but doesn't interfere with tech effects that may be locking it (in contrast to [UnlockBuilding](#UnlockBuilding)).<br>
+<br>
+
+void **RemoveBuildingLock**(string template_name)
+string template_name
+: The template name of the building to be unlocked.
+
+See also: [UnlockBuilding](#UnlockBuilding)<br>
+
 ## RemoveLabelModifier
 
 Removes an already existing label property modifier.<br>
@@ -287,13 +298,14 @@ See also: [CreateLabelModifier](#CreateLabelModifier) and [ChangeLabelModifier](
 
 ## UnlockBuilding
 
-Unlocks a building in the build menu regardless of tech effects that may be locking it.<br>
+Unlocks a building in the build menu regardless of tech effects that may be locking it (in contrast to [RemoveBuildingLock](#RemoveBuildingLock)).<br>
 <br>
 
 void **UnlockBuilding**(string template_name)
 string template_name
 : The template name of the building to be unlocked.
 
+See also: [RemoveBuildingLock](#RemoveBuildingLock)<br>
 
 ## UnlockCrop
 

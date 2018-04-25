@@ -20,7 +20,7 @@ ConstructionStatus = {
 
 	RequiresCable =                   { type = "error", priority = 90, text = T{854, "Must be constructed over a power cable."}, short = T{855, "Must be built on a cable"}},
 	RequiresPipe =                    { type = "error", priority = 90, text = T{856, "Must be constructed over a pipe."}, short = T{857, "Must be built on a pipe"}},
-	RequiresPassage =                 { type = "error", priority = 90, text = T{"(design)Must be constructed over a passage."}, short = T{"(design)Must be built on a passage"}},
+	RequiresPassage =                 { type = "error", priority = 90, text = T{8770, "Must be constructed over a passage."}, short = T{8771, "Must be built on a passage"}},
 	DontBuildHere =                   { type = "error", priority = 92, text = T{858, "Can't build on dust geysers."}, short = T{7953, "Blocking objects"}},
 	BlockingObjects =                 { type = "error", priority = 97, text = T{860, "Objects underneath are blocking construction."}, short = T{7953, "Blocking objects"}},
 	UnevenTerrain =                   { type = "error", priority = 96, text = T{861, "Uneven terrain."}, short = T{7954, "Uneven terrain"}},
@@ -35,10 +35,16 @@ ConstructionStatus = {
 	NoNearbyWorkers =                 { type = "error", priority = 100, text = T{190, "This building requires Colonists and is too far from your Domes."}, short =  T{876, "Too far from Domes"}}, --no workers nearby
 	TooFarFromTunnelEntrance =        { type = "error", priority = 100, text = T{6773, "Too far from tunnel entrance."}, short =  T{846, "Too far"}},
 	RocketLandingDustStorm = 			  { type = "error", priority = 90, text = T{8524, "Rockets can't land during dust storms."}, short = T{8525, "Can't Land"}},
-	PassageRequiresTwoDomes = 		  { type = "error", priority = 90, text = T{"(design)Passage must start and end in a dome."}, short = T{"(design)No dome"}},
-	PassageTooCloseToEntrance = 		  { type = "error", priority = 90, text = T{"(design)Too close to dome entrance."}, short = T{"(design)Too close to dome entrance."}},
+	PassageRequiresTwoDomes = 		  { type = "error", priority = 90, text = T{8772, "Passage must start and end in a dome."}, short = T{8773, "No dome"}},
+	PassageRequiresDifferentDomes =   { type = "error", priority = 90, text = T{"Passage must start and end in different domes."}, short = T{"Different dome required"}},
+	PassageTooCloseToEntrance = 		  { type = "error", priority = 90, text = T{8774, "Too close to dome entrance."}, short = T{8775, "Dome entrance blocking"}},
+	PassageAngleToSteep = 				  { type = "error", priority = 91, text = T{"Passage turn is too steep."}, short = T{"Passage turn is too steep"}},
 	
 	DepositInfo =                     { type = "info",  priority = 97, text = T{877, "Available resource<right><resource><newline><left>Grade<right><grade><left>"} },
+
+	-- tutorial-ralated
+	TooFarFromTarget = 		 		  { type = "error", priority = 90, text = T{"Too far from target location."}, short = T{"Too far from target"}},
+	WrongBuilding = 			 		  { type = "error", priority = 90, text = T{"Wrong building selected."}, short = T{"Wrong building"}},
 }
 
 
@@ -126,7 +132,7 @@ DefineClass.ConstructionModeDialog = {
 	params = false,
 	selected_dome = false,
 	instant_build = false,
-	
+	template_variants = false, 
 	TryCloseAfterPlace = TryCloseAfterPlace,
 }
 
@@ -137,6 +143,7 @@ function ConstructionModeDialog:Init()
 	self:SetModal()
 	self:SetFocus()
 	local construction = CityConstruction[UICity]
+	construction.template_variants = self.template_variants or false
 	construction:Activate(self.template, self.params)
 	HideMouseCursor("InGameInterface")
 	HideGamepadCursor("construction")
@@ -277,15 +284,24 @@ function ConstructionModeDialog:OnKbdKeyDown(char, virtual_key, repeated)
 		self:OnMouseButtonDown(nil, "R")
 		return "break"
 	end
+	local construction = CityConstruction[UICity]
 	if virtual_key == const.vkOpensq then
 		if not repeated then
-			CityConstruction[UICity]:ChangeAlternativeEntity(1)
+			if construction.template_variants and next(construction.template_variants) then
+				construction:ChangeTemplateVariant(1)
+			else
+				construction:ChangeAlternativeEntity(1)
+			end
 		end
 		return "break"
 	end
 	if virtual_key == const.vkClosesq then
 		if not repeated then
-			CityConstruction[UICity]:ChangeAlternativeEntity(-1)
+			if construction.template_variants and next(construction.template_variants) then
+				construction:ChangeTemplateVariant(-1)
+			else
+				construction:ChangeAlternativeEntity(-1)
+			end
 		end
 		return "break"
 	end
@@ -293,6 +309,7 @@ function ConstructionModeDialog:OnKbdKeyDown(char, virtual_key, repeated)
 end
 
 function ConstructionModeDialog:OnShortcut(shortcut, source)
+	local construction = CityConstruction[UICity]
 	if shortcut == "ButtonA" or shortcut == "LeftTrigger-ButtonA" then
 		self:OnMouseButtonDown(nil, "L") --place
 		return "break"
@@ -300,10 +317,18 @@ function ConstructionModeDialog:OnShortcut(shortcut, source)
 		self:OnMouseButtonDown(nil, "R") --cancel
 		return "break"
 	elseif shortcut == "DPadLeft" then
-		CityConstruction[UICity]:ChangeAlternativeEntity(1)
+		if construction.template_variants and next(construction.template_variants) then
+			construction:ChangeTemplateVariant(1)
+		else
+			construction:ChangeAlternativeEntity(1)
+		end
 		return "break"
 	elseif shortcut == "DPadRight" then
-		CityConstruction[UICity]:ChangeAlternativeEntity(-1)
+		if construction.template_variants and next(construction.template_variants) then
+			construction:ChangeTemplateVariant(-1)
+		else
+			construction	:ChangeAlternativeEntity(-1)
+		end
 		return "break"
 	elseif shortcut == "Back" or shortcut == "TouchPadClick" then
 		if DismissCurrentOnScreenHint() then
@@ -547,6 +572,7 @@ DefineClass.ConstructionController = {
 	supplied = false,
 	prefab = false,
 	placing_resource = false,
+	template_variants = false,
 	markers = false,
 	ui_callback = false, -- function to call when the construction is placed; only works for placing through the UI
 	
@@ -988,6 +1014,17 @@ function ConstructionController:UpdateConstructionObstructors()
 	--buildings
 	self.construction_obstructors = HexGridShapeGetObjectList(ObjectGrid, self.cursor_obj, self.template_obj_points, nil, non_obstructors, pipe_filter)
 	
+	if IsKindOf(self.template_obj, "RocketLandingSite") and self.construction_obstructors and #self.construction_obstructors > 0 then
+		for _, obj in ipairs(self.construction_obstructors) do
+			if obj:IsKindOf("LandingPad") then
+				self.cursor_obj:SetPos(obj:GetPos())
+				self.cursor_obj:SetAngle(obj:GetAngle())
+				self.construction_obstructors = HexGridShapeGetObjectList(ObjectGrid, self.cursor_obj, self.template_obj_points, nil, "LandingPad", pipe_filter)
+				break
+			end
+		end
+	end
+	
 	local force_extend_bb = self.template_obj:HasMember("force_extend_bb_during_placement_checks") and self.template_obj.force_extend_bb_during_placement_checks ~= 0 and self.template_obj.force_extend_bb_during_placement_checks or false
 	--stockpiles
 	local stockpiles = HexGetUnits(self.cursor_obj, self.template_obj:GetEntity(), nil, nil, nil, function(obj) return obj:GetParent() == nil end, ungrided_stockpile_blockers, force_extend_bb) --not test so we can color them
@@ -1368,8 +1405,8 @@ function ConstructionController:DontBuildHere()
 	return g_DontBuildHere and g_DontBuildHere:Check(self.cursor_obj:GetPos())
 end
 
-function ConstructionController.BlockingUnitsFilter(obj) --todo : fixme
-	return (IsKindOfClasses(obj, "Drone") and obj.battery <= 0) or IsKindOf(obj, "RCRover")
+function ConstructionController.BlockingUnitsFilter(obj)
+	return (IsKindOfClasses(obj, "Drone") and obj:IsDisabled()) or IsKindOf(obj, "RCRover")
 end
 --
 function ConstructionController:HasDepositUnderneath()
@@ -1412,6 +1449,21 @@ local vaporator_search = {
 function ConstructionController:UpdateConstructionStatuses(dont_finalize)
 	local old_t = self.construction_statuses
 	self.construction_statuses = {}
+	
+	local ctarget = g_Tutorial and g_Tutorial.ConstructionTarget
+	if ctarget then
+		if ctarget.class and not self.template_obj:IsKindOf(ctarget.class) then
+			self.construction_statuses[1] = ConstructionStatus.WrongBuilding
+			return
+		end
+		if ctarget.loc then
+			local dist = ctarget.radius or 3				
+			if HexAxialDistance(ctarget.loc, self.cursor_obj) > dist then
+				self.construction_statuses[1] = ConstructionStatus.TooFarFromTarget
+				return
+			end
+		end
+	end
 	
 	if self:DontBuildHere() then
 		self.construction_statuses[#self.construction_statuses + 1] = ConstructionStatus.DontBuildHere
@@ -1488,7 +1540,7 @@ function ConstructionController:UpdateConstructionStatuses(dont_finalize)
 		end
 	end
 	
-	local sector = GetMapSector(self.cursor_obj:GetPos())
+	local sector = GetMapSector(self.cursor_obj)
 	if sector.status == "unexplored" then
 		self.construction_statuses[#self.construction_statuses + 1] = ConstructionStatus.UnexploredSector
 	end
@@ -1591,6 +1643,24 @@ function ConstructionController:ChangeAlternativeEntity(dir)
 	self:ChangeCursorObj(dir)
 end
 
+function ConstructionController:ChangeTemplateVariant(dir)
+	local pos = self.cursor_obj:GetPos()
+	local angle = self.cursor_obj:GetAngle()
+	
+	local idx = table.find(self.template_variants,self.template)
+	idx = idx + dir
+	if idx<1 then idx = #self.template_variants end
+	if idx>#self.template_variants then idx = 1 end
+	local template = self.template_variants[idx]
+	self:Deactivate()
+	self:Activate(template)
+
+	self.cursor_obj:SetAngle(angle)
+	self.cursor_obj:SetPos(pos)
+	self:PickCursorObjColor()
+	self:UpdateCursor(pos,"force")
+end
+
 function AdjustBuildPos(pos)
 	if not GetDomeAtPoint(pos) then
 		local x, y, z = pos:xyz()
@@ -1606,6 +1676,14 @@ end
 function ConstructionController:Place(external_template_name, pos, angle, param_t, force_instant_build, from_ui)
 	local is_external = not not external_template_name
 	local in_editor = IsEditorActive()
+	
+	if g_Tutorial and g_Tutorial.EnableRangeWarning then
+		if table.find(self.construction_statuses or empty_table, ConstructionStatus.NoDroneHub) then
+			ShowPopupNotification("Tutorial1_Popup7_DroneRange", false, false, GetInGameInterface())
+			g_Tutorial.EnableRangeWarning = nil
+			return
+		end
+	end
 	
 	if not is_external then
 		if not self.cursor_obj then return end
@@ -1799,7 +1877,7 @@ function ConstructionController:GetDisplayName()
 end
 
 function ConstructionController:GetDescription()
-	return self.template_obj.description
+	return T{self.template_obj.description, self.template_obj}
 end
 
 function ConstructionController:HasConstructionCost()
@@ -1863,6 +1941,9 @@ function ConstructionController:HasVariants()
 	return #GetBuildingSkins(self.template) > 1
 end
 
+function ConstructionController:HasTemplateVariants()
+	return self.template_variants and next(self.template_variants)
+end
 ------------------------------------------Demolish--------------------------------
 DefineClass.DemolishModeDialog = {
 	__parents = { "InterfaceModeDialog" },
@@ -2163,6 +2244,10 @@ DefineClass.GridConstructionController = {
 	rocks_underneath = false,
 	
 	skin_name = "Default",
+	
+	placed_points = false,
+	last_placed_points_count = false,
+	current_len = 0,
 }
 
 function GridConstructionController:SetMode(mode)
@@ -2170,6 +2255,9 @@ function GridConstructionController:SetMode(mode)
 	self:UpdateCursorObject(true)
 	self.construction_statuses = {}
 	self.rocks_underneath = {}
+	self.placed_points = {}
+	self.last_placed_points_count = {}
+	self.current_len = 0
 end
 
 function GridConstructionController:UpdateCursorObject(visible)
@@ -2185,7 +2273,7 @@ function GridConstructionController:UpdateCursorObject(visible)
 			entity = skin.TubeHub
 			palette = EntityPalettes.Pipes
 		elseif self.mode == "passage_grid" then
-			entity = "PassageTransparent"
+			entity = "PassageEntrance"
 		end
 		if IsValid(self.cursor_obj) then
 			self.cursor_obj.entity = entity
@@ -2223,6 +2311,7 @@ function GridConstructionController:Activate(pt)
 		-- not currently building
 		if self:CanExtendFrom(pt) then
 			self.starting_point = pt
+			self.placed_points = { pt:SetInvalidZ() }
 			self.last_update_hex = false
 			self:InitVisuals(pt)
 			self:UpdateVisuals(pt)
@@ -2230,11 +2319,11 @@ function GridConstructionController:Activate(pt)
 		end
 	else
 		if self.current_status == const.clrNoModifier then
-			self:DoneVisuals()
 		
 			local group
 			--check if we can extend an existing group
 			if self.mode ~= "passage_grid" then
+				self:DoneVisuals()
 				ForEach({
 					class = "ConstructionSite",
 					area = self.starting_point,
@@ -2253,38 +2342,89 @@ function GridConstructionController:Activate(pt)
 						end
 					end
 				}, self)
-			end
 			
-			SuspendPassEdits("construction_supply_grid_line")
-			local last_placed_obj
-			
-			if self.current_points[2] then
-				local data, _
+				SuspendPassEdits("construction_supply_grid_line")
+				local last_placed_obj
+				
+				if self.current_points[2] then
+					local data, _
 
-				group, _, data = self:ConstructLine(self.starting_point, self.current_points[1], nil, group)
-				group, last_placed_obj = self:ConstructLine(self.current_points[1], self.current_points[2], self.current_points[1] == self.current_points[2] and self.current_points[1] or nil, group, data)
-			else
-				group, last_placed_obj = self:ConstructLine(self.starting_point, self.current_points[1], nil, group)
+					group, _, data = self:ConstructLine(self.starting_point, self.current_points[1], nil, group)
+					group, last_placed_obj = self:ConstructLine(self.current_points[1], self.current_points[2], self.current_points[1] == self.current_points[2] and self.current_points[1] or nil, group, data)
+				else
+					group, last_placed_obj = self:ConstructLine(self.starting_point, self.current_points[1], nil, group)
+				end
+				ResumePassEdits("construction_supply_grid_line")
+				local new_start = IsValid(last_placed_obj) and last_placed_obj:GetPos() or self.current_points[#self.current_points]
+				if self:CanExtendFrom(new_start) then
+					self.starting_point = new_start
+					self:InitVisuals(self.starting_point)
+					self:UpdateVisuals(self.starting_point)
+					self:UpdateCursorObject(false)
+					return true
+				else
+					self.starting_point = false
+					self:ClearColorFromAllConstructionObstructors()
+					self.construction_obstructors = false
+					self:UpdateCursorObject(true)
+					return false
+				end
+			else --passage grid
+				if self:CanCompletePassage() then
+					self:DoneVisuals()
+					--build
+					SuspendPassEdits("construction_supply_grid_line")
+					local indata, outdata, _
+					local pts = table.append(self.placed_points, self.current_points)
+					
+					for i = 1, #pts - 1 do
+						group, _, outdata = self:ConstructLine(pts[i], pts[i + 1], nil, group, indata)						
+						indata = indata and table.append(indata, outdata) or outdata
+						
+						if #indata >= self.max_hex_distance_to_allow_build then
+							break
+						end
+					end
+					
+					ResumePassEdits("construction_supply_grid_line")
+					self.starting_point = false
+					self.current_points = {}
+					self:ClearColorFromAllConstructionObstructors()
+					self.construction_obstructors = false
+					self:UpdateCursorObject(true)
+					return false
+				end
 			end
-			ResumePassEdits("construction_supply_grid_line")
-			local new_start = IsValid(last_placed_obj) and last_placed_obj:GetPos() or self.current_points[#self.current_points]
-			if self:CanExtendFrom(new_start) then
-				self.starting_point = new_start
-				self:InitVisuals(self.starting_point)
-				self:UpdateVisuals(self.starting_point)
-				self:UpdateCursorObject(false)
-				return true
-			else
-				self.starting_point = false
-				self:ClearColorFromAllConstructionObstructors()
-				self.construction_obstructors = false
-				self:UpdateCursorObject(true)
-				return false
+		elseif self.mode == "passage_grid" then
+			if self:CanContinuePassage() then
+				table.append(self.placed_points, self.current_points)
+				table.insert(self.last_placed_points_count, #self.current_points)
+				self.current_points = {}
 			end
+			return true
 		end
 	end
 end
 
+function GridConstructionController:CanContinuePassage()
+	local all_eq = true
+	local c = #self.current_points
+	local j = 1
+	for i = #self.placed_points - c + 1, #self.placed_points do
+		local p = self.placed_points[i]
+		if p ~= self.current_points[j] then
+			all_eq = false
+			break
+		end
+		j = j + 1
+	end
+	
+	return not all_eq and #self.construction_statuses == 1 and self.construction_statuses[1] == ConstructionStatus.PassageRequiresTwoDomes and self.current_len < self.max_hex_distance_to_allow_build
+end
+
+function GridConstructionController:CanCompletePassage()
+	return #self.construction_statuses <= 0
+end
 
 function GridConstructionController:BuildCableShapePts(dir, len)
 	local dq, dr = HexNeighbours[dir + 1]:xy()
@@ -2449,8 +2589,8 @@ function GridConstructionController:DoneHelpers()
 	self.water_markers = false
 end
 
-function GridConstructionController:GetDoubleLineData(pt)
-	local start_q, start_r = WorldToHex(self.starting_point)
+function GridConstructionController:GetDoubleLineData(pt, sp)
+	local start_q, start_r = WorldToHex(sp or self.starting_point)
 	local pt_q, pt_r = WorldToHex(pt)
 	local diff_q, diff_r = pt_q - start_q, pt_r - start_r
 	local abs_diff_q, abs_diff_r = abs(diff_q), abs(diff_r)
@@ -2488,9 +2628,9 @@ function GridConstructionController:GetDoubleLineData(pt)
 	end
 end
 
-function GridConstructionController:GetDoubleLinePoints(pt)
-	local d1, d1_dist, d2, d2_dist = self:GetDoubleLineData(pt)
-	return { point(HexToWorld((point(WorldToHex(self.starting_point)) + d1 * d1_dist):xy())),
+function GridConstructionController:GetDoubleLinePoints(pt, sp)
+	local d1, d1_dist, d2, d2_dist = self:GetDoubleLineData(pt, sp)
+	return { point(HexToWorld((point(WorldToHex(sp or self.starting_point)) + d1 * d1_dist):xy())),
 				pt }
 end
 
@@ -2556,18 +2696,27 @@ function GridConstructionController:UpdateVisuals(pt)
 		return
 	end
 	
-	pt = pt:SetInvalidZ()
-	local points = {HexClampToAxis(self.starting_point, pt)}
-	local number_of_lines = points[1] == pt and 1 or 2
 	local is_electricity_grid = self.mode == "electricity_grid"
 	local is_ls_grid = self.mode == "life_support_grid"
 	local is_passage_grid = self.mode == "passage_grid"
-	
+	local pt_arr = is_passage_grid and self.placed_points or nil
+	local sp = pt_arr and pt_arr[#pt_arr] or self.starting_point
+	pt = pt:SetInvalidZ()
+	local points = {HexClampToAxis(sp, pt)}
+	local number_of_lines = points[1] == pt and 1 or 2
 	if number_of_lines > 1 then
-		points = self:GetDoubleLinePoints(pt)
+		points = self:GetDoubleLinePoints(pt, sp)
 	end
+	local points_prestine = points
+	if pt_arr then
+		points = table.append(table.copy(pt_arr), points)
+	end
+	
 	local total_len = 0
-	local prev_point = self.starting_point
+	local prev_point = is_passage_grid and points[1] or sp
+	local start_idx = is_passage_grid and 2 or 1
+	local last_angle = -1
+	local start_dome = false
 	local steps_arr = {}
 	local clr = const.clrNoModifier
 	local all_obstructors = {}
@@ -2576,17 +2725,34 @@ function GridConstructionController:UpdateVisuals(pt)
 	local all_rocks = {}
 	local can_constr_final = is_passage_grid or false
 	local data_merge_idx = false
-	for i = 1, 2 do
+	for i = start_idx, #points do
 		local next_point = points[i]
 		next_point = next_point and next_point:SetZ(terrain.GetHeight(next_point)) or false
-		if not next_point or next_point:Equal2D(prev_point) and i > 1 then
+		if not next_point or next_point:Equal2D(prev_point) and i > start_idx then
 			prev_point = next_point
 		else
 			local len = prev_point:Dist2D(next_point)
 			local steps = (len + const.GridSpacing/2) / const.GridSpacing
 			local max_steps = (self.max_hex_distance_to_allow_build - 1) - (steps_arr[i - 1] or 0)
 			local end_pos = next_point
-			if max_steps <= 0 then
+			local fbreak = false
+			
+			if is_passage_grid then
+				if not end_pos:Equal2D(prev_point) then
+					local a = CalcOrientation(prev_point, end_pos)
+					
+					local na = abs(AngleDiff(a, last_angle))
+					if last_angle >= 0 and na > 60*60 then
+						if #all_data < self.max_hex_distance_to_allow_build then
+							table.insert(self.construction_statuses, ConstructionStatus.PassageAngleToSteep)
+						end
+						fbreak = true
+					end
+					last_angle = a
+				end
+			end
+			
+			if max_steps <= 0 or fbreak then
 				--our step allowance was hit last 
 				points[i] = nil
 				steps_arr[i] = nil
@@ -2600,9 +2766,11 @@ function GridConstructionController:UpdateVisuals(pt)
 			
 			local can_constr, constr_grp, obstructors, data, unbuildable_chunks, axial_dist, rocks = self:CanConstructLine(prev_point, end_pos, steps, all_data)
 			all_rocks[i] = rocks
-			table.append_unique(all_obstructors, obstructors)
+			if obstructors then
+				table.append_unique(all_obstructors, obstructors)
+			end
 			
-			if i > 1 and #data > 0 then
+			if i > start_idx and #data > 0 then
 				--the 2 lines we test share a hex at the the turn, so get rid of the duplicate data node
 				data[0].is_turn = true
 				data_merge_idx = #all_data
@@ -2625,6 +2793,10 @@ function GridConstructionController:UpdateVisuals(pt)
 			
 			prev_point = next_point
 			
+			if is_passage_grid and not start_dome and #all_data > 0 then
+				start_dome = all_data[1].dome
+			end
+			
 			if i == 1 and
 				(self.mode == "electricity_grid" and not const.SupplyGridElementsAllowUnbuildableChunksCables or
 				self.mode ~= "electricity_grid" and not const.SupplyGridElementsAllowUnbuildableChunksPipes) and 
@@ -2642,6 +2814,11 @@ function GridConstructionController:UpdateVisuals(pt)
 		if not is_passage_grid then
 			table.insert(self.construction_statuses, ConstructionStatus.UnevenTerrain)
 		end
+		clr = g_PlacementStateToColor.Blocked
+	end
+	
+	if is_passage_grid and all_data[data_count].dome == start_dome then
+		table.insert(self.construction_statuses, ConstructionStatus.PassageRequiresDifferentDomes)
 		clr = g_PlacementStateToColor.Blocked
 	end
 	
@@ -2708,7 +2885,13 @@ function GridConstructionController:UpdateVisuals(pt)
 		last_idx = data_merge_idx
 		all_rocks = all_rocks[1]
 	else
-		all_rocks = table.append(all_rocks[1], all_rocks[2] or empty_table)
+		all_rocks[1] = all_rocks[1] or {}
+		local rt = {}
+		for i = 1, #all_rocks do
+			rt = table.append(rt, all_rocks[i])
+		end
+
+		all_rocks = rt
 	end
 	
 	--cursor strings
@@ -2780,6 +2963,13 @@ function GridConstructionController:UpdateVisuals(pt)
 		end
 	end
 	
+	local passage_skin = nil
+	if is_passage_grid then
+		if all_data[1] and all_data[1].dome then
+			passage_skin = all_data[1].dome:GetCurrentSkinStrId()
+		end
+	end
+
 	local passed_block_reasons = {}
 	
 	for i = 1, last_idx do
@@ -2795,6 +2985,8 @@ function GridConstructionController:UpdateVisuals(pt)
 				table.insert_unique(self.construction_statuses, ConstructionStatus.NonBuildableInterior)
 			elseif node.block_reason == "entrance" then
 				table.insert_unique(self.construction_statuses, ConstructionStatus.PassageTooCloseToEntrance)
+			elseif node.block_reason == "unbuildable" then
+				table.insert_unique(self.construction_statuses, ConstructionStatus.UnevenTerrain)
 			end
 			passed_block_reasons[node.block_reason] = true
 		end
@@ -2804,6 +2996,9 @@ function GridConstructionController:UpdateVisuals(pt)
 			local el = visuals.elements[visuals_idx]
 			
 			el:SetPos(x, y, IsBuildableZoneQR(node.q, node.r) and GetBuildableZ(node.q, node.r) or z)
+			if i == 1 and is_passage_grid then
+				z = el:GetPos():z()
+			end
 			el:SetColorModifier(clr)
 			el:SetAngle(angle % (180 * 60))
 			rawset(el, "node", node)
@@ -2832,7 +3027,7 @@ function GridConstructionController:UpdateVisuals(pt)
 					e = visuals.pipe_non_hub_pillar
 				end
 			elseif is_passage_grid then
-				e = GetPassageEntity(node)
+				e = GetPassageEntity(node, passage_skin)
 				local a = GetPassageAngle(node)
 				if a ~= el:GetAngle() then
 					el:SetAngle(a)
@@ -2856,7 +3051,7 @@ function GridConstructionController:UpdateVisuals(pt)
 			
 			if not did_start then
 				did_start = true
-				if not (node.chunk_start or node.chunk_end) then
+				if not (node.chunk_start or node.chunk_end) and not is_passage_grid then
 					e = visuals.hub_entity
 				end
 			end
@@ -2868,6 +3063,9 @@ function GridConstructionController:UpdateVisuals(pt)
 				el:ChangeEntity(e)
 				if is_passage_grid then
 					AutoAttachObjectsToPlacementCursor(el)
+					el:ForEachAttach(function(attach)
+						attach:SetSIModulation(0) -- turn off entrance lights
+					end)
 				end
 			end
 			if not is_passage_grid and e == visuals.hub_entity then
@@ -2932,7 +3130,8 @@ function GridConstructionController:UpdateVisuals(pt)
 			HandleJoint(plug, plug_angle, visuals.joints[plugs_idx - 1], last_visual_node, last_visual_node.chunk)
 			plug:SetVisible(true)
 		end
-		
+	end
+	if el then
 		self:SetTxtPosObj(el)
 	end
 	
@@ -2949,8 +3148,9 @@ function GridConstructionController:UpdateVisuals(pt)
 		end
 	end
 	
-	self.current_points = points
+	self.current_points = points_prestine
 	self.current_status = clr
+	self.current_len = data_count
 	
 	SortConstructionStatuses(self.construction_statuses)
 	if not table.iequals(old_t, self.construction_statuses) then
@@ -2982,6 +3182,22 @@ function GridConstructionController:Deactivate(pt)
 	self:ClearColorFromAllConstructionObstructors()
 	self.construction_obstructors = false
 	if self.starting_point then
+		if self.mode == "passage_grid" and #self.last_placed_points_count > 0 then
+			local idx = #self.placed_points - self.last_placed_points_count[#self.last_placed_points_count] + 1
+			for i = #self.placed_points, idx, -1 do
+				self.placed_points[i] = nil
+			end
+			table.remove(self.last_placed_points_count)
+			if #self.last_placed_points_count > 0 then
+				local terrain_pos = GetPosHelper()
+				if terrain.IsPointInBounds(terrain_pos) then
+					self.last_update_hex = false
+					self:UpdateVisuals(terrain_pos)
+				end
+				return false
+			end
+		end
+		
 		self.starting_point = false
 		self:DoneVisuals()
 		self:UpdateCursorObject(true)
@@ -2995,6 +3211,7 @@ function GridConstructionController:Deactivate(pt)
 		if self.mode == "passage_grid" then
 			self:ClearDomeWithObstructedRoads()
 		end
+		self:ColorRocks({})
 		self:DoneHelpers()
 		if IsValid(self.cursor_obj) then
 			DoneObject(self.cursor_obj)
@@ -3169,7 +3386,7 @@ function GridConstructionController:GetDisplayName()
 	elseif self.mode == "life_support_grid" then
 		return T{882, "Pipes"}
 	elseif self.mode == "passage_grid" then
-		return T{"(design)Passages"}
+		return T{8776, "Passages"}
 	end
 end
 
@@ -3179,7 +3396,7 @@ function GridConstructionController:GetDescription()
 	elseif self.mode == "life_support_grid" then
 		return T{884, "Pipes transport Oxygen and Water and have to be connected to buildings on the spots indicated with a pipe connection icon."}
 	elseif self.mode == "passage_grid" then
-		return T{"(design)Passages"}
+		return T{8777, "Connect two domes by placing both ends of the Passage on empty hexes inside two nearby domes."}
 	end
 end
 
@@ -3211,6 +3428,12 @@ function GridSwitchConstructionDialog:Init()
 end
 
 function GridSwitchConstructionDialog:Open(...)
+	if self.mode_name == "passage_ramp" then
+		HideMouseCursor("InGameInterface")
+		HideGamepadCursor("construction")
+		ShowResourceIcons("construction")
+	end
+
 	InterfaceModeDialog.Open(self, ...)
 	CityGridSwitchConstruction[UICity]:SetMode(self.mode_name)
 	self:OnMousePos() --initial update
@@ -3221,6 +3444,9 @@ function GridSwitchConstructionDialog:Close(...)
 	InterfaceModeDialog.Close(self, ...)
 	while not CityGridSwitchConstruction[UICity]:Deactivate() do end
 	table.restore(hr, "Construction")
+	if self.mode_name == "passage_ramp" then
+		ShowMouseCursor("InGameInterface")
+	end
 	ShowGamepadCursor("construction")
 	HideResourceIcons("construction")
 	
@@ -3411,6 +3637,7 @@ function GridSwitchConstructionController:Deactivate(pt)
 	self.construction_obstructors = false
 	
 	self:ClearDomeWithObstructedRoads()
+	self:ColorRocks({})
 	
 	return true --kill me
 end
@@ -3437,7 +3664,7 @@ function GridSwitchConstructionController:UpdateConstructionStatuses(pt)
 		end
 	elseif self.mode == "passage_ramp" then
 		local p = HexGetPassageGridElement(q, r)
-		if not p then
+		if not p or IsKindOf(p, "ConstructionSite") then
 			self.construction_statuses[#self.construction_statuses + 1] = ConstructionStatus.RequiresPassage
 		end
 		
@@ -3494,7 +3721,7 @@ function GridSwitchConstructionController:GetDisplayName()
 	elseif self.mode == "lifesupport_switch" then
 		return T{886, "Pipe Valve"}
 	elseif self.mode == "passage_ramp" then
-		return T{"(design)Passage Ramp"}
+		return T{8813, "Passage Ramp"}
 	end
 end
 
@@ -3504,7 +3731,7 @@ function GridSwitchConstructionController:GetDescription()
 	elseif self.mode == "lifesupport_switch" then
 		return T{888, "Place a pipe valve"}
 	elseif self.mode == "passage_ramp" then
-		return T{"(design)Place a passage ramp"}
+		return T{8778, "Place a passage ramp"}
 	end
 end
 ----------------------------------------------------------------------------------------------------------------------

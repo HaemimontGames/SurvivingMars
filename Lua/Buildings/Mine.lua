@@ -59,8 +59,10 @@ function Mine:GatherConstructionStatuses(statuses)
 		local status = table.copy(ConstructionStatus.DepositInfo)
 		local amount, grade
 		for i = 1, #self.nearby_deposits do
-			amount = (amount or 0) + self.nearby_deposits[i].amount
-			grade = Max(grade or 1, table.find(DepositGradesTable, self.nearby_deposits[i].grade) or 1)
+			if self.nearby_deposits[i].resource == self.exploitation_resource then
+				amount = (amount or 0) + self.nearby_deposits[i].amount
+				grade = Max(grade or 1, table.find(DepositGradesTable, self.nearby_deposits[i].grade) or 1)
+			end
 		end
 		grade = DepositGradesTable[grade] -- index to name
 		grade = DepositGradeToDisplayName[grade] -- name to display name
@@ -258,6 +260,7 @@ end
 
 function RegolithExtractor:OnDepositDepleted(deposit)
 	Mine.OnDepositDepleted(self, deposit)
+	TerrainDepositExtractor.OnDepositDepleted(self,deposit)
 end
 
 function RegolithExtractor:GetCurrentDepositQualityMultiplier(...)

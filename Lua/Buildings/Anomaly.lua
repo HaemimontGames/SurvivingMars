@@ -22,6 +22,10 @@ function SubsurfaceAnomalyMarker:EditorGetText()
 	return "Anomaly " .. (self.tech_action or self.sequence)
 end
 
+function SubsurfaceAnomalyMarker:GetDepthClass()
+	return self.depth_layer <= 1 and "subsurface" or "deep"
+end
+
 function PlaceAnomaly(params)
 	local classdef = params.tech_action and rawget(g_Classes, "SubsurfaceAnomaly_" .. params.tech_action) or SubsurfaceAnomaly
 	return classdef:new(params)

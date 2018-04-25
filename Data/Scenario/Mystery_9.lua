@@ -505,6 +505,7 @@ PlaceObj('Scenario', {
 			'expression', "_MoonBase = _MoonBase + 25",
 		}),
 		PlaceObj('SA_CustomNotification', {
+			'id', "Mystery9ProjectProgress",
 			'text', T{8553, --[[Scenario Mystery 9 text]] "Aldrin Base project has advanced"},
 		}),
 		PlaceObj('SA_Block', {

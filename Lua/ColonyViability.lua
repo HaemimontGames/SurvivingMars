@@ -84,7 +84,11 @@ GlobalVar("g_ColonyNotViableUntil", -3)
 function OnMsg.NewHour()
 	local now = GameTime()
 	if now > g_ColonyNotViableUntil and g_ColonyNotViableUntil > 0 then
-		CreateRealTimeThread(WaitPopupNotification, "ColonyViabilityExit_Delay")
+		if IsGameRuleActive("TheLastArk") then
+			CreateRealTimeThread(WaitPopupNotification, "ColonyViabilityExit_Delay_LastArk")
+		else
+			CreateRealTimeThread(WaitPopupNotification, "ColonyViabilityExit_Delay")
+		end
 		--@@@msg ColonyApprovalPassed - fired when the _Founder Stage_ has been passed successfully.
 		Msg("ColonyApprovalPassed")
 		g_ColonyNotViableUntil = -1
@@ -94,7 +98,7 @@ end
 const.ColonyViableByDelay = 10*const.DayDuration
 
 function AreNewColonistsAccepted()
-	return g_ColonyNotViableUntil == -3 or g_ColonyNotViableUntil == -1
+	return g_ColonyNotViableUntil == -3 or (g_ColonyNotViableUntil == -1 and not IsGameRuleActive("TheLastArk"))
 end
 
 function OnMsg.RocketLanded(rocket)
@@ -108,12 +112,13 @@ function OnMsg.RocketLanded(rocket)
 		CheckFirstColonistWithTrait()
 		AddOnScreenNotification("FounderStageDuration", nil, {start_time = GameTime(), expiration = const.ColonyViableByDelay})
 	end
+	local total_colonists = #(UICity.labels.Colonist or empty_table)
 	for _, applicant in ipairs(applicants) do
 		if is_founder then 
 			applicant.traits.Founder = true 
 		end
 		for trait_id, _ in pairs(applicant.traits) do
-			if g_RareTraits[trait_id] then
+			if g_RareTraits[trait_id] and total_colonists <= 100 then
 				applicant.pin_on_start = true
 			end
 		end
@@ -122,7 +127,11 @@ end
 
 function OnMsg.ColonistBorn(colonist, event)
 	if GameTime() < g_ColonyNotViableUntil and not colonist.traits.Clone and event == "born" then
-		CreateRealTimeThread(WaitPopupNotification, "ColonyViabilityExit_MartianBorn")
+		if IsGameRuleActive("TheLastArk") then
+			CreateRealTimeThread(WaitPopupNotification, "ColonyViabilityExit_MartianBorn_LastArk")
+		else
+			CreateRealTimeThread(WaitPopupNotification, "ColonyViabilityExit_MartianBorn")
+		end
 		RemoveOnScreenNotification("FounderStageDuration")
 		Msg("ColonyApprovalPassed")
 		g_ColonyNotViableUntil = -1

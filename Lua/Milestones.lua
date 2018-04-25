@@ -50,10 +50,11 @@ GlobalVar("ChallengeRating", 100)
 
 function OnMsg.NewDay()
 	-- update challenge raiting in case it was affcted by later events
-	ChallengeRating = CalcChallengeRating()
+	ChallengeRating = 100 + CalcChallengeRating()
 end
 
 function MilestoneRestartThreads()
+	if g_Tutorial then return end
 	for _, milestone in ipairs(Presets.Milestone.Default) do
 		local id = milestone.id
 		if MilestoneCompleted[id] == nil then
@@ -145,5 +146,25 @@ function Milestone_AllSectorsScanned()
 		if scanned then
 			return true
 		end
+	end
+end
+
+local function Update_WorkshopWorkersPercent()
+	if UICity and #(UICity.labels.Workshop or empty_table) <=0 then
+		return
+	end
+	Msg("WorkshopWorkersPercentCheck")
+end
+OnMsg.ColonistArrived = Update_WorkshopWorkersPercent
+OnMsg.ColonistChangeWorkplace = Update_WorkshopWorkersPercent
+OnMsg.ColonistDie = Update_WorkshopWorkersPercent
+OnMsg.ColonistLeavingMars = Update_WorkshopWorkersPercent
+
+function Milestone_WorkshopWorkersPercent(city, percent)
+	while true do
+		if city and city:GetWorkshopWorkersPercent()>=percent then 
+			return true
+		end
+		WaitMsg("WorkshopWorkersPercentCheck")
 	end
 end

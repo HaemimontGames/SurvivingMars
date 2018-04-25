@@ -447,7 +447,7 @@ local drone_enter_cmd = {
 }
 
 function SpaceElevator:DroneApproach(drone, r)
-	drone:GotoSameDomeAsObj(self)
+	drone:ExitHolder(self)
 	if not IsValid(self) then return end
 	if drone_enter_cmd[drone.command] and IsKindOf(drone, "Drone") then
 		return drone:EnterBuilding(self)

@@ -187,8 +187,6 @@ function OnMsg.GenerateDocs(project_folder, empty_name)
 					end
 				end
 				tech_info.pos = tech.position or range(1, 100)
-				print(tech_info.name)
-				print(tech_info.pos)
 				techs_by_name[#techs_by_name +1] = tech_info
 			end
 			table.sort(techs_by_name, function(a, b) return a.name<b.name end)
@@ -196,9 +194,7 @@ function OnMsg.GenerateDocs(project_folder, empty_name)
 				output[#output+1] = "###  "..single_tech.name
 				output[#output+1] = single_tech.desc
 				output[#output+1] = "Internal ID\n: "..single_tech.id
-				if single_tech.pos then
-					output[#output+1] = "Position in range\n: "..single_tech.pos.from.." to "..single_tech.pos.to
-				end
+				output[#output+1] = "Position in range\n: "..single_tech.pos.from.." to "..single_tech.pos.to
 			end
 		end
 	end
@@ -208,7 +204,6 @@ function OnMsg.GenerateDocs(project_folder, empty_name)
 		print("Failed to open", filename, err)
 	else
 		output[#output+1] = suffix
-		--OpenExamine(output)
 		err = AsyncStringToFile(outputFileName, table.concat(output, "\n"))
 		if err then
 			print("Failed to save", filename, err)
@@ -326,14 +321,27 @@ function LockBuilding(template_name, lock_type, disable_reason)
 end
 
 --[[@@@
-	Unlocks a building in the build menu regardless of tech effects that may be locking it.
+	Unlocks a building in the build menu regardless of tech effects that may be locking it (in contrast to [RemoveBuildingLock](#RemoveBuildingLock)).
 
 	@function void Gameplay@UnlockBuilding(string template_name)
 	@param string template_name - The template name of the building to be unlocked.
 	@result void
+	See also: [RemoveBuildingLock](#RemoveBuildingLock)
 ]]
 function UnlockBuilding(template_name)
 	BuildMenuPrerequisiteOverrides[template_name] = true
+end
+
+--[[@@@
+	Unlocks a building in the build menu, but doesn't interfere with tech effects that may be locking it (in contrast to [UnlockBuilding](#UnlockBuilding)).
+	
+	@function void Gameplay@RemoveBuildingLock(string template_name)
+	@param string template_name - The template name of the building to be unlocked.
+	@result void
+	See also: [UnlockBuilding](#UnlockBuilding)
+]]
+function RemoveBuildingLock(template_name)
+	BuildMenuPrerequisiteOverrides[template_name] = nil
 end
 
 ----
@@ -432,7 +440,7 @@ end
 	@param string upgrade_id - Unique upgrade id set in upgrade definition in building templates.
 --]]
 function UnlockUpgrade(upgrade_id)
-	UIity:UnlockUpgrade(upgrade_id)
+	UICity:UnlockUpgrade(upgrade_id)
 end
 ----
 
@@ -821,7 +829,7 @@ end
 
 function TechEffect_UnlockDeeperDeposits:OnResearchComplete(city, tech)
 	city:IncrementDepositDepthExploitationLevel(self.depth_levels)
-	UpdateScannedSectorVisuals()	
+	UpdateScannedSectorVisuals("scanned")	
 end
 ----
 

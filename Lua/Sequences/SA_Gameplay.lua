@@ -1306,7 +1306,13 @@ local function CheckDomeCombo()
 		{value = "outside", text = T{3737, "Outside Dome"}},
 	}
 end
-
+local function CheckExplorationCombo()
+	return {
+		{value = false, text = T{3735, "Anywhere"}},
+		{value = "explored", text = T{8899, "Explored Areas Only"}},
+		{value = "unexplored", text = T{8900, "Unexplored Areas Only"}},
+	}
+end
 local function RandomPosLabelCombo()
 	local t = GetBuildingAndDepositLabelsCombo()
 	table.insert(t, 1, {value = false, text = "NO"})
@@ -1327,6 +1333,7 @@ DefineClass.PositionFinder = {
 		{ id = "check_playable", name = T{3740, "Check playable?"}, editor = "bool", default = false, },
 		{ id = "check_dome", name = T{3741, "Check Dome"}, editor = "dropdownlist", default = false, items = CheckDomeCombo},
 		{ id = "check_terran_deposit", name = T{3742, "Check Terran Deposit"}, editor = "bool", default = false},
+		{ id = "check_exploration", name = T{8901, "Check Exploration"}, editor = "dropdownlist", default = false, items = CheckExplorationCombo},
 		{ id = "exclude_class_name", name = T{3743, "Exclude class in buildable checks"}, editor = "dropdownlist", default = false, items = ExcludeClassNameCombo, help = "The class selected here will be excluded when doing build checks. Whats more objects of this type found in the hex shape during placement will be destroyed.", },
 		{ id = "random_pos_label", name = T{3744, "Random pos is near label"}, editor = "combo", default = false, items = RandomPosLabelCombo, },
 		{ id = "random_pos_label_dist", name = T{3745, "Random pos label max distance"}, editor = "number", default = 0, scale = guim,},
@@ -1341,6 +1348,7 @@ function PositionFinder:TestPos(pt_pos, q, r, angle, class_def, building_shape, 
 	
 	local classes_excluded_in_build_checks = self.exclude_class_name
 	local check_terran_deposit = self.check_terran_deposit
+	local check_exploration = self.check_exploration
 	local check_for_buildable = self.check_buildable
 	local check_for_passable = self.check_passability
 	local check_dome = self.check_dome
@@ -1353,8 +1361,14 @@ function PositionFinder:TestPos(pt_pos, q, r, angle, class_def, building_shape, 
 	if check_for_passable and not terrain.IsPassable(pt_pos) then
 		return
 	end
+	if check_exploration then
+		if check_exploration == "explored" and GetMapExplorationAt(pt_pos) == "unexplored"
+		or check_exploration == "unexplored" and GetMapExplorationAt(pt_pos) ~= "unexplored" then
+			return
+		end
+	end
 	local any_shape = building_shape or building_other_shape	
-	local any_shape_check = check_for_passable or check_for_buildable or check_dome or check_terran_deposit
+	local any_shape_check = check_for_passable or check_for_buildable or check_dome or check_terran_deposit or check_exploration
 	if any_shape and any_shape_check then
 		local dir = HexAngleToDirection(angle * 60)
 		local is_tall = class_def:HasMember("is_tall") and class_def.is_tall or false
@@ -1391,8 +1405,8 @@ function PositionFinder:TestPos(pt_pos, q, r, angle, class_def, building_shape, 
 						return
 					end
 				end
+				local pt_x, pt_y = HexToWorld(x, y)
 				if check_for_passable then
-					local pt_x, pt_y = HexToWorld(x, y)
 					if not terrain.IsPassable(pt_x, pt_y) then
 						return
 					end
@@ -1404,9 +1418,14 @@ function PositionFinder:TestPos(pt_pos, q, r, angle, class_def, building_shape, 
 					end
 				end
 				if check_dome then
-					local pt_x, pt_y = HexToWorld(x, y)
 					if check_dome == "inside" and not GetDomeAtPoint(pt_x, pt_y)
 					or check_dome == "outside" and GetDomeAtPoint(pt_x, pt_y) then
+						return
+					end
+				end
+				if check_exploration then
+					if check_exploration == "explored" and GetMapExplorationAt(pt_x, pt_y) == "unexplored"
+					or check_exploration == "unexplored" and GetMapExplorationAt(pt_x, pt_y) ~= "unexplored" then
 						return
 					end
 				end
@@ -1448,6 +1467,7 @@ function PositionFinder:TryFindRandomPos(class_def, building_shape, building_oth
 	local tries = 0
 	local city = UICity
 	local check_dome = self.check_dome
+	local check_exploration = self.check_exploration
 	while true do
 		if random_pos_label then
 			local label_objs = city.labels[random_pos_label] or empty_table
@@ -1466,6 +1486,26 @@ function PositionFinder:TryFindRandomPos(class_def, building_shape, building_oth
 			local r_l = city:Random(dome:GetRadius())
 			local a = city:Random(360*60)
 			r_w, r_h = RotateRadius(r_l, a, dome:GetPos(), true)
+		elseif check_exploration then
+			local filtered = {}
+			local sectors = g_MapSectors
+			for x = 1, const.SectorCount do
+				local sectors = sectors[x]
+				for y = 1, const.SectorCount do
+					local sector = sectors[y]
+					if check_exploration == "unexplored" and sector.status == "unexplored"
+					or check_exploration == "explored" and sector.status ~= "unexplored" then
+						filtered[#filtered + 1] = sector
+					end
+				end
+			end
+			local sector = city:TableRand(filtered)
+			local area = sector and sector.area
+			if not area then
+				return false
+			end
+			r_w = city:Random(area:minx(), area:maxx())
+			r_h = city:Random(area:miny(), area:maxy())
 		else
 			r_w = city:Random(w - 1) + 1
 			r_h = city:Random(h - 1) + 1

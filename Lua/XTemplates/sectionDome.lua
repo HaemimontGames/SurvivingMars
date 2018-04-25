@@ -56,13 +56,87 @@ end,
 			'__template', "InfopanelActiveSection",
 			'OnContextUpdate', function (self, context, ...)
 	local dome = ResolvePropObj(context)
+	local accept = dome.allow_work_in_connected
+	if accept then
+		self:SetIcon("UI/Icons/Sections/work_in_connected_domes_on.tga")
+		self:SetTitle(T{8885, "<em>Use Passages for work</em>"})
+	else
+		self:SetIcon("UI/Icons/Sections/work_in_connected_domes_off.tga")
+		self:SetTitle( T{8885, "<em>Use Passages for work</em>"})
+	end
+	rawset(self, "ProcessToggle", function(self, context, broadcast)
+		local building = ResolvePropObj(context)
+		building:ToggleWorkInConnected(broadcast)
+		RebuildInfopanel(building)
+	end)
+	self.OnActivate = function (self, context, gamepad)
+		self:ProcessToggle(context, not gamepad and IsMassUIModifierPressed())
+	end
+	self.OnAltActivate = function(self, context, gamepad)
+		if gamepad then
+			self:ProcessToggle(context, true)
+		end
+	end
+	-- rollover
+	self:SetRolloverTitle(T{8887, "Use Passages for work"})
+	self:SetRolloverText(T{8888, "Allow or forbid working in connected Domes.<newline><newline>Current status: <em><UIWorkInConnected></em>"})
+	if dome.allow_work_in_connected then
+		self:SetRolloverHint(T{8889, "<left_click> Forbid for this Dome<newline><em>Ctrl + <left_click></em> Forbid for all Domes"})
+		self:SetRolloverHintGamepad(T{8890, "<ButtonA> Forbid for this Dome<newline><ButtonX> Forbid for all Domes"})
+	else
+		self:SetRolloverHint(T{8891, "<left_click> Allow for this Dome<newline><em>Ctrl + <left_click></em> Allow for all Domes"})
+		self:SetRolloverHintGamepad(T{8892, "<ButtonA> Allow for this Dome<newline><ButtonX> Allow for all Domes"})
+	end
+end,
+		}),
+		PlaceObj('XTemplateTemplate', {
+			'__template', "InfopanelActiveSection",
+			'OnContextUpdate', function (self, context, ...)
+	local dome = ResolvePropObj(context)
+	local accept = dome.allow_service_in_connected
+	if accept then
+		self:SetIcon("UI/Icons/Sections/service_in_connected_domes_on.tga")
+		self:SetTitle(T{8893, "<em>Use Passages for services</em>"})
+	else
+		self:SetIcon("UI/Icons/Sections/service_in_connected_domes_off.tga")
+		self:SetTitle( T{8893, "<em>Use Passages for services</em>"})
+	end
+	rawset(self, "ProcessToggle", function(self, context, broadcast)
+		local building = ResolvePropObj(context)
+		building:ToggleServiceInConnected(broadcast)
+		RebuildInfopanel(building)
+	end)
+	self.OnActivate = function (self, context, gamepad)
+		self:ProcessToggle(context, not gamepad and IsMassUIModifierPressed())
+	end
+	self.OnAltActivate = function(self, context, gamepad)
+		if gamepad then
+			self:ProcessToggle(context, true)
+		end
+	end
+	-- rollover
+	self:SetRolloverTitle(T{8895, "Use Passages for services"})
+	self:SetRolloverText(T{8896, "Allow or forbid using service buildings in connected Domes.<newline><newline>Current status: <em><UIServiceInConnected></em>"})
+	if dome.allow_service_in_connected then
+		self:SetRolloverHint(T{8889, "<left_click> Forbid for this Dome<newline><em>Ctrl + <left_click></em> Forbid for all Domes"})
+		self:SetRolloverHintGamepad(T{8890, "<ButtonA> Forbid for this Dome<newline><ButtonX> Forbid for all Domes"})
+	else
+		self:SetRolloverHint(T{8891, "<left_click> Allow for this Dome<newline><em>Ctrl + <left_click></em> Allow for all Domes"})
+		self:SetRolloverHintGamepad(T{8892, "<ButtonA> Allow for this Dome<newline><ButtonX> Allow for all Domes"})
+	end
+end,
+		}),
+		PlaceObj('XTemplateTemplate', {
+			'__template', "InfopanelActiveSection",
+			'OnContextUpdate', function (self, context, ...)
+	local dome = ResolvePropObj(context)
 	local accept = dome.accept_colonists
 	if accept then
 		self:SetIcon("UI/Icons/Sections/accept_colonists_on.tga")
 		self:SetTitle(T{8735, "<em>Accepts Colonists</em>"})
 	else
 		self:SetIcon("UI/Icons/Sections/accept_colonists_off.tga")
-		self:SetTitle( T{8736, "<em>Doesn't accept Colonists</em>"})
+		self:SetTitle( T{8736, "<em>Quarantined</em>"})
 	end
 	rawset(self, "ProcessToggle", function(self, context, broadcast)
 		local building = ResolvePropObj(context)
@@ -80,11 +154,11 @@ end,
 	-- rollover
 	self:SetRolloverTitle(T{364, --[[XTemplate sectionDome RolloverTitle]] "Immigration Policy"})
 	if dome.accept_colonists then
-		self:SetRolloverText(T{7660, "Set the Immigration policy for this Dome.<newline><newline>Current status: <em>Accepts new Colonists</em>"})
-		self:SetRolloverHint(T{7661, "<left_click> Stop accepting Colonists in this Dome<newline><em>Ctrl + <left_click></em> Stop accepting Colonists in all Domes"})
-		self:SetRolloverHintGamepad(T{7662, "<ButtonA> Stop accepting Colonists in this Dome<newline><ButtonX> Stop accepting Colonists in all Domes"})
+		self:SetRolloverText(T{7660, "Set the Immigration policy for this Dome. Colonists are not allowed to enter or leave quarantined Domes.<newline><newline>Current status: <em>Accepts new Colonists</em>"})
+		self:SetRolloverHint(T{7661, "<left_click> Quarantine this Dome<newline><em>Ctrl + <left_click></em> Quarantine all Domes"})
+		self:SetRolloverHintGamepad(T{7662, "<ButtonA> Quarantine this Dome<newline><ButtonX> Quarantine all Domes"})
 	else
-		self:SetRolloverText(T{365, "Set the Immigration policy for this Dome.<newline><newline>Current status: <em>Doesn't accept Colonists</em>"})
+		self:SetRolloverText(T{365, "Set the Immigration policy for this Dome. Colonists are not allowed to enter or leave quarantined Domes.<newline><newline>Current status: <em>Doesn't accept Colonists</em>"})
 		self:SetRolloverHint(T{7663, "<left_click> Accept Colonists in this Dome<newline><em>Ctrl + <left_click></em> Accept Colonists in all Domes"})
 		self:SetRolloverHintGamepad(T{7664, "<ButtonA> Accept Colonists in this Dome<newline><ButtonX> Accept Colonists in all Domes"})
 	end

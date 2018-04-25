@@ -18,14 +18,16 @@ function GetConsumptionTypeDropdownItems()
 		{ text = T{80, "Production"}, value = 1 }, --used by production blds (ResourceProducer) 1 unit production = 1 unit consumption * consumption_amount/1000
 		{ text = T{90, "Visit"}, value = 2 }, --used by food suppliers, consumption_amount is consumed per commie visit, if totall is less, commie regains less needs proportionally
 		{ text = T{91, "Shuttle"}, value = 3 }, --used for shuttle refuel. 1 * consumption_amount / const.ResourceScale units consumption = 1 full shuttle refuel
+		{ text = T{4819, "Workshop"}, value = 4 }, --used for workshop consumption
 	}
 end
 
 g_ConsumptionType = {
-	"Production", "Visit", "Shuttle",
+	"Production", "Visit", "Shuttle", "Workshop",
 	["Production"] = 1,
 	["Visit"] = 2,
 	["Shuttle"] = 3,
+	["Workshop"] = 4
 }
 
 --consumption (aka upkeep, but different)
@@ -78,7 +80,7 @@ end
 function HasConsumption.StockpileCanService(stock, unit)
 	local bld = stock:GetParent()
 	if bld.consumption_resource_type ~= "Food" then return false end
-	local eat_per_visit = GetEatPerVisit(unit)
+	local eat_per_visit = unit:GetEatPerVisit()
 	return bld.consumption_stored_resources >= eat_per_visit
 end
 
@@ -251,12 +253,12 @@ function HasConsumption:UpdateRequestConnectivity()
 	local threshold = self.consumption_max_storage - const.ResourceScale * 1
 	local is_connected = self:IsConsumptionResourceRequestConnected()
 	local working = self.ui_working and not self.destroyed
-	if is_connected and (self.consumption_stored_resources > threshold or not working) then
+	if is_connected and not working then
 		--disconnect the req
 		self:DisconnectFromCommandCenters()
 		table.remove_entry(self.task_requests, self.consumption_resource_request)
 		self:ConnectToCommandCenters()
-	elseif not is_connected and (self.consumption_stored_resources <= threshold and working) then
+	elseif not is_connected and working then
 		--connect the req
 		self:DisconnectFromCommandCenters()
 		self.task_requests[#self.task_requests + 1] = self.consumption_resource_request

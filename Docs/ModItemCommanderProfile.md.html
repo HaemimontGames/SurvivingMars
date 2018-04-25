@@ -4,10 +4,12 @@ Commander Profile
 
 This mod item allows you to define a commander profile. It can be selected in the new game menu and has a significant effect over gameplay. Each commander profile has some specific properties and game effects. [Here](LuaFunctionDoc_Gameplay.md.html) can be found some useful functions for creating effects.
 
+Gameplay effects for the Commander Profile can be defined using [Effects](ModItemEffect.md.html). They can influence global consts in different ways, unlock various gameplay items at game start and impact player structures at different stages of creation. Game effects are the most conveninent way to implement functionality for your Commander Profile. 
+
 Properties
 ----------
-Name (self.name)
-: This is the internal unique name of commander profile. It is not visible by users.
+Id (self.id)
+: This is the internal unique id of commander profile. It is not visible by users.
 
 Display Name (self.display_name)
 : This is the user-visible name of the commander profile, visible when choose commander in game combo.
@@ -33,12 +35,10 @@ Parameters (self.param1, self.param2, self.param3, self.param4, self.param5)
 : Properties that contain number values - use them in additional code in the Filter and Game Apply properties, if necessary.
 
 Game Apply (function self:game_apply(city))
-: Code that is executed at game start. Use functions to implement command profile effects here.
-
-
+: Code that is executed at game start. Use functions to implement conditional command profile effects which cannot be defined via [Effects](ModItemEffect.md.html).
 
 (insert footer.md.html here)
 <!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
 <script src="markdeep.min.js"></script>
 <script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script>
-<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script> 

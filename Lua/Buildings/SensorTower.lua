@@ -26,6 +26,7 @@ function SensorTower:OnModifiableValueChanged(prop)
 		self:ResetDust()
 		self.accumulate_dust = false
 		self.accumulate_maintenance_points = false
+		self:UpdateNoCCSign()
 	end
 end
 

@@ -98,8 +98,6 @@ DefineClass.ResourceStockpileBase = {
 	
 	fx_actor_class = "ResourceStockpile",
 	
-	drones_loading_amount = 0,
-	
 	parent_construction = false,
 	
 	count_in_resource_overview = true, --the city label "ResourceStockpile" contains all the stockpiles that will get counted
@@ -257,18 +255,13 @@ function ResourceStockpileBase:HasFreeVisitSlots() return true end
 function ResourceStockpileBase:CanService(unit)
 	if self.has_supply_request and self:DoesAcceptResource("Food") then
 		local s_req = self.supply_request or self.supply["Food"]
-		local eat_per_visit = GetEatPerVisit(unit)
+		local eat_per_visit = unit:GetEatPerVisit(unit)
 		return s_req:GetActualAmount() > eat_per_visit
 	end
 end
 
 function GetEatPerVisit(unit)
-	local eat_per_visit = g_Consts.eat_food_per_visit
-	if unit.traits.Glutton then
-		eat_per_visit = 2 * eat_per_visit
-	end
-	
-	return eat_per_visit
+	return Colonist.GetEatPerVisit(unit)
 end
 
 function ResourceStockpileBase:Service(unit, duration)
@@ -315,14 +308,23 @@ function ResourceStockpileBase:AddResourceAmount(amount_to_add, notify_parents)
 	end
 	
 	if notify_parents then
-		if self.parent and self.parent:HasMember("total_stockpiled") then
-			--update total amount stored by this controller
-			self.parent:UpdateTotalStockpile(amount_to_add, self.resource)
-		end
-		
-		if self.parent and self.parent:HasMember("DroneLoadResource") then
-			--if parent has internal counters, this is its que to update them
-			self.parent:DroneLoadResource(nil, nil, self.resource, -amount_to_add)
+		local p = self.parent
+		if p then
+			if p:HasMember("total_stockpiled") then
+				--update total amount stored by this controller
+				p:UpdateTotalStockpile(amount_to_add, self.resource)
+			end
+			
+			if p:HasMember("DroneLoadResource") then
+				--if parent has internal counters, this is its que to update them
+				p:DroneLoadResource(nil, nil, self.resource, -amount_to_add)
+			end
+			
+			if p:HasMember("DoesHaveConsumption") and p:DoesHaveConsumption() and p.consumption_resource_stockpile == self then
+				local req = p.consumption_resource_request
+				req:AddAmount(-amount_to_add)
+				p:ConsumptionDroneUnload(nil, req, self.resource, amount_to_add)
+			end
 		end
 	end
 	
@@ -367,10 +369,7 @@ function ResourceStockpileBase:GetStoredAmount()
 end
 
 function ResourceStockpileBase:SetCountFromRequest()
-	local new_amount = self:GetStoredAmount() + self.drones_loading_amount
-	local new_count = new_amount
-	
-	self:SetCount(new_count)
+	self:SetCount(self:GetStoredAmount())
 end
 
 function ResourceStockpileBase:SetCountInternal(new_count, count, resource, placed_cubes, placement_offset, group_angle, single_angle)
@@ -450,28 +449,20 @@ function ResourceStockpileBase:GetCubePosWorld(idx, ...) --zero based
 	return self:GetVisualPos() + Rotate(self:GetCubePosRelative(idx, ...), self:GetAngle())
 end
 
-function ResourceStockpileBase:DroneLoadResource(drone, request, resource, amount)
+function ResourceStockpileBase:DroneLoadResource(drone, request, resource, amount, skip_presentation)
 	assert(type(self.stockpiled_amount) == "number", string.format("Improper self.stockpiled_amount type %s, for class %s", type(self.stockpiled_amount), self.class))
 	if drone then
-		self.drones_loading_amount = self.drones_loading_amount + amount
-		drone:PushDestructor(function(drone)
-			local bld = drone.s_request:GetBuilding()
-			if bld then
-				bld.drones_loading_amount = bld.drones_loading_amount - amount
-			end
-		end)
 		--presentation
-		drone:Face(self:GetPos(), 100)
-		drone:StartFX("Pickup", resource) --resource to string
-		drone:SetState("interact")
-		Sleep(500)
-		drone:StopFX()
+		if not skip_presentation then
+			drone:Face(self:GetPos(), 100)
+			drone:StartFX("Pickup", resource) --resource to string
+			drone:SetState("interact")
+			Sleep(500)
+			drone:StopFX()
+		end
 		if not IsValid(self) then
-			drone:PopDestructor()
 			return
 		end
-		--update amounts
-		drone:PopAndCallDestructor()
 	end
 	self.stockpiled_amount = self.stockpiled_amount - amount
 	self:SetCount(self.stockpiled_amount)
@@ -1166,6 +1157,24 @@ function PlaceResourceStockpile_Instant(pos, resource, amount, angle, destroy_wh
 	return best_stock, did_create
 end
 
+-------------------
+
+DefineClass.ResourceStockpileLR = {
+	__parents = { "ResourceStockpile", "ShuttleLanding" },
+}
+
+function ResourceStockpileLR:GameInit()
+	LRManagerInstance:AddBuilding(self)
+end
+
+function ResourceStockpileLR:Done()
+	LRManagerInstance:RemoveBuilding(self)
+end
+
+function ResourceStockpileLR:GetTargetEmptyStorage(resource)
+	return resource == self.resource and self.demand_request:GetTargetAmount() or 0
+end
+
 -------------------------------------------------------------------------------------------------------------
 --helper, brute forces a place to create a new stock
 function StockpileDumpSpotFilter(obj)
@@ -1253,6 +1262,10 @@ function StockpileController:CreateStockpiles()
 	SuspendPassEdits("CreateStockpiles")
 	for i = 1, #(self.stockpile_spots or "") do
 		local spot = self.stockpile_spots[i]
+		if not self.parent:HasSpot(spot) then
+			print("once", self.parent:GetEntity(), "doesn't have spot", spot)
+			spot = "Origin"
+		end
 		local first, last = self.parent:GetSpotRange("idle", spot)
 		for j = first, last do
 			local params = {	resource = self.stockpiled_resource, 

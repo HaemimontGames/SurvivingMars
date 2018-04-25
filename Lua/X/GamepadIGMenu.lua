@@ -1,6 +1,6 @@
 --GamePadMenu
 DefineClass.GamepadIGMenu = {
- __parents = {"ItemMenu", "MarsPauseDlg"},
+ __parents = {"ItemMenu"},
  hide_single_category = true,
 }
 
@@ -87,6 +87,11 @@ function GamepadIGMenu:Init()
 	CloseInfopanelItems()
 end
 
+function GamepadIGMenu:Open(...)
+	self:RecalculateMargins()
+	ItemMenu.Open(self, ...)
+end
+
 function GamepadIGMenu:GetCategories()
 	return empty_table
 end
@@ -110,8 +115,18 @@ function GamepadIGMenu:OnXButtonUp(button, controller_id)
 	return ItemMenu.OnXButtonUp(self, button, controller_id)
 end
 
+function GamepadIGMenu:RecalculateMargins()
+	self:SetMargins(OnScreenHintDlg.Margins + GetSafeMargins())
+end
+
+function OnMsg.SafeAreaMarginsChanged()
+	local dlg = GetXDialog("GamepadIGMenu")
+	if dlg then
+		dlg:RecalculateMargins()
+	end
+end
+
 function GamepadIGMenu:Close(...)
-	--MarsPauseDlg.Close(self,...)
 	ItemMenu.Close(self,...)
 end
 

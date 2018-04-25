@@ -13,7 +13,7 @@ DefineClass.Drone =
 	entity = "DroneMaintenance",
 	default_skins = { "DroneMaintenance", "DroneMiner", "DroneWorker" },
 	command_center = false,
-	pfclass = 0,
+	pfclass = 2,
 	radius = 120*guic,
 	collision_radius = 120*guic,
 	dust_max = const.MaxMaintenance,
@@ -54,9 +54,7 @@ DefineClass.Drone =
 	rogue_shoot_range = 20*guim,
 	rogue_shoot_chance = 20, -- chance a defending colonist to succesfully shoot it
 	
-	last_non_idle_command = false,
-	current_command_is_user_interaction = false,
-	last_command_was_user_interaction = false,
+	idle_wait = false,
 	encyclopedia_id = "Drone",
 	
 	rogue_attack_colonist_chance = 50,
@@ -83,7 +81,7 @@ function Drone:GameInit()
 	self.city:AddToLabel("Unit", self)
 	self.city:AddToLabel("Drone", self)
 	
-	if GetMissionSponsor().name == "SpaceY" and self.city.day < 100 and #self.city.labels.Drone >= DataInstances.Achievement.SpaceYBuiltDrones.target then
+	if GetMissionSponsor().id == "SpaceY" and self.city.day < 100 and #self.city.labels.Drone >= DataInstances.Achievement.SpaceYBuiltDrones.target then
 		AchievementUnlock(XPlayerActive, "SpaceYBuiltDrones")
 	end
 	
@@ -242,7 +240,7 @@ local DelayAfterUserCommands = {
 
 -- rogue drones
 function Drone:GoRogue()
-	if self.rogue or self:GetParent() then
+	if self.rogue or self:GetParent() or self:IsDisabled() then
 		return
 	end
 	self.city:AddToLabel("RogueDrones", self)
@@ -412,7 +410,7 @@ function Drone:RogueAttack(target)
 	end)
 	self.rogue_target = target
 	
-	self:GotoSameDomeAsObj(target)
+	self:ExitHolder(target)
 	self:Goto(target, 2*guim, 0)
 	self:PopAndCallDestructor()
 	
@@ -477,17 +475,13 @@ function Drone:Idle()
 	self:SetColorModifier(RGB(100, 100, 100))
 	self:SetState("idle")
 	
+	Sleep(self.idle_wait or -1) -- -1 means immediate return
+	
 	if self.rogue then
 		self:SetCommand("RogueAttack")
 	end
 	
 	local command_center = self.command_center
-	if not IsValid(command_center) then
-		self:SetCommand("WaitingCommand")
-	end
-	if self.last_command_was_user_interaction and DelayAfterUserCommands[self.last_non_idle_command] then
-		Sleep(DelayAfterUserCommands[self.last_non_idle_command])
-	end
 	if not IsValid(command_center) then
 		self:SetCommand("WaitingCommand")
 	end
@@ -553,14 +547,14 @@ function Drone:GoHome(min, max, pos, ui_str_override)
 		self.override_ui_status = nil
 	end)	
 	local command_center = self.command_center
-	self:GotoSameDomeAsObj(command_center)
+	self:ExitHolder(command_center)
 	self:PushDestructor(function(self)
 		if IsValid(self) then
 			self:SetPos(self:GetVisualPos())
 		end
 	end)
 	pos = pos or command_center:GetPos()
-	pos = self:GoToRandomPos(max, min, pos, 30, GetPointOutsideDomes)
+	pos = self:GoToRandomPos(max, min, pos, GetPointOutsideDomes)
 	self:PopDestructor()
 	if not pos then --stuck drone
 		Sleep(1000)
@@ -615,7 +609,8 @@ OnMsg.LoadGame = UpdateDroneResourceUnits
 function Drone:ContinuousTask(request, amount, battery_use, anim_start, anim_idle, anim_end, fx, functor)
 	local building = request:GetBuilding()
 	if not IsValid(building) then return end --building got destroyed en route
-	self:Face(building, 100)
+	local whom_to_face = IsKindOf(building, "ConstructionGroupLeader") and FindNearestObject(building.construction_group, self:GetPos():SetInvalidZ()) or building
+	self:Face(whom_to_face, 100)
 	self:UseBattery(battery_use)
 	if fx then
 		self:StartFX(fx, building)
@@ -881,7 +876,7 @@ function Drone:CreateDumpingStockpile()
 	end
 	
 	pos = point(HexToWorld(q, r))
-	self:GotoSameDomeAsObj(pos)
+	self:ExitHolder(pos)
 	if not self:Goto(pos, const.HexSize * 3 / 4, const.HexSize * 1 / 2) or HexGetLowBuilding(q, r) then --someone took the spot while we traveled.
 		Sleep(1000)
 		return
@@ -1153,6 +1148,16 @@ function Drone:Charge(recharger)
 	self:PopAndCallDestructor() -- recharger:LeadOut(self)
 end
 
+local delay_before_rogue_drones_die = 30000
+function Drone:RogueDieAfterDelay()
+	if not self.rogue then return end
+	Sleep(delay_before_rogue_drones_die)
+	if IsValid(self) then 
+		DoneObject(self)	
+	end
+	Halt()
+end
+
 function Drone:Malfunction()
 	self:StartFX("Breakdown")
 	if self:GetStateText() == "noBattery" then
@@ -1160,7 +1165,7 @@ function Drone:Malfunction()
 	else
 		self:SetState("breakDown")
 	end
-	local start_malfunction = GameTime()
+	self:RogueDieAfterDelay()
 	Halt()
 end
 
@@ -1199,7 +1204,7 @@ function Drone:NoBattery()
 		end
 	end)
 	self:SetIsNightLightPossible(false)
-
+	self:RogueDieAfterDelay()
 	local max_heat = const.MaxHeat
 	local freeze_progress = 0
 	local delta = 5000
@@ -1230,6 +1235,7 @@ end
 function Drone:Freeze()
 	self:StartFX("Freeze")
 	self:SetState("breakDown")
+	self:RogueDieAfterDelay()
 	self:SetHeat(0)
 	self:PushDestructor(function(self)
 		if not IsValid(self) then return end
@@ -1339,7 +1345,7 @@ function Drone:RecallToRover(rover)
 		end
 	end)
 	
-	self:GotoSameDomeAsObj(rover)
+	self:ExitHolder(rover)
 	local go_to_pos = rover:GetSpotLoc(rover:GetSpotBeginIndex(rover.drone_entry_spot))
 	local my_rad = self:GetRadius()
 	
@@ -1400,10 +1406,6 @@ end
 function Drone:ExitRover(rover)
 	assert(rover == self.command_center)
 	self.command_center:DroneExit(self)
-end
-
-function Drone:MarkLastUserGotoCommand(val)
-	self.current_command_is_user_interaction = true
 end
 
 local function TestReq(req, resource, amount) --tests whether we can assign to this request
@@ -2173,17 +2175,7 @@ end
 
 function Drone:SetCommandUserInteraction(command, ...)
 	self:SetCommand(command, ...)
-	self.current_command_is_user_interaction = true
-end
-
-function Drone:OnCommandStart()
-	Unit.OnCommandStart(self)
-	
-	if self.command ~= "Idle" then
-		self.last_non_idle_command = self.command
-		self.last_command_was_user_interaction = self.current_command_is_user_interaction
-		self.current_command_is_user_interaction = false
-	end
+	self.idle_wait = DelayAfterUserCommands[command] or false
 end
 
 function Drone:SaveCompatDifferentiateDisablingFromBroken()
@@ -2198,6 +2190,7 @@ function Drone:SaveCompatDifferentiateDisablingFromBroken()
 end
 
 function Drone:SetCommand(command, ...)
+	self.idle_wait = false
 	local is_disabling = DisablingCommands[command]
 	if not self.is_disabled and is_disabling then
 		self.is_disabled = true
@@ -2207,7 +2200,9 @@ function Drone:SetCommand(command, ...)
 	
 	local is_braking = BrokenCommands[command]
 	if not self.is_broken and is_braking then
-		table.insert(g_BrokenDrones, self)
+		if not self.rogue then
+			table.insert(g_BrokenDrones, self)
+		end
 		self.is_broken = true
 	elseif self.is_broken and not is_braking then
 		table.remove_entry(g_BrokenDrones, self)

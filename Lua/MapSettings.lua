@@ -10,6 +10,7 @@ DefineClass.MapSettings =
 		{ id = "spawntime_random",	name = "Spawn Time Random (h)",	editor = "number",  default = 750 * const.HourDuration, scale = const.HourDuration, category = "Common" },
 		{ id = "warning_time",		name = "Warning Time (h)",			editor = "number",	default = 6 * const.HourDuration, scale = const.HourDuration, category = "Common" },
 		{ id = "birth_hour",		name = "Birth Hour (h)",			editor = "number",	default = 125 * const.HourDuration, scale = const.HourDuration, category = "Common", help = "This many hours without disaster" },
+		{ id = "use_in_gen",		name = "Use in random selection",	editor = "bool",    default = true, category = "Common" },
 		-- Disaster Lightmodel
 		{ id = "noon",				name = "Noon",		category = "Lightmodel", editor = "dropdownlist", default = "", items = LightmodelsCombo },
 		{ id = "evening",			name = "Evening",	category = "Lightmodel", editor = "dropdownlist", default = "", items = LightmodelsCombo },
@@ -469,54 +470,26 @@ end
 
 ----
 
-function GetRandomPassable(tries)
-	local IsPassable = terrain.IsPassable
-	local city = UICity
-	local border = Max(mapdata.PassBorder or 0, guim)
-	local mw, mh = terrain.GetMapSize()
-	tries = tries or 250
-	for j = 1, tries do
-		local x, y = city:Random(border, mw - border), city:Random(border, mh - border)
-		if IsPassable(x, y) then
-			return point(x, y)
-		end
-	end
+function GetRandomPassable(city)
+	local pfClass = 0
+	city = city or UICity
+	local seed = city:Random()
+	return GetRandomPassablePoint(seed)
 end
 
-function GetRandomPassableAwayFromLargeBuilding(min_dist, tries)
-	local IsPassable = terrain.IsPassable
-	local IsBuildableZone = IsBuildableZone
-	local IsPointNearLargeBuilding = IsPointNearLargeBuilding
-	local city = UICity
-	tries = tries or 100
-	local mw, mh = terrain.GetMapSize()
-	local border = Max(mapdata.PassBorder or 0, guim)
-	for j = 1, tries do
-		local x, y = city:Random(border, mw - border), city:Random(border, mh - border)
-		if IsPassable(x, y) and IsBuildableZone(x, y) then
-			local pt = point(x, y)
-			if not IsPointNearLargeBuilding(pt, min_dist) then
-				return pt
-			end
-		end
-	end
+function GetRandomPassableAwayFromLargeBuilding(min_dist, city)
+	local pfClass = 0
+	local city =  city or UICity
+	local seed = city:Random()
+	return GetRandomPassablePoint(seed, pfClass, function(x, y, min_dist)
+		return IsPointNearLargeBuildingAndBuildable(x, y, min_dist)
+	end, min_dist)
 end
 
-function GetRandomPassableAround(center, radius, tries, filter, ...)
-	local IsPassable = terrain.IsPassable
-	local x0, y0 = center:x() - radius, center:y() - radius
-	local range = radius*2 + 1
-	local mw, mh = terrain.GetMapSize()
-	local border = Max(mapdata.PassBorder or 0, guim)
-	local city = UICity
-	local radius_sq = radius*radius
-	for j = 1, (tries or 250) do
-		local x, y = x0 + city:Random(range), y0 + city:Random(range)
-		x, y = Clamp(x, border, mw - border), Clamp(y, border, mh - border)
-		if center:Dist2D2(x, y) <= radius_sq
-		and IsPassable(x, y)
-		and (not filter or filter(x, y, ...)) then
-			return point(x, y)
-		end
-	end
+function GetRandomPassableAround(center, max_radius, min_radius, city, filter, ...)
+	local pfClass = 0
+	min_radius = min_radius or 0
+	city = city or UICity
+	local seed = city:Random()
+	return GetRandomPassablePoint(center, max_radius, min_radius, seed, pfClass, filter, ...)
 end

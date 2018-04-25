@@ -258,7 +258,7 @@ function Workplace:GetPerformanceReasons(shift)
 	-- mission sponsor
 	local sponsor = GetMissionSponsor()
 	for _, effect in ipairs(sponsor) do
-		if IsKindOf(effect, "TechEffect_ModifyLabel") 
+		if IsKindOf(effect, "Effect_ModifyLabel") 
 			and effect.Prop == "performance" 
 			and self.city:IsInLabel(effect.Label, self) 
 		then
@@ -416,11 +416,6 @@ function Workplace:FireWorker(worker)
 	RebuildInfopanel(self)
 end
 
-function Workplace:BindWorker(worker, shift, idx)
-	assert(worker.workplace==self)
-	worker.lock_workplace = true
-end
-
 function UpdateWorkplaces(colonists)
 	local forced_only = true
 	for k=1,2 do
@@ -445,7 +440,7 @@ function Workplace:ColonistCanInteract(col)
 		return false, T{4310, "<red>Seniors and children can't be assigned to work</red>"}
 	end
 	if self.specialist_enforce_mode and (self.specialist or "none") ~= (col.specialist or "none") then
-		return false, T{"Required specialization mismatch"}
+		return false, T{8769, "Required specialization mismatch"}
 	end
 	if col.workplace == self then
 		return false, T{4311, "Current Workplace"}
@@ -687,15 +682,27 @@ local domes_query = {
 	classes = {"ConstructionSite", "Dome"}, 
 	area = false,
 	hexradius = 0,
-	exec = function(d, self) 
-		if IsKindOf(d, "ConstructionSite") and not IsKindOf(d.building_class_proto, "Dome") then
-			return
+	exec = function(obj, workplace, shape)
+		local dome_class = obj
+		if IsKindOf(obj, "ConstructionSite") then
+			if IsKindOf(obj.building_class_proto, "Dome") then
+				dome_class = obj.building_class_proto
+			else
+				return
+			end
 		end
-		local r = d:GetRadius() / const.GridSpacing
-		if HexAxialDistance(self, d) > r + g_Consts.DefaultOutsideWorkplacesRadius then
-			return
+		local r = dome_class:GetOutsideWorkplacesDist()
+		local outside = true
+		for i = 1, #shape do
+			if HexAxialDistance(obj, shape[i]) <= r then
+				outside = false
+				break
+			end
 		end
-		self.domes_query_res = true
+		if outside then 
+			return 
+		end
+		workplace.domes_query_res = true
 		return "break"
 	end,
 }
@@ -712,7 +719,14 @@ function Workplace:HasNearByWorkers()
 	self.domes_query_res = false
 	domes_query.area = self
 	domes_query.hexradius = g_Consts.DefaultOutsideWorkplacesRadius + 50
-	ForEach(domes_query, self)
+	local shape = table.copy(GetEntityOutlineShape(self:GetEntity()))
+	local pos = self:GetPos()
+	for i = 1, #shape do
+		local offset = point(HexToWorld(shape[i]:xy())):SetZ(0)
+		shape[i] = pos + offset
+	end
+	ForEach(domes_query, self, shape)
+	domes_query.area = nil
 	return self.domes_query_res
 end
 
@@ -754,12 +768,7 @@ end
 
 function ChooseTraining(unit, training_buildings, bb_in, bws_in)
 	local current_bld, current_shift = bb_in or unit.workplace, bws_in or unit.workplace_shift
-	if not unit.dome or current_bld and unit.lock_workplace then
-		if current_bld and not current_bld:CanTrain(unit) then
-			return
-		end
-		return current_bld, current_shift
-	end
+	assert(not current_bld or not current_bld.force_lock_workplace)
 	local avoid_workplace = unit.avoid_workplace
 	if avoid_workplace and (not unit.avoid_workplace_start or unit.avoid_workplace_start + g_Consts.AvoidWorkplaceSols < unit.city.day) then
 		avoid_workplace = false
@@ -889,9 +898,7 @@ end
 function ChooseWorkplace(unit, workplaces, allow_exchange)
 	local current_bld = ValidateBuilding(unit.workplace)
 	local current_shift = unit.workplace_shift
-	if current_bld and unit.lock_workplace then
-		return current_bld, current_shift
-	end
+	assert(not current_bld or not current_bld.force_lock_workplace)
 	local avoid_workplace = unit.avoid_workplace
 	if avoid_workplace and (not unit.avoid_workplace_start or unit.avoid_workplace_start + g_Consts.AvoidWorkplaceSols < unit.city.day) then
 		avoid_workplace = false
@@ -943,7 +950,9 @@ function ChooseWorkplace(unit, workplaces, allow_exchange)
 	end
 	
 	-- in case the the choosen building isn't the best building, exchange the colonists between workplaces
-	if exchange_worker and not best_to_kick and best_bld and exchange_bld ~= best_bld then
+	if exchange_worker and not best_to_kick
+	and best_bld and exchange_bld ~= best_bld
+	and best_bld:IsSuitable(exchange_worker) then
 		--DbgAddWorkVector(exchange_worker, best_bld, red)
 		exchange_worker:SetWorkplace(best_bld, best_shift)
 		best_bld, best_shift, best_specialist_match = exchange_bld, exchange_shift, true

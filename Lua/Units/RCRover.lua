@@ -31,7 +31,6 @@ DefineClass.RCRover =
 	
 	work_radius = const.RCRoverDefaultRadius,
 
-	pfclass = 1,
 	direction_arrow_scale = 260,
 	--
 	resource_capacity = {},
@@ -60,7 +59,7 @@ DefineClass.RCRover =
 	working = false,
 	waiting_on_drones = 0,
 	accumulate_dust = false,
-	siege_mode_update_delta = 5000,
+	siege_mode_update_delta = 10000,
 	
 	dont_interrupt_current_command = false,
 	drones_waiting_to_embark = false,
@@ -159,7 +158,7 @@ end
 
 function RCRover:DroneApproach(drone, reason)
 	if reason == "charge" then
-		drone:GotoSameDomeAsObj(self)
+		drone:ExitHolder(self)
 		
 		local go_to_pos = self:GetSpotLoc(self:GetSpotBeginIndex("Charge"))
 		local drone_rad = drone:GetRadius()
@@ -288,7 +287,7 @@ function RCRover:DroneExit(drone, skip_visuals)
 	end
 
 	if skip_visuals then
-		drone:SetPos(Building.GetRandomPos(self, 25*guim, 15*guim, self:GetPos()))
+		drone:SetPos(GetRandomPassableAround(self:GetPos(), 25*guim, 15*guim))
 		drone:SetCommand("Idle")
 	else
 		if self.siege_state_name == "Siege" then --if we changed the command, don't make the drone go away
@@ -675,10 +674,8 @@ function RCRover:DroneFailedToRecall(drone)
 end
 
 function RCRover:CanInteractWithObject(obj, interaction_mode)
-	if interaction_mode ~= "recharge" then
-		if obj:IsKindOf("Drone") then
-			return obj:IsBroken()
-		end
+	if interaction_mode ~= "recharge" and obj:IsKindOf("Drone") then
+		return obj:IsBroken()
 	end
 	return BaseRover.CanInteractWithObject(self, obj, interaction_mode)
 end

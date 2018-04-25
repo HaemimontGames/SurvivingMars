@@ -1,14 +1,14 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 DefineClass.Cargo = {
-	__parents = { "Preset" },
+	__parents = { "Preset", },
 	properties = {
 		{ id = "name", name = T{1153, "Display Name"}, 
 			editor = "text", default = false, translate = true, },
 		{ id = "description", name = T{1000017, "Description"}, 
 			editor = "text", default = false, translate = true, },
 		{ id = "price", name = T{8675, "Price (M)"}, 
-			editor = "number", default = 100000000, scale = "mil", min = 0, step = 10000000, },
+			editor = "number", default = 100000000, scale = "mil", step = 10000000, min = 0, },
 		{ id = "pack", name = T{8676, "Pack"}, 
 			editor = "number", default = 1, min = 1, },
 		{ id = "kg", name = T{8677, "Weight (kg)"}, 

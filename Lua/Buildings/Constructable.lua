@@ -36,3 +36,6 @@ DefineClass.Constructable = {
 		{ template = true, name = T{8491, "Lights On During Placement"}, id = "lights_on_during_placement", category = "Construction", editor = "bool", default = false },
 	},
 }
+
+function Constructable:InitConstruction(site)
+end

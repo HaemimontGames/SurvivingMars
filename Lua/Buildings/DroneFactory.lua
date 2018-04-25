@@ -24,6 +24,7 @@ end
 function DroneFactory:CreateResourceRequests()
 	local resource = self.city:IsTechResearched("PrintedElectronics") and "Metals" or "Electronics"
 	self.drone_construction_request = self:AddDemandRequest(resource, 0)
+	self.transport_request = self:AddSupplyRequest(resource, 0)
 end
 
 function DroneFactory:BuildingUpdate(delta, day, hour)
@@ -139,13 +140,19 @@ function DroneFactory:DroneUnloadResource(drone, request, resource, amount)
 	end
 end
 
+function DroneFactory:DroneLoadResource(drone, request, resource, amount)
+	if self.transport_request == request then
+		self.drone_construction_resource = self.drone_construction_resource - amount
+	end
+	Building.DroneLoadResource(self, drone, request, resource, amount)
+end
+
 function DroneFactory:ConstructDrone(change, requestor)
 	if self.drones_in_construction + change < 0 then
 		return
 	end
 	assert(abs(change)==1)
 	self.drones_in_construction = self.drones_in_construction + change
-	self.drone_construction_request:AddAmount(g_Consts.DroneElectronicsCost * change)	
 	if change>0 then
 		self.construction_queue[#self.construction_queue+1] = "Drone"
 			
@@ -168,7 +175,8 @@ function DroneFactory:ConstructDrone(change, requestor)
 	end
 	
 	self:StartDroneConstruction() --if we already have the resource - git goin
-
+	self.drone_construction_request:SetAmount(self:GetConstructResourceTotal() - self.drone_construction_resource)	
+	self.transport_request:SetAmount(Max(0,self.drone_construction_resource - self:GetConstructResourceTotal()))
 end
 
 function DroneFactory:ConstructAndroid(change)
@@ -176,7 +184,6 @@ function DroneFactory:ConstructAndroid(change)
 		return
 	end
 	self.androids_in_construction = self.androids_in_construction + change
-	self.drone_construction_request:AddAmount(g_Consts.AndroidElectronicsCost * change)	
 	if change>0 then
 		self.construction_queue[#self.construction_queue + 1] = "Android"
 	else 
@@ -192,7 +199,8 @@ function DroneFactory:ConstructAndroid(change)
 	end
 	
 	self:StartDroneConstruction() --if we already have the resource - git goin
-
+	self.drone_construction_request:SetAmount(self:GetConstructResourceTotal() - self.drone_construction_resource)	
+	self.transport_request:SetAmount(Max(0,self.drone_construction_resource - self:GetConstructResourceTotal()))
 end
 
 function DroneFactory:SpawnDrone(delay)
@@ -205,6 +213,7 @@ function DroneFactory:SpawnAndroid(delay)
 	colonist_table.dome = self.parent_dome
 	colonist_table.current_dome = self.parent_dome
 	colonist_table.traits["Android"] = true
+	colonist_table.specialist = "none"
 	local colonist = Colonist:new(colonist_table)
 	self:OnEnterUnit(colonist)
 	self:UpdateUI()
@@ -245,7 +254,7 @@ function DroneFactory:GetConstructResource()
 end
 
 function DroneFactory:GetConstructResourceAmount()
-	return self:GetConstructResourceTotal() - self.drone_construction_request:GetActualAmount()
+	return self.drone_construction_resource
 end
 
 function DroneFactory:GetConstructResourceTotal()

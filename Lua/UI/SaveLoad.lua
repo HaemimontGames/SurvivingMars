@@ -93,7 +93,7 @@ function SaveLoadObject:RemoveItem(id)
 end
 
 function SaveLoadObject:CalcDefaultSaveName()
-	local default_text = _InternalTranslate(DataInstances.MissionSponsor[g_CurrentMissionParams.idMissionSponsor].display_name) .. " Sol " .. UICity.day
+	local default_text = _InternalTranslate(GetMissionSponsor().display_name or "") .. " Sol " .. UICity.day
 	local items = self.items
 	local max_num = 0
 	for k, v in ipairs(items) do
@@ -106,7 +106,7 @@ function SaveLoadObject:CalcDefaultSaveName()
 	if max_num > 0 then
 		return default_text .. " (" .. max_num + 1 .. ")"
 	end
-	return default_text
+	return default_text:trim_spaces()
 end
 
 function SaveLoadObject:ShowNewSavegameNamePopup(host, item)
@@ -192,6 +192,7 @@ function ShowSavegameDescription(item, dialog)
 				data.latitude = g_CurrentMapParams.latitude
 				data.longitude = g_CurrentMapParams.longitude
 				data.active_mods = GetLoadedModsSavegameData()
+				data.active_game_rules = g_CurrentMissionParams.idGameRules
 				data.elapsed_sols = UICity and UICity.day or 0
 				data.displayname = T{4182, "<<< New Savegame >>>"}
 				data.timestamp = os.time()
@@ -210,6 +211,7 @@ function ShowSavegameDescription(item, dialog)
 						if savename ~= metadata.displayname then
 							data.displayname = Untranslated(metadata.displayname .. " - " .. savename)
 						end
+						data.displayname = Untranslated(data.displayname .. Untranslated(" - Lua:") .. data.lua_revision)
 					end
 				end
 			end
@@ -242,6 +244,17 @@ function ShowSavegameDescription(item, dialog)
 				if more then
 					mods_string = mods_string .. "<nbsp>..."
 				end
+			end
+			
+			local game_rules_list, game_rules_string
+			if data.active_game_rules and next(data.active_game_rules) then
+				game_rules_list = {}
+				for rule_id,_ in sorted_pairs(data.active_game_rules) do
+					local rule = Presets.GameRules.Default[rule_id]
+					local name = rule and rule.display_name or Untranslated(rule_id)
+					game_rules_list[#game_rules_list + 1] = name
+				end
+				game_rules_string = table.concat(game_rules_list, ", ")
 			end
 			
 			local dlcs_list = {}
@@ -278,15 +291,16 @@ function ShowSavegameDescription(item, dialog)
 			
 			dialog.idCoordinates:SetText((data.latitude and data.longitude) and T{4199, "Coordinates: <sharp_yellow><lat>°<lat_dir> <long>°<long_dir></sharp_yellow>", lat = data.latitude, lat_dir = data.lat_dir, long = data.longitude, long_dir = data.long_dir} or "")
 			dialog.idSols:SetText((data.elapsed_sols and data.elapsed_sols > 0) and T{4196, "Sols on Mars: <sharp_yellow><value></sharp_yellow>", value = data.elapsed_sols} or "")
-			dialog.idSponsor:SetText(sponsor_data and T{4197, "Sponsor: <sharp_yellow><value></sharp_yellow>", value = sponsor_data.display_name} or "")
-			dialog.idCommanderProfile:SetText(commander_data and T{4198, "Commander Profile: <sharp_yellow><value></sharp_yellow>", value = commander_data.display_name} or "")
+			dialog.idSponsor:SetText(sponsor_data and T{4197, "Sponsor: <sharp_yellow><value></sharp_yellow>", value = sponsor_data.display_name or T{130, "N/A"}} or "")
+			dialog.idCommanderProfile:SetText(commander_data and T{4198, "Commander Profile: <sharp_yellow><value></sharp_yellow>", value = commander_data.display_name or T{130, "N/A"}} or "")
 			dialog.idActiveMods:SetText((mods_string and mods_string ~= "") and T{4200, "Active mods: <sharp_yellow><value></sharp_yellow>", value = Untranslated(mods_string)} or "")
+			dialog.idActiveGameRules:SetText((game_rules_string and game_rules_string ~= "") and T{8800, "Game Rules"} .. ": " .. TLookupTag("<sharp_yellow>") .. game_rules_string .. TLookupTag("</sharp_yellow>") or "")
 			
 			if GetUIStyleGamepad() then
 				dialog.idDelInfo:SetVisible(false)
 			else
 				local del_hint = metadata and T{4191, "DEL to delete. "} or T{""}
-				dialog.idDelInfo:SetText(T{4192, "<grey><hint>PgUp/PgDn or <middle_click> for prev/next page.</grey>", hint = del_hint})
+				dialog.idDelInfo:SetText(T{4192, "<hint>PgUp/PgDn or <middle_click> for prev/next page.", hint = del_hint})
 			end
 			
 			local image = ""

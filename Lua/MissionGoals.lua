@@ -42,7 +42,7 @@ function MissionGoal:MsgNewDay(day)
 		
 		local id = self["popup_final_" .. result]
 		local score = MulDivRound(self.score_at_target, count, target)
-		local cr = CalcChallengeRating()
+		local cr = 100 + CalcChallengeRating()
 		local challenge_score = MulDivRound(score, cr, 100)
 		ShowPopupNotification(id, {count = count, target = target, Score = challenge_score })
 		

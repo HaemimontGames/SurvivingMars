@@ -26,7 +26,7 @@ end,
 local prop_meta = GetDialogModeParam(self)
 if not prop_meta or prop_meta.id == "idMissionLogo" then
 	local logo = g_DiffBonusObj.replace_param == "idMissionLogo" and g_DiffBonusObj.replace_value or context.idMissionLogo
-	local data = DataInstances.MissionLogo[logo] or DataInstances.MissionLogo[1]
+	local data = Presets.MissionLogoPreset.Default[logo] or Presets.MissionLogoPreset.Default[1]
 	if data then
 		self.idLogo:SetImage(data.image)
 	end
@@ -177,6 +177,7 @@ end,
 					PlaceObj('XTemplateForEach', {
 						'comment', "item",
 						'array', function (parent, context) return GetDialogModeParam(parent).items() end,
+						'condition', function (parent, context, item, i) return not item.game_rule end,
 						'__context', function (parent, context, item, i, n) return item end,
 						'run_after', function (child, context, item, i, n)
 if item.rollover then
@@ -221,6 +222,40 @@ SetBackDialogMode(self)
 end,
 							'TextColor', RGBA(221, 215, 170, 255),
 							'Text', T{730563403228, --[[XTemplate PGMissionSponsor Text]] "<text>"},
+						}, {
+							PlaceObj('XTemplateFunc', {
+								'name', "OnSetRollover(self, rollover)",
+								'func', function (self, rollover)
+XTextButton.OnSetRollover(self, rollover)
+local prop_meta = GetDialogModeParam(self)
+if prop_meta then
+	local obj = GetDialogContext(self)
+	g_DiffBonusObj.replace_param = prop_meta.id
+	g_DiffBonusObj.replace_value = self.context.value
+	ObjModified(g_DiffBonusObj)
+	ObjModified(obj)
+end
+end,
+							}),
+							}),
+						}),
+					PlaceObj('XTemplateForEach', {
+						'comment', "item",
+						'array', function (parent, context) return GetDialogModeParam(parent).items() end,
+						'condition', function (parent, context, item, i) return item.game_rule end,
+						'__context', function (parent, context, item, i, n) return item end,
+						'run_after', function (child, context, item, i, n)
+if item.rollover then
+	child:SetRolloverTitle(item.rollover.title)
+	local descr = item.rollover.descr
+	child:SetRolloverText(descr..GetIncompatibleGameRulesNames(item.value))
+	child:SetRolloverHintGamepad(item.rollover.gamepad_hint)
+end
+child.idName:SetText(item.text)
+end,
+					}, {
+						PlaceObj('XTemplateTemplate', {
+							'__template', "GameRuleItem",
 						}, {
 							PlaceObj('XTemplateFunc', {
 								'name', "OnSetRollover(self, rollover)",

@@ -28,10 +28,10 @@ function RevealedMapSector:GameInit()
 		--printf("loaded map sector %s: %s", g_MapSectors[self.sector_x][self.sector_y].id, self.status)
 		local sector = g_MapSectors[self.sector_x][self.sector_y]
 		if sector.status == "unexplored" or sector.status == "scanned" and self.status == "deep scanned" then
-			sector.revealed_obj = self
-			sector:Scan(self.status)
-		end
+		sector.revealed_obj = self
+		sector:Scan(self.status)
 	end
+end
 end
 --[[
 function MergeRevealed()
@@ -105,6 +105,8 @@ DefineClass.MapSector = {
 	display_name = false,
 	area = false, -- aabb
 	status = "unexplored", -- "unexplored", "scanned", "deep scanned"
+	blocked_status = false,
+	blocked_scanner = false,
 	exp_resources = false, -- list of expected resources, based on terrain features (not an actual list of available resources)	
 	markers = false, -- list of markers to spawn deposits when scanned, per category (terrain/surface, subsurface, deep)
 	deposits = false, -- actual resources available in placed deposits per category per type
@@ -126,6 +128,9 @@ DefineClass.MapSector = {
 }
 
 function MapSector:CanBeScanned()
+	if self:HasBlockers() then
+		return false
+	end
 	if self.status == "deep scanned" then
 		return false
 	end
@@ -138,42 +143,82 @@ end
 
 GlobalVar("MapSectorNotifyThread", false)
 
+local function CheckScanAvailability()
+	-- scan availability notification
+	local can_scan, fully_scanned = UnexploredSectorsExist()
+	if not can_scan then
+		RemoveOnScreenNotification("SectorScanAvailable")
+	end
+	if fully_scanned then
+		ForEach{class = "OrbitalProbe", area = "realm", action = "delete"}
+	end
+	RefreshSectorInfopanel(g_ExplorationQueue[1])
+end
+
+local function OnDepositsSpawned()
+	if GetInGameInterfaceMode() == "overview" then
+		GetInGameInterfaceModeDlg():ScaleSigns(0, "up")
+	end
+	Msg("DepositsSpawned")
+end
+
+function MapSector:HasBlockers()
+	for _, marker in ipairs(self.markers.block or empty_table) do
+		local deposit = marker.is_placed and marker:PlaceDeposit()
+		if deposit and deposit:IsExplorationBlocked() then
+			return true
+		end
+	end
+end
+
 function MapSector:Scan(status, scanner)
 	if status == "unexplored" or status == self.status then
 		return
 	end
 	
+	-- exploration queue
+	self:RemoveFromQueue()
+	DelayedCall(0, CheckScanAvailability)
+	
+	if self:RevealDeposits(self.markers.block, self.deposits.block) > 0 then
+		Msg("ExplorationBlockerSpawned")
+	end
+	if self:HasBlockers() then
+		self.blocked_status = status
+		self.blocked_scanner = scanner
+		self:UpdateDecal()
+		RefreshSectorInfopanel(self)
+		return
+	end
+	self.blocked_status = nil
+	self.blocked_scanner = nil
+	
 	-- save map compatibility	
 	self.revealed_obj = self.revealed_obj or RevealedMapSector:new{sector_x = self.col, sector_y = self.row}
 	self.revealed_obj.status = status
-	
-	-- spawn deposits
-	local placed = 0
-	
 	self.revealed_surf = {}
 	self.revealed_deep = {}
 	
+	-- spawn deposits
+	local placed = 0
 	if self.status == "unexplored" then
 		placed = placed + self:RevealDeposits(self.markers.surface, self.deposits.surface, nil, self.revealed_surf)
 		placed = placed + self:RevealDeposits(self.markers.subsurface, self.deposits.subsurface, nil, self.revealed_deep)
 	end
 	if status == "deep scanned" then	
 		placed = placed + self:RevealDeposits(self.markers.deep, self.deposits.deep, nil, self.revealed_deep)
-	elseif status == "scanned" and scanner == "probe" and GetMissionSponsor().name == "BlueSun" then
+	elseif status == "scanned" and scanner == "probe" and GetMissionSponsor().id == "BlueSun" then
 		placed = placed + self:RevealDeposits(self.markers.deep, self.deposits.deep, "PreciousMetals", self.revealed_deep)
 	end	
-	if placed > 0 and not IsValidThread(MapSectorNotifyThread) then
-		MapSectorNotifyThread = CreateGameTimeThread(function() --@ end of current tick
-			Msg("DepositsSpawned")
-		end)
+	if placed > 0 then
+		DelayedCall(0, OnDepositsSpawned) --@ end of current tick
 	end
 
 	-- update status
 	local old_status = self.status
 	self.status = status
 
-	-- exploration queue & visuals
-	self:RemoveFromQueue()
+	-- visuals
 	self:UpdateDecal()
 	
 	-- scan notification & results
@@ -197,19 +242,9 @@ function MapSector:Scan(status, scanner)
 		self.revealed_surf = nil
 		self.revealed_deep = nil
 	end, self, status, old_status)
-	
-	-- scan availability notification
-	local can_scan, fully_scanned = UnexploredSectorsExist()
-	if not can_scan then
-		RemoveOnScreenNotification("SectorScanAvailable")
-	end
-	if fully_scanned then
-		ForEach{class = "OrbitalProbe", area = "realm", action = "delete"}
-	end
 
 	-- infopanels
 	RefreshSectorInfopanel(self)
-	RefreshSectorInfopanel(g_ExplorationQueue[1])
 end
 
 function MapSector:GetTowerBoost(city)
@@ -276,8 +311,10 @@ function MapSector:UpdateDecal()
 		DoneObject(self.decal)
 		self.decal = nil		
 	end
-
-	if self.status == "unexplored" then
+	if self:HasBlockers() then
+		self.decal = PlaceObject("SectorUnexplored")
+		self.decal:SetColorModifier(red)
+	elseif self.status == "unexplored" then
 		self.decal = PlaceObject("SectorUnexplored")
 	elseif self.status == "scanned" and UICity and g_Consts.DeepScanAvailable ~= 0 then
 		self.decal = PlaceObject("SectorScanned")
@@ -370,15 +407,10 @@ function dbgHexObstructors(radius)
 end--]]
 
 function MapSector:GetDepositList(marker)
-	if IsKindOfClasses(marker, "TerrainDepositMarker", "SurfaceDepositMarker") then
-		return self.markers.surface
-	elseif IsKindOf(marker, "SubsurfaceDepositMarker") and not TerrainDeposits[marker.resource] then
-		return (marker.depth_layer <= 1) and self.markers.subsurface or self.markers.deep
-	elseif IsKindOf(marker, "SubsurfaceAnomalyMarker") then
-		return (marker.depth_layer <= 1) and self.markers.subsurface or self.markers.deep
-	else
-		assert(false, "unexpected deposit marker class: " .. marker.class)
-	end
+	local depth_class = marker:GetDepthClass()
+	local list = self.markers[depth_class]
+	assert(list, "unexpected deposit marker class")
+	return list
 end
 
 function MapSector:RegisterDeposit(marker)
@@ -416,20 +448,20 @@ end
 function MapSector:RevealDeposits(list, amounts, resource, revealed_list)
 	local city = UICity
 	local placed = 0
-	local IsDepositObstructed = IsDepositObstructed
-	for i = 1, #list do
+	for i = 1, #(list or "") do
 		local marker = list[i]
 		if IsValid(marker) and not marker.is_placed and (not resource or marker.resource == resource) then
 			local deposit = marker:PlaceDeposit()
 			if deposit then
-				amounts[deposit.resource] = (amounts[deposit.resource] or 0) + deposit.max_amount
+				if amounts and deposit.resource then
+					amounts[deposit.resource] = (amounts[deposit.resource] or 0) + deposit.max_amount
+				end
 				placed = placed + 1
-				revealed_list[placed] = marker
-				if IsKindOf(deposit, "SubsurfaceDeposit") then
+				if revealed_list then
+					revealed_list[placed] = marker
+				end
+				if IsKindOf(deposit, "ExplorableObject") then
 					deposit:SetRevealed(true)
-					if GetInGameInterfaceMode() == "overview" then
-						GetInGameInterfaceModeDlg():ScaleSigns(0, "up")
-					end
 				end
 			end
 		end
@@ -507,6 +539,10 @@ function MapSector:GatherResourceTexts(texts, prev_status, short, new_only)
 end
 
 function MapSector:QueueForExploration()
+	if g_Tutorial and not g_Tutorial.EnableExploration then
+		return
+	end
+
 	PlayFX("SectorClick", "start")
 	if self:CanBeScanned() and #g_ExplorationQueue < const.ExplorationQueueMaxSize then
 		local idx = table.find(g_ExplorationQueue, self)
@@ -546,14 +582,24 @@ function MapSector:RemoveFromExplorationQueue()
 	end
 end
 
-function GetMapSector(pt)
-	return GetMapSectorXY(pt:xy())
+function GetMapSector(x, y)
+	if IsPoint(x) then
+		x, y = x:xy()
+	elseif IsValid(x) then
+		x, y = x:GetVisualPosXYZ()
+	end
+	return GetMapSectorXY(x, y)
 end
 
 function GetMapSectorXY(mx, my)
 	local x, y = PosToSectorXY(mx, my)
 	local row = g_MapSectors[x]
 	return row and row[y]
+end
+
+function GetMapExplorationAt(x, y)
+	local sector = GetMapSector(x, y)
+	return sector and sector.status, sector
 end
 
 function DisplayExplorationQueue(initial) -- create/update visuals
@@ -630,14 +676,14 @@ function HideExploration(time)
 	HideExplorationQueue()
 end
 
-function UpdateScannedSectorVisuals()
+function UpdateScannedSectorVisuals(status)
 	local sectors = g_MapSectors
 	if #sectors > 0 then
 		for x = 1, const.SectorCount do
 			local sectors = sectors[x]
 			for y = 1, const.SectorCount do
 				local sector = sectors[y]
-				if sector.status == "scanned" then
+				if not status or sector.status == status then
 					sector:UpdateDecal()
 				end
 			end
@@ -674,7 +720,7 @@ function City:ExplorationTick()
 	else
 		local unexplored = UnexploredSectorsExist()
 				
-		if unexplored and not g_ExplorationNotificationShown then
+		if unexplored and not g_ExplorationNotificationShown and (not g_Tutorial or g_Tutorial.EnableExplorationWarning) then
 			AddOnScreenNotification("SectorScanAvailable", GoToOverview)
 			g_ExplorationNotificationShown = true
 		end
@@ -687,11 +733,13 @@ function InitSector(sector, eligible)
 		surface = {},
 		subsurface = {},
 		deep = {},
+		block = {},
 	}
 	sector.deposits = {
 		surface = {},
 		subsurface = {},
 		deep = {},
+		block = {},
 	}
 
 	sector:SetPos(sector.area:Center())
@@ -918,7 +966,7 @@ function City:InitExploration()
 		
 		if g_InitialSector then
 			local deposit, resource
-			local profile = GetCommanderProfile().name
+			local profile = GetCommanderProfile().id
 			
 			if profile == "hydroengineer" then
 				deposit, resource = "SubsurfaceDepositWater", "Water"

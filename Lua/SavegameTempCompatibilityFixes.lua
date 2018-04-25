@@ -26,6 +26,8 @@ function OnMsg.ClassesPreprocess()
 	end
 end
 
+g_TotalWorkingShuttleCount = 0
+
 -- required to load savegames before rev 226900
 function OnMsg.ClassesGenerate()
 function Unit:ApproachBuilding(building, entrance_type, spot_name)
@@ -464,7 +466,6 @@ function SavegameFixups.pre_fixup(metadata, lua_revision)
 					table.remove(piles, i)
 				end
 			end
-			dome:AddOutskirtBuildings()
 		end}
 	end
 	
@@ -533,4 +534,90 @@ function SavegameFixups.DomePassageTables_ColonistWrongDome()
 			c:SetDome(c.current_dome)
 		end
 	end}
+end
+
+function SavegameFixups.DomeWorkplaces()
+	ForEach{class = "Dome", exec = function(dome)
+		dome:AddOutskirtBuildings()
+	end}
+end
+
+function SavegameFixups.DomeLabels(metadata, lua_revision)
+	ForEach{class = "Dome", exec = function(dome)
+		local colonists = dome.labels.Colonist or empty_table
+		dome.labels.Homeless = {}
+		dome.labels.Unemployed = {}
+		for i = #colonists, 1, -1  do
+			local colonist = colonists[i]
+			local colo_dome = colonist.dome
+			if colo_dome~=dome then
+				dome:RemoveFromLabel("Colonist", colonist)
+				colo_dome:AddToLabel("Colonist", colonist)
+			end
+			colonist:UpdateHomelessLabels()
+			colonist:UpdateEmploymentLabels()
+		end
+	end}
+end
+
+function SavegameFixups.trade_rocket_fixup(metadata, lua_revision)
+	local list = UICity.labels.AllRockets or empty_table
+	for _, rocket in ipairs(list) do
+		if IsValid(rocket) and rocket:IsKindOfClasses("TradeRocket", "RefugeeRocket") and rocket.status == "on earth" then
+			rocket.status = false
+		end
+	end	
+end
+
+function SavegameFixups.trade_rocket_deswarm(metadata, lua_revision)
+	if #(UICity.labels.TradeRocket or empty_table) > 50 then
+		ForEach{
+			class = "TradeRocket",
+			area = "realm",
+			exec = function(o)
+				if o.command == "OnEarth" or o.command == "FlyToMars" then
+					o.is_pinned = false
+					DoneObject(o)
+				end
+			end,
+		}
+	end
+end
+
+function SavegameFixups.SponsorCommanderPresetsFixup(metadata, lua_revision)
+	local sponsor   = GetMissionSponsor()
+	rawset(sponsor, "name", sponsor.id)
+	local commander = GetCommanderProfile()
+	rawset(commander, "name", commander.id)
+end
+
+function SavegameFixups.ColonistSuitableWorkplace()
+	ForEach{class = "Colonist", area = "realm", exec = function(c) 				
+		if c.workplace and not c.workplace:IsSuitable(c) then				
+			c:SetWorkplace(false)
+		end			
+	end}
+end
+
+function SavegameFixups.DemolishGameThread()
+	ForEach{class = "Demolishable", area = "realm", exec = function(c) 				
+		if c.demolishing and not IsValidThread(self.demolishing_thread) then			
+			self.demolishing_thread = CreateGameTimeThread(self.DoDemolish, self)
+		end			
+	end}
+end
+
+function SavegameFixups.PFClasses()
+	ForEach{class = "Movable", area = "realm", exec = function(obj)
+		obj:SetPfClass(obj.pfclass)
+	end}
+end
+
+function SavegameFixups.MoholeExcavatorUpgrades()
+	UnlockUpgrade("Mohole_ExpandMohole_1")
+	UnlockUpgrade("Mohole_ExpandMohole_2")
+	UnlockUpgrade("Mohole_ExpandMohole_3")
+	UnlockUpgrade("Excavator_ImprovedRefining_1")
+	UnlockUpgrade("Excavator_ImprovedRefining_2")
+	UnlockUpgrade("Excavator_ImprovedRefining_3")
 end

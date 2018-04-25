@@ -89,7 +89,7 @@ end,
 							'run', function (self, parent, context)
 local sol = context:CompleteSol()
 if sol == false then
-	parent:SetImage("UI/Common/milestone_no.tga")
+	parent:SetImage("UI/Common/mission_no.tga")
 end
 parent:SetVisible(sol ~= nil)
 end,

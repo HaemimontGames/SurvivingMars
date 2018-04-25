@@ -341,13 +341,13 @@ function UnitDirectionModeDialog:Interact(pos, keep_control)
 end
 
 function UnitDirectionModeDialog:UpdateInteractionObj(obj, pos)
-	local stockpiles = obj and obj:GetAttaches("ResourceStockpileBase") or false
+	local stockpiles = IsValid(obj) and obj:GetAttaches("ResourceStockpileBase") or false
 	local other_obj = not IsKindOfClasses(obj, "SharedStorageBaseVisualOnly", "StorageDepot") and stockpiles and FindNearestObject(stockpiles, pos) or false
 		
 	local interaction_obj = false
 	local block_goto = nil
 	
-	if obj then
+	if IsValid(obj) then
 		interaction_obj, self.interaction_hint, block_goto = CityUnitController[UICity]:CanInteractWithObject(obj, self.interaction_mode)
 		interaction_obj = interaction_obj and obj
 	else
@@ -394,7 +394,7 @@ function UnitDirectionModeDialog:OnKbdKeyDown(char, virtual_key)
 end
 
 function UnitDirectionModeDialog:OnShortcut(shortcut, source)
-		if self.unit then
+	if self.unit then
 		if g_GamepadObjects then
 			g_GamepadObjects:FindInteractableObj()
 		else
@@ -527,18 +527,13 @@ function UnitController:GoToPos(pos)
 				PlayFX("ClickMove", "end", u)
 				PlayFX("ClickMove", "start", u, nil, self.position)
 				if u:IsKindOf("Building") then
-					u:GoToPos(self.position, false)
+					u:GoToPos(self.position)
 				else
 					if u:HasMember("GoToPos") then
-						u:GoToPos(self.position, false)
+						u:GoToPos(self.position)
 					else
-						u:SetCommand("GotoFromUser", self.position)
+						u:SetCommandUserInteraction("GotoFromUser", self.position)
 					end
-					
-					if u:HasMember("MarkLastUserGotoCommand") then
-						u:MarkLastUserGotoCommand(true)
-					end
-					
 					CreateGameTimeThread(RebuildInfopanel, u)
 				end
 			end

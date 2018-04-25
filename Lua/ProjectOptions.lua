@@ -92,7 +92,7 @@ OptionsData.VideoPresetsData = {
 	},
 	Durango = {
 		Textures = "High",
-		Shadows = "High",
+		Shadows = "High (Consoles)",
 		Terrain = "High",
 		FXDetailThresholds = "High",
 		ViewDistance = "High",
@@ -109,7 +109,7 @@ OptionsData.VideoPresetsData = {
 	},
 	Scorpio = {
 		Textures = "Ultra",
-		Shadows = "High",
+		Shadows = "High (Consoles)",
 		Terrain = "Ultra",
 		FXDetailThresholds = "High",
 		ViewDistance = "High",
@@ -126,7 +126,7 @@ OptionsData.VideoPresetsData = {
 	},
 	Ps4 = {
 		Textures = "High",
-		Shadows = "High",
+		Shadows = "High (Consoles)",
 		Terrain = "High",
 		FXDetailThresholds = "High",
 		ViewDistance = "High",
@@ -143,7 +143,7 @@ OptionsData.VideoPresetsData = {
 	},
 	Neo = {
 		Textures = "High",
-		Shadows = "High",
+		Shadows = "High (Consoles)",
 		Terrain = "Ultra",
 		FXDetailThresholds = "High",
 		ViewDistance = "High",
@@ -215,6 +215,7 @@ OptionsData.Options.Shadows = {
 	{ value = "Low", text = T{644, "Low"}, hr = { Shadowmap = 1, ShadowmapSize = 1536, ShadowCSMUpdateFrequency = "0,0,40,40" } },
 	{ value = "Medium", text = T{645, "Medium"}, hr = { Shadowmap = 1, ShadowmapSize = 2048, ShadowCSMUpdateFrequency = "0,0,0,40" } },
 	{ value = "High", text = T{7380, "High"}, hr = { Shadowmap = 1, ShadowmapSize = 4096, ShadowCSMUpdateFrequency = "0" } },
+	{ value = "High (Consoles)", text = T{""}, hr = { Shadowmap = 1, ShadowmapSize = 4096, ShadowCSMUpdateFrequency = "0,0,0,40" }, not_selectable = true },
 }
 
 OptionsData.Options.Antialiasing = {
@@ -494,13 +495,16 @@ end
 function ApplyLanguageOption()
 	if not Platform.console and AccountStorage then
 		local options = AccountStorage.Options
-		if options.Language then
+		local lang = options.Language
+		if lang then
 			local current = RegistryRead("Language")
-			if current ~= options.Language then
-				RegistryWrite("Language", options.Language)
-				local parent = GetXDialog("PGMainMenu") or GetXDialog("IGMainMenu")
-				if WaitMarsQuestion(parent, T{6884, "Warning"}, T{7579, "Restart the game to display the selected language"}, T{8080, "Restart"}, T{3687, "Cancel"}) == "ok" then
-					quit("restart")
+			if current ~= lang then
+				RegistryWrite("Language", lang)
+				if current ~= "" or lang ~= "English" then
+					local parent = GetXDialog("PGMainMenu") or GetXDialog("IGMainMenu")
+					if WaitMarsQuestion(parent, T{6884, "Warning"}, T{7579, "Restart the game to display the selected language"}, T{8080, "Restart"}, T{3687, "Cancel"}) == "ok" then
+						quit("restart")
+					end
 				end
 			end
 		end

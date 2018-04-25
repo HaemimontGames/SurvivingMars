@@ -177,3 +177,23 @@ DefineClass.Rocks_03_100 = {
 	__parents = { "CObject" },
 	entity = "Rocks_03",
 }
+
+DefineClass.RocksDark_05_AutoRemove = {
+	__parents = { "RocksDark_05", "AutoRemoveObj" },
+	entity = "RocksDark_05",
+}
+
+DefineClass.DecCrater_01_AutoRemove = {
+	__parents = { "DecCrater_01", "AutoRemoveObj" },
+	entity = "DecCrater_01",
+}
+
+DefineClass.DecCrater_03_AutoRemove = {
+	__parents = { "DecCrater_03", "AutoRemoveObj" },
+	entity = "DecCrater_03",
+}
+
+DefineClass.DecCrater_04_AutoRemove = {
+	__parents = { "DecCrater_04", "AutoRemoveObj" },
+	entity = "DecCrater_04",
+}

@@ -568,7 +568,9 @@ function CargoShuttle:ClearTransportRequest()
 end
 
 function CargoShuttle:TransportColonist()
-	assert(self.is_colonist_transport_task, IsValid(self.transport_task.source_dome), IsValid(self.transport_task.dest_dome))
+	assert(self.is_colonist_transport_task)
+	assert(IsValid(self.transport_task.source_dome))
+	assert(IsValid(self.transport_task.dest_dome))
 	
 	local source_dome = self.transport_task.source_dome
 	local dest_dome = self.transport_task.dest_dome
@@ -652,11 +654,14 @@ function CargoShuttle:TransportColonist()
 	--we should be right above the colonist
 	self:PlayFX("ShuttleLoad", "start", source_dome)
 	Sleep(1000) --as if loading n such
-	if not IsValid(colonist) or not IsValid(self) then
+	if not IsValid(colonist) or not IsValid(self) or not colonist:IsWaitingTransport() then
 		self:PopAndCallDestructor()
 		Sleep(1000)
 		return
 	end
+	
+	assert(self.transport_task.shuttle == self)
+	assert(self.transport_task.colonist == colonist)
 	
 	self.transport_task.state = "transporting"
 	self:SetCarriedResource("Colonist", 1)
@@ -1137,14 +1142,13 @@ end
 
 function CargoShuttle:FlyingFace(pos, t)
 	local my_pos = self:GetVisualPos()
-	local pos = pos:SetZ(my_pos:z()) --make sure it's the same z
-	local to_him = SetLen(my_pos - pos, 30 * guim) --make sure it's long enough
-	
-	local a = CalcOrientation(my_pos + to_him, my_pos)
-	if self:GetAxis():z() < 0 then --flying objs may have their axis flipped, correct the angle in this case
-		a = a * -1
+	local ox, oy, oz = self:GetVisualAxisXYZ()
+	if oz < 0 then --flying objs may have their axis flipped, correct the angle in this case
+		self:InvertAxis()
 	end
-	self:SetAngle(a, t)
+
+	local a = CalcOrientation(pos - my_pos)
+	self:SetAxisAngle(axis_z, a, t)
 end
 
 --ui
@@ -1258,9 +1262,11 @@ end
 function ShuttleHub:CreateResourceRequests()
 	Building.CreateResourceRequests(self)
 	self.shuttle_construction_resource_requests = {}
+	self.shuttle_construction_resource_requests_supply = {}
 	self.shuttle_construction_stockpiled_resources = {}
 	for resource_name, value in pairs(shuttle_construction_cost) do
 		self.shuttle_construction_resource_requests[resource_name] = self:AddDemandRequest(resource_name, 0)
+		self.shuttle_construction_resource_requests_supply [resource_name] = self:AddSupplyRequest(resource_name, 0)
 		self.shuttle_construction_stockpiled_resources[resource_name] = 0
 	end
 end
@@ -1276,6 +1282,13 @@ function ShuttleHub:DroneUnloadResource(drone, request, resource, amount)
 			self:StartConstructShuttle()
 		end
 	end
+end
+
+function ShuttleHub:DroneLoadResource(drone, request, resource, amount)
+	if request and self.shuttle_construction_resource_requests_supply[resource] == request then
+		self.shuttle_construction_stockpiled_resources[resource] = self.shuttle_construction_stockpiled_resources[resource] - amount
+	end
+	Building.DroneLoadResource(self, drone, request, resource, amount)
 end
 
 function ShuttleHub:HasResourcesToStartShuttleConstruction()
@@ -1308,32 +1321,34 @@ end
 
 function ShuttleHub:QueueConstructShuttle(amount)
 	amount = Clamp(amount, 
-	-self.queued_shuttles_for_construction, 
-	self.max_shuttles - (#self.shuttle_infos + self.queued_shuttles_for_construction))
+		-self.queued_shuttles_for_construction, 
+		self.max_shuttles - (#self.shuttle_infos + self.queued_shuttles_for_construction)
+	)
 	
 	if amount == 0 then return end
 	
 	self.queued_shuttles_for_construction = self.queued_shuttles_for_construction + amount
 	assert(self.queued_shuttles_for_construction >= 0) --queued negative shuttles
 	
-	local stockpiled = self.shuttle_construction_stockpiled_resources
-	for r_n, req in pairs(self.shuttle_construction_resource_requests) do
-		local one_pc = shuttle_construction_cost[r_n] * amount
-		local available_pos = amount > 0 and Min(stockpiled[r_n] - ((self.queued_shuttles_for_construction - amount) * one_pc), 0) or 0
-		local a = amount < 0 and Min(one_pc, req:GetActualAmount()) or --don't go negative on the req if we have stockpiled res
-										Min(one_pc, one_pc - available_pos)
-		req:AddAmount(a)
-	end
 	
 	if amount < 0 and self.queued_shuttles_for_construction == 0 and self.shuttle_construction_time_start_ts then
 		--canceled a construction under way, return resources to stock
 		self:TakeShuttleConstructionCost(-1)
 		self.shuttle_construction_time_start_ts = false
-	elseif amount > 0 and not self.shuttle_construction_time_start_ts and self:HasResourcesToStartShuttleConstruction() then
+	end
+	local stockpiled = self.shuttle_construction_stockpiled_resources
+	if amount > 0 and not self.shuttle_construction_time_start_ts and self:HasResourcesToStartShuttleConstruction() then
 		--added constr, nothing is being built and we have resources to start building
 		self:StartConstructShuttle()
 	end
-	
+	for resource, cost in pairs(shuttle_construction_cost) do
+		local totalcost = cost * self.queued_shuttles_for_construction 
+		local has = self.shuttle_construction_stockpiled_resources[resource]
+		local demand = self.shuttle_construction_resource_requests[resource]
+		local supply = self.shuttle_construction_resource_requests_supply[resource]
+		demand:SetAmount(Max(0, totalcost-has))
+		supply:SetAmount(Max(0, has - totalcost))
+	end
 	RebuildInfopanel(self)
 end
 
@@ -1352,6 +1367,8 @@ function ShuttleHub:BuildingUpdate(dt, day, hour)
 		self:BuildShuttles(dt)
 		self:SendOutShuttles(dt)
 	end
+	self:UpdateNoFuelNotification()
+	self:UpdateHeavyLoadNotification()
 end
 
 function ShuttleHub:RefuelShuttle(sinfo)
@@ -1463,7 +1480,6 @@ function ShuttleHub:GetShuttleConstructionCostsStr()
 	local ret = {}
 	
 	for r_n, amount in pairs(self.shuttle_construction_stockpiled_resources) do
-		amount = amount + (self.shuttle_construction_time_start_ts and shuttle_construction_cost[r_n] or 0) --the resources currently used 2 build
 		ret[#ret + 1] = T{cost_t, resource_display_name = Resources[r_n].display_name,
 								received_amount = amount, 
 								total_amount = self.queued_shuttles_for_construction * shuttle_construction_cost[r_n],
@@ -1507,7 +1523,7 @@ function ShuttleHub:GetDisplayName()
 	return Building.GetDisplayName(self)
 end
 
-function ShuttleHub:GetGlobalLoadText()
+function ShuttleHub:GetGlobalLoad()
 	local shuttles = 0
 	local tasks = LRManagerInstance and LRManagerInstance:EstimateTaskCount()
 	if tasks then
@@ -1517,6 +1533,11 @@ function ShuttleHub:GetGlobalLoadText()
 			end
 		end
 	end
+	return shuttles, tasks
+end
+
+function ShuttleHub:GetGlobalLoadText()
+	local shuttles, tasks = self:GetGlobalLoad()
 	if not tasks or shuttles == 0 then
 		return T{130, "N/A"}
 	elseif tasks < shuttles then -- the available tasks after an hour wont exceed the shuttle count
@@ -1525,6 +1546,33 @@ function ShuttleHub:GetGlobalLoadText()
 		return T{8703, "<yellow>Medium</yellow>"}
 	else
 		return T{8704, "<red>Heavy</red>"}
+	end
+end
+
+GlobalVar("g_HeavyLoadShuttleHubs", {})
+GlobalGameTimeThread("HeavyLoadShuttleHubsNotif", function()
+	HandleNewObjsNotif(g_HeavyLoadShuttleHubs, "TransportationShuttleOverload")
+end)
+
+function ShuttleHub:UpdateHeavyLoadNotification()
+	local shuttles, tasks = self:GetGlobalLoad()
+	if tasks and tasks > 0 and tasks >= 3 * shuttles then
+		table.insert_unique(g_HeavyLoadShuttleHubs, self)
+	else
+		table.remove_entry(g_HeavyLoadShuttleHubs, self)
+	end
+end
+
+GlobalVar("g_NoFuelShuttleHubs", {})
+GlobalGameTimeThread("NoFuelShuttleHubsNotif", function()
+	HandleNewObjsNotif(g_NoFuelShuttleHubs, "TransportationShuttleNoFuel")
+end)
+
+function ShuttleHub:UpdateNoFuelNotification()
+	if self.consumption_stored_resources == 0 and self.ui_working then
+		table.insert_unique(g_NoFuelShuttleHubs, self)
+	else
+		table.remove_entry(g_NoFuelShuttleHubs, self)
 	end
 end
 

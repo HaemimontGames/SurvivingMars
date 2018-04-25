@@ -682,6 +682,8 @@ function ConstructionSite:GameInit()
 		self.construction_bbox = false
 	end
 	
+	class:InitConstruction(self)
+	
 	if self:IsBlockerClearenceComplete() then
 		self:Initialize()
 	end
@@ -2109,6 +2111,7 @@ function GridSwitchConstructionSite:Complete(quick_build, current, total)
 	local reselect = SelectedObj == self
 	self.is_construction_complete = true
 	self.obj_to_turn_into_switch:MakeSwitch(self)
+	self.obj_to_turn_into_switch.name = self.name or ""
 	
 	if self:IsPinned() and not self.obj_to_turn_into_switch:IsPinned() then
 		self.obj_to_turn_into_switch:TogglePin()

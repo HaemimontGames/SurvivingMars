@@ -17,7 +17,7 @@ PlaceObj('Scenario', {
 			'rand_duration', 3750000,
 		}),
 		PlaceObj('SA_Exec', {
-			'expression', "sponsorName = GetMissionSponsor().display_name",
+			'expression', 'sponsorName = GetMissionSponsor().display_name or ""',
 		}),
 		PlaceObj('SA_Exec', {
 			'expression', 'Msg("MysteryBegin")',

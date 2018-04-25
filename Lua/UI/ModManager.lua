@@ -43,7 +43,7 @@ function GetModCorruptedStatus(mod)
 	return false
 end
 
-function GetModItemImage(state)
+function GetCheckboxImage(state)
 	return state and "UI/Icons/Research/researched.tga" or "UI/Common/mod_button.tga"
 end
 

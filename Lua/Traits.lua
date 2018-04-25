@@ -801,14 +801,14 @@ function GetRandomTrait(compatible, nonerare, rare, category, base_only, rare_we
 	local total_weights = 0
 	for _, trait_id in ipairs(nonerare) do
 		local trait  = DataInstances.Trait[trait_id]
-		if not g_HiddenTraits[trait_id] and (not base_only or trait.auto) then
+		if not g_HiddenTraits[trait_id] and (not base_only or trait.auto) and IsTraitAvailable(trait) then
 			total_weights = total_weights + trait.weight
 		end
 	end
 	
 	for _, trait_id in ipairs(rare) do
 		local trait  = DataInstances.Trait[trait_id]
-		if not g_HiddenTraits[trait_id] and (not base_only or trait.auto) then
+		if not g_HiddenTraits[trait_id] and (not base_only or trait.auto) and IsTraitAvailable(trait) then
 			total_weights = total_weights + MulDivRound(trait.weight, rare_weight_mod, 100)
 		end
 	end
@@ -817,7 +817,7 @@ function GetRandomTrait(compatible, nonerare, rare, category, base_only, rare_we
 	local w, found = 0, false
 	for _, trait_id in ipairs(nonerare) do
 		local trait  = DataInstances.Trait[trait_id]
-		if not g_HiddenTraits[trait_id] and (not base_only or trait.auto) then
+		if not g_HiddenTraits[trait_id] and (not base_only or trait.auto) and IsTraitAvailable(trait) then
 			if rand < w + trait.weight then
 				return trait_id
 			end
@@ -826,7 +826,7 @@ function GetRandomTrait(compatible, nonerare, rare, category, base_only, rare_we
 	end
 	for _, trait_id in ipairs(rare) do
 		local trait  = DataInstances.Trait[trait_id]
-		if not g_HiddenTraits[trait_id] and (not base_only or trait.auto) then
+		if not g_HiddenTraits[trait_id] and (not base_only or trait.auto) and IsTraitAvailable(trait) then
 			local weight = MulDivRound(trait.weight, rare_weight_mod, 100)
 			if rand < w + weight then
 				return trait_id
@@ -1054,7 +1054,7 @@ end
 	@result bool available - true if the trait is unlocked.
 ]]
 
-function IsTraitAvailable(trait, city, strict_unlocked)
+function IsTraitAvailable(trait, city)
 	city = city or UICity
 	local trait_id = type(trait) == "string" and trait or trait.name
 	return not TraitLocks[trait_id]

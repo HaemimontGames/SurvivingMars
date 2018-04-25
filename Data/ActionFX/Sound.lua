@@ -148,6 +148,14 @@ PlaceObj('ActionFXSound', {
 })
 
 PlaceObj('ActionFXSound', {
+	'Action', "BioroboticsArmMotion",
+	'Moment', "start",
+	'Actor', "BioroboticsWorkshopArm",
+	'Sound', "Object WorkshopBiorobotics Arm",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
 	'Action', "Bombard",
 	'Moment', "start",
 	'Actor', "BombardRocket",
@@ -168,6 +176,14 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "Arcology",
 	'Sound', "Building Arcology Fail",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Breakdown",
+	'Moment', "start",
+	'Actor', "ArtWorkshop",
+	'Sound', "Object WorkshopArt Fail",
 	'Source', "ActionPos",
 })
 
@@ -197,6 +213,14 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "Battery_WaterFuelCell",
 	'Sound', "Object PowerAccumulator Fail",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Breakdown",
+	'Moment', "start",
+	'Actor', "BioroboticsWorkshop",
+	'Sound', "Object WorkshopBiorobotics Fail",
+	'Source', "ActionPos",
 })
 
 PlaceObj('ActionFXSound', {
@@ -374,6 +398,13 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Breakdown",
 	'Moment', "start",
+	'Actor', "LargeWaterTank",
+	'Sound', "Object WaterTankLarge Fail",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Breakdown",
+	'Moment', "start",
 	'Actor', "LivingQuarters",
 	'Sound', "Building LivingQuarters Fail",
 	'Source', "ActionPos",
@@ -473,14 +504,6 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "OxygenTank",
 	'Sound', "Object AirStorage Fail",
-})
-
-PlaceObj('ActionFXSound', {
-	'Action', "Breakdown",
-	'Moment', "start",
-	'Actor', "OxygenTank",
-	'Sound', "UI BuildFail",
-	'Source', "UI",
 })
 
 PlaceObj('ActionFXSound', {
@@ -745,6 +768,14 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "TriboelectricScrubber",
 	'Sound', "Object TriboelectricScrubber Fail",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Breakdown",
+	'Moment', "start",
+	'Actor', "VRWorkshop",
+	'Sound', "Object WorkshopVR Fail",
+	'Source', "ActionPos",
 })
 
 PlaceObj('ActionFXSound', {
@@ -1269,6 +1300,78 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Demolish",
 	'Moment', "end",
+	'Actor', "MechanizedDepotConcrete",
+	'Sound', "Object StorageDepot Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Demolish",
+	'Moment', "end",
+	'Actor', "MechanizedDepotElectronics",
+	'Sound', "Object StorageDepot Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Demolish",
+	'Moment', "end",
+	'Actor', "MechanizedDepotFood",
+	'Sound', "Object StorageDepot Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Demolish",
+	'Moment', "end",
+	'Actor', "MechanizedDepotFuel",
+	'Sound', "Object StorageDepot Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Demolish",
+	'Moment', "end",
+	'Actor', "MechanizedDepotMachineParts",
+	'Sound', "Object StorageDepot Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Demolish",
+	'Moment', "end",
+	'Actor', "MechanizedDepotMetals",
+	'Sound', "Object StorageDepot Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Demolish",
+	'Moment', "end",
+	'Actor', "MechanizedDepotMysteryResource",
+	'Sound', "Object StorageDepot Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Demolish",
+	'Moment', "end",
+	'Actor', "MechanizedDepotPolymers",
+	'Sound', "Object StorageDepot Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Demolish",
+	'Moment', "end",
+	'Actor', "MechanizedDepotRareMetals",
+	'Sound', "Object StorageDepot Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Demolish",
+	'Moment', "end",
 	'Actor', "StorageConcrete",
 	'Sound', "Object StorageDepot Demolition",
 	'Source', "ActionPos",
@@ -1310,6 +1413,14 @@ PlaceObj('ActionFXSound', {
 	'Action', "Demolish",
 	'Moment', "end",
 	'Actor', "StorageMetals",
+	'Sound', "Object StorageDepot Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Demolish",
+	'Moment', "end",
+	'Actor', "StorageMysteryResource",
 	'Sound', "Object StorageDepot Demolition",
 	'Source', "ActionPos",
 })
@@ -1392,6 +1503,14 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Destroyed",
 	'Moment', "start",
+	'Actor', "ArtWorkshop",
+	'Sound', "Object WorkshopArt Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Destroyed",
+	'Moment', "start",
 	'Actor', "ArtificialSun",
 	'Sound', "Object ArtificialSun Demolition",
 	'Source', "ActionPos",
@@ -1417,6 +1536,14 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "Battery_WaterFuelCell",
 	'Sound', "Object PowerAccumulator Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Destroyed",
+	'Moment', "start",
+	'Actor', "BioroboticsWorkshop",
+	'Sound', "Object WorkshopBiorobotics Demolition",
 	'Source', "ActionPos",
 })
 
@@ -1590,6 +1717,13 @@ PlaceObj('ActionFXSound', {
 	'Actor', "Infirmary",
 	'Sound', "Building Infirmary Demolition",
 	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Destroyed",
+	'Moment', "start",
+	'Actor', "LargeWaterTank",
+	'Sound', "Object WaterTankLarge Demolition",
 })
 
 PlaceObj('ActionFXSound', {
@@ -1998,6 +2132,14 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "Tunnel",
 	'Sound', "Object Tunnel Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Destroyed",
+	'Moment', "start",
+	'Actor', "VRWorkshop",
+	'Sound', "Object WorkshopVR Demolition",
 	'Source', "ActionPos",
 })
 
@@ -2461,6 +2603,13 @@ PlaceObj('ActionFXSound', {
 	'Sound', "Ambience Disaster ColdwaveCracks",
 	'FadeOut', 10000,
 	'Source', "Camera",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "FuelExplosion",
+	'Moment', "start",
+	'Target', "ignore",
+	'Sound', "Object StorageDepotFuel Explosion",
 })
 
 PlaceObj('ActionFXSound', {
@@ -4328,6 +4477,21 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
+	'Actor', "ArtWorkshop",
+	'Sound', "Object WorkshopArt Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "ArtWorkshop",
+	'Sound', "UI SelectBuilding",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
 	'Actor', "ArtificialSun",
 	'Sound', "Object ArtificialSun Select",
 })
@@ -4382,6 +4546,21 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "Battery_WaterFuelCell",
 	'Sound', "UI SelectObject",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "BioroboticsWorkshop",
+	'Sound', "Object WorkshopBiorobotics Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "BioroboticsWorkshop",
+	'Sound', "UI SelectBuilding",
 	'Source', "UI",
 })
 
@@ -4799,6 +4978,21 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
+	'Actor', "LargeWaterTank",
+	'Sound', "Object WaterTankLarge Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "LargeWaterTank",
+	'Sound', "UI SelectObject",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
 	'Actor', "LivingQuarters",
 	'Sound', "Building LivingQuarters Select",
 })
@@ -4867,6 +5061,141 @@ PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
 	'Actor', "MartianUniversity",
+	'Sound', "UI SelectBuilding",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "MechanizedDepotConcrete",
+	'Sound', "Object StorageCrane Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "MechanizedDepotConcrete",
+	'Sound', "UI SelectBuilding",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "MechanizedDepotElectronics",
+	'Sound', "Object StorageCrane Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "MechanizedDepotElectronics",
+	'Sound', "UI SelectBuilding",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "MechanizedDepotFood",
+	'Sound', "Object StorageCrane Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "MechanizedDepotFood",
+	'Sound', "UI SelectBuilding",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "MechanizedDepotFuel",
+	'Sound', "Object StorageCrane Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "MechanizedDepotFuel",
+	'Sound', "UI SelectBuilding",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "MechanizedDepotMachineParts",
+	'Sound', "Object StorageCrane Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "MechanizedDepotMachineParts",
+	'Sound', "UI SelectBuilding",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "MechanizedDepotMetals",
+	'Sound', "Object StorageCrane Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "MechanizedDepotMetals",
+	'Sound', "UI SelectBuilding",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "MechanizedDepotMysteryResource",
+	'Sound', "Object StorageCrane Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "MechanizedDepotMysteryResource",
+	'Sound', "UI SelectBuilding",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "MechanizedDepotPolymers",
+	'Sound', "Object StorageCrane Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "MechanizedDepotPolymers",
+	'Sound', "UI SelectBuilding",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "MechanizedDepotRareMetals",
+	'Sound', "Object StorageCrane Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "MechanizedDepotRareMetals",
 	'Sound', "UI SelectBuilding",
 	'Source', "UI",
 })
@@ -5616,6 +5945,13 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
+	'Actor', "StorageMysteryResource",
+	'Sound', "Object StorageDepot Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
 	'Actor', "StoragePolymers",
 	'Sound', "Object StorageDepot Select",
 })
@@ -5715,6 +6051,21 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "UniversalStorageDepot",
 	'Sound', "UI SelectObject",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "VRWorkshop",
+	'Sound', "Object WorkshopVR Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "VRWorkshop",
+	'Sound', "UI SelectBuilding",
 	'Source', "UI",
 })
 
@@ -5867,6 +6218,14 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Spawn",
 	'Moment', "start",
+	'Actor', "ArtWorkshop",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
 	'Actor', "ArtificialSun",
 	'Sound', "UI BuildComplete",
 	'Source', "UI",
@@ -5891,6 +6250,14 @@ PlaceObj('ActionFXSound', {
 	'Action', "Spawn",
 	'Moment', "start",
 	'Actor', "Battery_WaterFuelCell",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "BioroboticsWorkshop",
 	'Sound', "UI BuildComplete",
 	'Source', "UI",
 })
@@ -6268,6 +6635,14 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Spawn",
 	'Moment', "start",
+	'Actor', "LargeWaterTank",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
 	'Actor', "LifeSupportGridElement",
 	'Sound', "UI PlacePipes",
 	'Source', "UI",
@@ -6309,6 +6684,78 @@ PlaceObj('ActionFXSound', {
 	'Action', "Spawn",
 	'Moment', "start",
 	'Actor', "MartianUniversity",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "MechanizedDepotConcrete",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "MechanizedDepotElectronics",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "MechanizedDepotFood",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "MechanizedDepotFuel",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "MechanizedDepotMachineParts",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "MechanizedDepotMetals",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "MechanizedDepotMysteryResource",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "MechanizedDepotPolymers",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "MechanizedDepotRareMetals",
 	'Sound', "UI BuildComplete",
 	'Source', "UI",
 })
@@ -6728,6 +7175,14 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Spawn",
 	'Moment', "start",
+	'Actor', "StorageMysteryResource",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
 	'Actor', "StoragePolymers",
 	'Sound', "UI BuildComplete",
 	'Source', "UI",
@@ -6769,6 +7224,14 @@ PlaceObj('ActionFXSound', {
 	'Action', "Spawn",
 	'Moment', "start",
 	'Actor', "UniversalStorageDepot",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "VRWorkshop",
 	'Sound', "UI BuildComplete",
 	'Source', "UI",
 })
@@ -7193,6 +7656,81 @@ PlaceObj('ActionFXSound', {
 })
 
 PlaceObj('ActionFXSound', {
+	'Action', "WarehouseBeamMovingVert",
+	'Moment', "end",
+	'Actor', "WarehouseHoist",
+	'Sound', "Object StorageCrane LiftStop",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "WarehouseBeamMovingVert",
+	'Moment', "start",
+	'Actor', "WarehouseHoist",
+	'EndMoment1', "end",
+	'handle', 1758113726,
+	'Sound', "Object StorageCrane LiftLoop",
+	'FadeIn', 150,
+	'FadeOut', 150,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "WarehouseBeamMovingVert",
+	'Moment', "start",
+	'Actor', "WarehouseHoist",
+	'Sound', "Object StorageCrane LiftStart",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "WarehouseCraneMovingHor",
+	'Moment', "end",
+	'Actor', "WarehouseHoist",
+	'Sound', "Object StorageCrane TransferStop",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "WarehouseCraneMovingHor",
+	'Moment', "start",
+	'Actor', "WarehouseHoist",
+	'EndMoment1', "end",
+	'handle', 1536806921,
+	'Sound', "Object StorageCrane TransferLoop",
+	'FadeIn', 300,
+	'FadeOut', 300,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "WarehouseCraneMovingHor",
+	'Moment', "start",
+	'Actor', "WarehouseHoist",
+	'Sound', "Object StorageCrane TransferStart",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "WarehouseHoistMovingHor",
+	'Moment', "end",
+	'Actor', "WarehouseHoist",
+	'Sound', "Object StorageCrane LiftStop",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "WarehouseHoistMovingHor",
+	'Moment', "start",
+	'Actor', "WarehouseHoist",
+	'EndMoment1', "end",
+	'handle', 247253050,
+	'Sound', "Object StorageCrane LiftLoop",
+	'FadeIn', 150,
+	'FadeOut', 150,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "WarehouseHoistMovingHor",
+	'Moment', "start",
+	'Actor', "WarehouseHoist",
+	'Sound', "Object StorageCrane LiftStart",
+})
+
+PlaceObj('ActionFXSound', {
 	'Action', "WarmUp",
 	'Moment', "start",
 	'Actor', "GeyserWarmup",
@@ -7454,6 +7992,18 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Working",
 	'Moment', "start",
+	'Actor', "ArtWorkshop",
+	'EndMoment1', "end",
+	'handle', 16459394,
+	'Sound', "Object WorkshopArt Loop",
+	'FadeIn', 1500,
+	'FadeOut', 1500,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Working",
+	'Moment', "start",
 	'Actor', "ArtificialSun",
 	'Sound', "Object ArtificialSun LoopStart",
 })
@@ -7500,6 +8050,18 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "Battery_WaterFuelCell",
 	'Sound', "Object PowerAccumulator LoopStart",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Working",
+	'Moment', "start",
+	'Actor', "BioroboticsWorkshop",
+	'EndMoment1', "end",
+	'handle', 200791963,
+	'Sound', "Object WorkshopBiorobotics Loop",
+	'FadeIn', 1500,
+	'FadeOut', 1500,
+	'AttachToObj', true,
 })
 
 PlaceObj('ActionFXSound', {
@@ -8426,6 +8988,18 @@ PlaceObj('ActionFXSound', {
 	'Sound', "Object TriboelectricScrubber Loop",
 	'FadeIn', 500,
 	'FadeOut', 1000,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Working",
+	'Moment', "start",
+	'Actor', "VRWorkshop",
+	'EndMoment1', "end",
+	'handle', 1436077299,
+	'Sound', "Object WorkshopVR Loop",
+	'FadeIn', 1500,
+	'FadeOut', 1500,
 	'AttachToObj', true,
 })
 

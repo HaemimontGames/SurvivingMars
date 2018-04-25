@@ -236,6 +236,10 @@ function OrbitalProbe:GetDeepScanWarning()
 end
 
 function OrbitalProbe:ScanSector(sector)
+	if g_Tutorial and not g_Tutorial.EnableExploration then
+		return
+	end
+
 	local deep = UICity:IsTechResearched("AdaptedProbes")
 	
 	sector:Scan(deep and "deep scanned" or "scanned", "probe")

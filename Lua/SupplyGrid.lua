@@ -1274,7 +1274,7 @@ local supply_element_name_to_grid_name = {
 }
 
 DefineClass.SupplyGridSwitch = {
-	__parents = { "SyncObject", "PinnableObject", "InfopanelObj" },
+	__parents = { "SyncObject", "PinnableObject", "InfopanelObj" ,"Renamable"},
 	
 	switched_state = false, -- current switch state
 	switch_state = false, -- state to be switched (used when rebuilding)
@@ -1297,6 +1297,7 @@ DefineClass.SupplyGridSwitch = {
 	
 	switch_cs = false,
 	rename_allowed = true,
+	name = "",
 }
 
 function SupplyGridSwitch:GameInit()
@@ -1329,6 +1330,8 @@ function SupplyGridSwitch:MakeNotSwitch(constr_site)
 	
 	self.is_switch = false
 	self.conn = 0
+	self.rename_allowed = false
+	self.name=""
 	self:UpdateVisuals()
 	
 	if SelectedObj == self then
@@ -1349,6 +1352,7 @@ function SupplyGridSwitch:MakeSwitch(constr_site)
 	if not self:CanMakeSwitch(constr_site) then return end
 	self.is_switch = true
 	self.conn = 0
+	self.rename_allowed = true
 	self:UpdateVisuals()
 	if self.on_state and self:HasState(self.on_state) then
 		self:SetState(self.on_state)
@@ -1363,6 +1367,10 @@ function SupplyGridSwitch:MakeSwitch(constr_site)
 	self.display_name = bld_template.display_name
 	self.description = bld_template.description
 	self.encyclopedia_id = not bld_template.encyclopedia_exclude and bld_template.name or false
+end
+
+function SupplyGridSwitch:GetDisplayName()
+	return self.is_switch and self.name~="" and Untranslated(self.name) or self.display_name
 end
 
 function SupplyGridSwitch:Switch()
@@ -1421,6 +1429,7 @@ end
 
 DefineClass.SupplyGridSwitchBuilding = { --placeholder for build menu
 	__parents = {"Building"},
+	rename_allowed = true,
 }
 
 const.BreakDrainPowerMin = 3000
@@ -1626,6 +1635,8 @@ end
 function BreakableSupplyGridElement:GetDisplayName()
 	if self.repair_resource_request then
 		return self.supply_resource == "electricity" and T{3890, "Cable Fault"} or T{3891, "Pipe Leak"}
+	elseif IsKindOf(self, "SupplyGridSwitch") then
+		return SupplyGridSwitch.GetDisplayName(self)
 	else
 		return self.display_name
 	end

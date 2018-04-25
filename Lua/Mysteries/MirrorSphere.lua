@@ -445,7 +445,7 @@ function MirrorSphere:Idle()
 		end
 	end
 	for i=1,10 do
-		local pos = target and target:GetPos() or UICity:GetRandomPos()
+		local pos = target and target:GetPos() or GetRandomPassable()
 		local far_from_to_target = not self:IsCloser2D(pos, min_building_dist)
 		if far_from_to_target or IsKindOf(target, "PowerDecoy") then
 			local too_close_to_another
@@ -650,7 +650,7 @@ function MirrorSphereBuilding:PlaceAnomaly(revealed)
 	elseif revealed then
 		anomaly:SetRevealed(true)
 	else
-		local sector = GetMapSector(anomaly:GetPos())
+		local sector = GetMapSector(anomaly)
 		assert(sector, "Mirror sphere anomaly at invalid position!")
 		if not sector or sector.status ~= "unexplored" then
 			anomaly:SetRevealed(true)

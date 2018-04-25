@@ -1,24 +1,4 @@
-DefineDataInstance("MissionLogo",
-	{
-		{ category = "General", id = "entity_name",  name = T{1000048, "Entity Name"},  		editor = "text", default = "" },
-		{ category = "General", id = "decal_entity",	name = T{1160, "Decal Mod Entity"},	editor = "combo", default = "", items = function() return GetModEntities("decal") end },
-		{ category = "General", id = "image", 			name = T{1161, "UI File"}, 				editor = "text", default = "" },
-		{ category = "General", id = "display_name", name = T{1000067, "Display Name"}, 		editor = "text", default = "", translate = true },
-		{ category = "General", id = "filter", name = T{1000108, "Filter"}, editor = "expression", parameters = "self"},
-	}, 
-	"[203]Editors/[01]Mars/Mission Logo Editor"
-)
-
-MissionLogo.effect = ""
-MissionLogo.rollover_text = false
-MissionLogo.enabled = false
-MissionLogo.challenge_mod = 0
-
-function MissionLogo:filter()
-	return true
-end
-
------ MissionLogoModItem
+----- ModItemMissionLogoPreset
 
 local function folder_fn(obj)
 	return {
@@ -27,23 +7,32 @@ local function folder_fn(obj)
 	}
 end
 
-DefineModItemDataInstance("MissionLogo", {
+DefineModItemPreset("MissionLogoPreset", {
 	properties = {
 		{ category = "General", id = "image", name = T{3794, "Image"}, editor = "browse", default = "", folder = folder_fn, os_path = true, filter = "Image files|*.tga" },
 	},
+	EditorName = "Mission Logo",
 })
 
 function ReloadMissionLogos()
-	local items = {}
-	for _, v in ipairs(DataInstances.MissionLogo or empty_table) do
-		if DataInstances.MissionLogo[v.name] == v then
-			items[#items+1] = v
-		end
+	local logos = Presets.MissionLogoPreset and Presets.MissionLogoPreset.Default
+	if logos then
+		table.sort(logos, function (a, b)
+			local k1, k2 = a.SortKey, b.SortKey
+			if not k1 and k2 then
+				return false --items with no SortKey go last
+			elseif k1 and not k2 then
+				return true --items with no SortKey go last
+			elseif k1 ~= k2 then
+				return k1 < k2
+			end
+			return a.id < b.id
+		end)
+		MissionParams.idMissionLogo.items = logos
 	end
-	MissionParams.idMissionLogo.items = items
 end
 
-function ModItemMissionLogo:OnEditorSetProperty(prop_id, old_value, ged)
+function ModItemMissionLogoPreset:OnEditorSetProperty(prop_id, old_value, ged)
 	ModItemDataInstance.OnEditorSetProperty(self, prop_id, old_value, ged)
 	if prop_id == "decal_entity" then
 		self.entity_name = self.decal_entity
@@ -51,7 +40,7 @@ function ModItemMissionLogo:OnEditorSetProperty(prop_id, old_value, ged)
 	ReloadMissionLogos()
 end
 
-function ModItemMissionLogo:TestModItem(ged)
+function ModItemMissionLogoPreset:TestModItem(ged)
 	self:OnModLoad()
 	WaitDelayedLoadEntities()
 	Msg("BinAssetsLoaded")
@@ -61,7 +50,7 @@ function ModItemMissionLogo:TestModItem(ged)
 		return
 	end
 	
-	g_CurrentMissionParams.idMissionLogo = self.name
+	g_CurrentMissionParams.idMissionLogo = self.id
 	local obj = PlaceBuilding("DroneHub")
 	obj:SetPos(GetTerrainCursorXY(UIL.GetScreenSize()/2))
 	ViewObjectRTS(obj)
@@ -77,9 +66,40 @@ DefineClass.Logo = {
 }
 
 function Logo:Init()
-	local data = DataInstances.MissionLogo[g_CurrentMissionParams.idMissionLogo] or DataInstances.MissionLogo[1]
+	local logos = Presets.MissionLogoPreset.Default
+	local data = logos[g_CurrentMissionParams.idMissionLogo] or logos[1]
 	if data then
 		self:ChangeEntity(data.entity_name)
 	end
 end
 
+------------------------------------------------------------
+
+DefineClass.ModItemMissionLogo = { --Kept for backwards compatibility (mods with DataInstances, instead of Presets)
+	__parents = { "ModItem" },
+	properties = {
+		{ category = "General", id = "entity_name",  name = T{1000048, "Entity Name"},  		editor = "text", default = "" },
+		{ category = "General", id = "decal_entity",	name = T{1160, "Decal Mod Entity"},	editor = "combo", default = "", items = function() return GetModEntities("decal") end },
+		{ category = "General", id = "display_name", name = T{1000067, "Display Name"}, 		editor = "text", default = "", translate = true },
+		{ category = "General", id = "filter", name = T{1000108, "Filter"}, editor = "expression", parameters = "self", default = function() return true end },
+		{ category = "General", id = "image", name = T{3794, "Image"}, editor = "browse", default = "", folder = folder_fn, os_path = true, filter = "Image files|*.tga" },
+	},
+	EditorName = "",
+}
+
+function ModItemMissionLogo:OnModLoad()
+	local mod = self.mod
+	local new = ModItemMissionLogoPreset:new{
+		id = self.name,
+		SortKey = 100000, --put those initially after our logos
+		entity_name = self.entity_name,
+		decal_entity = self.decal_entity,
+		display_name = self.display_name,
+		filter = self.filter,
+		image = self.image,
+		mod = mod,
+	}
+	local index = table.find(mod.items, self) or (#mod.items + 1)
+	mod.items[index] = new
+	new:OnModLoad()
+end

@@ -82,7 +82,7 @@ DefineClass.UpgradableBuilding = {
 }
 
 function UpgradableBuilding:GetUpgradeCost(upgrade_tier, resource)
-	if GetMissionSponsor().name == "Roscosmos" and
+	if GetMissionSponsor().id == "Roscosmos" and
 		self:GetUpgradeID(upgrade_tier):ends_with("FueledExtractor") then
 		return 0
 	end

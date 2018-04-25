@@ -150,7 +150,7 @@ end
 function ResourceOverview:GetIncomePerSol()
 	local sponsor_funding = g_Consts.SponsorFundingPerInterval*1000000
 	local sols_count = g_Consts.SponsorFundingInterval / const.DayDuration
-	local sponsor_funding_per_sol = sponsor_funding / sols_count
+	local sponsor_funding_per_sol = sols_count>0 and sponsor_funding / sols_count or sponsor_funding
 	local celebrity_count = rawget(self.data,"celebrity_count") 
 	if not celebrity_count then
 		celebrity_count = 0
@@ -443,7 +443,10 @@ function ResourceOverview:GetJobsText()
 		T{549, "Vacant work slots<right><colonist(number)>",  number = ui_on_vacant},
 		T{550, "Disabled work slots<right><colonist(number)>",  number = ui_off_vacant},
 		T{7346, "Renegades<right><colonist(number)>", number = renegades},
-	}
+	}	
+	if city_labels.Workshop and next(city_labels.Workshop) then
+		texts[#texts +1] = T{8802, "Workers in Workshops<right><percent(WorkshopWorkersPercent)>", self.city}		
+	end
 	return table.concat(texts, "<newline><left>")
 end
 

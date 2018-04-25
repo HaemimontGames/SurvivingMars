@@ -77,6 +77,9 @@ HUD.button_definitions = {
 	idMarkers = {
 		rollover = {title = T{973748367669, "Milestones"}, descr = T{4010, "Shows Colony Milestones and Score."}, hint = T{4011, "<em><ShortcutName('actionMilestonesScreen')></em> - open Milestones Screen"}, id = "Show areas of effect"},
 		selection = true,
+		enabled = function()
+			return not g_Tutorial
+		end,
 		callback = function(this)
 			if GetXDialog("Milestones") then
 				GetXDialog("Milestones"):Close()
@@ -212,7 +215,7 @@ function HUD:Init()
 	}, self)
 	XImage:new({
 		Id = "idPadMiddle",
-		Margins = box(401,0,0,-81),
+		Margins = box(0,0,0,-81),
 		Image = "UI/Common/bm_pad.tga",
 		Dock = "box",
 		HAlign = "center",
@@ -220,7 +223,7 @@ function HUD:Init()
 	}, self)
 	XImage:new({
 		Id = "idWatermarkMiddle",
-		Margins = box(401,0,0,-81),
+		Margins = box(0,0,0,-81),
 		Dock = "box",
 		HAlign = "center",
 		VAlign = "bottom",
@@ -341,7 +344,7 @@ function HUD:Init()
 		RolloverTemplate = "Rollover",
 		MinWidth = 146,
 		MaxWidth = 146,
-		MaxProgress = const.HoursPerDay * const.MinutesPerHour,
+		MaxProgress = const.HoursPerDay * const.MinutesPerHour / 5,
 		SeparatorImage = "UI/HUD/day_shine.tga",
 		SeparatorOffset = 4,
 	}, middle_section)
@@ -453,7 +456,7 @@ end
 local day_start = 6*const.MinutesPerHour
 local day_end = 20*const.MinutesPerHour
 function HUD:SetDayProgress(value)
-	self.idDayProgress:SetProgress(value)
+	self.idDayProgress:SetProgress(value / 5)
 	local image
 	if value>day_start and value<day_end then
 		image = "UI/HUD/day_shine.tga"

@@ -457,7 +457,9 @@ function OnMsg.CityStart()
 		WaitLoadingScreenClose()
 		igi = GetInGameInterface()
 		if not igi then return end
-		ShowStartGamePopup()
+		if not g_Tutorial then
+			ShowStartGamePopup()
+		end
 	end)
 end
 

@@ -14,7 +14,6 @@ DefineClass.BaseBuilding = {
 	suspended = false,		-- thread or while the dust storm is active
 	suspend_thread = false,
 	frozen = false,
-	ion_storms = false,
 	destroyed = false,
 	orig_state = false,
 	bulldozed = false, -- running out of synonyms

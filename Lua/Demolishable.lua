@@ -23,6 +23,10 @@ function Demolishable:Done()
 	end
 end
 
+function Demolishable:ShouldShowDemolishButton()
+	return self:CanDemolish()
+end
+
 function Demolishable:CanDemolish()
 	return self.can_demolish
 end
@@ -30,20 +34,24 @@ end
 function Demolishable:ToggleDemolish()
 	local old_val = self.demolishing
 	self.demolishing = (not self.demolishing) and self:CanDemolish()
-	if self.demolishing ~= old_val then
-		if self.demolishing then
-			self:OnSetDemolishing(true)
-			self.demolishing_countdown = self.time_required_for_demolish
-			self.demolishing_thread = CreateRealTimeThread(self.DoDemolish, self)
-		else
-			if IsValidThread(self.demolishing_thread) then
-				DeleteThread(self.demolishing_thread)
-				self.demolishing_thread = false
-				PlayFX("Demolish", "canceled", self)
-				self:DestroyAttaches("RotatyThing")
-			end
-			self:OnSetDemolishing(false)
+	if self.demolishing == old_val then
+		return
+	end
+	if self.demolishing then
+		self:OnSetDemolishing(true)
+		self.demolishing_countdown = self.time_required_for_demolish
+		self.demolishing_thread = CreateGameTimeThread(self.DoDemolish, self)
+	else
+		if IsValidThread(self.demolishing_thread) then
+			DeleteThread(self.demolishing_thread)
+			self.demolishing_thread = false
+			PlayFX("Demolish", "canceled", self)
+			self:DestroyAttaches("RotatyThing")
 		end
+		self:OnSetDemolishing(false)
+	end
+	if SelectedObj == self then
+		ObjModified(self)
 	end
 end
 
@@ -76,15 +84,25 @@ function Demolishable:DoDemolish()
 		end
 		PlayFX("Demolish", "start", self)
 
+		local fx_sleep = 1000
+		local fx_cooldown = fx_sleep
 		while IsValid(self) and self.demolishing_countdown > 0 do
+			local start_time = RealTime()
+			Sleep(fx_sleep)
 			if GetTimeFactor() > 0 and not IsPaused() then
+				local dt = Min(fx_sleep, RealTime() - start_time)
+				fx_cooldown = fx_cooldown - dt
+				if fx_cooldown < 0 then
+					fx_cooldown = fx_cooldown + fx_sleep
+					if SelectedObj == self then
+						PlayFX("DemolishingCountdown", "start")
+					end
+				end
+				self.demolishing_countdown = self.demolishing_countdown - dt
 				if SelectedObj == self then
-					PlayFX("DemolishingCountdown", "start")
 					ObjModified(self)
 				end
-				self.demolishing_countdown = self.demolishing_countdown - 1000
 			end
-			Sleep(1000)
 		end
 
 		PlayFX("Demolish", "end", self)
@@ -124,6 +142,8 @@ end
 
 function Demolishable:GetRefundResources()
 end
+
+----
 
 DefineClass.RotatyThing = {
 	__parents = { "SpawnFXObject" },

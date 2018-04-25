@@ -214,12 +214,13 @@ function RCTransport:SetLoadMode(mode)
 		SetUnitControlInteractionMode(self, false)
 	else
 		SetUnitControlInteractionMode(self, mode)
+		local unit_ctrl_dlg = GetInGameInterfaceModeDlg()
+		unit_ctrl_dlg:SetFocus(true)
 	end
 end
 
 function RCTransport:LoadResource()
 	self:SetLoadMode("load")
-	GetInGameInterface():SetFocus(true)
 end
 
 function RCTransport:LoadResource_Update(button)
@@ -234,7 +235,6 @@ end
 
 function RCTransport:UnloadResource()
 	self:SetLoadMode("unload")
-	GetInGameInterface():SetFocus(true)
 end
   
 function RCTransport:UnloadResource_Update(button)
@@ -330,6 +330,8 @@ local ResourceSourcesQuery = {
 				local p = o:GetParent()
 				if IsKindOfClasses(p, "Mine", "Factory", "Farm") then --potential future source.
 					potential_sources = true
+				elseif IsKindOfClasses(p, "MechanizedDepot") and p:GetStoredAmount(p.stockpiled_resource) > 0 then
+					potential_sources = true
 				end
 			end
 			if type(rover_resources) == "table" then
@@ -422,7 +424,7 @@ local ResourceDestinationsQuery = {
 	
 	filter = function(o, rover)
 		return (not route.from or not route.to or IsCloser(o, route.to, route.from)) and not visited_sources[o] and o:DoesAcceptResource(resource_dest_type) and 
-				o:GetEmptyStorage(resource_dest_type) > 0 and (not IsKindOf(o, "ResourceStockpile") or not o:GetParent())
+				o:GetEmptyStorage(resource_dest_type) > 0 and (not IsKindOf(o, "ResourceStockpile") or not o:GetParent() or IsKindOf(o:GetParent(), "MechanizedDepot"))
 				and not IsKindOf(o, "SupplyRocket") and not IsObjInDome(o)
 	end,
 }
@@ -973,13 +975,13 @@ function RCTransport:GetSelectorItems(dataset)
 		self.transport_resource = {}
 		local amounts = self.to_load
 		self.to_load = false
-		if res_id then
+		if res_id and amounts then
 			amounts[res_id] = 0 --left-click adds the chosen resource up to the full capacity of the rover and confirms the order
 		end
-		for res, a in pairs(amounts) do
+		for res, a in pairs(amounts or empty_table) do
 			table.insert(self.transport_resource, res)
 		end
-		if res_id then
+		if res_id and amounts then
 			amounts[res_id] = nil --nil for all
 		end
 		
@@ -1016,7 +1018,7 @@ function RCTransport:GetSelectorItems(dataset)
 	local items = {}
 	
 	local transport_mode = self.interaction_mode
-	local m_s, m_e = GetBuildingTechsStatus("StorageMysteryResource", "Storages")
+	local m_s, m_e = GetBuildingTechsStatus("StorageMysteryResource", "Storages", "")
 	transport_mode = (not transport_mode or transport_mode == "move") and "load" or transport_mode
 	if transport_mode ~= "route" then
 		self.to_load = {}

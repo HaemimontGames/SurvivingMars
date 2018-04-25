@@ -50,6 +50,9 @@ PlaceObj('XTemplate', {
 				'__template', "sectionStorage",
 			}),
 			PlaceObj('XTemplateTemplate', {
+				'__template', "sectionStorageMechanized",
+			}),
+			PlaceObj('XTemplateTemplate', {
 				'__template', "sectionResearchProject",
 			}),
 			PlaceObj('XTemplateTemplate', {
@@ -195,7 +198,7 @@ end,
 			PlaceObj('XTemplateTemplate', {
 				'comment', "salvage",
 				'__context_of_kind', "Demolishable",
-				'__condition', function (parent, context) return context:CanDemolish() end,
+				'__condition', function (parent, context) return context:ShouldShowDemolishButton() end,
 				'__template', "InfopanelButton",
 				'RolloverTitle', T{3973, --[[XTemplate ipBuilding RolloverTitle]] "Salvage"},
 				'RolloverHintGamepad', T{7657, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonY> Activate"},

@@ -55,6 +55,7 @@ local value = not self.idFrame:GetVisible()
 self.idFrame:SetVisible(value)
 if Platform.console then
 	self.idActionBar:SetVisible(value)
+	self.idFreeCameraWarning:SetVisible(value)
 end
 if value then
 	self.idList:SetSelection(self.idList.focused_item or 1)
@@ -259,6 +260,7 @@ end,
 				}),
 				}),
 			PlaceObj('XTemplateWindow', {
+				'__condition', function (parent, context) return not GetUIStyleGamepad() end,
 				'__class', "XText",
 				'Id', "idFreeCameraWarning",
 				'Margins', box(0, 0, 80, 20),
@@ -273,6 +275,23 @@ end,
 				'ShadowColor', RGBA(0, 0, 0, 255),
 				'Translate', true,
 				'Text', T{522319645304, --[[XTemplate PhotoMode Text]] "<em><ShortcutName('actionPanUp')>, <ShortcutName('actionPanDown')>, <ShortcutName('actionPanLeft')>, <ShortcutName('actionPanRight')></em> - move, hold <em>Ctrl</em> - move faster, hold <em>Alt</em> - release mouse cursor."},
+			}),
+			PlaceObj('XTemplateWindow', {
+				'__condition', function (parent, context) return GetUIStyleGamepad() end,
+				'__class', "XText",
+				'Id', "idFreeCameraWarning",
+				'Margins', box(0, 0, 80, 20),
+				'HAlign', "right",
+				'VAlign', "bottom",
+				'Visible', false,
+				'HandleMouse', false,
+				'TextFont', "PhotoModeFilePath",
+				'TextColor', RGBA(221, 215, 170, 255),
+				'ShadowType', "outline",
+				'ShadowSize', 1,
+				'ShadowColor', RGBA(0, 0, 0, 255),
+				'Translate', true,
+				'Text', T{650277449050, --[[XTemplate PhotoMode Text]] "<LS> - move, <RS> - rotate."},
 			}),
 			PlaceObj('XTemplateAction', {
 				'ActionId', "idTakeScreenshot",

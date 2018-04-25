@@ -62,7 +62,7 @@ end,
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelSection",
 			'OnContextUpdate', function (self, context, ...)
-self:SetVisible(not context:IsMalfunctioned() and context.last_maintenance_points_full_ts)
+self:SetVisible(not context:IsMalfunctioned() and context.last_maintenance_points_full_ts and not (ResolveValue(context, "UIWarning") and true ))
 end,
 			'Title', T{277, --[[XTemplate sectionMaintenance Title]] "Attention"},
 			'Icon', "UI/Icons/Sections/attention.tga",

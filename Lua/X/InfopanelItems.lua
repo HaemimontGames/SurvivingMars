@@ -155,6 +155,7 @@ function FillTraitSelectorItems(object, items, traits, align, list)
 			align = align == "top" and "bottom" or "top"
 		end
 	end	
+	return align
 end
 
 local base_resources = {Concrete = true, Food = true, Metals = true, PreciousMetals = true}
@@ -218,18 +219,18 @@ function GetInfopanelSelectorItems(dataset, list)
 			end
 		}, list))
 	elseif object:IsKindOf("School") then
-		FillTraitSelectorItems(object, items, SchoolTraitsCombo(object), align, list)
+		align = FillTraitSelectorItems(object, items, SchoolTraitsCombo(object), align, list)
 		if object.city:IsTechResearched("InterplanetaryLearning") then
-			FillTraitSelectorItems(object, items, BuildingTraitsCombo(object, const.SchoolExtraTraits),align, list)
+			align = FillTraitSelectorItems(object, items, BuildingTraitsCombo(object, const.SchoolExtraTraits),align, list)
 		end
 		if object.city:IsTechResearched("DreamSimulation") then
-			FillTraitSelectorItems(object,items,{{value = "Dreamer", text = DataInstances.Trait["Dreamer"].display_name}},align, list)
+			align = FillTraitSelectorItems(object,items,{{value = "Dreamer", text = DataInstances.Trait["Dreamer"].display_name}},align, list)
 		end
 	elseif object:IsKindOf("Sanatorium") then
 		if object.city:IsTechResearched("DreamSimulation") then
-			FillTraitSelectorItems(object,items,{{value = "Dreamer", text = DataInstances.Trait["Dreamer"].display_name}},align, list)
+			align = FillTraitSelectorItems(object,items,{{value = "Dreamer", text = DataInstances.Trait["Dreamer"].display_name}},align, list)
 		end
-		FillTraitSelectorItems(object, items, SanatoriumTraitsCombo(object), align, list)
+		align = FillTraitSelectorItems(object, items, SanatoriumTraitsCombo(object), align, list)
 	elseif object:IsKindOf("MartianUniversity") then
 		table.insert(items, HexButtonInfopanel:new({
 			ButtonAlign = align,

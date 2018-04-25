@@ -74,7 +74,7 @@ PlaceObj('XTemplate', {
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'__template', "InfopanelText",
-					'Text', T{910, --[[XTemplate ipConstruction Text]] "<middle_click> <em>(press)</em> Rotate"},
+					'Text', T{910, --[[XTemplate ipConstruction Text]] "<middle_click> <em>(press)</em> / <em><ShortcutName('actionRotBuildingLeft')>, <ShortcutName('actionRotBuildingRight')></em> Rotate"},
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'__template', "InfopanelText",
@@ -89,6 +89,11 @@ PlaceObj('XTemplate', {
 					'__condition', function (parent, context) return context:HasVariants() end,
 					'__template', "InfopanelText",
 					'Text', T{913, --[[XTemplate ipConstruction Text]] "Use <em>[</em> or <em>]</em> to cycle between visual variants for this building"},
+				}),
+				PlaceObj('XTemplateTemplate', {
+					'__condition', function (parent, context) return context:HasTemplateVariants() end,
+					'__template', "InfopanelText",
+					'Text', T{8904, --[[XTemplate ipConstruction Text]] "Use <em>[</em> or <em>]</em> to cycle between buildings from the category"},
 				}),
 				}),
 			PlaceObj('XTemplateGroup', {
@@ -115,6 +120,11 @@ PlaceObj('XTemplate', {
 					'__condition', function (parent, context) return context:HasVariants() end,
 					'__template', "InfopanelText",
 					'Text', T{917, --[[XTemplate ipConstruction Text]] "<DPadLeft> cycle visual variants <DPadRight>"},
+				}),
+				PlaceObj('XTemplateTemplate', {
+					'__condition', function (parent, context) return context:HasTemplateVariants() end,
+					'__template', "InfopanelText",
+					'Text', T{8905, --[[XTemplate ipConstruction Text]] "<DPadLeft> cycle buildings from category <DPadRight>"},
 				}),
 				}),
 			}),

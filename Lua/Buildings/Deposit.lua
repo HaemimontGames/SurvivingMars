@@ -16,6 +16,7 @@ DefineClass.Deposit = {
 	quality_mul = 100,
 	
 	city_label = false,
+	max_amount = 0,
 }
 
 function Deposit:GetDisplayName()
@@ -65,6 +66,9 @@ function Deposit:UpdateUI()
 	if self == SelectedObj then
 		Msg("UIPropertyChanged", self)
 	end	
+end
+
+function Deposit:IsExplorationBlocked()
 end
 
 function Deposit:IsDepleted()
@@ -124,6 +128,10 @@ end
 
 function DepositMarker:EditorGetText()
 	return self.class .. " " .. self.resource
+end
+
+function DepositMarker:GetDepthClass()
+	return "surface"
 end
 
 function DepositMarker:PlaceDeposit(dont_move_if_obstruct)

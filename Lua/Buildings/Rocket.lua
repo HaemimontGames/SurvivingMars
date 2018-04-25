@@ -77,8 +77,6 @@ DefineClass.SupplyRocket = {
 	arrival_time = false,
 	arrival_time_earth = false,
 	first_arrival = false,
-	cheat_launch = false, --cheat ignores fuel
-	force_launch = false, --force does not ignore fuel
 	is_pinned = false, -- remembers the pin state while on mars, as the travel/landing/takeoff modifies the state
 	status = false,
 	orbit_arrive_time = false,
@@ -229,17 +227,22 @@ function SupplyRocket:WaitInOrbit(arrive_time)
 		if self.orbit_arrive_time then
 			Sleep(Max(0, self.passenger_orbit_life + GameTime() - self.orbit_arrive_time))
 			-- kill the passengers, call GameOver if there are no colonists on Mars
+			local count
 			for i = #cargo, 1, -1 do
 				if cargo[i].class == "Passengers" then
+					count = cargo[i].amount
 					table.remove(cargo, i)
 				end
 			end
-			if #(self.city.labels.Colonist or empty_table) == 0 then
-				GameOver("last_colonist_died")
-			else
-				-- notification
+			if (count or 0) > 0 then
+				if #(self.city.labels.Colonist or empty_table) == 0 then
+					GameOver("last_colonist_died")
+				else
+					-- notification
+					AddOnScreenNotification("DeadColonistsInSpace", nil, {count = count})
+				end
+				self:OnPassengersLost()
 			end
-			self:OnPassengersLost()
 			self.orbit_arrive_time = nil
 			self:UpdateStatus(self.status) -- force update to get rid of the passenger-specific texts in rollover/summary
 		end
@@ -296,7 +299,11 @@ function SupplyRocket:LandOnMars(site, from_ui)
 	self:SetEnumFlags(const.efVisible + const.efSelectable)
 
 	local a, t = self:GetAccelerationAndTime(dest, 0, velocity)
-	self:StartDustThread(self.total_land_dust_amount, Max(0, t - self.total_dust_time))
+		
+	if not IsValid(site.landing_pad) then
+		self:StartDustThread(self.total_land_dust_amount, Max(0, t - self.total_dust_time))
+	end
+	
 	self:SetAcceleration(a)
 	self:SetPos(dest, t)
 	
@@ -305,7 +312,9 @@ function SupplyRocket:LandOnMars(site, from_ui)
 	assert(self.pre_hit_groud_decal < t)
 	
 	--spawn decal (delayed)
-	self:PlaceEngineDecal(dest, Max(t - self.pre_hit_groud_decal, 0))
+	if not IsValid(site.landing_pad) then
+		self:PlaceEngineDecal(dest, Max(t - self.pre_hit_groud_decal, 0))
+	end
 
 	Sleep(Max(0, t - self.pre_hit_ground2)) -- t = T - pre_hit_ground2
 	PlayFX("RocketLand", "pre-hit-ground2", self, false, dest)
@@ -505,6 +514,27 @@ function SupplyRocket:WaitLaunchOrder()
 	end
 end
 
+function SupplyRocket:DropBrokenDrones(t)
+	for i=#t, 1, -1 do
+		local drone = t[i]
+		if drone:IsBroken() then
+			if self:IsValidPos() then
+				drone:SetPos(self:GetVisualPos2D())
+			else
+				drone:delete()
+			end
+			table.remove(t, i)
+		end
+	end
+end
+
+function SavegameFixups.DropBrokenDrones()
+	ForEach { class = "SupplyRocket", exec = function(obj)
+		obj:DropBrokenDrones(obj.drones_exiting)
+		obj:DropBrokenDrones(obj.drones_entering)
+	end }
+end
+
 function SupplyRocket:InterruptIncomingDronesAndDisconnect()
 	self:InterruptDrones(nil, function(drone)
 										if (drone.target == self) or 
@@ -523,6 +553,8 @@ function SupplyRocket:InterruptIncomingDronesAndDisconnect()
 	self.auto_connect = false --so ccs don't reconect us automatically anymore
 	-- should be after disconnect so no further drones enter
 	while self:IsCargoRampInUse() do
+		self:DropBrokenDrones(self.drones_exiting)
+		self:DropBrokenDrones(self.drones_entering)
 		--wait for drones to exit and passengers to enter
 		Sleep(1000)
 	end
@@ -563,12 +595,18 @@ function SupplyRocket:Takeoff()
 	PlayFX("RocketEngine", "start", self)
 	Sleep(self.warm_up)
 	
-	self:PlaceEngineDecal(pt, 0)
+	local has_pad = IsValid(self.landing_site) and IsValid(self.landing_site.landing_pad)
+	if not has_pad then
+		self:PlaceEngineDecal(pt, 0)
+	end
 	
 	PlayFX("RocketEngine", "end", self)
 	PlayFX("RocketLaunch", "start", self)
 	local a, t = self:GetAccelerationAndTime(dest, self.orbital_velocity, 0)
-	self:StartDustThread(self.total_launch_dust_amount)
+	
+	if not has_pad then
+		self:StartDustThread(self.total_launch_dust_amount)
+	end
 	self:SetAcceleration(a)
 	self:SetPos(dest, t)
 
@@ -598,6 +636,9 @@ function SupplyRocket:FlyToEarth(flight_time, launch_time)
 	flight_time = flight_time or self.custom_travel_time_earth or g_Consts.TravelTimeMarsEarth
 	self.launch_time = launch_time or GameTime()
 	self.flight_time = flight_time
+
+	-- flight time correction for loading saves
+	flight_time = Max(0, flight_time - GameTime() + self.launch_time)
 
 	self:UpdateStatus("departing")
 	self:OffPlanet()
@@ -741,7 +782,7 @@ end
 -- end backward compatibility
 
 function SupplyRocket:BuildingUpdate(dt, day, hour)	
-	if GetMissionSponsor().name == "IMM" and self.command == "Refuel" then
+	if GetMissionSponsor().id == "IMM" and self.command == "Refuel" then
 		self.accumulated_fuel = self.accumulated_fuel + MulDivRound(dt, self.launch_fuel/10, const.DayDuration)
 		local amount = self.accumulated_fuel - self.accumulated_fuel % const.ResourceScale
 		self.accumulated_fuel = self.accumulated_fuel - amount
@@ -1512,7 +1553,7 @@ local special_cmd = {
 }
 
 function SupplyRocket:DroneApproach(drone, r)
-	drone:GotoSameDomeAsObj(self)
+	drone:ExitHolder(self)
 	if not IsValid(self) then return end
 	if special_cmd[drone.command] then
 		if IsKindOf(drone, "Drone") then
@@ -1909,7 +1950,7 @@ function SupplyRocket:GetLaunchIssue()
 		return "dust storm"
 	end
 	
-	if self.command ~= "WaitLaunchOrder" and self.command ~= "Refuel" and self.command ~= "Unload" then
+	if self.command ~= "WaitLaunchOrder" and self.command ~= "Refuel" and self.command ~= "Unload" and self.command ~= "Countdown" then
 		return "not landed"
 	end
 	
@@ -1923,10 +1964,6 @@ function SupplyRocket:GetLaunchIssue()
 end
 
 function SupplyRocket:UILaunch() -- blizzard promised no broadcast	
-	if self.force_launch then
-		return
-	end
-	
 	if self:IsDemolishing() then
 		self:ToggleDemolish()
 	end
@@ -2077,7 +2114,6 @@ function SupplyRocket:RemoveFromGrids()
 end
 
 function SupplyRocket:CheatLaunch()
-	--self.cheat_launch = true
 	self:SetCommand("Countdown")
 end
 
@@ -2255,11 +2291,21 @@ function SupplyRocket:GetDronesCount()
 	return #(self.drones or "")
 end
 
+local rocket_on_gnd_cmd = {
+	LandOnMars = true,
+	Unload = true,
+	Refuel = true,
+	WaitLaunchOrder = true,
+	Countdown = true,
+	Takeoff = true,
+}
+
 DefineClass.RocketLandingSite = {
 	__parents = { "Building" },
 	
 	disable_selection = true,
 	default_label = false,
+	landing_pad = false,
 }
 
 function RocketLandingSite:GameInit()
@@ -2267,8 +2313,68 @@ function RocketLandingSite:GameInit()
 	for i = 1, #attaches do
 		attaches[i]:ClearEnumFlags(const.efVisible)
 	end
+	
+	local pads = UICity.labels.LandingPad or empty_table
+	local on_pad = false
+	local site_pos = self:GetPos()
+	for _, pad in ipairs(pads) do
+		if site_pos:Dist2D(pad:GetPos()) == 0 then
+			self.landing_pad = pad
+			break
+		end
+	end	
 end
 
 function RocketLandingSite:SelectionPropagate()
-	return GetLandingRocket(self)
+	local rocket = GetLandingRocket(self)
+	assert(rocket)
+
+	if rocket_on_gnd_cmd[rocket.command] then
+		if IsValid(self.landing_pad) then
+			return self.landing_pad
+		end
+		return rocket
+	else
+		if rocket.auto_export or not IsValid(self.landing_pad) then
+			return rocket
+		end
+		return self.landing_pad
+	end
+end
+
+DefineClass.LandingPad = {
+	__parents = { "Building" },
+}
+
+function LandingPad:GameInit()
+	self:DestroyAttaches("DecRocketLandingPlatformBuild")
+	local obj = AttachToObject(self, "DecRocketLandingPlatform", "Pad")
+	obj:SetAttachOffset(point(0, 0, 1000))
+end
+
+function LandingPad:InitConstruction(site)
+	site:DestroyAttaches("DecRocketLandingPlatform")
+	AttachToObject(site, "DecRocketLandingPlatformBuild", "Pad")
+end
+
+function LandingPad:OnDemolish()
+	Building.OnDemolish(self)
+	
+	local rockets = UICity.labels.AllRockets or empty_table
+	for _, rocket in ipairs(rockets) do
+		if rocket.landing_site and rocket.landing_site.landing_pad == self then
+			rocket.landing_site.landing_pad = nil
+		end
+	end
+end
+
+function LandingPad:CanDemolish()
+	local rockets = UICity.labels.AllRockets or empty_table
+	for _, rocket in ipairs(rockets) do
+		if rocket.landing_site and rocket.landing_site.landing_pad == self and rocket_on_gnd_cmd[rocket.command] then
+			return false
+		end
+	end
+	
+	return Building.CanDemolish(self)
 end

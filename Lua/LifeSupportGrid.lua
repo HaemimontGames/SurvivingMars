@@ -520,6 +520,14 @@ function LifeSupportGridElement:GetInfopanelTemplate()
 	if self.pillar then return "ipPillaredPipe" end
 end
 
+function LifeSupportGridElement:GetDisplayName()
+	if self.repair_resource_request then
+		return T{3891, "Pipe Leak"}
+	else
+		return SupplyGridSwitch.GetDisplayName(self)
+	end
+end
+
 local full_connections = { 63 * 256 + 128 }
 local full_connections_switched = { 63 * 256 + 128 + 16384}
 local pipe_connections = { (1 + 8) * 256 + 128 }
@@ -1345,6 +1353,12 @@ function AirProducer:MoveInside(dome)
 	return LifeSupportGridObject.MoveInside(self, dome)
 end
 
+function AirProducer:OnModifiableValueChanged(prop)
+	if prop == "air_production" and self.air then
+		self.air:SetProduction(self.working and self.air_production or 0)
+	end
+end
+
 function AirProducer:ShouldShowNotConnectedToGridSign()
 	return self:ShouldShowNotConnectedToLifeSupportGridSign()
 end
@@ -1540,7 +1554,7 @@ function WaterStorage:OnModifiableValueChanged(prop)
 			self.water.grid.current_storage = self.water.grid.current_storage - delta
 		end
 		
-		self.water:SetStorage(self.max_water_charge, self.max_water_discharge)
+		self.water:UpdateStorage()
 	end
 end
 
@@ -1638,7 +1652,7 @@ function AirStorage:OnModifiableValueChanged(prop)
 			self.air.grid.current_storage = self.air.grid.current_storage - delta
 		end
 		
-		self.air:SetStorage(self.max_air_charge, self.max_air_discharge)
+		self.air:UpdateStorage()
 	end
 end
 

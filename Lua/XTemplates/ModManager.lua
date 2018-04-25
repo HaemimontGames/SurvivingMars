@@ -189,7 +189,7 @@ if item.corrupted then
 	child.idValue:SetTextColor(RGBA(203,41,41,255))
 else
 	local found = table.find(AccountStorage.LoadMods, item.id)
-	child.idCheckbox:SetImage(GetModItemImage(found))
+	child.idCheckbox:SetImage(GetCheckboxImage(found))
 	child.idCheckbox:SetVisible(true)
 end
 end,

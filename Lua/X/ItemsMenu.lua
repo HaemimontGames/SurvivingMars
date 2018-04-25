@@ -5,13 +5,14 @@ DefineClass.ItemMenuBase = {
 	Margins = box(0,0,0,0),
 	category = false,
 	selected_category_name = false,
+	parent_category = false,
 	items = false,
 	rollover_anchor = "center-top",
 	
 	lines_stretch_time_init = 120,
 	lines_stretch_time = 200,
 	cat_section_show_time = 120,
-	show_sel_cat_name_lag = 200,		
+	show_sel_cat_name_lag = 200,
 } 
 
 function ItemMenuBase:Init()
@@ -218,6 +219,7 @@ function ItemMenuBase:SelectCategory(category, bFirst)
 	category = category or self:DefaultCategory() or self.cat_items[1]
 	self.category = category and category.id
 	self.selected_category_name = category and category.name
+	self.parent_category = false
 	
 	if sel_cat then
 		sel_cat:OnMouseLeft()
@@ -232,13 +234,45 @@ function ItemMenuBase:SelectCategory(category, bFirst)
 			sel_cat:OnMouseEnter()
 		end		
 	end
+	self:FillCategoryItems(self.category, bFirst)
+end
+
+function ItemMenuBase:SelectSubCategory(category, parent_category)
+	local sel_cat = self.category and table.find_value(self.cat_items, "Id", self.category)
+	if type(parent_category) == "string" then
+		parent_category = table.find_value(self.cat_items, "Id", parent_category)
+	end
+	--parent_category = parent_category or self:DefaultCategory() or self.cat_items[1]
+	self.category = parent_category and parent_category.id
+	self.selected_category_name = category and category.display_name
+	self.parent_category = parent_category
+	
+	if sel_cat then
+		sel_cat:OnMouseLeft()
+	end
+	if not self.hide_single_category then
+		local list = self.idCategoryList
+		list.idSelectedCat:SetText(self.selected_category_name)
+	end
+	self:FillCategoryItems(category.name)
+end
+
+function ItemMenuBase:SelectParentCategory()
+	if not self.parent_category then
+		self:Close()
+		return
+	end
+	self:SelectCategory(self.parent_category)
+end
+
+function ItemMenuBase:FillCategoryItems(category_id, bFirst)
 	if next(self.items) then
 		for i = #self.items, 1, -1 do
 			self.items[i]:Done()
 		end
 	end
 	self.items = {}
-	local buttons = self:GetItems(self.category)
+	local buttons = self:GetItems(category_id)
 	local first_selected_item = self.context and self.context.first_selected_item
 	local set_focus = false
 	for i=1,#buttons do
@@ -265,7 +299,7 @@ function ItemMenuBase:SelectCategory(category, bFirst)
 	end)
 end
 
-	function ItemMenuBase:GetItems(category_id)
+function ItemMenuBase:GetItems(category_id)
 	return empty_table
 end
 
@@ -330,7 +364,7 @@ function ItemMenuBase:OnXButtonDown(button, source)
 		end
 		return "break"
 	elseif button == "ButtonB" then
-		self:Close()
+		self:SelectParentCategory()
 		return "break"
 	end
 	
@@ -347,7 +381,7 @@ end
 
 function ItemMenuBase:OnKbdKeyDown(char, virtual_key)
 	if virtual_key == const.vkEsc then
-		self:Close()
+		self:SelectParentCategory()
 		return "break"
 	end
 	return "continue"
@@ -355,12 +389,15 @@ end
 
 function ItemMenuBase:OnMouseButtonDown(pt, button)
 	if button=="R" then
+		if self.parent_category then
+			self:SelectCategory(self.parent_category)
+			return "break"
+		end	
 		local ptx = pt:x()
 		local pty = pt:y()
 		if not self.hide_single_category and pt:InBox(self.idCategoryList.idCategoriesList.box) then 
 			return "break" 
 		end
-		self:Close()
 	elseif button=="L" then
 		local mode_dialog = GetInGameInterfaceModeDlg()
 		return mode_dialog and mode_dialog:OnMouseButtonDown(pt, button)

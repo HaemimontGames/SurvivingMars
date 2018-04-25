@@ -73,8 +73,9 @@ function SelectionModeDialog:OnMouseButtonDown(pt, button)
 				HintTrigger("HintVehicleOrders")
 			end
 			if g_RightClickOpensBuildMenu then
-				if GetDialog("XBuildMenu") then
-					CloseXBuildMenu()
+				local dlg = GetDialog("XBuildMenu")
+				if dlg then
+					dlg:SelectParentCategory()
 				else
 					OpenXBuildMenu(IsValid(UICity.selected_dome) and UICity.selected_dome or nil)
 				end

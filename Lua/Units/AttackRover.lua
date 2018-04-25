@@ -27,7 +27,6 @@ DefineClass.AttackRover = {
 	accumulate_dust = false,
 	dust_devil_malfunction_chance = 0,
 	
-	pfclass = 1,
 	collision_radius = 540,
 	direction_arrow_scale = 260,
 	
@@ -58,6 +57,7 @@ DefineClass.AttackRover = {
 	ip_template = "ipAttackRover",
 	
 	attack_look_for_target = false,
+	affected_by_no_battery_tech = false,
 
 	palettes = { "AttackRoverBlue" },
 	land_decal_name = "DecRocketSplatter",
@@ -397,6 +397,7 @@ function AttackRover:Repair()
 	self.is_repair_request_initialized = false
 	if city.mystery.reclaim_repaired_rovers then
 		self.reclaimed = true
+		self.affected_by_no_battery_tech = true
 		self.palettes = { "AttackRoverRed" }
 		SetPaletteFromClassMember(self)
 		city:AddToLabel("Rover", self)
@@ -443,7 +444,7 @@ function AttackRover:CanBeRepaired()
 end
 
 function AttackRover:CanDemolish()
-	return IsValid(self) and (self.reclaimed or (self.command == "Malfunction" or self.command == "NoBattery"))
+	return IsValid(self) and (self.reclaimed or ((self.command == "Malfunction" or self.command == "NoBattery") and self.current_health <= 0))
 end
 
 function AttackRover:CanBeControlled()
@@ -562,7 +563,7 @@ function AttackRover:ToggleRepair_Update(button)
 	else
 		button:SetIcon("UI/Icons/IPButtons/recharge.tga")
 		button:SetRolloverTitle(T{6924, "Repair"})
-		button:SetRolloverText(T{632, "Outside Drone commander range"})
+		button:SetRolloverText(T{632, "Outside Drone commander range."})
 	end
 	button:SetEnabled(count > 0)
 end

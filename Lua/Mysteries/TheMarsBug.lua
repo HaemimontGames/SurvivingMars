@@ -20,4 +20,8 @@ DefineClass.TheMarsBug = {
 	depot_display_name = T{8531, "Wildfire Cure Depot"},
 	depot_display_name_pl = T{8532, "Wildfire Cure Depots"},
 	depot_description = T{8533, "Stores the cure for the Wildfire infection."},
+	
+	mech_depot_display_name = T{8796, "Wildfire Cure Storage"},
+	mech_depot_display_name_pl = T{8797, "Wildfire Cure Storages"},
+	mech_depot_description = T{8533, "Stores the cure for the Wildfire infection."},
 }

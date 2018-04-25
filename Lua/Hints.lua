@@ -10,9 +10,9 @@ end
 -- add a OnScreenNotification
 -- the id must match a BaseHint child class and a data instance in the OnScreenNotification property preset table
 -- safe to call multiple times, but 
-function HintTrigger(id)
+function HintTrigger(id, force)
 	assert(#Cities == 1)
-	assert(HintsEnabled) -- please check for this outside
+	assert(HintsEnabled or force) -- please check for this outside
 	assert(g_Classes[id])
 	
 	if g_ActiveHints[id] then return end
@@ -49,7 +49,11 @@ function HintTrigger(id)
 		Sleep(delay * 1000)
 		if hint:IsValid() then
 			AddOnScreenHint(hint)
-			while HintsEnabled and hint:IsValid() do
+			local preset = DataInstances.OnScreenHint[id]
+			if preset and preset.voiced_text ~= "" then
+				g_Voice:Play(preset.voiced_text, not "actor", "Voiceover", not "subtitles")
+			end
+			while (HintsEnabled or force) and hint:IsValid() do
 				Sleep(1000)
 			end
 			RemoveOnScreenHint(hint)
@@ -220,7 +224,7 @@ function OnMsg.NewMapLoaded()
 			return
 		end
 		
-		HintsEnabled = (CurrentMap ~= "Mod") and (not not AccountStorage.Options.HintsEnabled)
+		HintsEnabled = (CurrentMap ~= "Mod") and (not not AccountStorage.Options.HintsEnabled) and not g_Tutorial
 		if HintsEnabled then
 			Sleep(1000)
 			HintTrigger("HintGameStart")

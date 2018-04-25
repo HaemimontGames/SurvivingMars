@@ -297,11 +297,6 @@ DefineClass.EditorRangeObject = {
 	dbg_range_color = white,
 }
 
-function EditorRangeObject:Init()
-	if IsEditorActive() then
-		self:EditorEnter()
-	end
-end
 
 function EditorRangeObject:EditorGetRange()
 	return 0
@@ -367,6 +362,9 @@ function TerrainDeposit:EditorGetRange()
 end
 
 function TerrainDeposit:GetAmount()
+	if not IsValid(self) then
+		return 0
+	end
 	local info = TerrainDepositsInfo[self.resource]
 	if not info then
 		return 0
@@ -406,6 +404,7 @@ DefineClass.TerrainDepositExtractor =
 	__parents = {"DepositExploiter"},
 	
 	found_deposit = false,
+	depleted = false,
 }
 
 function TerrainDepositExtractor:Init()
@@ -455,18 +454,21 @@ function TerrainDepositExtractor:GetDeposit()
 end
 
 function TerrainDepositExtractor:GetDepositGrade(deposit)
+	local refinement_researched = self.city:IsTechResearched("NanoRefinement")
+	if self.depleted and refinement_researched then
+		return "Depleted"
+	end
+	
 	local info = self:GetRessourceInfo()
 	local shape = self:GetExtractionShape() or ""
 	if not info or #shape == 0 then
 		return "Very Low"
 	end
 	deposit = deposit or self:GetDeposit()
-	if IsValid(deposit) then return
-		deposit.grade
+	if IsValid(deposit) then 
+		return deposit.grade
 	end
-	if self.city:IsTechResearched("NanoRefinement") then
-		return "Depleted"
-	end
+
 	return "Very Low"
 end
 
@@ -481,6 +483,7 @@ function TerrainDepositExtractor:CheckDeposit()
 end
 
 function TerrainDepositExtractor:OnDepositDepleted()
+	self.depleted = true -- mark deposit as depleted even thare is left amount, that is unreachable from extractor
 end
 
 function TerrainDepositExtractor:ExtractResource(amount)
@@ -493,10 +496,6 @@ function TerrainDepositExtractor:ExtractResource(amount)
 	local extracted, remaining = TerrainDeposit_Extract(shape, self, TerrainDepositGrid, info, amount)
 	Msg("ResourceExtracted", self.exploitation_resource, extracted)
 	
-	if extracted == 0 and self.city:IsTechResearched("NanoRefinement") then
-		return amount
-	end
-	
 	if remaining == 0 then
 		assert(not self:CheckDeposit())
 		self:OnDepositDepleted()
@@ -506,12 +505,19 @@ function TerrainDepositExtractor:ExtractResource(amount)
 		end
 	end
 	
+	if extracted == 0 and self.city:IsTechResearched("NanoRefinement") then
+		return amount
+	end
+
 	return extracted
 end
 
 -- ui
 
 function TerrainDepositExtractor:GetAmount()
+	if not IsValid(self) then
+		return 0
+	end
 	local info = self:GetRessourceInfo()
 	local shape = self:GetExtractionShape()
 	if not info or not shape then

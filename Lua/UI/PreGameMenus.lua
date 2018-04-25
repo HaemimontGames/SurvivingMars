@@ -113,11 +113,20 @@ function FillRandomMapProps(gen)
 		if t.threat then
 			local strength = CalcValueInQuarters(g_CurrentMapParams[t.id])
 			local name = "MapSettings_" .. t.id
-			local items = table.ifilter(DataInstances[name], function(_, data)
-				return data.strength == strength
-			end)
-			local data = trand(items)
-			gen[name] = data and data.name
+			if NoThreats(t.id) then 
+				gen[name] = "disabled" 
+			else	
+				local data
+				if MaxThreat(t.id) then 
+					data = DataInstances[name][t.id.."_GameRule"]
+				else
+					local items = table.ifilter(DataInstances[name], function(_, data)
+						return data.strength == strength and data.use_in_gen
+					end)
+					data = trand(items)
+				end
+				gen[name] = data and data.name
+			end
 		end
 	end
 	
@@ -126,6 +135,17 @@ function FillRandomMapProps(gen)
 	local cold_area_sizes = {range(256*guim, 512*guim), range(256*guim, 512*guim), range(512*guim, 768*guim), range(768*guim, 1024*guim)}
 	gen.ColdAreaChance = cold_area_chances[cold_degree]
 	gen.ColdAreaSize = cold_area_sizes[cold_degree]
+end
+
+function MaxThreat(id)
+	return (IsGameRuleActive("WinterIsComing") and id == "ColdWave")
+			or (IsGameRuleActive("Armageddon") and id == "Meteor")
+			or (IsGameRuleActive("DustInTheWind") and id == "DustStorm")
+			or (IsGameRuleActive("Twister") and id == "DustDevils")
+end
+
+function NoThreats(id)
+	return IsGameRuleActive("NoDisasters") and (id == "ColdWave" or id == "Meteor" or id == "DustStorm" or id == "DustDevils")
 end
 
 function GenerateCurrentRandomMap()

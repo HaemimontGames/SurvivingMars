@@ -11,7 +11,7 @@ PlaceObj('EntityPalette', {
 
 PlaceObj('EntityPalette', {
 	Color1 = 5193782,
-	Color2 = 9310230,
+	Color2 = 7211016,
 	group = "Default",
 	id = "ArtWorkshop",
 })
@@ -406,14 +406,6 @@ PlaceObj('EntityPalette', {
 })
 
 PlaceObj('EntityPalette', {
-	Color1 = 8131604,
-	Color2 = 7763574,
-	Color3 = 1973790,
-	group = "Default",
-	id = "RCConstructor",
-})
-
-PlaceObj('EntityPalette', {
 	Color1 = 7080458,
 	Color2 = 7763574,
 	Color3 = 1973790,
@@ -614,6 +606,21 @@ PlaceObj('EntityPalette', {
 	Color4 = 5119010,
 	group = "Default",
 	id = "University",
+})
+
+PlaceObj('EntityPalette', {
+	Color1 = 1468284,
+	Color3 = 3815994,
+	group = "Default",
+	id = "VRWorkshop",
+})
+
+PlaceObj('EntityPalette', {
+	Color1 = 9456393,
+	Color2 = 1841947,
+	Color3 = 5394255,
+	group = "Default",
+	id = "Warehouse",
 })
 
 PlaceObj('EntityPalette', {

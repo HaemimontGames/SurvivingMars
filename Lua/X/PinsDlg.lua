@@ -396,6 +396,13 @@ function OnMsg.GamepadUIStyleChanged()
 	end
 end
 
+function OnMsg.OnControllerTypeChanged(controller_type)
+	local pins_dlg = GetXDialog("PinsDlg")
+	if pins_dlg then
+		pins_dlg.idGamepadImage:SetImage(GetPlatformSpecificImagePath("RB"))
+	end
+end
+
 function OnMsg.SelectedObjChange(obj, prev)
 	local pins_dlg = GetXDialog("PinsDlg")
 	if not pins_dlg then

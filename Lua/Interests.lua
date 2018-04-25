@@ -154,7 +154,8 @@ ColonistStatReasons =
 	["outside workplace"]     = T{1049, "<red>Worked outside the Dome <amount></red>"},
 	["Gamer"]                 = T{1050, "<green>Game on! <amount> (Gamer)</green>"},
 	-- ChangeComfort reasons
-	["raw food"]        	     = T{1051, "<red>Had an unprepared meal <amount></red>"},
+	["raw food"]        	  = T{1051, "<red>Had an unprepared meal <amount></red>"},
+	["work in workshop"]      = T{8779, "<green>Worked in a Workshop <amount></green>"},
 	["no home"]               = T{1052, "<red>No functional Residence <amount></red>"},
 	["malfunctioned Dome rest"]= T{8655, "<red>My Dome has malfunctioned <amount></red>"},
 	["-rest"]                 = T{1053, "<red>Wants a higher Comfort Residence <amount></red>"},

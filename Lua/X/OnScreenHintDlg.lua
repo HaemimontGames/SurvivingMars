@@ -3,6 +3,8 @@ DefineDataInstance("OnScreenHint",
 		{ category = "General", id = "title",        name = T{1000016, "Title"},        editor = "text",            default = "", translate = true },
 		{ category = "General", id = "text",         name = T{1000145, "Text"},         editor = "multi_line_text", default = "", translate = true },
 		{ category = "General", id = "gamepad_text", name = T{4094, "Gamepad text"}, editor = "multi_line_text", default = "", translate = true },
+		{ category = "General", id = "voiced_text",  name = T{6855, "Voiced Text"},        editor = "multi_line_text", default = "", translate = true, context = VoicedContextFromField("actor")},
+		{ category = "General", id = "actor",        name = T{6857, "Voice Actor"},        editor = "combo",           default = "narrator", items = VoiceActors },
 	},
 	"[203]Editors/[01]Mars/OnScreenHint Editor"
 )
@@ -342,9 +344,9 @@ end
 
 function GetOnScreenHintDlg()
 	local dlg = GetXDialog("OnScreenHintDlg")
-	if not dlg and HintsEnabled and GameState.gameplay then
+	if not dlg and (HintsEnabled or g_Tutorial) and GameState.gameplay then
 		dlg = OpenXDialog("OnScreenHintDlg", GetInGameInterface())
-	elseif not HintsEnabled then
+	elseif not HintsEnabled and not g_Tutorial then
 		CloseXDialog("OnScreenHintDlg")
 		return
 	end
@@ -433,6 +435,7 @@ function OnScreenHintDlg:UpdateVisuals()
 		local text = (GetUIStyleGamepad() and data.gamepad_text ~= "") and data.gamepad_text or data.text
 		self.idText:SetText(T{text, self.context})
 		self.idPage:SetText(Untranslated(string.format("%d/%d", self.current_page, #g_ShownOnScreenHints)))
+		self.idGamepadHint:SetText(self.idGamepadHint:GetText())
 	end
 	--update pages
 	if GetUIStyleGamepad() or self.minimized then
@@ -463,6 +466,13 @@ function OnScreenHintDlg:IsMinimizedVisible()
 end
 
 function OnMsg.GamepadUIStyleChanged()
+	local hintdlg = GetXDialog("OnScreenHintDlg")
+	if hintdlg then
+		hintdlg:UpdateVisuals()
+	end
+end
+
+function OnMsg.OnControllerTypeChanged(controller_type)
 	local hintdlg = GetXDialog("OnScreenHintDlg")
 	if hintdlg then
 		hintdlg:UpdateVisuals()

@@ -76,8 +76,12 @@ function DroneControl:UpdateDeficits()
 end
 
 function DroneControl:UpdateDeficitsInternal()
+	return Request_UpdateDeficits(self, StorableResources)
+end
+
+--[[
+function DroneControl:UpdateDeficitsInternal_Lua()
 	local t = {}
-	self.deficit_table = t
 	
 	local s = self.supply_queues
 	local d = self.demand_queues
@@ -112,7 +116,17 @@ function DroneControl:UpdateDeficitsInternal()
 			t[resource] = (t[resource] or 0) + total
 		end
 	end
+	
+	return t
 end
+
+function DroneControl:UpdateDeficitsInternal()
+	local t = Request_UpdateDeficits(self, StorableResources)
+	local t_lua = self:UpdateDeficitsInternal_Lua()
+	assert(compare(t, t_lua))
+	return t
+end
+--]]
 
 function DroneControl:InitRocketRestrictors()
 	self.serviced_rockets = {}
@@ -203,6 +217,7 @@ function DroneControl:BuildingUpdate(delta, day, hour)
 	self:UpdateConstructions()
 	self:UpdateRockets()
 	self:UpdateDeficits()
+	self:UpdateHeavyLoadNotification()
 end
 
 --[[local function SetConstructionSiteSign(building, add, sign)
@@ -620,6 +635,12 @@ function DroneControl:FindTask(drone)
 	return Request_FindDroneTask_C(self)
 end
 
+function DroneControl:RequestsLap()
+	local time = GameTime()
+	self.lap_time = time - self.lap_start
+	self.lap_start = time
+end
+
 -- radius
 function DroneControl:SetWorkRadius(radius)
 	if radius == self.work_radius then return end
@@ -678,7 +699,7 @@ end
 DefineClass.DroneHub = {
 	__parents = { "Building", "TaskRequester", "DroneControl", "ElectricityConsumer" },
 	
-	building_update_time = 5000,
+	building_update_time = 10000,
 	work_radius = const.CommandCenterDefaultRadius,
 	
 	charging_stations = false,
@@ -931,8 +952,22 @@ local LoadTexts = {
 	T{8662, "Drones load <right>N/A<left>"},
 }
 
-local low_threshold = const.HourDuration / 2
-local medium_threshold = const.HourDuration * 2
+local low_threshold = const.HourDuration / 3
+local medium_threshold = const.HourDuration * 3
+
+GlobalVar("g_HeavyLoadDroneHubs", {})
+GlobalGameTimeThread("HeavyLoadDroneHubsNotif", function()
+	HandleNewObjsNotif(g_HeavyLoadDroneHubs, "TransportationDroneOverload")
+end)
+
+function DroneControl:UpdateHeavyLoadNotification()
+	local lap_time = #self.drones == 0 and 0 or Max(self.lap_time, GameTime() - self.lap_start)
+	if lap_time >= medium_threshold then
+		table.insert_unique(g_HeavyLoadDroneHubs, self)
+	else
+		table.remove_entry(g_HeavyLoadDroneHubs, self)
+	end
+end
 
 function DroneControl:GetDronesStatusText()
 	if (self:IsKindOf("DroneHub") and not self.working) then
@@ -948,7 +983,7 @@ function DroneControl:GetDronesStatusText()
 	if #t <= 0 then
 		return broken .. LoadTexts[4]
 	else
-		local lap_time = Max(self.lap_time, GameTime() - self.lap_start)
+		local lap_time = #self.drones == 0 and 0 or Max(self.lap_time, GameTime() - self.lap_start)
 		if lap_time < low_threshold then
 			return broken .. LoadTexts[1]
 		elseif lap_time < medium_threshold then

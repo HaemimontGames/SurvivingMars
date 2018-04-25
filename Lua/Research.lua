@@ -15,6 +15,7 @@ City.research_queue = {tech_id, ...} -- an array of tech_ids
 
 GlobalVar("g_OutsourceDisabled", false)
 GlobalVar("g_ResearchScroll", 0)
+GlobalVar("g_ResearchFocus", point(1, 1))
 
 function City:InitResearch()
 	self.tech_status = {}
@@ -51,7 +52,12 @@ function City:InitResearch()
 					for j=1,#list do
 						local tech_id = list[j]
 						local tech = defs[tech_id]
-						local min, max = Max(tech.position.from, 1), Min(tech.position.to, #list)
+						local min, max
+						if IsGameRuleActive("ChaosTheory") then
+							min, max = 1, 100
+						else
+							min, max = Max(tech.position.from, 1), Min(tech.position.to, #list)
+						end
 						if j < min or j > max then
 							table.insert(list, (min + max) / 2, table.remove(list, j))
 							changed = true
@@ -469,6 +475,9 @@ function City:AddResearchPoints(research_points, tech_id)
 end
 
 function City:CheckAvailableTech()
+	if g_Tutorial and not g_Tutorial.EnableResearchWarning then
+		return
+	end
 	if self.research_queue[1] then
 		RemoveOnScreenNotification("ResearchAvailable")
 		return

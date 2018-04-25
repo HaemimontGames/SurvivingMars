@@ -844,11 +844,12 @@ local bld_template = DataInstances.BuildingTemplate[self.OnActionParam]
 local show, prefabs, can_build, action = UIGetBuildingPrerequisites(bld_template.build_category, bld_template, true)
 local dlg = GetXDialog("XBuildMenu")
 if show then
-	if action then
-		action(dlg, {enabled = can_build, name = bld_template.name, construction_mode = bld_template.construction_mode})
-	elseif can_build then
-		igi:SetMode("construction", { template = bld_template.name, selected_dome = dlg and dlg.context.selected_dome })
+	local items
+	local parent_categories = GetBuildMenuSubcategories()
+	if parent_categories and parent_categories[bld_template.build_category] ~= nil then
+		items = table.values(UIItemMenu(bld_template.build_category, true), false, "name")
 	end
+	action(nil, {enabled = can_build, name = bld_template.name, construction_mode = bld_template.construction_mode, template_variants = items})
 	CloseXBuildMenu()
 end
 end,

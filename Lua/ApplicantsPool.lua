@@ -14,6 +14,13 @@ function GenerateApplicant(time, city)
 	if rand<=5 then
 		colonist.traits["Tourist"] = true
 	end
+	if IsGameRuleActive("Amateurs") then
+		for _, trait_id in ipairs(table.keys(const.ColonistSpecialization)) do
+			colonist.traits[trait_id] = nil
+		end
+		colonist.specialist = "none"
+		colonist.traits["none"] = true
+	end
 	table.insert(g_ApplicantPool, 1, {colonist, time or GameTime()})
 	return colonist
 end

@@ -1,7 +1,7 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 DefineClass.PhotoFilterPreset = {
-	__parents = { "Preset" },
+	__parents = { "Preset", },
 	properties = {
 		{ category = "General", id = "displayName", name = T{760118243448, "Display Name"}, 
 			editor = "text", default = false, translate = true, },

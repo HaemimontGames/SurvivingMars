@@ -65,6 +65,12 @@ end,
 			'Margins', box(52, 0, 20, 4),
 			'Text', T{143236127522, --[[XTemplate sectionWorkshifts Text]] "Building performance<right><em><performance></em><nbsp><nbsp>"},
 		}),
+		PlaceObj('XTemplateTemplate', {
+			'__context_of_kind', "Workshop",
+			'__template', "InfopanelText",
+			'Margins', box(52, 0, 20, 4),
+			'Text', T{434307444387, --[[XTemplate sectionWorkshifts Text]] "Workers in Workshops<right><em><percent(WorkshopWorkersPercent)></em><nbsp><nbsp>"},
+		}),
 		}),
 })
 

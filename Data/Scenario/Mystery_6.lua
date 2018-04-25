@@ -9,7 +9,7 @@ PlaceObj('Scenario', {
 		'autostart', true,
 	}, {
 		PlaceObj('SA_Exec', {
-			'expression', "_missionSponsor = GetMissionSponsor().display_name",
+			'expression', '_missionSponsor = GetMissionSponsor().display_name or ""',
 		}),
 		PlaceObj('SA_WaitExpression', {
 			'expression', "UICity.labels.Colonist and #UICity.labels.Colonist >= 100",

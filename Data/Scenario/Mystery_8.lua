@@ -134,7 +134,10 @@ PlaceObj('Scenario', {
 			'State', "Researched",
 		}),
 		PlaceObj('SA_Exec', {
-			'expression', 'UnlockBuilding("StorageMysteryResource")',
+			'expression', 'RemoveBuildingLock("StorageMysteryResource")',
+		}),
+		PlaceObj('SA_Exec', {
+			'expression', 'RemoveBuildingLock("MechanizedDepotMysteryResource")',
 		}),
 		PlaceObj('SA_StopSequence', {
 			'comment', "Stop Infection Level increase",

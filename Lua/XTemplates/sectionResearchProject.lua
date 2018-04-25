@@ -6,7 +6,7 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateTemplate', {
 		'__context_of_kind', "BaseResearchLab",
 		'__template', "InfopanelButton",
-		'RolloverText', T{368, --[[XTemplate sectionResearchProject RolloverText]] "Open the Research screen to select a new Technology to be researched"},
+		'RolloverText', T{368, --[[XTemplate sectionResearchProject RolloverText]] "Open the Research screen to select a new Technology to be researched."},
 		'RolloverTitle', T{367, --[[XTemplate sectionResearchProject RolloverTitle]] "Research technology"},
 		'OnPressParam', "UIResearchTech",
 		'Icon', "UI/Icons/IPButtons/research.tga",

@@ -1271,6 +1271,225 @@ PlaceObj('Sound', {
 })
 
 PlaceObj('Sound', {
+	'name', "Building ArtWorkshop Complete",
+	'type', "BuildingPhase",
+})
+
+PlaceObj('Sound', {
+	'name', "Building ArtWorkshop Demolition",
+	'type', "BuildingDestruction",
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction6",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction5",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction4",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction3",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction2",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction1",
+		'frequency', 20,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building ArtWorkshop Fail",
+	'type', "BuildingPhase",
+	'volume', 90,
+	'mindistance', 1500,
+})
+
+PlaceObj('Sound', {
+	'name', "Building ArtWorkshop Loop",
+	'type', "BuildingLoop",
+	'looping', true,
+	'volume', 70,
+	'mindistance', 500,
+})
+
+PlaceObj('Sound', {
+	'name', "Building ArtWorkshop Select",
+	'type', "BuildingOperation",
+	'mindistance', 2000,
+})
+
+PlaceObj('Sound', {
+	'name', "Building ArtWorkshop SelectIncomplete",
+	'type', "BuildingOperation",
+	'volume', 60,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building VRWorkshop Complete",
+	'type', "BuildingPhase",
+})
+
+PlaceObj('Sound', {
+	'name', "Building VRWorkshop Demolition",
+	'type', "BuildingDestruction",
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction6",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction5",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction4",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction3",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction2",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction1",
+		'frequency', 20,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building VRWorkshop Fail",
+	'type', "BuildingPhase",
+	'volume', 90,
+	'mindistance', 1500,
+})
+
+PlaceObj('Sound', {
+	'name', "Building VRWorkshop Loop",
+	'type', "BuildingLoop",
+	'looping', true,
+	'volume', 70,
+	'mindistance', 500,
+})
+
+PlaceObj('Sound', {
+	'name', "Building VRWorkshop Select",
+	'type', "BuildingOperation",
+	'mindistance', 2000,
+})
+
+PlaceObj('Sound', {
+	'name', "Building VRWorkshop SelectIncomplete",
+	'type', "BuildingOperation",
+	'volume', 60,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building BioroboticsWorkshop Complete",
+	'type', "BuildingPhase",
+})
+
+PlaceObj('Sound', {
+	'name', "Building BioroboticsWorkshop Demolition",
+	'type', "BuildingDestruction",
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction6",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction5",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction4",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction3",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction2",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction1",
+		'frequency', 20,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building BioroboticsWorkshop Fail",
+	'type', "BuildingPhase",
+	'volume', 90,
+	'mindistance', 1500,
+})
+
+PlaceObj('Sound', {
+	'name', "Building BioroboticsWorkshop Loop",
+	'type', "BuildingLoop",
+	'looping', true,
+	'volume', 70,
+	'mindistance', 500,
+})
+
+PlaceObj('Sound', {
+	'name', "Building BioroboticsWorkshop Select",
+	'type', "BuildingOperation",
+	'mindistance', 2000,
+})
+
+PlaceObj('Sound', {
+	'name', "Building BioroboticsWorkshop SelectIncomplete",
+	'type', "BuildingOperation",
+	'volume', 60,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Building Apartments Fail",
 	'type', "BuildingPhase",
 	'volume', 90,
@@ -1595,8 +1814,8 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building Dome DoorClose",
 	'type', "BuildingOperation",
-	'volume', 40,
-	'mindistance', 700,
+	'volume', 50,
+	'mindistance', 600,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Buildings/DomeBasic/dome_doorclose1",
@@ -1717,8 +1936,8 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building Dome DoorOpen",
 	'type', "BuildingOperation",
-	'volume', 40,
-	'mindistance', 700,
+	'volume', 50,
+	'mindistance', 600,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Buildings/DomeBasic/dome_dooropen1",
@@ -2577,6 +2796,7 @@ PlaceObj('Sound', {
 	'name', "Object DroneHUB Loop",
 	'type', "ObjectLoop",
 	'looping', true,
+	'volume', 80,
 	'mindistance', 1000,
 }, {
 	PlaceObj('Sample', {
@@ -4976,7 +5196,7 @@ PlaceObj('Sound', {
 	'name', "Object Excavator Loop",
 	'type', "ObjectLoop",
 	'looping', true,
-	'volume', 170,
+	'volume', 200,
 	'mindistance', 1800,
 }, {
 	PlaceObj('Sample', {
@@ -5214,7 +5434,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Object Excavator LoopStart",
 	'type', "ObjectOneshot",
-	'volume', 160,
+	'volume', 180,
 	'mindistance', 1800,
 }, {
 	PlaceObj('Sample', {
@@ -5358,7 +5578,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Object Excavator LoopStop",
 	'type', "ObjectOneshot",
-	'volume', 160,
+	'volume', 180,
 	'mindistance', 1800,
 }, {
 	PlaceObj('Sample', {
@@ -5995,6 +6215,11 @@ PlaceObj('Sound', {
 		'frequency', 50,
 	}),
 	})
+
+PlaceObj('Sound', {
+	'name', "Object WaterTankLarge Complete",
+	'type', "ObjectPhase",
+})
 
 PlaceObj('Sound', {
 	'name', "Object MDSLaser SelectIncomplete",
@@ -7003,7 +7228,6 @@ PlaceObj('Sound', {
 	'name', "Object MoistureVaporator Loop",
 	'type', "ObjectLoopLimited-B",
 	'looping', true,
-	'volume', 130,
 	'mindistance', 800,
 }, {
 	PlaceObj('Sample', {
@@ -8839,6 +9063,21 @@ PlaceObj('Sound', {
 })
 
 PlaceObj('Sound', {
+	'name', "Object StorageCrane Fail",
+	'type', "ObjectPhase",
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageCrane/storagecrane_fail1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageCrane/storagecrane_fail2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Object StirlingGenerator Demolition",
 	'type', "ObjectDestruction",
 	'volume', 70,
@@ -8894,6 +9133,22 @@ PlaceObj('Sound', {
 	}),
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/GeneratorStirling/generatorStirling_select2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object StorageCrane TransferStart",
+	'type', "ObjectOneshot",
+	'volume', 50,
+	'mindistance', 1200,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageCrane/storagecrane_start1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageCrane/storagecrane_start2",
 		'frequency', 50,
 	}),
 	})
@@ -8956,6 +9211,44 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Object StorageCrane Complete",
+	'type', "ObjectPhase",
+})
+
+PlaceObj('Sound', {
+	'name', "Object StorageCrane TransferLoop",
+	'type', "ObjectLoop",
+	'looping', true,
+	'volume', 50,
+	'mindistance', 1200,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageCrane/storagecrane_transfer1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageCrane/storagecrane_transfer2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object StorageCrane TransferStop",
+	'type', "ObjectOneshot",
+	'volume', 50,
+	'mindistance', 1200,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageCrane/storagecrane_stop1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageCrane/storagecrane_stop2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Object WaterExtractor Loop",
 	'type', "ObjectLoop",
 	'looping', true,
@@ -8968,6 +9261,54 @@ PlaceObj('Sound', {
 	}),
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/ExtractorWater/extractorWater_work3",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object StorageCrane Demolition",
+	'type', "ObjectDestruction",
+	'volume', 80,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall1",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall2",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall3",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall4",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall5",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall6",
+		'frequency', 20,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object StorageCrane LiftStart",
+	'type', "ObjectOneshot",
+	'volume', 30,
+	'mindistance', 1200,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageCrane/storagecrane_start1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageCrane/storagecrane_start2",
 		'frequency', 50,
 	}),
 	})
@@ -9005,6 +9346,54 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Object StorageCrane LiftStop",
+	'type', "ObjectOneshot",
+	'volume', 30,
+	'mindistance', 1200,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageCrane/storagecrane_stop1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageCrane/storagecrane_stop2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object StorageCrane Select",
+	'type', "ObjectOperation",
+	'volume', 80,
+	'mindistance', 2000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageDepot/storagedepot_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageDepot/storagedepot_select2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object StorageDepotFuel Explosion",
+	'type', "ObjectDestruction",
+	'volume', 120,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageDepot/storagefuel_explosion1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageDepot/storagefuel_explosion2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Object TriboelectricScrubber Fail",
 	'type', "ObjectPhase",
 	'volume', 120,
@@ -9016,6 +9405,22 @@ PlaceObj('Sound', {
 	}),
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/TriboelectricScrubber/triboelectric_fail1",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object StorageCrane SelectIncomplete",
+	'type', "ObjectOperation",
+	'volume', 60,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
 		'frequency', 50,
 	}),
 	})
@@ -9101,6 +9506,23 @@ PlaceObj('Sound', {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/_ObjectDestruction/object_destruction8",
 		'frequency', 15,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object StorageCrane LiftLoop",
+	'type', "ObjectLoop",
+	'looping', true,
+	'volume', 90,
+	'mindistance', 1200,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageCrane/storagecrane_lift1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageCrane/storagecrane_lift2",
+		'frequency', 50,
 	}),
 	})
 
@@ -9525,6 +9947,21 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Object WaterTankLarge Demolition",
+	'type', "ObjectDestruction",
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionTank1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionTank2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Object WaterTower Demolition",
 	'type', "ObjectDestruction",
 	'mindistance', 1500,
@@ -9540,12 +9977,60 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Object WaterTankLarge Fail",
+	'type', "ObjectPhase",
+	'volume', 120,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/TowerWater/towerWater_fail2",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/TowerWater/towerWater_fail1",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Object WaterTower Complete",
 	'type', "ObjectPhase",
 })
 
 PlaceObj('Sound', {
+	'name', "Object WaterTankLarge Select",
+	'type', "ObjectOperation",
+	'volume', 130,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/TowerWater/towerWater_select2",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/TowerWater/towerWater_select1",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Object WaterTower SelectIncomplete",
+	'type', "ObjectOperation",
+	'volume', 60,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object WaterTankLarge SelectIncomplete",
 	'type', "ObjectOperation",
 	'volume', 60,
 	'mindistance', 1500,
@@ -9730,6 +10215,95 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Object WorkshopArt Complete",
+	'type', "ObjectPhase",
+})
+
+PlaceObj('Sound', {
+	'name', "Object WorkshopArt Demolition",
+	'type', "ObjectDestruction",
+	'volume', 70,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction1",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction2",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction3",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction4",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction5",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction6",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction7",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction8",
+		'frequency', 15,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object WorkshopArt Fail",
+	'type', "ObjectPhase",
+	'volume', 120,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/WorkshopArt/artworkshop_fail1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/WorkshopArt/artworkshop_fail2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object WorkshopArt Loop",
+	'type', "ObjectLoop",
+	'looping', true,
+	'volume', 130,
+	'mindistance', 600,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/WorkshopArt/artworkshop_work1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/WorkshopArt/artworkshop_work2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object WorkshopBiorobotics Arm",
+	'type', "ObjectOperation",
+	'volume', 50,
+	'mindistance', 600,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/WorkshopBiorobotics/bioroboticsworkshop_arm1",
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Object Workshop SelectIncomplete",
 	'type', "ObjectOperation",
 	'volume', 60,
@@ -9746,6 +10320,90 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Object WorkshopArt Select",
+	'type', "ObjectOperation",
+	'volume', 120,
+	'mindistance', 2500,
+})
+
+PlaceObj('Sound', {
+	'name', "Object WorkshopArt SelectIncomplete",
+	'type', "ObjectOperation",
+	'volume', 60,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object WorkshopBiorobotics Complete",
+	'type', "ObjectPhase",
+})
+
+PlaceObj('Sound', {
+	'name', "Object WorkshopBiorobotics Demolition",
+	'type', "ObjectDestruction",
+	'volume', 70,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction1",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction2",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction3",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction4",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction5",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction6",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction7",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction8",
+		'frequency', 15,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object WorkshopBiorobotics Fail",
+	'type', "ObjectPhase",
+	'volume', 120,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/WorkshopBiorobotics/bioroboticsworkshop_fail1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/WorkshopBiorobotics/bioroboticsworkshop_fail2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Object WindTurbine LoopStop",
 	'type', "ObjectOneshot",
 	'volume', 180,
@@ -9757,6 +10415,129 @@ PlaceObj('Sound', {
 	}),
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/GeneratorWind/generatorWind_workstop2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object WorkshopBiorobotics Select",
+	'type', "ObjectOperation",
+	'volume', 120,
+	'mindistance', 2500,
+})
+
+PlaceObj('Sound', {
+	'name', "Object WorkshopBiorobotics SelectIncomplete",
+	'type', "ObjectOperation",
+	'volume', 60,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object WorkshopVR Complete",
+	'type', "ObjectPhase",
+})
+
+PlaceObj('Sound', {
+	'name', "Object WorkshopVR Demolition",
+	'type', "ObjectDestruction",
+	'volume', 70,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction1",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction2",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction3",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction4",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction5",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction6",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction7",
+		'frequency', 15,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destruction8",
+		'frequency', 15,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object WorkshopVR Fail",
+	'type', "ObjectPhase",
+	'volume', 120,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/WorkshopVR/vrworkshop_fail1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/WorkshopVR/vrworkshop_fail2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object WorkshopVR Loop",
+	'type', "ObjectLoop",
+	'looping', true,
+	'mindistance', 600,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/WorkshopVR/vrworkshop_work1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/WorkshopVR/vrworkshop_work2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object WorkshopVR Select",
+	'type', "ObjectOperation",
+	'volume', 120,
+	'mindistance', 2500,
+})
+
+PlaceObj('Sound', {
+	'name', "Object WorkshopVR SelectIncomplete",
+	'type', "ObjectOperation",
+	'volume', 60,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
 		'frequency', 50,
 	}),
 	})
@@ -9794,6 +10575,23 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Object WorkshopBiorobotics Loop",
+	'type', "ObjectLoop",
+	'looping', true,
+	'volume', 70,
+	'mindistance', 600,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/WorkshopBiorobotics/bioroboticsworkshop_work1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/WorkshopBiorobotics/bioroboticsworkshop_work2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Object WindTurbine SelectIncomplete",
 	'type', "ObjectOperation",
 	'volume', 60,
@@ -9820,17 +10618,12 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
-	'name', "Object WindTurbine Complete",
-	'type', "ObjectPhase",
-})
-
-PlaceObj('Sound', {
-	'name', "UI AlertMessage",
+	'name', "UI AlertEmergencyPower",
 	'type', "AlertUI",
-	'volume', 10,
+	'volume', 5,
 }, {
 	PlaceObj('Sample', {
-		'file', "Sounds/UI/ui_alertmessage2",
+		'file', "Sounds/UI/ui_alertpower",
 	}),
 	})
 
@@ -9838,7 +10631,7 @@ PlaceObj('Sound', {
 	'name', "UI AlertGeneral",
 	'type', "AlertUI",
 	'looping', true,
-	'volume', 8,
+	'volume', 5,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/UI/ui_alertgeneral",
@@ -9846,10 +10639,25 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Object WindTurbine Complete",
+	'type', "ObjectPhase",
+})
+
+PlaceObj('Sound', {
+	'name', "UI AlertMessage",
+	'type', "AlertUI",
+	'volume', 5,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/UI/ui_alertmessage2",
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "UI AlertTower",
 	'type', "AlertUI",
 	'looping', true,
-	'volume', 10,
+	'volume', 8,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/UI/alert_tower",
@@ -10281,7 +11089,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "UI MenuNotificationDismissed",
 	'type', "UI",
-	'volume', 25,
+	'volume', 20,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/UI/ui_notificationDismiss",
@@ -10453,16 +11261,6 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
-	'name', "UI AlertEmergencyPower",
-	'type', "AlertUI",
-	'volume', 5,
-}, {
-	PlaceObj('Sample', {
-		'file', "Sounds/UI/ui_alertpower",
-	}),
-	})
-
-PlaceObj('Sound', {
 	'name', "UI BuildRotate",
 	'type', "UILimited",
 	'volume', 10,
@@ -10495,7 +11293,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "UI RechargeStart",
 	'type', "UI",
-	'volume', 10,
+	'volume', 0,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/UI/ui_recharge2",
@@ -10505,7 +11303,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "UI Repair",
 	'type', "UI",
-	'volume', 10,
+	'volume', 0,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/UI/ui_repair2",
@@ -10535,7 +11333,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "UI RechargeStop",
 	'type', "UI",
-	'volume', 10,
+	'volume', 0,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/UI/ui_recharge2",
@@ -10862,7 +11660,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "UI SelectDome",
 	'type', "UI",
-	'volume', 10,
+	'volume', 9,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/UI/ui_selectDome",
@@ -11814,8 +12612,8 @@ PlaceObj('Sound', {
 	'name', "Unit Rover DeployWork",
 	'type', "UnitRoverLoop",
 	'looping', true,
-	'volume', 40,
-	'mindistance', 1000,
+	'volume', 30,
+	'mindistance', 900,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Units/RoverBasic/rover_deploywork1",

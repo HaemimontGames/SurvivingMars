@@ -44,6 +44,12 @@ function RefugeeRocket:FlyToEarth()
 	DoneObject(self)
 end
 
+function RefugeeRocket:UpdateStatus(status)
+	if status ~= "on earth" then
+		SupplyRocket.UpdateStatus(self, status)
+	end
+end
+
 function RefugeeRocket:ToggleAllowExport()
 	return -- nope
 end

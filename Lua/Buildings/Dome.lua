@@ -79,7 +79,7 @@ local function CheckDist(bld1, bld2, min_dist, force_no_passages)
 		return true, 0
 	end
 	local dist = p1:Dist2D(p2)
-	local passage = not force_no_passages and AreDomesConnectedWithPassageDeep(ResolveDome(bld1), ResolveDome(bld2)) or false
+	local passage = not force_no_passages and AreDomesConnectedWithPassage(ResolveDome(bld1), ResolveDome(bld2)) or false
 	if dist > min_dist then
 		return passage, dist, true
 	end
@@ -123,7 +123,7 @@ function IsInWalkingDist(bld1, bld2, min_dist)
 	local dist = dist_map and dist_map[bld2]
 	if dist then
 		--only when bld1 and bld2 are domes can there be cache, hence
-		return dist[1] or AreDomesConnectedWithPassageDeep(bld1, bld2), dist[2]
+		return dist[1] or AreDomesConnectedWithPassage(bld1, bld2), dist[2]
 	end
 	return CheckDist(bld1, bld2, min_dist or dome_walk_dist)
 end
@@ -161,6 +161,8 @@ DefineClass.Dome = {
 	
 	accept_colonists = true,
 	allow_birth = true,
+	allow_work_in_connected = true,
+	allow_service_in_connected = true,
 	
 	birth_progress = 0,
 	daily_birth_progress = 0,
@@ -424,7 +426,8 @@ function Dome:AddOutskirtBuildings()
 		area = self, 
 		hexradius = self:GetOutsideWorkplacesDist(),
 		exec = function(bld, dome)
-			if not IsObjInDome(bld) then
+			local dome = IsObjInDome(bld)
+			if not dome or dome == self then
 				bld:AddToDomeLabels(dome)
 			end
 		end
@@ -756,13 +759,6 @@ function Dome:CreateLifeSupportElements()
 end	
 
 function Dome:DroneApproach(drone, resource)
-	if drone.current_dome == self then
-		--we are in the dome we are to approach,
-		--pass a pt to gotosameobjasdome so it exits the dome
-		local idx = self:GetNearestSpot("idle", drone.work_spot_task, drone)
-		local pt = self:GetSpotPos(idx)
-		drone:GotoSameDomeAsObj(pt)
-	end
 	return drone:GotoBuildingSpot(self, drone.work_spot_task)
 end
 
@@ -1133,15 +1129,19 @@ function Dome:CalcBirth()
 end
 
 function Dome:CalcRenegades()
-	if not self.labels.Colonist then return end
+	local labels = self.labels
+	if not labels.Colonist then return end
 	local sum_morale = 0
 	local count = 0
+	local count_renegades = 0
 	local min_morale = max_int
 	local min_morale_colonist = false
 	
-	for i, colonist in ipairs(self.labels.Colonist) do
+	for i, colonist in ipairs(labels.Colonist) do
 		local traits = colonist.traits
-		if not traits.Child and not traits.Renegade then
+		if traits.Renegade then
+			count_renegades = count_renegades + 1			
+		elseif not traits.Child then -- and not traits.Renegade
 			count = count + 1
 			local morale = Clamp(colonist.stat_morale, 0, max_stat)
 			sum_morale = sum_morale + morale
@@ -1153,10 +1153,16 @@ function Dome:CalcRenegades()
 	end
 	
 	if count<=0 then return end
-	
+	local is_rebel_rule = IsGameRuleActive("RebelYell")
+	local constRenegadeCreation =  is_rebel_rule and  g_Consts.GameRuleRebelYellRenegadeCreation or g_Consts.RenegadeCreation
 	local average = sum_morale/count
-	self.renegade_progress = Max(0, self.renegade_progress + (65*stat_scale - average))
-	local constRenegadeCreation =  g_Consts.RenegadeCreation
+	local bymorale_progress = (65*stat_scale - average)
+	if is_rebel_rule and count_renegades <(count - 15)/5 then
+		self.renegade_progress = 	Max(0,self.renegade_progress + Max(g_Consts.GameRuleRebelYellProgress, bymorale_progress))
+	else
+		self.renegade_progress = Max(0, self.renegade_progress + bymorale_progress)
+	end
+	
 	if self.renegade_progress >= constRenegadeCreation then
 		if HintsEnabled then
 			HintTrigger("HintRenegade")
@@ -1175,18 +1181,27 @@ function Dome:CheckCrimeEvents()
 		AddOnScreenNotification("PreventCrime", false, {dome_name = self:GetDisplayName()}, self)
 		return 
 	end
-	if count < 15 or not self:CrimeEvents_SabotageBuilding() then	
+	local crime_count = IsGameRuleActive("RebelYell") and 10 or 15
+	if count < crime_count or not self:CrimeEvents_SabotageBuilding() then	
 		self:CrimeEvents_StoleResource()
 	end
 end
 
 function Dome:CanPreventCrimeEvents()
-	local officers = #(self.labels.security or empty_table)
+	local officers = #(self.labels.security or empty_table)	
 	local renegades = #(self.labels.Renegade or empty_table)
 	if renegades>=officers then return false end
-	if officers>renegades*3 then return false end
-	local chance = MulDivRound(officers, 100, 6*renegades)
-	return Random(0,100)<=chance
+	local stations = self.labels.SecurityStation or empty_table
+	for _, station in ipairs(stations) do
+		if station.working then
+			local chance = 50
+			if officers<=renegades*3 then 
+				chance = MulDivRound(officers, 100, 6*renegades)
+			end	
+			return Random(0,100)<=chance
+		end
+	end
+	return false
 end
 
 local resources_query = {
@@ -1303,7 +1318,7 @@ end
 function Dome:PickColonistSpawnPt()
 	local max_radius = self:GetRadius()
 	local center = self:GetPos()
-	local pt = GetRandomPassableAround(center, max_radius, 100, function(x, y, dome)
+	local pt = GetRandomPassableAround(center, max_radius, 0, self.city, function(x, y, dome)
 		local objs = HexGridGetObjects(ObjectGrid, WorldToHex(x, y))
 		return #objs == 1 and IsKindOf(objs[1], "DomeInterior") and objs[1].dome == dome
 	end, self)
@@ -1409,38 +1424,46 @@ function Dome:CheatSpawnColonist()
 	self:SpawnColonist()
 end
 
-function Dome:ToggleAcceptColonists(broadcast)
-	local state = not self.accept_colonists
+function Dome:ToggleDomePolicy(policy_member, broadcast)
+	local state = not self[policy_member]
 	if broadcast then
 		local list = self.city.labels.Dome or empty_table
 		for _, dome in ipairs(list) do
-			if dome.accept_colonists ~= state then
+			if dome[policy_member] ~= state then
 				PlayFX("DomeAcceptColonistsChanged", "start", dome)
-				dome.accept_colonists = state
+				dome[policy_member] = state
 			end
 		end
 	else
 		PlayFX("DomeAcceptColonistsChanged", "start", self)
-		self.accept_colonists = state
+		self[policy_member] = state
 	end
 	ObjModified(self)
 end
 
+function Dome:ToggleAcceptColonists(broadcast)
+	self:ToggleDomePolicy("accept_colonists", broadcast)
+end
+
 function Dome:ToggleAcceptBirth(broadcast)
-	local state = not self.allow_birth
-	if broadcast then
-		local list = self.city.labels.Dome or empty_table
-		for _, dome in ipairs(list) do
-			if dome.allow_birth ~= state then
-				PlayFX("DomeAcceptColonistsChanged", "start", dome)
-				dome.allow_birth = state
-			end
-		end
-	else
-		PlayFX("DomeAcceptColonistsChanged", "start", self)
-		self.allow_birth = state
-	end
-	ObjModified(self)
+	self:ToggleDomePolicy("allow_birth", broadcast)
+end
+
+function Dome:ToggleWorkInConnected(broadcast)
+	self:ToggleDomePolicy("allow_work_in_connected", broadcast)
+	UpdateWorkplaces(self.labels.Colonist)
+end
+
+function Dome:UIWorkInConnected()
+	return self.allow_work_in_connected and T{8883, "Allowed"} or T{8884, "Forbidden"}
+end
+
+function Dome:ToggleServiceInConnected(broadcast)
+	self:ToggleDomePolicy("allow_service_in_connected", broadcast)
+end
+
+function Dome:UIServiceInConnected()
+	return self.allow_service_in_connected and T{8883, "Allowed"} or T{8884, "Forbidden"}
 end
 
 GlobalVar("DomeTraitsCameraParams", false)
@@ -1792,6 +1815,10 @@ function IsPointNearLargeBuilding(pt, min_dist)
 	return CountObjects(large_building_query, pt, min_dist) ~= 0
 end
 
+function IsPointNearLargeBuildingAndBuildable(x, y, min_dist)
+	return not IsPointNearLargeBuilding(point(x, y), min_dist) and IsBuildableZone(x, y)
+end
+
 DefineClass("DomePolymer_Glass", "DomeOval_Glass")
 DomePolymer_Glass.entity = "DomeOval_Glass"
 
@@ -2088,7 +2115,6 @@ end
 DefineClass.DomeMeteorFracture =
 {
 	__parents = {"Object"},
-	--entity = "WayPoint",
 	visualized = false,
 	size = 250,
 	dir = axis_z,
@@ -2149,15 +2175,21 @@ local function GetServiceInDome(dome, need, colonist)
 	return max_comfort_service, fail
 end
 
+function Dome:CanColonistsFromDifferentDomesWorkServiceTrainHere()
+	return self.accept_colonists
+end
+
 function Dome:GetService(need, colonist, starving)
 	local max_comfort_service, fail = GetServiceInDome(self, need, colonist)
 	
-	if not max_comfort_service then
+	if not max_comfort_service and self.allow_service_in_connected and self.accept_colonists then
 		--try domes connected with passages.
 		for dome, conns in pairs(self.connected_domes) do
-			max_comfort_service, fail = GetServiceInDome(dome, need, colonist)
-			if max_comfort_service then
-				break 
+			if dome:CanColonistsFromDifferentDomesWorkServiceTrainHere() then --quarantine
+				max_comfort_service, fail = GetServiceInDome(dome, need, colonist)
+				if max_comfort_service then
+					break 
+				end
 			end
 		end
 	end
@@ -2197,6 +2229,13 @@ function Dome:GetNextSkinIdx(skins)
 		skin_idx = 1
 	end
 	return skin_idx
+end
+
+function Dome:GetCurrentSkinStrId()
+	local skins = self:GetSkins()
+	local skin_idx = table.find(skins, 1, self:GetEntity()) or 1
+	local data = skins[skin_idx]
+	return data.skin_category or "default"
 end
 
 function Dome:OnSkinChanged(skin)
@@ -2492,7 +2531,7 @@ function CheatSpawnNColonists(n)
 			for i=1, n do	
 				local colonist_table = GenerateColonistData()
 				local colonist = Colonist:new(colonist_table)
-				local pos = colonist:GetRandomPos(30*guim, 2*guim, center)
+				local pos = GetRandomPassableAround(center, 30*guim, 2*guim)
 				colonist:SetPos(pos or center)
 				colonist.arriving = true
 				colonist:SetOutside(true)

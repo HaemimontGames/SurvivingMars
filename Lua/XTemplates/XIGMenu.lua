@@ -64,7 +64,7 @@ end,
 				'ActionName', T{1133, --[[XTemplate XIGMenu ActionName]] "SAVE GAME"},
 				'ActionToolbar', "mainmenu",
 				'ActionState', function (self, host)
-return PlayWithoutStorage() and "disabled"
+return (PlayWithoutStorage() or not not g_Tutorial) and "disabled"
 end,
 				'OnActionEffect', "mode",
 				'OnActionParam', "Save",

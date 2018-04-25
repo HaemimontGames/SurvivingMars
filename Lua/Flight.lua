@@ -409,6 +409,12 @@ function FlyingObject:IdleMark(mark)
 	self.idle_mark_pos = new_pos
 end
 
+function FlyingObject:CheckCollisions()
+	Flight_CheckCollisions(self, FlyingObjs)
+	return max_int -- backward compat
+end
+
+--[[
 local function Flight_CheckCollisions_Lua(self)
 	if not self.collision then
 		return
@@ -463,12 +469,11 @@ end
 
 function FlyingObject:CheckCollisions()
 	local avoid_count, avoid_level = Flight_CheckCollisions(self, FlyingObjs)
-	--[[
 	local avoid_count1, avoid_level1 = Flight_CheckCollisions_Lua(self)
 	assert(avoid_count1 == avoid_count and avoid_level1 == avoid_level)
-	--]]
 	return max_int -- backward compat
 end
+--]]
 
 function FlyingObject:ClearAvoidInfo()
 	table.clear(self.to_avoid)

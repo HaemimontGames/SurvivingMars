@@ -38,9 +38,10 @@ local function SaveCallback(folder)
 end
 
 function GetLoadedModsSavegameData()
-	local active_mods = {}
+	local active_mods = l_LoadGameMeta and l_LoadGameMeta.active_mods or {}
 	for _, mod in ipairs(ModsLoaded or empty_table) do
-		active_mods[#active_mods + 1] = {
+		local idx = table.find(active_mods, "id", mod.id) or (#active_mods + 1)
+		active_mods[idx] = {
 			id = mod.id,
 			title = mod.title,
 			version = mod.version,
@@ -80,6 +81,7 @@ local function GatherGameMetadata()
 		commander_profile_id = g_CurrentMissionParams.idCommanderProfile,
 		active_mods = GetLoadedModsSavegameData(),
 		paradox_user_hash = g_ParadoxHashedUserId or nil,
+		active_game_rules = g_CurrentMissionParams.idGameRules,
 	}
 	return metadata
 end
@@ -165,7 +167,7 @@ local function LoadCallback(folder)
 				return "user cancelled"
 			end
 		end
-		local sponsor = metadata.mission_sponsor_id and DataInstances.MissionSponsor[metadata.mission_sponsor_id]
+		local sponsor = metadata.mission_sponsor_id and Presets.MissionSponsorPreset.Default[metadata.mission_sponsor_id]
 		if sponsor then
 			local allowed, reason = sponsor:filter()
 			if not allowed then
@@ -237,7 +239,7 @@ local function SetNextAutosaveSol()
 end
 
 function Autosave()
-	if Platform.demo or GameState.multiplayer or not AccountStorage.Options.Autosave then
+	if Platform.demo or GameState.multiplayer or not AccountStorage.Options.Autosave or g_Tutorial then
 		SetNextAutosaveSol()
 		return
 	end

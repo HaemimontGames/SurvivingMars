@@ -225,8 +225,8 @@ function FormatSignInt(value, precision)
 	return txt
 end
 
-function FormatScale(value, scale)
-	return value/scale
+function FormatScale(value, scale, round)
+	return round and DivRound(value, scale) or (value/scale)
 end
 
 function FormatIndex(index, context_obj)
@@ -475,17 +475,18 @@ end
 function ResearchFieldsCombo()
 	local fields = table.keys(TechFields)
 	table.sort(fields)
+	table.insert(fields, 1, "")
 	return fields
 end
 
 function ResearchTechsCombo(object)
 	--find field
 	local field = TechFields[object.Field]
+	local techs = { { value = "", text = "" } }
 	if not field then
-		return {}
+		return techs
 	end
 	--gather techs
-	local techs = { value = "", text = "" }
 	for i=1,#field do
 		techs[#techs+1] = { value = field[i].id, text = field[i].display_name }
 	end
@@ -566,7 +567,9 @@ function ModifiablePropsCombo()
 end
 
 function DomeSkinsPresetsCombo()
-	return table.get_unique(table.map(Presets.DomeSkins.Default, "preset"))
+	local skins = table.get_unique(table.map(Presets.DomeSkins.Default, "preset"))
+	table.insert(skins, 1, "")
+	return skins
 end
 
 function PickVolunteer(crew)
@@ -745,6 +748,23 @@ function TFormat.cut_if_not_platform(platform)
 	end
 	return ""
 end		
+
+function TFormat.opt_amount(amount)
+	amount = tonumber(amount)
+	if type(amount) ~= "number" or amount == 0 then return "" end
+	if amount < 0 then
+		return Untranslated("" .. amount)
+	else
+		return Untranslated("+" .. amount)
+	end
+end
+
+function TFormat.opt_percent(percent)
+	percent = tonumber(percent)
+	if type(percent) ~= "number" or percent == 0 then return "" end
+	local pattern = percent < 0 and "%d%%" or "+%d%%"
+	return Untranslated(string.format(pattern, percent))
+end
 
 function EdgeAnimation(bReverce, ctrl, offsetx, offsety, time)
 	local endrect = sizebox(point(ctrl.box:minx() + (offsetx or 0), ctrl.box:miny() + (offsety or 0)), ctrl.box:size())

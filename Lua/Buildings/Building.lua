@@ -13,6 +13,7 @@ AutoResolveMethods.SetSupply = true
 AutoResolveMethods.SetPriority = true
 AutoResolveMethods.ShouldShowNotConnectedToGridSign = "or"
 AutoResolveMethods.IsSuitable = "and"
+AutoResolveMethods.InitConstruction = true
 
 BuildCategories = {
 	{ id = "Infrastructure", name = T{78, "Infrastructure"},              img = "UI/Icons/bmc_infrastructure.tga",     highlight_img = "UI/Icons/bmc_infrastructure_shine.tga" },
@@ -76,7 +77,7 @@ DefineClass.Building = {
 		{ template = true, name = T{151, "Display Name (pl)"},    id = "display_name_pl",   category = "General",  editor = "text",         default = "", translate = true, },
 		{ template = true, name = T{1000017, "Description"},      id = "description",       category = "General",  editor = "text",         default = "", translate = true, },
 		
-		{ template = true, name = T{152, "Build Menu Category"},  id = "build_category",    category = "General",  editor = "dropdownlist", default = "", items = GetBuildCategoryIds, },
+		{ template = true, name = T{152, "Build Menu Category"},  id = "build_category",    category = "General",  editor = "combo", default = "", items = GetBuildCategoryIds, },
 		{ template = true, name = T{153, "Build Menu Icon"},      id = "display_icon",      category = "General",  editor = "browse",       default = "", folder = "UI" },
 		{ template = true, name = T{154, "Build Menu Pos"},       id = "build_pos",         category = "General",  editor = "number",       default = 1, },
 		{ template = true, name = T{155, "Entity"},               id = "entity",            category = "General",  editor = "dropdownlist", default = invalid_entity, items = function() return GetBuildingEntities(invalid_entity) end},
@@ -770,28 +771,6 @@ function Building:CleanNeeded()
 	return self:RepairNeeded()
 end
 
-
-function Building:GetRandomPos(max_radius, min_radius, center)
-	if not center or center == InvalidPos() then
-		center  = self:GetPos()
-	end	
-	min_radius = min_radius or 0
-	local mw, mh = terrain.GetMapSize()
-	if center == InvalidPos() then
-		center = point(mw / 2, mh / 2)
-	end
-	for j = 1, 25 do
-		local pt = RotateRadius(min_radius + self:Random(max_radius - min_radius), self:Random(360 * 60), center)
-		local x, y = pt:x(), pt:y()
-		x = Clamp(x, guim, mw - guim)
-		y = Clamp(y, guim, mh - guim)
-		if terrain.IsPassable(x, y) then
-			local pos = point(x, y)
-			return pos
-		end
-	end
-end
-
 function Building:OnGameExitEditor()
 	self:DisconnectFromCommandCenters()
 	self:ConnectToCommandCenters()
@@ -1150,9 +1129,9 @@ function Building:Destroy()
 	self:UpdateConsumption()
 	self:ConsumptionOnDestroyed()
 	self:UpdateNotWorkingBuildingsNotification() --rem from not working notif
+	self:KickUnitsFromHolder()
 	self:OnDestroyed()
 	self:SetDustVisualsPerc(100)
-	self:KickUnitsFromHolder()
 
 	-- save current visual state in order to set it on rebuild
 	local pos = self:GetVisualPos()
@@ -2088,7 +2067,7 @@ end
 function Building:Getui_dronehub_drones() return T{180, "Drones<right><DronesCount>/<CommandCenterMaxDrones>", self, CommandCenterMaxDrones = g_Consts.CommandCenterMaxDrones} end
 
 NotWorkingWarning = {
-	Demolish = T{181, "This building will be demolished in <em><FormatScale(demolishing_countdown,1000)></em> sec."},
+	Demolish = T{181, "This building will be demolished in <em><FormatScale(demolishing_countdown,1000,true)></em> sec."},
 	Malfunction = T{182, "This building has malfunctioned. Repair it with Drones."},
 	MalfunctionRes = T{60192, "This building has malfunctioned. Drones can repair it with <resource(maintenance_resource_amount, maintenance_resource_type)>."},
 	Frozen = T{183, "This building is frozen. It can be repaired by Drones after the Cold Wave has passed."},
@@ -2121,8 +2100,9 @@ NotWorkingWarning = {
 	Default = T{208, "This building is not working"},
 	Destroyed = T{209, "This building has been destroyed"},
 	Consumption = T{210, "Building is waiting for <resource(1000, consumption_resource_type)> to resume working"},
+	WorkshopConsumption = T{8768, "Building is waiting for <resource(consumption_resource_type)> to resume working"},
 	NoCrop = T{7525, "No crop set"},
-	NoCommandCenter = T{632, "Outside Drone commander range"},
+	NoCommandCenter = T{632, "Outside Drone commander range."},
 	NoDroneHub = T{845, "Too far from working Drone commander."},
 }
 
@@ -2190,7 +2170,11 @@ function Building:GetUIWarning()
 	elseif IsKindOf(self, "SupplyRocket") and self.landed and not self:HasEnoughFuelToLaunch() then
 		--reason = "WaitingFuel"
 	elseif not self:CanConsume() then
-		reason = "Consumption"
+		if IsKindOf(self, "Workshop") then
+			reason = "WorkshopConsumption"
+		else
+			reason = "Consumption"
+		end
 	elseif self:ShouldShowNoCCSign() then
 		reason = "NoDroneHub"
 	end
@@ -2311,7 +2295,7 @@ function Building:GetUISectionConsumptionRollover()
 		items[#items+1] = T{321, "Total demand<right><power(consumption)>", grid}
 		items[#items+1] = T{322, "Stored Power<right><power(current_storage)>", grid}
 		if self:GetColdPenalty()>0 then
-			items[#items+1] = T{317, "<em>The Power consumption of this building is increased by <red><percent(ColdPenalty)></red> due to low temperature</em>", self}
+			items[#items+1] = T{317, "<em>The Power consumption of this building is increased by <red><percent(ColdPenalty)></red> due to low temperature.</em>", self}
 		end
 		items[#items+1] = T{316, "<newline>"}
 	end

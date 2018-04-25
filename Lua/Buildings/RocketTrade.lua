@@ -45,7 +45,13 @@ function TradeRocket:GetRocketType()
 	return RocketTypeNames.Trade
 end
 
-function RefugeeRocket:FlyToEarth()
+function TradeRocket:UpdateStatus(status)
+	if status ~= "on earth" then
+		SupplyRocket.UpdateStatus(self, status)
+	end
+end
+
+function TradeRocket:FlyToEarth()
 	DoneObject(self)
 end
 

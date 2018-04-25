@@ -1,4 +1,3 @@
-[*Back to Index*](index.md.html)
 Class System
 ============
 
@@ -122,6 +121,11 @@ local a = Building:new()
 BaseBuilding.Update(a, 10)  -- call directly the parent-class method on a
 ~~~~~~~~~~
 
+There are three types of member methods for lua classes, regarding the way they are called and how they need to be implemented.
+
+* Regular methods - these work as described above, when calling an overriden method it would call the method associated with the object's type (like c++ non virtual). It's up to the programmer to determine whether he wants his override to call the super's implementation. If necassery it can be done as shown above.
+* Recursive call methods - the method must be marked as a recursive call so that hierarchical data can be gathered on init that is needed to perform the call. Recursive calls call each implementation of the said method through the class inheritence hierarchy in order specified by the caller (parents first or children first). So calling the super's implementation for such methods is in fact an error and will cause that code to execute twice, once due to the recursive call itself and once due to the overide call. GameInit, Init, and Done are such methods.
+* Auto resolve methods - methods can be marked in the _G["AutoResolveMethods"] table (key is name of method, value is auto resolve type) to become auto resolve methods. This system combats cases where multiple parents implement the same method. In regular circumstance, if the inheritor does not implement the method a lua error will occur due to the class system not knowing which one to use for the child class. This forces the user to create their own method of the same name in the child class and call each of the parent methods (as shown above). For auto resolve methods, this is done automatically and the child class does not need to implement the method excplicitly. It's important to note that if the child class implements the method, it does need to call each parent manually, as in regular methods. The auto resolve type provided when marking a method as such determines the way results are combined from multiple call, for example "or" means that all results will be combined with the logical or operator.
 
 Base classes: PropertyObject, InitDone, Object, CObject
 -------------------------------------------------------
@@ -200,6 +204,8 @@ items
 :	Lists the permitted values for displaying in combination with a *combo* or *dropdownlist* editor type; note that the property itself can take on other values if set from the code.
 modifiable
 :	Modifiers (see separate document) can be attached to instances of the object.
+
+
 
 
 

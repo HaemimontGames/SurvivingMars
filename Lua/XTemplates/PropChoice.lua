@@ -29,8 +29,19 @@ local items = prop_meta.items
 if type(items) == "function" then
 	items = items(context, prop_meta.id)
 end
-local entry = items and table.find_value(items, "value", value)
-self.idValue:SetText(entry and entry.text or "")
+local text
+if type(value) == "table" then
+	local count = 0
+	for k,v in pairs(value) do
+		count = count + 1
+	end
+	text = count == 0 and T{6761, "None"} or Untranslated("x" .. count)
+else
+	local entry = items and table.find_value(items, "value", value)
+	text = entry and entry.text or ""
+end
+
+self.idValue:SetText(text)
 end,
 		}),
 		PlaceObj('XTemplateFunc', {

@@ -1,4 +1,3 @@
-[*Back to Index*](index.md.html)
 Savegames
 =========
 
@@ -51,7 +50,9 @@ function OnMsg.LoadGame(metadata)
 Code Serialization
 ------------------
 
-Any [Lua threads](LuaThreads) sleeping when a savegame is triggered will be serialized as part of the savegame. This include any local variables anywhere in the call stack, any upvalues, and even the bytecode of the functions themselves, to allow loading the savegame even when a game update has changed the Lua code. This means that after loading, pieces of "old" Lua code (coming from the savegame, not from the potentially updated game) will be running. New invocations of these functions, however, will use their new versions.
+Any [Lua threads](LuaThreads.md.html) sleeping when a savegame is triggered will be serialized as part of the savegame. This include any local variables anywhere in the call stack, any upvalues, and even the bytecode of the functions themselves, to allow loading the savegame even when a game update has changed the Lua code. This means that after loading, pieces of "old" Lua code (coming from the savegame, not from the potentially updated game) will be running. New invocations of these functions, however, will use their new versions.
+
+
 
 
 

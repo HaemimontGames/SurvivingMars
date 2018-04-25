@@ -86,10 +86,14 @@ function City:Init()
 	
 	-- call early mod effects init
 	for _, effects in ipairs(ModGlobalEffects) do
-		effects:OnPlayerInit(self)
+		effects:OnInitEffect(self)
 	end
-	--GetMissionSponsor():OnPlayerInit(self)
-	--GetCommanderProfile():OnPlayerInit(self)
+	GetMissionSponsor():OnInitEffect(self)
+	GetCommanderProfile():OnInitEffect(self)
+	local rules = GetActiveGameRules()
+	for _, rule_id in ipairs(rules) do
+		GameRulesMap[rule_id]:OnInitEffect(self)
+	end
 	
 	self:SelectMystery() -- should be before research - research items depend on the current mystery
 	self:InitResearch()
@@ -103,7 +107,6 @@ function City:Init()
 	self.funding = 0
 	self:ChangeFunding(sponsor.funding*1000000 - g_CargoCost)
 	if g_RocketCargo then
-	
 		g_InitialRocketCargo = table.copy(g_RocketCargo, "deep")
 		g_InitialCargoCost = g_CargoCost
 		g_InitialCargoWeight = g_CargoWeight
@@ -122,23 +125,36 @@ function City:Init()
 		self:InitBreakThroughAnomalies()
 		self:InitExploration()
 		self:InitMystery()
-		self:CreateSupplyShips()
-		local cargo = self.queued_resupply
-		self.queued_resupply = {}
-		Sleep(1) -- wait for rocket GameInits
-		assert(self.labels.SupplyRocket and #self.labels.SupplyRocket > 0)
-		self:OrderLanding(cargo, 0, true)
+		if not g_Tutorial or g_Tutorial.EnableRockets then
+			self:CreateSupplyShips()
+			local cargo = self.queued_resupply
+			self.queued_resupply = {}
+			Sleep(1) -- wait for rocket GameInits
+			assert(self.labels.SupplyRocket and #self.labels.SupplyRocket > 0)
+			self:OrderLanding(cargo, 0, true)
+		end
 		sponsor:game_apply(self)
 		GetCommanderProfile():game_apply(self)
 		-- apply mod effects
 		for _, effects in ipairs(ModGlobalEffects) do
 			effects:OnApplyEffect(self)
 		end
-		--GetMissionSponsor():OnApplyEffect(self)
-		--GetCommanderProfile():OnApplyEffect(self)
+		GetMissionSponsor():OnApplyEffect(self)
+		GetCommanderProfile():OnApplyEffect(self)
+		local rules = GetActiveGameRules()
+		for _, rule_id in ipairs(rules) do
+			GameRulesMap[rule_id]:OnApplyEffect(self)
+		end
 		InitApplicantPool()
 		self:ApplyModificationsFromProperties()
 		self:CheckAvailableTech()
+		-- unlock some upgrades by default
+		self:UnlockUpgrade("Mohole_ExpandMohole_1")
+		self:UnlockUpgrade("Mohole_ExpandMohole_2")
+		self:UnlockUpgrade("Mohole_ExpandMohole_3")
+		self:UnlockUpgrade("Excavator_ImprovedRefining_1")
+		self:UnlockUpgrade("Excavator_ImprovedRefining_2")
+		self:UnlockUpgrade("Excavator_ImprovedRefining_3")
 	end, self)
 	
 	self.unlocked_upgrades = {}
@@ -154,6 +170,7 @@ function City:Init()
 	
 	--lock mystery resource depot from the build menu
 	LockBuilding("StorageMysteryResource")
+	LockBuilding("MechanizedDepotMysteryResource")
 end
 
 function CreateRand(seed, ...)
@@ -206,18 +223,20 @@ function City:ModifyGlobalConstsFromProperties(source)
 	for _, mod_const in ipairs(modifiableConsts) do
 		local mod_id = mod_const.local_id
 		local global_const = mod_const.global_id
-		if source:HasMember(mod_id) and  source[mod_id]>0 then
+		local lower_bound = g_Consts[global_const] < g_Consts["base_"..global_const] and - g_Consts[global_const] or - g_Consts["base_"..global_const]
+		local mod_amount = source[mod_id] > lower_bound and source[mod_id] or lower_bound
+		if source:HasMember(mod_id) then
 			local scale = ModifiablePropScale[global_const]
 			if not scale then
 				assert(false, print_format("Trying to modify a non-modifiable property", "Consts", "-", global_const))
 				return
 			end
-			local tech_mod = {Label = "Const", Amount = source[mod_id], Prop = global_const}
+			local tech_mod = {Label = "Const", Amount = mod_amount, Prop = global_const}
 			self:SetLabelModifier("Consts", tech_mod, Modifier:new{
 				prop = global_const,
-				amount = source[mod_id] * scale,
+				amount = mod_amount,
 				percent = 0,
-				id = source:GetIdentifier(),
+				id = source:HasMember("GetIdentifier") and source:GetIdentifier() or source.id,
 			})
 		end
 	end
@@ -233,15 +252,9 @@ end
 function City:ApplyModificationsFromProperties()
 	local sponsor = GetMissionSponsor()
 	self:GrantTechFromProperties(sponsor)
-	for i=1,#sponsor do
-		sponsor[i]:OnResearchComplete(self, sponsor)
-	end
 	
 	local commander = GetCommanderProfile()
 	self:GrantTechFromProperties(commander)
-	for i=1,#commander do
-		commander[i]:OnResearchComplete(self, commander)
-	end
 end
 
 function City:InitMissionBonuses()
@@ -260,7 +273,7 @@ function City:InitMissionBonuses()
 			Sleep(period)
 			if amount > 0 then
 				self:ChangeFunding( amount )
-				AddOnScreenNotification( "PeriodicFunding", nil, { sponsor = sponsor.display_name, number = amount } )
+				AddOnScreenNotification( "PeriodicFunding", nil, { sponsor = sponsor.display_name or "", number = amount } )
 			end
 		end
 	end )
@@ -358,11 +371,12 @@ end
 
 function City:CalcRenegades()
 	local all_colonists = #(self.labels.Colonist or empty_table)
-	if all_colonists<=50 then return end
+	local colonist_count_threshold = IsGameRuleActive("RebelYell") and 20 or 50
+	if all_colonists<=colonist_count_threshold then return end
 	
 	for idx, dome in ipairs(self.labels.Dome) do
 		all_colonists = all_colonists - #(dome.labels.Child or empty_table)
-		if all_colonists <= 50 then return end
+		if all_colonists <= colonist_count_threshold then return end
 	end
 	
 	for idx, dome in ipairs(self.labels.Dome) do
@@ -690,6 +704,34 @@ function City:GetFunding()
 	return self.funding
 end
 
+function City:GetWorkshopWorkersPercent()
+	local colonists = (self.labels.Colonist or empty_table)
+	local workshops = self.labels.Workshop or empty_table
+	if #colonists==0 or #workshops==0 then 
+		return 0 
+	end
+	local col_count = 0
+	for _, colonist in ipairs(colonists) do
+		if colonist:CanWork() then
+			col_count = col_count + 1
+		end
+	end
+	if col_count==0 then 
+		return 0 
+	end
+	local workers= 0
+	for _, workshop in ipairs(workshops) do
+		if workshop.working then
+			for i=1, workshop.max_shifts do
+				workers = workers + #workshop.workers[i]				
+			end
+		end
+	end
+	if workers==0 then 
+		return 0 
+	end
+	return MulDivRound(workers, 100, col_count)
+end
 
 function OnMsg.TechResearched(tech_id, city, first_time)
 	if not first_time then
@@ -726,13 +768,6 @@ function City:AddResupplyItems(items)
 			inventory[#inventory + 1] = item
 		end
 	end	
-end
-
-function City:GetRandomPos(border)
-	local mw, mh = terrain.GetMapSize()	
-	border = Min(border or mapdata.PassBorder or guim, Min(mw, mh) / 2)	
-	local x, y = border + self:Random(mw - 2*border), border + self:Random(mh - 2*border)
-	return point(x, y)
 end
 
 function City:GetPrefabs(bld)

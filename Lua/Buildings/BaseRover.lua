@@ -225,7 +225,7 @@ function BaseRover:Repair()
 end
 
 function BaseRover:DroneApproach(drone, reason)
-	drone:GotoSameDomeAsObj(self)
+	drone:ExitHolder(self)
 	
 	if not IsValid(self) then return false end
 	
@@ -870,34 +870,6 @@ function BaseRover:GetUIWarning()
 			return T{7325, "Empty battery"}
 		end
 	end
-end
-
-
---battery ui helpers
-function RoverBatteryProgressBar()
-	return {
-		{
-			id = "BatteryPerc",
-			ui = "need_progress_bar",
-			icon = "UI/Icons/Sections/batery.tga",
-			rollover_t = {content = {title = T{7601, "Battery"}, descr = T{7602, "Vehicles can recharge their batteries from active Power grids. Vehicles are also able to recharge each other, equalizing the Power in their batteries.<newline><newline>Power<right><percent(BatteryPerc)><newline><left><battery_ui_str>"}}},
-		},
-	}
-end
-
-function RoverBatteryChargeButton()
-	return {
-				obj = function(obj) return obj end,
-				handler = "ToggleRechargeMode",
-				icon = {"UI/Icons/IPButtons/recharge.tga", "UI/Icons/IPButtons/cancel.tga"},
-				get_state = function(obj)
-									return obj.interaction_mode == "recharge" and 2 or 1
-								end,
-				rollover_t = {content = {
-								title = {T{40, "Recharge"}, T{6720, "Cancel"}},
-								descr = {T{41, "Select a power cable or another vehicle to recharge the battery."}, T{42, "Cancel recharge."}},
-								}},			
-			}
 end
 
 function RoverStatus()

@@ -43,3 +43,34 @@ function ModDef:GetTags()
 	
 	return tags_used
 end
+
+--Backward compatibility with mods that use old tags system
+local function ParseOldTags(tags_str)
+	local tags = { }
+	for tag in tags_str:gmatch("([^,; ]+)[,; ]?") do
+		tag = tag:match("^%s*(.-)%s*$")
+		tag = tag:gsub("%s+", " ")
+		if not tags[tag] then
+			tags[#tags + 1] = tag
+			tags[tag] = true
+		end
+	end
+	return tags
+end
+
+function OnMsg.ModDefsLoaded()
+	local lowercase_tags = { }
+	for i, tag in ipairs(PredefinedModTags) do
+		lowercase_tags[string.lower(tag.id)] = tag.id
+	end
+	
+	for i,mod in ipairs(ModsList) do
+		local tags = ParseOldTags(mod.tags)
+		for j,tag in ipairs(tags) do
+			local member_id = lowercase_tags["tag" .. string.lower(tag)]
+			if member_id then
+				mod[member_id] = true
+			end
+		end
+	end
+end

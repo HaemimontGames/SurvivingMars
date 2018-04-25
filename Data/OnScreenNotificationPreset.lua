@@ -96,6 +96,18 @@ PlaceObj('OnScreenNotificationPreset', {
 })
 
 PlaceObj('OnScreenNotificationPreset', {
+	'name', "DeadColonistsInSpace",
+	'title', T{8850, --[[OnScreenNotificationPreset DeadColonistsInSpace title]] "Passengers Dead"},
+	'text', T{8851, --[[OnScreenNotificationPreset DeadColonistsInSpace text]] "<count> Colonists died in space while trying to reach Mars."},
+	'image', "UI/Icons/Notifications/colonist_2.tga",
+	'expiration', 150000,
+	'fx_action', "",
+	'priority', "Important",
+	'VignetteImage', "UI/Vignette_Red.tga",
+	'VignettePulseDuration', 2000,
+})
+
+PlaceObj('OnScreenNotificationPreset', {
 	'name', "ColonistPsychoticBreak",
 	'title', T{7036, --[[OnScreenNotificationPreset ColonistPsychoticBreak title]] "Stressed out Colonists"},
 	'text', T{5600, --[[OnScreenNotificationPreset ColonistPsychoticBreak text]] "Stressed out Colonists: <count>"},
@@ -304,7 +316,7 @@ PlaceObj('OnScreenNotificationPreset', {
 PlaceObj('OnScreenNotificationPreset', {
 	'name', "FracturedDome",
 	'title', T{5625, --[[OnScreenNotificationPreset FracturedDome title]] "Fractures"},
-	'text', T{5626, --[[OnScreenNotificationPreset FracturedDome text]] "Fractured Domes: <count>"},
+	'text', T{5626, --[[OnScreenNotificationPreset FracturedDome text]] "Fractures: <count>"},
 	'image', "UI/Icons/Notifications/fractured_dome_2.tga",
 	'priority', "Important",
 	'VignetteImage', "UI/Vignette_Red.tga",
@@ -799,10 +811,46 @@ PlaceObj('OnScreenNotificationPreset', {
 })
 
 PlaceObj('OnScreenNotificationPreset', {
+	'name', "TransportationDroneOverload",
+	'title', T{8922, --[[OnScreenNotificationPreset TransportationDroneOverload title]] "Transportation Problem"},
+	'text', T{8923, --[[OnScreenNotificationPreset TransportationDroneOverload text]] "Drone Heavy Load"},
+})
+
+PlaceObj('OnScreenNotificationPreset', {
+	'name', "TransportationShuttleOverload",
+	'title', T{8922, --[[OnScreenNotificationPreset TransportationShuttleOverload title]] "Transportation Problem"},
+	'text', T{8924, --[[OnScreenNotificationPreset TransportationShuttleOverload text]] "Shuttle Heavy Load"},
+})
+
+PlaceObj('OnScreenNotificationPreset', {
+	'name', "TransportationShuttleNoFuel",
+	'title', T{8922, --[[OnScreenNotificationPreset TransportationShuttleNoFuel title]] "Transportation Problem"},
+	'text', T{8925, --[[OnScreenNotificationPreset TransportationShuttleNoFuel text]] "No Fuel for Shuttles"},
+})
+
+PlaceObj('OnScreenNotificationPreset', {
 	'name', "AchievementUnlocked",
 	'title', T{7441, --[[OnScreenNotificationPreset AchievementUnlocked title]] "Achievement Unlocked: <achievement>"},
 	'text', T{7383, --[[OnScreenNotificationPreset AchievementUnlocked text]] "<description>"},
 	'image', "UI/Icons/Notifications/mystery_log_2.tga",
+	'priority', "Important",
+	'VignetteImage', "UI/Vignette_Red.tga",
+	'VignettePulseDuration', 2000,
+})
+
+PlaceObj('OnScreenNotificationPreset', {
+	'name', "SplitPowerGrid",
+	'title', T{8852, --[[OnScreenNotificationPreset SplitPowerGrid title]] "Split Power Grids"},
+	'text', T{8853, --[[OnScreenNotificationPreset SplitPowerGrid text]] "Split Power grids: <count>"},
+	'priority', "Important",
+	'VignetteImage', "UI/Vignette_Red.tga",
+	'VignettePulseDuration', 2000,
+})
+
+PlaceObj('OnScreenNotificationPreset', {
+	'name', "SplitLifeSupportGrid",
+	'title', T{8854, --[[OnScreenNotificationPreset SplitLifeSupportGrid title]] "Split Life Support Grids"},
+	'text', T{8855, --[[OnScreenNotificationPreset SplitLifeSupportGrid text]] "Split Life Support grids: <count>"},
 	'priority', "Important",
 	'VignetteImage', "UI/Vignette_Red.tga",
 	'VignettePulseDuration', 2000,

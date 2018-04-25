@@ -10,7 +10,7 @@ end
 
 function OpenAirGym:GetEntranceFallback(target)
 	local radius = self:GetRadius()
-	local pt = self:GetRandomPos(2*radius/3,radius/4,self:GetPos())
+	local pt = GetRandomPassableAround(self:GetPos(), 2*radius/3, radius/4, self.city)
 	return { pt }, pt
 end
 

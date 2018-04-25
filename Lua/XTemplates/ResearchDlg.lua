@@ -280,7 +280,8 @@ XDialog.Open(self, ...)
 self.idArea:ScrollTo(g_ResearchScroll)
 if GetUIStyleGamepad() then
 	CreateRealTimeThread(function(self)
-		local first_tech = self:GetRelativeFocus(point(1, 1), "exact")
+		local first_tech = self:GetRelativeFocus(g_ResearchFocus, "exact")
+		first_tech = first_tech or self:GetRelativeFocus(point(1, 1), "exact")
 		if first_tech then
 			first_tech:SetFocus(true)
 		end
@@ -296,10 +297,16 @@ end
 end,
 		}),
 		PlaceObj('XTemplateFunc', {
-			'comment', "focus the first tech with gamepad",
+			'comment', "save the scroll pos and focus",
 			'name', "OnDelete",
 			'func', function (self, ...)
 g_ResearchScroll = self.idArea.OffsetX
+local focus = GetKeyboardFocus()
+local focus_order = focus and focus:GetFocusOrder()
+if focus_order and focus ~= self:GetRelativeFocus(focus_order, "exact") then
+	focus_order = nil
+end
+g_ResearchFocus = focus_order or point(1, 1)
 end,
 		}),
 		PlaceObj('XTemplateTemplate', {

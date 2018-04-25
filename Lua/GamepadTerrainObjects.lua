@@ -144,9 +144,12 @@ function GamepadTerrainObjects:FindInteractableObj()
 	mode_dialog.interaction_obj = false
 		
 	for i = 1, #(self.objects or "") do
-		mode_dialog:UpdateInteractionObj(self.objects[i], pos)
-		if mode_dialog.interaction_obj then
-			break
+		local o = self.objects[i]
+		if IsValid(o) then
+			mode_dialog:UpdateInteractionObj(o, pos)
+			if mode_dialog.interaction_obj then
+				break
+			end
 		end
 	end
 end

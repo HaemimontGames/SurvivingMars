@@ -9,7 +9,7 @@ PlaceObj('XTemplate', {
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelSection",
-			'RolloverText', T{8543, --[[XTemplate sectionCold RolloverText]] "Buildings in cold environemnt will freeze if left without power.<newline><newline>Freezing progress<right><percent(FreezeProgress)><newline><left>Status<right><FreezeStatus>"},
+			'RolloverText', T{8543, --[[XTemplate sectionCold RolloverText]] "Buildings in cold environment will freeze if left without power.<newline><newline>Freezing progress<right><percent(FreezeProgress)><newline><left>Status<right><FreezeStatus>"},
 			'RolloverTitle', T{3875, --[[XTemplate sectionCold RolloverTitle]] "Freezing"},
 			'Icon', "UI/Icons/Sections/cold.tga",
 		}, {

@@ -1380,11 +1380,21 @@ PlaceObj('ActionFXParticles', {
 	'Moment', "start",
 	'Disabled', true,
 	'EndMoment1', "end",
-	'Particles', "Camera_DustStorm",
-	'Flags', "OnGround",
+	'Particles', "DustStorm",
 	'Source', "Camera",
 	'Attach', true,
-	'OrientationAxis', 2,
+	'OffsetDir', "",
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "DustStorm",
+	'Moment', "start",
+	'Disabled', true,
+	'EndMoment1', "end",
+	'Particles', "Test__Env_Rain",
+	'Source', "Camera",
+	'Attach', true,
+	'OffsetDir', "",
 })
 
 PlaceObj('ActionFXParticles', {
@@ -3838,6 +3848,18 @@ PlaceObj('ActionFXParticles', {
 PlaceObj('ActionFXParticles', {
 	'Action', "Select",
 	'Moment', "start",
+	'Actor', "Sinkhole",
+	'EndMoment1', "end",
+	'handle', 2123928958,
+	'Particles', "Selection_Rover",
+	'Flags', "LockedOrientation",
+	'Scale', 500,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Select",
+	'Moment', "start",
 	'Actor', "SubsurfaceAnomaly",
 	'EndMoment1', "end",
 	'handle', 2084321246,
@@ -4556,6 +4578,15 @@ PlaceObj('ActionFXParticles', {
 	'handle', 1430933536,
 	'Particles', "DustDevil_04",
 	'Scale', 1400,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "Firefly",
+	'Disabled', true,
+	'Particles', "FireflyGlow_01",
 	'Attach', true,
 })
 

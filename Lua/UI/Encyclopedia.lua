@@ -375,8 +375,9 @@ function Encyclopedia:GetListItems()
 	if cat_id then
 		if cat_id == "Buildings" then
 			param.title_text_upper = T{1152, "BUILDINGS"}
-			local buldings = DataInstances.BuildingTemplate
-			for k, v in ipairs(buldings) do
+			local buildings = table.icopy(DataInstances.BuildingTemplate or empty_table)
+			TSort(buildings, "display_name")
+			for k, v in ipairs(buildings) do
 				if not v.encyclopedia_exclude then
 					local construction_cost = GetConstructionDescription(v, nil, true)
 					local class = g_Classes[v.template_class]

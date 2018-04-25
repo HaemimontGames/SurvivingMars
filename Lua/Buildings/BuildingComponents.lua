@@ -411,18 +411,24 @@ DefineClass.ResourceProducer = {
 	
 	manual_resource_production = false,
 	
-	producers = false,
-	max_storage = false,
-	production_per_day = false,
+	producers = "",
+	max_storage = 0,
+	production_per_day = 0,
 	
 	wasterock_producer = false,
 	wasterock_max_storage = false,
 }
 
+function GetResourcesDropDownItems()
+	local ret = table.copy(ResourcesDropDownListItems)
+	table.insert(ret, 1, {text = "", value = ""})
+	return ret
+end
+
 local max_resources_produced = 3
 for i=1,max_resources_produced do
 	table.append(ResourceProducer.properties, {
-		{ template=true, category="ResourceProducer"..i, id="resource_produced"..i,  name=T{6727, "Resource Produced <n>", n=i},  editor="text",   default="" },
+		{ template=true, category="ResourceProducer"..i, id="resource_produced"..i,  name=T{6727, "Resource Produced <n>", n=i},  editor="combo",   default="", items = GetResourcesDropDownItems},
 		{ template=true, category="ResourceProducer"..i, id="max_storage"..i,        name=T{6728, "Max Storage <n>", n=i},        editor="number", default=20000, scale = const.ResourceScale },
 		{ template=true, category="ResourceProducer"..i, id="production_per_day"..i, name=T{6729, "Daily Production <n>", n=i}, editor="number", default=1000,  scale = const.ResourceScale, modifiable = true },
 		{ template=true, category="ResourceProducer"..i, id="stockpile_class"..i,    name=T{6730, "Stockpile Class <n>", n=i},    editor="text",   default="ResourceStockpile" },
@@ -501,9 +507,16 @@ function ResourceProducer:AddProducer(i) --expects relevant props to be filled
 end
 
 function ResourceProducer:GameInit()
-	self.production_per_day = 0
-	self.max_storage = 0
+	self:AddProducers()
+end
 
+function ResourceProducer:OnDestroyed()
+	self:ReleaseStockpiles()
+end
+
+function ResourceProducer:AddProducers()
+	self.production_per_day = nil
+	self.max_storage = nil
 	self.producers = {}
 	local last_res = true
 	for i=1,max_resources_produced do
@@ -515,10 +528,6 @@ function ResourceProducer:GameInit()
 	self.city:AddToLabel("ResourceProducer", self)
 end
 
-function ResourceProducer:OnDestroyed()
-	self:ReleaseStockpiles()
-end
-
 function ResourceProducer:ReleaseStockpiles()
 	if self.wasterock_producer then
 		self.wasterock_producer:ReleaseStockpiles()
@@ -527,7 +536,7 @@ function ResourceProducer:ReleaseStockpiles()
 	for i=1,#(self.producers or "") do
 		self.producers[i]:ReleaseStockpiles()
 	end
-	self.producers = ""
+	self.producers = nil
 end
 
 function ResourceProducer:Done()
@@ -821,7 +830,7 @@ end
 function SingleResourceProducer:BuildingUpdate(dt, day, hour)
 	if self.parent.working then
 		local amount_produced = self:RunProduction()
-		local deposit_grade = self:HasMember("GetDepositGrade") and self:GetDepositGrade() or "Average"
+		local deposit_grade = self.parent:HasMember("GetDepositGrade") and self.parent:GetDepositGrade() or "Average"
 		self.parent:ProduceWasteRock(amount_produced, deposit_grade)
 	end
 end
@@ -975,7 +984,7 @@ function SingleResourceProducer:GetPredictedDailyProduction()
 		return total_production
 	end
 	
-	return 0
+	return self.production_per_day
 end
 
 function OnMsg.UIPropertyChanged(obj, prop)

@@ -36,6 +36,7 @@ if FirstLoad then
 		MouseL = true,
 		MouseR = true,
 		MouseM = true,
+		Enter = true,
 	}
 end
 

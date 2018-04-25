@@ -19,7 +19,7 @@ PlaceObj('XTemplate', {
 if not self.context.corrupted then
 	local id = self.context.id
 	local state = ToggleLoadMod(id)
-	self.idCheckbox:SetImage(GetModItemImage(state))
+	self.idCheckbox:SetImage(GetCheckboxImage(state))
 end
 end,
 		'RolloverBackground', RGBA(0, 0, 0, 0),
@@ -145,7 +145,7 @@ end,
 local context = self.context
 if not context.corrupted then
 	local state = table.find(AccountStorage.LoadMods, context.id)
-	self.idCheckbox:SetImage(GetModItemImage(state))
+	self.idCheckbox:SetImage(GetCheckboxImage(state))
 end
 end,
 		}),

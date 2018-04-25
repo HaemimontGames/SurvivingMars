@@ -38,4 +38,14 @@ local MapSettings_ColdWave ={
 		'min_duration', 1500000,
 		'max_duration', 2400000,
 	}),
+	PlaceObj('MapSettings_ColdWave', {
+		'name', "ColdWave_GameRule",
+		'strength', 4,
+		'spawntime', 8400000,
+		'spawntime_random', 14400000,
+		'birth_hour', 4320000,
+		'use_in_gen', false,
+		'min_duration', 3600000,
+		'max_duration', 4800000,
+	}),
 	}

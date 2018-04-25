@@ -252,7 +252,7 @@ function WasteRockObstructor:GossipName()
 end
 
 function WasteRockObstructor:DroneApproach(drone, resource)
-	drone:GotoSameDomeAsObj(self)
+	drone:ExitHolder(self)
 	if not IsValid(self) then return false end
 	if not self:HasSpot("idle", drone.work_spot_task) then
 		local c, r = self:GetBSphere()

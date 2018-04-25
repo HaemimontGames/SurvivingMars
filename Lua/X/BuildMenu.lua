@@ -21,6 +21,23 @@ function XBuildMenu:Init()
 	SelectObj(false)
 end
 
+function XBuildMenu:Open(...)
+	self:RecalculateMargins()
+	ItemMenu.Open(self, ...)
+end
+
+function XBuildMenu:RecalculateMargins()
+	--This is temporarily and should be removed when implementing InGameInterface with new UI
+	self:SetMargins(OnScreenHintDlg.Margins + GetSafeMargins())
+end
+
+function OnMsg.SafeAreaMarginsChanged()
+	local dlg = GetXDialog("XBuildMenu")
+	if dlg then
+		dlg:RecalculateMargins()
+	end
+end
+
 function XBuildMenu:GetCategories()
 	return BuildCategories
 end
@@ -37,7 +54,6 @@ function XBuildMenu:CreateCategoryItems(all_categories)
 			local items_count = UICountItemMenu(cat.id)
 			if items_count and items_count > 0 then			
 				local cat_data = cat
-				local items_count = items_count
 				local new_item = MenuCategoryButton:new({image = cat_data.img, highlight = cat_data.highlight_img, id = cat_data.id, name = cat_data.name}, list.idCategoriesList)
 				self.cat_items[#self.cat_items + 1] = new_item
 				
@@ -128,15 +144,7 @@ end
 
 function GetBuildingTechsStatus(building, category)
 	-- handle overrides of building/category availability from sequences first
-	local prerequisite_override = BuildMenuPrerequisiteOverrides[category]
-	if prerequisite_override == true then
-		return "show", "enable", ""
-	elseif type(prerequisite_override) == "string" and prerequisite_override == "hide" then
-		return not "show", not "enable", ""
-	elseif prerequisite_override then
-		return "show", not "enable", prerequisite_override
-	end
-	prerequisite_override = BuildMenuPrerequisiteOverrides[building]
+	local prerequisite_override = BuildMenuPrerequisiteOverrides[category] or BuildMenuPrerequisiteOverrides[building]
 	if prerequisite_override == true then
 		return "show", "enable", ""
 	elseif type(prerequisite_override) == "string" and prerequisite_override == "hide" then
@@ -171,7 +179,7 @@ function GetBuildingDlcStatus(building_template)
 	return IsDlcAvailable(building_template.requires_dlc)
 end
 
-function GetGridElementConstructionCostDescription(class)
+function GetGridElementConstructionCostDescription(class, is_passage)
 	-- stage 1
 	local text = ""
 	local cost1= {}
@@ -182,7 +190,7 @@ function GetGridElementConstructionCostDescription(class)
 		end		
 	end
 	if next(cost1)then
-		local sep = " "..T{3957, "for each 5 hexes-long section"}
+		local sep = " "..(is_passage and T{8902, "per segment"} or T{3957, "for each 5 hexes-long section"})
 		text =  T{263, "Cost: "}..table.concat(cost1,"")..sep
 	end
 	return text
@@ -314,9 +322,10 @@ end
 function FormatBuildingCostInfo(template_name, dont_modify)
 	-- grid elements
 	local is_grid_element = template_name=="LifeSupportGridElement" or template_name == "ElectricityGridElement"	
+	local is_passage = template_name == "Passage"
 	local class = is_grid_element and g_Classes[template_name] or DataInstances.BuildingTemplate[template_name]
-	if  is_grid_element then
-		return GetGridElementConstructionCostDescription(class)
+	if is_grid_element or is_passage then
+		return GetGridElementConstructionCostDescription(class, is_passage)
 	else
 		return GetConstructionDescription(class, nil, dont_modify) --class is a building template and not a class
 	end	
@@ -367,7 +376,13 @@ function UICountItemMenu(category_id)
 	for i = 1, #templates do
 		local building_template = templates[i]
 		local show, prefabs, can_build, action, description = UIGetBuildingPrerequisites(category_id, building_template)
- 		if show then count = count + 1 end
+ 		if not show and category_id == "Storages" then
+			show, prefabs, can_build, action, description = UIGetBuildingPrerequisites("Depots", building_template)
+			if not show then
+				show, prefabs, can_build, action, description = UIGetBuildingPrerequisites("MechanizedDepots", building_template)
+			end
+		end
+		if show then count = count + 1 end
 	end
 	
 	if category_id == "Power" then
@@ -446,6 +461,12 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems)
 		can_build = true
 	end
 	
+	if g_Tutorial and g_Tutorial.BuildMenuWhitelist and not g_Tutorial.BuildMenuWhitelist[template.name] then
+		description = T{"(design)Not yet available"} -- due to tutorial
+		can_build = false
+	end
+	
+	
 	if not description then
 		local construction_cost = GetConstructionDescription(template, cost_text)
 		local class = g_Classes[template.template_class]	
@@ -466,18 +487,32 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems)
 				elseif not data.enabled then
 					return
 				end
-				GetInGameInterface():SetMode(data.construction_mode, { template = data.name, selected_dome = obj and obj.selected_dome, params = params })
+				local variants
+				if IsKindOf(data, "XWindow") then
+					local parent = GetDialog(data)
+					variants = parent:GetSubCategoryTemplates()
+				else
+					variants = data.template_variants
+				end
+				GetInGameInterface():SetMode(data.construction_mode, { template = data.name, selected_dome = obj and obj.selected_dome, template_variants = variants, params = params })
 			end
 		else
 			action = function(obj, data)
 				if GetUIStyleGamepad() then g_LastBuildItem = data.name end
 				if not data.enabled then return end
-				GetInGameInterface():SetMode(data.construction_mode, { template = data.name, selected_dome = obj and obj.selected_dome })
+				local variants
+				if IsKindOf(data, "XWindow") then
+					local parent = GetDialog(data)
+					variants = parent:GetSubCategoryTemplates()
+				else
+					variants = data.template_variants
+				end
+				GetInGameInterface():SetMode(data.construction_mode, { template = data.name, selected_dome = obj and obj.selected_dome, template_variants = variants})
 			end
 		end
 	end
 	
-	return true, require_prefab, can_build, action, description
+	return true, require_prefab or available_prefabs>0, can_build, action, description
 end
 
 function XBuildMenu:GetItems(category_id)
@@ -491,13 +526,40 @@ function XBuildMenu:GetItems(category_id)
 	return buttons
 end
 
+function XBuildMenu:GetSubCategoryTemplates()
+	if not self.parent_category then 
+		return 
+	end
+	local variants = {}
+	for _, item in ipairs(self.items) do
+		variants[#variants +1] = item.name
+	end
+	return variants
+end
+
+local subcategories = {
+	["Depots"] = false, 
+	["MechanizedDepots"] = false,
+	}
+	
+function GetBuildMenuSubcategories()
+	return subcategories
+end
+
 function UIItemMenu(category_id, bCreateItems)
 	local items = {}
 	local count = 0
+	for cat, val in pairs(subcategories) do
+		subcategories[cat] = false
+	end		
 	local templates = DataInstances.BuildingTemplate
 	for i = 1, #templates do
 		local building_template = templates[i]
 		local show, prefabs, can_build, action, description = UIGetBuildingPrerequisites(category_id, building_template, bCreateItems)
+		local template_category = building_template.build_category
+		if category_id ~= template_category and subcategories[template_category]~=nil and UIGetBuildingPrerequisites(template_category, building_template) then
+			subcategories[template_category]  = true 
+		end
  		if show then
 			count = count + 1
 			if bCreateItems then
@@ -512,8 +574,46 @@ function UIItemMenu(category_id, bCreateItems)
 					build_pos = building_template.build_pos,
 					enabled = can_build or false,
 					prefabs = prefabs or false,
-					action = action
+					action = action,
+					Id = building_template.name
 				})
+			end
+		end
+	end
+
+	if category_id == "Storages" then
+		count = count + 2
+		if bCreateItems then
+			if subcategories["Depots"] then
+				items[#items + 1] ={
+					name ="Depots",
+					display_name = T{8878, "Depot"},
+					icon = "UI/Icons/Buildings/depots.tga",
+					description = "",
+					build_pos = 2,
+					category = "Storage",
+					close_parent = false,
+					action = function(obj, data)
+						local parent = GetDialog(data)
+						parent:SelectSubCategory(data, category_id)
+					end,
+					Id = "Depots",
+				}
+			end
+			if subcategories["MechanizedDepots"] then
+				items[#items + 1] ={
+					name ="MechanizedDepots",
+					display_name = T{519, "Storage"},
+					icon = "UI/Icons/Buildings/storages.tga",
+					description = "",
+					build_pos = 3,
+					category = "Storage",
+					close_parent = false,
+					action = function(obj, data)
+						local parent = GetDialog(data)
+						parent:SelectSubCategory(data, category_id)
+					end
+				}
 			end
 		end
 	end
@@ -594,40 +694,6 @@ function UIItemMenu(category_id, bCreateItems)
 		count = count + 1
 		local next_bld_pos = 20
 		if bCreateItems then
-			local building_template = DataInstances.BuildingTemplate.Passage
-			if building_template and GetBuildingDlcStatus(building_template) then
-				count = count + 1
-				local description = T{8720, "<description>\n\n<formatedbuildinginfo('Passage')>",description = building_template.description}
-				items[#items + 1] = {
-					name = "Passage",
-					display_name = building_template.display_name,
-					icon = building_template.display_icon,
-					description = description,
-					action = function()
-						GetInGameInterface():SetMode("passage_grid", {grid_elements_require_construction = true}) --TODO: instant passages.
-					end,
-					build_pos = next_bld_pos,
-				}
-				next_bld_pos = next_bld_pos + 1
-			end
-			
-			building_template = DataInstances.BuildingTemplate.PassageRamp
-			if building_template and GetBuildingDlcStatus(building_template) then
-				count = count + 1
-				local description = T{8721, "<description>\n\n<formatedbuildinginfo('PassageRamp')>",description = building_template.description}
-				items[#items + 1] = {
-					name = "PassageRamp",
-					display_name = building_template.display_name,
-					icon = building_template.display_icon,
-					description = description,
-					action = function()
-						GetInGameInterface():SetMode("passage_ramp")
-					end,
-					build_pos = next_bld_pos,
-				}
-				next_bld_pos = next_bld_pos + 1
-			end
-			
 			items[#items + 1] = {
 				name = "Salvage",
 				display_name = T{3973, "Salvage"},
@@ -641,6 +707,31 @@ function UIItemMenu(category_id, bCreateItems)
 				build_pos = next_bld_pos,
 			}
 		end
+	end
+	if category_id == "Domes" then
+		local building_template = DataInstances.BuildingTemplate.Passage
+		items[#items + 1] = {
+			name = "Passage",
+			display_name = building_template.display_name,
+			icon = building_template.display_icon,
+			description = T{8720, "<description>\n\n<formatedbuildinginfo('Passage')>",description = building_template.description},
+			action = function()
+				GetInGameInterface():SetMode("passage_grid", {grid_elements_require_construction = true}) --TODO: instant passages.
+			end,
+			build_pos = 20,
+		}
+		building_template = DataInstances.BuildingTemplate.PassageRamp
+		items[#items + 1] = {
+			name = "PassageRamp",
+			display_name = building_template.display_name,
+			icon = building_template.display_icon,
+			description = T{8721, "<description>\n\n<formatedbuildinginfo('PassageRamp')>",description = building_template.description},
+			action = function()
+				GetInGameInterface():SetMode("passage_ramp")
+			end,
+			build_pos = 21,
+		}
+		count = count + 2
 	end
 	table.sortby(items, "build_pos")
 	if bCreateItems then

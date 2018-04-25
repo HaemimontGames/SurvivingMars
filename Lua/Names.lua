@@ -2489,7 +2489,6 @@ end
 
 function NameUnit(unit)
 	local sponsor_id = g_CurrentMissionParams.idMissionSponsor
-	local sponsor_nations = GetSponsorNations(sponsor_id)
 	local nation = unit.birthplace or "Mars"
 	local gender = unit.entity_gender
 	-- choose name from the opposite gender if gender is 'Other'

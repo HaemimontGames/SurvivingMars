@@ -133,7 +133,7 @@ function StartDustStorm(storm_type, dust_storm)
 		end
 		if g_DustStorm.type == "electrostatic" and GameTime() > next_strike then
 			next_strike = GameTime() + dust_storm.strike_interval + UICity:Random(dust_storm.strike_random)
-			local strike_pos = UICity:GetRandomPos()
+			local strike_pos = GetRandomPassable()
 			local strike_radius = dust_storm.strike_radius
 			PlayFX("ElectrostaticStormArea", "start", nil, nil, strike_pos)
 			PlayFX("ElectrostaticStorm", "hit-moment" .. tostring(1 + UICity:Random(4)), nil, nil, strike_pos)

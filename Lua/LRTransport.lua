@@ -53,7 +53,6 @@ end
 
 function BuildStorableResourcesArray()
 	--deduce the kind of resources storage depots can store
-	assert(LRManagerInstance == false) --changing them tables during the lifetime of this obj will lead to unpredictable behaviors
 	StorableResources = {}
 	local descendants = ClassDescendantsList("StorageDepot")
 	local template_depots = table.ifilter(DataInstances.BuildingTemplate, function(i, o)			
@@ -123,10 +122,14 @@ end
 
 function ColonistTransportTask:Cleanup()
 	LRManagerInstance:RemoveColonistTransportRequest(self)
-	if self.shuttle and self.shuttle.transport_task == self then
-		Wakeup(self.shuttle.command_thread)
+	local shuttle = self.shuttle
+	if shuttle and shuttle.transport_task == self then
+		Wakeup(shuttle.command_thread)
 	end
-	self.colonist.transport_task = false
+	local colonist = self.colonist
+	if colonist and colonist.transport_task == self then
+		colonist.transport_task = false
+	end
 	DoneObject(self)
 end
 

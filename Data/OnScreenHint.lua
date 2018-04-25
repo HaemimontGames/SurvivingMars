@@ -10,7 +10,8 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "HintBuildingUpgrade",
 	'title', T{8763, --[[OnScreenHint HintBuildingUpgrade title]] "Building Upgrade Available"},
-	'text', T{8764, --[[OnScreenHint HintBuildingUpgrade text]] "To order the construction of a building upgrade, press the upgrade button located at the top right corner of the building infopanel.\nPress <RT> while the building is selected and use <DPadRight> to navigate to the upgrade button."},
+	'text', T{8848, --[[OnScreenHint HintBuildingUpgrade text]] "To order the construction of a building upgrade, press the upgrade button located at the top right corner of the building infopanel."},
+	'gamepad_text', T{8849, --[[OnScreenHint HintBuildingUpgrade gamepad_text]] "To order the construction of a building upgrade, press the upgrade button located at the top right corner of the building infopanel.\nPress <RT> while the building is selected and use <DPadRight> to navigate to the upgrade button."},
 })
 
 PlaceObj('OnScreenHint', {

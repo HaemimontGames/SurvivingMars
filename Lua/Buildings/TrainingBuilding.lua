@@ -181,6 +181,10 @@ function TrainingBuilding:GetWorstVisitor(unit, shift)
 	end
 end
 
+function TrainingBuilding:CheckServicedDome()
+	return self.parent_dome
+end
+
 function TrainingBuilding:FindFreeSlotForced(shift)
 	for i = 1, 3 do
 		if self:HasFreeTrainSlots(shift) then
@@ -230,11 +234,6 @@ end
 function TrainingBuilding:FireWorker(worker, shift, idx)
 	worker:GetFired()
 	RebuildInfopanel(self)
-end
-
-function TrainingBuilding:BindWorker(worker, shift, idx)
-	assert(worker.workplace==self)
-	worker.lock_workplace = true
 end
 
 function TrainingBuilding:CheckForVisitors()

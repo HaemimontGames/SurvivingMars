@@ -33,6 +33,10 @@ function DroneBase:Done()
 	self:UpdateMoving()
 end
 
+function DroneBase:SetCommandUserInteraction(...)
+	self:SetCommand(...)
+end
+
 function DroneBase:StartMoving()
 	self.moving = true
 	if not self.fx_moving_target then
@@ -75,9 +79,6 @@ function DroneBase:GetColdPenalty()
 	local max_heat = const.MaxHeat
 	local heat = GetHeatAt(self)
 	return MulDivRound(100, max_heat - heat, max_heat)
-end
-
-function DroneBase:MarkLastUserGotoCommand(val)
 end
 
 function DroneBase:OnInteractionModeChanged(old, new)
@@ -283,7 +284,7 @@ function DroneBase:GetLogicalPos()
 end
 
 function DroneBase:UseTunnel(tunnel)
-	self:GotoSameDomeAsObj(tunnel)
+	self:ExitHolder(tunnel)
 
 	local pos = select(2, tunnel:GetEntrance(self, "tunnel_entrance"))
 	if not pos or not self:Goto_NoDestlock(pos) or not IsValid(tunnel) then

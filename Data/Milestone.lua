@@ -101,7 +101,7 @@ PlaceObj('Milestone', {
 	Complete = function (self)
 	while true do
 		local ok, tech_id, city = WaitMsg("TechResearched")
-		if TechDef[tech_id] and TechDef[tech_id].field == "Breakthroughs" and GameTime()>1 then
+		if TechDef[tech_id] and TechDef[tech_id].field == "Breakthroughs" and GameTime() > 1 then --Doesn't trigger the Milestone for Breakthrough at game start (when the breakthrough is granted by sponsor/commanders)
 			return true
 		end
 	end
@@ -201,5 +201,17 @@ end,
 	display_name = T{781931111320, --[[Milestone Default ConstructWonder display_name]] "Constructed a Wonder"},
 	group = "Default",
 	id = "ConstructWonder",
+})
+
+PlaceObj('Milestone', {
+	Complete = function (self, city)
+	return Milestone_WorkshopWorkersPercent(city, 40)
+end,
+	SortKey = 16000,
+	bonus_score = 3000,
+	bonus_score_expiration = 300,
+	display_name = T{590068197487, --[[Milestone Default WorkersInWorkshops display_name]] "40% Workers in Workshops"},
+	group = "Default",
+	id = "WorkersInWorkshops",
 })
 

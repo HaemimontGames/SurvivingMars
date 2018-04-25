@@ -52,6 +52,10 @@ DefineClass.SubsurfaceDepositMarker = {
 	},
 }
 
+function SubsurfaceDepositMarker:GetDepthClass()
+	return self.depth_layer <= 1 and "subsurface" or "deep"
+end
+
 function SubsurfaceDepositMarker:GetEstimatedAmount()
 	return self.max_amount
 end

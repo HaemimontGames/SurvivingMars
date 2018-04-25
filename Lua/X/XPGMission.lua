@@ -37,12 +37,34 @@ local function MissionParamCombo(id)
 				rollover = GetEntryRollover(v)
 			end
 			items[#items + 1] = {
-				value = v.name,
+				value = rawget(v, "name") or rawget(v, "id"),
 				text = v.display_name,
 				rollover = rollover,
 				image = id == "idMissionLogo" and v.image,
 			}
 		end
+	end
+	return items
+end
+
+local function MissionParamComboGameRules()
+	local items = {}
+	for k,v in ipairs(MissionParams["idGameRules"].items) do
+		local lines = {}
+		local rollover = {title = v.display_name}
+		lines[#lines + 1] = v.description
+		rollover.descr = table.concat(lines, "\n")
+		if v.flavor and v.flavor ~= "" then
+			rollover.descr = rollover.descr .. "\n\n" .. v.flavor
+		end
+		rollover.id = rollover.title
+		rollover.gamepad_hint = T{3545, "<ButtonA> Select"}
+		items[#items + 1] = {
+				value = v.id,
+				text = v.display_name,
+				rollover = rollover,
+				game_rule = true,
+			}
 	end
 	return items
 end
@@ -54,13 +76,14 @@ DefineClass.PGMissionObject = {
 		{id = "idCommanderProfile", name = T{3478, "Commander Profile"}, title = T{3479, "COMMANDER PROFILE"}, descr = T{3480, "The mission commander grants various benefits to the colony."}, gamepad_hint = T{3481, "<ButtonA> Choose Commander"}, editor = "dropdown", default = "", items = function() return MissionParamCombo("idCommanderProfile") end, submenu = true, },
 		{id = "idMissionLogo", name = T{3482, "Colony Logo"}, title = T{3483, "COLONY LOGO"}, descr = T{3484, "This is an aesthetic choice that has no effect on gameplay."}, gamepad_hint = T{3485, "<ButtonA> Choose Logo"}, editor = "dropdown", default = "", items = function() return MissionParamCombo("idMissionLogo") end, submenu = true, },
 		{id = "idMystery", name = T{3486, "Mystery"}, title = T{3487, "MYSTERY"}, descr = T{3488, "Select an active storyline for this playthrough."}, gamepad_hint = T{3489, "<ButtonA> Choose Mystery"}, editor = "dropdown", default = "", items = function() return MissionParamCombo("idMystery") end, submenu = true, },
+		{id = "idGameRules", name = T{8800, "Game Rules"}, title = T{8801, "GAME RULES"}, descr = T{8804, "Select game rules you want to activate for this playthrough."}, gamepad_hint = T{8903, "<ButtonA> Choose Game Rules"}, editor = "dropdown", default = "", items = function() return MissionParamComboGameRules() end, submenu = true, },
 	},
 }
 
 function PGMissionObject:GetRollover(item)
 	local id = item.id
 	if id == "idMissionSponsor" or id == "idCommanderProfile" then
-		local entry = table.find_value(MissionParams[id].items, "name", self[id])
+		local entry = table.find_value(MissionParams[id].items, "id", self[id])
 		local descr = item.descr
 		local effect = entry and entry.effect or ""
 		if effect ~= "" then
@@ -74,6 +97,13 @@ function PGMissionObject:GetRollover(item)
 		return {
 			title = item.title,
 			descr = descr,
+			gamepad_hint = item.gamepad_hint,
+		}
+	end
+	if id == "idGameRules" then
+		return {
+			title = item.title,
+			descr = item.descr .. "\n\n" .. GetGameRulesNames(),
 			gamepad_hint = item.gamepad_hint,
 		}
 	end
@@ -343,6 +373,10 @@ function RocketPayloadObject:IsBlacklisted(prop_meta)
 		return fully_scanned
 	end
 	
+	if prop_meta.id == "Food" and IsGameRuleActive("Hunger") then
+		return true
+	end
+	
 	if g_ImportLocks[prop_meta.id] and next(g_ImportLocks[prop_meta.id]) ~= nil then
 		return true
 	end
@@ -420,7 +454,9 @@ function RocketPayloadObject:RenameRocket(host)
 end
 
 function RocketPayloadObject:PassengerRocketDisabledRolloverTitle()
-	if not AreNewColonistsAccepted() then
+	if IsGameRuleActive("TheLastArk") then
+		return T{972855831022, "The Last Ark"}
+	elseif not AreNewColonistsAccepted() then
 		return T{8536, "Colonization Temporarily Suspended"}
 	else
 		return ""
@@ -428,8 +464,10 @@ function RocketPayloadObject:PassengerRocketDisabledRolloverTitle()
 end
 
 function RocketPayloadObject:PassengerRocketDisabledRolloverText()
-	if not AreNewColonistsAccepted() then
-		return T{8537, "<SponsorDisplayName> has to make sure the Colony is sustainable before allowing more Colonists to come to Mars. Make sure the Founders are supplied with Water, Oxygen, and Food for 10 Sols after they arrive on Mars.", SponsorDisplayName = GetMissionSponsor().display_name}
+	if IsGameRuleActive("TheLastArk") then
+		return T{860781390679, "Can call a Passenger Rocket only once."}
+	elseif not AreNewColonistsAccepted() then
+		return T{8537, "<SponsorDisplayName> has to make sure the Colony is sustainable before allowing more Colonists to come to Mars. Make sure the Founders are supplied with Water, Oxygen, and Food for 10 Sols after they arrive on Mars.", SponsorDisplayName = GetMissionSponsor().display_name or ""}
 	else
 		return T{8538, "Rockets unavailable."}
 	end

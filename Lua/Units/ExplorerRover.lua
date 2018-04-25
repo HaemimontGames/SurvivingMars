@@ -6,7 +6,6 @@ DefineClass.ExplorerRover = {
 	description = T{4455, "A remote-controlled exploration vehicle that can analyze Anomalies."},
 	display_icon = "UI/Icons/Buildings/rover_human.tga",
 	
-	pfclass = 1,
 	collision_radius = 540,
 	direction_arrow_scale = 260,
 	

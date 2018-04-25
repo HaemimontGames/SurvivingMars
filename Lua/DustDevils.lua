@@ -30,19 +30,28 @@ DefineClass.MapSettings_DustDevils =
 		{ id = "electro_battery",		name = "Electrostatic Battery",	editor = "number",	default = 50 * 100, category = "Devil Properties" },
 		{ id = "colonist_health",		name = "Colonist Health Loss",	editor = "number",	default = 100, category = "Devil Properties" },
 		{ id = "drone_speed_down",		name = "Drone Speed Down",			editor = "number",	default = 60, category = "Devil Properties" },
-		{ id = "marker_spawntime",		name = "Spawn Time",				editor = "number",	default = 20 * const.HourDuration, scale = const.HourDuration, help = "In Hours", category = "Dust Devil Markers" },
-		{ id = "marker_spawntime_random",	name = "Spawn Time Random",	editor = "number",	default = 10 * const.HourDuration, scale = const.HourDuration, help = "In Hours", category = "Dust Devil Markers" },
-		{ id = "marker_spawn_chance",	name = "Spawn Chance",				editor = "number",	default = 30, min = 1, max = 100, category = "Dust Devil Markers" },
-		{ id = "marker_duration",				name = "Duration",			editor = "number",	default = 8 * const.HourDuration, scale = const.HourDuration, help = "In Hours", category = "Dust Devil Markers" },
-		{ id = "marker_duration_random",	name = "Duration Random",		editor = "number",	default = 8 * const.HourDuration, scale = const.HourDuration, help = "In Hours", category = "Dust Devil Markers" },
-		{ id = "marker_speed",			name = "Speed",						editor = "number",	default = 3*guim, scale = guim, category = "Dust Devil Markers" },
-		{ id = "marker_speed_random",	name = "Speed Random",				editor = "number",	default = 3*guim, scale = guim, category = "Dust Devil Markers" },
-		{ id = "marker_major_chance",	name = "Major Chance",				editor = "number",	default = 10, min = 1, max = 100, category = "Dust Devil Markers" },
+		
+		{ id = "movement_range",          name = "Movement Range (m)",    editor = "number", default = 0, scale = guim, category = "Devil Properties", help = "Used only if positive to limit the movement range" },
+		
+		{ id = "marker_spawntime",        name = "Spawn Time (h)",        editor = "number", default = 20 * const.HourDuration, scale = const.HourDuration, category = "Dust Devil Markers" },
+		{ id = "marker_spawntime_random", name = "Spawn Time Random (h)", editor = "number", default = 10 * const.HourDuration, scale = const.HourDuration, category = "Dust Devil Markers" },
+		{ id = "marker_spawn_chance",     name = "Spawn Chance (%)",      editor = "number", default = 30, min = 1, max = 100, category = "Dust Devil Markers" },
 	},
 }
 
+ListDustDevilMajor = empty_table
+ListDustDevil = empty_table
+function OnMsg.ClassesBuilt()
+	ListDustDevilMajor = ClassLeafDescendantsList("DustDevilMajor")
+	ListDustDevil = ClassLeafDescendantsList("DustDevil")
+end
+
 function GenerateDustDevilClass(major)
-	return g_Classes[table.rand(ClassLeafDescendantsList(major and "DustDevilMajor" or "DustDevil"))]
+	local list = major and ListDustDevilMajor or ListDustDevil
+	local class = UICity:TableRand(list)
+	local classdef = class and g_Classes[class]
+	assert(class and classdef)
+	return classdef or DustDevil1
 end
 
 function GetDustDevilsDescr()
@@ -55,6 +64,7 @@ function GetDustDevilsDescr()
 end
 
 function GenerateDustDevilTrajectory(pos, duration, speed, range)
+	range = range or 0
 	local curve_step = 10 * guim
 	local check_step = guim / 2
 	local length = MulDivRound(speed, duration, 1000)
@@ -64,7 +74,7 @@ function GenerateDustDevilTrajectory(pos, duration, speed, range)
 	local dir = last - pos
 	for i = 3, count do
 		local new_dir = Rotate(SetLen(dir, curve_step), UICity:Random(-30 * 60, 30 * 60))
-		if range and pos:Dist(last + new_dir) > range then
+		if range > 0 and pos:Dist(last + new_dir) > range then
 			-- keep in range
 			for i = 1, 10 do
 				new_dir = Rotate(SetLen(dir, curve_step), UICity:Random(-30 * 60, 30 * 60))
@@ -99,6 +109,7 @@ function GenerateDustDevilTrajectory(pos, duration, speed, range)
 end
 
 function GenerateDustDevil(pos, descr, range, major)
+	range = range or descr.movement_range or 0
 	local duration = UICity:Random(descr.duration, descr.duration + descr.duration_random)
 	local speed = UICity:Random(descr.speed, descr.speed + descr.speed_random)
 	local major = pos and (major or (UICity:Random(100) < descr.major_chance))
@@ -125,7 +136,7 @@ function GenerateDustDevil(pos, descr, range, major)
 end
 
 function CreateDustDevilMarkerThread(descr, marker)
-	return CreateGameTimeThread(function(self)
+	return CreateGameTimeThread(function(self, descr)
 		local start_pos = self:GetPos()
 		local radius = self.FeatureRadius
 		local warning_time = descr.warning_time
@@ -143,7 +154,7 @@ function CreateDustDevilMarkerThread(descr, marker)
 			end
 		end
 		self.thread = false
-	end, marker)
+	end, marker, descr)
 end
 
 GlobalGameTimeThread("DustDevils", function()

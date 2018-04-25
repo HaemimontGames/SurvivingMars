@@ -224,7 +224,7 @@ PlaceObj('PopupNotificationPreset', {
 	'name', "Evaluation_Export_Great",
 	'title', T{7756, --[[PopupNotificationPreset Evaluation_Export_Great title]] "Mission Evaluation: The Pinnacle of Civilization"},
 	'voiced_text', T{8153, --[[voice:narrator]] "The Mission Evaluation is over – but the bright future is just ahead of us!"},
-	'text', T{7760, --[[PopupNotificationPreset Evaluation_Export_Great text]] "With the spectacular achievements of our mining and export endeavor there’s hardly anyone who believes that the concept of interplanetary commerce is a laughing matter.\n\nThe ample amounts of Rare Metals we’ve sent to Earth will make money flow towards Mars – and we all know that where money flows, people follow. Not many a generations would pass before the space between the Blue and the Red planets fills with the buys traffic of rockets carrying back and forth shipments and settlers.\n\nA toast to that!\n\n<effect>Mission Evaluation objective completed – you have exported <count> Rare Metals out of the target <target>. Final score: <Score>."},
+	'text', T{7760, --[[PopupNotificationPreset Evaluation_Export_Great text]] "With the spectacular achievements of our mining and export endeavor there’s hardly anyone who believes that the concept of interplanetary commerce is a laughing matter.\n\nThe ample amounts of Rare Metals we’ve sent to Earth will make money flow towards Mars – and we all know that where money flows, people follow. Not many a generations would pass before the space between the Blue and the Red planets fills with the busy traffic of rockets carrying back and forth shipments and settlers.\n\nA toast to that!\n\n<effect>Mission Evaluation objective completed – you have exported <count> Rare Metals out of the target <target>. Final score: <Score>."},
 	'image', "UI/Messages/outsource.tga",
 })
 
@@ -623,12 +623,30 @@ PlaceObj('PopupNotificationPreset', {
 })
 
 PlaceObj('PopupNotificationPreset', {
+	'name', "ColonyViabilityExit_MartianBorn_LastArk",
+	'title', T{5756, --[[PopupNotificationPreset ColonyViabilityExit_MartianBorn_LastArk title]] "The Door towards the Stars"},
+	'voiced_text', T{7126, --[[voice:narrator]] "For the first time, a human has been born on Mars. It's truly a unique miracle."},
+	'text', T{8856, --[[PopupNotificationPreset ColonyViabilityExit_MartianBorn_LastArk text]] "The Colonists have always felt like a family. But what makes the family stronger and more united is the promise of new life and better future. We have truly been blessed with a rewarding responsibility – to carry the torch of hope.\n\nLet this blooming of life serve as a symbol for all humans. Mars is no longer a dead world.\n\n<effect> The Colony has been evaluated positively. You can't call anymore colonists from Earth due to the Last Ark game rule."},
+	'image', "UI/Messages/birth.tga",
+	'choice1', T{6294, --[[PopupNotificationPreset ColonyViabilityExit_MartianBorn_LastArk choice1]] "OK"},
+})
+
+PlaceObj('PopupNotificationPreset', {
 	'name', "ColonyViabilityExit_Delay",
 	'title', T{5756, --[[PopupNotificationPreset ColonyViabilityExit_Delay title]] "The Door towards the Stars"},
 	'voiced_text', T{7128, --[[voice:narrator]] "This will go down in history."},
 	'text', T{5758, --[[PopupNotificationPreset ColonyViabilityExit_Delay text]] "The long-time dream of the human civilization as a whole – to settle another world – has come true. To be among the people who made this happen makes me feel enthusiastic and proud.\n\nWe are already swarmed with applications for relocation on Mars and the wanderlust and enthusiasm of these people makes me proud to be a human being. The Red Planet continues to be inhospitable and even dangerous but we as a species had always displayed the ability to adapt and improve – the adverse conditions will only make us try harder. So I say bring it on!\n\n<effect> The Colony has been evaluated positively. Additional Colonists can be called from Earth."},
 	'image', "UI/Messages/hints.tga",
 	'choice1', T{5759, --[[PopupNotificationPreset ColonyViabilityExit_Delay choice1]] "Looks live we’ve got a serious adventure ahead of us!"},
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "ColonyViabilityExit_Delay_LastArk",
+	'title', T{5756, --[[PopupNotificationPreset ColonyViabilityExit_Delay_LastArk title]] "The Door towards the Stars"},
+	'voiced_text', T{7128, --[[voice:narrator]] "This will go down in history."},
+	'text', T{8857, --[[PopupNotificationPreset ColonyViabilityExit_Delay_LastArk text]] "The long-time dream of the human civilization as a whole – to settle another world – has come true. To be among the people who made this happen makes me feel enthusiastic and proud.\n\nWe are already swarmed with applications for relocation on Mars and the wanderlust and enthusiasm of these people makes me proud to be a human being. The Red Planet continues to be inhospitable and even dangerous but we as a species had always displayed the ability to adapt and improve – the adverse conditions will only make us try harder. So I say bring it on!\n\n<effect> The Colony has been evaluated positively. You can't call anymore colonists from Earth due to the Last Ark game rule."},
+	'image', "UI/Messages/hints.tga",
+	'choice1', T{5759, --[[PopupNotificationPreset ColonyViabilityExit_Delay_LastArk choice1]] "Looks live we’ve got a serious adventure ahead of us!"},
 })
 
 PlaceObj('PopupNotificationPreset', {
@@ -665,6 +683,7 @@ PlaceObj('PopupNotificationPreset', {
 	'choice1', T{1138, --[[PopupNotificationPreset ExitToMainMenu choice1]] "Yes"},
 	'choice2', T{1139, --[[PopupNotificationPreset ExitToMainMenu choice2]] "No"},
 })
+
 
 PlaceObj('PopupNotificationPreset', {
 	'name', "AutosaveFailedNoSpace",

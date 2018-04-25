@@ -1,6 +1,7 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 PlaceObj('XTemplate', {
+	__is_kind_of = "XPropControl",
 	group = "PreGame",
 	id = "PropCheckbox",
 	PlaceObj('XTemplateWindow', {

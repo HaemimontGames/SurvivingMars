@@ -213,7 +213,10 @@ function DroneFactory:SpawnAndroid(delay)
 	colonist_table.dome = self.parent_dome
 	colonist_table.current_dome = self.parent_dome
 	colonist_table.traits["Android"] = true
-	colonist_table.specialist = "none"
+	local spec = colonist_table.specialist
+	colonist_table.traits[spec]=nil
+	colonist_table.traits["none"]=true
+	colonist_table.specialist="none"	
 	local colonist = Colonist:new(colonist_table)
 	self:OnEnterUnit(colonist)
 	self:UpdateUI()

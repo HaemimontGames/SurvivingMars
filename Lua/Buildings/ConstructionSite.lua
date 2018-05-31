@@ -620,12 +620,12 @@ function ConstructionSite:SetConstructionSiteEntity()
 	local entity = self:PickEntity()
 	self:ChangeEntity(entity)
 	AttachDoors(self, entity)
+	local palettes = self.dome_skin and self.dome_skin.palettes or BuildingPalettes[self.building_class_proto.template_name]
+	palettes = type(palettes) == "table" and palettes[1] or palettes
 	
-	local palettes = BuildingPalettes[self.building_class_proto.template_name] 
-	if palettes and palettes[1] and EntityPalettes[palettes[1]] then
-		Building.SetPalette(self, palettes[1])
+	if palettes and EntityPalettes[palettes] then
+		CreateGameTimeThread(Building.SetPalette, self, palettes)
 	end
-	
 end
 
 function ConstructionSite:GatherConstructionResources()
@@ -865,9 +865,22 @@ function ConstructionSite:CreateResourceStockpile()
 		table.insert(storable_resources, r_n)
 	end
 	
-	self.resource_stockpile = PlaceObject("SharedStorageBaseVisualOnly", {storable_resources = storable_resources, count_in_resource_overview = false}, const.cfComponentAttach)
+	local stock = PlaceObject("SharedStorageBaseVisualOnly", {storable_resources = storable_resources, count_in_resource_overview = false}, const.cfComponentAttach)
+	self:Attach(stock, self:GetSpotBeginIndex("idle", self:HasSpot(self.resource_stockpile_spot) and self.resource_stockpile_spot or "Origin"))
+	self.resource_stockpile = stock
 	
-	self:Attach(self.resource_stockpile, self:GetSpotBeginIndex("idle", self:HasSpot(self.resource_stockpile_spot) and self.resource_stockpile_spot or "Origin"))
+	self:Notify("BootVisualStockpileAmounts")
+end
+
+function ConstructionSite:BootVisualStockpileAmounts()
+	local stock = self.resource_stockpile
+	local costs_at_start = self.construction_costs_at_start
+	local supplied = self.supplied
+	for resource, request in pairs(self.construction_resources) do
+		local amount = costs_at_start[resource]
+		local amount_to_stock = amount - (supplied and 0 or request:GetActualAmount())
+		stock:AddResource(amount_to_stock, resource)
+	end
 end
 
 function ConstructionSite:DestroyResourceStockpile()
@@ -1073,9 +1086,13 @@ end
 function ConstructionSite:DroneApproach(drone, resource, is_closest)
 	if self.construction_group and not is_closest then
 		local ldr = self.construction_group[1]
-		local closest_obj = FindNearestObject(ldr.drop_offs or self.construction_group, drone:GetPos():SetInvalidZ(), self.construction_group[1])
-		assert(closest_obj, "leaked constr grp leader?")
-		return closest_obj and closest_obj:DroneApproach(drone, resource, true) or false
+		if ldr.use_group_goto then
+			return drone:GotoBuildingsSpot({table.unpack(self.construction_group, 2)}, drone.work_spot_task)
+		else
+			local closest_obj = FindNearestObject(ldr.drop_offs or self.construction_group, drone:GetPos():SetInvalidZ(), self.construction_group[1])
+			assert(closest_obj, "leaked constr grp leader?")
+			return closest_obj and closest_obj:DroneApproach(drone, resource, true) or false
+		end
 	end
 	
 	local class = self.building_class_proto
@@ -1216,8 +1233,18 @@ function ConstructionSite:Complete(quick_build) --quick_build - cheat build
 		self:OnQuickBuild()
 	end
 	
-		
-	local bld = PlaceBuilding(self.building_class, {city = self.city, init_with_skin = self.dome_skin, name = self.name},{alternative_entity = self.alternative_entity or self:GetEntity()})
+	local instance = {
+		city = self.city,
+		init_with_skin = self.dome_skin,
+		name = self.name,
+		orig_terrain1 = self.orig_terrain1 or nil,
+		orig_terrain2 = self.orig_terrain2 or nil,
+	}
+	local params = {
+		alternative_entity = self.alternative_entity or self:GetEntity(),
+	}
+
+	local bld = PlaceBuilding(self.building_class, instance, params)
 	bld:SetAngle(self:GetAngle())
 	bld:SetPos(self:GetPos())
 	local dome = IsObjInDome(self)
@@ -1305,7 +1332,7 @@ function ConstructionSite:ReturnResources()
 	for _, resource in ipairs(ConstructionResourceList) do
 		local amount = self.construction_costs_at_start and self.construction_costs_at_start[resource] or 0
 		if amount > 0 then
-			PlaceResourceStockpile_Delayed(self:GetPos(), resource, amount - (self.supplied and 0 or self.construction_resources[resource]:GetActualAmount()), self:GetAngle(), true)
+			self:PlaceReturnStockpile(resource, amount - (self.supplied and 0 or self.construction_resources[resource]:GetActualAmount()))
 		end
 	end
 	
@@ -1471,6 +1498,10 @@ function ConstructionSite:UpdateNoCCSign()
 	Building.UpdateNoCCSign(self)
 end
 
+function ConstructionSite:GetConstructionGroupLeader()
+	return self.construction_group and self.construction_group[1] or self
+end
+
 DefineClass.ConstructionSiteWithHeightSurfaces = {
 	__parents = { "ConstructionSite" },
 	class_flags = { cfNoHeightSurfs = false },
@@ -1525,7 +1556,7 @@ function RemoveUnderConstruction(obj)
 			area = obj, arearadius = dist, enum_flags_all = const.efRemoveUnderConstruction,
 			exec = function(o)
 				-- test if the object is on one of the building's hexes
-				local q, r = WorldToHex(o:GetPos())
+				local q, r = WorldToHex(o)
 				local remove
 				HexGridGetObjects(ObjectGrid, q, r, nil, nil, function(o2) 
 					if o2 == obj then
@@ -1827,6 +1858,7 @@ DefineClass.ConstructionGroupLeader = {
 	place_stockpile = false,
 	drop_offs = false,
 	per_object_bbox = false,
+	use_group_goto = true,
 	
 	construction_cost_multiplier = 100, --groups cost exactly as much as 1 element, use this to change that
 	
@@ -2037,13 +2069,14 @@ if Platform.developer and debug_constr_grp_leaders then
 		print("leader removed, total leaders:", #all_construction_group_leaders)
 	end
 	
-	function CreateConstructionGroup(input_building_class, pos, prio, instabuild, per_object_bbox)
+	function CreateConstructionGroup(input_building_class, pos, prio, instabuild, per_object_bbox, use_group_goto)
 		local construction_group = {}
 		local obj = PlaceObject("ConstructionGroupLeader", {
 			construction_group = construction_group, 
 			priority = prio or 2, 
 			instant_build = instabuild or false,
-			per_object_bbox = per_object_bbox})
+			per_object_bbox = per_object_bbox,
+			use_group_goto = use_group_goto})
 		obj:SetBuildingClass(input_building_class)
 		obj:SetPos(pos)
 		all_construction_group_leaders[#all_construction_group_leaders + 1] = obj
@@ -2052,13 +2085,14 @@ if Platform.developer and debug_constr_grp_leaders then
 		return construction_group
 	end
 else
-	function CreateConstructionGroup(input_building_class, pos, prio, instabuild, per_object_bbox)
+	function CreateConstructionGroup(input_building_class, pos, prio, instabuild, per_object_bbox, use_group_goto)
 		local construction_group = {}
 		local obj = PlaceObject("ConstructionGroupLeader", {
 			construction_group = construction_group, 
 			priority = prio or 2, 
 			instant_build = instabuild or false,
-			per_object_bbox = per_object_bbox})
+			per_object_bbox = per_object_bbox,
+			use_group_goto = use_group_goto})
 		obj:SetBuildingClass(input_building_class)
 		obj:SetPos(pos)
 		construction_group[1] = obj
@@ -2189,9 +2223,13 @@ end
 
 function ConstructionSite:GetIPStatus()
 	if not self:IsBlockerClearenceCompleteUIOnly() then
-		return T{627, "The construction site is being cleared."} ..
-			"<newline>" ..
-			self:GetResourceProgress()
+		local ret = T{627, "The construction site is being cleared."}
+		if not self.construction_group or not self.construction_group[1].instant_build then
+			ret = ret .. 
+					"<newline>" ..
+					self:GetResourceProgress()
+		end
+		return ret
 	elseif self:IsWaitingResources() then
 		return self:GetResourceProgress()
 	end

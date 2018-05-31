@@ -57,7 +57,6 @@ function School:SetTrait(idx, traitname, broadcast)
 	end
 	self["trait"..idx] = traitname
 	--self:UpdateVisitors()
-	self:UpdateUI()
 	ObjModified(self)
 end
 

@@ -1,6 +1,12 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 PlaceObj('MissionSponsorPreset', {
+	filter = function (self) return false end,
+	group = "Default",
+	id = "None",
+})
+
+PlaceObj('MissionSponsorPreset', {
 	Drone = 6,
 	DroneHub = 1,
 	Electronics = 10,
@@ -416,6 +422,8 @@ PlaceObj('MissionSponsorPreset', {
 	group = "Default",
 	id = "Roscosmos",
 	initial_techs_unlocked = 1,
+	lock_name1 = "RCDriller",
+	lock_value1 = "unlocked",
 	modifier_name1 = "FuelFactory",
 	modifier_value1 = -50,
 	sponsor_nation_name1 = "Russian",

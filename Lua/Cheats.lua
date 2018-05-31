@@ -6,16 +6,16 @@ function CheatMapExplore(status)
 	if #g_MapSectors == 0 then
 		return
 	end
-	CreateGameTimeThread(function()
-		local old = IsDepositObstructed
-		IsDepositObstructed = empty_func
-		for x = 1, const.SectorCount do
-			for y = 1, const.SectorCount do
-				g_MapSectors[x][y]:Scan(status)
-			end
+	SuspendPassEdits("CheatMapExplore")
+	local old = IsDepositObstructed
+	IsDepositObstructed = empty_func
+	for x = 1, const.SectorCount do
+		for y = 1, const.SectorCount do
+			g_MapSectors[x][y]:Scan(status)
 		end
-		IsDepositObstructed = old
-	end)
+	end
+	IsDepositObstructed = old
+	ResumePassEdits("CheatMapExplore")
 end
 
 local function GetCameraLookAtPassable()

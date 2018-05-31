@@ -139,7 +139,7 @@ function WasteRockObstructor:CreateResourceRequests()
 end
 
 function WasteRockObstructor:IsUnderneathConstruction() 
-	local q, r = WorldToHex(self:GetPos())
+	local q, r = WorldToHex(self)
 	local constr_site = HexGridGetObject(ObjectGrid, q, r, "ConstructionSite")
 	return constr_site
 end
@@ -164,7 +164,7 @@ end
 
 function WasteRockObstructor:Deactivate(activator)
 	table.remove_entry(self.parent_construction, activator)
-	if #self.parent_construction == 0 and self.work_req[6] == self.max_workers then --no drones incoming, we can deactivate
+	if #self.parent_construction == 0 and self.work_req:GetFreeUnitSlots() == self.max_workers then --no drones incoming, we can deactivate
 		local amount = (self.amount_of_waste_rock / const.ResourceScale) * self.drone_work_points_per_waste_rock
 		if self.work_req:GetTargetAmount() == self.work_req:GetActualAmount() and amount == self.work_req:GetTargetAmount() then --noone has ever worked us.
 			self.auto_connect = false
@@ -403,6 +403,11 @@ function WasteRockStockpileBase:DisconnectFromParent()
 	ResourceStockpileBase.DisconnectFromParent(self)
 	if not self.has_supply_request then
 		assert(self.resource == "WasteRock" and not self.has_demand_request) --make sure its the fringe case we think it is.
+		local mt = getmetatable(self)
+		self.max_x = mt.max_x
+		self.max_y = mt.max_y
+		self.max_z = mt.max_z
+		self:SetEnumFlags(const.efApplyToGrids)
 		--become a dump site, just like the ones drones create.
 		self:DisconnectFromCommandCenters()
 		self.has_supply_request = true
@@ -530,7 +535,7 @@ function WasteRockDumpSite:CreateResourceRequests()
 	Building.CreateResourceRequests(self)
 	self.demand = {}
 	self.supply = {}
-	self.demand["WasteRock"] = self:AddDemandRequest("WasteRock", self.max_amount_WasteRock, const.rfStorageDepot)
+	self.demand["WasteRock"] = self:AddDemandRequest("WasteRock", self.max_amount_WasteRock, const.rfStorageDepot + const.rfRestrictorWasteRockDump)
 	if g_WasteRockLiquefaction then
 		self.supply["Concrete"] = self:AddSupplyRequest("Concrete", 0, const.rfWaitToFill)
 	end
@@ -579,6 +584,10 @@ function WasteRockDumpSite:DroneUnloadResource(drone, request, resource, amount)
 			self.supply["Concrete"]:AddAmount(amount / ratio)
 		end
 		self:SetCount(count)
+		
+		if drone and drone.command_center then
+			drone.command_center:UpdateDumps()
+		end
 	end
 end
 

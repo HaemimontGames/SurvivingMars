@@ -18,6 +18,7 @@ PlaceObj('XTemplate', {
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XToolBar",
+			'Id', "idToolBar",
 			'HAlign', "right",
 			'VAlign', "bottom",
 			'LayoutHSpacing', 60,

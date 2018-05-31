@@ -19,9 +19,7 @@ PlaceObj('XTemplate', {
 			'name', "OnSetRollover(self, rollover)",
 			'func', function (self, rollover)
 XWindow.OnSetRollover(self, rollover)
-	if self.idSectionTitle.visible then
-		self.idRollover2:SetVisible(rollover)
-	end
+self.idRollover2:SetVisible(self.idSectionTitle.visible and rollover)
 end,
 		}),
 		PlaceObj('XTemplateWindow', {
@@ -49,7 +47,7 @@ end,
 				'__class', "XImage",
 				'Id', "idRollover2",
 				'IdNode', false,
-				'Margins', box(0, 22, 0, -8),
+				'Margins', box(0, 32, 0, -8),
 				'VAlign', "top",
 				'Visible', false,
 				'Image', "UI/Infopanel/section _shine.tga",
@@ -85,7 +83,7 @@ end,
 			}),
 		PlaceObj('XTemplateWindow', {
 			'Id', "idContent",
-			'Margins', box(2, 0, 20, 0),
+			'Margins', box(2, 5, 20, 0),
 		}, {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelSectionTitle",

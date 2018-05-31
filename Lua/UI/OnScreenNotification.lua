@@ -44,7 +44,7 @@ end
 
 DefineClass.OnScreenNotification =
 {
-	__parents = {"XDialog"},
+	__parents = {"XDrawCacheDialog"},
 	LayoutMethod = "HList",
 	FocusOnOpen = "",
 	RolloverOnFocus = true,
@@ -169,9 +169,19 @@ function OnScreenNotification:OnSetRollover(rollover)
 	end
 end
 
+function OnScreenNotification:OnMouseEnter(pos)
+	if GetUIStyleGamepad() then return end
+	local igi = GetInGameInterface()
+	local dlg = igi and igi.mode_dialog
+	if dlg and dlg:IsKindOf("UnitDirectionModeDialog") and dlg.unit then
+		dlg:HideMouseCursorText(pos)
+	end	
+	return XDialog.OnMouseEnter(self, pos)
+end
+
 function OnScreenNotification:OnSetFocus()
 	XDialog.OnSetFocus(self)
-	local parent = GetDialog(self.parent)
+	local parent = GetXDialog(self.parent)
 	parent.gamepad_selection = self:GetFocusOrder():y()
 	parent:UpdateRollover()
 end
@@ -179,7 +189,7 @@ end
 function OnScreenNotification:OnShortcut(shortcut, source)
 	if shortcut == "ButtonA" then
 		self.idButton:Press()
-		GetDialog(self.parent):SetFocus(false, true)
+		GetXDialog(self.parent):SetFocus(false, true)
 		return "break"
 	elseif shortcut == "ButtonX" then
 		self.idButton:Press(true)

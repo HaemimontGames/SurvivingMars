@@ -17,7 +17,7 @@ local RCRoverColorModifiers = {
 
 DefineClass.RCRover =
 {
-	__parents = { "RechargeStationBase", "BaseRover", "ComponentAttach", "PinnableObject", "DroneControl", "SkinChangeable" },
+	__parents = { "RechargeStationBase", "BaseRover", "ComponentAttach", "DroneControl" },
 	
 	entity = "DroneTruck",
 	work_spot_task = "Workrover",
@@ -44,10 +44,7 @@ DefineClass.RCRover =
 	
 	-- pin section
 	pin_rollover = T{4478, "<description><newline><newline>Current status: <DronesStatusText><newline>Drones<right><drone(DronesCount)>"},
-	pin_summary1 = T{4479, "<DronesCount><icon_Drone_small>"},
-	pin_progress_value = "",
-	pin_progress_max = "",
-	pin_on_start = true,
+	pin_summary2 = T{4479, "<DronesCount><icon_Drone_small>"},
 		
 	work_speed_modifier = 100, --0->100, used for "body damage"
 	rough_terrain_modifier = false,
@@ -85,6 +82,9 @@ DefineClass.RCRover =
 	palettes = { "RCRover" },
 	
 	affected_by_no_battery_tech = true,
+	
+	Getavailable_drone_prefabs = Building.Getavailable_drone_prefabs,
+	exit_drones_thread = false,
 }
 
 function RCRover:Init()
@@ -133,6 +133,12 @@ function RCRover:SpawnDrone()
 	local drone = Drone:new{ city = self.city, init_with_command = false }
 	drone:SetCommandCenter(self)
 	self:DroneEnter(drone, true)
+	
+	if self.siege_state_name == "Siege" then
+		self:ExitDronesOutOfCommand()
+	end
+	
+	return true
 end
 
 --recharge station funcs
@@ -178,18 +184,14 @@ end
 --embark funcs, drone shoul be @ droneentrance spot for visuals to make sense.
 function RCRover:DroneEnter(drone, skip_visuals)
 	assert(#self.attached_drones <= self:GetMaxDrones())
-	assert(table.find(self.drones, drone) ~= nil)
-	assert(self.guided_drone == false or self.guided_drone == drone)
+	assert(drone.command == "DespawnAtHub" or table.find(self.drones, drone) ~= nil)
+	assert(skip_visuals or (self.guided_drone == false or self.guided_drone == drone))
 	assert(IsValid(self) and IsValid(drone))
 	
-	self.guided_drone = drone
+	self.guided_drone = not skip_visuals and drone or self.guided_drone
 	
 	if drone.demolishing then
 		drone:ToggleDemolish()
-	end
-	
-	if not skip_visuals then
-		table.insert(self.embarking_drones, drone)
 	end
 	
 	local attach_spot_idx = self:GetSpotBeginIndex(self.drone_attach_spot)
@@ -199,6 +201,18 @@ function RCRover:DroneEnter(drone, skip_visuals)
 		local p = self:GetSpotLoc(attach_spot_idx)
 		drone:Face(p, 100)
 		drone:SetPos(p:SetZ(drone:GetVisualPos():z()), GetAnimDuration(drone:GetEntity(), "roverEnter") - 1)
+		table.insert(self.embarking_drones, drone)
+		local is_in_drone_command_thread = CurrentThread() == drone.command_thread
+		if is_in_drone_command_thread then
+			drone:PushDestructor(function(drone)
+				if not IsValid(drone) then
+					if self.guided_drone == drone then self.guided_drone = false end
+					table.remove_entry(self.embarking_drones, drone)
+					self:WakeFromWaitingOnDroneToEnterOrExit()
+					self:WakeFromUnsiegeMode()
+				end
+			end)
+		end
 		
 		if self.guided_drone == drone then --clean drone early for faster drone embarkment.
 			self.guided_drone = false
@@ -212,12 +226,14 @@ function RCRover:DroneEnter(drone, skip_visuals)
 		end
 		
 		drone:PlayState("roverEnter", 1, const.eDontCrossfade)
-		if not IsValid(drone) then
+		if not is_in_drone_command_thread and not IsValid(drone) then
 			if self.guided_drone == drone then self.guided_drone = false end
 			table.remove_entry(self.embarking_drones, drone)
 			self:WakeFromWaitingOnDroneToEnterOrExit()
 			self:WakeFromUnsiegeMode()
 			return
+		elseif is_in_drone_command_thread then
+			drone:PopDestructor()
 		end
 		drone:SetState("idle", const.eDontCrossfade)
 	end
@@ -258,12 +274,15 @@ end
 function RCRover:DroneExit(drone, skip_visuals)
 	assert(table.find(self.attached_drones, drone))
 	assert(self.command_thread ~= CurrentThread())
-
-	self.guided_drone = drone
+	assert(skip_visuals or (self.guided_drone == false or self.guided_drone == drone))
+	
+	self.guided_drone = not skip_visuals and drone or self.guided_drone
 	table.remove_entry(self.attached_drones, drone)
 	drone:Detach()
 	drone:PushDestructor(function(drone)
-		self.guided_drone = false
+		if self.guided_drone == drone then
+			self.guided_drone = false
+		end
 		self:WakeFromWaitingOnDroneToEnterOrExit()
 	end)
 	
@@ -451,7 +470,7 @@ function RCRover:Siege(do_not_halt) --wip name
 		end
 		
 		--if a drone is currently exiting, wait up
-		if self.guided_drone then --wait for exiting drone to exit
+		if self.guided_drone or #self.embarking_drones > 0 then --wait for exiting drone to exit
 			while not WaitWakeup(10000) do end
 		end
 		
@@ -465,22 +484,49 @@ function RCRover:Siege(do_not_halt) --wip name
 		end
 	end)
 	
-	for i = #self.attached_drones, 1, -1 do
-		local drone = self.attached_drones[i]
-		if drone.command_center ~= self then
-			--damage control, this should never happen
-			assert(false, "Rover has foreign drones attached")
-			drone:Detach()
-		else
-			drone:SetCommand("ExitRover", self)
-			while not WaitWakeup(10000) do end
-		end
-	end
-	
+	self:ExitAllDrones()
 	self:WakeControlCenterUpdateThread()
 	
 	if not do_not_halt and self.command_thread == CurrentThread() then
 		Halt()
+	end
+end
+
+function RCRover:ExitDronesOutOfCommand()
+	if not self.exit_drones_thread then
+		self.exit_drones_thread = CreateGameTimeThread(RCRover.ExitAllDrones, self)
+	end
+end
+
+function RCRover:ExitAllDrones()
+	if self.exit_drones_thread and self.exit_drones_thread ~= CurrentThread() then
+		DeleteThread(self.exit_drones_thread)
+		self.exit_drones_thread = CurrentThread()
+	end
+	
+	while #self.attached_drones > 0 and self.siege_state_name == "Siege" do
+		local drone = self.attached_drones[#self.attached_drones]
+		if IsValid(drone) then
+			if drone.command_center ~= self then
+				--damage control, this should never happen
+				assert(false, "Rover has foreign drones attached")
+				drone:Detach()
+				assert(drone == table.remove(self.attached_drones))
+			else
+				while self.guided_drone or #self.embarking_drones > 0 do
+					Sleep(1000)
+				end
+				if IsValid(drone) then
+					self.guided_drone = drone
+					drone:SetCommand("ExitRover", self)
+					while not WaitWakeup(10000) do end
+				end
+			end
+		end
+	end
+	
+	if self.exit_drones_thread and self.exit_drones_thread == CurrentThread() then
+		self.exit_drones_thread = false
 	end
 end
 
@@ -502,7 +548,7 @@ function RCRover:Unsiege()
 		self:SetState("deployIdle", const.eDontCrossfade)
 	end
 	
-	self.guided_drone = self.last_guided_drone or false
+	self.guided_drone = self.guided_drone or self.last_guided_drone or false
 	self.last_guided_drone = false
 	self.waiting_on_drones = 0
 	
@@ -524,7 +570,6 @@ function RCRover:Unsiege()
 	-------------UNSIEGE DESTRO---------------------
 	self:PushDestructor(function(self)
 		while #self.embarking_drones > 0 do --wait for embarking drones do finish embarking
-			assert(#self.embarking_drones <= #self.drones)
 			WaitWakeup(10000)
 		end
 		
@@ -569,6 +614,10 @@ function RCRover:Unsiege()
 	
 	while self.waiting_on_drones > #self.attached_drones do
 		WaitWakeup(10000)
+	end
+	
+	while self.guided_drone or #self.embarking_drones > 0 do
+		Sleep(1000)
 	end
 	
 	self:PopDestructor()
@@ -635,7 +684,7 @@ function RCRover:DisconnectTaskRequesters()
 end
 ]]
 function RCRover:WakeFromWaitingOnDroneToEnterOrExit()
-	local t_to_wake = IsValidThread(self.thread_running_destructors) and self.thread_running_destructors or self.command_thread --always wake the destructor thread first
+	local t_to_wake = IsValidThread(self.exit_drones_thread) and self.exit_drones_thread or IsValidThread(self.thread_running_destructors) and self.thread_running_destructors or self.command_thread --always wake the destructor thread first
 	Wakeup(t_to_wake)
 end
 
@@ -674,8 +723,15 @@ function RCRover:DroneFailedToRecall(drone)
 end
 
 function RCRover:CanInteractWithObject(obj, interaction_mode)
-	if interaction_mode ~= "recharge" and obj:IsKindOf("Drone") then
-		return obj:IsBroken()
+	if interaction_mode ~= "recharge" and IsKindOf(obj, "Drone") then
+		if obj:IsDead() then
+			return false
+		elseif obj:IsLowBattery() then
+			return true, T{9615, "<UnitMoveControl('ButtonA',interaction_mode)>: Transfer Power", self}
+		elseif obj:IsBroken() then
+			return true, T{9720, "<UnitMoveControl('ButtonA',interaction_mode)>: Repair", self}
+		end	
+		return false
 	end
 	return BaseRover.CanInteractWithObject(self, obj, interaction_mode)
 end
@@ -714,12 +770,12 @@ function RCRover:ShouldUnsiegeDueToGotoDist(...) --<-- .. are goto params
 			if type(args[2]) == "string" and args[1]:HasSpot(args[2]) then --spot name?
 				local idx = args[1]:GetNearestSpot("idle", args[2], self)
 				dest_pt = args[1]:GetSpotPos(idx)
-			else
+			elseif args[1] then
 				dest_pt = args[1]:GetPos()
 			end
 		end
 		
-		if not IsCloser2D(self, dest_pt, g_Consts.RCRoverDistanceToProvokeAutomaticUnsiege) then
+		if dest_pt and not IsCloser2D(self, dest_pt, g_Consts.RCRoverDistanceToProvokeAutomaticUnsiege) then
 			return true
 		end
 	end
@@ -1126,13 +1182,13 @@ function RCRover:ToggleSiegeMode_Update(button)
 		button:SetIcon("UI/Icons/IPButtons/open.tga")
 		button:SetRolloverTitle(T{4485, "Recall Drones"})
 		button:SetRolloverText(T{4487, "Recall all Drones commanded by this Rover."})
-		button:SetRolloverHint(T{8023, "<left_click> Recall <newline><em>Ctrl + <left_click></em> Recall for all Rovers"})
+		button:SetRolloverHint(T{8023, "<left_click> Recall <newline>Ctrl + <left_click>Recall for all Rovers",self})
 		button:SetRolloverHintGamepad(T{8024, "<ButtonA> Recall <newline><ButtonX> Recall for all Rovers"})
 	else
 		button:SetIcon("UI/Icons/IPButtons/close.tga")
 		button:SetRolloverTitle(T{4484, "Deploy Drones"})
 		button:SetRolloverText(T{4486, "Deploy Drones and remain on standby at this location."})
-		button:SetRolloverHint(T{8025, "<left_click> Deploy <newline><em>Ctrl + <left_click></em> Deploy for all Rovers"})
+		button:SetRolloverHint(T{8025, "<left_click> Deploy <newline>Ctrl + <left_click>Deploy for all Rovers",self})
 		button:SetRolloverHintGamepad(T{8026, "<ButtonA> Deploy <newline><ButtonX> Deploy for all Rovers"})
 	end
 end

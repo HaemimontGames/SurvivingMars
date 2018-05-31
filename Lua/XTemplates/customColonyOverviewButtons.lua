@@ -60,13 +60,7 @@ end,
 self:SetEnabled(context:GetHomelessBtnEnabled())
 end,
 		'OnPress', function (self, gamepad)
-if self.context then
-	local city = self.context.city
-	local colonist = city.labels.Homeless and city.labels.Homeless[1]
-	if IsValid(colonist) then
-		colonist:Select(HomelessCycle)
-	end
-end
+OpenCommandCenter({homeless = true}, "Colonists")
 end,
 		'Icon', "UI/Icons/IPButtons/homeless_colonists.tga",
 	}),
@@ -80,13 +74,7 @@ end,
 self:SetEnabled(context:GetUnemployedBtnEnabled())
 end,
 		'OnPress', function (self, gamepad)
-if self.context then
-	local city = self.context.city
-	local colonist = city.labels.Unemployed and city.labels.Unemployed[1]
-	if IsValid(colonist)  then
-		colonist:Select(UnemployedCycle)
-	end
-end
+OpenCommandCenter({unemployed = true}, "Colonists")
 end,
 		'Icon', "UI/Icons/IPButtons/unemployed_colonists.tga",
 	}),
@@ -100,12 +88,7 @@ end,
 self:SetEnabled(context:GetFirstWithDetrimentalStatusEffect())
 end,
 		'OnPress', function (self, gamepad)
-if self.context then
-	local colonist = self.context:GetFirstWithDetrimentalStatusEffect()
-	if  IsValid(colonist) then
-		colonist:Select(DetrimentalStatusCycle)
-	end	
-end
+OpenCommandCenter({problematic_colonists = true}, "Colonists")
 end,
 		'Icon', "UI/Icons/IPButtons/status_effects.tga",
 	}),

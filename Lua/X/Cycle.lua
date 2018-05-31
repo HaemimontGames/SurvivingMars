@@ -100,31 +100,6 @@ function UnemployedCycle(obj)
 	end
 end
 
-
-function GetDetrimentalStatusColonists(city)
-	local objs = {}
-	local detrimental_status_effects = GetDetrimentalStatusEffects()
-	local array = city.labels.Colonist or empty_table
-	for _, colonist in ipairs(array) do
-		for i, effect in ipairs(detrimental_status_effects) do
-			if colonist.status_effects[effect] then
-				objs[#objs + 1] = colonist
-				break
-			end
-		end	
-	end
-	return objs
-end	
-
-function DetrimentalStatusCycle(obj)
-	local city = obj.city or UICity
-	local objs = GetDetrimentalStatusColonists(city)
-	local index = type(objs) == "table" and table.find(objs, obj)
-	if index then
-		return index, objs, T{7679, "<name><right><index> / <max>", name = T{7934, "Problematic colonists"}, index = index, max = #objs}
-	end
-end
-
 function TraitCycle(trait, dome)
 	local trait_def = DataInstances.Trait[trait]
 	if not trait_def then return end

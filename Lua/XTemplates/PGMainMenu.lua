@@ -91,6 +91,13 @@ end,
 					'__template', "ModManager",
 				}),
 				}),
+			PlaceObj('XTemplateMode', {
+				'mode', "Tutorial",
+			}, {
+				PlaceObj('XTemplateTemplate', {
+					'__template', "PGTutorial",
+				}),
+				}),
 			}),
 		}),
 })

@@ -2519,8 +2519,20 @@ function NameUnit(unit)
 	if not names then return "" end
 	local gender_names = names[gender]
 	local first = gender_names.First or gender_names
-	local family = gender_names.Family or names.Family
-	local name = first[Random(1, #first, "unit_name")] .. " " .. family[Random(1, #family, "unit_name")]
+	local family = gender_names.Family or names.Family	
+	local name 
+	local fst, fml = first[Random(1, #first, "unit_name")],family[Random(1, #family, "unit_name")]
+	local lang = GetLanguage()
+	if LanguagesWithNamesStartWithFamily[lang] then
+	-- family is displayed before the first name and without space
+		if nation=="Chinese" then
+			name = fml..fst
+		else
+			name = fst.."·"..fml
+		end	
+	else
+		name = fst.." "..fml
+	end
 	unit.name = name	 
 end
 

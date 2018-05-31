@@ -34,6 +34,7 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateWindow', {
 		'__class', "XFrame",
 		'IdNode', false,
+		'Margins', box(0, -1, 0, 0),
 		'Image', "UI/Common/message_description_pad.tga",
 		'SqueezeX', false,
 	}, {
@@ -95,7 +96,7 @@ PlaceObj('XTemplate', {
 		}, {
 			PlaceObj('XTemplateForEach', {
 				'comment', "item",
-				'array', function (parent, context) return GetDialog(parent).actions end,
+				'array', function (parent, context) return GetXDialog(parent).actions end,
 				'run_after', function (child, context, item, i, n)
 local gamepad_visuals = GetUIStyleGamepad() or (context and context.force_ui_style == "gamepad")
 child.idGamepadSelectedIcon:SetImage(GetPlatformSpecificImagePath("ButtonA"))
@@ -113,8 +114,9 @@ if item.RolloverText ~= "" then
 	child:SetRolloverHintGamepad(item.RolloverHintGamepad)
 end
 child.OnPress = function()
-	item:OnAction(GetDialog(child), child)
+	item:OnAction(GetXDialog(child), child)
 end
+child:SetEnabled(item:ActionState(GetActionsHost(child)) ~= "disabled")
 end,
 			}, {
 				PlaceObj('XTemplateTemplate', {

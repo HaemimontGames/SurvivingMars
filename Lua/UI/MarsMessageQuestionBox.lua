@@ -184,7 +184,7 @@ local function RollBackDialogs()
 		for name,dlg in pairs(XDialogs) do
 			if type(name) == "string" then
 				--hints dlg can change its parent
-				if not dlg:IsWithin(igi) and name ~= "OnScreenHintDlg" and name ~= "MarsPauseDlg" then
+				if not dlg:IsWithin(igi) and dlg ~= igi.mode_dialog and name ~= "OnScreenHintDlg" and name ~= "MarsPauseDlg" then
 					dlgs_to_close[#dlgs_to_close + 1] = dlg
 					--also remove popups, which are children to this dialog
 					for i = #g_PopupQueue, 1, -1 do

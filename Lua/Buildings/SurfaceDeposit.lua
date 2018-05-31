@@ -184,18 +184,6 @@ function SurfaceDeposit:Setmax_amount(val)
 	self.max_amount = val
 end
 
-function SurfaceDeposit:UpdateUI()
-	if not SelectedObj then
-		return
-	end
-	local group = self:GetDepositGroup()
-	if group and IsValid(group.holder) then
-		group.holder:UpdateUI()
-	else
-		Deposit.UpdateUI(self)
-	end
-end
-
 function SurfaceDeposit:Setentity_variant(entity_variant)
 	self.entity_variant = entity_variant
 	if entity_variant == "random" then
@@ -214,12 +202,10 @@ end
 
 function SurfaceDeposit:CheatRefill()
 	self.transport_request:AddAmount(10000)
-	self:UpdateUI()
 end
 
 function SurfaceDeposit:CheatEmpty()
 	self.transport_request:SetAmount(0)
-	self:UpdateUI()
 end
 
 function SurfaceDeposit:IsDepleted()
@@ -231,7 +217,7 @@ function SurfaceDeposit:DroneApproach(drone, resource)
 end
 
 function SurfaceDeposit:GetModifiedBSphereRadius(r)
-	return r * 4 / 3
+	return r
 end
 
 function SurfaceDeposit:Refresh()
@@ -239,7 +225,6 @@ function SurfaceDeposit:Refresh()
 	if self:IsDepleted() then
 		DoneObject(self)
 	end
-	self:UpdateUI()
 end
 
 function SurfaceDeposit:DroneLoadResource(drone, request, resource, amount)
@@ -260,12 +245,16 @@ function SurfaceDeposit:DroneLoadResource(drone, request, resource, amount)
 end
 
 function SurfaceDeposit:RoverWork(rover, request, resource, amount, reciprocal_req, interaction_type, total_amount)
+	local work_time = g_Tutorial and g_Tutorial.RoverGatherResourceWorkTime or g_Consts.RCTransportGatherResourceWorkTime
+	rover:PushDestructor(function(rover)
+		self:Refresh()
+	end)
 	rover:ContinuousTask(
 		request, amount,
 		"gatherStart", "gatherIdle", "gatherEnd",
-		"Gather",	"step", g_Consts.RCTransportGatherResourceWorkTime, "add resource", nil, total_amount
+		"Gather",	"step", work_time, "add resource", nil, total_amount
 	)
-	self:Refresh()
+	rover:PopAndCallDestructor()
 end
 
 function SurfaceDeposit:GetAmount()
@@ -334,7 +323,6 @@ function SurfaceDepositGroup:UpdateDimension()
 		local pos, radius = bbox:Center(), bbox:Radius2D()
 		self:SetPos(pos)
 		self.radius_max = radius
-		self:UpdateUI()
 		--DbgAddCircle(pos, radius)
 	end
 end
@@ -371,7 +359,6 @@ function SurfaceDepositGroup:CheatRefill()
 	for i=1,#group do
 		group[i].transport_request:AddAmount(10000)
 	end
-	self:UpdateUI()
 end
 
 function SurfaceDepositGroup:CheatEmpty()
@@ -379,7 +366,6 @@ function SurfaceDepositGroup:CheatEmpty()
 	for i=1,#group do
 		group[i].transport_request:SetAmount(0)
 	end
-	self:UpdateUI()
 end
 
 function SurfaceDepositGroup:GetSelectionRadiusScale()

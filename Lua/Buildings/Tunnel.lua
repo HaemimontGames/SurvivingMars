@@ -54,7 +54,7 @@ function Tunnel:GetPointToReg(obj)
 	local dir = HexAngleToDirection(obj:GetAngle())
 	local s_p = obj:GetShapePoints()[1]
 	local x, y = HexRotate(s_p:x(), s_p:y(), dir)
-	local q, r = WorldToHex(obj:GetPos())
+	local q, r = WorldToHex(obj)
 	
 	return point(q + x, r + y)
 end

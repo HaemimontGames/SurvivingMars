@@ -1,6 +1,11 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 PlaceObj('CommanderProfilePreset', {
+	group = "Default",
+	id = "None",
+	filter = function (self) return false end,
+})
+PlaceObj('CommanderProfilePreset', {
 	SortKey = 1000,
 	challenge_mod = 10,
 	display_name = T{5319, --[[CommanderProfilePreset Default inventor display_name]] "Inventor"},
@@ -97,6 +102,7 @@ PlaceObj('CommanderProfilePreset', {
 	effect = T{5328, --[[CommanderProfilePreset Default psychologist effect]] "- Colonists recover 5 additional Sanity while resting in their homes\n- Bonus Tech: <em>Behavioral Shaping</em> (unlocks a Sanatorium spire which treats colonists' flaws)"},
 	group = "Default",
 	id = "psychologist",
+	param1 = 5,
 	PlaceObj('Effect_GrantTech', {
 		Field = "Social",
 		Research = "BehavioralShaping",

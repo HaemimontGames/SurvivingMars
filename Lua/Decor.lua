@@ -134,47 +134,47 @@ DefineClass.UIAttach = {
 }
 
 DefineClass.CliffDark_01_100 = {
-	__parents = { "CObject" },
+	__parents = { "Deposition" },
 	entity = "CliffDark_01",
 }
 
 DefineClass.CliffDark_02_100 = {
-	__parents = { "CObject" },
+	__parents = { "Deposition" },
 	entity = "CliffDark_02",
 }
 
 DefineClass.CliffDark_03_100 = {
-	__parents = { "CObject" },
+	__parents = { "Deposition" },
 	entity = "CliffDark_03",
 }
 
 DefineClass.Cliff_01_100 = {
-	__parents = { "CObject" },
+	__parents = { "Deposition" },
 	entity = "Cliff_01",
 }
 
 DefineClass.Cliff_02_100 = {
-	__parents = { "CObject" },
+	__parents = { "Deposition" },
 	entity = "Cliff_02",
 }
 
 DefineClass.Cliff_03_100 = {
-	__parents = { "CObject" },
+	__parents = { "Deposition" },
 	entity = "Cliff_03",
 }
 
 DefineClass.Rocks_01_100 = {
-	__parents = { "CObject" },
+	__parents = { "Deposition" },
 	entity = "Rocks_01",
 }
 
 DefineClass.Rocks_02_100 = {
-	__parents = { "CObject" },
+	__parents = { "Deposition" },
 	entity = "Rocks_02",
 }
 
 DefineClass.Rocks_03_100 = {
-	__parents = { "CObject" },
+	__parents = { "Deposition" },
 	entity = "Rocks_03",
 }
 

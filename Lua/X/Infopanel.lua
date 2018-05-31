@@ -68,7 +68,7 @@ end
 ----- InfopanelDlg
 
 DefineClass.InfopanelDlg = {
-	__parents = { "XDialog" },
+	__parents = { "XDrawCacheDialog" },
 	RolloverTemplate = "InfopanelRollover",
 	RolloverTitle = T{7331, "Infopanel"},
 }
@@ -79,9 +79,7 @@ if FirstLoad then
 end
 
 function InfopanelDlg:Open(...)
-	local margins = GetSafeMargins()
-	margins = box(margins:minx(), margins:miny() + 58, margins:maxx(), margins:maxy())
-	self:SetMargins(margins)
+	self:RecalculateMargins()
 	if InfopanelFocused then
 		self:SetFocus()
 		self:ShowIPRollover()
@@ -105,6 +103,19 @@ function InfopanelDlg:Open(...)
 		end
 	end, self)
 	return XDialog.Open(self, ...)
+end
+
+function InfopanelDlg:RecalculateMargins()
+	local margins = GetSafeMargins()
+	margins = box(margins:minx(), margins:miny() + 58, margins:maxx(), margins:maxy())
+	self:SetMargins(margins)
+end
+
+function OnMsg.SafeAreaMarginsChanged()
+	local dlg = GetXDialog("Infopanel")
+	if dlg then
+		dlg:RecalculateMargins()
+	end
 end
 
 function InfopanelDlg:ShowIPRollover()
@@ -143,6 +154,17 @@ function InfopanelDlg:OnKillFocus()
 	end
 	self.desktop:RemoveKeyboardFocus(self, true)
 	XDialog.OnKillFocus(self)
+end
+
+function InfopanelDlg:OnMouseEnter(pos)
+	if GetUIStyleGamepad() then return end
+
+	local igi = GetInGameInterface()
+	local dlg = igi and igi.mode_dialog
+	if dlg and dlg:IsKindOf("UnitDirectionModeDialog") and dlg.unit then
+		dlg:HideMouseCursorText(pos)
+	end	
+	return XDialog.OnMouseEnter(self, pos)
 end
 
 function InfopanelDlg:OnShortcut(button, source)
@@ -235,16 +257,22 @@ function XSection:OnShortcut(shortcut, source)
 		local focus = self.desktop and self.desktop.keyboard_focus
 		local order = focus and (focus == self and point(0, 1) or focus:GetFocusOrder())
 		focus = self:GetRelativeFocus(order, XShortcutToRelation[shortcut])
+		local result = self.RelativeFocusOrder == "new-line" and "break" or nil --because of the Command Center UI
 		if focus then
 			focus:SetFocus()
 			if RolloverControl ~= focus then
 				XCreateRolloverWindow(focus, true)
 			end
+			result = "break"
 		end
-		if shortcut == "DPadLeft" and not focus then
+		if XShortcutToRelation[shortcut] == "left" and not focus and not self:IsFocused() then
 			self:SetFocus()
+			if RolloverControl ~= self then
+				XCreateRolloverWindow(self, true)
+			end
+			result = "break"
 		end
-		return "break"
+		return result
 	end
 	if shortcut == "DPadUp" or shortcut == "DPadDown" then
 		self:SetFocus()
@@ -320,7 +348,7 @@ function ActivateControlModeDlgAction()
 	if dlg and dlg:IsKindOf("UnitDirectionModeDialog") then
 		local gamepad = GetUIStyleGamepad()
 		local cursor_pos = gamepad and GetTerrainGamepadCursor() or GetTerrainCursor()
-		local selection = gamepad and SelectionGamepadObj() or SelectionMouseObj()
+		local selection = gamepad and (dlg.interaction_obj or SelectionGamepadObj()) or SelectionMouseObj()
 		dlg:UpdateInteractionObj(selection, cursor_pos)
 		dlg:Interact(cursor_pos)
 		SetUnitControlInteractionMode(dlg.unit, false)

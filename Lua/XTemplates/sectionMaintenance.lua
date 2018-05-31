@@ -9,8 +9,9 @@ PlaceObj('XTemplate', {
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelSection",
-			'RolloverText', T{241499798174, --[[XTemplate sectionMaintenance RolloverText]] "The condition of buildings deteriorates over time. Martian dust and disasters contribute to deterioration of outside buildings. Deteriorated buildings will need to be serviced by a Drone and supplied with their required maintenance resource or they will malfunction.<newline><newline>Current deterioration<right><percent(MaintenanceProgress)><newline><left>Last serviced<right><LastMaintenance>"},
+			'RolloverText', T{241499798174, --[[XTemplate sectionMaintenance RolloverText]] "The condition of buildings deteriorates over time. Martian dust and disasters contribute to deterioration of outside buildings. Deteriorated buildings will need to be serviced by a Drone and supplied with their required maintenance resource or they will malfunction.<newline><newline>Current deterioration<right><percent(MaintenanceProgress)><newline><left>Last serviced<right><LastMaintenance>\n<MaintenanceText>"},
 			'RolloverTitle', T{619281504128, --[[XTemplate sectionMaintenance RolloverTitle]] "Maintenance"},
+			'Id', "idSectionMaintenance",
 			'OnContextUpdate', function (self, context, ...)
 self:SetVisible(context:DoesRequireMaintenance())
 end,
@@ -42,20 +43,6 @@ end,
 					'__template', "InfopanelText",
 					'Dock', "right",
 					'Text', T{601912665358, --[[XTemplate sectionMaintenance Text]] "<resource(maintenance_resource_amount, maintenance_resource_type)>"},
-				}),
-				}),
-			PlaceObj('XTemplateWindow', nil, {
-				PlaceObj('XTemplateTemplate', {
-					'__template', "InfopanelText",
-					'ContextUpdateOnOpen', true,
-					'OnContextUpdate', function (self, context, ...)
-	local has_assigned_drones = context.maintenance_phase	and 
-			(context.maintenance_work_request:GetTargetAmount() ~= context.maintenance_work_request:GetActualAmount() or
-			context.maintenance_resource_request:GetTargetAmount() ~= context.maintenance_resource_request:GetActualAmount())
-	self:SetVisible(has_assigned_drones)
-	self:SetDock(not has_assigned_drones and "ignore" or false)
-end,
-					'Text', T{7878, --[[XTemplate sectionMaintenance Text]] "A drone is on the way to repair this building."},
 				}),
 				}),
 			}),

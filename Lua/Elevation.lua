@@ -1,13 +1,11 @@
 GlobalVar("MapLowestZ", max_int)
-
-function CalcMapLowestZ()
-	local tavg, tmin, tmax = terrain.GetAreaHeight()
-	return tmin
-end
+GlobalVar("MapHighestZ", 0)
 
 function OnMsg.NewMapLoaded()
 	if MapLowestZ == max_int and not mapdata.IsPrefabMap then
-		MapLowestZ = CalcMapLowestZ()
+		local tavg, tmin, tmax = terrain.GetAreaHeight()
+		MapLowestZ = tmin
+		MapHighestZ = tmax
 	end
 end
 

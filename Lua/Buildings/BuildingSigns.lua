@@ -205,6 +205,7 @@ function ToggleSigns()
 	GetObjects { class = "UnitSign", action = action, action_data = const.efVisible }
 	GetObjects { class = "TerrainDeposit", action = action, action_data = const.efVisible }
 	GetObjects { class = "SubsurfaceDeposit", action = action, action_data = const.efVisible }
+	GetObjects { class = "ArrowTutorialBase", action = action, action_data = const.efVisible }
 	g_SignsVisible = not g_SignsVisible
 	--g_SubsurfaceDepositsVisible = not g_SignsVisible
 end

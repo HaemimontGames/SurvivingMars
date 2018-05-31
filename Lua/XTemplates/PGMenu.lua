@@ -155,12 +155,46 @@ end,
 						}),
 					}),
 				PlaceObj('XTemplateAction', {
+					'ActionId', "idTutorial",
+					'ActionName', T{756622437336, --[[XTemplate PGMenu ActionName]] "TUTORIAL"},
+					'ActionIcon', "UI/Icons/main_menu_tutorial.tga",
+					'ActionToolbar', "mainmenu",
+					'OnAction', function (self, host, source, toggled)
+CreateRealTimeThread(function()
+	if AccountStorage and AccountStorage.LoadMods and next(AccountStorage.LoadMods) ~= nil then
+		local choice = WaitPopupNotification("Tutorial_ActiveMods", nil, nil, host)
+		if choice == 1 then
+			if not ModsLoaded then
+				AllModsOff()			
+			else
+				if WaitMarsQuestion(host, T{6899, "Warning"}, T{8496, "Activating or deactivating mods requires a restart."}, T{8080, "Restart"}, T{3687, "Cancel"}) == "ok" then
+					AllModsOff()				
+					WaitSaveAccountStorage()
+					quit("restart")
+				end
+			end
+		end
+	end
+	host:SetMode("Tutorial")
+end)
+end,
+				}),
+				PlaceObj('XTemplateAction', {
 					'ActionId', "idQuickStart",
 					'ActionName', T{1126, --[[XTemplate PGMenu ActionName]] "EASY START"},
 					'ActionIcon', "UI/Icons/main_menu_quick_start.tga",
 					'ActionToolbar', "mainmenu",
 					'OnAction', function (self, host, source, toggled)
 CreateRealTimeThread(function()
+	if not AccountStorage.CompletedTutorials then
+		local choice = WaitPopupNotification("Tutorial_FirstTimePlayers", nil, nil, host)
+		AccountStorage.CompletedTutorials = {}
+		SaveAccountStorage()
+		if choice == 1 then
+			host:SetMode("Tutorial")
+			return
+		end
+	end
 	LoadingScreenOpen("idLoadingScreen", "QuickStart")
 	GenerateRandomMissionParams()
 	GenerateRandomMapParams()
@@ -178,6 +212,15 @@ end,
 					'ActionToolbar', "mainmenu",
 					'OnAction', function (self, host, source, toggled)
 CreateRealTimeThread(function()
+		if not AccountStorage.CompletedTutorials then
+			local choice = WaitPopupNotification("Tutorial_FirstTimePlayers", nil, nil, host)
+			AccountStorage.CompletedTutorials = {}
+			SaveAccountStorage()
+			if choice == 1 then
+				host:SetMode("Tutorial")
+				return
+			end
+		end
 		InitNewGameMissionParams()
 		LoadingScreenOpen("idLoadingScreen", "pre_game")
 		ChangeMap("PreGame")

@@ -322,13 +322,6 @@ function FollowWaypointPath(unit, path, first, last, wait_door_open)
 		if i - add_next == open and IsValid(door) then
 			unit.visit_door_opened = door
 			door:Open()
-			unit:PushDestructor(function(unit)
-				local door = unit.visit_door_opened
-				if IsValid(door) then
-					door:Close()
-				end
-				unit.visit_door_opened = false
-			end)
 			if wait_door_open or wait_door_open == nil and open == 1 then
 				unit:WaitDoorOpening(door)
 				if not unit:IsValidPos() then
@@ -341,8 +334,10 @@ function FollowWaypointPath(unit, path, first, last, wait_door_open)
 			break -- action was interrupted
 		end
 	end
-	if unit.visit_door_opened then
-		unit:PopAndCallDestructor()
+	door = unit.visit_door_opened
+	if IsValid(door) then
+		door:Close()
+		unit.visit_door_opened = false
 	end
 	if debug_line then unit:PopAndCallDestructor() end
 end

@@ -149,22 +149,11 @@ function Milestone_AllSectorsScanned()
 	end
 end
 
-local function Update_WorkshopWorkersPercent()
-	if UICity and #(UICity.labels.Workshop or empty_table) <=0 then
-		return
-	end
-	Msg("WorkshopWorkersPercentCheck")
-end
-OnMsg.ColonistArrived = Update_WorkshopWorkersPercent
-OnMsg.ColonistChangeWorkplace = Update_WorkshopWorkersPercent
-OnMsg.ColonistDie = Update_WorkshopWorkersPercent
-OnMsg.ColonistLeavingMars = Update_WorkshopWorkersPercent
-
 function Milestone_WorkshopWorkersPercent(city, percent)
 	while true do
-		if city and city:GetWorkshopWorkersPercent()>=percent then 
+		Sleep(5000)
+		if city and city:GetWorkshopWorkersPercent() >= percent then 
 			return true
 		end
-		WaitMsg("WorkshopWorkersPercentCheck")
 	end
 end

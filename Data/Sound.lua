@@ -1310,7 +1310,7 @@ PlaceObj('Sound', {
 	'name', "Building ArtWorkshop Fail",
 	'type', "BuildingPhase",
 	'volume', 90,
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -1329,79 +1329,6 @@ PlaceObj('Sound', {
 
 PlaceObj('Sound', {
 	'name', "Building ArtWorkshop SelectIncomplete",
-	'type', "BuildingOperation",
-	'volume', 60,
-	'mindistance', 1500,
-}, {
-	PlaceObj('Sample', {
-		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
-		'frequency', 50,
-	}),
-	PlaceObj('Sample', {
-		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
-		'frequency', 50,
-	}),
-	})
-
-PlaceObj('Sound', {
-	'name', "Building VRWorkshop Complete",
-	'type', "BuildingPhase",
-})
-
-PlaceObj('Sound', {
-	'name', "Building VRWorkshop Demolition",
-	'type', "BuildingDestruction",
-	'mindistance', 1500,
-}, {
-	PlaceObj('Sample', {
-		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction6",
-		'frequency', 20,
-	}),
-	PlaceObj('Sample', {
-		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction5",
-		'frequency', 20,
-	}),
-	PlaceObj('Sample', {
-		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction4",
-		'frequency', 20,
-	}),
-	PlaceObj('Sample', {
-		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction3",
-		'frequency', 20,
-	}),
-	PlaceObj('Sample', {
-		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction2",
-		'frequency', 20,
-	}),
-	PlaceObj('Sample', {
-		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction1",
-		'frequency', 20,
-	}),
-	})
-
-PlaceObj('Sound', {
-	'name', "Building VRWorkshop Fail",
-	'type', "BuildingPhase",
-	'volume', 90,
-	'mindistance', 1500,
-})
-
-PlaceObj('Sound', {
-	'name', "Building VRWorkshop Loop",
-	'type', "BuildingLoop",
-	'looping', true,
-	'volume', 70,
-	'mindistance', 500,
-})
-
-PlaceObj('Sound', {
-	'name', "Building VRWorkshop Select",
-	'type', "BuildingOperation",
-	'mindistance', 2000,
-})
-
-PlaceObj('Sound', {
-	'name', "Building VRWorkshop SelectIncomplete",
 	'type', "BuildingOperation",
 	'volume', 60,
 	'mindistance', 1500,
@@ -1456,7 +1383,7 @@ PlaceObj('Sound', {
 	'name', "Building BioroboticsWorkshop Fail",
 	'type', "BuildingPhase",
 	'volume', 90,
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -1493,7 +1420,7 @@ PlaceObj('Sound', {
 	'name', "Building Apartments Fail",
 	'type', "BuildingPhase",
 	'volume', 90,
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -1537,7 +1464,7 @@ PlaceObj('Sound', {
 	'name', "Building Casino Fail",
 	'type', "BuildingPhase",
 	'volume', 90,
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -1647,7 +1574,7 @@ PlaceObj('Sound', {
 	'name', "Building ScienceInstitute Fail",
 	'type', "BuildingPhase",
 	'volume', 90,
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -1744,7 +1671,7 @@ PlaceObj('Sound', {
 	'name', "Building Arcology Fail",
 	'type', "BuildingPhase",
 	'volume', 90,
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -1752,7 +1679,7 @@ PlaceObj('Sound', {
 	'type', "BuildingLoop",
 	'looping', true,
 	'volume', 150,
-	'mindistance', 600,
+	'mindistance', 700,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Buildings/Diner/dinner_work1",
@@ -1780,6 +1707,189 @@ PlaceObj('Sound', {
 	'name', "Building ScienceInstitute Complete",
 	'type', "BuildingPhase",
 })
+
+PlaceObj('Sound', {
+	'name', "Building DomeBarrel Complete",
+	'type', "BuildingPhase",
+})
+
+PlaceObj('Sound', {
+	'name', "Building DomeDiamond Complete",
+	'type', "BuildingPhase",
+})
+
+PlaceObj('Sound', {
+	'name', "Building DomeBarrel Demolition",
+	'type', "BuildingDestruction",
+	'volume', 150,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge4",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge3",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge2",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge1",
+		'frequency', 30,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building DomeDiamond Demolition",
+	'type', "BuildingDestruction",
+	'volume', 150,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge4",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge3",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge2",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge1",
+		'frequency', 30,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building DomeBarrel Select",
+	'type', "BuildingOperation",
+	'volume', 70,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/DomeBasic/dome_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/DomeBasic/dome_select2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building DomeDiamond Select",
+	'type', "BuildingOperation",
+	'volume', 70,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/DomeBasic/dome_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/DomeBasic/dome_select2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building DomeBarrel SelectIncomplete",
+	'type', "BuildingOperation",
+	'volume', 60,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building DomeDiamond SelectIncomplete",
+	'type', "BuildingOperation",
+	'volume', 60,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building DomeTrigon Complete",
+	'type', "BuildingPhase",
+})
+
+PlaceObj('Sound', {
+	'name', "Building DomeTrigon Demolition",
+	'type', "BuildingDestruction",
+	'volume', 150,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge4",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge3",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge2",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge1",
+		'frequency', 30,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building DomeTrigon Select",
+	'type', "BuildingOperation",
+	'volume', 70,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/DomeBasic/dome_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/DomeBasic/dome_select2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building DomeTrigon SelectIncomplete",
+	'type', "BuildingOperation",
+	'volume', 60,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+	})
 
 PlaceObj('Sound', {
 	'name', "Object Tunnel DoorClose",
@@ -1814,8 +1924,8 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building Dome DoorClose",
 	'type', "BuildingOperation",
-	'volume', 50,
-	'mindistance', 600,
+	'volume', 40,
+	'mindistance', 500,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Buildings/DomeBasic/dome_doorclose1",
@@ -1936,8 +2046,8 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building Dome DoorOpen",
 	'type', "BuildingOperation",
-	'volume', 50,
-	'mindistance', 600,
+	'volume', 40,
+	'mindistance', 500,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Buildings/DomeBasic/dome_dooropen1",
@@ -1998,7 +2108,7 @@ PlaceObj('Sound', {
 	'name', "Building CloningVats Fail",
 	'type', "BuildingPhase",
 	'volume', 90,
-	'mindistance', 1500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Buildings/CloningVats/cloningvats_fail2",
@@ -2078,7 +2188,7 @@ PlaceObj('Sound', {
 	'name', "Building Diner Fail",
 	'type', "BuildingPhase",
 	'volume', 90,
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -2124,6 +2234,128 @@ PlaceObj('Sound', {
 	PlaceObj('Sample', {
 		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge1",
 		'frequency', 30,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building DomeMicro Complete",
+	'type', "BuildingPhase",
+})
+
+PlaceObj('Sound', {
+	'name', "Building DomeTrigonMega Complete",
+	'type', "BuildingPhase",
+})
+
+PlaceObj('Sound', {
+	'name', "Building DomeMicro Demolition",
+	'type', "BuildingDestruction",
+	'volume', 150,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge4",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge3",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge2",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge1",
+		'frequency', 30,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building DomeTrigonMega Demolition",
+	'type', "BuildingDestruction",
+	'volume', 150,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge4",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge3",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge2",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionLarge1",
+		'frequency', 30,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building DomeMicro Select",
+	'type', "BuildingOperation",
+	'volume', 70,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/DomeBasic/dome_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/DomeBasic/dome_select2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building DomeTrigonMega Select",
+	'type', "BuildingOperation",
+	'volume', 70,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/DomeBasic/dome_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/DomeBasic/dome_select2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building DomeMicro SelectIncomplete",
+	'type', "BuildingOperation",
+	'volume', 60,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Building DomeTrigonMega SelectIncomplete",
+	'type', "BuildingOperation",
+	'volume', 60,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
 	}),
 	})
 
@@ -2345,7 +2577,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building ElectronicsStore Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -2467,13 +2699,13 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building ElectronicsFactory Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
 	'name', "Building Grocery Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -2624,7 +2856,7 @@ PlaceObj('Sound', {
 	'name', "Building Dome Fail",
 	'type', "BuildingPhase",
 	'volume', 90,
-	'mindistance', 800,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Buildings/DomeBasic/dome_fail1",
@@ -2750,7 +2982,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building Jewelry Fail",
 	'type', "BuildingPhase",
-	'mindistance', 700,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -2808,7 +3040,7 @@ PlaceObj('Sound', {
 	'name', "Building ElectronicsFactory Loop",
 	'type', "BuildingLoop",
 	'looping', true,
-	'volume', 120,
+	'volume', 80,
 	'mindistance', 800,
 }, {
 	PlaceObj('Sample', {
@@ -2869,7 +3101,7 @@ PlaceObj('Sound', {
 	'name', "Building HydroponicFarm Fail",
 	'type', "BuildingPhase",
 	'volume', 90,
-	'mindistance', 1500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Buildings/HydroponicFarm/hydrofarm_fail1",
@@ -2968,7 +3200,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building Infirmary Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -3136,7 +3368,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building LivingQuarters Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -3187,7 +3419,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building NetworkNode Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Buildings/NetworkNode/networknode_fail1",
@@ -3254,6 +3486,7 @@ PlaceObj('Sound', {
 	'name', "Building Nurcery Loop",
 	'type', "BuildingLoop",
 	'looping', true,
+	'volume', 50,
 	'mindistance', 600,
 }, {
 	PlaceObj('Sample', {
@@ -3269,7 +3502,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building Nurcery Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -3334,7 +3567,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building OpenAirGym Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -3391,7 +3624,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building Playground Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -3426,7 +3659,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building MachinepartsFactory Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Buildings/MachinepartsFactory/machinepartsfactory_fail2",
@@ -3523,7 +3756,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building MartianUni Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -3674,7 +3907,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building Sanatorium Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -3731,7 +3964,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building School Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -3804,7 +4037,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building SecurityStation Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Buildings/SecurityStation/securitystation_fail1",
@@ -3841,13 +4074,13 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building MedicalCenter Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
 	'name', "Building Spacebar Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -3942,7 +4175,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building SmartHome Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -3999,7 +4232,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building SmartHomes Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -4114,7 +4347,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building ResearchLab Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -4173,7 +4406,7 @@ PlaceObj('Sound', {
 	'name', "Object PolymerPlant Fail",
 	'type', "ObjectPhase",
 	'volume', 120,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/PolymerPlant/polymerplant_fail1",
@@ -4218,14 +4451,302 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Mystery AlienCrystals ShardAmbience",
+	'type', "MisteryLoop",
+	'looping', true,
+	'volume', 70,
+	'mindistance', 8000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalShard_ambience1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalShard_ambience2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery AlienCrystalsBig Ambience",
+	'type', "MisteryLoop",
+	'looping', true,
+	'volume', 30,
+	'mindistance', 10000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalBig_ambience1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalBig_ambience2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery AlienCrystals Ambience",
+	'type', "MisteryLoop",
+	'looping', true,
+	'volume', 40,
+	'mindistance', 10000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystal_ambience1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystal_ambience2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery AlienCrystals BeamStart",
+	'type', "MisteryAction",
+	'volume', 80,
+	'mindistance', 8000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystal_beamstart1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystal_beamstart2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery AlienCrystals BeamBoost",
+	'type', "MisteryAction",
+	'volume', 80,
+	'mindistance', 8000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystal_beamboost1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystal_beamboost2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery AlienCrystals ShardTakeoff",
+	'type', "MisteryAction",
+	'volume', 60,
+	'mindistance', 10000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalShard_takeoff1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalShard_takeoff2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery Metatron Ambience",
+	'type', "MisteryLoop",
+	'looping', true,
+	'volume', 30,
+	'mindistance', 8000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_ambience1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_ambience2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery AlienCrystals ShardVortex",
+	'type', "ObjectLoop",
+	'looping', true,
+	'volume', 80,
+	'mindistance', 10000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalShard_vortex1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalShard_vortex2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery AlienCrystals ShardComposeEnd",
+	'type', "MisteryAction",
+	'mindistance', 10000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalShard_composeend1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalShard_composeend2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery AlienCrystals ShardComposeAttach",
+	'type', "ObjectOperation",
+	'volume', 40,
+	'mindistance', 8000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalShard_composeattach1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalShard_composeattach2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery AlienCrystalsBig Takeoff",
+	'type', "MisteryDisappear",
+	'mindistance', 10000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalBig_takeoff1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalBig_takeoff2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery AlienCrystals ShardComposeStart",
+	'type', "MisteryAction",
+	'mindistance', 10000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalShard_composestart1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalShard_composestart2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery AlienCrystalsBig Go",
+	'type', "ObjectLoop",
+	'looping', true,
+	'mindistance', 10000,
+})
+
+PlaceObj('Sound', {
+	'name', "Mystery Metatron Destruction",
+	'type', "MisteryDisappear",
+	'volume', 70,
+	'mindistance', 3000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienDigger/misteryaliendigger_destruction1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienDigger/misteryaliendigger_destruction2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Object PolymerPlant Loop",
 	'type', "ObjectLoop",
 	'looping', true,
-	'volume', 150,
+	'volume', 120,
 	'mindistance', 1200,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/PolymerPlant/polymerplant_work1",
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery AlienCrystalsBig Attach",
+	'type', "MisteryAction",
+	'volume', 60,
+	'mindistance', 10000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalBig_attach1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalBig_attach2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery AlienCrystals BeamLoop",
+	'type', "MisteryLoop",
+	'looping', true,
+	'volume', 70,
+	'mindistance', 8000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystal_beamloop1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystal_beamloop2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery Metatron Fail",
+	'type', "BuildingPhase",
+	'mindistance', 5000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienDigger/misteryaliendigger_fail1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienDigger/misteryaliendigger_fail2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery AlienCrystals Reveal",
+	'type', "MisteryAppear",
+	'volume', 150,
+	'mindistance', 10000,
+})
+
+PlaceObj('Sound', {
+	'name', "Mystery Metatron Movement",
+	'type', "MisteryLoop",
+	'looping', true,
+	'mindistance', 15000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_movement1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_movement2",
+		'frequency', 50,
 	}),
 	})
 
@@ -4301,10 +4822,46 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Mystery AlienCrystals Select",
+	'type', "ObjectOperation",
+	'volume', 80,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystal_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystal_select2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery Metatron Select",
+	'type', "ObjectOperation",
+	'mindistance', 2500,
+})
+
+PlaceObj('Sound', {
+	'name', "Mystery Metatron Takeoff",
+	'type', "MisteryAction",
+	'mindistance', 10000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_takeoff1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_takeoff2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Mystery Bombardment Start",
 	'type', "MisteryAppear",
-	'volume', 120,
-	'mindistance', 5000,
+	'mindistance', 8000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Mysteries/Bombardment/misterybombardment_start1",
@@ -4365,6 +4922,37 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Mystery AlienCrystalsBig Appear",
+	'type', "MisteryAppear",
+	'mindistance', 8000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalBig_appear1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/AlienCrystal/mysteryAlienCrystalBig_appear2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery Metatron Appear",
+	'type', "MisteryAppear",
+	'volume', 150,
+	'mindistance', 15000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_spawn1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_spawn2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Building ResearchLab Complete",
 	'type', "BuildingPhase",
 })
@@ -4373,7 +4961,7 @@ PlaceObj('Sound', {
 	'name', "Object Spaceport Fail",
 	'type', "ObjectPhase",
 	'volume', 120,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/Spaceport/spaceport_fail1",
@@ -4388,7 +4976,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Mystery Bombardment MissileFly",
 	'type', "MisteryAction",
-	'mindistance', 4000,
+	'mindistance', 8000,
 })
 
 PlaceObj('Sound', {
@@ -4417,7 +5005,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Mystery Bombardment ExplodeAir",
 	'type', "MisteryAction",
-	'mindistance', 4000,
+	'mindistance', 7000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Mysteries/Bombardment/misterybombardment_explosionair1",
@@ -4465,7 +5053,8 @@ PlaceObj('Sound', {
 	'name', "Building Spacebar Loop",
 	'type', "BuildingLoop",
 	'looping', true,
-	'mindistance', 600,
+	'volume', 130,
+	'mindistance', 700,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Buildings/Spacebar/spacebar_work1",
@@ -4478,9 +5067,95 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Mystery Lights FireflyDisappear",
+	'type', "MisteryAction",
+	'volume', 50,
+	'mindistance', 5000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Lights/mysteryLights_fireflydisappear1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Lights/mysteryLights_fireflydisappear2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery Lights SinkholeAppear",
+	'type', "MisteryAppear",
+	'mindistance', 5000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Lights/mysteryLights_sinkholeappear1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Lights/mysteryLights_sinkholeappear2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery Lights FireflyDrainLoop",
+	'type', "ObjectLoopLimited-C",
+	'looping', true,
+	'volume', 120,
+	'mindistance', 2000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Lights/mysteryLights_fireflydrain1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Lights/mysteryLights_fireflydrain2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery Lights FireflyKill",
+	'type', "ObjectOneshotLimited-B",
+	'volume', 110,
+	'mindistance', 5000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Lights/mysteryLights_fireflykill1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Lights/mysteryLights_fireflykill2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Building ResearchLab Select",
 	'type', "BuildingOperation",
 	'mindistance', 2000,
+})
+
+PlaceObj('Sound', {
+	'name', "Mystery Metatron AnomalySpawn",
+	'type', "ObjectPhase",
+	'volume', 80,
+	'mindistance', 5000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_spawnanomaly1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_spawnanomaly2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery Lights FireflyDrainStop",
+	'type', "MisteryAction",
+	'mindistance', 15000,
 })
 
 PlaceObj('Sound', {
@@ -4500,10 +5175,51 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Mystery Lights SinkholeSelect",
+	'type', "ObjectOperation",
+	'volume', 150,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Lights/mysteryLights_sinkholeselect1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Lights/mysteryLights_sinkholeselect2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery Lights FireflyAppear",
+	'type', "MisteryAction",
+	'volume', 50,
+	'mindistance', 5000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Lights/mysteryLights_fireflyappear1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Lights/mysteryLights_fireflyappear2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery Metatron AppearUI",
+	'type', "UI",
+	'volume', 30,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/MisteryMetatron_spawn",
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Mystery CubeStructure Appear",
 	'type', "MisteryAppear",
-	'volume', 80,
-	'mindistance', 3000,
+	'mindistance', 5000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Mysteries/Cube/misterycubestructure_appear1",
@@ -4511,6 +5227,21 @@ PlaceObj('Sound', {
 	}),
 	PlaceObj('Sample', {
 		'file', "Sounds/Mysteries/Cube/misterycubestructure_appear2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery Lights SinkholeDisappear",
+	'type', "MisteryDisappear",
+	'mindistance', 5000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Lights/mysteryLights_sinkholedisappear1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Lights/mysteryLights_sinkholedisappear2",
 		'frequency', 50,
 	}),
 	})
@@ -4561,9 +5292,92 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Mystery Metatron Landing",
+	'type', "ObjectOperation",
+	'volume', 50,
+	'mindistance', 10000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_landing1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_landing2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery Metatron MovementStart",
+	'type', "MisteryAction",
+	'mindistance', 15000,
+})
+
+PlaceObj('Sound', {
+	'name', "Mystery Lights FireflyDrainStart",
+	'type', "MisteryAction",
+	'mindistance', 15000,
+})
+
+PlaceObj('Sound', {
+	'name', "Mystery Metatron MovementStop",
+	'type', "MisteryAction",
+	'mindistance', 15000,
+})
+
+PlaceObj('Sound', {
+	'name', "Mystery Metatron Despawn",
+	'type', "MisteryDisappear",
+	'volume', 110,
+	'mindistance', 5000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_spawn1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_spawn2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery Metatron AnomalyLoop",
+	'type', "MisteryLoopMetatron",
+	'looping', true,
+	'volume', 80,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_anomalyloop1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_anomalyloop2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery Metatron StormSpawn",
+	'type', "ObjectPhase",
+	'volume', 80,
+	'mindistance', 5000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_spawnstorm1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_spawnstorm2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Mystery AlienDigger Fail",
 	'type', "BuildingPhase",
-	'mindistance', 3000,
+	'mindistance', 5000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Mysteries/AlienDigger/misteryaliendigger_fail1",
@@ -4576,9 +5390,48 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Mystery Metatron Rotate",
+	'type', "ObjectOperation",
+	'volume', 20,
+	'mindistance', 8000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_rotate1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_rotate2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Mystery Metatron StrewCharge",
+	'type', "ObjectOperation",
+	'volume', 50,
+	'mindistance', 8000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_strewcharge1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_strewcharge2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Building Spacebar Select",
 	'type', "BuildingOperation",
 	'mindistance', 2000,
+})
+
+PlaceObj('Sound', {
+	'name', "Mystery Metatron TakeoffDebris",
+	'type', "ObjectOneshot",
+	'volume', 90,
+	'mindistance', 10000,
 })
 
 PlaceObj('Sound', {
@@ -4601,7 +5454,7 @@ PlaceObj('Sound', {
 	'name', "Mystery CubeSingle Rotate",
 	'type', "MisteryPulse",
 	'volume', 80,
-	'mindistance', 2500,
+	'mindistance', 4500,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Mysteries/Cube/mysterycube_rotate1",
@@ -4698,6 +5551,22 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Mystery Metatron Strew",
+	'type', "ObjectOperation",
+	'volume', 70,
+	'mindistance', 10000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_strew1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Mysteries/Metatron/mysterymetatron_strew2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Mystery Sphere Reveal",
 	'type', "MisteryAction",
 	'mindistance', 2500,
@@ -4731,7 +5600,7 @@ PlaceObj('Sound', {
 	'name', "Mystery Cube Destruction",
 	'type', "MisteryDisappear",
 	'volume', 70,
-	'mindistance', 3000,
+	'mindistance', 5000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Mysteries/Cube/misterycube_destruction1",
@@ -4857,7 +5726,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Object AtomicBattery Fail",
 	'type', "ObjectPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/AtomicAccumulator/batteryatomic_fail1",
@@ -4873,7 +5742,6 @@ PlaceObj('Sound', {
 	'name', "Object ArtificialSun Charge",
 	'type', "ObjectLoop",
 	'looping', true,
-	'volume', 80,
 	'mindistance', 1600,
 }, {
 	PlaceObj('Sample', {
@@ -4981,6 +5849,14 @@ PlaceObj('Sound', {
 		'frequency', 50,
 	}),
 	})
+
+PlaceObj('Sound', {
+	'name', "Mystery Metatron StormLoop",
+	'type', "MisteryLoopMetatron",
+	'looping', true,
+	'volume', 80,
+	'mindistance', 2500,
+})
 
 PlaceObj('Sound', {
 	'name', "Mystery AlienDigger LandImpactDebris",
@@ -5135,7 +6011,7 @@ PlaceObj('Sound', {
 	'name', "Object ArtificialSun Fail",
 	'type', "ObjectPhase",
 	'volume', 120,
-	'mindistance', 1500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/GeneratorArtificialSun/artificialsun_fail1",
@@ -5180,7 +6056,7 @@ PlaceObj('Sound', {
 	'name', "Object Excavator Fail",
 	'type', "ObjectPhase",
 	'volume', 150,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/TheExcavator/excavator_fail1",
@@ -5324,7 +6200,7 @@ PlaceObj('Sound', {
 	'name', "Object ArtificialSun Loop",
 	'type', "ObjectLoop",
 	'looping', true,
-	'volume', 80,
+	'volume', 70,
 	'mindistance', 1600,
 }, {
 	PlaceObj('Sample', {
@@ -5356,7 +6232,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Object DefenceTower Fail",
 	'type', "ObjectPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/TowerDefence/towerDefence_fail1",
@@ -5372,7 +6248,7 @@ PlaceObj('Sound', {
 	'name', "Object DroneHUB Fail",
 	'type', "ObjectPhase",
 	'volume', 110,
-	'mindistance', 1500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/DroneHUB/dronehub_fail1",
@@ -5498,7 +6374,6 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Mystery Cube Select",
 	'type', "ObjectOperation",
-	'volume', 60,
 	'mindistance', 2500,
 }, {
 	PlaceObj('Sample', {
@@ -5639,7 +6514,7 @@ PlaceObj('Sound', {
 	'name', "Mystery CubeStructure Pulse",
 	'type', "MisteryPulse",
 	'volume', 50,
-	'mindistance', 4500,
+	'mindistance', 5000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Mysteries/Cube/misteryCubeStructure_pulse1",
@@ -5849,17 +6724,18 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
-	'name', "Mystery CubeSingle Pulse",
-	'type', "MisteryPulse",
+	'name', "Mystery CubeSingle PulseLoop",
+	'type', "ObjectLoopLimited-A",
+	'looping', true,
 	'volume', 50,
-	'mindistance', 3500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
-		'file', "Sounds/Mysteries/Cube/mysteryCubeSingle_pulse1",
+		'file', "Sounds/Mysteries/Cube/mysteryCubeSingle_pulseloop1",
 		'frequency', 50,
 	}),
 	PlaceObj('Sample', {
-		'file', "Sounds/Mysteries/Cube/mysteryCubeSingle_pulse2",
+		'file', "Sounds/Mysteries/Cube/mysteryCubeSingle_pulseloop2",
 		'frequency', 50,
 	}),
 	})
@@ -5868,7 +6744,7 @@ PlaceObj('Sound', {
 	'name', "Mystery Cube Disappear",
 	'type', "MisteryDisappear",
 	'volume', 70,
-	'mindistance', 3000,
+	'mindistance', 5000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Mysteries/Cube/mysterycube_disappear1",
@@ -5918,9 +6794,25 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Object LightTrap Activate",
+	'type', "ObjectOperation",
+	'volume', 120,
+	'mindistance', 1100,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LightTrap/lighttrap_activate1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LightTrap/lighttrap_activate2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Object FungalFarm Fail",
 	'type', "ObjectPhase",
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/FungalFarm/fungalfarm_fail2",
@@ -6020,7 +6912,7 @@ PlaceObj('Sound', {
 	'name', "Object AirStorage Fail",
 	'type', "ObjectPhase",
 	'volume', 140,
-	'mindistance', 1500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/StorageAir/airstorage_fail1",
@@ -6098,6 +6990,112 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Object LightTrap Complete",
+	'type', "ObjectPhase",
+})
+
+PlaceObj('Sound', {
+	'name', "Object LightTrap Demolition",
+	'type', "ObjectDestruction",
+	'volume', 70,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall1",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall2",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall3",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall4",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall5",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall6",
+		'frequency', 20,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object LightTrap Fail",
+	'type', "ObjectPhase",
+	'volume', 70,
+	'mindistance', 3000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LightTrap/lighttrap_fail1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LightTrap/lighttrap_fail2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object LightTrap Select",
+	'type', "ObjectOperation",
+	'volume', 80,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LightTrap/lighttrap_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LightTrap/lighttrap_select2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object LightTrap Deactivate",
+	'type', "ObjectOperation",
+	'volume', 130,
+	'mindistance', 1100,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LightTrap/lighttrap_deactivate1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LightTrap/lighttrap_deactivate2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object LightTrap SelectIncomplete",
+	'type', "ObjectOperation",
+	'volume', 60,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object LandingPad Complete",
+	'type', "ObjectPhase",
+})
+
+PlaceObj('Sound', {
 	'name', "Object Fountain1 Loop2",
 	'type', "ObjectLoop",
 	'looping', true,
@@ -6110,6 +7108,71 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Object LightTrap Trap",
+	'type', "ObjectOneshot",
+	'volume', 30,
+	'mindistance', 2000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LightTrap/lighttrap_release1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LightTrap/lighttrap_release2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object LandingPad Demolition",
+	'type', "ObjectDestruction",
+	'volume', 70,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall1",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall2",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall3",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall4",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall5",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall6",
+		'frequency', 20,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object LightTrap LoopFull",
+	'type', "ObjectLightTrapLoopFull",
+	'looping', true,
+	'volume', 70,
+	'mindistance', 1200,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LightTrap/lighttrap_workfull1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LightTrap/lighttrap_workfull2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Object Fountain2 Loop2",
 	'type', "ObjectLoop",
 	'looping', true,
@@ -6118,6 +7181,54 @@ PlaceObj('Sound', {
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/Fountains/fountain2_work2",
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object LandingPad Fail",
+	'type', "ObjectPhase",
+	'volume', 70,
+	'mindistance', 3000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LandingPad/landingpad_fail1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LandingPad/landingpad_fail2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object LightTrap Release",
+	'type', "ObjectOneshot",
+	'volume', 30,
+	'mindistance', 2000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LightTrap/lighttrap_release1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LightTrap/lighttrap_release2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object LightTrap TrapGlow",
+	'type', "ObjectOneshot",
+	'volume', 25,
+	'mindistance', 2000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LightTrap/lighttrap_trapglow1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LightTrap/lighttrap_trapglow2",
+		'frequency', 50,
 	}),
 	})
 
@@ -6167,7 +7278,38 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Object LandingPad Select",
+	'type', "ObjectOperation",
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LandingPad/landingpad_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LandingPad/landingpad_select2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Object SubsurfaceHeater SelectIncomplete",
+	'type', "ObjectOperation",
+	'volume', 60,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object LandingPad SelectIncomplete",
 	'type', "ObjectOperation",
 	'volume', 60,
 	'mindistance', 1500,
@@ -6241,7 +7383,7 @@ PlaceObj('Sound', {
 	'name', "Object FusionReactor Fail",
 	'type', "ObjectPhase",
 	'volume', 120,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/FusionReactor/fusionreactor_fail2",
@@ -6254,9 +7396,26 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Object LightTrap LoopEmpty",
+	'type', "ObjectLightTrapLoopEmpty",
+	'looping', true,
+	'volume', 70,
+	'mindistance', 1200,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LightTrap/lighttrap_workempty1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LightTrap/lighttrap_workempty2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Object GiantLaser Fail",
 	'type', "ObjectPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -6367,7 +7526,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Building Farm Fail",
 	'type', "BuildingPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/Farm/farm_fail2",
@@ -6436,7 +7595,7 @@ PlaceObj('Sound', {
 	'name', "Object OmegaTelescope Fail",
 	'type', "ObjectPhase",
 	'volume', 120,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/OmegaTelescope/omegatelescope_fail1",
@@ -6575,7 +7734,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Object FuelRefinery Fail",
 	'type', "ObjectPhase",
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/FuelRefinery/refinery_fail2",
@@ -6623,7 +7782,7 @@ PlaceObj('Sound', {
 	'name', "Object MDSLaser Fail",
 	'type', "ObjectPhase",
 	'volume', 90,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/MDSLaser/MDSLaser_fail2",
@@ -6664,7 +7823,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Object MOXIE Fail",
 	'type', "ObjectPhase",
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/GeneratorMoxie/generatorMoxie_fail1",
@@ -6711,7 +7870,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Object MetalExtractor Fail",
 	'type', "ObjectPhase",
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/ExtractorMetal/extractorMetal_fail1",
@@ -6727,7 +7886,7 @@ PlaceObj('Sound', {
 	'name', "Object MoholeMine Fail",
 	'type', "ObjectPhase",
 	'volume', 150,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/ExtractorMohole/moholemine_fail1",
@@ -6904,6 +8063,82 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Object PassageRamp Complete",
+	'type', "ObjectPhase",
+})
+
+PlaceObj('Sound', {
+	'name', "Object PassageRamp Demolition",
+	'type', "ObjectDestruction",
+	'volume', 40,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall1",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall2",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall3",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall4",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall5",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall6",
+		'frequency', 20,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object PassageRamp Fail",
+	'type', "ObjectPhase",
+	'volume', 80,
+	'mindistance', 3000,
+})
+
+PlaceObj('Sound', {
+	'name', "Object PassageRamp Select",
+	'type', "ObjectOperation",
+	'volume', 50,
+	'mindistance', 2000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/PassageRamp/passageramp_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/PassageRamp/passageramp_select2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object PassageRamp SelectIncomplete",
+	'type', "ObjectOperation",
+	'volume', 60,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Object OmegaTelescope LiftLoop",
 	'type', "ObjectOneshot",
 	'volume', 110,
@@ -6936,6 +8171,22 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Object Passage Connect",
+	'type', "ObjectOperation",
+	'volume', 70,
+	'mindistance', 1000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/Passage/passage_connect1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/Passage/passage_connect2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Object MoholeMine Select",
 	'type', "ObjectOperation",
 	'volume', 150,
@@ -6952,6 +8203,30 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Object Passage Demolition",
+	'type', "ObjectDestruction",
+	'volume', 60,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionGlass1",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionGlass2",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionGlass3",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionGlass4",
+		'frequency', 30,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Object MetalExtractor Select",
 	'type', "ObjectOperation",
 	'volume', 140,
@@ -6963,6 +8238,22 @@ PlaceObj('Sound', {
 	}),
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/ExtractorMetal/extractorMetal_select2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object Passage Fail",
+	'type', "ObjectPhase",
+	'volume', 80,
+	'mindistance', 3000,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/Passage/passage_fail1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/Passage/passage_fail2",
 		'frequency', 50,
 	}),
 	})
@@ -6994,6 +8285,38 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "Object Passage Select",
+	'type', "ObjectOperation",
+	'volume', 70,
+	'mindistance', 2500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/Passage/passage_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/Passage/passage_select2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object Passage Loop",
+	'type', "PassageLoop",
+	'looping', true,
+	'mindistance', 600,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/Passage/passage_work1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/Passage/passage_work2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "Object PipeValve Switch",
 	'type', "ObjectOperation",
 	'volume', 80,
@@ -7005,6 +8328,22 @@ PlaceObj('Sound', {
 	}),
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/PipesValve/pipevalve_switch2",
+		'frequency', 50,
+	}),
+	})
+
+PlaceObj('Sound', {
+	'name', "Object Passage SelectIncomplete",
+	'type', "ObjectOperation",
+	'volume', 60,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
 		'frequency', 50,
 	}),
 	})
@@ -7036,7 +8375,7 @@ PlaceObj('Sound', {
 	'name', "Object PipeValve Fail",
 	'type', "ObjectPhase",
 	'volume', 80,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/PipesValve/pipevalve_fail1",
@@ -7052,7 +8391,7 @@ PlaceObj('Sound', {
 	'name', "Object MoistureVaporator Fail",
 	'type', "ObjectPhase",
 	'volume', 90,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/ExtractorMoisture/extractorMoisture_fail1",
@@ -7239,7 +8578,7 @@ PlaceObj('Sound', {
 	'name', "Object PowerCables Fail",
 	'type', "ObjectPhase",
 	'volume', 80,
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -7349,7 +8688,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Object Pipes Demolition",
 	'type', "ObjectDestruction",
-	'mindistance', 500,
+	'mindistance', 1500,
 })
 
 PlaceObj('Sound', {
@@ -7387,7 +8726,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Object PowerDecoy Fail",
 	'type', "ObjectPhase",
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/PowerDecoy/powerdecoy_fail1",
@@ -7480,7 +8819,7 @@ PlaceObj('Sound', {
 	'name', "Object Pipes Fail",
 	'type', "ObjectPhase",
 	'volume', 80,
-	'mindistance', 1500,
+	'mindistance', 3000,
 })
 
 PlaceObj('Sound', {
@@ -7528,13 +8867,31 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Object PowerSwitch Demolition",
 	'type', "ObjectDestruction",
-	'mindistance', 500,
-})
+	'volume', 120,
+	'mindistance', 1500,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionTiny1",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionTiny2",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionTiny3",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionTiny4",
+		'frequency', 30,
+	}),
+	})
 
 PlaceObj('Sound', {
 	'name', "Object PowerSwitch Fail",
 	'type', "ObjectPhase",
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/PowerSwitch/powerswitch_fail1",
@@ -7681,7 +9038,7 @@ PlaceObj('Sound', {
 	'name', "Object ProjectMorpheus Fail",
 	'type', "ObjectPhase",
 	'volume', 120,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/ProjectMorpheus/projectmorpheus_fail1",
@@ -7959,7 +9316,7 @@ PlaceObj('Sound', {
 	'name', "Object RechargeStation Fail",
 	'type', "ObjectPhase",
 	'volume', 90,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/RechargeStation/rechargestation_fail1",
@@ -7991,7 +9348,7 @@ PlaceObj('Sound', {
 	'name', "Object PowerAccumulator Fail",
 	'type', "ObjectPhase",
 	'volume', 80,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/PowerAccumulator/battery_fail2",
@@ -8006,7 +9363,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Object PowerCables Demolition",
 	'type', "ObjectDestruction",
-	'mindistance', 500,
+	'mindistance', 1500,
 })
 
 PlaceObj('Sound', {
@@ -8209,7 +9566,7 @@ PlaceObj('Sound', {
 	'name', "Object PreciousExtractor Fail",
 	'type', "ObjectPhase",
 	'volume', 120,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/ExtractorPrecious/extractorUniversal_fail2",
@@ -8235,7 +9592,6 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Object SolarPanel Select",
 	'type', "ObjectOperation",
-	'volume', 120,
 	'mindistance', 2500,
 }, {
 	PlaceObj('Sample', {
@@ -8409,7 +9765,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Object RegolithExtractor Fail",
 	'type', "ObjectPhase",
-	'mindistance', 1500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/ExtractorRegolith/extractorRegolith_fail1",
@@ -8458,7 +9814,7 @@ PlaceObj('Sound', {
 	'name', "Object ShuttleHUB Fail",
 	'type', "ObjectPhase",
 	'volume', 110,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/ShuttleHUB/shuttlehub_fail1",
@@ -8506,7 +9862,7 @@ PlaceObj('Sound', {
 	'name', "Object SensorTower Fail",
 	'type', "ObjectPhase",
 	'volume', 70,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/TowerSensor/towerSensor_fail2",
@@ -8537,7 +9893,7 @@ PlaceObj('Sound', {
 	'name', "Object SensorTower Loop",
 	'type', "ObjectLoop",
 	'looping', true,
-	'volume', 50,
+	'volume', 25,
 	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
@@ -8683,7 +10039,6 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Object SolarPanelBig Select",
 	'type', "ObjectOperation",
-	'volume', 140,
 	'mindistance', 2500,
 }, {
 	PlaceObj('Sample', {
@@ -8726,7 +10081,7 @@ PlaceObj('Sound', {
 	'name', "Object SolarPanelBig Fail",
 	'type', "ObjectPhase",
 	'volume', 90,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/GeneratorSolarpanel/generatorSolarpanelLarge_fail1",
@@ -8827,7 +10182,7 @@ PlaceObj('Sound', {
 	'name', "Object SolarPanel Fail",
 	'type', "ObjectPhase",
 	'volume', 80,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/GeneratorSolarpanel/generatorSolarpanel_fail1",
@@ -8984,7 +10339,7 @@ PlaceObj('Sound', {
 	'name', "Object SpaceElevator Fail",
 	'type', "ObjectPhase",
 	'volume', 150,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/SpaceElevator/spaceelevator_fail1",
@@ -9065,7 +10420,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Object StorageCrane Fail",
 	'type', "ObjectPhase",
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/StorageCrane/storagecrane_fail1",
@@ -9171,7 +10526,7 @@ PlaceObj('Sound', {
 	'name', "Object StirlingGenerator Fail",
 	'type', "ObjectPhase",
 	'volume', 120,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/GeneratorStirling/generatorStirling_fail1",
@@ -9397,7 +10752,7 @@ PlaceObj('Sound', {
 	'name', "Object TriboelectricScrubber Fail",
 	'type', "ObjectPhase",
 	'volume', 120,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/TriboelectricScrubber/triboelectric_fail2",
@@ -9596,7 +10951,7 @@ PlaceObj('Sound', {
 	'name', "Object WaterExtractor Fail",
 	'type', "ObjectPhase",
 	'volume', 120,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/ExtractorWater/extractorWater_fail1",
@@ -9612,7 +10967,7 @@ PlaceObj('Sound', {
 	'name', "Object SubsurfaceHeater Fail",
 	'type', "ObjectPhase",
 	'volume', 120,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/SubsurfaceHeater/subsurfaceheater_fail2",
@@ -9669,14 +11024,14 @@ PlaceObj('Sound', {
 	'name', "Object Tunnel Fail",
 	'type', "ObjectPhase",
 	'volume', 120,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
-		'file', "Sounds/Objects/TriboelectricScrubber/triboelectric_fail2",
+		'file', "Sounds/Objects/Tunnel/tunnel_fail1",
 		'frequency', 50,
 	}),
 	PlaceObj('Sample', {
-		'file', "Sounds/Objects/TriboelectricScrubber/triboelectric_fail1",
+		'file', "Sounds/Objects/Tunnel/tunnel_fail2",
 		'frequency', 50,
 	}),
 	})
@@ -9685,7 +11040,7 @@ PlaceObj('Sound', {
 	'name', "Building WaterReclamation Fail",
 	'type', "ObjectPhase",
 	'volume', 90,
-	'mindistance', 1500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Buildings/WaterReclamation/waterspire_fail1",
@@ -9696,6 +11051,11 @@ PlaceObj('Sound', {
 		'frequency', 50,
 	}),
 	})
+
+PlaceObj('Sound', {
+	'name', "Object Passage Complete",
+	'type', "ObjectPhase",
+})
 
 PlaceObj('Sound', {
 	'name', "Object WaterExtractor Complete",
@@ -9934,7 +11294,7 @@ PlaceObj('Sound', {
 	'name', "Object WaterTower Fail",
 	'type', "ObjectPhase",
 	'volume', 120,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/TowerWater/towerWater_fail2",
@@ -9980,7 +11340,7 @@ PlaceObj('Sound', {
 	'name', "Object WaterTankLarge Fail",
 	'type', "ObjectPhase",
 	'volume', 120,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/TowerWater/towerWater_fail2",
@@ -10153,7 +11513,7 @@ PlaceObj('Sound', {
 	'name', "Object WindTurbine Fail",
 	'type', "ObjectPhase",
 	'volume', 140,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/GeneratorWind/generatorWind_fail1",
@@ -10169,7 +11529,7 @@ PlaceObj('Sound', {
 	'name', "Object Workshop Fail",
 	'type', "ObjectPhase",
 	'volume', 120,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/Workshop/workshop_fail2",
@@ -10215,13 +11575,13 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopArt Complete",
-	'type', "ObjectPhase",
+	'name', "Building WorkshopArt Complete",
+	'type', "BuildingPhase",
 })
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopArt Demolition",
-	'type', "ObjectDestruction",
+	'name', "Building WorkshopArt Demolition",
+	'type', "BuildingDestruction",
 	'volume', 70,
 	'mindistance', 1500,
 }, {
@@ -10260,10 +11620,10 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopArt Fail",
-	'type', "ObjectPhase",
+	'name', "Building WorkshopArt Fail",
+	'type', "BuildingPhase",
 	'volume', 120,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/WorkshopArt/artworkshop_fail1",
@@ -10276,8 +11636,8 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopArt Loop",
-	'type', "ObjectLoop",
+	'name', "Building WorkshopArt Loop",
+	'type', "BuildingLoop",
 	'looping', true,
 	'volume', 130,
 	'mindistance', 600,
@@ -10293,8 +11653,8 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopBiorobotics Arm",
-	'type', "ObjectOperation",
+	'name', "Building WorkshopBiorobotics Arm",
+	'type', "BuildingOperation",
 	'volume', 50,
 	'mindistance', 600,
 }, {
@@ -10320,15 +11680,15 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopArt Select",
-	'type', "ObjectOperation",
+	'name', "Building WorkshopArt Select",
+	'type', "BuildingOperation",
 	'volume', 120,
 	'mindistance', 2500,
 })
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopArt SelectIncomplete",
-	'type', "ObjectOperation",
+	'name', "Building WorkshopArt SelectIncomplete",
+	'type', "BuildingOperation",
 	'volume', 60,
 	'mindistance', 1500,
 }, {
@@ -10343,13 +11703,13 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopBiorobotics Complete",
-	'type', "ObjectPhase",
+	'name', "Building WorkshopBiorobotics Complete",
+	'type', "BuildingPhase",
 })
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopBiorobotics Demolition",
-	'type', "ObjectDestruction",
+	'name', "Building WorkshopBiorobotics Demolition",
+	'type', "BuildingDestruction",
 	'volume', 70,
 	'mindistance', 1500,
 }, {
@@ -10388,10 +11748,10 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopBiorobotics Fail",
-	'type', "ObjectPhase",
+	'name', "Building WorkshopBiorobotics Fail",
+	'type', "BuildingPhase",
 	'volume', 120,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/WorkshopBiorobotics/bioroboticsworkshop_fail1",
@@ -10420,15 +11780,15 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopBiorobotics Select",
-	'type', "ObjectOperation",
+	'name', "Building WorkshopBiorobotics Select",
+	'type', "BuildingOperation",
 	'volume', 120,
 	'mindistance', 2500,
 })
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopBiorobotics SelectIncomplete",
-	'type', "ObjectOperation",
+	'name', "Building WorkshopBiorobotics SelectIncomplete",
+	'type', "BuildingOperation",
 	'volume', 60,
 	'mindistance', 1500,
 }, {
@@ -10443,13 +11803,13 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopVR Complete",
-	'type', "ObjectPhase",
+	'name', "Building WorkshopVR Complete",
+	'type', "BuildingPhase",
 })
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopVR Demolition",
-	'type', "ObjectDestruction",
+	'name', "Building WorkshopVR Demolition",
+	'type', "BuildingDestruction",
 	'volume', 70,
 	'mindistance', 1500,
 }, {
@@ -10488,10 +11848,10 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopVR Fail",
-	'type', "ObjectPhase",
+	'name', "Building WorkshopVR Fail",
+	'type', "BuildingPhase",
 	'volume', 120,
-	'mindistance', 2500,
+	'mindistance', 3000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Objects/WorkshopVR/vrworkshop_fail1",
@@ -10504,8 +11864,8 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopVR Loop",
-	'type', "ObjectLoop",
+	'name', "Building WorkshopVR Loop",
+	'type', "BuildingLoop",
 	'looping', true,
 	'mindistance', 600,
 }, {
@@ -10520,15 +11880,15 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopVR Select",
-	'type', "ObjectOperation",
+	'name', "Building WorkshopVR Select",
+	'type', "BuildingOperation",
 	'volume', 120,
 	'mindistance', 2500,
 })
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopVR SelectIncomplete",
-	'type', "ObjectOperation",
+	'name', "Building WorkshopVR SelectIncomplete",
+	'type', "BuildingOperation",
 	'volume', 60,
 	'mindistance', 1500,
 }, {
@@ -10575,8 +11935,8 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
-	'name', "Object WorkshopBiorobotics Loop",
-	'type', "ObjectLoop",
+	'name', "Building WorkshopBiorobotics Loop",
+	'type', "BuildingLoop",
 	'looping', true,
 	'volume', 70,
 	'mindistance', 600,
@@ -11311,6 +12671,16 @@ PlaceObj('Sound', {
 	})
 
 PlaceObj('Sound', {
+	'name', "UI PlacePassage",
+	'type', "UILimited",
+	'volume', 10,
+}, {
+	PlaceObj('Sample', {
+		'file', "Sounds/UI/ui_placepipes2",
+	}),
+	})
+
+PlaceObj('Sound', {
 	'name', "UI LaunchMission",
 	'type', "UI",
 	'volume', 30,
@@ -11690,7 +13060,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "UI SelectRemains",
 	'type', "UI",
-	'volume', 10,
+	'volume', 20,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/UI/ui_selectRemains",
@@ -12419,8 +13789,7 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Mystery Cube Appear",
 	'type', "MisteryAppear",
-	'volume', 70,
-	'mindistance', 3000,
+	'mindistance', 5000,
 }, {
 	PlaceObj('Sample', {
 		'file', "Sounds/Mysteries/Cube/mysterycube_appear1",
@@ -13321,7 +14690,6 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Unit Shuttle TakeoffHub",
 	'type', "UnitShuttleMotion",
-	'volume', 130,
 	'mindistance', 1200,
 }, {
 	PlaceObj('Sample', {
@@ -13401,7 +14769,6 @@ PlaceObj('Sound', {
 PlaceObj('Sound', {
 	'name', "Unit Shuttle Takeoff",
 	'type', "UnitShuttleMotion",
-	'volume', 130,
 	'mindistance', 1200,
 }, {
 	PlaceObj('Sample', {

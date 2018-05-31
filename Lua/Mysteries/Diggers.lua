@@ -8,9 +8,9 @@ DefineClass.DiggersMystery = {
 	destroyed_diggers = 0,
 	
 	display_name = T{1170, "The Dredgers (Normal)"},
-	rollover_text = T{1171, "\"Two possibilities exist: either we are alone in the Universe or we are not. Both are equally terrifying.\"<newline><right>- Arthur C. Clarke"},
-	challenge_mod = 30,
-	order_pos = 6,
+	rollover_text = T{1171, '"Two possibilities exist: either we are alone in the Universe or we are not. Both are equally terrifying."<newline><right>- Arthur C. Clarke'},
+	challenge_mod = 40,
+	order_pos = 7,
 }
 
 function DiggersMystery:Init()
@@ -190,7 +190,7 @@ function AlienDigger:ClearCables()
 	
 	UICity:SetCableCascadeDeletion(false, "digger")
 	local dir = HexAngleToDirection(self:GetAngle() * 60)
-	local q, r = WorldToHex(self:GetPos():xy())
+	local q, r = WorldToHex(self)
 	for i = 1, 2 do
 		local shape_data = i == 1 and outline or interior
 		for _, shape_pt in ipairs(shape_data) do

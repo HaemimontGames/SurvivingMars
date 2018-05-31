@@ -6,7 +6,8 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateWindow', {
 		'__context', function (parent, context) return not GameState.gameplay and RocketPayloadObjectCreateAndLoad("pregame") or context end,
 		'__class', "XDialog",
-		'Padding', box(0, 65, 100, 80),
+		'Id', "idPayload",
+		'Padding', box(0, 65, 100, 50),
 		'ContextUpdateOnOpen', true,
 		'InitialMode', "items",
 		'InternalModes', "items,prefabs",
@@ -71,7 +72,7 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "OnHyperLink(self, hyperlink, argument, hyperlink_box, pos, button)",
 							'func', function (self, hyperlink, argument, hyperlink_box, pos, button)
-local host = GetDialog(self)
+local host = GetXDialog(self)
 host.context:RenameRocket(host)
 end,
 						}),
@@ -131,7 +132,7 @@ end,
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonX",
 						'ActionState', function (self, host)
-return g_CargoWeight <= 0 and "disabled"
+return (g_CargoWeight <= 0 or (g_Tutorial and g_Tutorial.SuppressResupplyLaunch))and "disabled"
 end,
 						'OnAction', function (self, host, source, toggled)
 LaunchCargoRocket(host.context, function() host.parent.parent:Close() end)

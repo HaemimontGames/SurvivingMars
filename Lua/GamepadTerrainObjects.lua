@@ -104,7 +104,8 @@ function GamepadTerrainObjects:Update()
 	--selection or not using UnitControl
 	if game_mode == "selection" and not mode_dialog.interaction_mode then
 		self.units = PropagateObjectList(self:GatherUnits())
-		self.objects = PropagateObjectList(self:GatherObjects())
+		local cable_recharging = IsKindOf(SelectedObj, "BaseRover")
+		self.objects = PropagateObjectList(self:GatherObjects(cable_recharging))
 		
 		self:SetState("idle", {
 			SelectObj = #self.objects > 0,
@@ -151,6 +152,9 @@ function GamepadTerrainObjects:FindInteractableObj()
 				break
 			end
 		end
+	end
+	if not mode_dialog.interaction_obj then
+		mode_dialog:UpdateInteractionObj(false, pos)
 	end
 end
 

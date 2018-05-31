@@ -53,8 +53,6 @@ DefineClass.Farm = {
 		max_y  = 2,
 	},
 	amount_stored = 0,
-	
-	anim_thread = false,
 }
 
 GlobalVar("g_FarmId", 0)
@@ -103,44 +101,10 @@ function Farm:GameInit()
 		self.selected_crop[1] = self.default_crop
 		self:PlantNextCrop()
 	end
-	
-	self:StartAnimThread()
 end
 
 function Farm:Done()
 	self.city:RemoveFromLabel("BaseFarm", self)
-end
-
-function Farm:StartAnimThread()
-	self.anim_thread = CreateGameTimeThread(function()
-		local sprinkler = (self:GetAttaches("FarmSprinkler") or empty_table)[1]
-		if not sprinkler then return end
-		
-		local is_up = false
-
-		while IsValid(self) and not self.destroyed do
-			local working = self.working
-			if working and not is_up then
-				sprinkler:SetAnim(1, "workingStart")
-				Sleep(sprinkler:TimeToAnimEnd())
-				is_up = true
-			elseif not working and is_up then
-				PlayFX("FarmWater", "end", sprinkler)
-				sprinkler:SetAnim(1, "workingEnd")
-				Sleep(sprinkler:TimeToAnimEnd())
-				is_up = false
-			end
-			
-			-- if working state changed start over, otherwise set appropritate idle state, fire fx and wait
-			if working == self.working then
-				sprinkler:SetAnim(1, working and "workingIdle" or "idle")				
-				if working then
-					PlayFX("FarmWater", "start", sprinkler)
-				end
-				WaitWakeup()
-			end			
-		end
-	end)
 end
 
 function Farm:CreateLifeSupportElements()
@@ -157,9 +121,6 @@ function Farm:OnSetWorking(working)
 		end
 	end
 	self:ApplyOxygenProductionMod(self.working and self.selected_crop[self.current_crop])
-	if IsValidThread(self.anim_thread) then
-		Wakeup(self.anim_thread)
-	end
 end
 
 function Farm:UpdateAttachedSigns()
@@ -569,11 +530,10 @@ function Farm:PlantNextCrop(forced, prev)
 		end
 	end
 	
-	if not crop or not self.working then
+	if not crop then
 		self.expected_output = 0
 		self:SetBase("water_consumption", 0)
 		self.harvest_planted_time = false
-		self:UpdateWorking(false)
 	else	
 		local cropdef = DataInstances.Crop[crop]
 		if cropdef then
@@ -583,7 +543,6 @@ function Farm:PlantNextCrop(forced, prev)
 			self:SetBase("water_consumption", cropdef.WaterDemand)
 			
 			self.expected_output = self:CalcExpectedProduction()
-			self:Notify("UpdateWorking")
 			
 			-- apply custom modifier form cropdef (if any)
 			if cropdef.modify_target ~= "" and cropdef.modify_property ~= "" then
@@ -592,8 +551,7 @@ function Farm:PlantNextCrop(forced, prev)
 		end
 	end
 	
-	self:ApplyOxygenProductionMod(self.working and crop)
-	self:UpdateUI()
+	self:ApplyOxygenProductionMod(self.harvest_planted_time and crop)
 	self:UpdateVisualsFarm(prev)
 end
 
@@ -604,8 +562,9 @@ function Farm:ApplyOxygenProductionMod(crop)
 		local amount = MulDivRound(cropdef.OxygenProduction, self.oxygen_production_efficiency, 100)
 		self.parent_dome:SetModifier("air_consumption", self.farm_id, -amount, 0, T{663, "<amount> from <crop_name>", crop_name = cropdef.DisplayName})
 	else
-		self.parent_dome:SetModifier("air_consumption", self.farm_id, 0, 0)
+		self.parent_dome:SetModifier("air_consumption", self.farm_id, 0, 0)		
 	end
+	self.parent_dome:UpdateWorking()
 end
 
 function Farm:OnModifiableValueChanged(prop)
@@ -661,11 +620,8 @@ function Farm:SetCrop(idx, crop, broadcast)
 end
 
 function Farm:GetWorkNotPossibleReason()
-	if not self.selected_crop or #self.selected_crop == 0 then
-		return "NoCrop"
-	end
 	local can_grow = false
-	for i = 1, #self.selected_crop do
+	for i = 1, #(self.selected_crop or "") do
 		if self.selected_crop[i] and self:CanGrow(self.selected_crop[i]) then
 			can_grow = true
 			break
@@ -731,7 +687,7 @@ function Farm:GetCropWaterDemand(crop_idx, crop)
 	crop = crop or self.selected_crop[crop_idx]
 	local ret = crop and DataInstances.Crop[crop] and DataInstances.Crop[crop].WaterDemand or 0
 	
-	return self:ModifyValue(ret, "water_consumption")
+	return Max(self:ModifyValue(ret, "water_consumption"), 0)
 end
 
 function Farm:InitPersistCrops()
@@ -767,7 +723,74 @@ end
 
 DefineClass.FarmConventional = {
 	__parents = { "Farm" },
+	
+	anim_thread = false,
+	is_up = false,
 }
+
+function FarmConventional:GameInit()
+	self:StartAnimThread()
+end
+
+function FarmConventional:Done()
+	if IsValidThread(self.anim_thread) then
+		DeleteThread(self.anim_thread)
+	end
+end
+
+function FarmConventional:OnSetWorking(working)
+	Farm.OnSetWorking(self, working)
+	
+	if IsValidThread(self.anim_thread) then
+		Wakeup(self.anim_thread)
+	end
+end
+
+function FarmConventional:StartAnimThread()
+	local sprinkler = self:GetAttach("FarmSprinkler")
+	if not sprinkler then
+		return
+	end
+	
+	self.anim_thread = CreateGameTimeThread(function()
+		while IsValid(self) and not self.destroyed do
+			local working = self.working
+			if working and not self.is_up then
+				sprinkler:SetAnim(1, "workingStart")
+				Sleep(sprinkler:TimeToAnimEnd())
+				PlayFX("FarmWater", "start", sprinkler)
+				self.is_up = true
+			elseif not working and self.is_up then
+				PlayFX("FarmWater", "end", sprinkler)
+				sprinkler:SetAnim(1, "workingEnd")
+				Sleep(sprinkler:TimeToAnimEnd())
+				self.is_up = false
+			end
+			
+			-- if working state changed start over, otherwise set appropritate idle state, fire fx and wait
+			if working == self.working then
+				sprinkler:SetAnim(1, working and "workingIdle" or "idle")
+				WaitWakeup()
+			end
+		end
+	end)
+end
+
+function SavegameFixups.FarmSprinkerFix(metadata, lua_revision)
+	local farms = GetObjects{class = "FarmConventional"}
+	for i,farm in ipairs(farms) do
+		if IsValidThread(farm.anim_thread) then
+			DeleteThread(farm.anim_thread)
+		end
+		
+		local sprinkler = farm:GetAttach("FarmSprinkler")
+		if sprinkler then
+			sprinkler:DestroyAttaches()
+		end
+		
+		farm:StartAnimThread()
+	end
+end
 
 DefineClass.FarmHydroponic = {
 	__parents =  { "Farm" },

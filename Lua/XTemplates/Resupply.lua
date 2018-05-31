@@ -82,6 +82,7 @@ end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XContentTemplate",
+			'Id', "idTemplate",
 			'RespawnOnContext', false,
 		}, {
 			PlaceObj('XTemplateMode', {

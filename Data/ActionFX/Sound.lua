@@ -15,6 +15,18 @@ PlaceObj('ActionFXSound', {
 })
 
 PlaceObj('ActionFXSound', {
+	'Action', "ActivateBlackCubes",
+	'Moment', "start",
+	'EndMoment1', "end",
+	'handle', 254720159,
+	'Sound', "Mystery CubeSingle PulseLoop",
+	'FadeIn', 2000,
+	'FadeOut', 2000,
+	'Source', "ActionPos",
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
 	'Action', "AirExplosion",
 	'Moment', "start",
 	'Actor', "BombardRocket",
@@ -129,9 +141,8 @@ PlaceObj('ActionFXSound', {
 	'EndMoment1', "end",
 	'handle', 1694733844,
 	'Sound', "Object ArtificialSun Charge",
-	'FadeIn', 2000,
+	'FadeIn', 3000,
 	'FadeOut', 3000,
-	'AttachToObj', true,
 })
 
 PlaceObj('ActionFXSound', {
@@ -142,7 +153,7 @@ PlaceObj('ActionFXSound', {
 	'EndMoment1', "end",
 	'handle', 481140398,
 	'Sound', "Object ArtificialSun Produce",
-	'FadeIn', 2000,
+	'FadeIn', 3000,
 	'FadeOut', 3000,
 	'AttachToObj', true,
 })
@@ -151,8 +162,15 @@ PlaceObj('ActionFXSound', {
 	'Action', "BioroboticsArmMotion",
 	'Moment', "start",
 	'Actor', "BioroboticsWorkshopArm",
-	'Sound', "Object WorkshopBiorobotics Arm",
+	'Sound', "Building WorkshopBiorobotics Arm",
 	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "BlackCubesRotate",
+	'Moment', "start",
+	'Actor', "BlackCubeStockpile",
+	'Sound', "Mystery CubeSingle Rotate",
 })
 
 PlaceObj('ActionFXSound', {
@@ -183,7 +201,7 @@ PlaceObj('ActionFXSound', {
 	'Action', "Breakdown",
 	'Moment', "start",
 	'Actor', "ArtWorkshop",
-	'Sound', "Object WorkshopArt Fail",
+	'Sound', "Building WorkshopArt Fail",
 	'Source', "ActionPos",
 })
 
@@ -219,7 +237,15 @@ PlaceObj('ActionFXSound', {
 	'Action', "Breakdown",
 	'Moment', "start",
 	'Actor', "BioroboticsWorkshop",
-	'Sound', "Object WorkshopBiorobotics Fail",
+	'Sound', "Building WorkshopBiorobotics Fail",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Breakdown",
+	'Moment', "start",
+	'Actor', "CableSwitch",
+	'Sound', "Object PowerSwitch Fail",
 	'Source', "ActionPos",
 })
 
@@ -263,7 +289,7 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Breakdown",
 	'Moment', "start",
-	'Actor', "DomeBasic",
+	'Actor', "DomeDiamond",
 	'Sound', "Building Dome Fail",
 })
 
@@ -271,6 +297,13 @@ PlaceObj('ActionFXSound', {
 	'Action', "Breakdown",
 	'Moment', "start",
 	'Actor', "DomeGeoscape",
+	'Sound', "Building Dome Fail",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Breakdown",
+	'Moment', "start",
+	'Actor', "DomeHexa",
 	'Sound', "Building Dome Fail",
 })
 
@@ -291,6 +324,20 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Breakdown",
 	'Moment', "start",
+	'Actor', "DomeMegaTrigon",
+	'Sound', "Building Dome Fail",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Breakdown",
+	'Moment', "start",
+	'Actor', "DomeMicro",
+	'Sound', "Building Dome Fail",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Breakdown",
+	'Moment', "start",
 	'Actor', "DomeOval",
 	'Sound', "Building Dome Fail",
 })
@@ -299,6 +346,13 @@ PlaceObj('ActionFXSound', {
 	'Action', "Breakdown",
 	'Moment', "start",
 	'Actor', "DomeStar",
+	'Sound', "Building Dome Fail",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Breakdown",
+	'Moment', "start",
+	'Actor', "DomeTrigon",
 	'Sound', "Building Dome Fail",
 })
 
@@ -398,8 +452,22 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Breakdown",
 	'Moment', "start",
+	'Actor', "LandingPad",
+	'Sound', "Object LandingPad Fail",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Breakdown",
+	'Moment', "start",
 	'Actor', "LargeWaterTank",
 	'Sound', "Object WaterTankLarge Fail",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Breakdown",
+	'Moment', "start",
+	'Actor', "LightTrap",
+	'Sound', "Object LightTrap Fail",
 })
 
 PlaceObj('ActionFXSound', {
@@ -509,15 +577,31 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Breakdown",
 	'Moment', "start",
-	'Actor', "PipeValve",
-	'Sound', "Object PipeValve Fail",
+	'Actor', "Passage",
+	'Sound', "Object Passage Fail",
+	'Source', "ActionPos",
 })
 
 PlaceObj('ActionFXSound', {
 	'Action', "Breakdown",
 	'Moment', "start",
-	'Actor', "Pipes",
+	'Actor', "PassageRamp",
+	'Sound', "Object PassageRamp Fail",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Breakdown",
+	'Moment', "start",
+	'Actor', "Pipe",
 	'Sound', "Object Pipes Fail",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Breakdown",
+	'Moment', "start",
+	'Actor', "PipeValve",
+	'Sound', "Object PipeValve Fail",
 })
 
 PlaceObj('ActionFXSound', {
@@ -538,7 +622,7 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Breakdown",
 	'Moment', "start",
-	'Actor', "PowerCables",
+	'Actor', "PowerCable",
 	'Sound', "Object PowerCables Fail",
 })
 
@@ -732,7 +816,6 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "Spacebar",
 	'Sound', "Building Spacebar Fail",
-	'Source', "ActionPos",
 })
 
 PlaceObj('ActionFXSound', {
@@ -774,7 +857,7 @@ PlaceObj('ActionFXSound', {
 	'Action', "Breakdown",
 	'Moment', "start",
 	'Actor', "VRWorkshop",
-	'Sound', "Object WorkshopVR Fail",
+	'Sound', "Building WorkshopVR Fail",
 	'Source', "ActionPos",
 })
 
@@ -1263,6 +1346,311 @@ PlaceObj('ActionFXSound', {
 })
 
 PlaceObj('ActionFXSound', {
+	'Action', "ContainFireflies",
+	'Moment', "end",
+	'Actor', "LightTrap",
+	'Disabled', true,
+	'EndAction1', "ContainFireflies",
+	'EndMoment1', "start",
+	'EndAction2', "Working",
+	'EndMoment2', "end",
+	'handle', 1372520554,
+	'Sound', "Object LightTrap LoopEmpty",
+	'FadeIn', 2000,
+	'FadeOut', 2000,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "ContainFireflies",
+	'Moment', "end",
+	'Actor', "LightTrap",
+	'Target', "ignore",
+	'Sound', "Object LightTrap Deactivate",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "ContainFireflies",
+	'Moment', "start",
+	'Actor', "LightTrap",
+	'Target', "ignore",
+	'EndMoment1', "end",
+	'handle', 1549441170,
+	'Sound', "Object LightTrap LoopFull",
+	'FadeIn', 3000,
+	'FadeOut', 3000,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "ContainFireflies",
+	'Moment', "start",
+	'Actor', "LightTrap",
+	'Target', "ignore",
+	'Sound', "Object LightTrap Activate",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalActive",
+	'Moment', "start",
+	'Actor', "Crystal",
+	'Target', "ignore",
+	'EndMoment1', "end",
+	'handle', 2067760447,
+	'Sound', "Mystery AlienCrystalsBig Ambience",
+	'FadeIn', 3000,
+	'FadeOut', 3000,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalActive",
+	'Moment', "start",
+	'Actor', "Crystal",
+	'Target', "ignore",
+	'Sound', "Mystery AlienCrystalsBig Appear",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalActive",
+	'Moment', "start",
+	'Actor', "CrystalsBig",
+	'Target', "ignore",
+	'EndMoment1', "end",
+	'handle', 2129075561,
+	'Sound', "Mystery AlienCrystals Ambience",
+	'FadeIn', 3000,
+	'FadeOut', 3000,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalActive",
+	'Moment', "start",
+	'Actor', "CrystalsSmall",
+	'Target', "ignore",
+	'EndMoment1', "end",
+	'handle', 464251062,
+	'Sound', "Mystery AlienCrystals Ambience",
+	'FadeIn', 3000,
+	'FadeOut', 3000,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalCompose",
+	'Moment', "attach",
+	'Actor', "CrystalShard",
+	'Sound', "Mystery AlienCrystals ShardComposeAttach",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalCompose",
+	'Moment', "attach1",
+	'Actor', "Crystal",
+	'Sound', "Mystery AlienCrystalsBig Attach",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalCompose",
+	'Moment', "attach10",
+	'Actor', "Crystal",
+	'Sound', "Mystery AlienCrystalsBig Attach",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalCompose",
+	'Moment', "attach11",
+	'Actor', "Crystal",
+	'Sound', "Mystery AlienCrystalsBig Attach",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalCompose",
+	'Moment', "attach12",
+	'Actor', "Crystal",
+	'Sound', "Mystery AlienCrystalsBig Attach",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalCompose",
+	'Moment', "attach2",
+	'Actor', "Crystal",
+	'Sound', "Mystery AlienCrystalsBig Attach",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalCompose",
+	'Moment', "attach3",
+	'Actor', "Crystal",
+	'Sound', "Mystery AlienCrystalsBig Attach",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalCompose",
+	'Moment', "attach4",
+	'Actor', "Crystal",
+	'Sound', "Mystery AlienCrystalsBig Attach",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalCompose",
+	'Moment', "attach5",
+	'Actor', "Crystal",
+	'Sound', "Mystery AlienCrystalsBig Attach",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalCompose",
+	'Moment', "attach6",
+	'Actor', "Crystal",
+	'Sound', "Mystery AlienCrystalsBig Attach",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalCompose",
+	'Moment', "attach7",
+	'Actor', "Crystal",
+	'Sound', "Mystery AlienCrystalsBig Attach",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalCompose",
+	'Moment', "attach8",
+	'Actor', "Crystal",
+	'Sound', "Mystery AlienCrystalsBig Attach",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalCompose",
+	'Moment', "attach9",
+	'Actor', "Crystal",
+	'Sound', "Mystery AlienCrystalsBig Attach",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalCompose",
+	'Moment', "go",
+	'Actor', "Crystal",
+	'EndAction1', "CrystalCompose",
+	'EndMoment1', "end",
+	'handle', 1891236101,
+	'Sound', "Mystery AlienCrystalsBig Go",
+	'FadeIn', 3000,
+	'FadeOut', 3000,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalCompose",
+	'Moment', "go",
+	'Actor', "Crystal",
+	'Sound', "Mystery AlienCrystals ShardComposeEnd",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalCompose",
+	'Moment', "start",
+	'Actor', "Crystal",
+	'EndAction1', "CrystalCompose",
+	'EndMoment1', "go",
+	'handle', 1040174874,
+	'Sound', "Mystery AlienCrystals ShardVortex",
+	'FadeIn', 3000,
+	'FadeOut', 7000,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalCompose",
+	'Moment', "start",
+	'Actor', "Crystal",
+	'Sound', "Mystery AlienCrystals ShardComposeStart",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalLiftoff",
+	'Moment', "hover",
+	'Actor', "CrystalShard",
+	'EndAction1', "CrystalCompose",
+	'EndMoment1', "start",
+	'handle', 585454294,
+	'Sound', "Mystery AlienCrystals ShardAmbience",
+	'FadeIn', 3000,
+	'FadeOut', 3000,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalLiftoff",
+	'Moment', "start",
+	'Actor', "CrystalShard",
+	'Delay', 2000,
+	'Sound', "Mystery AlienCrystals ShardTakeoff",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalPoweredUp",
+	'Moment', "start",
+	'Actor', "CrystalsBig",
+	'Target', "ignore",
+	'EndMoment1', "end",
+	'handle', 1486725929,
+	'Sound', "Mystery AlienCrystals BeamLoop",
+	'FadeIn', 2000,
+	'FadeOut', 5000,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalPoweredUp",
+	'Moment', "start",
+	'Actor', "CrystalsBig",
+	'Target', "ignore",
+	'Sound', "Mystery AlienCrystals BeamBoost",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalPoweredUp",
+	'Moment', "start",
+	'Actor', "CrystalsBig",
+	'Target', "ignore",
+	'Sound', "Mystery AlienCrystals BeamStart",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalPoweredUp",
+	'Moment', "start",
+	'Actor', "CrystalsSmall",
+	'Target', "ignore",
+	'EndMoment1', "end",
+	'handle', 1567693725,
+	'Sound', "Mystery AlienCrystals BeamLoop",
+	'FadeIn', 2000,
+	'FadeOut', 5000,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalPoweredUp",
+	'Moment', "start",
+	'Actor', "CrystalsSmall",
+	'Target', "ignore",
+	'Sound', "Mystery AlienCrystals BeamBoost",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "CrystalPoweredUp",
+	'Moment', "start",
+	'Actor', "CrystalsSmall",
+	'Target', "ignore",
+	'Sound', "Mystery AlienCrystals BeamStart",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
 	'Action', "Deconstruct",
 	'Moment', "end",
 	'Actor', "Drone",
@@ -1295,6 +1683,14 @@ PlaceObj('ActionFXSound', {
 	'Actor', "Drone",
 	'Sound', "Unit Drone BuildStart",
 	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Demolish",
+	'Moment', "end",
+	'Actor', "CableSwitch",
+	'Sound', "Object PowerSwitch Demolition",
+	'Source', "ActionPos",
 })
 
 PlaceObj('ActionFXSound', {
@@ -1366,6 +1762,30 @@ PlaceObj('ActionFXSound', {
 	'Moment', "end",
 	'Actor', "MechanizedDepotRareMetals",
 	'Sound', "Object StorageDepot Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Demolish",
+	'Moment', "end",
+	'Actor', "Pipe",
+	'Sound', "Object Pipes Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Demolish",
+	'Moment', "end",
+	'Actor', "PipeValve",
+	'Sound', "Object PipeValve Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Demolish",
+	'Moment', "end",
+	'Actor', "PowerCable",
+	'Sound', "Object PowerCables Demolition",
 	'Source', "ActionPos",
 })
 
@@ -1504,7 +1924,7 @@ PlaceObj('ActionFXSound', {
 	'Action', "Destroyed",
 	'Moment', "start",
 	'Actor', "ArtWorkshop",
-	'Sound', "Object WorkshopArt Demolition",
+	'Sound', "Building WorkshopArt Demolition",
 	'Source', "ActionPos",
 })
 
@@ -1543,7 +1963,7 @@ PlaceObj('ActionFXSound', {
 	'Action', "Destroyed",
 	'Moment', "start",
 	'Actor', "BioroboticsWorkshop",
-	'Sound', "Object WorkshopBiorobotics Demolition",
+	'Sound', "Building WorkshopBiorobotics Demolition",
 	'Source', "ActionPos",
 })
 
@@ -1590,8 +2010,24 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Destroyed",
 	'Moment', "start",
+	'Actor', "DomeDiamond",
+	'Sound', "Building DomeDiamond Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Destroyed",
+	'Moment', "start",
 	'Actor', "DomeGeoscape",
 	'Sound', "Building DomeGeoscape Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Destroyed",
+	'Moment', "start",
+	'Actor', "DomeHexa",
+	'Sound', "Building DomeBarrel Demolition",
 	'Source', "ActionPos",
 })
 
@@ -1614,6 +2050,22 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Destroyed",
 	'Moment', "start",
+	'Actor', "DomeMegaTrigon",
+	'Sound', "Building DomeTrigonMega Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Destroyed",
+	'Moment', "start",
+	'Actor', "DomeMicro",
+	'Sound', "Building DomeMicro Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Destroyed",
+	'Moment', "start",
 	'Actor', "DomeOval",
 	'Sound', "Building DomeOval Demolition",
 	'Source', "ActionPos",
@@ -1624,6 +2076,14 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "DomeStar",
 	'Sound', "Building DomeStar Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Destroyed",
+	'Moment', "start",
+	'Actor', "DomeTrigon",
+	'Sound', "Building DomeTrigon Demolition",
 	'Source', "ActionPos",
 })
 
@@ -1722,8 +2182,24 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Destroyed",
 	'Moment', "start",
+	'Actor', "LandingPad",
+	'Sound', "Object LandingPad Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Destroyed",
+	'Moment', "start",
 	'Actor', "LargeWaterTank",
 	'Sound', "Object WaterTankLarge Demolition",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Destroyed",
+	'Moment', "start",
+	'Actor', "LightTrap",
+	'Sound', "Object LightTrap Demolition",
+	'Source', "ActionPos",
 })
 
 PlaceObj('ActionFXSound', {
@@ -1841,16 +2317,8 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Destroyed",
 	'Moment', "start",
-	'Actor', "PipeValve",
-	'Sound', "Object PipeValve Demolition",
-	'Source', "ActionPos",
-})
-
-PlaceObj('ActionFXSound', {
-	'Action', "Destroyed",
-	'Moment', "start",
-	'Actor', "Pipes",
-	'Sound', "Object Pipes Demolition",
+	'Actor', "PassageRamp",
+	'Sound', "Object PassageRamp Demolition",
 	'Source', "ActionPos",
 })
 
@@ -1867,14 +2335,6 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "PolymerFactory",
 	'Sound', "Object PolymerPlant Demolition",
-	'Source', "ActionPos",
-})
-
-PlaceObj('ActionFXSound', {
-	'Action', "Destroyed",
-	'Moment', "start",
-	'Actor', "PowerCables",
-	'Sound', "Object PowerCables Demolition",
 	'Source', "ActionPos",
 })
 
@@ -2139,7 +2599,7 @@ PlaceObj('ActionFXSound', {
 	'Action', "Destroyed",
 	'Moment', "start",
 	'Actor', "VRWorkshop",
-	'Sound', "Object WorkshopVR Demolition",
+	'Sound', "Building WorkshopVR Demolition",
 	'Source', "ActionPos",
 })
 
@@ -2187,6 +2647,14 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Sound', "UI BuildDemolition",
 	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Dive",
+	'Moment', "start",
+	'Actor', "Firefly",
+	'Delay', 1000,
+	'Sound', "Mystery Lights FireflyDisappear",
 })
 
 PlaceObj('ActionFXSound', {
@@ -2277,6 +2745,31 @@ PlaceObj('ActionFXSound', {
 	'Actor', "TunnelEntranceDoor",
 	'Sound', "Object Tunnel DoorOpen",
 	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "DrainWater",
+	'Moment', "end",
+	'Actor', "Firefly",
+	'Sound', "Mystery Lights FireflyDrainStop",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "DrainWater",
+	'Moment', "start",
+	'Actor', "Firefly",
+	'EndMoment1', "end",
+	'handle', 1021643390,
+	'Sound', "Mystery Lights FireflyDrainLoop",
+	'FadeIn', 3000,
+	'FadeOut', 3000,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "DrainWater",
+	'Moment', "start",
+	'Actor', "Firefly",
+	'Sound', "Mystery Lights FireflyDrainStart",
 })
 
 PlaceObj('ActionFXSound', {
@@ -2602,7 +3095,7 @@ PlaceObj('ActionFXSound', {
 	'handle', 372977775,
 	'Sound', "Ambience Disaster ColdwaveCracks",
 	'FadeOut', 10000,
-	'Source', "Camera",
+	'Source', "ActionPos",
 })
 
 PlaceObj('ActionFXSound', {
@@ -2873,6 +3366,15 @@ PlaceObj('ActionFXSound', {
 })
 
 PlaceObj('ActionFXSound', {
+	'Action', "Kill",
+	'Moment', "start",
+	'Actor', "Firefly",
+	'Target', "ignore",
+	'Sound', "Mystery Lights FireflyKill",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
 	'Action', "Land",
 	'Moment', "end",
 	'Actor', "AttackRover",
@@ -2956,6 +3458,14 @@ PlaceObj('ActionFXSound', {
 })
 
 PlaceObj('ActionFXSound', {
+	'Action', "MakeElectricity",
+	'Moment', "end",
+	'Actor', "LightTrap",
+	'Target', "ignore",
+	'Sound', "Object LightTrap Deactivate",
+})
+
+PlaceObj('ActionFXSound', {
 	'Action', "MenuItemClick",
 	'Moment', "start",
 	'Sound', "UI ButtonGeneralClickIn",
@@ -3006,6 +3516,211 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Sound', "UI MenuOptionPrevNext",
 	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronAnomaly",
+	'Moment', "start",
+	'Actor', "SubsurfaceAnomaly",
+	'Target', "ignore",
+	'EndMoment1', "end",
+	'handle', 1713830011,
+	'Sound', "Mystery Metatron AnomalyLoop",
+	'FadeIn', 1000,
+	'FadeOut', 1000,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronAnomaly",
+	'Moment', "start",
+	'Actor', "SubsurfaceAnomaly",
+	'Target', "ignore",
+	'Sound', "Mystery Metatron AnomalySpawn",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronArrive",
+	'Moment', "end",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'EndAction1', "MetatronLeave",
+	'EndMoment1', "start",
+	'handle', 727102476,
+	'Sound', "Mystery Metatron Ambience",
+	'FadeIn', 3000,
+	'FadeOut', 3000,
+	'Spot', "Origin",
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronArrive",
+	'Moment', "end",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Sound', "Mystery Metatron Landing",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronLeave",
+	'Moment', "pre-leave",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 550,
+	'Sound', "Mystery Metatron AppearUI",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronLeave",
+	'Moment', "start",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Sound', "Mystery Metatron Takeoff",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronLeave",
+	'Moment', "start",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Sound', "Mystery Metatron TakeoffDebris",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronPreArrive",
+	'Moment', "start",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 350,
+	'Sound', "Mystery Metatron Appear",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronPreArrive",
+	'Moment', "start",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 350,
+	'Sound', "Mystery Metatron AppearUI",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronPreArrive",
+	'Moment', "start",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 500,
+	'EndAction1', "MetatronArrive",
+	'EndMoment1', "end",
+	'handle', 2072100783,
+	'Sound', "Mystery Metatron Movement",
+	'FadeIn', 3000,
+	'FadeOut', 5000,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronPreArrive",
+	'Moment', "start",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 500,
+	'Sound', "Mystery Metatron MovementStart",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronRotation",
+	'Moment', "hit-moment1",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 500,
+	'Sound', "Mystery Metatron Rotate",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronRotation",
+	'Moment', "hit-moment2",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 500,
+	'Sound', "Mystery Metatron Rotate",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronRotation",
+	'Moment', "hit-moment3",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 500,
+	'Sound', "Mystery Metatron Rotate",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronRotation",
+	'Moment', "hit-moment4",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 500,
+	'Sound', "Mystery Metatron Rotate",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronRotation",
+	'Moment', "hit-moment5",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 500,
+	'Sound', "Mystery Metatron Rotate",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronRotation",
+	'Moment', "hit-moment6",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 500,
+	'Sound', "Mystery Metatron Rotate",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronRotation",
+	'Moment', "hit-moment7",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 500,
+	'Sound', "Mystery Metatron Rotate",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronSpawnGifts",
+	'Moment', "start",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 5000,
+	'Sound', "Mystery Metatron Strew",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "MetatronSpawnGifts",
+	'Moment', "start",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Sound', "Mystery Metatron StrewCharge",
+	'Source', "ActionPos",
 })
 
 PlaceObj('ActionFXSound', {
@@ -3301,7 +4016,11 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "BombardMissile",
 	'Target', "ignore",
+	'EndMoment1', "end",
+	'handle', 1125694298,
 	'Sound', "Mystery Bombardment MissileFly",
+	'FadeIn', 1000,
+	'FadeOut', 1000,
 })
 
 PlaceObj('ActionFXSound', {
@@ -3744,6 +4463,13 @@ PlaceObj('ActionFXSound', {
 })
 
 PlaceObj('ActionFXSound', {
+	'Action', "Pulse",
+	'Moment', "start",
+	'Actor', "BlackCubeMonolith",
+	'Sound', "Mystery CubeStructure Pulse",
+})
+
+PlaceObj('ActionFXSound', {
 	'Action', "RadioStationStarting",
 	'Sound', "UI SwitchRadioStations",
 	'Source', "UI",
@@ -3954,6 +4680,15 @@ PlaceObj('ActionFXSound', {
 	'FadeIn', 300,
 	'FadeOut', 300,
 	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Release",
+	'Moment', "start",
+	'Actor', "LightTrap",
+	'Target', "ignore",
+	'Delay', 1500,
+	'Sound', "Object LightTrap Release",
 })
 
 PlaceObj('ActionFXSound', {
@@ -4352,6 +5087,23 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Select",
 	'Moment', "start",
+	'Actor', "Firefly",
+	'Target', "ignore",
+	'Sound', "Mystery Lights FireflySelect",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Select",
+	'Moment', "start",
+	'Actor', "Firefly",
+	'Target', "ignore",
+	'Sound', "UI SelectMystery",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Select",
+	'Moment', "start",
 	'Actor', "SubsurfaceAnomaly",
 	'Sound', "UI SelectResource",
 	'Source', "UI",
@@ -4478,7 +5230,7 @@ PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
 	'Actor', "ArtWorkshop",
-	'Sound', "Object WorkshopArt Select",
+	'Sound', "Building WorkshopArt Select",
 })
 
 PlaceObj('ActionFXSound', {
@@ -4553,7 +5305,7 @@ PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
 	'Actor', "BioroboticsWorkshop",
-	'Sound', "Object WorkshopBiorobotics Select",
+	'Sound', "Building WorkshopBiorobotics Select",
 })
 
 PlaceObj('ActionFXSound', {
@@ -4606,6 +5358,7 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "BlackCubeMonolith",
 	'Sound', "UI SelectMystery",
+	'Source', "UI",
 })
 
 PlaceObj('ActionFXSound', {
@@ -4620,6 +5373,22 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "BlackCubeStockpile",
 	'Sound', "UI SelectMystery",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "Building",
+	'Sound', "UI SelectRemains",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "CableSwitch",
+	'Sound', "Object PowerSwitch Select",
 })
 
 PlaceObj('ActionFXSound', {
@@ -4656,7 +5425,45 @@ PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
 	'Actor', "ConstructionSite",
+	'Sound', "Building Apartments SelectIncomplete",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "ConstructionSite",
 	'Sound', "UI SelectConstructionsite",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "CrystalsBig",
+	'Sound', "Mystery AlienCrystals Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "CrystalsBig",
+	'Sound', "UI SelectMystery",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "CrystalsSmall",
+	'Sound', "Mystery AlienCrystals Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "CrystalsSmall",
+	'Sound', "UI SelectMystery",
 	'Source', "UI",
 })
 
@@ -4708,6 +5515,21 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
+	'Actor', "DomeDiamond",
+	'Sound', "Building DomeDiamond Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "DomeDiamond",
+	'Sound', "UI SelectDome",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
 	'Actor', "DomeGeoscape",
 	'Sound', "Building DomeGeoscape Select",
 })
@@ -4716,6 +5538,21 @@ PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
 	'Actor', "DomeGeoscape",
+	'Sound', "UI SelectDome",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "DomeHexa",
+	'Sound', "Building DomeBarrel Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "DomeHexa",
 	'Sound', "UI SelectDome",
 	'Source', "UI",
 })
@@ -4753,6 +5590,36 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
+	'Actor', "DomeMegaTrigon",
+	'Sound', "Building DomeTrigonMega Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "DomeMegaTrigon",
+	'Sound', "UI SelectDome",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "DomeMicro",
+	'Sound', "Building DomeMicro Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "DomeMicro",
+	'Sound', "UI SelectDome",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
 	'Actor', "DomeOval",
 	'Sound', "Building DomeOval Select",
 })
@@ -4783,6 +5650,21 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
+	'Actor', "DomeTrigon",
+	'Sound', "Building DomeTrigon Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "DomeTrigon",
+	'Sound', "UI SelectDome",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
 	'Actor', "Drone",
 	'Sound', "UI SelectVehicleAutonomous",
 	'Source', "UI",
@@ -4800,6 +5682,14 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "DroneFactory",
 	'Sound', "Object Workshop Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "DroneFactory",
+	'Sound', "UI SelectBuilding",
+	'Source', "UI",
 })
 
 PlaceObj('ActionFXSound', {
@@ -4978,6 +5868,21 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
+	'Actor', "LandingPad",
+	'Sound', "Object LandingPad Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "LandingPad",
+	'Sound', "UI SelectObject",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
 	'Actor', "LargeWaterTank",
 	'Sound', "Object WaterTankLarge Select",
 })
@@ -4986,6 +5891,21 @@ PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
 	'Actor', "LargeWaterTank",
+	'Sound', "UI SelectObject",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "LightTrap",
+	'Sound', "Object LightTrap Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "LightTrap",
 	'Sound', "UI SelectObject",
 	'Source', "UI",
 })
@@ -5361,14 +6281,14 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
-	'Actor', "PipeValve",
-	'Sound', "Object PipeValve Select",
+	'Actor', "Passage",
+	'Sound', "Object Passage Select",
 })
 
 PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
-	'Actor', "PipeValve",
+	'Actor', "Passage",
 	'Sound', "UI SelectObject",
 	'Source', "UI",
 })
@@ -5376,16 +6296,22 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
-	'Actor', "Pipes",
+	'Actor', "PassageRamp",
+	'Sound', "Object PassageRamp Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "Pipe",
 	'Sound', "Object Pipes Select",
 })
 
 PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
-	'Actor', "Pipes",
-	'Sound', "UI SelectObject",
-	'Source', "UI",
+	'Actor', "PipeValve",
+	'Sound', "Object PipeValve Select",
 })
 
 PlaceObj('ActionFXSound', {
@@ -5421,16 +6347,8 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
-	'Actor', "PowerCables",
+	'Actor', "PowerCable",
 	'Sound', "Object PowerCables Select",
-})
-
-PlaceObj('ActionFXSound', {
-	'Action', "SelectObj",
-	'Moment', "start",
-	'Actor', "PowerCables",
-	'Sound', "UI SelectObject",
-	'Source', "UI",
 })
 
 PlaceObj('ActionFXSound', {
@@ -5714,6 +6632,21 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "ShuttleHub",
 	'Sound', "UI SelectBuilding",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "Sinkhole",
+	'Sound', "Mystery Lights SinkholeSelect",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "Sinkhole",
+	'Sound', "UI SelectMystery",
 	'Source', "UI",
 })
 
@@ -6058,7 +6991,7 @@ PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
 	'Actor', "VRWorkshop",
-	'Sound', "Object WorkshopVR Select",
+	'Sound', "Building WorkshopVR Select",
 })
 
 PlaceObj('ActionFXSound', {
@@ -6201,6 +7134,22 @@ PlaceObj('ActionFXSound', {
 
 PlaceObj('ActionFXSound', {
 	'Action', "Spawn",
+	'Moment', "end",
+	'Actor', "Passage",
+	'Sound', "Object Passage Demolition",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "end",
+	'Actor', "Sinkhole",
+	'Sound', "Mystery Lights SinkholeDisappear",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
 	'Moment', "start",
 	'Actor', "Apartments",
 	'Sound', "UI BuildComplete",
@@ -6322,7 +7271,23 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Spawn",
 	'Moment', "start",
+	'Actor', "DomeDiamond",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
 	'Actor', "DomeGeoscape",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "DomeHexa",
 	'Sound', "UI BuildComplete",
 	'Source', "UI",
 })
@@ -6346,6 +7311,22 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Spawn",
 	'Moment', "start",
+	'Actor', "DomeMegaTrigon",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "DomeMicro",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
 	'Actor', "DomeOval",
 	'Sound', "UI BuildComplete",
 	'Source', "UI",
@@ -6355,6 +7336,14 @@ PlaceObj('ActionFXSound', {
 	'Action', "Spawn",
 	'Moment', "start",
 	'Actor', "DomeStar",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "DomeTrigon",
 	'Sound', "UI BuildComplete",
 	'Source', "UI",
 })
@@ -6559,6 +7548,14 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Spawn",
 	'Moment', "start",
+	'Actor', "Firefly",
+	'Sound', "Mystery Lights FireflyAppear",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
 	'Actor', "FuelFactory",
 	'Sound', "UI BuildComplete",
 	'Source', "UI",
@@ -6635,6 +7632,14 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Spawn",
 	'Moment', "start",
+	'Actor', "LandingPad",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
 	'Actor', "LargeWaterTank",
 	'Sound', "UI BuildComplete",
 	'Source', "UI",
@@ -6645,6 +7650,14 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "LifeSupportGridElement",
 	'Sound', "UI PlacePipes",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "LightTrap",
+	'Sound', "UI BuildComplete",
 	'Source', "UI",
 })
 
@@ -6779,6 +7792,28 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Spawn",
 	'Moment', "start",
+	'Actor', "MetatronIonStorm",
+	'Target', "ignore",
+	'EndMoment1', "end",
+	'handle', 1761811611,
+	'Sound', "Mystery Metatron StormLoop",
+	'FadeIn', 1000,
+	'FadeOut', 1000,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "MetatronIonStorm",
+	'Target', "ignore",
+	'Sound', "Mystery Metatron StormSpawn",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
 	'Actor', "MirrorSphere",
 	'Sound', "Mystery Sphere Appear",
 })
@@ -6850,7 +7885,7 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Spawn",
 	'Moment', "start",
-	'Actor', "PipeValve",
+	'Actor', "Passage",
 	'Sound', "UI BuildComplete",
 	'Source', "UI",
 })
@@ -6858,7 +7893,23 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Spawn",
 	'Moment', "start",
-	'Actor', "Pipes",
+	'Actor', "PassageRamp",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "Pipe",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "PipeValve",
 	'Sound', "UI BuildComplete",
 	'Source', "UI",
 })
@@ -6882,7 +7933,7 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Spawn",
 	'Moment', "start",
-	'Actor', "PowerCables",
+	'Actor', "PowerCable",
 	'Sound', "UI BuildComplete",
 	'Source', "UI",
 })
@@ -7050,6 +8101,14 @@ PlaceObj('ActionFXSound', {
 	'Actor', "ShuttleHub",
 	'Sound', "UI BuildComplete",
 	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "Sinkhole",
+	'Sound', "Mystery Lights SinkholeAppear",
+	'Source', "ActionPos",
 })
 
 PlaceObj('ActionFXSound', {
@@ -7388,6 +8447,24 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Sound', "UI MenuResearchItemHover",
 	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Trap",
+	'Moment', "start",
+	'Actor', "LightTrap",
+	'Target', "ignore",
+	'Delay', 1000,
+	'Sound', "Object LightTrap Trap",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Trap",
+	'Moment', "start",
+	'Actor', "LightTrap",
+	'Target', "ignore",
+	'Delay', 1200,
+	'Sound', "Object LightTrap TrapGlow",
 })
 
 PlaceObj('ActionFXSound', {
@@ -7739,6 +8816,18 @@ PlaceObj('ActionFXSound', {
 })
 
 PlaceObj('ActionFXSound', {
+	'Action', "WorkEmpty",
+	'Moment', "start",
+	'Actor', "LightTrap",
+	'EndMoment1', "end",
+	'handle', 649546048,
+	'Sound', "Object LightTrap LoopEmpty",
+	'FadeIn', 2000,
+	'FadeOut', 2000,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
 	'Action', "Working",
 	'Moment', "end",
 	'Actor', "ArtificialSun",
@@ -7995,7 +9084,7 @@ PlaceObj('ActionFXSound', {
 	'Actor', "ArtWorkshop",
 	'EndMoment1', "end",
 	'handle', 16459394,
-	'Sound', "Object WorkshopArt Loop",
+	'Sound', "Building WorkshopArt Loop",
 	'FadeIn', 1500,
 	'FadeOut', 1500,
 	'AttachToObj', true,
@@ -8058,7 +9147,7 @@ PlaceObj('ActionFXSound', {
 	'Actor', "BioroboticsWorkshop",
 	'EndMoment1', "end",
 	'handle', 200791963,
-	'Sound', "Object WorkshopBiorobotics Loop",
+	'Sound', "Building WorkshopBiorobotics Loop",
 	'FadeIn', 1500,
 	'FadeOut', 1500,
 	'AttachToObj', true,
@@ -8085,33 +9174,7 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "BlackCubeMonolith",
 	'Target', "ignore",
-	'EndMoment1', "end",
-	'handle', 435589943,
-	'Sound', "Mystery CubeStructure Pulse",
-	'FadeIn', 1000,
-	'FadeOut', 1000,
-	'AttachToObj', true,
-})
-
-PlaceObj('ActionFXSound', {
-	'Action', "Working",
-	'Moment', "start",
-	'Actor', "BlackCubeMonolith",
-	'Target', "ignore",
 	'Sound', "Mystery CubeStructure Appear",
-})
-
-PlaceObj('ActionFXSound', {
-	'Action', "Working",
-	'Moment', "start",
-	'Actor', "BlackCubeStockpile",
-	'Target', "ignore",
-	'EndMoment1', "end",
-	'handle', 254720159,
-	'Sound', "Mystery CubeSingle Pulse",
-	'FadeIn', 1000,
-	'FadeOut', 1000,
-	'AttachToObj', true,
 })
 
 PlaceObj('ActionFXSound', {
@@ -8632,6 +9695,19 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Working",
 	'Moment', "start",
+	'Actor', "Passage",
+	'Target', "PassageEntrance",
+	'EndMoment1', "end",
+	'handle', 856355196,
+	'Sound', "Object Passage Loop",
+	'FadeIn', 1500,
+	'FadeOut', 1500,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Working",
+	'Moment', "start",
 	'Actor', "Playground",
 	'EndMoment1', "end",
 	'handle', 563803895,
@@ -8903,7 +9979,6 @@ PlaceObj('ActionFXSound', {
 	'Sound', "Building Spacebar Loop",
 	'FadeIn', 500,
 	'FadeOut', 500,
-	'Source', "ActionPos",
 	'AttachToObj', true,
 })
 
@@ -8997,7 +10072,7 @@ PlaceObj('ActionFXSound', {
 	'Actor', "VRWorkshop",
 	'EndMoment1', "end",
 	'handle', 1436077299,
-	'Sound', "Object WorkshopVR Loop",
+	'Sound', "Building WorkshopVR Loop",
 	'FadeIn', 1500,
 	'FadeOut', 1500,
 	'AttachToObj', true,

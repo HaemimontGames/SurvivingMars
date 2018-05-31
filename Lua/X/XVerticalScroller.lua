@@ -2,6 +2,7 @@ DefineClass.XVerticalScroller = {
 	__parents = {"XScroll"},
 	LayoutMethod = "VList",
 	VAlign = "center",
+	FoldWhenHidden = false,
 }
 
 function XVerticalScroller:Init()

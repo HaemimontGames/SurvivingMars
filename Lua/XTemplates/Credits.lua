@@ -17,7 +17,7 @@ PlaceObj('XTemplate', {
 		}, {
 			PlaceObj('XTemplateWindow', {
 				'comment', "margins",
-				'Margins', box(0, 80, 100, 80),
+				'Margins', box(0, 30, 100, 50),
 			}, {
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
@@ -39,7 +39,7 @@ end,
 						'__class', "XContentTemplate",
 					}, {
 						PlaceObj('XTemplateWindow', {
-							'__parent', function (parent, context) return GetDialog(parent) end,
+							'__parent', function (parent, context) return GetXDialog(parent) end,
 							'__class', "XCreditsWindow",
 							'Id', "idCreditsWindow",
 							'ZOrder', 0,

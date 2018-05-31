@@ -101,7 +101,7 @@ PlaceObj('Milestone', {
 	Complete = function (self)
 	while true do
 		local ok, tech_id, city = WaitMsg("TechResearched")
-		if TechDef[tech_id] and TechDef[tech_id].field == "Breakthroughs" and GameTime() > 1 then --Doesn't trigger the Milestone for Breakthrough at game start (when the breakthrough is granted by sponsor/commanders)
+		if TechDef[tech_id] and TechDef[tech_id].group == "Breakthroughs" and GameTime() > 1 then --Doesn't trigger the Milestone for Breakthrough at game start (when the breakthrough is granted by sponsor/commanders)
 			return true
 		end
 	end

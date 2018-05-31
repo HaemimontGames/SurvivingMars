@@ -39,9 +39,8 @@ end,
 			'ActionToolbar', "cheats",
 			'OnAction', function (self, host, source, toggled)
 local obj = host.context
-if obj.construction_group then 
-	obj.construction_group[1]:Complete(true)
-else
+obj = obj:GetConstructionGroupLeader()
+if obj then
 	obj:Complete(true)
 end
 end,

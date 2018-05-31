@@ -42,7 +42,7 @@ DefineClass.UnitDirectionModeDialog = {
 	rover_cursor = "UI/Cursors/RoverTarget.tga",
 	interaction_cursor = "UI/Cursors/Interaction.tga",
 	
-	interaction_mode = false, --passed to CAnInteract and InteractWith so they can do custom stuff when button is toggled.
+	interaction_mode = false, --passed to CanInteract and InteractWith so they can do custom stuff when button is toggled.
 	
 	fx_start_args = false,
 	
@@ -183,7 +183,8 @@ function UnitDirectionModeDialog:DeactivateUnitControl()
 end
 
 function UnitDirectionModeDialog:UpdateMouseCursor()
-	if not IsValid(self.unit) or (not self.interaction_mode and not MoveUnitsOnRightClick()) or (not self.unit:CanBeControlled() and not self.interaction_mode) then
+	if GetUIStyleGamepad() or
+		(not IsValid(self.unit) or (not self.interaction_mode and not MoveUnitsOnRightClick()) or (not self.unit:CanBeControlled() and not self.interaction_mode)) then
 		self:SetMouseCursor(const.DefaultMouseCursor)
 	elseif self.interaction_obj then
 		self:SetMouseCursor(self.interaction_cursor)
@@ -193,7 +194,7 @@ function UnitDirectionModeDialog:UpdateMouseCursor()
 end
 
 local interaction_mode_cursor_text = {
-	["move"] = T{7972, "Select Target"},
+	--["move"] = T{7972, "Select Target"},
 	["route"] = T{7972, "Select Target"},
 	["reassign"] = T{4427, "Reassign"},
 	["reassign_all"] = T{4427, "Reassign"},
@@ -203,14 +204,28 @@ local interaction_mode_cursor_text = {
 	["unload"] = T{7975, "Unload Resource"},
 	["assign_to_bld"] = T{7972, "Select Target"},
 }
+
+function UnitDirectionModeDialog:HideMouseCursorText(pos)
+	if self.unit then
+		local hud = GetHUD()
+		local ctrl = hud and hud.idtxtConstructionStatus
+		if ctrl then
+			ctrl:SetVisible(false)
+		end
+	end
+end
+
 function UnitDirectionModeDialog:UpdateCursorText()
-	local hud = GetDialog("HUD")
+	local hud = GetHUD()
 	if not hud then
 		return
 	end
-
+	local gamepad = GetUIStyleGamepad()
 	local txt
-	if self.unit and self.unit:CanBeControlled() then
+	local hint = self.unit and self.interaction_hint or ""
+	if hint~="" then
+		txt = gamepad and "\n"..hint or hint		
+	elseif self.unit and self.unit:CanBeControlled() then
 		if self.interaction_mode == "route" then
 			if not (self.created_route and self.created_route.from) then
 				txt = interaction_mode_cursor_text.load
@@ -223,15 +238,34 @@ function UnitDirectionModeDialog:UpdateCursorText()
 	end
 	
 	local ctrl = hud.idtxtConstructionStatus
-	if txt then
-		ctrl:SetVisible(true)
+	local xcursor = GetGamepadCursor() 
+	ctrl:SetVisible(txt and txt~= "" and (not gamepad or xcursor and xcursor:GetVisible()))
+	if txt and txt~= "" then		
 		ctrl:SetText(txt)
 		ctrl:SetMargins(box(40,40,0,0))
 		ctrl.clip_ctrl = false
-		ctrl:AddDynamicPosModifier({ id = "unit_direction", target = GetUIStyleGamepad() and "gamepad" or "mouse" })
-	else
-		ctrl:SetVisible(false)
+		ctrl:AddDynamicPosModifier({ id = "unit_direction", target = gamepad and "gamepad" or "mouse" })
 	end
+end
+
+function UnitDirectionModeDialog:HideCursorText()
+	local hud = GetHUD()
+	if not hud then
+		return
+	end
+	hud.idtxtConstructionStatus:SetVisible(false)
+end
+
+local refreshing_interaction = false
+function UnitDirectionModeDialog:RefreshActiveInteraction()
+	if GetUIStyleGamepad() then return end
+	local o = self.active_interaction or SelectionMouseObj()
+	if not self.unit or IsEditorActive() or o ~= refreshing_interaction then return end
+	CityUnitController[UICity].position = false
+	self:UpdateInteractionObj(o, GetTerrainCursor())
+	self:UpdateMouseCursor()
+	self:UpdateCursorText()
+	self.active_interaction = false
 end
 
 function UnitDirectionModeDialog:OnMouseButtonDown(pt, button)
@@ -239,7 +273,13 @@ function UnitDirectionModeDialog:OnMouseButtonDown(pt, button)
 		if not self.unit or IsEditorActive() then return end
 		if MoveUnitsOnRightClick() and self.interaction_mode == false then
 			self:UpdateInteractionObj(SelectionMouseObj(), GetTerrainCursor())
-			return self:Interact(GetTerrainCursor())
+			local r = self:Interact(GetTerrainCursor())
+			if not GetUIStyleGamepad() and r == "break" then
+				self:HideCursorText()
+				refreshing_interaction = self.active_interaction or SelectionMouseObj()
+				DelayedCall(10, UnitDirectionModeDialog.RefreshActiveInteraction, self)
+			end
+			return r
 		end
 		if self.interaction_mode == "move" then
 			SetUnitControlInteractionMode(self.unit, false)
@@ -265,7 +305,13 @@ function UnitDirectionModeDialog:OnMouseButtonDown(pt, button)
 	elseif button == "L" then
 		if not self.unit or IsEditorActive() then return end
 		self:UpdateInteractionObj(SelectionMouseObj(), GetTerrainCursor())
-		return self:InteractWithPos(GetTerrainCursor())
+		local r = self:InteractWithPos(GetTerrainCursor())
+		if not GetUIStyleGamepad() and r == "break" then
+			self:HideCursorText()
+			refreshing_interaction = self.active_interaction or SelectionMouseObj()
+			DelayedCall(10, UnitDirectionModeDialog.RefreshActiveInteraction, self)
+		end
+		return r
 	end
 end
 
@@ -347,28 +393,33 @@ function UnitDirectionModeDialog:UpdateInteractionObj(obj, pos)
 	local interaction_obj = false
 	local block_goto = nil
 	
+	local h1, h2
 	if IsValid(obj) then
-		interaction_obj, self.interaction_hint, block_goto = CityUnitController[UICity]:CanInteractWithObject(obj, self.interaction_mode)
+		interaction_obj, h1, block_goto = CityUnitController[UICity]:CanInteractWithObject(obj, self.interaction_mode)
 		interaction_obj = interaction_obj and obj
 	else
-		interaction_obj = false
-		self.interaction_hint = false
+		interaction_obj = interaction_obj or false
+		h1 = GetUIStyleGamepad() and self.unit and self.unit:CanBeControlled() and T{4339, "<UnitMoveControl('ButtonA',interaction_mode)>: Move", self.unit} or false
 	end
 	
 	if not interaction_obj and other_obj and other_obj ~= obj then
-		interaction_obj, self.interaction_hint, block_goto = CityUnitController[UICity]:CanInteractWithObject(other_obj, self.interaction_mode)
+		interaction_obj, h2, block_goto = CityUnitController[UICity]:CanInteractWithObject(other_obj, self.interaction_mode)
 		interaction_obj = interaction_obj and other_obj
 	end
 	
-	self.interaction_obj = interaction_obj
+	self.interaction_obj = interaction_obj or false
+	self.interaction_hint = (h2 or h1)
+	
 	self.block_goto = (block_goto or (GetDomeAtPoint(pos) and IsKindOf(self.unit, "BaseRover")))
 	if self.interaction_mode == "route" then
 		self:UpdateTransportRouteVisuals()
 	end
+	self:UpdateCursorText()
 end
 
-function UnitDirectionModeDialog:OnMousePos(pt, force_obj)
+function UnitDirectionModeDialog:OnMousePos(pt)
 	if not self.unit then return end
+	if GetUIStyleGamepad() then return end
 	local pos = GetTerrainCursor()
 	if self.last_mouse_pos ~= pos then
 		self:UpdateInteractionObj(SelectionMouseObj(), pos)
@@ -394,22 +445,25 @@ function UnitDirectionModeDialog:OnKbdKeyDown(char, virtual_key)
 end
 
 function UnitDirectionModeDialog:OnShortcut(shortcut, source)
-	if self.unit then
+	if GetUIStyleGamepad() and self.unit then
 		if g_GamepadObjects then
 			g_GamepadObjects:FindInteractableObj()
 		else
 			self:UpdateInteractionObj(SelectionGamepadObj(), GetTerrainGamepadCursor())
 		end
 	end
+	self:UpdateCursorText()
 	--when doing an action
-	if self.interaction_mode then
-		if shortcut == "+ButtonA" then
-			self:InteractWithPos(GetTerrainGamepadCursor(), "keep_control")
-			return "break"
-		elseif shortcut == "+ButtonB" or shortcut == "+ButtonY" or shortcut == "+ButtonX" then
-			SetUnitControlInteractionMode(self.unit, false)
-			return "break"
-		end
+	if self.unit then
+		if self.interaction_mode then
+			if shortcut == "+ButtonA" then
+				self:InteractWithPos(GetTerrainGamepadCursor(), "keep_control")
+				return "break"
+			elseif shortcut == "+ButtonB" or shortcut == "+ButtonY" or shortcut == "+ButtonX" then
+				SetUnitControlInteractionMode(self.unit, false)
+				return "break"
+			end
+		end	
 	end
 	
 	return InterfaceModeDialog.OnShortcut(self, shortcut, source)
@@ -499,6 +553,13 @@ function UnitController:OnUnitControlActiveChanged(new_val)
 end
 
 function UnitController:CanInteractWithObject(o, m)
+	local gamepad = GetUIStyleGamepad()
+	if not gamepad then
+		local mousetarget = terminal.desktop:GetMouseTarget(terminal.GetMousePos())
+		if not mousetarget and not IsKindOfClasses(mousetarget, "SelectionModeDialog", "OverviewModeDialog") then		
+			return false
+		end	
+	end
 	if not self.unit:CanBeControlled(m) then return false end
 	return self.unit:CanInteractWithObject(o, m)
 end
@@ -519,7 +580,7 @@ end
 
 function UnitController:GoToPos(pos)
 	local u = self.unit
-	if IsValid(u) and u:CanBeControlled() then --unit can be salvaged.
+	if IsValid(u) and u:CanBeControlled("move") then --unit can be salvaged.
 		local new_pos = GetPassablePointNearby(pos, u.pfclass)
 		if new_pos ~= self.position then
 			self.position = new_pos
@@ -599,9 +660,10 @@ function SetUnitControlInteraction(interact, obj)
 		 dlg.active_interaction = interact
 	end	
 end
-
+--[[
 function GetUnitControlInteractionHint(unit, CanBeControlled_text, InalidControl_text)
 	local dlg = GetUnitControlDlg(unit)
 	if not dlg then return false end
-	return dlg:HasMember("interaction_hint") and dlg.interaction_hint or unit:CanBeControlled() and CanBeControlled_text or InalidControl_text
+	return dlg:HasMember("interaction_hint") and dlg.interaction_hint and dlg.interaction_hint~="" and dlg.interaction_hint or unit:CanBeControlled() and CanBeControlled_text or InalidControl_text
 end
+--]]

@@ -244,7 +244,6 @@ function GetInfopanelSelectorItems(dataset, list)
 				local university = dataset.object
 				if not IsValid(university) then return end
 				university.specialization = "auto"
-				university:UpdateUI()
 			end
 		}, list))
 		align = "bottom"
@@ -256,18 +255,17 @@ function GetInfopanelSelectorItems(dataset, list)
 				icon = specialization.display_icon,
 				display_name = specialization.display_name,
 				description  = specialization.description,
-				hint =  T{703125928773, --[[XTemplate customMartianUniversity RolloverHint]] "<left_click> Select Specialization"},
-				gamepad_hint =  T{896744390747, --[[XTemplate customMartianUniversity RolloverHintGamepad]] "<ButtonA> Select Specialization"},
+				hint =  T{703125928773, --[[XTemplate customMartianUniversity RolloverHint]] "<left_click> Select specialization<newline><em>Ctrl + <left_click> on specialization</em> Select in all Universities"},
+				gamepad_hint =  T{896744390747, --[[XTemplate customMartianUniversity RolloverHintGamepad]] "<ButtonA> Select specialization<newline><em><ButtonX> on specialization</em> Select in all Universities"},
 				action = function(dataset)
 					local university = dataset.object
 					if not IsValid(university) then return end
 					university.specialization = val
-					university:UpdateUI()
 				end
 			}, list))
 			align = align == "top" and "bottom" or "top"
 		end	
-	elseif object:IsKindOf("UniversalStorageDepot") then
+	elseif object:IsKindOfClasses("UniversalStorageDepot", "MechanizedDepot") then
 		local storable_resources = object.storable_resources
 		local res_type = object.resources_type
 		for _, res_id in ipairs(storable_resources) do

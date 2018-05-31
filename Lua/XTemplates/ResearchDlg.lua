@@ -12,7 +12,7 @@ PlaceObj('XTemplate', {
 			'func', function (self)
 ContextAwareHintShow("HintResearch", false)
 local hintdlg = GetOnScreenHintDlg()
-if HintsEnabled and hintdlg then
+if (HintsEnabled or g_Tutorial) and hintdlg then
 	hintdlg:SetParent(GetInGameInterface())
 	hintdlg:SetHiddenMinimized(false)
 end
@@ -88,8 +88,9 @@ parent:CreateThread(function ()
 			local x, y = win.desktop.last_mouse_pos:xy()
 			local max_x, max_y = win.desktop.content_box:maxxyz()
 			local dx
-			if x < 100 then dx = - 10 end
-			if x > max_x - 100 then dx = 10 end
+			local threshold = ScaleXY(win.scale, 100)
+			if x < threshold then dx = - 10 end
+			if x > max_x - threshold then dx = 10 end
 			if not dx and g_ResearchDlgPendingScrollOffsetX ~= 0 then
 				dx = g_ResearchDlgPendingScrollOffsetX
 			end
@@ -106,7 +107,7 @@ end,
 						}),
 						PlaceObj('XTemplateForEach', {
 							'comment', "field",
-							'array', function (parent, context) return TechTree end,
+							'array', function (parent, context) return Presets.TechFieldPreset.Default end,
 							'condition', function (parent, context, item, i) return item.show_in_field == "" end,
 							'__context', function (parent, context, item, i, n) return item end,
 						}, {
@@ -289,8 +290,10 @@ if GetUIStyleGamepad() then
 end
 ----- Trigger hint
 local hintdlg = GetOnScreenHintDlg()
-if HintsEnabled and hintdlg then
-	ContextAwareHintShow("HintResearch", true)
+if (HintsEnabled or g_Tutorial) and hintdlg then
+	if HintsEnabled then
+		ContextAwareHintShow("HintResearch", true)
+	end
 	hintdlg:SetParent(self)
 	hintdlg:SetHiddenMinimized(true)
 end
@@ -351,6 +354,7 @@ end,
 					'__class', "XFrame",
 					'Margins', box(-80, 6, -160, -100),
 					'VAlign', "top",
+					'Transparency', 100,
 					'Image', "UI/Common/bm_pad_small.tga",
 					'FrameBox', box(170, 0, 170, 0),
 					'SqueezeY', false,

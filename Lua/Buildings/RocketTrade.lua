@@ -24,7 +24,7 @@ function TradeRocket:CreateExportRequests()
 	self.export_requests = {}
 	assert(self.export_goods)
 	for _, req in ipairs(self.export_goods) do
-		local unit_count = 3 + (req.amount / (const.ResourceScale * 5)) --1 per 5 + 3
+		local unit_count = self:GetRequestUnitCount(req.amount)
 		self.export_requests[#self.export_requests + 1] = self:AddDemandRequest(req.resource, req.amount, 0, unit_count)
 	end
 end

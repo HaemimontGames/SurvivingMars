@@ -14,7 +14,7 @@ function OnMsg.SelectedObjChange(obj, prev)
 	dlg:CreateSelectionArrow(obj)
 end
 
-GlobalVar("g_HexRanges", {})
+GlobalVar("g_HexRanges", {}, weak_keys_meta)
 
 local function update_hex_range(obj)
 	if not obj or not IsValid(obj) then return end
@@ -25,7 +25,7 @@ local function update_hex_range(obj)
 	end
 end
 
-function ShowHexRanges(city, class)
+function ShowHexRanges(city, class, cursor_obj)
 	city = city or UICity
 	
 	if not g_Classes[class] or not g_Classes[class]:HasMember("GetSelectionRadiusScale") then
@@ -34,7 +34,7 @@ function ShowHexRanges(city, class)
 	
 	if city.labels[class] then
 		for _, bld in ipairs(city.labels[class]) do
-			if not g_HexRanges[bld] then
+			if not g_HexRanges[bld] and not bld.destroyed then
 				local obj = PlaceObject("RangeHexMultiSelectRadius")
 				bld:Attach(obj)
 				g_HexRanges[bld] = obj
@@ -52,6 +52,13 @@ function ShowHexRanges(city, class)
 			end
 		end
 	end	
+	if IsValid(cursor_obj) and cursor_obj:HasMember("GetSelectionRadiusScale") then
+		assert(type(cursor_obj.GetSelectionRadiusScale) == "number")
+		local obj = PlaceObject("RangeHexMultiSelectRadius")
+		cursor_obj:Attach(obj)
+		g_HexRanges[cursor_obj] = obj
+		obj:SetScale(cursor_obj.GetSelectionRadiusScale)
+	end
 end
 
 function HideHexRanges(city, class)
@@ -88,6 +95,13 @@ function UpdateHexRanges(city, class)
 			end
 		end
 	end	
+end
+
+function OnMsg.Demolished(bld)
+	if g_HexRanges[bld] then
+		DoneObject(g_HexRanges[bld])
+		g_HexRanges[bld] = nil
+	end
 end
 
 function OnMsg.SelectedObjChange(obj, prev)
@@ -192,7 +206,7 @@ function InGameInterface:Open(...)
 			dlg:SetParent(self)
 		end
 	end
-	local popup = GetDialog("PopupNotification")
+	local popup = GetXDialog("PopupNotification")
 	if popup and popup.parent ~= self then
 		popup:SetParent(self)
 		popup:SetFocus()
@@ -283,7 +297,7 @@ function InGameInterface:OnXButtonDown(button, controller_id)
 		if self.mode_dialog:OnXButtonDown(button, controller_id)=="break" then
 			return "break"
 		end
-		local dlg = GetDialog("Infopanel")
+		local dlg = GetXDialog("Infopanel")
 		if dlg and IsKindOf(dlg.context,"ResourceOverview") then
 			return ResourceOverviewObj:OnShortcut(button)
 		end
@@ -306,7 +320,7 @@ function InGameInterface:OnShortcut(shortcut, source)
 			return "break"
 		end	
 	end
-	local dlg = GetDialog("Infopanel")
+	local dlg = GetXDialog("Infopanel")
 	if dlg and IsKindOf(dlg.context,"ResourceOverview") then
 		return ResourceOverviewObj:OnShortcut(shortcut, source)
 	end
@@ -360,6 +374,9 @@ function InGameInterface:SetMode(mode, params)
 	if self.mode == "overview" then
 		--close any open infopanels
 		CloseXInfopanel()
+		if self.mode_dialog.unit then
+			SetUnitControlInteractionMode(self.mode_dialog.unit, false)
+		end
 	end
 	--close the gamepad menu when switching modes
 	CloseXGamepadMainMenu()
@@ -378,12 +395,12 @@ function InGameInterface:SetVisible(bShow, instant)
 end
 
 function InGameInterface:OnSetFocus()
-	local pins = GetDialog("PinsDlg")
+	local pins = GetXDialog("PinsDlg")
 	if pins then pins:UpdateGamepadHint() end
 end
 
 function InGameInterface:OnKillFocus()
-	local pins = GetDialog("PinsDlg")
+	local pins = GetXDialog("PinsDlg")
 	if pins then pins:UpdateGamepadHint() end
 end
 
@@ -416,7 +433,7 @@ end
 function CloseModeDialog()
 	local igi = GetInGameInterface()
 	if igi then
-		local dlg = GetDialog("HUD")
+		local dlg = GetHUD()
 		if dlg then dlg.idtxtConstructionStatus:SetVisible(false) end
 		igi:SetMode("selection")
 	end
@@ -482,7 +499,7 @@ function OnGameEnterEditor()
 		if dlg and IsValid(dlg.sector_obj) then
 			dlg.sector_obj:ClearEnumFlags(const.efVisible)
 		end
-		local dlgOverviewMapCurtains = GetDialog("OverviewMapCurtains")
+		local dlgOverviewMapCurtains = GetXDialog("OverviewMapCurtains")
 		if dlgOverviewMapCurtains then
 			dlgOverviewMapCurtains:SetVisible(false)
 		end
@@ -503,7 +520,7 @@ function OnGameExitEditor()
 			dlg.sector_obj:SetEnumFlags(const.efVisible)
 			dlg:OnMousePos()
 		end
-		local dlgOverviewMapCurtains = GetDialog("OverviewMapCurtains")
+		local dlgOverviewMapCurtains = GetXDialog("OverviewMapCurtains")
 		if dlgOverviewMapCurtains then
 			dlgOverviewMapCurtains:SetVisible(true)
 		end
@@ -592,6 +609,7 @@ function RestoreInGameInterfaceOnLoadGame()
 	local time_factor = GetTimeFactor()
 	SetTimeFactor(time_factor)
 	GetOnScreenHintDlg()
+	UpdateInfobarVisibility()
 	
 	--DO NOT use IsPaused() here, it always returns 1
 	if time_factor == 0 then

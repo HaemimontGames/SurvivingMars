@@ -174,6 +174,7 @@ function ShowSavegameDescription(item, dialog)
 			
 			local metadata = item.metadata
 			
+			if dialog.window_state == "destroying" then return end
 			dialog.idDescription:SetVisible(false)
 			if IsValidThread(g_SaveScreenShotThread) then
 				WaitMsg("SaveScreenShotEnd")
@@ -254,7 +255,7 @@ function ShowSavegameDescription(item, dialog)
 					local name = rule and rule.display_name or Untranslated(rule_id)
 					game_rules_list[#game_rules_list + 1] = name
 				end
-				game_rules_string = table.concat(game_rules_list, ", ")
+				game_rules_string = TList(game_rules_list)
 			end
 			
 			local dlcs_list = {}
@@ -263,7 +264,7 @@ function ShowSavegameDescription(item, dialog)
 					dlcs_list[#dlcs_list + 1] = dlc.name
 				end
 			end
-			local missing_dlcs = table.concat(dlcs_list, ", ")
+			local missing_dlcs = TList(dlcs_list)
 			
 			local playtime = T{77, "Unknown"}
 			if data.playtime then
@@ -346,7 +347,7 @@ function DeleteSaveGame(dialog)
 					obj:RemoveItem(item.id)
 					list:Clear()
 					ObjModified(obj)
-					list:SetInitialSelection()
+					list:SetSelection(Min(item.id, #list))
 					LoadingScreenClose("idDeleteScreen", "delete savegame")
 				else
 					LoadingScreenClose("idDeleteScreen", "delete savegame")
@@ -368,12 +369,13 @@ function LoadSaveGame(dialog)
 			local err
 			if metadata and not metadata.corrupt and not metadata.incompatible then
 				local in_game = GameState.gameplay -- this might change during loading
-				local res = in_game and WaitMarsQuestion(dialog.parent, T{6901, "Warning"}, T{7729, "Are you sure you want to load this savegame? You will lose your current game progress."}, T{1138, "Yes"}, T{1139, "No"}, "UI/Messages/space.tga") or "ok"
+				local parent = dialog.parent --get this here, it might not be accessible afterwards
+				local res = in_game and WaitMarsQuestion(parent, T{6901, "Warning"}, T{7729, "Are you sure you want to load this savegame? You will lose your current game progress."}, T{1138, "Yes"}, T{1139, "No"}, "UI/Messages/space.tga") or "ok"
 				if res == "ok" then
 					err = LoadGame(savename)
 					if not err then
 						DeleteThread(g_SaveGameDescrThread)
-						local parent_dlg = GetDialog(dialog.parent)
+						local parent_dlg = GetXDialog(parent)
 						if parent_dlg and parent_dlg.window_state ~= "destroying" then
 							parent_dlg:Close()
 						end
@@ -417,12 +419,12 @@ function SaveSavegame(item, name, dialog)
 			end
 			if not err then
 				DeleteThread(g_SaveGameDescrThread)
-				local parent_dlg = GetDialog(dialog.parent)
+				local parent_dlg = GetXDialog(dialog.parent)
 				if parent_dlg and parent_dlg.window_state ~= "destroying" then
 					parent_dlg:Close()
 				end
 			else
-				CreateErrorMessageBox(err, "savegame", nil, dialog.parent, {savename = T{4186, "\"" .. name .. '"'}, error_code = T{err}})
+				CreateErrorMessageBox(err, "savegame", nil, dialog.parent, {savename = T{4186, '"<name>"', name = Untranslated(name)}, error_code = Untranslated(err)})
 			end
 		end, dialog, name, item)
 	end

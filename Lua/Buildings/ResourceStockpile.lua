@@ -249,38 +249,77 @@ function ResourceStockpileBase:MoveInside(dome)
 end
 
 -- overwitten functions from servic (to service colonists Food need)
-function ResourceStockpileBase:Assign() end
-function ResourceStockpileBase:Unassign(unit)end
-function ResourceStockpileBase:HasFreeVisitSlots() return true end
-function ResourceStockpileBase:CanService(unit)
-	if self.has_supply_request and self:DoesAcceptResource("Food") then
-		local s_req = self.supply_request or self.supply["Food"]
-		local eat_per_visit = unit:GetEatPerVisit(unit)
-		return s_req:GetActualAmount() > eat_per_visit
-	end
+function ResourceStockpileBase:Assign(unit)
+	local s_req = self:GetFoodSupplyRequest()
+	if not s_req then return end
+	local eat_amount = unit.assigned_to_service_with_amount
+	s_req:AssignUnit(eat_amount)
 end
 
-function GetEatPerVisit(unit)
-	return Colonist.GetEatPerVisit(unit)
+function ResourceStockpileBase:Unassign(unit, fulfilled)
+	local eat_amount = unit.assigned_to_service_with_amount
+	unit.assigned_to_service_with_amount = nil
+	if not eat_amount then return end 
+	local s_req = self:GetFoodSupplyRequest()
+	if not s_req then return end
+	s_req:UnassignUnit(eat_amount, fulfilled or false)
+end
+
+function ResourceStockpileBase:HasFreeVisitSlots() return true end
+
+function ResourceStockpileBase:GetFoodSupplyRequest()
+	return self.has_supply_request and self:DoesAcceptResource("Food") and (self.supply_request or self.supply["Food"])
+end
+
+function ResourceStockpileBase:CanService(unit)
+	local s_req = self:GetFoodSupplyRequest()
+	if s_req then
+		local eat_per_visit = unit:GetEatPerVisit()
+		local ret = s_req:CanAssignUnit() and s_req:GetTargetAmount() > eat_per_visit
+		if ret then
+			unit.assigned_to_service_with_amount = eat_per_visit
+		end
+		return ret
+	end
 end
 
 function ResourceStockpileBase:Service(unit, duration)
 	assert(self.resource == "Food" or table.find(self.resource, "Food")) 
 	local stored_amount = self:GetStoredAmount("Food")
-	local eat_amount = unit:Eat(stored_amount)
+	local eat_amount_assigned = unit.assigned_to_service_with_amount
+	local eat_amount = unit:Eat(Min(stored_amount, eat_amount_assigned or unit:GetEatPerVisit()))
 
 	if eat_amount <= 0 then return end
-
+	
 	if not unit.traits.Rugged then
 		unit:ChangeComfort(-g_Consts.OutsideFoodConsumptionComfort, "raw food")
 	end
-
+	
 	UICity:OnConsumptionResourceConsumed("Food", eat_amount)
 	
-	if stored_amount == eat_amount and self.destroy_when_empty and unit.command_thread == CurrentThread() then
-		CreateGameTimeThread(self.AddResource, self, -eat_amount, "Food", true) --we are about to call doneobj on self, this will cause all our held units to get kicked and have their cmd thread (this thread) terminated.
+	local will_kill_myself = stored_amount <= eat_amount and self.destroy_when_empty and unit.command_thread == CurrentThread()
+	if eat_amount_assigned then
+		--request flow
+		local s_req = self:GetFoodSupplyRequest()
+		s_req:Fulfill(eat_amount)
+		
+		local exec = function(self, unit, s_req, eat_amount)
+			self:DroneLoadResource(unit, s_req, "Food", eat_amount, true)
+			unit:AssignToService(nil, nil, true)
+		end
+		
+		if will_kill_myself then
+			CreateGameTimeThread(exec, self, unit, s_req, eat_amount)
+		else
+			exec(self, unit, s_req, eat_amount)
+		end
 	else
-		self:AddResource(-eat_amount, "Food", true)
+		--no request flow
+		if will_kill_myself then
+			CreateGameTimeThread(self.AddResource, self, -eat_amount, "Food", true) --we are about to call doneobj on self, this will cause all our held units to get kicked and have their cmd thread (this thread) terminated.
+		else
+			self:AddResource(-eat_amount, "Food", true)
+		end
 	end
 end
 
@@ -819,7 +858,9 @@ function SharedStorageBaseVisualOnly:SetResourceAutoTransportationState(resource
 end
 
 function SharedStorageBaseVisualOnly:GetStoredAmount(resource)
-	if resource then
+	if not self.stockpiled_amount then
+		return 0
+	elseif resource then
 		return self.stockpiled_amount[resource]
 	else
 		local total = 0

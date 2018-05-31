@@ -42,7 +42,7 @@ XPropControl.OnMouseButtonDown(self, pos, button)
 if self.enabled then
 	local prop_meta = self.prop_meta
 	local obj = ResolvePropObj(self.context)
-	CreateMarsRenameControl(GetDialog(self), prop_meta.name, obj[prop_meta.id],
+	CreateMarsRenameControl(GetXDialog(self), prop_meta.name, obj[prop_meta.id],
 		function(name)
 			name = name:trim_spaces()
 			obj:SetProperty(prop_meta.id, name)

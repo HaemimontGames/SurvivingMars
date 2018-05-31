@@ -9,6 +9,7 @@ PlaceObj('Scenario', {
 		'autostart', true,
 	}, {
 		PlaceObj('SA_PlaceObject', {
+			'check_dome', "outside",
 			'random_pos_label_dist', 25000,
 			'class_name', "MirrorSphere",
 			'use_random_pos', true,

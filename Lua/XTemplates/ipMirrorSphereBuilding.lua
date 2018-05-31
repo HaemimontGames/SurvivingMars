@@ -55,7 +55,6 @@ end,
 			PlaceObj('XTemplateTemplate', {
 				'comment', "pierce",
 				'__template', "InfopanelButton",
-				'RolloverDisabledText', T{185981844766, --[[XTemplate ipMirrorSphereBuilding RolloverDisabledText]] "No Drones in the vicinity."},
 				'RolloverTitle', T{1204, --[[XTemplate ipMirrorSphereBuilding RolloverTitle]] "Attempt to Pierce the Shell"},
 				'OnContextUpdate', function (self, context, ...)
 local enabled, reason = context:IsActionEnabled("PierceTheShell")
@@ -73,7 +72,6 @@ end,
 			PlaceObj('XTemplateTemplate', {
 				'comment', "communicate",
 				'__template', "InfopanelButton",
-				'RolloverDisabledText', T{173456308342, --[[XTemplate ipMirrorSphereBuilding RolloverDisabledText]] "No Sensor Tower in the vicinity."},
 				'RolloverTitle', T{1206, --[[XTemplate ipMirrorSphereBuilding RolloverTitle]] "Attempt to Communicate"},
 				'OnContextUpdate', function (self, context, ...)
 local enabled, reason = context:IsActionEnabled("Communicate")
@@ -91,7 +89,6 @@ end,
 			PlaceObj('XTemplateTemplate', {
 				'comment', "feed",
 				'__template', "InfopanelButton",
-				'RolloverDisabledText', T{219125399224, --[[XTemplate ipMirrorSphereBuilding RolloverDisabledText]] "No Power Accumulator in the vicinity."},
 				'RolloverTitle', T{1208, --[[XTemplate ipMirrorSphereBuilding RolloverTitle]] "Feed with Power"},
 				'OnContextUpdate', function (self, context, ...)
 local enabled, reason = context:IsActionEnabled("FeedPower")

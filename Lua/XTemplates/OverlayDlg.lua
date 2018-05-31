@@ -7,13 +7,14 @@ PlaceObj('XTemplate', {
 	id = "OverlayDlg",
 	PlaceObj('XTemplateWindow', {
 		'__class', "XDialog",
+		'Id', "idOverlayDlg",
 		'Dock', "right",
 	}, {
 		PlaceObj('XTemplateWindow', {
 			'__class', "XFrame",
 			'Id', "idFrame",
 			'IdNode', false,
-			'Padding', box(80, 80, 80, 80),
+			'Padding', box(80, 20, 80, 50),
 			'HandleMouse', true,
 			'Image', "UI/Common/menu_pad_1.tga",
 			'FrameBox', box(86, 0, 0, 0),
@@ -29,6 +30,7 @@ self:SetPadding(box(pad:minx(), margin:miny(), margin:maxx(), margin:maxy()))
 end,
 			}),
 			PlaceObj('XTemplateWindow', {
+				'Id', "idActionBar",
 				'Dock', "bottom",
 			}, {
 				PlaceObj('XTemplateWindow', {
@@ -36,6 +38,7 @@ end,
 					'Id', "idToolbarFrame",
 					'Margins', box(-80, -50, -155, -10),
 					'VAlign', "bottom",
+					'Transparency', 100,
 					'Image', "UI/Common/bm_pad_small.tga",
 					'FrameBox', box(170, 0, 165, 0),
 					'SqueezeY', false,
@@ -58,6 +61,7 @@ end,
 			'layer', "XHideInGameInterfaceLayer",
 		}),
 		PlaceObj('XTemplateLayer', {
+			'__condition', function (parent, context) return not g_CommandCenterOpen end,
 			'layer', "XPauseLayer",
 		}),
 		PlaceObj('XTemplateLayer', {

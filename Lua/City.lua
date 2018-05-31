@@ -10,6 +10,7 @@ DefineClass.City = {
 	water = false,
 	air = false,
 	building_grids = false,	
+	dome_networks = false,
 
 	unlocked_upgrades = false,
 	
@@ -73,6 +74,18 @@ DefineClass.City = {
 	dead_notification_shown = false,
 	
 	drone_prefabs = 0,
+	
+	-- time series logs for bar graphs in CCC
+	ts_colonists = false,
+	ts_colonists_unemployed = false,
+	ts_colonists_homeless = false,
+	ts_drones = false,
+	ts_shuttles = false,
+	ts_buildings = false,
+	ts_constructions_completed = false,
+	ts_resources_stockpile = false,
+	ts_resources_grid = false,
+	constructions_completed_today = false,
 }
 
 function City:Init()
@@ -86,13 +99,13 @@ function City:Init()
 	
 	-- call early mod effects init
 	for _, effects in ipairs(ModGlobalEffects) do
-		effects:OnInitEffect(self)
+		effects:EffectsInit(self)
 	end
-	GetMissionSponsor():OnInitEffect(self)
-	GetCommanderProfile():OnInitEffect(self)
+	GetMissionSponsor():EffectsInit(self)
+	GetCommanderProfile():EffectsInit(self)
 	local rules = GetActiveGameRules()
 	for _, rule_id in ipairs(rules) do
-		GameRulesMap[rule_id]:OnInitEffect(self)
+		GameRulesMap[rule_id]:EffectsInit(self)
 	end
 	
 	self:SelectMystery() -- should be before research - research items depend on the current mystery
@@ -132,18 +145,27 @@ function City:Init()
 			Sleep(1) -- wait for rocket GameInits
 			assert(self.labels.SupplyRocket and #self.labels.SupplyRocket > 0)
 			self:OrderLanding(cargo, 0, true)
+		else
+			-- cleanup saved rockets
+			local rockets = self.labels.SupplyRocket or empty_table
+			
+			for i = #rockets, 1, -1 do
+				if rockets[i]:GetPos() == InvalidPos() then
+					DoneObject(rockets[i])
+				end
+			end
 		end
 		sponsor:game_apply(self)
 		GetCommanderProfile():game_apply(self)
 		-- apply mod effects
 		for _, effects in ipairs(ModGlobalEffects) do
-			effects:OnApplyEffect(self)
+			effects:EffectsApply(self)
 		end
-		GetMissionSponsor():OnApplyEffect(self)
-		GetCommanderProfile():OnApplyEffect(self)
+		GetMissionSponsor():EffectsApply(self)
+		GetCommanderProfile():EffectsApply(self)
 		local rules = GetActiveGameRules()
 		for _, rule_id in ipairs(rules) do
-			GameRulesMap[rule_id]:OnApplyEffect(self)
+			GameRulesMap[rule_id]:EffectsApply(self)
 		end
 		InitApplicantPool()
 		self:ApplyModificationsFromProperties()
@@ -171,7 +193,11 @@ function City:Init()
 	--lock mystery resource depot from the build menu
 	LockBuilding("StorageMysteryResource")
 	LockBuilding("MechanizedDepotMysteryResource")
+	
+	self:InitTimeSeries()
 end
+
+GlobalVar("FirstUniversalStorage", false)
 
 function CreateRand(seed, ...)
 	local seed = xxhash(seed, ...)
@@ -301,9 +327,16 @@ end
 function City:DailyUpdate(day)
 	self:GatheredResourcesOnDailyUpdate()
 	self:CalcRenegades()
+	self:UpdateTimeSeries()
 	
 	self.last_sol_died = self.cur_sol_died
 	self.cur_sol_died = 0
+	
+	if IsGameRuleActive("EndlessSupply") and FirstUniversalStorage and IsValid(FirstUniversalStorage) then
+		FirstUniversalStorage:Fill()
+	end
+	local colonists = #(self.labels.Colonist or empty_table)
+	ColonistHeavyUpdateTime = Clamp(colonists / 300, 0, 12) * const.HourDuration
 end
 
 function City:ElectricityToResearch(amount, hours)
@@ -392,13 +425,6 @@ function City:GetMaxSubsurfaceExploitationLayer()
 	return 1 + self.deposit_depth_exploitation_research_bonus
 end
 
-function City:UpdateUI()
-	if self == UICity then
-		Msg("UIPropertyChanged", self)
---		Msg("UIPropertyChanged", self.electricity_grid)
-	end
-end
-
 function City:Gossip(gossip, ...)
 	if not netAllowGossip then return end
 	NetGossip(gossip, GameTime(), ...)
@@ -457,6 +483,7 @@ function City:OnMaintenanceResourceConsumed(r_type, r_amount)
 end
 
 function City:MarkPreciousMetalsExport(amount)
+	if amount <= 0 then return end
 	self.last_export = {amount = amount, day = self.day, hour = self.hour, minute = self.minute}
 	self.total_export = self.total_export + amount
 	self.total_export_funding = self.total_export_funding + MulDivRound(amount, g_Consts.ExportPricePreciousMetals*1000000, const.ResourceScale)
@@ -982,7 +1009,7 @@ local function CalcInsufficientResourcesNotifParams(displayed_in_notif)
 		resource_names[#resource_names + 1] = ResourceDescription[idx].display_name
 	end
 	params.low_on_resource_text = #resource_names == 1 and T{839, "Low on resource:"} or T{840, "Low on resources:"}
-	params.resources = table.concat(resource_names, ", ")
+	params.resources = TList(resource_names)
 	return params
 end
 GlobalVar("g_InsufficientMaintenanceResources", {})
@@ -1068,4 +1095,237 @@ function City:ForEachLabelObject(label, func, ...)
 			func(obj, ...)
 		end
 	end
+end
+
+local ts_capacity = 1024
+
+DefineClass.TimeSeries = {
+	__parents = { "InitDone" },
+	data = false,
+	next_index = 0, -- zero-based!
+}
+
+function TimeSeries:Init()
+	self.data = {}
+	for i = 1, ts_capacity do
+		self.data[i] = false
+	end
+end
+
+function TimeSeries:AddValue(value)
+	local next_index = self.next_index
+	self.data[next_index % ts_capacity + 1] = value
+	self.next_index = next_index + 1
+end
+
+function TimeSeries:GetMaxOfLastValues(count)
+	local data = self.data
+	local index = self.next_index - 1
+	local out_index = Min(count, ts_capacity, index + 1)
+	local max_value
+	while out_index > 0 do
+		local value = data[index % ts_capacity + 1]
+		if value then
+			if not max_value then
+				max_value = value
+			elseif value > max_value then
+				max_value = value
+			end
+		end
+		out_index = out_index - 1
+		index = index - 1
+	end
+	return max_value
+end
+
+-- n = -1 .. -ts_capacity
+function TimeSeries:GetValue(n)
+	return self.data[ (self.next_index + n + ts_capacity) % ts_capacity + 1 ] or 0
+end
+
+function TimeSeries:GetLastValues(count, out_values, default_value)
+	out_values = out_values or {}
+	local data = self.data
+	local index = self.next_index - 1
+	local out_index = Min(count, ts_capacity, index + 1)
+	for i = count, out_index+1, -1 do
+		out_values[i] = default_value or 0
+	end
+	local min_value, max_value
+	while out_index > 0 do
+		local value = data[index % ts_capacity + 1]
+		if value then
+			if not min_value then
+				min_value, max_value = value, value
+			else
+				if value < min_value then
+					min_value = value
+				else
+					if value > max_value then
+						max_value = value
+					end
+				end
+			end
+		end
+		out_values[out_index] = value
+		out_index = out_index - 1
+		index = index - 1
+	end
+	return out_values, min_value, max_value
+end
+
+function City:InitTimeSeries()
+	self.ts_colonists = TimeSeries:new()
+	self.ts_colonists_unemployed = TimeSeries:new()
+	self.ts_colonists_homeless = TimeSeries:new()
+	self.ts_drones = TimeSeries:new()
+	self.ts_shuttles = TimeSeries:new()
+	self.ts_buildings = TimeSeries:new()
+	self.ts_constructions_completed = TimeSeries:new()
+	self.ts_resources = {}
+	for _, resource in ipairs(StockpileResourceList) do
+		self.ts_resources[resource] = {
+			stockpile = TimeSeries:new(),
+			produced = TimeSeries:new(),
+			consumed = TimeSeries:new()
+		}
+	end
+	self.ts_resources_grid = {}
+	for _, resource in ipairs{"water", "air", "electricity"} do
+		self.ts_resources_grid[resource] = {
+			stored = TimeSeries:new(),
+			production = TimeSeries:new(),
+			consumption = TimeSeries:new(),
+		}
+	end
+end
+
+function SavegameFixups.CityTimeSeries()
+	UICity:InitTimeSeries()
+end
+
+function City:CountBuildings()
+	local all_buildings = 0
+	for _, building in ipairs(self.labels.Building or empty_table) do
+		if building.count_as_building and not IsKindOfClasses(building, "ConstructionSite", "ConstructionSiteWithHeightSurfaces") then
+			all_buildings = all_buildings + 1
+		end
+	end
+	return all_buildings
+end
+
+function City:CountShuttles()
+	local shuttles = 0
+	for _, hub in ipairs(self.labels.ShuttleHub or empty_table) do
+		shuttles = shuttles + #hub.shuttle_infos
+	end
+	return shuttles
+end
+
+function City:UpdateTimeSeries()
+	if self.day == 1 then return end
+
+	self.ts_colonists:AddValue(#(self.labels.Colonist or empty_table))
+	self.ts_colonists_unemployed:AddValue(#(self.labels.Unemployed or empty_table))
+	self.ts_colonists_homeless:AddValue(#(self.labels.Homeless or empty_table))
+	self.ts_drones:AddValue(#(self.labels.Drone or empty_table))
+
+	self.ts_shuttles:AddValue(self:CountShuttles())
+	self.ts_buildings:AddValue(self:CountBuildings())
+	self.ts_constructions_completed:AddValue(self.constructions_completed_today)
+	self.constructions_completed_today = 0
+
+	local resource_overview_obj = ResourceOverviewObj
+	for _, resource in ipairs(StockpileResourceList) do
+		local ts_resource = self.ts_resources[resource]
+		ts_resource.stockpile:AddValue(resource_overview_obj:GetAvailable(resource))
+		ts_resource.produced:AddValue(resource_overview_obj:GetProducedYesterday(resource))
+		ts_resource.consumed:AddValue(resource_overview_obj:GetConsumedByConsumptionYesterday(resource) + resource_overview_obj:GetConsumedByMaintenanceYesterday(resource))
+	end
+	local water, air, electricity = self.ts_resources_grid.water, self.ts_resources_grid.air, self.ts_resources_grid.electricity
+	water.stored:AddValue(resource_overview_obj:GetTotalStoredWater())
+	air.stored:AddValue(resource_overview_obj:GetTotalStoredAir())
+	electricity.stored:AddValue(resource_overview_obj:GetTotalStoredPower())
+    
+	local data = resource_overview_obj.data
+	if data.total_grid_samples > 0 then
+		air.consumption:AddValue(data.total_air_consumption_sum / data.total_grid_samples)
+		air.production:AddValue(data.total_air_production_sum / data.total_grid_samples)
+		electricity.consumption:AddValue(data.total_power_consumption_sum / data.total_grid_samples)
+		electricity.production:AddValue(data.total_power_production_sum / data.total_grid_samples)
+		water.consumption:AddValue(data.total_water_consumption_sum / data.total_grid_samples)
+		water.production:AddValue(data.total_water_production_sum / data.total_grid_samples)
+		data.total_air_consumption_sum = 0
+		data.total_air_production_sum = 0
+		data.total_power_consumption_sum = 0
+		data.total_power_production_sum = 0
+		data.total_water_consumption_sum = 0
+		data.total_water_production_sum = 0
+		data.total_grid_samples = 0
+	end
+end
+
+function OnMsg.ConstructionComplete(bld)
+	UICity.constructions_completed_today = (UICity.constructions_completed_today or 0) + 1
+end
+
+-- desc - { ts1, ts2, scale = xxx }
+-- day - current day number
+-- n - number of values to return, pad with zeroes those not present in timeseries
+-- height - max height in pixels permissible
+-- axis_divisions - vertical axis will be divided in this many steps
+-- returns array, axis_step
+-- array contains one table per timeseries value, [1] and [2] come from ts1, [3] and [4] come from ts2 (nil if ts2 not given), [5] is day number
+-- [1] and [3] are in pixels
+-- axis_step is 1, 2 or 5 * 10^n, such as max value in relevant part of ts1/ts2 is less than axis_divisions * axis_step
+function TimeSeries_GetGraphValueHeights(desc, day, n, height, axis_divisions)
+	local values = {}
+	local max = desc[1]:GetMaxOfLastValues(n)
+	if desc[2] then
+		max = Max(max, desc[2]:GetMaxOfLastValues(n))
+	end
+	local scale = desc.scale or 1
+	local axis_step = scale
+	while axis_step < 1000000000 do
+		if not max or axis_divisions * axis_step > max then break end
+		axis_step = 2 * axis_step
+		if not max or axis_divisions * axis_step > max then break end
+		axis_step = 5 * axis_step / 2
+		if not max or axis_divisions * axis_step > max then break end
+		axis_step = 2 * axis_step
+	end
+	local mul = height
+	local div = axis_divisions * axis_step
+	
+	if day > n then
+		for i = 1, n do
+			local rel = i - n - 1
+			local value1 = desc[1]:GetValue(rel)
+			local value2 = desc[2] and desc[2]:GetValue(rel) or nil
+			values[i] = {
+				MulDivRound(value1, mul, div), 
+				value1 / scale,
+				value2 and MulDivRound(value2, mul, div) or nil,
+				value2 and value2 / scale or nil,
+				day + rel,
+			}
+		end
+	else
+		for i = 1, day - 1 do
+			local rel = i - day
+			local value1 = desc[1]:GetValue(rel)
+			local value2 = desc[2] and desc[2]:GetValue(rel) or nil
+			values[i] = {
+				MulDivRound(value1, mul, div), 
+				value1 / scale,
+				value2 and MulDivRound(value2, mul, div) or nil,
+				value2 and value2 / scale or nil,
+				day + rel,
+			}
+		end
+		for i = day, n do
+			values[i] = {0,0,0,0,0}
+		end
+	end
+	return values, axis_step / scale
 end

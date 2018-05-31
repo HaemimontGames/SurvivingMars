@@ -43,7 +43,7 @@ end,
 				'__class', "XFrame",
 				'Id', "idFrame",
 				'IdNode', false,
-				'Padding', box(80, 80, 80, 80),
+				'Padding', box(80, 30, 80, 50),
 				'HAlign', "right",
 				'MinWidth', 550,
 				'LayoutMethod', "VList",
@@ -89,6 +89,7 @@ end,
 					'Margins', box(-80, 6, -155, -100),
 					'Dock', "top",
 					'VAlign', "top",
+					'Transparency', 100,
 					'Image', "UI/Common/bm_pad_small.tga",
 					'FrameBox', box(170, 0, 165, 0),
 					'SqueezeY', false,
@@ -144,6 +145,7 @@ if rollover then
 	child:SetRolloverText(rollover.descr)
 	child:SetRolloverHint(rollover.hint)
 	child:SetRolloverHintGamepad(rollover.gamepad_hint)
+	child:SetId(item.id)
 end
 end,
 						}, {
@@ -183,6 +185,7 @@ if rollover then
 	child:SetRolloverText(rollover.descr)
 	child:SetRolloverHint(rollover.hint)
 	child:SetRolloverHintGamepad(rollover.gamepad_hint)
+	child:SetId(item.value)
 end
 end,
 						}, {
@@ -218,7 +221,7 @@ end,
 				}),
 			PlaceObj('XTemplateWindow', {
 				'Id', "idActionBar",
-				'Margins', box(170, 0, 80, 80),
+				'Margins', box(170, 0, 80, 50),
 			}, {
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
@@ -231,6 +234,7 @@ end,
 					'__class', "XFrame",
 					'Margins', box(-170, 0, -155, -10),
 					'VAlign', "bottom",
+					'Transparency', 100,
 					'Image', "UI/Common/bm_pad_small.tga",
 					'FrameBox', box(170, 0, 165, 0),
 					'SqueezeY', false,

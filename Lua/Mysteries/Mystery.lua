@@ -158,13 +158,14 @@ function CheatStartMystery(mystery_id)
 		return
 	end
 	UICity.mystery_id = mystery_id
-	for i=1,#TechTree do
-		local field = TechTree[i]
+	local fields = Presets.TechFieldPreset.Default
+	for i=1,#fields do
+		local field = fields[i]
 		local field_id = field.id
 		local costs = field.costs or empty_table
 		local list = UICity.tech_field[field_id] or {}
 		UICity.tech_field[field_id] = list
-		for _, tech in ipairs(field) do
+		for _, tech in ipairs(Presets.TechPreset[field_id]) do
 			if tech.mystery == mystery_id then
 				local tech_id = tech.id
 				assert(not UICity.tech_status[tech_id], "Tech already present!")
@@ -174,7 +175,7 @@ function CheatStartMystery(mystery_id)
 					points = 0,
 					field = field_id,
 				}
-				tech:Initialize(UICity)
+				tech:EffectsInit(UICity)
 			end
 		end
 	end
@@ -198,3 +199,18 @@ function OnMsg.ClassesBuilt()
 	UserActions.AddActions(actions)
 end
 
+function CheatFinishMystery(mystery_id)
+	local finished_mysteries = AccountStorage.FinishedMysteries or {}
+	local all_mysteries = ClassDescendantsList("MysteryBase")
+	local exists = table.find(all_mysteries, mystery_id)
+	if not finished_mysteries[mystery_id] and exists then
+		finished_mysteries[mystery_id] = true
+		AccountStorage.FinishedMysteries = finished_mysteries
+		SaveAccountStorage()
+	end
+end
+
+function CheatClearAllFinishedMysteries()
+	AccountStorage.FinishedMysteries = {}
+	SaveAccountStorage()
+end

@@ -86,6 +86,9 @@ Danko Jordanov
 Dimitar Trendafilov
 Filip Chorbadzhiev
 Maria Stanilova
+Nikolay Karashtranov
+Ralitsa Dimitrova
+Stefan Monov
 Vihar Bozadzhiev
 Yana Karashtranova
 Yavor Krastyovski
@@ -208,6 +211,12 @@ Darena]],
 
 
 Untranslated [[
+MOD CONTRIBUTORS
+
+Waywocket
+
+
+
 SPECIAL THANKS TO
 
 Ray Larabie, Typodermic]],
@@ -236,7 +245,7 @@ Robin Cederholm
 
 
 
-ASSOCIATE PRODUCER
+PRODUCER
 
 Nikhat Ali
 
@@ -908,14 +917,14 @@ Gustavo Loures
 Kha'ak
 Vanyan
 Blaine Cartledge
-Andreas	Wijting
+Andreas Wijting
 Frank Helmschrott
 Paul C Papp
 Biffa2001
-Daniel	Sullivan
+Daniel Sullivan
 LinkinPrime
 Konstantin
-Matthew	Myers
+Matthew Myers
 Alexey Demchuk]],
 
 },

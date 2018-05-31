@@ -12,7 +12,6 @@ PlaceObj('XTemplate', {
 			'run', function (self, parent, context)
 parent:SetMaxWidth(550)
 parent:SetHAlign("right")
-parent:SetPadding(box(80,50,80,80))
 UIShowParadoxFeeds(nil, false)
 end,
 		}),
@@ -36,6 +35,7 @@ end,
 			'Margins', box(-80, 6, -155, -100),
 			'Dock', "top",
 			'VAlign', "top",
+			'Transparency', 100,
 			'Image', "UI/Common/bm_pad_small.tga",
 			'FrameBox', box(170, 0, 165, 0),
 			'SqueezeY', false,

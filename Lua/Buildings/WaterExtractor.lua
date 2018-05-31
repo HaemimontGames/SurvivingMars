@@ -3,8 +3,6 @@ DefineClass.WaterExtractor = {
 	__parents = { "ResourceProducer", "ElectricityConsumer", "WaterProducer", "DustGenerator", "BuildingDepositExploiterComponent", "OutsideBuildingWithShifts", "SubsurfaceDepositConstructionRevealer" },
 	subsurface_deposit_class = "SubsurfaceDepositWater",
 
-	UpdateUI = BuildingDepositExploiterComponent.UpdateUI,
-	
 	building_update_time = const.HourDuration,
 	
 	stockpile_spots1 = { "Resourcepile" },
@@ -92,6 +90,13 @@ function WaterExtractor:OnSetWorking(working)
 		if IsValidThread(self.anim_moments_thread) then
 			DeleteThread(self.anim_moments_thread)
 		end
+	end
+end
+
+function WaterExtractor:OnModifiableValueChanged(prop)
+	if prop == "water_production" and self.water then
+		local production = self.working and self.water_production or 0
+		self.water:SetProduction(production, production)
 	end
 end
 

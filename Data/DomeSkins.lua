@@ -7,9 +7,39 @@ PlaceObj('DomeSkins', {
 	entity = "DomeBasicFacet",
 	entrance_entity = "DomeFacet_Entrance",
 	id = "DomeBasicFacet",
+	preset = "Facet",
 	road_connection = "DomeRoadAsphaltConnection",
 	tube_entrance_entity = "DomeFacet_EntranceTube",
-	preset = "Facet",
+})
+
+PlaceObj('DomeSkins', {
+	construction_entity = "DomeDiamondConstruction",
+	cupola_entity = "DomeDiamond_Glass",
+	cupola_entity_opt = "DomeDiamond_Top",
+	dome_type = "DomeDiamond",
+	entity = "DomeDiamond",
+	entrance_entity = "DomePack_Entrance",
+	group = "Default",
+	id = "DomeDiamondAngular",
+	palettes = "Dome_NEW_01",
+	preset = "Angular",
+	road_connection = "DomeRoadAsphaltConnection",
+	tube_entrance_entity = "DomePack_EntranceTube",
+})
+
+PlaceObj('DomeSkins', {
+	construction_entity = "DomeHexaConstruction",
+	cupola_entity = "DomeHexa_Glass",
+	cupola_entity_opt = "DomeHexa_Top",
+	dome_type = "DomeHexa",
+	entity = "DomeHexa",
+	entrance_entity = "DomePack_Entrance",
+	group = "Default",
+	id = "DomeHexaAngular",
+	palettes = "Dome_NEW_01",
+	preset = "Angular",
+	road_connection = "DomeRoadAsphaltConnection",
+	tube_entrance_entity = "DomePack_EntranceTube",
 })
 
 PlaceObj('DomeSkins', {
@@ -20,47 +50,9 @@ PlaceObj('DomeSkins', {
 	entity = "DomeMediumFacet",
 	entrance_entity = "DomeFacet_Entrance",
 	id = "DomeMediumFacet",
+	preset = "Facet",
 	road_connection = "DomeRoadAsphaltConnection",
 	tube_entrance_entity = "DomeFacet_EntranceTube",
-	preset = "Facet",
-})
-
-PlaceObj('DomeSkins', {
-	construction_entity = "DomeOvalFacetConstruction",
-	cupola_entity = "DomeOvalFacet_Glass",
-	cupola_entity_opt = "DomeOvalFacet_Top",
-	dome_type = "DomeOval",
-	entity = "DomeOvalFacet",
-	entrance_entity = "DomeFacet_Entrance",
-	id = "DomeOvalFacet",
-	road_connection = "DomeRoadAsphaltConnection",
-	tube_entrance_entity = "DomeFacet_EntranceTube",
-	preset = "Facet",
-})
-
-PlaceObj('DomeSkins', {
-	construction_entity = "DomeMegaFacetConstruction",
-	cupola_entity = "DomeMegaFacet_Glass",
-	cupola_entity_opt = "DomeMegaFacet_Top",
-	dome_type = "DomeMega",
-	entity = "DomeMegaFacet",
-	entrance_entity = "DomeFacet_Entrance",
-	id = "DomeMegaFacet",
-	road_connection = "DomeRoadAsphaltConnection",
-	tube_entrance_entity = "DomeFacet_EntranceTube",
-	preset = "Facet",
-})
-
-PlaceObj('DomeSkins', {
-	construction_entity = "DomeStarConstruction",
-	cupola_entity = "DomeStar_Glass",
-	cupola_entity_opt = "DomeStar_Top",
-	dlc = "preorder",
-	entity = "DomeStar",
-	entrance_entity = "DomeStar_Entrance",
-	id = "DomeStar",
-	tube_entrance_entity = "DomeStar_EntranceTube",
-	preset = "Star",
 })
 
 PlaceObj('DomeSkins', {
@@ -72,21 +64,21 @@ PlaceObj('DomeSkins', {
 	entity = "DomeMediumStar",
 	entrance_entity = "DomeStar_Entrance",
 	id = "DomeMediumStar",
-	tube_entrance_entity = "DomeStar_EntranceTube",
 	preset = "Star",
+	tube_entrance_entity = "DomeStar_EntranceTube",
 })
 
 PlaceObj('DomeSkins', {
-	construction_entity = "DomeOvalStarConstruction",
-	cupola_entity = "DomeOvalStar_Glass",
-	cupola_entity_opt = "DomeOvalStar_Top",
-	dlc = "preorder",
-	dome_type = "DomeOval",
-	entity = "DomeOvalStar",
-	entrance_entity = "DomeStar_Entrance",
-	id = "DomeOvalStar",
-	tube_entrance_entity = "DomeStar_EntranceTube",
-	preset = "Star",
+	construction_entity = "DomeMegaFacetConstruction",
+	cupola_entity = "DomeMegaFacet_Glass",
+	cupola_entity_opt = "DomeMegaFacet_Top",
+	dome_type = "DomeMega",
+	entity = "DomeMegaFacet",
+	entrance_entity = "DomeFacet_Entrance",
+	id = "DomeMegaFacet",
+	preset = "Facet",
+	road_connection = "DomeRoadAsphaltConnection",
+	tube_entrance_entity = "DomeFacet_EntranceTube",
 })
 
 PlaceObj('DomeSkins', {
@@ -98,7 +90,90 @@ PlaceObj('DomeSkins', {
 	entity = "DomeMegaStar",
 	entrance_entity = "DomeStar_Entrance",
 	id = "DomeMegaStar",
-	tube_entrance_entity = "DomeStar_EntranceTube",
 	preset = "Star",
+	tube_entrance_entity = "DomeStar_EntranceTube",
+})
+
+PlaceObj('DomeSkins', {
+	construction_entity = "DomeMegaTrigonConstruction",
+	cupola_entity = "DomeMegaTrigon_Glass",
+	cupola_entity_opt = "DomeMegaTrigon_Top",
+	dome_type = "DomeMegaTrigon",
+	entity = "DomeMegaTrigon",
+	entrance_entity = "DomePack_Entrance",
+	group = "Default",
+	id = "DomeMegaTrigonAngular",
+	palettes = "Dome_NEW_01",
+	preset = "Angular",
+	road_connection = "DomeRoadAsphaltConnection",
+	tube_entrance_entity = "DomePack_EntranceTube",
+})
+
+PlaceObj('DomeSkins', {
+	construction_entity = "DomeMicroConstruction",
+	cupola_entity = "DomeMicro_Glass",
+	cupola_entity_opt = "DomeMicro_Top",
+	dome_type = "DomeMicro",
+	entity = "DomeMicro",
+	entrance_entity = "DomePack_Entrance",
+	group = "Default",
+	id = "DomeMicroAngular",
+	palettes = "Dome_NEW_01",
+	preset = "Angular",
+	road_connection = "DomeRoadAsphaltConnection",
+	tube_entrance_entity = "DomePack_EntranceTube",
+})
+
+PlaceObj('DomeSkins', {
+	construction_entity = "DomeOvalFacetConstruction",
+	cupola_entity = "DomeOvalFacet_Glass",
+	cupola_entity_opt = "DomeOvalFacet_Top",
+	dome_type = "DomeOval",
+	entity = "DomeOvalFacet",
+	entrance_entity = "DomeFacet_Entrance",
+	id = "DomeOvalFacet",
+	preset = "Facet",
+	road_connection = "DomeRoadAsphaltConnection",
+	tube_entrance_entity = "DomeFacet_EntranceTube",
+})
+
+PlaceObj('DomeSkins', {
+	construction_entity = "DomeOvalStarConstruction",
+	cupola_entity = "DomeOvalStar_Glass",
+	cupola_entity_opt = "DomeOvalStar_Top",
+	dlc = "preorder",
+	dome_type = "DomeOval",
+	entity = "DomeOvalStar",
+	entrance_entity = "DomeStar_Entrance",
+	id = "DomeOvalStar",
+	preset = "Star",
+	tube_entrance_entity = "DomeStar_EntranceTube",
+})
+
+PlaceObj('DomeSkins', {
+	construction_entity = "DomeStarConstruction",
+	cupola_entity = "DomeStar_Glass",
+	cupola_entity_opt = "DomeStar_Top",
+	dlc = "preorder",
+	entity = "DomeStar",
+	entrance_entity = "DomeStar_Entrance",
+	id = "DomeStar",
+	preset = "Star",
+	tube_entrance_entity = "DomeStar_EntranceTube",
+})
+
+PlaceObj('DomeSkins', {
+	construction_entity = "DomeTrigonConstruction",
+	cupola_entity = "DomeTrigon_Glass",
+	cupola_entity_opt = "DomeTrigon_Top",
+	dome_type = "DomeTrigon",
+	entity = "DomeTrigon",
+	entrance_entity = "DomePack_Entrance",
+	group = "Default",
+	id = "DomeTrigonAngular",
+	palettes = "Dome_NEW_01",
+	preset = "Angular",
+	road_connection = "DomeRoadAsphaltConnection",
+	tube_entrance_entity = "DomePack_EntranceTube",
 })
 

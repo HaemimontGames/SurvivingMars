@@ -5,7 +5,8 @@ PlaceObj('XTemplate', {
 	id = "ResupplyCategories",
 	PlaceObj('XTemplateWindow', {
 		'__class', "XDialog",
-		'Padding', box(0, 65, 100, 80),
+		'Id', "idCategories",
+		'Padding', box(0, 65, 100, 50),
 		'ContextUpdateOnOpen', true,
 	}, {
 		PlaceObj('XTemplateFunc', {
@@ -92,16 +93,17 @@ end,
 					'__template', "MenuEntrySmall",
 					'RolloverTemplate', "Rollover",
 					'RolloverDisabledText', T{628712416014, --[[XTemplate ResupplyCategories RolloverDisabledText]] "Rockets unavailable."},
+					'Id', "idCargo",
 					'HAlign', "right",
 					'OnContextUpdate', function (self, context, ...)
-if g_UIAvailableRockets <= 0 then
+if g_UIAvailableRockets <= 0 or (g_Tutorial and not g_Tutorial.EnableCargoRockets) then
 	self:SetEnabled(false)
 end
 end,
 					'FXMouseIn', "RocketTypeItemHover",
 					'FXPress', "RocketTypeItemClick",
 					'OnPress', function (self, gamepad)
-local host = GetDialog(self)
+local host = GetXDialog(self)
 host:SetMode("cargo")
 end,
 					'DisabledRolloverTextColor', RGBA(130, 130, 130, 255),
@@ -112,6 +114,7 @@ end,
 					'RolloverTemplate', "Rollover",
 					'RolloverDisabledText', T{8541, --[[XTemplate ResupplyCategories RolloverDisabledText]] "<PassengerRocketDisabledRolloverText>"},
 					'RolloverDisabledTitle', T{8542, --[[XTemplate ResupplyCategories RolloverDisabledTitle]] "<PassengerRocketDisabledRolloverTitle>"},
+					'Id', "idPassenger",
 					'HAlign', "right",
 					'OnContextUpdate', function (self, context, ...)
 if g_UIAvailableRockets <= 0 or not AreNewColonistsAccepted() then
@@ -121,7 +124,7 @@ end,
 					'FXMouseIn', "RocketTypeItemHover",
 					'FXPress', "RocketTypeItemClick",
 					'OnPress', function (self, gamepad)
-local host = GetDialog(self)
+local host = GetXDialog(self)
 host:SetMode("passengers")
 end,
 					'DisabledRolloverTextColor', RGBA(130, 130, 130, 255),
@@ -132,6 +135,7 @@ end,
 					'__template', "MenuEntrySmall",
 					'RolloverTemplate', "Rollover",
 					'RolloverDisabledText', T{855487073078, --[[XTemplate ResupplyCategories RolloverDisabledText]] "Space Elavator Unavailable."},
+					'Id', "idElevator",
 					'HAlign', "right",
 					'FXMouseIn', "RocketTypeItemHover",
 					'FXPress', "RocketTypeItemClick",
@@ -139,7 +143,7 @@ end,
 if UICity then
 	UICity.launch_elevator_mode = true
 end
-local host = GetDialog(self)
+local host = GetXDialog(self)
 host:SetMode("cargo")
 end,
 					'DisabledRolloverTextColor', RGBA(130, 130, 130, 255),

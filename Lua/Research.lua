@@ -30,14 +30,15 @@ function City:InitResearch()
 	local defs = TechDef
 	local rand, trand = self:CreateSessionRand("InitResearch")
 	local current_mystery = self.mystery_id
-	for i=1,#TechTree do
-		local field = TechTree[i]
+	local fields = Presets.TechFieldPreset.Default
+	for i=1,#fields do
+		local field = fields[i]
 		if IsDlcAvailable(field.dlc) then
 			local field_id = field.id
 			local list = self.tech_field[field_id] or {}
 			self.tech_field[field_id] = list
-			for _, tech in ipairs(field) do
-				if IsDlcAvailable(tech.dlc) and (tech.mystery or current_mystery) == current_mystery then
+			for _, tech in ipairs(Presets.TechPreset[field_id]) do
+				if IsDlcAvailable(tech.dlc) and (tech.mystery or current_mystery) == current_mystery and tech.condition() then
 					if not table.find(list, tech.id) then
 						list[#list + 1] = tech.id
 					end
@@ -104,7 +105,7 @@ end
 
 function City:GameInitResearch()
 	for id in pairs(self.tech_status) do
-		TechDef[id]:Initialize(self)
+		TechDef[id]:EffectsInit(self)
 	end
 end
 
@@ -204,7 +205,7 @@ function City:SetTechResearched(tech_id)
 		end
 	end
 	status.points = 0
-	tech:ResearchComplete(self)
+	tech:EffectsApply(self)
 	self:DequeueResearch(tech_id)
 	--@@@msg TechResearched,tech_id, city, first_time- fired when a tech has been researched.
 	Msg("TechResearched", tech_id, self, status.researched == 1)
@@ -261,6 +262,11 @@ function City:TechCost(tech_id)
 		assert(false, "No such tech")
 		return 0
 	end
+	-- reduce the cost for the tutorial
+	if g_Tutorial and g_Tutorial[tech_id] then
+		return g_Tutorial[tech_id]
+	end
+	
 	local cost_boost = 0
 	if not TechFields[status.field].discoverable then
 		cost_boost = 100 - g_Consts.BreakThroughTechCostMod -- e.g. author commander: 100 - (100 - 30) = 30

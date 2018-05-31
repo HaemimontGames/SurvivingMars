@@ -42,7 +42,6 @@ DefineClass.RequiresMaintenance = {
 	last_maintenance_serviced_ts = false, --when mainenance cycle was completed for the last time.
 	
 	maintenance_phase = false, --false, "demand", "work"
-	maintenance_request_is_highest_prio = false, --when user requests maintenance it should be highest prio
 	
 	is_malfunctioned = false, --no work possible
 	
@@ -75,14 +74,6 @@ function GetMaintenancePntsAccumulation(maintenance_accumulation_per_hour, curre
 			accum = Max(accum, -current)
 		end
 		return accum
-	end
-end
-
-function RequiresMaintenance:GetPriorityForRequest(req)
-	if self.maintenance_request_is_highest_prio and self.maintenance_request_lookup[req] then
-		return const.MaxBuildingPriority
-	else
-		return TaskRequester.GetPriorityForRequest(self, req)
 	end
 end
 
@@ -243,7 +234,7 @@ end
 
 function RequiresMaintenance:GetDailyMaintenance(resources)
 	local threshold = self.working and self.accumulate_maintenance_points and self.maintenance_threshold_current or 0
-	if threshold > 0 then
+	if threshold > 0 and self.maintenance_build_up_per_hr > 0 then
 		local res = self.maintenance_resource_type
 		if res ~= "no_maintenance" then
 			local points_per_day = MulDivRound(self.maintenance_build_up_per_hr * const.HoursPerDay, g_Consts.BuildingMaintenancePointsModifier, 100)
@@ -344,12 +335,6 @@ function RequiresMaintenance:ResetMaintenanceState()
 	
 	self:ResetMaintenanceRequests()
 	
-	if self.maintenance_request_is_highest_prio then --restore req prio
-		self.maintenance_request_is_highest_prio = false
-		self:DisconnectFromCommandCenters()
-		self:ConnectToCommandCenters()
-	end
-	
 	self.maintenance_phase = false
 	self.accumulated_maintenance_points = 0
 	self.last_maintenance_points_full_ts = false
@@ -358,34 +343,12 @@ function RequiresMaintenance:ResetMaintenanceState()
 	self:GenerateMaintenanceThreshold()
 end
 
-function RequiresMaintenance:UIRequestMaintenance()
-	RebuildInfopanel(self)
-	return self:RequestMaintenance(true)
-end
-
-function RequiresMaintenance:GetUIRequestMaintenanceStatus()
-	if self.accumulated_maintenance_points > 0 then
-		if self.maintenance_phase == false then
-			return T{7329, "Maintenance needed"}
-		else
-			return T{389, "Maintenance already requested"}
-		end
-	end
-	return T{390, "No deterioration"}
-end
-
-function RequiresMaintenance:RequestMaintenance(is_user_requested)
+function RequiresMaintenance:RequestMaintenance()
 	--if we have resource maintenance, we need to fire up the resource req,
 	--if not, we have to fire up the wrk req.
 	if self.maintenance_phase == false then
 		if self.accumulated_maintenance_points > 0 then --we can request at 0, but it will only get executed when there is @ least 
-			self.maintenance_request_is_highest_prio = is_user_requested
 			self.last_enter_maintenance_mode_ts = GameTime()
-			
-			if is_user_requested then
-				self:DisconnectFromCommandCenters() --our reqs should now have highest prio, rearrange them
-				self:ConnectToCommandCenters()
-			end
 			
 			if self:DoesMaintenanceRequireResources() then
 				self:StartDemandPhase()
@@ -393,10 +356,6 @@ function RequiresMaintenance:RequestMaintenance(is_user_requested)
 				self:StartWorkPhase()
 			end
 		end
-	elseif is_user_requested and self.maintenance_request_is_highest_prio ~= is_user_requested then
-		self.maintenance_request_is_highest_prio = true
-		self:DisconnectFromCommandCenters() --our reqs should now have highest prio, rearrange them
-		self:ConnectToCommandCenters()
 	end
 end
 
@@ -457,6 +416,13 @@ end
 
 function RequiresMaintenance:GetLastMaintenance()
 	return self.last_maintenance_serviced_ts and T{129, "<n> h", n = (GameTime() - self.last_maintenance_serviced_ts) / const.HourDuration} or T{130, "N/A"}
+end
+
+function RequiresMaintenance:GetMaintenanceText()
+	local has_assigned_drones = self.maintenance_phase	and 
+			(self.maintenance_work_request:GetTargetAmount() ~= self.maintenance_work_request:GetActualAmount() or
+			self.maintenance_resource_request:GetTargetAmount() ~= self.maintenance_resource_request:GetActualAmount())
+	return has_assigned_drones and Untranslated("\n")..T{7878, --[[XTemplate sectionMaintenance Text]] "A drone is on the way to repair this building."} or ""
 end
 
 function RequiresMaintenance:OnSetUIWorking(working)

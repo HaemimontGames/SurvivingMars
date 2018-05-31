@@ -236,7 +236,7 @@ function OrbitalProbe:GetDeepScanWarning()
 end
 
 function OrbitalProbe:ScanSector(sector)
-	if g_Tutorial and not g_Tutorial.EnableExploration then
+	if g_Tutorial and not g_Tutorial.EnableOrbitalProbes then
 		return
 	end
 

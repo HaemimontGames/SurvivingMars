@@ -26,7 +26,6 @@ function CloningVats:BuildingUpdate(dt, ...)
 			self.parent_dome.clones_created = self.parent_dome.clones_created + 1
 		end
 	end	
-	self:UpdateUI()
 end
 
 function CloningVats:GetCloningProgress()

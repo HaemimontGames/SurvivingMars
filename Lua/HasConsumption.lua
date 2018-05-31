@@ -77,6 +77,10 @@ function HasConsumption:Done()
 	end
 end
 
+function GetEatPerVisit(unit)
+	return unit:GetEatPerVisit()
+end
+
 function HasConsumption.StockpileCanService(stock, unit)
 	local bld = stock:GetParent()
 	if bld.consumption_resource_type ~= "Food" then return false end
@@ -109,6 +113,8 @@ function HasConsumption:CreateVisualStockpile()
 	stock = PlaceObject("ResourceStockpile", stock)
 	stock.CanService = HasConsumption.StockpileCanService
 	stock.Service = HasConsumption.StockpileService
+	stock.Assign = empty_func
+	stock.Unassign = empty_func
 	
 	local attach_to = (self.is_upgrade and self.building or self)
 	local idx = attach_to:GetSpotBeginIndex(self.consumption_resource_stockpile_spot_name)

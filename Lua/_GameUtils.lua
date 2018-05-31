@@ -16,6 +16,17 @@ function GetBuildingEntities(first_element)
 	return items
 end
 
+--returns an array of world positions defining the outline of the building
+function GetShapePointsToWorldPos(obj)
+	local shape = table.copy(obj:GetShapePoints())
+	local pos = obj:GetPos()
+	for i = 1, #shape do
+		local offset = point(HexToWorld(shape[i]:xy())):SetZ(0)
+		shape[i] = pos + offset
+	end
+	return shape
+end
+
 function GetCropEntities(first_element)
 	local allentities = GetAllEntities()
 	local items = {}
@@ -113,6 +124,16 @@ function FormatDuration(hours)
 	end
 end
 
+local ForcedIntegerResources = {
+	["Colonist"] = true,
+	["Home"] = true,
+	["Homeless"] = true,
+	["Work"] = true,
+	["Unemployed"] = true,
+	["Drone"] = true,
+	["Research"] = true,
+}
+
 -- FormatResourceValueMaxResource(value, context_obj) -> value/const.ResourceScale
 -- FormatResourceValueMaxResource(value, resource, context_obj) -> value/const.ResourceScale .. [resource icon]
 -- FormatResourceValueMaxResource(value, max, resource, context_obj) -> value/const.ResourceScale .. "/" .. max/const.ResourceScale .. [resource icon]
@@ -143,7 +164,7 @@ function FormatResourceValueMaxResource(value, max, resource, context_obj)
 		max = false
 	end
 	
-	local force_integer = resource == "Colonist" or resource == "Drone" or resource == "Research"
+	local force_integer = ForcedIntegerResources[resource]
 	local Tmax, Tresource = "", ""
 	
 	if max then
@@ -285,6 +306,10 @@ FormatResourceFn("food", "Food")
 FormatResourceFn("research", "Research")
 FormatResourceFn("drone", "Drone")
 FormatResourceFn("colonist", "Colonist")
+FormatResourceFn("home", "Home")
+FormatResourceFn("homeless", "Homeless")
+FormatResourceFn("work", "Work")
+FormatResourceFn("unemployed", "Unemployed")
 FormatResourceFn("fuel", "Fuel")
 FormatResourceFn("electronics", "Electronics")
 FormatResourceFn("machineparts", "MachineParts")
@@ -447,13 +472,8 @@ end
 
 function TechCombo()
 	local items = {}
-	local fields = TechTree
-	for i=1,#fields do
-		local field = fields[i]
-		for j=1,#field do
-			local tech = field[j]
-			items[#items + 1] = {value = tech.id, text = tech.display_name}
-		end
+	for id, tech in pairs(TechDef) do
+		items[#items + 1] = {value = id, text = tech.display_name}
 	end
 	TSort(items, "text")
 	table.insert(items, 1, {value = "", text = ""})
@@ -480,15 +500,14 @@ function ResearchFieldsCombo()
 end
 
 function ResearchTechsCombo(object)
-	--find field
-	local field = TechFields[object.Field]
 	local techs = { { value = "", text = "" } }
-	if not field then
+	if not TechFields[object.Field] then
 		return techs
 	end
 	--gather techs
-	for i=1,#field do
-		techs[#techs+1] = { value = field[i].id, text = field[i].display_name }
+	local defs = Presets.TechPreset[object.Field] or ""
+	for i=1,#defs do
+		techs[#techs+1] = { value = defs[i].id, text = defs[i].display_name }
 	end
 	return techs
 end
@@ -665,14 +684,6 @@ function GetFreeWorkplacesAround(dome)
 		end   
 	end
 	return sum_ui_on, sum_ui_off
-end
-
-function HasFreeWorkplacesAround(dome)
-	for _, b in ipairs(dome.labels.Workplaces or empty_table) do
-		if not b.destroyed and b.ui_working and b:HasFreeWorkSlots() then
-			return true
-		end
-	end
 end
 
 function GetFreeWorkplaces(city)

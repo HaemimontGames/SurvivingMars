@@ -88,7 +88,14 @@ function PopupNotificationBegin(self)
 	end
 	--close photo mode if it is open
 	AbortPhotoMode()
+	--close colony command center if it is open
+	CloseCommandCenter()
 	HideGamepadCursor("Popup")
+	--call this in a thread to handle the case when photo mode or 
+	--command center have just been closed and we have lost focus
+	CreateRealTimeThread(function()
+		self:SetModal()
+	end)
 end
 
 function PopupNotificationEnd(self, reason)
@@ -137,6 +144,7 @@ local function OpenPopupNotification(parent, context)
 	
 	local choice_count = #choices
 	local actions = {}
+	local disabled = context.disabled
 	for i = 1, choice_count do
 		local choice = choices[i]
 		local hint1, hint2 = context["choice" .. i .. "_hint1"], context["choice" .. i .. "_hint2"]
@@ -152,6 +160,9 @@ local function OpenPopupNotification(parent, context)
 			ActionIcon = image,
 			OnAction = function(self, host, source, toggled)
 				host:Close(i)
+			end,
+			ActionState = function(host)
+				return disabled and disabled[i] and "disabled"
 			end,
 			RolloverTitle = context["choice" .. i .. "_rollover_title"] or "",
 			RolloverText = context["choice" .. i .. "_rollover"] or "",
@@ -230,7 +241,7 @@ function PopPopupNotification(parent)
 	local context = g_PopupQueue[1]
 	parent = parent or (context and context.parent)
 	parent = parent and parent.window_state ~= "destroying" and parent or GetInGameInterface()
-	if parent and not GetDialog("PopupNotification") and context and ArePopupsEnabled() then
+	if parent and not GetXDialog("PopupNotification") and context and ArePopupsEnabled() then
 		OpenPopupNotification(parent, context)
 	end
 end
@@ -289,7 +300,7 @@ end
 
 function PopupNotificationSuspend(reason)
 	g_PopupsSuspended[reason] = true
-	local dlg = GetDialog("PopupNotification")
+	local dlg = GetXDialog("PopupNotification")
 	if dlg then
 		dlg:Close("suspend")
 	end

@@ -228,7 +228,7 @@ end
 
 function RangeHexRadius:AlignContainer()
 	if not self.container then return end
-	local q, r = WorldToHex(self:GetPos())
+	local q, r = WorldToHex(self)
 	local x, y = HexToWorld(q, r)
 	self.container:SetPos(point(x, y):SetStepZ())
 end

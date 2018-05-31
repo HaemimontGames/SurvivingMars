@@ -37,3 +37,17 @@ PlaceObj('NoisePreset', {
 	'name', "ColdArea",
 })
 
+PlaceObj('NoisePreset', {
+	'Int', true,
+	'Octave_1', 476,
+	'Octave_2', 764,
+	'Octave_3', 1024,
+	'Octave_4', 876,
+	'Octave_5', 665,
+	'Octave_6', 385,
+	'Octave_7', 203,
+	'Octave_8', 57,
+	'Octave_9', 0,
+	'name', "Terrain",
+})
+

@@ -1,3 +1,4 @@
+
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 PlaceObj('Cargo', {
@@ -284,6 +285,7 @@ PlaceObj('Cargo', {
 	SortKey = 16001000,
 	description = T{5009, --[[Cargo Arcology description]] "Provides living space for numerous Colonists, granting high Comfort."},
 	group = "Locked",
+	icon = "UI/Icons/Payload/Arcology.tga",
 	id = "Arcology",
 	kg = 20000,
 	locked = true,
@@ -295,6 +297,7 @@ PlaceObj('Cargo', {
 	SortKey = 16002000,
 	description = T{5099, --[[Cargo HangingGardens description]] "A beautiful park complex. Increases the Comfort of all Residences in the Dome."},
 	group = "Locked",
+	icon = "UI/Icons/Payload/HangingGardens.tga",
 	id = "HangingGardens",
 	kg = 20000,
 	locked = true,
@@ -306,6 +309,7 @@ PlaceObj('Cargo', {
 	SortKey = 16003000,
 	description = T{5309, --[[Cargo WaterReclamationSystem description]] "Recycles up to 70% of the Water used in the Dome."},
 	group = "Locked",
+	icon = "UI/Icons/Payload/WaterReclamationSystem.tga",
 	id = "WaterReclamationSystem",
 	kg = 20000,
 	locked = true,
@@ -317,6 +321,7 @@ PlaceObj('Cargo', {
 	SortKey = 16004000,
 	description = T{5025, --[[Cargo CloningVats description]] "Creates Clones over time. Cloned Colonists grow and age twice as fast."},
 	group = "Locked",
+	icon = "UI/Icons/Payload/CloningVats.tga",
 	id = "CloningVats",
 	kg = 20000,
 	locked = true,
@@ -328,6 +333,7 @@ PlaceObj('Cargo', {
 	SortKey = 16005000,
 	description = T{5178, --[[Cargo NetworkNode description]] "Increases the overall Research output of the Dome."},
 	group = "Locked",
+	icon = "UI/Icons/Payload/NetworkNode.tga",
 	id = "NetworkNode",
 	kg = 20000,
 	locked = true,
@@ -340,6 +346,7 @@ PlaceObj('Cargo', {
 	description = T{5143, --[[Cargo MedicalCenter description]] "Visitors will recover Health and Sanity as long as they are not starving, dehydrated, freezing or suffocating. Larger capacity and more effective than the Infirmary. A Dome with a Medical Building has lower minimum Comfort requirement for births."},
 	group = "Locked",
 	id = "MedicalCenter",
+	icon = "UI/Icons/Payload/MedicalCenter.tga",
 	kg = 20000,
 	locked = true,
 	name = T{3539, --[[Cargo MedicalCenter name]] "Medical Center"},
@@ -351,6 +358,7 @@ PlaceObj('Cargo', {
 	description = T{5246, --[[Cargo Sanatorium description]] "Treats Colonists for flaws through advanced and (mostly humane) medical practices."},
 	group = "Locked",
 	id = "Sanatorium",
+	icon = "UI/Icons/Payload/Sanatorium.tga",
 	kg = 20000,
 	locked = true,
 	name = T{3540, --[[Cargo Sanatorium name]] "Sanatorium"},

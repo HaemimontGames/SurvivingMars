@@ -143,6 +143,31 @@ function TaskRequester:SetPriority(priority)
 	for _, center in ipairs(self.command_centers) do
 		center:AddBuilding(self)
 	end
+	
+	if not IsKindOf(self, "ResourceStockpileBase") then
+		local stockpiles = self:GetAttaches("ResourceStockpileBase")
+		for i = 1, #(stockpiles or "") do
+			if stockpiles[i].has_demand_request or stockpiles[i].has_supply_request then
+				stockpiles[i]:SetPriority(priority)
+			end
+		end
+	end
+end
+
+function dbg_TestAttachedStockPriorities(class)
+	class = class or "Building"
+	ForEach{
+		area = "realm",
+		class = class,
+		exec = function(o)
+			local stockpiles = o:GetAttaches("ResourceStockpileBase")
+			for i = 1, #(stockpiles or "") do
+				if stockpiles[i].has_demand_request or stockpiles[i].has_supply_request then
+					assert(stockpiles[i].priority == o.priority, "Building/stockpile priority mismatch.")
+				end
+			end
+		end,
+	}
 end
 
 function TaskRequester:GetPriorityForRequest(req)
@@ -162,16 +187,6 @@ function TaskRequester:TogglePriority(change)
 		next_priority = const.MaxBuildingPriority
 	end
 	self:SetPriority(next_priority)
-	
-	if not IsKindOf(self, "ResourceStockpileBase") then
-		local stockpiles = self:GetAttaches("ResourceStockpileBase")
-		for i = 1, #(stockpiles or "") do
-			if stockpiles[i].has_demand_request or stockpiles[i].has_supply_request then
-				stockpiles[i]:TogglePriority(change)
-				assert(stockpiles[i].priority == self.priority, "Building/stockpile priority mismatch.")
-			end
-		end
-	end
 	RebuildInfopanel(self)
 end
 

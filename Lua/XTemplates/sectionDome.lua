@@ -17,7 +17,7 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelActiveSection",
 			'OnContextUpdate', function (self, context, ...)
-		local dome = ResolvePropObj(context)
+local dome = ResolvePropObj(context)
 	local accept = dome.allow_birth
 	if accept then
 		self:SetIcon("UI/Icons/Sections/birth_on.tga")
@@ -41,21 +41,24 @@ PlaceObj('XTemplate', {
 	end
 	-- rollover
 	self:SetRolloverTitle(T{8728, "Birth Control Policy"})
-	if dome.allow_birth then
-		self:SetRolloverText(T{8729, "Set the birth policy for this Dome. Colonists at high comfort will have children if births are allowed.<newline><newline>Current status: <em>Births are allowed</em>"})
+	local texts = {}
+	if dome.allow_birth then	
+		texts[#texts+1] = T{8729, "Set the birth policy for this Dome. Colonists at high comfort will have children if births are allowed.<newline><newline>Current status: <em>Births are allowed</em>"}
 		self:SetRolloverHint(T{8730, "<left_click> Forbid births in this Dome<newline><em>Ctrl + <left_click></em> Forbid births in all Domes"})
 		self:SetRolloverHintGamepad(T{8731, "<ButtonA> Forbid births in this Dome<newline><ButtonX> Forbid births in all Domes"})
 	else
-		self:SetRolloverText(T{8732, "Set the birth policy for this Dome. Colonists at high comfort will have children if births are allowed.<newline><newline>Current status: <em>Births are forbidden</em>"})
+		texts[#texts+1] = T{8732, "Set the birth policy for this Dome. Colonists at high comfort will have children if births are allowed.<newline><newline>Current status: <em>Births are forbidden</em>"}
 		self:SetRolloverHint(T{8733, "<left_click> Allow births in this Dome<newline><em>Ctrl + <left_click></em> Allow births in all Domes"})
 		self:SetRolloverHintGamepad(T{8734, "<ButtonA> Allow births in this Dome <newline><ButtonX> Allow births in all Domes"})
 	end
+	texts[#texts + 1]  = dome:GetBirthText()	
+	self:SetRolloverText(table.concat(texts, "<newline><left>"))
 end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelActiveSection",
 			'OnContextUpdate', function (self, context, ...)
-	local dome = ResolvePropObj(context)
+local dome = ResolvePropObj(context)
 	local accept = dome.allow_work_in_connected
 	if accept then
 		self:SetIcon("UI/Icons/Sections/work_in_connected_domes_on.tga")
@@ -92,7 +95,7 @@ end,
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelActiveSection",
 			'OnContextUpdate', function (self, context, ...)
-	local dome = ResolvePropObj(context)
+local dome = ResolvePropObj(context)
 	local accept = dome.allow_service_in_connected
 	if accept then
 		self:SetIcon("UI/Icons/Sections/service_in_connected_domes_on.tga")
@@ -129,7 +132,7 @@ end,
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelActiveSection",
 			'OnContextUpdate', function (self, context, ...)
-	local dome = ResolvePropObj(context)
+local dome = ResolvePropObj(context)
 	local accept = dome.accept_colonists
 	if accept then
 		self:SetIcon("UI/Icons/Sections/accept_colonists_on.tga")
@@ -158,7 +161,7 @@ end,
 		self:SetRolloverHint(T{7661, "<left_click> Quarantine this Dome<newline><em>Ctrl + <left_click></em> Quarantine all Domes"})
 		self:SetRolloverHintGamepad(T{7662, "<ButtonA> Quarantine this Dome<newline><ButtonX> Quarantine all Domes"})
 	else
-		self:SetRolloverText(T{365, "Set the Immigration policy for this Dome. Colonists are not allowed to enter or leave quarantined Domes.<newline><newline>Current status: <em>Doesn't accept Colonists</em>"})
+		self:SetRolloverText(T{365, "Set the Immigration policy for this Dome. Colonists are not allowed to enter or leave quarantined Domes.<newline><newline>Current status: <em>Quarantined</em>"})
 		self:SetRolloverHint(T{7663, "<left_click> Accept Colonists in this Dome<newline><em>Ctrl + <left_click></em> Accept Colonists in all Domes"})
 		self:SetRolloverHintGamepad(T{7664, "<ButtonA> Accept Colonists in this Dome<newline><ButtonX> Accept Colonists in all Domes"})
 	end
@@ -173,6 +176,7 @@ end,
 		}, {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
+				'FoldWhenHidden', true,
 				'Text', T{201464169022, --[[XTemplate sectionDome Text]] "<EmploymentMessage>"},
 			}),
 			PlaceObj('XTemplateTemplate', {

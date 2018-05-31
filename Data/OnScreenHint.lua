@@ -24,7 +24,7 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "HintCameraControls",
 	'title', T{5497, --[[OnScreenHint HintCameraControls title]] "Camera Controls"},
-	'text', T{5498, --[[OnScreenHint HintCameraControls text]] "Pan - <em><ShortcutName('actionPanUp')>, <ShortcutName('actionPanDown')>, <ShortcutName('actionPanLeft')>, <ShortcutName('actionPanRight')></em>\nTilt or rotate - hold <middle_click> or <em>Alt</em> and move the mouse\nZoom - <middle_click> or <em><ShortcutName('actionZoomOut')>/<ShortcutName('actionZoomIn')></em>\nOverview mode - Maximum zoom out or <em>M</em>"},
+	'text', T{5498, --[[OnScreenHint HintCameraControls text]] "Pan - <em><ShortcutName('actionPanUp')>, <ShortcutName('actionPanDown')>, <ShortcutName('actionPanLeft')>, <ShortcutName('actionPanRight')></em>\nTilt or rotate - hold <middle_click> or <em>Alt</em> and move the mouse\nZoom - <middle_click>, alternatively use <em><ShortcutName('actionZoomOut')></em> and <em><ShortcutName('actionZoomIn')></em>\nOverview mode - Maximum zoom out or <em>M</em>"},
 	'gamepad_text', T{5499, --[[OnScreenHint HintCameraControls gamepad_text]] "Pan - <LS>\nRotate - <RS>\nTilt or zoom - <RT>+<RS>/<RS>"},
 })
 
@@ -183,13 +183,13 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "HintResupply",
 	'title', T{3997, --[[OnScreenHint HintResupply title]] "Resupply"},
-	'text', T{5553, --[[OnScreenHint HintResupply text]] "A Cargo Rocket can deliver additional supplies for the Colony, for example advanced resources such as <em>Polymers, Machine Parts and Electronics</em>. Open the Resupply UI to order a Cargo Rocket from Earth."},
-	'gamepad_text', T{7564, --[[OnScreenHint HintResupply gamepad_text]] "A Cargo Rocket can deliver additional supplies for the colony, for example advanced resources such as <em>Polymers, Machine Parts and Electronics</em>. Press <LT> and open the Resupply UI to order a Cargo Rocket from Earth."},
+	'text', T{5553, --[[OnScreenHint HintResupply text]] "A Cargo Rocket can deliver additional supplies for the Colony, for example Advanced resources such as <em>Polymers, Machine Parts and Electronics</em>. Open the Resupply screen to order a Cargo Rocket from Earth."},
+	'gamepad_text', T{7564, --[[OnScreenHint HintResupply gamepad_text]] "A Cargo Rocket can deliver additional supplies for the colony, for example Advanced resources such as <em>Polymers, Machine Parts and Electronics</em>. Press <LT> and open the Resupply screen to order a Cargo Rocket from Earth."},
 })
 
 PlaceObj('OnScreenHint', {
 	'name', "HintResupplyUI",
-	'title', T{5554, --[[OnScreenHint HintResupplyUI title]] "Resupply UI"},
+	'title', T{5554, --[[OnScreenHint HintResupplyUI title]] "Resupply Screen"},
 	'text', T{5555, --[[OnScreenHint HintResupplyUI text]] "Select a Cargo Rocket and load the desired payload up to the Rocket’s capacity and your available funding. Plan carefully, you have a limited number of Rockets and travel times are significant."},
 })
 
@@ -318,5 +318,769 @@ PlaceObj('OnScreenHint', {
 	'name', "HintRenegade",
 	'title', T{7031, --[[OnScreenHint HintRenegade title]] "Renegades"},
 	'text', T{7032, --[[OnScreenHint HintRenegade text]] "If the Morale in a Dome is too low, <em>Renegades</em> will appear. Renegades have reduced work Performance and will cause trouble. <em>Security Stations</em> can suppress them for a while, but to solve the problem you have to take steps to increase Morale."},
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_HintIntro",
+	'title', T{4248, --[[OnScreenHint Tutorial_1_HintIntro title]] "Hints"},
+	'voiced_text', T{9025, --[[voice:narrator]] "Hints such as this one will appear throughout the training process - giving useful information on how to advance in your current tasks.  "},
+	'text', T{9026, --[[OnScreenHint Tutorial_1_HintIntro text]] "Please <em>dismiss</em> this hint to continue."},
+	'tutorial', "Tutorial1",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_ZoomIn",
+	'title', T{279635353384, --[[OnScreenHint Tutorial_1_ZoomIn title]] "Zoom In"},
+	'text', T{9027, --[[OnScreenHint Tutorial_1_ZoomIn text]] "<em>Zoom in</em> by using <middle_click> on the explored sector to examine the surface of Mars more closely."},
+	'gamepad_text', T{9028, --[[OnScreenHint Tutorial_1_ZoomIn gamepad_text]] "<em>Zoom in</em> by using <LS> to select the explored sector on the map and then <ButtonA>  to examine the surface of Mars more closely."},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_ZoomAndCamera.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_HintCameraControls",
+	'title', T{5497, --[[OnScreenHint Tutorial_1_HintCameraControls title]] "Camera Controls"},
+	'text', T{5498, --[[OnScreenHint Tutorial_1_HintCameraControls text]] "Pan - <em><ShortcutName('actionPanUp')>, <ShortcutName('actionPanDown')>, <ShortcutName('actionPanLeft')>, <ShortcutName('actionPanRight')></em>\nTilt or rotate - hold <middle_click> or <em>Alt</em> and move the mouse\nZoom - <middle_click>, alternatively use <em><ShortcutName('actionZoomOut')></em> and <em><ShortcutName('actionZoomIn')></em>\nOverview mode - Maximum zoom out or <em>M</em>"},
+	'gamepad_text', T{5499, --[[OnScreenHint Tutorial_1_HintCameraControls gamepad_text]] "Pan - <LS>\nRotate - <RS>\nTilt or zoom - <RT>+<RS>/<RS>"},
+	'tutorial', "Tutorial1",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_LandRocket_1",
+	'title', T{9029, --[[OnScreenHint Tutorial_1_LandRocket_1 title]] "Select the Rocket "},
+	'text', T{9030, --[[OnScreenHint Tutorial_1_LandRocket_1 text]] "Select the the <em>pinned Rocket</em> icon marked with a green arrow."},
+	'gamepad_text', T{9031, --[[OnScreenHint Tutorial_1_LandRocket_1 gamepad_text]] "Select the the <em>pinned Rocket</em> icon marked with a green arrow by using <RB> followed by <ButtonA>."},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_LandRocket.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_LandRocket_2",
+	'title', T{9032, --[[OnScreenHint Tutorial_1_LandRocket_2 title]] "Land the Rocket"},
+	'voiced_text', T{9033, --[[voice:narrator]] "With the Rocket selected, designate a landing site on the indicated location."},
+	'text', T{9034, --[[OnScreenHint Tutorial_1_LandRocket_2 text]] "Use the mouse to move the Rocket into position, then <left_click> to order it to land."},
+	'gamepad_text', T{9035, --[[OnScreenHint Tutorial_1_LandRocket_2 gamepad_text]] "Use the <LS> to move the Rocket into position, then <ButtonA> to order it to land."},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_LandRocket.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_DronesNResources_1",
+	'title', T{5162, --[[OnScreenHint Tutorial_1_DronesNResources_1 title]] "Metals Depot"},
+	'text', T{9036, --[[OnScreenHint Tutorial_1_DronesNResources_1 text]] "Open the <em>Build Menu</em> using <right_click> or <left_click> on the HUD icon. Then follow the arrows to chose the <em>Metals Depot</em>."},
+	'gamepad_text', T{9037, --[[OnScreenHint Tutorial_1_DronesNResources_1 gamepad_text]] "Open the <em>Build Menu</em> using <ButtonY>. \n\nFollow the hint arrows by using <LB><RB> to navigate the categories and then <DPadLeft><DPadRight> or <LS> to pick a building within a category.\n\nThen use <ButtonA> to select the building or sub category as in the case of the <em>Metals Depot</em>."},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_DronesAndResources.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_DronesNResources_2",
+	'title', T{9038, --[[OnScreenHint Tutorial_1_DronesNResources_2 title]] "Metals Depot"},
+	'text', T{9039, --[[OnScreenHint Tutorial_1_DronesNResources_2 text]] "Now pick a spot where to place the <em>Metals Depot</em>. Make sure it is close to the Rocket. "},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_DronesAndResources.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_SpeedControl",
+	'title', T{9040, --[[OnScreenHint Tutorial_1_SpeedControl title]] "Game Speed Controls"},
+	'text', T{9041, --[[OnScreenHint Tutorial_1_SpeedControl text]] "Use the controls on the HUD or the following shortcuts to control the game speed:\n\n<em><ShortcutName('actionPauseGame')></em> - pause/unpause\n<em><ShortcutName('actionSpeedUp')> key</em> - increase game speed\n<em><ShortcutName('actionSpeedDown')> key</em> - decrease game speed\n\nNow, accelerate the game speed so the Drones gather the required Metals faster."},
+	'gamepad_text', T{9827, --[[OnScreenHint Tutorial_1_SpeedControl gamepad_text]] "Use the following to control the game speed:\n\n<DPadDown>/<DPadUp> - pause/unpause\n<DPadRight> - increase game speed\n<DPadLeft> -  decrease game speed\n\nNow, accelerate the game speed so the Drones gather the required Metals faster."},
+	'tutorial', "Tutorial1",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_UniversalStorage",
+	'title', T{5303, --[[OnScreenHint Tutorial_1_UniversalStorage title]] "Universal Depot"},
+	'text', T{9042, --[[OnScreenHint Tutorial_1_UniversalStorage text]] "Open the Build Menu and select the <em>Universal Depot</em> by following the arrows. Then place it near your Rocket."},
+	'gamepad_text', T{9043, --[[OnScreenHint Tutorial_1_UniversalStorage gamepad_text]] "Open the Build Menu with <ButtonY> and select the <em>Universal Depot</em> by following the arrows. Then place it near your Rocket."},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_UnloadRocket.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_ConcreteExtractor_1",
+	'title', T{5032, --[[OnScreenHint Tutorial_1_ConcreteExtractor_1 title]] "Concrete Extractor"},
+	'text', T{9044, --[[OnScreenHint Tutorial_1_ConcreteExtractor_1 text]] "Open the Build Menu and choose a <em>Concrete Extractor</em> from the Production category."},
+	'gamepad_text', T{9045, --[[OnScreenHint Tutorial_1_ConcreteExtractor_1 gamepad_text]] "Open the Build Menu with <ButtonY> and choose a <em>Concrete Extractor</em> from the Production category."},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_ConcreteExtractor.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_ConcreteExtractor_2",
+	'title', T{9046, --[[OnScreenHint Tutorial_1_ConcreteExtractor_2 title]] "Construction Sites"},
+	'text', T{9047, --[[OnScreenHint Tutorial_1_ConcreteExtractor_2 text]] "Place the <em>Concrete Extractor</em> near the indicated location. Remember to also rotate the building.\n\nThe <em>info panel</em> on the right side of the screen holds important information like controls for rotating buildings and placing multiple instances of the same building."},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_ConcreteExtractor.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_ConcreteExtractor_3",
+	'title', T{9046, --[[OnScreenHint Tutorial_1_ConcreteExtractor_3 title]] "Construction Sites"},
+	'voiced_text', T{9048, --[[voice:narrator]] "Well done! Now observe how the Drones will carry all the resources to the site and then construct the Concrete Extractor."},
+	'text', T{9049, --[[OnScreenHint Tutorial_1_ConcreteExtractor_3 text]] "Remember, the construction will finish more quickly on the fastest game speed."},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_ConcreteExtractor.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_Power_1",
+	'title', T{3521, --[[OnScreenHint Tutorial_1_Power_1 title]] "Stirling Generator"},
+	'text', T{9050, --[[OnScreenHint Tutorial_1_Power_1 text]] "Place a <em>Stirling Generator</em> prefab by selecting it from the Build Menu."},
+	'gamepad_text', T{9051, --[[OnScreenHint Tutorial_1_Power_1 gamepad_text]] "Open the Build Menu using <ButtonY> and build a <em>Stirling Generator</em>."},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_Power.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_Power_2",
+	'title', T{881, --[[OnScreenHint Tutorial_1_Power_2 title]] "Power Cables"},
+	'voiced_text', T{9052, --[[voice:narrator]] "Connect the Stirling Generator and the Concrete Extractor using a Power Cable from the Build Menu to power up the extractor."},
+	'text', T{9053, --[[OnScreenHint Tutorial_1_Power_2 text]] "To cancel a Power Cable or to exit the Cable placing mode, press <right_click>."},
+	'gamepad_text', T{9054, --[[OnScreenHint Tutorial_1_Power_2 gamepad_text]] "To cancel a Power Cable or to exit the Cable placing mode, use <ButtonB>."},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_Power.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_WasteRockConcrete",
+	'title', T{9055, --[[OnScreenHint Tutorial_1_WasteRockConcrete title]] "Waste Rock and Concrete Depot"},
+	'text', T{9056, --[[OnScreenHint Tutorial_1_WasteRockConcrete text]] "Place a <em>Concrete Depot</em> and a <em>Dumping Site</em> near your Concrete Extractor to store its production and waste output."},
+	'gamepad_text', T{9057, --[[OnScreenHint Tutorial_1_WasteRockConcrete gamepad_text]] "From the Build Menu <ButtonY> place a <em>Concrete Depot</em> and a <em>Dumping Site</em> near your Concrete Extractor to store its production and waste output."},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_WasteRockConcreteDepot.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_DroneHub",
+	'title', T{3518, --[[OnScreenHint Tutorial_1_DroneHub title]] "Drone Hub"},
+	'text', T{9058, --[[OnScreenHint Tutorial_1_DroneHub text]] "Build a <em>Drone Hub</em> near your Rocket and connect it to the power grid using a <em>Power Cable</em>."},
+	'gamepad_text', T{9059, --[[OnScreenHint Tutorial_1_DroneHub gamepad_text]] "From the Build Menu <ButtonY> build a <em>Drone Hub</em> near your Rocket and connect it to the power grid using a <em>Power Cable</em>."},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_DronesAndDroneHubs.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_RechargeStation",
+	'title', T{5229, --[[OnScreenHint Tutorial_1_RechargeStation title]] "Recharge Station"},
+	'text', T{9060, --[[OnScreenHint Tutorial_1_RechargeStation text]] "Build a <em>Recharge Station</em> near the Concrete Extractor and connect it to the power grid using a <em>Power Cable</em>."},
+	'gamepad_text', T{9061, --[[OnScreenHint Tutorial_1_RechargeStation gamepad_text]] "From the Build Menu <ButtonY> build a <em>Recharge Station</em> near the Concrete Extractor and connect it to the power grid using a <em>Power Cable</em>."},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_DronesRecharge.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_RefuelingRocket",
+	'title', T{9062, --[[OnScreenHint Tutorial_1_RefuelingRocket title]] "Fuel Manufacturing"},
+	'text', T{9063, --[[OnScreenHint Tutorial_1_RefuelingRocket text]] "Build a <em>Moisture Vaporator</em> and a <em>Fuel Refinery</em>. Connect both of them to the existing power grid using a Power Cable.\n\nRemember, each building needs to be individually connected with a Cable. Adjacent buildings do not transfer Power automatically."},
+	'gamepad_text', T{9064, --[[OnScreenHint Tutorial_1_RefuelingRocket gamepad_text]] "From the Build Menu <ButtonY>, build a <em>Moisture Vaporator</em>  and a <em>Fuel Refinery</em>. Connect both of them to the existing power grid using a Power Cable.\n\nRemember, each building needs to be individually connected with a Cable. Adjacent buildings do not transfer Power automatically."},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_RefuelingRocket.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_RefuelingRocket_1",
+	'title', T{9065, --[[OnScreenHint Tutorial_1_RefuelingRocket_1 title]] "Need More Power"},
+	'text', T{9066, --[[OnScreenHint Tutorial_1_RefuelingRocket_1 text]] "Build an extra <em>Stirling Generator</em> and connect it to the power grid using a Power Cable."},
+	'gamepad_text', T{9067, --[[OnScreenHint Tutorial_1_RefuelingRocket_1 gamepad_text]] "From the Build Menu <ButtonY>, build an extra <em>Stirling Generator</em> and connect it to the power grid using a Power Cable."},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_DronesAndDroneHubs.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_Pipes",
+	'title', T{882, --[[OnScreenHint Tutorial_1_Pipes title]] "Pipes"},
+	'text', T{9068, --[[OnScreenHint Tutorial_1_Pipes text]] "Connect the Moisture Vaporator to the Fuel Refinery with a <em>Pipe</em>.\n\nUnlike Cables, Pipes have to be placed at specific spots to connect to a building. Look for the <image UI/Icons/pipe_icon.tga>  spots on the ground next to the Moisture Vaporator and the Fuel Refinery.\n\nTo cancel a Pipe or to exit the Pipes placing mode, press <right_click>."},
+	'gamepad_text', T{9069, --[[OnScreenHint Tutorial_1_Pipes gamepad_text]] "Connect the Moisture Vaporator to the Fuel Refinery using a <em>Pipe</em> from the Build Menu <ButtonY>.\n\nUnlike Cables, Pipes have to be placed at specific spots to connect to a building. Look for the <image UI/Icons/pipe_icon.tga>  spots on the ground next to the Moisture Vaporator and the Fuel Refinery.\n\nTo cancel a Pipe or to exit the Pipes placing mode, press <ButtonB>."},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_Pipes.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_Fuel",
+	'title', T{4765, --[[OnScreenHint Tutorial_1_Fuel title]] "Fuel"},
+	'text', T{9070, --[[OnScreenHint Tutorial_1_Fuel text]] "Wait for the Fuel Factory to produce <em>Fuel</em> and the Drones to load it to the Rocket.\n\nYou can select the Rocket and check out how much much Fuel has already been delivered in its Info Panel to the right."},
+	'gamepad_text', T{9071, --[[OnScreenHint Tutorial_1_Fuel gamepad_text]] "Wait for the Fuel Factory to produce <em>Fuel</em> and the Drones to load it to the Rocket\n\nYou may select the Rocket with <ButtonA> and check out how much much Fuel has already been delivered in its Info Panel to the right."},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_Fuel.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_1_FireRocket",
+	'title', T{9072, --[[OnScreenHint Tutorial_1_FireRocket title]] "Launch the Rocket"},
+	'text', T{9073, --[[OnScreenHint Tutorial_1_FireRocket text]] 'Select the Rocket and press the "<em>Launch</em>" button to send it on its way back towards Earth.'},
+	'gamepad_text', T{9074, --[[OnScreenHint Tutorial_1_FireRocket gamepad_text]] "Select the Rocket with <ButtonA> and use <RT> to focus the Rocket's info panel. Then select the \"<em>Launch</em>\" button to send it on its way back towards Earth.\n\nAlternatively, you can hold down <RT> and then press <ButtonX> as a Launch shortcut. "},
+	'tutorial', "Tutorial1",
+	'encyclopedia_image', "UI/Messages/rocket.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_SelectRover",
+	'title', T{9075, --[[OnScreenHint Tutorial_2_SelectRover title]] "Rover Basics"},
+	'text', T{9076, --[[OnScreenHint Tutorial_2_SelectRover text]] "Select the <em>RC Transport</em> indicated in the view."},
+	'gamepad_text', T{9077, --[[OnScreenHint Tutorial_2_SelectRover gamepad_text]] "Select the <em>RC Transport</em> indicated in the view with <ButtonA>."},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/rc_transport.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_MoveRover",
+	'title', T{9075, --[[OnScreenHint Tutorial_2_MoveRover title]] "Rover Basics"},
+	'voiced_text', T{9078, --[[voice:narrator]] "Now let's try moving around."},
+	'text', T{9079, --[[OnScreenHint Tutorial_2_MoveRover text]] "Move the vehicle to the area indicated by the arrow.\n\nWith the RC Transport selected, move it with the <em>Move/Interact</em> button in its Info Panel or by using <UnitMoveControl()>."},
+	'gamepad_text', T{9080, --[[OnScreenHint Tutorial_2_MoveRover gamepad_text]] "Move the vehicle to the area indicated by the arrow.\n\nWith the RC Transport selected, use <RT> to focus the Rover's Info Panel and then <DPadLeft><DPadRight> to select the \"Move\" action.\n\nAlternatively you can move the RC Transport by  holding <RT> and then pressing <ButtonA>."},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/rc_transport.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_RechargeRover",
+	'title', T{9084, --[[OnScreenHint Tutorial_2_RechargeRover title]] "Rover Batteries"},
+	'text', T{9085, --[[OnScreenHint Tutorial_2_RechargeRover text]] "Move the Rover next to a cable and wait until it is <em>fully charged</em>.\n\nThis will take some time, so you may want to speed up the simulation."},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_Battery.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_LoadFuel",
+	'title', T{9086, --[[OnScreenHint Tutorial_2_LoadFuel title]] "RC Transport - Loading Resources"},
+	'text', T{9087, --[[OnScreenHint Tutorial_2_LoadFuel text]] "Select the RC Transport and <UnitMoveControl()> on the <em>Fuel Depot</em>. When the Fuel icon pops up <left_click> on it to fill all of the available space in the RC Transport with Fuel.\n\nLoad 30 Fuel on the RC Transport to continue."},
+	'gamepad_text', T{9088, --[[OnScreenHint Tutorial_2_LoadFuel gamepad_text]] "Select the RC Transport with <ButtonA> and then move the cursor over the <em>Fuel Depot</em> and press <RT> + <ButtonA>. When the Fuel icon pops up use <ButtonA> to fill all of the available space in the RC Transport with Fuel.\n\nLoad 30 Fuel on the RC Transport to continue."},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_RCTransport.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_UnloadFuel",
+	'title', T{9089, --[[OnScreenHint Tutorial_2_UnloadFuel title]] "RC Transport - Unloading Resources"},
+	'voiced_text', T{9090, --[[voice:narrator]] "Now order the RC Transport to unload the Fuel next to the Rocket."},
+	'text', T{9091, --[[OnScreenHint Tutorial_2_UnloadFuel text]] 'Use the "<em>Unload Resources</em>" action and <left_click> a spot near the Rocket to unload the Fuel.'},
+	'gamepad_text', T{9092, --[[OnScreenHint Tutorial_2_UnloadFuel gamepad_text]] 'Use the "<em>Unload Resources</em>" action and then press <ButtonA> on a spot near the Rocket to unload the Fuel.'},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_RCTransport.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_LaunchRocket",
+	'title', T{5503, --[[OnScreenHint Tutorial_2_LaunchRocket title]] "Refueling the Rocket"},
+	'text', T{9093, --[[OnScreenHint Tutorial_2_LaunchRocket text]] "Wait for the Drones to bring the Fuel inside the Rocket, then select the Rocket and <em>launch</em> it."},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/rocket.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_OrphanedDrones",
+	'title', T{5672, --[[OnScreenHint Tutorial_2_OrphanedDrones title]] "Orphaned Drones"},
+	'text', T{9094, --[[OnScreenHint Tutorial_2_OrphanedDrones text]] 'Select one of the orphaned Drones and use the "<em>Reassign All</em>" action to assign it and its brothers to the Drone Hub back in the base.'},
+	'gamepad_text', T{9095, --[[OnScreenHint Tutorial_2_OrphanedDrones gamepad_text]] 'Select one of the orphaned Drones with <ButtonX> and use the "<em>Reassign All</em>" action to assign it and its brothers to the Drone Hub back in the base.\n\nRemember to focus the Drone\'s Info Panel with <RT> once selected.'},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_OrphanedDrones.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_GatheringMetals",
+	'title', T{9096, --[[OnScreenHint Tutorial_2_GatheringMetals title]] "RC Transport - Gathering Metals"},
+	'text', T{9097, --[[OnScreenHint Tutorial_2_GatheringMetals text]] 'Select the RC Transport and use the "Move/Interact" command or simply <UnitMoveControl()> on the deposit.\n\nGather 5 Metals to continue.'},
+	'gamepad_text', T{9098, --[[OnScreenHint Tutorial_2_GatheringMetals gamepad_text]] 'Select the RC Transport and use the "Move/Interact" command or simply hold <RT> and then press <ButtonA> on the deposit.\n\nGather 5 Metals to continue.'},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_Gathering Metals.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_TranportRoutes",
+	'title', T{9099, --[[OnScreenHint Tutorial_2_TranportRoutes title]] "RC Transport - Transport Routes"},
+	'text', T{9100, --[[OnScreenHint Tutorial_2_TranportRoutes text]] '1. Select the Rover and use the "<em>Create Transport Route</em>" command.\n2. With the command activated, <left_click> the Universal Depot as the starting point of the route.\n3. From the popup menu choose to load <em>all resources</em>.\n4. <left_click> near the marked area above the main base as an end point of the route.'},
+	'gamepad_text', T{9101, --[[OnScreenHint Tutorial_2_TranportRoutes gamepad_text]] '1. Select the Rover with <ButtonA> and use the "<em>Create Transport Route</em>" command.\n2. With the command activated, press <ButtonA> on the Universal Depot as the starting point of the route.\n3. From the popup menu choose to load <em>all resources</em>.\n4. Press <ButtonA> near the marked area above the main base as an end point of the route.'},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_TransporRoute.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_TransportRouteDone",
+	'title', T{9099, --[[OnScreenHint Tutorial_2_TransportRouteDone title]] "RC Transport - Transport Routes"},
+	'voiced_text', T{9750, --[[voice:narrator]] "Nice Work!"},
+	'text', T{9751, --[[OnScreenHint Tutorial_2_TransportRouteDone text]] "Now observe how the RC Transport makes its first course along the transport route.\n\nIf things take too long, remember to speed up time."},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_TransporRoute.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_MoveRCRover",
+	'title', T{1682, --[[OnScreenHint Tutorial_2_MoveRCRover title]] "RC Rover"},
+	'text', T{9103, --[[OnScreenHint Tutorial_2_MoveRCRover text]] "Select the <em>RC Rover</em> and move it close to the designated area for the expand.\n\nMake sure that the RC Rover Drones can reach the resources you already transported there beforehand."},
+	'gamepad_text', T{9104, --[[OnScreenHint Tutorial_2_MoveRCRover gamepad_text]] "Select the <em>RC Rover</em> with <ButtonA> and move it close to the designated area for the expand.\n\nMake sure that the RC Rover Drones can reach the resources you already transported there beforehand."},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_RCRover.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_SensorTower",
+	'title', T{5257, --[[OnScreenHint Tutorial_2_SensorTower title]] "Sensor Tower"},
+	'text', T{9105, --[[OnScreenHint Tutorial_2_SensorTower text]] "Construct a <em>Sensor Tower</em> and a <em>Stirling Generator</em> and make sure that they are connected with Power Cables."},
+	'gamepad_text', T{9106, --[[OnScreenHint Tutorial_2_SensorTower gamepad_text]] "From the Build Menu <ButtonY> construct a <em>Sensor Tower</em> and a <em>Stirling Generator</em> and make sure that they are connected with Power Cables."},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_SensorTower.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_SensorTowerPlaced",
+	'title', T{5257, --[[OnScreenHint Tutorial_2_SensorTowerPlaced title]] "Sensor Tower"},
+	'voiced_text', T{9752, --[[voice:narrator]] "Good Job!"},
+	'text', T{9753, --[[OnScreenHint Tutorial_2_SensorTowerPlaced text]] "The construction may take some time until the RC Transport delivers all the needed resources for the Sensor Tower and Stirling Generator."},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_SensorTower.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_GoToOverview",
+	'title', T{5422, --[[OnScreenHint Tutorial_2_GoToOverview title]] "Exploration"},
+	'text', T{9107, --[[OnScreenHint Tutorial_2_GoToOverview text]] "Zoom out or use the HUD button to go to the <em>Map Overview</em>."},
+	'gamepad_text', T{9108, --[[OnScreenHint Tutorial_2_GoToOverview gamepad_text]] "Zoom out by opening the Command Menu by using <LT> and then selecting <em>Map Overview</em> with <ButtonA>."},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_GoToOverview.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_UseProbe",
+	'title', T{9109, --[[OnScreenHint Tutorial_2_UseProbe title]] "Exploration - Probes"},
+	'text', T{9110, --[[OnScreenHint Tutorial_2_UseProbe text]] "Use a <em>Probe</em> to scan a sector. Mouse over a sector and <left_click> on the probe pin and then <left_click> on a sector to scan it."},
+	'gamepad_text', T{9111, --[[OnScreenHint Tutorial_2_UseProbe gamepad_text]] "Use a <em>Probe</em> to scan a sector. Select a sector by using <LS> and press <ButtonX> on it to scan."},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_Exploration.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_QueueScanning",
+	'title', T{9112, --[[OnScreenHint Tutorial_2_QueueScanning title]] "Exploration - Scanning Queue"},
+	'voiced_text', T{9113, --[[voice:narrator]] "You can also queue sectors for scanning."},
+	'text', T{9114, --[[OnScreenHint Tutorial_2_QueueScanning text]] "<left_click> on a sector to add it to the <em>scanning queue</em>. You can queue up to ten sectors for scanning. <right_click> on a queued sector to remove it from the scanning queue.\n\nScan sector <SectorName> to continue. Remember you can always speed up time."},
+	'gamepad_text', T{9115, --[[OnScreenHint Tutorial_2_QueueScanning gamepad_text]] "Press <ButtonY> on a sector to add it to the <em>scanning queue</em>. You can queue up to ten sectors for scanning. <ButtonY> on a queued sector to remove it from the scanning queue.\n\nScan sector <SectorName> to continue. Remember you can always speed up time."},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_Exploration.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_AnalyzeAnomaly",
+	'title', T{1684, --[[OnScreenHint Tutorial_2_AnalyzeAnomaly title]] "RC Explorer"},
+	'text', T{9119, --[[OnScreenHint Tutorial_2_AnalyzeAnomaly text]] "Select the RC Explorer, then simply <UnitMoveControl()> on the <em>Anomaly</em> to scan it.\n\nRemember you can move the view to the Anomaly, then can select the RC Explorer from its pin."},
+	'gamepad_text', T{9120, --[[OnScreenHint Tutorial_2_AnalyzeAnomaly gamepad_text]] "Select the RC Explorer with <ButtonA>, then hold <RT> and press <ButtonA> on the <em>Anomaly</em> to scan it.\n\nRemember you can move the view to the Anomaly, then can select the RC Explorer from its pin, using <RB> and <ButtonA>."},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_AnalyzeAnomaly.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_ExplorerOnTheWay",
+	'voiced_text', T{9752, --[[voice:narrator]] "Good Job!"},
+	'text', T{9754, --[[OnScreenHint Tutorial_2_ExplorerOnTheWay text]] "The <em>RC Explorer</em> is on its way to the anomaly. Wait for it to analyze the anomaly to continue."},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_AnalyzeAnomaly.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_OpenResearch",
+	'title', T{311, --[[OnScreenHint Tutorial_2_OpenResearch title]] "Research"},
+	'text', T{9121, --[[OnScreenHint Tutorial_2_OpenResearch text]] "Open the <em>Research screen</em> using the HUD button."},
+	'gamepad_text', T{9122, --[[OnScreenHint Tutorial_2_OpenResearch gamepad_text]] "Open the <em>Research screen</em> pressing <LT> and then selecting Research."},
+	'tutorial', "Tutorial2",
+	'encyclopedia_image', "UI/Messages/research.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_2_ResearchScreen",
+	'title', T{311, --[[OnScreenHint Tutorial_2_ResearchScreen title]] "Research"},
+	'text', T{9123, --[[OnScreenHint Tutorial_2_ResearchScreen text]] "Queue any tech for research to continue."},
+	'gamepad_text', T{9124, --[[OnScreenHint Tutorial_2_ResearchScreen gamepad_text]] "Queue a tech  for research by using <ButtonA> to continue.\n\nUsing <RT> and <ButtonA> on a tech will always queue it on top of the research list."},
+	'tutorial', "Tutorial2",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_3_SalvageBuildings",
+	'title', T{9125, --[[OnScreenHint Tutorial_3_SalvageBuildings title]] "Salvaging The Concrete Extractor"},
+	'text', T{9126, --[[OnScreenHint Tutorial_3_SalvageBuildings text]] "Select the Concrete Extractor and press the <em>Salvage</em> button in its Info Panel.\n\nThis will return some building materials we can use later."},
+	'gamepad_text', T{9127, --[[OnScreenHint Tutorial_3_SalvageBuildings gamepad_text]] "Select the Concrete Extractor, then select and press the <em>Salvage</em> button in its Info Panel with <ButtonY>.\n\nUse <RT> to focus the Info Panel.\n\nThis will return some building materials we can use later."},
+	'tutorial', "Tutorial3",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_SalvageBuilding.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_3_PowerDroneHub",
+	'title', T{9128, --[[OnScreenHint Tutorial_3_PowerDroneHub title]] "Power the Drone Hub"},
+	'text', T{9129, --[[OnScreenHint Tutorial_3_PowerDroneHub text]] "Construct a <em>Solar Panel</em> to power the Drone Hub.\n\nPlace the Solar Panel next to existing Cables to connect it to the same Power network as the Drone Hub."},
+	'gamepad_text', T{9130, --[[OnScreenHint Tutorial_3_PowerDroneHub gamepad_text]] "Construct a <em>Solar Panel</em> to power the Drone Hub.\n\nFrom the Build Menu <ButtonY> construct the Solar Panel next to existing Cables to connect it to the same Power network as the Drone Hub."},
+	'tutorial', "Tutorial3",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_PowerDroneHub.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_3_HighPriority",
+	'title', T{9131, --[[OnScreenHint Tutorial_3_HighPriority title]] "High Priority"},
+	'text', T{9132, --[[OnScreenHint Tutorial_3_HighPriority text]] "Select the Drone Hub and set it to <em>High Priority</em>."},
+	'gamepad_text', T{9133, --[[OnScreenHint Tutorial_3_HighPriority gamepad_text]] "Select the Drone Hub and set it to <em>High Priority</em>.\n\nTo un-select a building use <ButtonB>."},
+	'tutorial', "Tutorial3",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_Priority.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_3_WindTurbine",
+	'title', T{9134, --[[OnScreenHint Tutorial_3_WindTurbine title]] "Build a Wind Turbine"},
+	'text', T{9135, --[[OnScreenHint Tutorial_3_WindTurbine text]] "Build a <em>Wind Turbine</em> and connect it to the existing Power network."},
+	'gamepad_text', T{9136, --[[OnScreenHint Tutorial_3_WindTurbine gamepad_text]] "From the Build Menu <ButtonY> build a <em>Wind Turbine</em> and connect it to the existing Power network."},
+	'tutorial', "Tutorial3",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_WindTurbine.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_3_NightShifts",
+	'title', T{9137, --[[OnScreenHint Tutorial_3_NightShifts title]] "Shifts & Power Management"},
+	'text', T{9138, --[[OnScreenHint Tutorial_3_NightShifts text]] "Select the Moisture Vaporator and Fuel Refinery and disable their <em>Night Shifts</em>, so that they won't consume Power during the night."},
+	'gamepad_text', T{9139, --[[OnScreenHint Tutorial_3_NightShifts gamepad_text]] "Select the Moisture Vaporator and Fuel Refinery and disable their <em>Night Shifts</em>, so that they won't consume Power during the night.\n\nTo un-select a building use <ButtonB>."},
+	'tutorial', "Tutorial3",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_NightShifts.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_3_Maintenance",
+	'title', T{619281504128, --[[OnScreenHint Tutorial_3_Maintenance title]] "Maintenance"},
+	'text', T{9140, --[[OnScreenHint Tutorial_3_Maintenance text]] "Select the Large Solar Panel to view information about its <em>maintenance</em> and <em>breakdown</em>."},
+	'tutorial', "Tutorial3",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_Maintenance.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_3_MoreMetals",
+	'title', T{9096, --[[OnScreenHint Tutorial_3_MoreMetals title]] "RC Transport - Gathering Metals"},
+	'text', T{9141, --[[OnScreenHint Tutorial_3_MoreMetals text]] "Select the RC Transport and then <right_click> on any surface metals deposit to order the vehicle to mine it.\n\nGather at least 20 Metals with the RC Transport and deliver them to the Metals Depot in the base.\n\nThis will take a while, so you may want to speed up time."},
+	'gamepad_text', T{9142, --[[OnScreenHint Tutorial_3_MoreMetals gamepad_text]] "Select the RC Transport and then hold <RT> and press <ButtonA> on any surface metals deposit to order the vehicle to mine it.\n\nGather at least 20 Metals with the RC Transport and deliver them to the Metals Depot in the base.\n\nThis will take a while, so you may want to speed up time."},
+	'tutorial', "Tutorial3",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_MoreMetals.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_3_OpenResupplyUI",
+	'title', T{3997, --[[OnScreenHint Tutorial_3_OpenResupplyUI title]] "Resupply"},
+	'text', T{9143, --[[OnScreenHint Tutorial_3_OpenResupplyUI text]] "Open the <em>Resupply screen</em> by clicking on the icon in the HUD, then order a Cargo Rocket."},
+	'gamepad_text', T{9144, --[[OnScreenHint Tutorial_3_OpenResupplyUI gamepad_text]] "Open the <em>Resupply screen</em> from the command menu by pressing <LT> and then order a Cargo Rocket."},
+	'tutorial', "Tutorial3",
+	'encyclopedia_image', "UI/Messages/universal_depot.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_3_OrderAdvancedResources",
+	'title', T{9145, --[[OnScreenHint Tutorial_3_OrderAdvancedResources title]] "Order Advanced Resources"},
+	'text', T{9146, --[[OnScreenHint Tutorial_3_OrderAdvancedResources text]] "Order <em>20 Polymers, Machine Parts and Electronics</em>, then launch the Rocket with the Launch button."},
+	'tutorial', "Tutorial3",
+	'encyclopedia_image', "UI/Messages/universal_depot.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_3_ClearingBuildings",
+	'title', T{9147, --[[OnScreenHint Tutorial_3_ClearingBuildings title]] "Clearing Buildings"},
+	'text', T{9148, --[[OnScreenHint Tutorial_3_ClearingBuildings text]] 'Select the ruins of the Concrete Extractor and use the "<em>Clear</em>" action to send a Drone to remove the ruins.'},
+	'gamepad_text', T{9149, --[[OnScreenHint Tutorial_3_ClearingBuildings gamepad_text]] 'Select the ruins of the Concrete Extractor and use the "<em>Clear</em>" action to send a Drone to remove the ruins.\n\nUse <RT> to focus the Info Panel.'},
+	'tutorial', "Tutorial3",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_ClearingBuildings.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_3_DeletingCables",
+	'title', T{9150, --[[OnScreenHint Tutorial_3_DeletingCables title]] "The Salvage Tool"},
+	'text', T{9151, --[[OnScreenHint Tutorial_3_DeletingCables text]] "Open the Build Menu and select the <em>Salvage Tool</em> from the Infrastructure category.\n\nWith the Salvage tool active <left_click> on the Cables close to the site of the salvaged Concrete Extractor to delete them.\n\nUse <right_click> to cancel Salvage Tool mode."},
+	'gamepad_text', T{9152, --[[OnScreenHint Tutorial_3_DeletingCables gamepad_text]] "Open the Build Menu and select the <em>Salvage Tool</em> from the Infrastructure category.\n\nWith the Salvage tool active press <ButtonA> on the Cables close to the site of the salvaged Concrete Extractor to delete them.\n\nUse <ButtonB> to cancel Salvage Tool mode."},
+	'tutorial', "Tutorial3",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_DeletingCables.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_3_WaitRocket",
+	'title', T{9153, --[[OnScreenHint Tutorial_3_WaitRocket title]] "Awaiting Rocket"},
+	'text', T{9154, --[[OnScreenHint Tutorial_3_WaitRocket text]] "Wait for the arrival of the Rocket, then land it near the base.\n\nRemember you can speed up time via the HUD buttons at the bottom center of the screen."},
+	'gamepad_text', T{9155, --[[OnScreenHint Tutorial_3_WaitRocket gamepad_text]] "Wait for the arrival of the Rocket, then land it near the base.\n\nRemember you can speed up time via <DPadRight>."},
+	'tutorial', "Tutorial3",
+	'encyclopedia_image', "UI/Messages/rocket_1.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_3_Battery",
+	'title', T{5206, --[[OnScreenHint Tutorial_3_Battery title]] "Power Accumulators"},
+	'text', T{9156, --[[OnScreenHint Tutorial_3_Battery text]] "Use the Build Menu to place a <em>Power Accumulator</em> and connect it to the existing Power grid."},
+	'gamepad_text', T{9157, --[[OnScreenHint Tutorial_3_Battery gamepad_text]] "Use the Build Menu <ButtonY> to place a <em>Power Accumulator</em> and connect it to the existing Power grid."},
+	'tutorial', "Tutorial3",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_Battery.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_3_WaterExtractor",
+	'title', T{3529, --[[OnScreenHint Tutorial_3_WaterExtractor title]] "Water Extractor"},
+	'voiced_text', T{9158, --[[voice:narrator]] "Use the Build menu to construct a Water Extractor near the Water deposit, then Power it up."},
+	'tutorial', "Tutorial3",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_WaterExtractor.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_3_WaterTank",
+	'title', T{956519352717, --[[OnScreenHint Tutorial_3_WaterTank title]] "Water Storage"},
+	'text', T{9159, --[[OnScreenHint Tutorial_3_WaterTank text]] "Construct a <em>Water Tower</em> and connect it with Pipes to the Water Extractor.\n\nRemember, Pipes have to be connected to specific spots next to the buildings you want to connect."},
+	'gamepad_text', T{9160, --[[OnScreenHint Tutorial_3_WaterTank gamepad_text]] "From the Build Menu <ButtonY> construct a <em>Water Tower</em> and connect it with Pipes to the Water Extractor.\n\nRemember, Pipes have to be connected to specific spots next to the buildings you want to connect."},
+	'tutorial', "Tutorial3",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_WaterTower.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_3_Dome",
+	'title', T{83, --[[OnScreenHint Tutorial_3_Dome title]] "Domes"},
+	'text', T{9161, --[[OnScreenHint Tutorial_3_Dome text]] "Use the Build Menu to construct a <em>Basic Dome</em>.\n\nIf you need additional Resources use RC Transport to gather Metals or order a supply Rocket from the <em>Resupply screen</em> to bring in Advanced resources from Earth."},
+	'tutorial', "Tutorial3",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_Dome.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_3_DomeSupply",
+	'title', T{9162, --[[OnScreenHint Tutorial_3_DomeSupply title]] "Domes - Water, Power & Air"},
+	'text', T{9163, --[[OnScreenHint Tutorial_3_DomeSupply text]] "Connect the newly constructed Dome to the existing Water and Power grids.\n\nConstruct a <em>MOXIE</em>, power it and connect it to the Dome to provide air supply.\n\nRemember, Water and Oxygen are transfered via pipes which have to be connected to specific spots next to buildings."},
+	'gamepad_text', T{9164, --[[OnScreenHint Tutorial_3_DomeSupply gamepad_text]] "Connect the newly constructed Dome to the existing Water and Power grids.\n\nFrom the Build Menu <ButtonY> construct a <em>MOXIE</em>, power it and connect it to the Dome to provide air supply.\n\nRemember, Water and Oxygen are transfered via pipes which have to be connected to specific spots next to buildings."},
+	'tutorial', "Tutorial3",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_4_Housing",
+	'title', T{3532, --[[OnScreenHint Tutorial_4_Housing title]] "Living Quarters"},
+	'text', T{9165, --[[OnScreenHint Tutorial_4_Housing text]] "Construct <em>Living Quarters</em> at the indicated location. "},
+	'gamepad_text', T{9166, --[[OnScreenHint Tutorial_4_Housing gamepad_text]] "From the Build Menu <ButtonY> construct <em>Living Quarters</em> at the indicated location. "},
+	'tutorial', "Tutorial4",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_DomeSupply.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_4_Founders",
+	'title', T{5554, --[[OnScreenHint Tutorial_4_Founders title]] "Resupply Screen"},
+	'text', T{9167, --[[OnScreenHint Tutorial_4_Founders text]] "Open the <em>Resupply screen</em> and order a Passenger Rocket."},
+	'gamepad_text', T{9168, --[[OnScreenHint Tutorial_4_Founders gamepad_text]] "Open the <em>Resupply screen</em> by calling the Command Menu <LT> and order a Passenger Rocket."},
+	'tutorial', "Tutorial4",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial4/Tutorial4_Founders.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_4_PassengerRocket",
+	'title', T{1116, --[[OnScreenHint Tutorial_4_PassengerRocket title]] "Passenger Rocket"},
+	'text', T{9169, --[[OnScreenHint Tutorial_4_PassengerRocket text]] 'Use the <em>applicants filter</em> to set criteria for what type of colonists you want to bring to Mars. Alternatively you may use the "<em>Review</em>" option to view and hand pick 12 individual applicants.\n\nWhen you are ready use the "Launch" option to send the first colonists on their journey towards Mars.'},
+	'tutorial', "Tutorial4",
+	'encyclopedia_image', "UI/Messages/colonists.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_4_HydroponicFarmAndStore",
+	'title', T{9170, --[[OnScreenHint Tutorial_4_HydroponicFarmAndStore title]] "Hydroponic Farm and Grocer"},
+	'text', T{9171, --[[OnScreenHint Tutorial_4_HydroponicFarmAndStore text]] "Construct a <em>Hydroponic Farm</em> and a <em>Grocer</em> inside your Dome."},
+	'gamepad_text', T{9172, --[[OnScreenHint Tutorial_4_HydroponicFarmAndStore gamepad_text]] "From the Build Menu <ButtonY> construct a <em>Hydroponic Farm</em> and a <em>Grocer</em> inside your Dome."},
+	'tutorial', "Tutorial4",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial4/Tutorial4_Food.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_4_Spacebar",
+	'title', T{9173, --[[OnScreenHint Tutorial_4_Spacebar title]] "Space Bar"},
+	'text', T{9174, --[[OnScreenHint Tutorial_4_Spacebar text]] "Construct a <em>Spacebar</em> inside the Dome."},
+	'gamepad_text', T{9175, --[[OnScreenHint Tutorial_4_Spacebar gamepad_text]] "From the Build Menu <ButtonY> construct a <em>Spacebar</em> inside the Dome."},
+	'tutorial', "Tutorial4",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial4/Tutorial4_Services.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_4_LandRocket",
+	'title', T{9032, --[[OnScreenHint Tutorial_4_LandRocket title]] "Land the Rocket"},
+	'text', T{9176, --[[OnScreenHint Tutorial_4_LandRocket text]] "Wait for the Passenger Rocket to arrive and then land it near the Dome."},
+	'tutorial', "Tutorial4",
+	'encyclopedia_image', "UI/Messages/rocket.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_4_ManagingJobs",
+	'title', T{9177, --[[OnScreenHint Tutorial_4_ManagingJobs title]] "Managing Jobs"},
+	'text', T{9178, --[[OnScreenHint Tutorial_4_ManagingJobs text]] "Disable one <em>work slot</em> per active shift in the Spacebar by the following steps: \n\n1. Select the Spacebar and <right_click> on one of the work slots in the first 2 shifts until the slot is shown in red.\n\n2. <right_click> again if there already was a worker in the slot (first time fires the worker) until the slot is shown in red. "},
+	'gamepad_text', T{9179, --[[OnScreenHint Tutorial_4_ManagingJobs gamepad_text]] "Disable one <em>work slot</em> per active shift in the Spacebar by the following steps: \n\n1. Сelect the Spacebar with <ButtonA> , focus the Info Panel with <RT> and then highlight one of the work slots in the first 2 shifts using the <DPad> after which use <ButtonX>.\n\n2. Use <ButtonX> again if there already was a worker in the slot (first time fires the worker) until the slot is shown in red. "},
+	'tutorial', "Tutorial4",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial4/Tutorial4_ManagingJobs.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_4_ResearchLab",
+	'title', T{5235, --[[OnScreenHint Tutorial_4_ResearchLab title]] "Research Lab"},
+	'text', T{9180, --[[OnScreenHint Tutorial_4_ResearchLab text]] "Construct a <em>Research Lab</em> inside the Dome."},
+	'gamepad_text', T{9181, --[[OnScreenHint Tutorial_4_ResearchLab gamepad_text]] "Open the Build Menu with <ButtonY> and construct a <em>Research Lab</em> inside the Dome."},
+	'tutorial', "Tutorial4",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial4/Tutorial4_Research.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_4_Shifts",
+	'title', T{217, --[[OnScreenHint Tutorial_4_Shifts title]] "Work Shifts"},
+	'text', T{9182, --[[OnScreenHint Tutorial_4_Shifts text]] "Activate the <em>Second Shift</em> for the Research Lab."},
+	'gamepad_text', T{9183, --[[OnScreenHint Tutorial_4_Shifts gamepad_text]] "Activate the <em>Second Shift</em> for the Research Lab.\n\nFocus the Info Panel first with <RT> first."},
+	'tutorial', "Tutorial4",
+	'encyclopedia_image', "UI/Messages/emergency.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_4_HighPriority",
+	'title', T{9131, --[[OnScreenHint Tutorial_4_HighPriority title]] "High Priority"},
+	'text', T{9184, --[[OnScreenHint Tutorial_4_HighPriority text]] "Set the priority of the Research Lab to <em>High</em>."},
+	'gamepad_text', T{9185, --[[OnScreenHint Tutorial_4_HighPriority gamepad_text]] "Set the priority of the Research Lab to <em>High</em>.\n\nWith the Research Lab selected, hold <RT> and press <ButtonA>."},
+	'tutorial', "Tutorial4",
+	'encyclopedia_image', "UI/Messages/research_lab.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_4_OpenResearch",
+	'text', T{9186, --[[OnScreenHint Tutorial_4_OpenResearch text]] "Open the <em>Research screen</em> using the HUD button."},
+	'gamepad_text', T{9187, --[[OnScreenHint Tutorial_4_OpenResearch gamepad_text]] "Open the <em>Research screen</em> by pressing <LT> and picking Research."},
+	'tutorial', "Tutorial4",
+	'encyclopedia_image', "UI/Messages/hints.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_4_Research_2",
+	'title', T{311, --[[OnScreenHint Tutorial_4_Research_2 title]] "Research"},
+	'text', T{9188, --[[OnScreenHint Tutorial_4_Research_2 text]] "From the Research screen, queue <em>three</em> of the available technologies with <left_click>."},
+	'gamepad_text', T{9791, --[[OnScreenHint Tutorial_4_Research_2 gamepad_text]] "From the Research screen, queue <em>three</em> of the available technologies by using <ButtonA>. "},
+	'tutorial', "Tutorial4",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup11_Upgrades.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_5_ShuttleHub",
+	'title', T{3526, --[[OnScreenHint Tutorial_5_ShuttleHub title]] "Shuttle Hub"},
+	'text', T{9190, --[[OnScreenHint Tutorial_5_ShuttleHub text]] "Construct a <em>Shuttle Hub</em> and connect it to the Power grid with a Power Cable."},
+	'gamepad_text', T{9191, --[[OnScreenHint Tutorial_5_ShuttleHub gamepad_text]] "From the Build Menu <ButtonY>, construct a Shuttle Hub and connect it to the Power grid with a Power Cable."},
+	'tutorial', "Tutorial5",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup2_Shuttles.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_5_RareMetalsExtractor",
+	'title', T{3530, --[[OnScreenHint Tutorial_5_RareMetalsExtractor title]] "Rare Metals Extractor"},
+	'text', T{9192, --[[OnScreenHint Tutorial_5_RareMetalsExtractor text]] "Construct a <em>Rare Metals Extractor</em> and connect it to the Power grid using a Power Cable."},
+	'gamepad_text', T{9193, --[[OnScreenHint Tutorial_5_RareMetalsExtractor gamepad_text]] "From the Build Menu <ButtonY>, construct a <em>Rare Metals Extractor</em> and connect it to the Power grid using a Power Cable."},
+	'tutorial', "Tutorial5",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup3_Mining.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_5_Housing",
+	'title', T{3532, --[[OnScreenHint Tutorial_5_Housing title]] "Living Quarters"},
+	'text', T{9194, --[[OnScreenHint Tutorial_5_Housing text]] "Construct <em>Living Quarters</em> inside the mining Dome."},
+	'gamepad_text', T{9195, --[[OnScreenHint Tutorial_5_Housing gamepad_text]] "From the Build Menu <ButtonY>, construct Living Quarters inside the mining Dome."},
+	'tutorial', "Tutorial5",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup4_Housing.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_5_Services",
+	'title', T{9196, --[[OnScreenHint Tutorial_5_Services title]] "Services"},
+	'voiced_text', T{9197, --[[voice:narrator]] "Don’t forget to provide basic services for the citizens of your new Dome."},
+	'text', T{9198, --[[OnScreenHint Tutorial_5_Services text]] "Construct a <em>Spacebar</em> and a <em>Grocer</em> inside the mining Dome."},
+	'gamepad_text', T{9199, --[[OnScreenHint Tutorial_5_Services gamepad_text]] "From the Build Menu <ButtonY>, construct a <em>Spacebar</em> and a <em>Grocer</em> inside the mining Dome."},
+	'tutorial', "Tutorial5",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial4/Tutorial4_ManagingJobs.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_5_FilterUI",
+	'title', T{9200, --[[OnScreenHint Tutorial_5_FilterUI title]] "Filter UI"},
+	'text', T{9201, --[[OnScreenHint Tutorial_5_FilterUI text]] 'Select any Dome and open the "<em>Filter by Traits</em>" screen.'},
+	'gamepad_text', T{9202, --[[OnScreenHint Tutorial_5_FilterUI gamepad_text]] 'Select any Dome and open the "<em>Filter by Traits</em>" screen.\n\nUse <RT> to focus the Dome\'s Info Panel.'},
+	'tutorial', "Tutorial5",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup5_FilterUI.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_5_FilterUI_2_Scientists",
+	'title', T{9203, --[[OnScreenHint Tutorial_5_FilterUI_2_Scientists title]] "Scientists Desired"},
+	'text', T{9204, --[[OnScreenHint Tutorial_5_FilterUI_2_Scientists text]] "Set <em>Scientists</em> as desired in the research Dome, and <em>Geologists</em> as undesired."},
+	'tutorial', "Tutorial5",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup6_FilterUI_2_Research.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_5_FilterUI_3_Geologists",
+	'title', T{9205, --[[OnScreenHint Tutorial_5_FilterUI_3_Geologists title]] "Geologists Desired"},
+	'text', T{9206, --[[OnScreenHint Tutorial_5_FilterUI_3_Geologists text]] "Set <em>Geologists</em> as desired in the mining Dome, and <em>Scientists</em> as undesired."},
+	'tutorial', "Tutorial5",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup6_FilterUI_2_Research.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_5_NewDome",
+	'title', T{9207, --[[OnScreenHint Tutorial_5_NewDome title]] "New Dome"},
+	'text', T{9208, --[[OnScreenHint Tutorial_5_NewDome text]] "Construct a new Dome at the indicated location."},
+	'gamepad_text', T{9209, --[[OnScreenHint Tutorial_5_NewDome gamepad_text]] "From the Build Menu <ButtonY>, construct a new Dome at the indicated location."},
+	'tutorial', "Tutorial5",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup8_NewDome.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_5_NewDome_2",
+	'title', T{81, --[[OnScreenHint Tutorial_5_NewDome_2 title]] "Life Support"},
+	'text', T{9210, --[[OnScreenHint Tutorial_5_NewDome_2 text]] "Connect the new Dome with the Pipe system for life support."},
+	'tutorial', "Tutorial5",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup8_NewDome.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_5_NewDomeFarms",
+	'title', T{5068, --[[OnScreenHint Tutorial_5_NewDomeFarms title]] "Farms"},
+	'voiced_text', T{9211, --[[voice:narrator]] "Construct two Farms in the new Dome. They will be used as workplaces for the Colonists in the old Dome once the Domes are connected."},
+	'tutorial', "Tutorial5",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial4/Tutorial4_Food.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_5_Passages",
+	'title', T{8776, --[[OnScreenHint Tutorial_5_Passages title]] "Passages"},
+	'text', T{9212, --[[OnScreenHint Tutorial_5_Passages text]] "Connect the two nearby Domes with a <em>Passage</em>. The passage must start in an unoccupied hex within one Dome and end in such a hex within the other Dome."},
+	'gamepad_text', T{9213, --[[OnScreenHint Tutorial_5_Passages gamepad_text]] "Using the Build Menu <ButtonY>, connect the two nearby Domes with a <em>Passage</em>. The passage must start in an unoccupied hex within one Dome and end in such a hex within the other Dome."},
+	'tutorial', "Tutorial5",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup9_Passages.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_5_ResearchUpgrade",
+	'title', T{9214, --[[OnScreenHint Tutorial_5_ResearchUpgrade title]] "Research Upgrade"},
+	'text', T{9215, --[[OnScreenHint Tutorial_5_ResearchUpgrade text]] "From the Research screen, select the <em>Extractor Amplification</em> research and wait until it completes."},
+	'gamepad_text', T{9216, --[[OnScreenHint Tutorial_5_ResearchUpgrade gamepad_text]] "Open the Research screen by using <LT>, then select the <em>Extractor Amplification</em> research and wait until it completes."},
+	'tutorial', "Tutorial5",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup11_Upgrades.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_5_UpgradeExtractor",
+	'title', T{9217, --[[OnScreenHint Tutorial_5_UpgradeExtractor title]] "Upgrade Extractor"},
+	'text', T{9218, --[[OnScreenHint Tutorial_5_UpgradeExtractor text]] "<em>Upgrade</em> the Water Extractor building by following the indicators."},
+	'tutorial', "Tutorial5",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup12_Upgrades_2.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_5_UpgradeExtractor_2",
+	'title', T{9217, --[[OnScreenHint Tutorial_5_UpgradeExtractor_2 title]] "Upgrade Extractor"},
+	'voiced_text', T{9750, --[[voice:narrator]] "Nice Work!"},
+	'text', T{9792, --[[OnScreenHint Tutorial_5_UpgradeExtractor_2 text]] "Now wait for Drones to bring the resources needed to complete the <em>Upgrade</em>."},
+	'tutorial', "Tutorial5",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup12_Upgrades_2.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_5_CommandCenterUI",
+	'title', T{9219, --[[OnScreenHint Tutorial_5_CommandCenterUI title]] "The Command Center"},
+	'text', T{9220, --[[OnScreenHint Tutorial_5_CommandCenterUI text]] "Open the <em>Command Center</em> via the HUD button. Browse through and when you have familiarized yourself with it close it to finish this tutorial."},
+	'gamepad_text', T{9221, --[[OnScreenHint Tutorial_5_CommandCenterUI gamepad_text]] "Open the <em>Command Center</em> from the <LT> menu. Browse through and when you have familiarized yourself with it close it to finish this tutorial."},
+	'tutorial', "Tutorial5",
+	'encyclopedia_image', "UI/Messages/research.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_ConditionalPauseHint",
+	'title', T{9222, --[[OnScreenHint Tutorial_ConditionalPauseHint title]] "Speed Controls - Pause"},
+	'text', T{9223, --[[OnScreenHint Tutorial_ConditionalPauseHint text]] "Your game is currently <em>paused</em>. Use the speed controls to unpause the game and continue to play."},
 })
 

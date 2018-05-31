@@ -260,18 +260,26 @@ end
 StatusEffectsList = {}
 StatusEffectsShock = {}
 
-local detrimental_status_effects = {
-	"StatusEffect_Irradiated",
-	"StatusEffect_Suffocating", 
-	"StatusEffect_Dehydrated", 
-	"StatusEffect_Freezing" , 
-	"StatusEffect_Starving",
-	"StatusEffect_StressedOut", 
-	"StatusEffect_Earthsick"
+ColonistTraitsWarnings = {
+	["Renegade"]                 = T{8946, "This Colonist is a Renegade. Renegades will cause trouble, unless countered by Security Stations."},
+	["Infected"]                 = T{8947, "This Colonist is infected and will lose Health over time."},
+}
+ColonistStatusEffectsWarnings = {
+	["StatusEffect_Irradiated"]  = T{8948, "This Colonist is irradiated and will lose Health over time."},
+	["StatusEffect_Suffocating"] = T{8949, "This Colonist is suffocating and needs Oxygen to survive."}, 
+	["StatusEffect_Dehydrated"]  = T{8950, "This Colonist is dehydrated and needs Water to survive."}, 
+	["StatusEffect_Freezing"]    = T{8951, "This Colonist is freezing. Restore Dome Power to resolve the issue."}, 
+	["StatusEffect_Starving"]    = T{8952, "This Colonist is starving and needs Food to survive."},
+	["StatusEffect_StressedOut"] = T{8953, "This Colonist is stressed out due to low Sanity and temporarily unable to work."}, 
+	["StatusEffect_Earthsick"]   = T{8954, "This Colonist is Earthsick due to low comfort. Earthsick colonists can't work and will try to return to Earth."},
 }
 
+function GetDetrimentalTraits()
+	return table.keys(ColonistTraitsWarnings)
+end
+
 function GetDetrimentalStatusEffects()
-	return detrimental_status_effects
+	return table.keys(ColonistStatusEffectsWarnings)
 end
 
 function OnMsg.ClassesBuilt()

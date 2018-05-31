@@ -21,8 +21,9 @@ function DomeOutskirtBld:AddToDomeLabels(dome)
 		dome:AddToLabel(label, self)
 		return
 	end
+	local shape = GetShapePointsToWorldPos(self)
 	for _, dome in ipairs(UICity.labels.Dome or empty_table) do
-		if HexAxialDistance(self, dome) <= dome:GetOutsideWorkplacesDist() then
+		if dome:IsBuildingInDomeRange(self, shape) then
 			dome:AddToLabel(label, self)
 		end
 	end
@@ -38,8 +39,9 @@ function DomeOutskirtBld:RemoveFromDomeLabels(dome)
 		dome:RemoveFromLabel(label, self)
 		return
 	end
+	local shape = GetShapePointsToWorldPos(self)
 	for _, dome in ipairs(UICity.labels.Dome or empty_table) do
-		if HexAxialDistance(self, dome) <= dome:GetOutsideWorkplacesDist() then
+		if dome:IsBuildingInDomeRange(self, shape) then
 			dome:RemoveFromLabel(label, self)
 		end
 	end

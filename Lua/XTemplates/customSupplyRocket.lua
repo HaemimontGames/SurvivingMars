@@ -11,7 +11,7 @@ PlaceObj('XTemplate', {
 			'__template', "InfopanelButton",
 			'RolloverText', T{625375195830, --[[XTemplate customSupplyRocket RolloverText]] "Initiates launch sequence for the return trip to Earth. Note that the rocket has to be refueled and any remaining resources on board will be lost.<newline><newline>Status: <em><UILaunchStatus></em>"},
 			'RolloverTitle', T{526598507877, --[[XTemplate customSupplyRocket RolloverTitle]] "Launch"},
-			'Id', "Launch",
+			'Id', "idLaunch",
 			'OnPressParam', "UILaunch",
 			'Icon', "UI/Icons/IPButtons/force_launch.tga",
 		}),

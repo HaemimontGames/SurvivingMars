@@ -50,9 +50,6 @@ PlaceObj('XTemplate', {
 				'__template', "sectionStorage",
 			}),
 			PlaceObj('XTemplateTemplate', {
-				'__template', "sectionStorageMechanized",
-			}),
-			PlaceObj('XTemplateTemplate', {
 				'__template', "sectionResearchProject",
 			}),
 			PlaceObj('XTemplateTemplate', {
@@ -101,9 +98,6 @@ PlaceObj('XTemplate', {
 				'__template', "sectionWarning",
 			}),
 			PlaceObj('XTemplateTemplate', {
-				'__template', "sectionWorkplace",
-			}),
-			PlaceObj('XTemplateTemplate', {
 				'comment', "priority",
 				'__context', function (parent, context) return context:HasMember("construction_group") and context.construction_group and context.construction_group[1] or context end,
 				'__condition', function (parent, context) return context.prio_button end,
@@ -112,6 +106,7 @@ PlaceObj('XTemplate', {
 				'RolloverTitle', T{369, --[[XTemplate ipBuilding RolloverTitle]] "Change Priority"},
 				'RolloverHint', T{7658, --[[XTemplate ipBuilding RolloverHint]] "<left><left_click> Increase priority<right><right_click> Decrease priority<newline><center><em>Ctrl + <left_click></em> Change priority of all <display_name_pl>"},
 				'RolloverHintGamepad', T{7659, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> Change priority<newline><ButtonX> Change priority of all <display_name_pl>"},
+				'Id', "idPriority",
 				'OnContextUpdate', function (self, context, ...)
 if context.priority == 1 then
 	self:SetIcon("UI/Icons/IPButtons/normal_priority.tga")
@@ -158,29 +153,10 @@ end
 end,
 			}),
 			PlaceObj('XTemplateTemplate', {
-				'comment', "maintenance",
-				'__condition', function (parent, context) return IsKindOf(context, "RequiresMaintenance") and context:DoesRequireMaintenance() end,
-				'__template', "InfopanelButton",
-				'RolloverText', T{182273828429, --[[XTemplate ipBuilding RolloverText]] "Request maintenance from nearby Drones. The required maintenance resource must be available in the area.<newline><newline>Status: <em><UIRequestMaintenanceStatus></em>"},
-				'RolloverDisabledText', T{513214256397, --[[XTemplate ipBuilding RolloverDisabledText]] "Maintenance already requested."},
-				'RolloverTitle', T{425734571364, --[[XTemplate ipBuilding RolloverTitle]] "Request Maintenance"},
-				'RolloverHint', T{238148642034, --[[XTemplate ipBuilding RolloverHint]] "<left_click> Activate <newline><em>Ctrl + <left_click></em> Activate for all <display_name_pl>"},
-				'RolloverHintGamepad', T{919224409562, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> Activate <newline><ButtonX> Activate for all <display_name_pl>"},
-				'OnContextUpdate', function (self, context, ...)
-self:SetEnabled(context.accumulated_maintenance_points > 0 and context.maintenance_phase == false)
-end,
-				'OnPressParam', "UIRequestMaintenance",
-				'OnPress', function (self, gamepad)
-PlayFX("UIRequestMaintenance")
-self.context:UIRequestMaintenance(not gamepad and IsMassUIModifierPressed())
-end,
-				'AltPress', true,
-				'OnAltPress', function (self, gamepad)
-if gamepad then
-	self.context:UIRequestMaintenance(true)
-end
-end,
-				'Icon', "UI/Icons/IPButtons/rebuild.tga",
+				'__template', "customDomeButtons",
+			}),
+			PlaceObj('XTemplateTemplate', {
+				'__template', "sectionWorkplace",
 			}),
 			PlaceObj('XTemplateTemplate', {
 				'comment', "tunnel",
@@ -202,6 +178,7 @@ end,
 				'__template', "InfopanelButton",
 				'RolloverTitle', T{3973, --[[XTemplate ipBuilding RolloverTitle]] "Salvage"},
 				'RolloverHintGamepad', T{7657, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonY> Activate"},
+				'Id', "idSalvage",
 				'OnContextUpdate', function (self, context, ...)
 local refund = context:GetRefundResources() or empty_table
 local rollover = T{7822, "Destroy this building."}
@@ -248,6 +225,7 @@ end,
 				'RolloverHintGamepad', T{919224409562, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> Activate <newline><ButtonX> Activate for all <display_name_pl>"},
 				'FoldWhenHidden', true,
 				'OnContextUpdate', function (self, context, ...)
+self:SetEnabled(not g_Tutorial or g_Tutorial.EnableRebuild)
 self:SetVisible(context.destroyed and not context.demolishing and not context.bulldozed)
 XTextButton.OnContextUpdate(self, context, ...)
 end,
@@ -271,6 +249,7 @@ end,
 				'RolloverTitle', T{594, --[[XTemplate ipBuilding RolloverTitle]] "Clear"},
 				'RolloverHint', T{238148642034, --[[XTemplate ipBuilding RolloverHint]] "<left_click> Activate <newline><em>Ctrl + <left_click></em> Activate for all <display_name_pl>"},
 				'RolloverHintGamepad', T{919224409562, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> Activate <newline><ButtonX> Activate for all <display_name_pl>"},
+				'Id', "idDecommission",
 				'FoldWhenHidden', true,
 				'OnContextUpdate', function (self, context, ...)
 self:SetEnabled(UICity:IsTechResearched("DecommissionProtocol") or false)

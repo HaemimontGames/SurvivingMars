@@ -6,7 +6,7 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateWindow', {
 		'__context', function (parent, context) return LandingSiteObjectCreateAndLoad() end,
 		'__class', "XDialog",
-		'Padding', box(0, 65, 100, 80),
+		'Padding', box(0, 65, 100, 50),
 		'LayoutMethod', "VList",
 		'HandleMouse', true,
 		'InitialMode', "items",

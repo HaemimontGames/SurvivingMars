@@ -130,6 +130,22 @@ PlaceObj('EntityPalette', {
 })
 
 PlaceObj('EntityPalette', {
+	Color1 = 10973736,
+	Color2 = 7039851,
+	Color3 = 7895160,
+	group = "Default",
+	id = "Dome_NEW",
+})
+
+PlaceObj('EntityPalette', {
+	Color1 = 13816530,
+	Color2 = 7039851,
+	Color3 = 7895160,
+	group = "Default",
+	id = "Dome_NEW_01",
+})
+
+PlaceObj('EntityPalette', {
 	Color1 = 7086112,
 	Color2 = 8553090,
 	group = "Default",
@@ -218,6 +234,21 @@ PlaceObj('EntityPalette', {
 	Roughness4 = -80,
 	group = "Default",
 	id = "LifeSupportWater",
+})
+
+PlaceObj('EntityPalette', {
+	Color1 = 6184284,
+	Color2 = 7171437,
+	Metallic1 = 89,
+	Roughness1 = -10,
+	group = "Default",
+	id = "LightDecoration",
+})
+
+PlaceObj('EntityPalette', {
+	Color1 = 13816530,
+	group = "Default",
+	id = "LightTrap",
 })
 
 PlaceObj('EntityPalette', {
@@ -377,6 +408,22 @@ PlaceObj('EntityPalette', {
 	Color2 = 7763574,
 	group = "Default",
 	id = "OxugenTank",
+})
+
+PlaceObj('EntityPalette', {
+	Color1 = 13816530,
+	Color2 = 7039851,
+	Color3 = 7895160,
+	group = "Default",
+	id = "PassagePack_01",
+})
+
+PlaceObj('EntityPalette', {
+	Color1 = 10973736,
+	Color2 = 7039851,
+	Color3 = 7895160,
+	group = "Default",
+	id = "PassagesPack",
 })
 
 PlaceObj('EntityPalette', {

@@ -1,6 +1,6 @@
 ---transport rover
 DefineClass.RCTransport = {
-	__parents = {  "BaseRover", "ComponentAttach", "PinnableObject", "Demolishable", "SharedStorageBaseVisualOnly", },
+	__parents = {  "BaseRover", "ComponentAttach", "SharedStorageBaseVisualOnly", },
 	game_flags = { gofPermanent = true },
 
 	properties = {
@@ -52,7 +52,6 @@ DefineClass.RCTransport = {
 	malfunction_idle_state = "malfunctionIdle",
 	malfunction_end_state = "malfunctionEnd",
 	
-	pin_on_start = true,
 	pin_rollover = T{4462, "<Description><newline><newline><left>Concrete<right><concrete(Stored_Concrete)><newline><left>Metals<right><metals(Stored_Metals)><newline><left>Polymers<right><polymers(Stored_Polymers)><newline><left>Food<right><food(Stored_Food)><newline><left>Electronics<right><electronics(Stored_Electronics)><newline><left>Machine Parts<right><machineparts(Stored_MachineParts)><newline><left>Rare Metals<right><preciousmetals(Stored_PreciousMetals)><newline><left>Fuel<right><fuel(Stored_Fuel)>"},
 	encyclopedia_id = "RCTransport",
 
@@ -66,7 +65,6 @@ DefineClass.RCTransport = {
 
 --resolve inheritance
 function RCTransport:Gossip()    return Unit.Gossip(self) end
-function RCTransport:UpdateUI()  return Unit.UpdateUI(self)end
 function RCTransport:GossipName()return Unit.GossipName(self)end
 --
 function RCTransport:CreateResourceRequests()
@@ -104,6 +102,36 @@ function RCTransport:GameInit()
 	self.resource_storage = self.stockpiled_amount --same thing, called different things in diff classes, make one point to the other.
 end
 
+function RCTransport:FullAndCanUnload(depot)
+	local is_storage_depot = IsKindOf(depot, "StorageDepot")
+	if self:GetStoredAmount() >= self.max_shared_storage or
+		is_storage_depot and depot:GetStoredAmount() <= 0 then
+		if is_storage_depot then
+			for res, amount in pairs(self.stockpiled_amount) do
+				if amount > 0 and depot.demand[res] and depot.demand[res]:GetActualAmount() > 0 then
+					return true
+				end
+			end
+		else
+			for res, amount in pairs(self.stockpiled_amount) do
+				if amount > 0 and depot.resource == res then
+					return true
+				end
+			end
+		end
+	end
+end
+
+function RCTransport:CanLoad(depot)
+	if self:GetStoredAmount() < self.max_shared_storage then
+		if IsKindOf(depot, "SurfaceDeposit") then
+			return depot:GetAmount() > 0
+		else
+			return depot:GetStoredAmount() > 0
+		end
+	end
+end
+
 function RCTransport:CanInteractWithObject(obj, interaction_mode)
 	if self.command=="Dead" then return false end
 	if IsObjInDome(obj) then return false end
@@ -115,23 +143,33 @@ function RCTransport:CanInteractWithObject(obj, interaction_mode)
 		return BaseRover.CanInteractWithObject(self, obj, interaction_mode)
 	end
 	
-	if obj:IsKindOf("SharedStorageBaseVisualOnly") and not obj:IsKindOf("BaseRover") then
+	if IsKindOf(obj,"SharedStorageBaseVisualOnly") and not IsKindOf(obj,"BaseRover") then
 		return false
 	end
 	--this unit can transfer resources
-	if obj:IsKindOfClasses("SurfaceDeposit") then
-		return true
+	if IsKindOfClasses(obj,"SurfaceDeposit") then
+		return true, T{9636, "<UnitMoveControl('ButtonA', interaction_mode)> Gather Resources", self}
 	end
 	
-	if obj:IsKindOfClasses("ResourcePile") and obj.transport_request:GetResource() ~= "WasteRock" and obj.transport_request:GetResource() ~= "BlackCube" then
-		return true
+	if IsKindOfClasses(obj,"ResourcePile") and obj.transport_request:GetResource() ~= "WasteRock" and obj.transport_request:GetResource() ~= "BlackCube" then
+		return true, T{9636, "<UnitMoveControl('ButtonA', interaction_mode)> Gather Resources", self}
 	end
 	
-	if obj:IsKindOfClasses("ResourceStockpile", "StorageDepot") 
+	if IsKindOfClasses(obj,"ResourceStockpile", "StorageDepot") 
 		and obj.resource ~= "WasteRock"
 		and obj.resource ~= "BlackCube" 
-		and not obj:IsKindOfClasses("Unit") then --rctransport, cargoshuttle
-		return true
+		and not IsKindOfClasses(obj,"Unit") then --rctransport, cargoshuttle
+		if interaction_mode == "unload" then
+			return true, T{9637, "<UnitMoveControl('ButtonA', interaction_mode)>Unload Resource", self}
+		elseif interaction_mode == "load" then
+			return true, T{9638, "<UnitMoveControl('ButtonA', interaction_mode)>Load Resource", self}
+		else
+			if self:FullAndCanUnload(obj) then
+				return true, T{9721, "<UnitMoveControl('ButtonX', interaction_mode)>Unload Resource", self}
+			elseif self:CanLoad(obj) then
+				return true, T{9639, "<UnitMoveControl('ButtonX', interaction_mode)>Load Resource", self}
+			end
+		end
 	end
 	
 	return BaseRover.CanInteractWithObject(self, obj, interaction_mode)
@@ -146,7 +184,16 @@ function RCTransport:InteractWithObject(obj, interaction_mode)
 
 	local is_storage = obj and obj:IsKindOfClasses("StorageDepot","ResourceStockpile", "SurfaceDeposit", "ResourcePile") or false
 	
-	local actual_im = (not self.interaction_mode or self.interaction_mode == "move") and is_storage and "load" or self.interaction_mode
+	local actual_im = self.interaction_mode
+	if (not actual_im or actual_im == "move") and is_storage then
+		if self:FullAndCanUnload(obj) then
+			actual_im = "unload"
+		elseif self:CanLoad(obj) then
+			actual_im = "load"
+		end
+	else
+		actual_im = self.interaction_mode
+	end
 	local kill_im = not not self.interaction_mode
 	
 	if actual_im == "load" then
@@ -159,7 +206,7 @@ function RCTransport:InteractWithObject(obj, interaction_mode)
 		elseif is_storage then --StorageDepot
 			kill_im = false
 			if #obj.resource > 0 and obj:GetStoredAmount()>0 then
-				OpenResourceSelector(self,{target = obj, meta_key = const.vkControl, close_on_rmb = true})
+				OpenResourceSelector(self,{target = obj, meta_key = const.vkControl, close_on_rmb = true, interaction_mode = "load" })
 			else
 				CityUnitController[UICity]:GoToPos(GetTerrainCursor())
 			end
@@ -187,8 +234,11 @@ function RCTransport:InteractWithObject(obj, interaction_mode)
 				SetUnitControlInteractionMode(self, false)
 				self:SetCommand("TransferResources", obj, "unload", res_id)
 				return 
-			else
-				OpenResourceSelector(self,{target = obj, meta_key = const.vkControl, close_on_rmb = true})
+			elseif #obj.resource == 1 and (not self.stockpiled_amount[obj.resource[1]] or self.stockpiled_amount[obj.resource[1]]<=0) then
+				self:SetCommand("Goto", GetTerrainCursor())
+				return
+			else	
+				OpenResourceSelector(self,{target = obj, meta_key = const.vkControl, close_on_rmb = true, interaction_mode = "unload" })
 			end	
 		end
 		
@@ -228,7 +278,7 @@ function RCTransport:LoadResource_Update(button)
 	button:SetIcon(to_mode and "UI/Icons/IPButtons/load.tga" or "UI/Icons/IPButtons/cancel.tga")
 	button:SetEnabled(self:CanBeControlled())
 	button:SetRolloverTitle(T{7554, "Load resources"})
-	button:SetRolloverText(T{4499, "Give command to load or harvest resources."})
+	button:SetRolloverText(T{4499, "Give command to load or gather resources."})
 	button:SetRolloverHint(to_mode and T{7509, "<left_click> Select target mode"} or T{7510, "<left_click> on target to select it  <right_click> Cancel"})
 	button:SetRolloverHintGamepad(to_mode and T{7511, "<ButtonA> Select target mode"} or T{7512, "<ButtonA> Cancel"})
 end
@@ -1017,7 +1067,7 @@ function RCTransport:GetSelectorItems(dataset)
 
 	local items = {}
 	
-	local transport_mode = self.interaction_mode
+	local transport_mode = dataset.interaction_mode or self.interaction_mode
 	local m_s, m_e = GetBuildingTechsStatus("StorageMysteryResource", "Storages", "")
 	transport_mode = (not transport_mode or transport_mode == "move") and "load" or transport_mode
 	if transport_mode ~= "route" then
@@ -1062,7 +1112,7 @@ function RCTransport:GetSelectorItems(dataset)
 												end
 												return table.concat(lines, "<newline>")
 											end,},
-								hint = transport_mode ~= "route" and T{8507, "<em>Ctrl + <left_click></em> load 5, <left_click> load all and exit, <right_click> confirm and exit."} 
+								hint = transport_mode ~= "route" and T{8507, "Ctrl + <left_click> load 5, <left_click> load all and exit, <right_click> confirm and exit."} 
 																			or T{8508, "<left_click> to select resource for the transport route, <right_click> exit."},
 								gamepad_hint = transport_mode ~= "route" and T{8509, "<ButtonX> load 5, <ButtonA> load all and exit, <ButtonB> confirm and exit."} 
 																			or T{8510, "<ButtonA> to select resource for the transport route, <ButtonB> exit."},

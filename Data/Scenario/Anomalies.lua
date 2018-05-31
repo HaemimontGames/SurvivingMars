@@ -659,7 +659,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_WaitMessage', {
 			'title', T{5614, --[[Scenario Anomalies title]] "Anomaly Analyzed"},
 			'voiced_text', T{7182, --[[voice:narrator]] "We discovered unusual crystals in the remains of a meteorite. The magnified images of their crystalline matrix were broadcast by every major news channel on Earth."},
-			'text', T{5839, --[[Scenario Anomalies text]] "One tabloid even claims that the crystal is in fact artificially created - some kind of artwork of a microscopic alien race.\n\n\"The work resembles million tiny cylinders surrounded by flames. If you squint your eyes, the very static of the composition resembles a star map. The image is bordered by double rainbows while the work has an abstract feeling and a very dynamic structure.\"\n\nWhile all this unscientific sensationalism had outraged our experts, the publicity provided us with some unexpected benefits.\n\n<effect>You gain <funding(reg_param1)>."},
+			'text', T{5839, --[[Scenario Anomalies text]] 'One tabloid even claims that the crystal is in fact artificially created - some kind of artwork of a microscopic alien race.\n\n"The work resembles million tiny cylinders surrounded by flames. If you squint your eyes, the very static of the composition resembles a star map. The image is bordered by double rainbows while the work has an abstract feeling and a very dynamic structure."\n\nWhile all this unscientific sensationalism had outraged our experts, the publicity provided us with some unexpected benefits.\n\n<effect>You gain <funding(reg_param1)>.'},
 			'log_entry', true,
 			'image', "UI/Messages/crater.tga",
 			'reg_param1', "funding_reward",

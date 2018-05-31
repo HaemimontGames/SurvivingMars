@@ -86,7 +86,7 @@ end
 
 function GridObject:ApplyToGrids()
 	if self.snap_to_grid then
-		self:SetPos(point(HexToWorld(WorldToHex(self:GetPos()))))
+		self:SetPos(point(HexToWorld(WorldToHex(self))))
 	end
 	--apply
 	HexGridShapeAddObject(ObjectGrid, self, self:GetShapePoints() or empty_table)
@@ -117,7 +117,7 @@ end
 
 function GridObject:GetShapeOffsetedAndRotatedGridPos(supply_resource)
 	local my_shape = self:GetSupplyGridConnectionShapePoints(supply_resource)
-	local q, r = WorldToHex(self:GetPos())
+	local q, r = WorldToHex(self)
 	local r_q, r_r = HexRotate(my_shape[1]:x(), my_shape[1]:y(), HexAngleToDirection(self))
 	return q + r_q, r + r_r
 end
@@ -141,7 +141,7 @@ HexSurroundingsCheckShapeLarge = { point(0, -1), point(1, -1), point(-1, 0), poi
 function UngridedObstacle:GetRotatedShapePoints()
 	local ret = { }
 	local x0, y0, z0, rad = self:GetBSphere("idle", true) --fix for giant radii of move anims.
-	local q, r = WorldToHex(self:GetPos())
+	local q, r = WorldToHex(self)
 
 	--extend or reduce to make constr obstruction more/less picky.
 	rad = self:GetModifiedBSphereRadius(rad) + const.GridSpacing / 2
@@ -457,7 +457,7 @@ function HexGetUnits(obj, entity, pos, angle, test, filter, classes, force_exten
 	classes = classes or "Unit"
 	unit_search.classes = classes
 	local dir = HexAngleToDirection(angle or obj:GetAngle())
-	local initial_hex_pos = point(WorldToHex(pos or obj:GetPos()))
+	local initial_hex_pos = point(WorldToHex(pos or obj))
 	
 	local minq, maxq, minr, maxr = 0, 0, 0, 0
 	local function compare(max, current, is_max)
@@ -517,7 +517,7 @@ function HexGetUnits(obj, entity, pos, angle, test, filter, classes, force_exten
 		
 		ret = test and "break" or ret or true
 		
-		local my_grid_pos = point(WorldToHex(o:GetPos())) - initial_hex_pos + origin_tile_in_lookup
+		local my_grid_pos = point(WorldToHex(o)) - initial_hex_pos + origin_tile_in_lookup
 		
 		if IsKindOf(o, "UngridedObstacle") then
 			local my_shape = o:GetRotatedShapePoints()

@@ -9,30 +9,16 @@ function HexGetPassageRamp(q, r)
 end
 
 local passage_entites = {
-	default = {
-		inside_dome = {
-			entrance = "PassageEntrance",
-			streight = "PassageCovered",
-			turn = "PassageCoveredTurn",
-		},
-		
-		outside_dome = {
-			entrance = "PassageEntrance",
-			streight = "PassageTransparent",
-			turn = "PassageTransparentTurn",
-		}
-	},
-	
 	Facet = {
 		inside_dome = {
 			entrance = "PassageEntranceFacet",
-			streight = "PassageCoveredFacet",
+			straight = "PassageCoveredFacet",
 			turn = "PassageCoveredTurnFacet",
 		},
 		
 		outside_dome = {
 			entrance = "PassageEntranceFacet",
-			streight = "PassageTransparentFacet",
+			straight = "PassageTransparentFacet",
 			turn = "PassageTransparentTurnFacet",
 		}
 	},
@@ -41,13 +27,13 @@ local passage_entites = {
 		dlc = "preorder",
 		inside_dome = {
 			entrance = "PassageEntranceStar",
-			streight = "PassageCoveredStar",
+			straight = "PassageCoveredStar",
 			turn = "PassageCoveredTurnStar",
 		},
 		
 		outside_dome = {
 			entrance = "PassageEntranceStar",
-			streight = "PassageTransparentStar",
+			straight = "PassageTransparentStar",
 			turn = "PassageTransparentTurnStar",
 		}
 	},
@@ -55,17 +41,72 @@ local passage_entites = {
 	Geoscape = {
 		inside_dome = {
 			entrance = "PassageEntranceGeoscape",
-			streight = "PassageCoveredGeoscape",
+			straight = "PassageCoveredGeoscape",
 			turn = "PassageCoveredTurnGeoscape",
 		},
 		
 		outside_dome = {
 			entrance = "PassageEntranceGeoscape",
-			streight = "PassageTransparentGeoscape",
+			straight = "PassageTransparentGeoscape",
 			turn = "PassageTransparentTurnGeoscape",
 		}
 	},
+	
+	GenericPassageSkinName1 = {
+		inside_dome = {
+			entrance = "PassageEntrancePack",
+			straight = "PassageCoveredPack",
+			turn = "PassageCoveredTurnPack",
+		},
+		
+		outside_dome = {
+			entrance = "PassageEntrancePack",
+			straight = "PassageTransparentPack",
+			turn = "PassageTransparentTurnPack",
+		},
+		
+		palette = "PassagesPack",
+	},
+	
+	Angular = {
+		inside_dome = {
+			entrance = "PassageEntrancePack",
+			straight = "PassageCoveredPack",
+			turn = "PassageCoveredTurnPack",
+		},
+		
+		outside_dome = {
+			entrance = "PassageEntrancePack",
+			straight = "PassageTransparentPack",
+			turn = "PassageTransparentTurnPack",
+		},
+		
+		palette = "PassagePack_01",
+	},
 }
+
+local function fill_in_palettes()
+	for k, v in pairs(passage_entites) do
+		if v.palette and type(v.palette) == "string" then
+			v.palette = EntityPalettes[v.palette] or v.palette
+		end
+	end
+end
+
+OnMsg.DataLoaded = fill_in_palettes
+OnMsg.Autorun = fill_in_palettes
+OnMsg.ChangeMap = fill_in_palettes
+
+local passage_skin_aliasing = {
+	default = "GenericPassageSkinName1",
+}
+
+function GatherPassageTransparentEntities(classes)
+	for _, skin in pairs(passage_entites) do
+		classes[skin.outside_dome.straight] = true
+		classes[skin.outside_dome.turn] = true
+	end
+end
 
 function IsPassageElementATurn(element)
 	local connections = element.connections
@@ -87,14 +128,17 @@ end
 function GetPassageEntity(self, skin)
 	--should be safe to call with cell data rather then obj
 	skin = skin or "default"
+	skin = passage_entites[skin] and skin or 
+			passage_skin_aliasing[skin] and passage_entites[passage_skin_aliasing[skin]] and passage_skin_aliasing[skin] or
+			"default"
 	local k1 = IsSolidPassageElement(self) and "inside_dome" or "outside_dome"
 	local k2 = "entrance"
 	if #self.connections >= 2 then
 		local is_str = IsPassageElementATurn(self)
-		k2 = is_str and "streight" or "turn"
+		k2 = is_str and "straight" or "turn"
 	end
 	
-	return passage_entites[skin][k1][k2]
+	return passage_entites[skin][k1][k2], passage_entites[skin].palette
 end
 
 function GetPassageAngle(self)
@@ -149,11 +193,11 @@ function TestDomeBuildabilityForPassage(q, r, check_edge, check_road)
 		end
 
 		if test_dome_spot_dist(dome, pos, "Entrance", const.GridSpacing * 2 / 3) then
-			return false, "entrance"
+			return false, "block_entrance"
 		end
 		
 		if test_dome_spot_dist(dome, pos, "Entrancetube", const.GridSpacing * 2 / 3) then
-			return false, "entrance" --TODO: different message for entrancetubes
+			return false, "block_life_support"
 		end
 	end
 	
@@ -165,10 +209,12 @@ function TestDomeBuildabilityForPassage(q, r, check_edge, check_road)
 		dome = dome.dome
 		assert(dome) --dome interior with no dome.
 		local dome_shape_no_roads = GetEntityBuildShape(dome:GetEntity())
-		local dq, dr = WorldToHex(dome:GetPos())
+		local dq, dr = WorldToHex(dome)
 		local offset = point(WorldToHex(point(HexToWorld(q, r)) - dome:GetPos()))
 		local dome_rotation = HexAngleToDirection(dome:GetAngle())
-		return CheckHexSurfaces(FallbackOutline, dome_shape_no_roads, "subset", offset, 0, (dome_rotation-1)%6), "roads"
+		if not CheckHexSurfaces(FallbackOutline, dome_shape_no_roads, "subset", offset, 0, (dome_rotation-1)%6) then
+			return false, "roads"
+		end
 	end
 	
 	return true
@@ -211,6 +257,7 @@ DefineClass.PassageGridElement = {
 	priority = 5,
 	
 	is_construction_complete = false,
+	DisconnectPipe = __empty_function__,
 }
 
 function PassageGridElement:CanFracture()
@@ -356,7 +403,10 @@ function PassageGridElement:Done()
 	
 	if not self.is_construction_site or not self.is_construction_complete then
 		local ramp = HexGetPassageRamp(self.q, self.r)
-		if ramp then DoneObject(ramp) end
+		if ramp then
+			ramp:ReturnResources()
+			DoneObject(ramp)
+		end
 	end
 	
 	self:RemovePFTunnel()
@@ -382,18 +432,17 @@ end
 
 function PassageGridElement:GameInit()
 	self:UpdateVisuals()
+	self:SetIsNightLightPossible(false, false)
 	if not self.is_construction_site then
 		--point to parent elements.
 		rawset(self, "electricity", self.passage_obj.electricity)
 		rawset(self, "water", self.passage_obj.water)
-		self.passage_obj:Notify("TryConnectDomes")	
-		self:NightLightDisable()
-		self:NightLightEnable()
+		self.passage_obj:Notify("TryConnectDomes")
 	end
 end
 
 function PassageGridElement:UpdateVisuals()
-	local e = GetPassageEntity(self, self.passage_obj.skin_id)
+	local e, p = GetPassageEntity(self, self.passage_obj.skin_id)
 	if e and e ~= self:GetEntity() then
 		self:DestroyAttaches()
 		self:ChangeEntity(e)
@@ -404,6 +453,13 @@ function PassageGridElement:UpdateVisuals()
 			self:DestroyAttaches("PassageCurtain")
 		end
 	end
+	
+	if p then
+		ApplyToObjAndAttaches(self, function(o)
+			p:ApplyToObj(o)
+		end)
+	end
+	
 	local a = GetPassageAngle(self)
 	if a and a ~= self:GetAngle() then
 		self:SetAngle(a)
@@ -420,27 +476,26 @@ function PassageGridElement:ToggleDemolish()
 	self.passage_obj:ToggleDemolish()
 end
 
-function PassageGridElement:ReturnResources()
-	if not self.passage_obj.resources_refunded then
-		Building.ReturnResources(self)
-		self.passage_obj.resources_refunded = true
-	end
-end
-
 function PassageGridElement:TraverseTunnel(unit, start_point, end_point, param)
 	return self.passage_obj:TraverseTunnel(unit, start_point, end_point, param, self)
+end
+
+function PassageGridElement:AreNightLightsAllowed()
+	return self.passage_obj:AreNightLightsAllowed()
 end
 
 PassageGridElement.ConnectPipe = empty_func
 PassageGridElement.OnEnterUnit = empty_func
 --hacks below
 local function CopyCostsFromTemplateToClassDef()
-	--transfer template costs to class def
-	local t = DataInstances.BuildingTemplate.Passage
-	for _, resource in ipairs(ConstructionResourceList) do
-		local key = "construction_cost_" .. resource
-		local a = t[key] or 0
-		rawset(PassageGridElement, key, a)
+	if DataLoaded then
+		--transfer template costs to class def
+		local t = DataInstances.BuildingTemplate.Passage
+		for _, resource in ipairs(ConstructionResourceList) do
+			local key = "construction_cost_" .. resource
+			local a = t[key] or 0
+			rawset(PassageGridElement, key, a)
+		end
 	end
 end
 
@@ -456,6 +511,7 @@ end
 
 OnMsg.DataLoaded = CopyCostsFromTemplateToClassDef
 OnMsg.ReloadLua = CopyCostsFromTemplateToClassDef
+OnMsg.ChangeMap = CopyCostsFromTemplateToClassDef
 
 DefineClass.Passage = {
 	__parents = { "Building", "ElectricityGridObject", "LifeSupportGridObject", "SkinChangeable", "PFTunnel" },
@@ -465,7 +521,6 @@ DefineClass.Passage = {
 	prio_button = false,
 	elements_under_construction = false,
 	elements = false,
-	resources_refunded = false,
 	domes_connected = false,
 	display_icon = "UI/Icons/Buildings/passage.tga",
 	
@@ -486,7 +541,25 @@ DefineClass.Passage = {
 	fractures = false,
 	skin_id = "default",
 	ip_template = "ipPassage",
+	encyclopedia_id = "Passage",
+	
+	pf_tunnel_thread = false,
 }
+
+function Passage:AreNightLightsAllowed()
+	return self.domes_connected and (self.domes_connected[1]:HasPower() or self.domes_connected[2]:HasPower())
+end
+
+function Passage:UpdateElectricityAvailability()
+	self:RefreshNightLightsState()
+end
+
+function Passage:RefreshNightLightsState()
+	for i = 1, #self.elements do
+		local e = self.elements[i]
+		Building.RefreshNightLightsState(e)
+	end
+end
 
 function Passage:AddFracture(element, meteor_pos)
 	self.fractures = self.fractures or {}
@@ -504,14 +577,6 @@ function Passage:AddFracture(element, meteor_pos)
 	end
 	
 	table.insert_unique(g_DomesWithFractures, self)
-end
-
-function Passage:GetUIWarning()
-	local fractures = self.fractures and #self.fractures or 0
-	if fractures > 0 then
-		return T{8898, "This Passage is fractured and is losing oxygen.<newline><left>Number of fractures<right><fractures><newline><left>Cost of repairs<right><polymers(number)>", number = const.DronePolymersPerFraction * fractures, fractures = fractures}
-	end
-	return Building.GetUIWarning(self)
 end
 
 function Passage:SetSupply(resource, amount)
@@ -605,7 +670,7 @@ function Passage:BuildShapeData()
 	self.shape_connections = sc
 	
 	
-	local o_q, o_r = WorldToHex(self:GetPos())
+	local o_q, o_r = WorldToHex(self)
 	local first = true
 	
 	for i = 1, #self.supply_tunnel_nodes do
@@ -670,7 +735,6 @@ end
 
 function Passage:OnSetDemolishing(val)
 	if self.demolishing then
-		self:DisconnectDomes()
 		local att_rot_thing = function(o)
 			local lamp = PlaceObject("RotatyThing")
 			o:Attach(lamp)
@@ -686,13 +750,6 @@ function Passage:OnSetDemolishing(val)
 	end
 end
 
-function Passage:DoDemolish()
-	if #self.traversing_colonists > 0 then
-		WaitWakeup(9999999999)
-	end
-	Demolishable.DoDemolish(self)
-end
-
 function Passage:WakupDemolishThread()
 	Wakeup(self.demolishing_thread)
 end
@@ -701,11 +758,33 @@ local function ret_false() return false end
 
 function Passage:OnDemolish()
 	self.CanDelete = ret_false --so elements don't double delete us
+	assert(not self.use_demolished_state, "Not implemented")
+	self.demolishing = true
+	self:DisconnectDomes()
+	if #self.traversing_colonists > 0 then
+		WaitWakeup(9999999999)
+	end
+	
 	SuspendPassEdits("Passage:OnDemolish")
 	for i = #self.elements, 1, -1 do
+		local e = self.elements[i]
+		if e.construction_cost_at_completion then
+			e:ReturnResources()
+		end
 		DoneObject(self.elements[i])
 	end
 	ResumePassEdits("Passage:OnDemolish")
+end
+
+function Passage:GetUIWarning()
+	if (self.demolishing_countdown or 1) <= 0 then
+		return NotWorkingWarning.PassageWaitingForColonistsToExit
+	end
+	local fractures = self.fractures and #self.fractures or 0
+	if fractures > 0 then
+		return T{8898, "This Passage is fractured and is losing oxygen.<newline><left>Number of fractures<right><fractures><newline><left>Cost of repairs<right><polymers(number)>", number = const.DronePolymersPerFraction * fractures, fractures = fractures}
+	end
+	return Building.GetUIWarning(self)
 end
 
 function Passage:TraverseTunnel(unit, start_point, end_point, param, element)
@@ -749,12 +828,28 @@ function Passage:GameInit()
 	self:TryConnectDomes() --insta build passage
 end
 
+function Passage:GetConstructionGroupLeader()
+	if self.elements_under_construction and #self.elements_under_construction > 0 then
+		return self.elements_under_construction[1].construction_group[1]
+	end
+	return nil
+end
+
 function ConnectDomesWithPassage(d1, d2)
 	local t1 = d1.connected_domes
 	local t2 = d2.connected_domes
 	
 	t1[d2] = (t1[d2] or 0) + 1
 	t2[d1] = (t2[d1] or 0) + 1
+	
+	if t1[d2] == 1 then
+		--connection created
+		local networks = d2.city.dome_networks or empty_table
+		local network1 = networks[d1]
+		if network1 and network1 ~= networks[d2] then
+			d2.city.dome_networks = false
+		end
+	end
 end
 
 function DisconnectDomesConnectedWithPassage(d1, d2)
@@ -768,31 +863,44 @@ function DisconnectDomesConnectedWithPassage(d1, d2)
 		--connection killed
 		t1[d2] = nil
 		t2[d1] = nil
-		
+		d2.city.dome_networks = false
 		d1:OnDomeDisconnected(d2)
 		d2:OnDomeDisconnected(d1)
 	end
 end
 
-function AreDomesConnectedWithPassage(d1, d2, passed)
-	if d1 == d2 then
-		return 0
-	end
-	local connected = d1 and d1.connected_domes or empty_table
-	if not next(connected) then
-		return
-	end
-	if connected[d2] then
-		return 1
-	end
-	passed = passed or {}
-	passed[d1] = true
-	for di in pairs(connected) do
-		local links = not passed[di] and AreDomesConnectedWithPassage(di, d2, passed)
-		if links then
-			return links + 1
+local function SetNetwork(networks, network_id, dome)
+	networks[dome] = network_id
+	for connected_dome in pairs(dome.connected_domes or empty_table) do
+		if not networks[connected_dome] then
+			SetNetwork(networks, network_id, connected_dome)
 		end
 	end
+end
+
+function CreateDomeNetworks(city)
+	local networks = setmetatable({}, weak_keys_meta)
+	local network_id = 0
+	for _, dome in ipairs(city.labels.Dome or empty_table) do
+		if not networks[dome] then
+			network_id = network_id + 1
+			SetNetwork(networks, network_id, dome)
+		end
+	end
+	city.dome_networks = networks
+	return networks
+end
+
+function AreDomesConnectedWithPassage(d1, d2)
+	if not d1 or not d2 then
+		return false
+	elseif d1 == d2 then
+		return true
+	end
+	local city = d1.city
+	local networks = city.dome_networks or CreateDomeNetworks(city)
+	local network1 = networks[d1]
+	return network1 and network1 == networks[d2]
 end
 
 function Passage:Done()
@@ -856,6 +964,11 @@ function Passage:TryConnectDomes()
 	ConnectDomesWithPassage(d1, d2)
 	self.domes_connected = {d1, d2}
 	self:AddPFTunnel()
+	self:UpdateElectricityAvailability()
+end
+
+local function FixPt(pt)
+	return not terrain.IsPassable(pt) and GetPassablePointNearby(pt) or pt
 end
 
 function Passage:AddPFTunnel()
@@ -867,11 +980,29 @@ function Passage:AddPFTunnel()
 	local elast_wpc = self.elements[count].waypoint_chains.passage_entrance
 	local elast_d = self.elements[count].dome
 	
-	local t1_start = e1_wpc[1][2]
-	local t2_start = elast_wpc[1][2]
-	local t1_exit = elast_wpc[2][1]
-	local t2_exit = e1_wpc[2][1]
+	local e1 = self.elements[1]
+	if e1:GetEnumFlags(const.efApplyToGrids) == 0 then
+		CreateRealTimeThread(function(self, e1)
+			local m_timeout = 20
+			local c_timeout = 0
+			while c_timeout < m_timeout and e1:GetEnumFlags(const.efApplyToGrids) == 0 do
+				Sleep(100)
+				c_timeout = c_timeout + 1
+			end
+			assert(c_timeout < m_timeout)
+			self:AddPFTunnel()
+		end, self, e1)
+		return
+	end
 	
+	local t1_start = FixPt(e1_wpc[1][2])
+	local t2_start = FixPt(elast_wpc[1][2])
+	local t1_exit = FixPt(elast_wpc[2][1])
+	local t2_exit = FixPt(e1_wpc[2][1])
+	assert(terrain.IsPassable(t1_start)
+			and terrain.IsPassable(t2_start)
+			and terrain.IsPassable(t1_exit)
+			and terrain.IsPassable(t2_exit))
 	--register passage exits and entrances
 	local pe2 = elast_d.passage_entrances[e1_d] or {}
 	elast_d.passage_entrances[e1_d] = pe2
@@ -897,6 +1028,10 @@ function Passage:AddPFTunnel()
 end
 
 function Passage:RemovePFTunnel()
+	if IsValidThread(self.pf_tunnel_thread) then
+		DeleteThread(self.pf_tunnel_thread)
+		self.pf_tunnel_thread = nil
+	end
 	if self.elements[1] then
 		self.elements[1]:RemovePFTunnel()
 		self.elements[#self.elements]:RemovePFTunnel()
@@ -935,9 +1070,12 @@ end
 
 function Passage:GetSkins()
 	local skins = {}
-	for skin, skin_data in pairs(passage_entites) do
-		if IsDlcAvailable(skin_data.dlc) then
-			table.insert(skins, skin)
+	
+	if #self.elements_under_construction <= 0 then
+		for skin, skin_data in pairs(passage_entites) do
+			if IsDlcAvailable(skin_data.dlc) then
+				table.insert(skins, skin)
+			end
 		end
 	end
 	
@@ -945,7 +1083,8 @@ function Passage:GetSkins()
 end
 
 function Passage:GetNextSkinIdx(skins)
-	local skin_idx = (table.find(skins, self.skin_id) or 0) + 1
+	local skin_id = passage_skin_aliasing[self.skin_id] or self.skin_id
+	local skin_idx = (table.find(skins, skin_id) or 0) + 1
 	if skin_idx > #skins then
 		skin_idx = 1
 	end
@@ -972,6 +1111,8 @@ function Passage:GetIPDescription()
 		return ClassTemplates.Building.Passage.description
 	end	
 end
+
+Passage.Getdescription = Passage.GetIPDescription
 
 --so selection does not assert
 Passage.ShouldShowNotConnectedToPowerGridSign = ret_false
@@ -1003,7 +1144,7 @@ DefineClass.PassageRamp = {
 }
 
 function PassageRamp:GetPassageGridElement()
-	local p = HexGetPassageGridElement(WorldToHex(self:GetPos()))
+	local p = HexGetPassageGridElement(WorldToHex(self))
 	assert(p) --something went wrong during construction and ramp is not on top of passage
 	return p
 end
@@ -1019,7 +1160,7 @@ function PassageRamp:Done()
 end
 
 const.PassageConstructionGroupMaxSize = 20 --construction group grouping, i.e. the chunks that would be constructed together.
-function PlacePassageLine(city, start_q, start_r, dir, steps, test, elements_require_construction, input_constr_grp, input_data)
+function PlacePassageLine(city, start_q, start_r, dir, steps, test, elements_require_construction, input_constr_grp, input_data, skin_name, entrance_hexes)
 	local dq, dr = HexNeighbours[dir + 1]:xy()
 	local z = const.InvalidZ
 	local connect_dir = dir < 3 and dir or dir - 3
@@ -1081,11 +1222,11 @@ function PlacePassageLine(city, start_q, start_r, dir, steps, test, elements_req
 		
 		return ret
 	end
-	
 	for i = 0, steps do
 		local q = start_q + i * dq
 		local r = start_r + i * dr
 		local bld = HexGetBuildingNoDome(q, r)
+		local entrance = GetEntranceHex(entrance_hexes, q, r)
 		local cable = HexGetCable(q, r)
 		local pipe = HexGetPipe(q, r)
 		local dome = GetDomeAtHex(q, r)
@@ -1115,12 +1256,27 @@ function PlacePassageLine(city, start_q, start_r, dir, steps, test, elements_req
 			data[i-1].adjacent_dome = dome
 		end
 		
+		--special geoscape dome hack test
+		if dome and IsKindOf(dome, "GeoscapeDome") then
+			local pos = point(HexToWorld(q, r))
+			local th = terrain.GetHeight(pos)
+			local dz = dome:GetPos():z()
+			if th > dz and (th - dz) >= 10 then
+				data[i].status = SupplyGridElementHexStatus.blocked
+				data[i].block_reason = "unbuildable"
+			end
+		end
+		
 		--test current hex
 		if bld then
 			table.insert(obstructors, bld)
 			data[i].status = SupplyGridElementHexStatus.blocked
 		end
-		
+		if entrance then
+			table.insert(obstructors, entrance)
+			data[i].status = SupplyGridElementHexStatus.blocked
+			data[i].block_reason = "block_entrance"
+		end
 		if cable then
 			table.insert(obstructors, cable)
 			data[i].status = SupplyGridElementHexStatus.blocked
@@ -1152,6 +1308,7 @@ function PlacePassageLine(city, start_q, start_r, dir, steps, test, elements_req
 				--cant build here
 				data[i].status = SupplyGridElementHexStatus.blocked
 				data[i].block_reason = reason
+				table.insert(obstructors, dome)
 			end
 		end
 		
@@ -1173,7 +1330,7 @@ function PlacePassageLine(city, start_q, start_r, dir, steps, test, elements_req
 	local first_obj_dome = input_data and input_data.first_obj_dome or false
 	local skin_id = nil
 	if not input_data then
-		skin_id = data[0].dome:GetCurrentSkinStrId()
+		skin_id = data[0].dome:GetCurrentSkinStrIdForPassage()
 	end
 	local passage_obj = input_data and input_data.passage_obj or PlaceObject("Passage", {skin_id = skin_id})
 	
@@ -1320,10 +1477,11 @@ DefineClass.PassageConstructionSite = {
 	display_name = PassageGridElement.display_name,
 	rename_allowed = false,
 	priority = 2,
+	
+	temp_stock_container = false,
 }
 
 function PassageConstructionSite:GameInit()
-	self:SetIsNightLightPossible(false, false)
 	self:DestroyAttaches("PassageCurtain")
 end
 
@@ -1346,9 +1504,31 @@ end
 function PassageConstructionSite:UpdateVisuals()
 	PassageGridElement.UpdateVisuals(self)
 	if self.construction_group then
-		self.construction_group[1]:UpdateConstructionVisualization()
+		self.construction_group[1]:QueueConstructionVisualizationRecalc()
 	else
-		self:UpdateConstructionVisualization()
+		self:QueueConstructionVisualizationRecalc()
+	end
+end
+
+function PassageConstructionSite:IsBlockerClearenceComplete(ignore_group)
+	if ignore_group and self.temp_stock_container and #self.temp_stock_container > 0 then
+		return false
+	end
+	
+	return ConstructionSite.IsBlockerClearenceComplete(self, ignore_group)
+end
+
+function PassageConstructionSite:AppendStockpilesUnderneath(arr)
+	self.temp_stock_container = table.append(self.temp_stock_container or {}, arr)
+	self.temp_stock_container = #self.temp_stock_container > 0 and self.temp_stock_container or nil
+	self:Notify("ProcessAppendedStocks")
+end
+
+function PassageConstructionSite:ProcessAppendedStocks()
+	if self.temp_stock_container then
+		ConstructionSite.AppendStockpilesUnderneath(self, self.temp_stock_container)
+		self.temp_stock_container = nil
+		self.construction_group[1]:TestBlockerClearenceProgress()
 	end
 end
 
@@ -1381,4 +1561,29 @@ function PassageConstructionSite:Complete(quick_build)
 			SelectObj(self.passage_obj)
 		end)
 	end
+	
+	return bld
+end
+
+----
+
+if Platform.developer then
+
+function DbgShowDomeNetworks(city)
+	city = city or UICity
+	DbgClearVectors()
+	local offset = 50*guim
+	local networks = city.dome_networks or CreateDomeNetworks(city)
+	for _, dome in ipairs(city.labels.Dome or empty_table) do
+		local pos = dome:GetVisualPos() + point(0, 0, offset + dome:GetRadius())
+		local color = RandColor(100, networks[dome])
+		for domei in pairs(dome.connected_domes or empty_table) do
+			local posi = domei:GetVisualPos() + point(0, 0, offset + domei:GetRadius())
+			if dome.handle < domei.handle then
+				DbgAddVector(pos, posi - pos, color)
+			end
+		end
+	end
+end
+
 end

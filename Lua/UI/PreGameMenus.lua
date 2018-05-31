@@ -227,7 +227,6 @@ function DurangoTitleScreen:OnXButtonDown(button, controller_id)
 		local signed = Durango.IsPlayerSigned(XPlayerActive)
 		local guest = Durango.IsPlayerGuest(XPlayerActive)
 		if signed and not guest then
-			WaitParadoxLegalAgreement("idLoadingScreen", "DurangoSignIn")
 			StartPops()
 		end
 		ClearParadoxParams()

@@ -12,7 +12,7 @@ DefineClass.TriboelectricScrubber =
 	charge_thread = false,
 	sphere = false,
 	move_thread = false,
-	charging = false,
+	cleaning = false,
 	UIRange = 5,
 }
 
@@ -68,36 +68,48 @@ function TriboelectricScrubber:OnPostChangeRange()
 	self:MoveSphere()
 end
 
+function TriboelectricScrubber:UpdateSphereRotation()
+	if self.cleaning then
+		return
+	end
+	
+	assert(self.sphere:GetState() == GetStateIdx("idle"))
+	self.sphere:SetAnimSpeed(1, self.working and 1000 or 0, 1000)
+end
+
 function TriboelectricScrubber:OnSetWorking(working)
 	ElectricityConsumer.OnSetWorking(self, working)
-	if self:CanWork() then
+	if working then
 		self:ResetCharging()
 	else
 		self:StopCharging()
 	end
+	self:UpdateSphereRotation()
 end
 
 function TriboelectricScrubber:StopCharging()
-	if self.charging then
-		CreateGameTimeThread(function()
-			WaitMsg(self)
-			DeleteThread(self.charge_thread)
-			self.charge_thread = false
-		end)
-	else
-		DeleteThread(self.charge_thread)
-		self.charge_thread = false
+	if self.cleaning then
+		return
 	end
+
+	DeleteThread(self.charge_thread)
+	self.charge_thread = false
+	self:UpdateSphereRotation()
 end
 
 function TriboelectricScrubber:ResetCharging()
-	self:StopCharging()
-	self.charge_thread = CreateGameTimeThread(function()
-		while IsValid(self) do
+	if IsValidThread(self.charge_thread) then
+		return
+	end
+	
+	self.charge_thread = CreateGameTimeThread(function(self)
+		while IsValid(self) and self.working do
 			Sleep(self.charge_time)
 			self:ChargedClean()
 		end
-	end)
+		self.sphere:SetAnimSpeed(1, self.working and 1000 or 0, 1000)
+		self.charge_thread = false
+	end, self)
 end
 
 function TriboelectricScrubber:GetDemolishObjs(list)
@@ -105,27 +117,33 @@ function TriboelectricScrubber:GetDemolishObjs(list)
 	list[#list + 1] = self.sphere or nil
 end
 
-function TriboelectricScrubber:ChargedClean()
-	self.charging = true
-	PlayFX("ChargedClean", "start", self.sphere)
-	self.sphere:PlayState("workingStart")
-	self.sphere:SetState("workingIdle", const.eDontCrossfade)
-	self:ForEachBuildingInRange(function (bld, self)
-		if bld ~= self then
-			if bld:IsKindOf("DustGridElement") then
-				bld:AddDust(-self.dust_clean)
-			elseif bld.parent_dome == false then --outside of dome
-				bld:AccumulateMaintenancePoints(-self.dust_clean)
+function TriboelectricScrubber:CleanBuildings()
+	if not self.working then
+		return
+	end
+	
+	self:ForEachBuildingInRange(function(building, self)
+		if building ~= self then
+			if building:IsKindOf("DustGridElement") then
+				building:AddDust(-self.dust_clean)
+			elseif not building.parent_dome then --outside of dome
+				building:AccumulateMaintenancePoints(-self.dust_clean)
 			end
-			PlayFX("ChargedCleanBuilding", "start", self.sphere, bld)
+			PlayFX("ChargedCleanBuilding", "start", self.sphere, building)
 		end
 	end, self)
-	Sleep(self.sphere:TimeToAnimEnd())
+end
+
+function TriboelectricScrubber:ChargedClean()
+	PlayFX("ChargedClean", "start", self.sphere)
+	self.cleaning = true
+	self.sphere:PlayState("workingStart")
+	self:CleanBuildings()
+	self.sphere:PlayState("workingIdle", const.eDontCrossfade)
 	self.sphere:PlayState("workingEnd")
+	self.cleaning = false
 	self.sphere:SetState("idle", const.eDontCrossfade)
 	PlayFX("ChargedClean", "end", self.sphere)
-	self.charging = false
-	Msg(self)
 end
 
 function TriboelectricScrubber:MoveSphere()

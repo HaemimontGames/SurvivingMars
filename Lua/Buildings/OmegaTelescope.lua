@@ -28,7 +28,7 @@ function OmegaTelescope:UnlockBreakthroughs(count)
 		filter = function(a) return a.tech_action == "breakthrough" end
 	}
 	local rand, trand = self.city:CreateSessionRand("InitBreakThroughAnomalies")
-	local breakthroughs = table.icopy(TechFields.Breakthroughs or empty_table)
+	local breakthroughs = table.icopy(Presets.TechPreset.Breakthroughs or empty_table)
 	local unlocked = 0
 	while unlocked < count do
 		local breakthrough, idx = trand(breakthroughs)

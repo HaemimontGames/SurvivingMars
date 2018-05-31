@@ -60,6 +60,9 @@ const.DroneTimeAfterUserPickUpToRest = 30 * 1000
 const.DronePolymersPerFraction = 5 * const.ResourceScale
 const.DroneFractionRepairTime = 25 * 1000
 
+const.DroneLoadLowThreshold = const.HourDuration / 3
+const.DroneLoadMediumThreshold = const.HourDuration * 3
+
 const.RangeToCheckForExploitersOnDepositReveal = 10 --when a subsurface deposit is revealed, it will notify all exploiters in this range. It is also the max range settable for buildings that exploit subsurface deposits.
 const.DepositDeepestLayer = 2
 
@@ -127,6 +130,7 @@ ConstructionResourceList = {"Concrete", "Metals", "Polymers", "BlackCube", "Elec
 DepositResources = {"Concrete", "Metals", "Polymers", "Water", "PreciousMetals" }
 LifeSupportResourceList = { "Food" }
 OtherResourceList = { "WasteRock", "Fuel", "MysteryResource" }
+StockpileResourceList = { "Metals", "Concrete", "Food", "PreciousMetals", "Polymers", "Electronics", "MachineParts", "Fuel" }
 
 
 for i, desc in ipairs(ResourceDescription) do
@@ -186,6 +190,10 @@ const.TagLookupTable["blue"]     = "<color  129 202 233>"
 const.TagLookupTable["/blue"]    = "</color>"
 const.TagLookupTable["em"]     = "<color 250 236 208>"
 const.TagLookupTable["/em"]    = "</color>"
+const.TagLookupTable["graph_left"] = "<color 58 184 25>"
+const.TagLookupTable["/graph_left"] = "</color>"
+const.TagLookupTable["graph_right"] = "<color 32 151 219>"
+const.TagLookupTable["/graph_right"] = "</color>"
 
 const.TagLookupTable["white_shadow"]   = "<shadowcolor  233 242 255>"
 const.TagLookupTable["/white_shadow"]  = "</shadowcolor>"
@@ -206,11 +214,16 @@ const.TagLookupTable["icon_Water"]        = "<image UI/Icons/res_water.tga 1300>
 const.TagLookupTable["icon_Drone"]        = "<image UI/Icons/res_drone.tga 1300>"
 const.TagLookupTable["icon_Shuttle"]      = "<image UI/Icons/res_shuttle.tga 1300>"
 const.TagLookupTable["icon_Colonist"]     = "<image UI/Icons/res_colonist.tga 1300>"
+const.TagLookupTable["icon_Home"]         = "<image UI/Icons/res_home.tga 1300>"
+const.TagLookupTable["icon_Homeless"]     = "<image UI/Icons/res_homeless.tga 1300>"
+const.TagLookupTable["icon_Work"]         = "<image UI/Icons/res_work.tga 1300>"
+const.TagLookupTable["icon_Unemployed"]   = "<image UI/Icons/res_unemployed.tga 1300>"
 const.TagLookupTable["icon_Research"]     = "<image UI/Icons/res_experimental_research.tga 1300>"
 const.TagLookupTable["icon_MetalsDeep"]   = "<image UI/Icons/res_metal_undergrounds.tga 1300>"
 const.TagLookupTable["icon_MysteryResource"]= "<image UI/Icons/res_mystery_resource.tga 1300>"
 
 const.TagLookupTable["icon_Food_small"]       = "<image UI/Icons/res_food.tga 800>"
+const.TagLookupTable["icon_Power_small"]      = "<image UI/Icons/res_electricity.tga 800>"
 const.TagLookupTable["icon_Concrete_small"]   = "<image UI/Icons/res_concrete.tga 800>"
 const.TagLookupTable["icon_Metals_small"]     = "<image UI/Icons/res_metal.tga 800>"
 const.TagLookupTable["icon_Polymers_small"]   = "<image UI/Icons/res_polymers.tga 800>"
@@ -222,6 +235,10 @@ const.TagLookupTable["icon_PreciousMetals_small"]  = "<image UI/Icons/res_precio
 const.TagLookupTable["icon_Fuel_small"]    = "<image UI/Icons/res_fuel.tga 800>"
 const.TagLookupTable["icon_Drone_small"]      = "<image UI/Icons/res_drone.tga 800>"
 const.TagLookupTable["icon_Colonist_small"]   = "<image UI/Icons/res_colonist.tga 800>"
+const.TagLookupTable["icon_Home_small"]             = "<image UI/Icons/res_home.tga 800>"
+const.TagLookupTable["icon_Homeless_small"]         = "<image UI/Icons/res_homeless.tga 800>"
+const.TagLookupTable["icon_Work_small"]             = "<image UI/Icons/res_work.tga 800>"
+const.TagLookupTable["icon_Unemployed_small"]       = "<image UI/Icons/res_unemployed.tga 800>"
 const.TagLookupTable["icon_MysteryResource_small"]= "<image UI/Icons/res_mystery_resource.tga 800>"
 
 const.TagLookupTable["left_click"] = "<image UI/Infopanel/left_click.tga 1400>"
@@ -349,6 +366,8 @@ const.PrefabVersionOverride = false
 const.ConstructiongGridElementsGroupSize = 5
 const.SignsOverviewCameraScaleUp = 550
 const.SignsOverviewCameraScaleDown = 100
+const.ElevatorRopesOverviewCameraScaleUp = 350
+const.ElevatorRopesOverviewCameraScaleDown = 100
 
 hr.CameraRTSPanSpeedZoomModifier = 0
 

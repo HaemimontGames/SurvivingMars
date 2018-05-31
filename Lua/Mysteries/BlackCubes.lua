@@ -15,8 +15,8 @@ DefineClass.BlackCubeMystery = {
 	can_destroy_cubes = false,
 	
 	display_name = T{1164, "The Power of Three (Easy)"},
-	rollover_text = T{1165, "\"Science is no more than an investigation of a miracle we can never explain, and art is an interpretation of that miracle.\"<newline><right>- Ray Bradbury"},
-	challenge_mod = 10,
+	rollover_text = T{1165, '"Science is no more than an investigation of a miracle we can never explain, and art is an interpretation of that miracle."<newline><right>- Ray Bradbury'},
+	challenge_mod = 20,
 	order_pos = 1,
 	
 	tower_protect_range = 20,
@@ -126,7 +126,7 @@ end
 
 function BlackCubeStockpileBase:CreateResourceRequests()
 	if self.has_supply_request then
-		self.supply_request = self:AddSupplyRequest(self.resource, self.stockpiled_amount, const.rfWaitToFill + self.additional_supply_flags, self.max_assigned_units)
+		self.supply_request = self:AddSupplyRequest(self.resource, self.stockpiled_amount, self.additional_supply_flags, self.max_assigned_units)
 	end
 	
 	self.has_demand_request = false
@@ -260,7 +260,7 @@ function BlackCubeStockpileBase:DisconnectFromParent()
 		--become a supply only, constr blocking
 		self:DisconnectFromCommandCenters()
 		self.has_supply_request = true
-		self.supply_request = self:AddSupplyRequest(self.resource, self.stockpiled_amount, const.rfWaitToFill) --waste rock can be carried out without demand req.
+		self.supply_request = self:AddSupplyRequest(self.resource, self.stockpiled_amount) --waste rock can be carried out without demand req.
 		
 		self:ConnectToCommandCenters()
 	end
@@ -280,7 +280,17 @@ GlobalVar("g_BlackCubesActive", false)
 function BlackCubesSetActive(value)
 	if value == g_BlackCubesActive then return end
 	g_BlackCubesActive = value
-	ForEach{ class = "BlackCubeStockpileBase", exec = function(o) o:SetCountFromRequest() end }
+	local moment = g_BlackCubesActive and "start" or "end"
+	ForEach(
+		{
+			class = "BlackCubeStockpileBase",
+			exec = function(pile, moment)
+				pile:SetCountFromRequest()
+				PlayFX("ActivateBlackCubes", moment, pile)
+			end,
+		},
+		moment
+	)
 end
 
 DefineClass.BlackCubeStockpile = {
@@ -358,4 +368,40 @@ function TestBlackCube(pos)
 	local obj = PlaceObject("BlackCubeStockpile", {init_with_amount = 27000})
 	obj:SetPos(pos)
 	UICity.mystery.can_destroy_cubes = true
+end
+
+----------------------------------------------------------------------------------
+--                   BlackCubeMonolith
+-----------------------------------------------------------------------------------
+DefineClass.BlackCubeMonolith = {
+	__parents = { "NotRenamableBuilding" },
+	anim_thread = false,
+}
+
+function BlackCubeMonolith:OnSetWorking(working)
+	NotRenamableBuilding.OnSetWorking(self, working)
+	
+	if working then
+		if not IsValidThread(self.anim_thread) then
+			self.anim_thread = CreateGameTimeThread(function(self)
+				while IsValid(self) do
+					PlayFX("Pulse", "start", self)
+					Sleep(4000)
+				end
+			end, self)
+		end
+	else
+		if IsValidThread(self.anim_thread) then
+			DeleteThread(self.anim_thread)
+		end
+	end
+end
+
+function OnMsg.GatherFXActions(list)
+	list[#list + 1] = "Activate"
+	list[#list + 1] = "Pulse"
+end
+
+function OnMsg.GatherFXActors(list)
+	list[#list + 1] = "BlackCubeMonolith"
 end

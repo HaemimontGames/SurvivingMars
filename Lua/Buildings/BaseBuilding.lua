@@ -14,6 +14,7 @@ DefineClass.BaseBuilding = {
 	suspended = false,		-- thread or while the dust storm is active
 	suspend_thread = false,
 	frozen = false,
+	ion_storms = false,
 	destroyed = false,
 	orig_state = false,
 	bulldozed = false, -- running out of synonyms
@@ -77,7 +78,7 @@ Will set the working state of the building with whatever CanWork returns. This m
 --]]
 function BaseBuilding:UpdateWorking(expected_state)
 	local can_work = self:CanWork()
-	assert(expected_state == nil or can_work == expected_state or self.working == expected_state, "CanWork method inconsistency")
+	assert(expected_state == nil or can_work == expected_state, "CanWork method inconsistency")
 	self:SetWorking(can_work)
 end
 
@@ -208,6 +209,9 @@ Returns a reason which makes it impossible (in terms of game rules) for the buil
 function BaseBuilding:GetWorkNotPossibleReason()
 	if not self:HasWorkforce() then
 		return "NotEnoughWorkers"
+	end
+	if #(self.ion_storms or empty_table) > 0 then
+		return "IonStorm"
 	end
 	if self.suspended then
 		return self.suspended
@@ -625,17 +629,6 @@ function BaseBuilding:OnSetWorking(working)
 		self:Notify("UpdateWorkingStateAnim")
 	end
 	RebuildInfopanel(self)
-end
-
-local grid_names = { "electricity", "water", "air" }
-function BaseBuilding:UpdateUI()
-	if self == SelectedObj then
-		Msg("UIPropertyChanged", self)
-		for _, grid in ipairs(grid_names) do
-			local element = rawget(self, grid)
-			if element then Msg("UIPropertyChanged", element) Msg("UIPropertyChanged", element.grid) end
-		end
-	end
 end
 
 function BaseBuilding:Gossip(gossip, ...)

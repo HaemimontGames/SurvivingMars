@@ -6,7 +6,7 @@ PlaceObj('XTemplate', {
 	id = "SaveLoadContentWindow",
 	PlaceObj('XTemplateWindow', {
 		'comment', "margins",
-		'Margins', box(0, 80, 100, 80),
+		'Margins', box(0, 30, 100, 50),
 	}, {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
@@ -55,7 +55,7 @@ end,
 							'Margins', box(0, 40, 0, 6),
 							'OnPress', function (self, gamepad)
 local obj = GetDialogContext(self)
-local dlg = GetDialog(self)
+local dlg = GetXDialog(self)
 obj:ShowNewSavegameNamePopup(dlg)
 end,
 						}, {
@@ -64,7 +64,7 @@ end,
 								'func', function (self, rollover)
 XTextButton.OnSetRollover(self, rollover)
 if rollover then
-	ShowSavegameDescription(self.context, GetDialog(self))
+	ShowSavegameDescription(self.context, GetXDialog(self))
 end
 end,
 							}),
@@ -86,7 +86,7 @@ end,
 								'func', function (self, shortcut, source)
 if shortcut == "DPadUp" or shortcut == "LeftThumbUp" or shortcut == "Up"
 	or shortcut == "DPadDown" or shortcut == "LeftThumbDown" or shortcut == "Down" then
-	local dlg = GetDialog(self)
+	local dlg = GetXDialog(self)
 	local scroll = dlg.idScroll
 	local current_page = scroll.current_page
 	local page_info = scroll.page_info and scroll.page_info[current_page]
@@ -116,7 +116,7 @@ end,
 							}),
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-local dlg = GetDialog(parent)
+local dlg = GetXDialog(parent)
 dlg.idTitle:SetTitle(T{1133, "SAVE GAME"})
 parent.idNewSave.idValue:SetText(T{4182, "<<< New Savegame >>>"})
 parent.idNewSave:SetFocus()
@@ -229,7 +229,7 @@ end,
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
 parent:ResolveId("idTitle"):SetTitle(T{5471, "DELETE GAME"})
-local dlg = GetDialog(parent)
+local dlg = GetXDialog(parent)
 dlg.idList:SetMargins(box(0,40,0,10))
 dlg.idList:SetGamepadInitialSelection(true)
 dlg.idList:SetForceInitialSelection(true)
@@ -284,10 +284,10 @@ elseif shortcut == "Pagedown" or shortcut == "MouseWheelBack" then
 	self:ResolveId(self.VScroll):NextPage()
 	return "break"
 elseif shortcut == "Delete" or shortcut == "ButtonY" then
-	DeleteSaveGame(GetDialog(self))
+	DeleteSaveGame(GetXDialog(self))
 	return "break"
 elseif shortcut == "Up" or shortcut == "Down" then
-	local dlg = GetDialog(self)
+	local dlg = GetXDialog(self)
 	if dlg.Mode == "save" then
 		local scroll = self:ResolveId(self.VScroll)
 		local current_page = scroll.current_page
@@ -332,7 +332,7 @@ end,
 						PlaceObj('XTemplateTemplate', {
 							'__template', "SaveItem",
 							'OnPress', function (self, gamepad)
-local dlg = GetDialog(self)
+local dlg = GetXDialog(self)
 local mode = dlg.Mode
 if mode == "load" then
 	LoadSaveGame(dlg)
@@ -349,7 +349,7 @@ end,
 								'func', function (self, rollover)
 XTextButton.OnSetRollover(self, rollover)
 if rollover then
-	ShowSavegameDescription(self.context, GetDialog(self))
+	ShowSavegameDescription(self.context, GetXDialog(self))
 end
 end,
 							}),
@@ -360,7 +360,7 @@ local id = self.context.id
 local list = self.parent
 if list.focused_item ~= id then
 	list:SetSelection(id)
-	local dlg = GetDialog(self)
+	local dlg = GetXDialog(self)
 	if dlg.Mode == "save" then
 		XTextButton.OnMouseLeft(dlg.idTopContent.idNewSave)
 	end

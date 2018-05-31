@@ -324,13 +324,6 @@ function MirrorSphere:SetCharge(new_charge, forced)
 	if new_charge == max_progress then
 		self:SetCommand("SplitCmd")
 	end
-	self:UpdateUI()
-end
-
-function MirrorSphere:UpdateUI()
-	if self == SelectedObj then
-		Msg("UIPropertyChanged", self)
-	end
 end
 
 function MirrorSphere:Split()
@@ -526,9 +519,9 @@ DefineClass.MirrorSphereMystery = {
 	scenario_name = "Mystery 3",
 	
 	display_name = T{1184, "Spheres (Normal)"},
-	rollover_text = T{1185, "\"Never fire a laser at a mirror.\"<newline><right>- Larry Niven"},
+	rollover_text = T{1185, '"Never fire a laser at a mirror."<newline><right>- Larry Niven'},
 	challenge_mod = 40,
-	order_pos = 5,
+	order_pos = 6,
 }
 
 function MirrorSphereMystery:Init()
@@ -684,11 +677,7 @@ function MirrorSphereBuilding:DroneWork(drone, request)
 			Wakeup(self.action_thread)
 		end
 	end)
-	drone:ContinuousTask(request, 1000, g_Consts.DroneBuildingRepairBatteryUse, "repairBuildingStart", "repairBuildingIdle", "repairBuildingEnd", "Repair",
-		function(drone)
-			local self = drone.target
-			Msg("UIPropertyChanged", self)
-		end)
+	drone:ContinuousTask(request, 1000, g_Consts.DroneBuildingRepairBatteryUse, "repairBuildingStart", "repairBuildingIdle", "repairBuildingEnd", "Repair")
 	drone:PopAndCallDestructor()
 end
 
@@ -735,7 +724,6 @@ function MirrorSphereBuilding:SetProgress(new_progress)
 	self.building_update_time = 5000
 	self.progress = new_progress
 	if new_progress ~= max_progress then
-		Msg("UIPropertyChanged", self)
 		return
 	end
 	self:StopAction()

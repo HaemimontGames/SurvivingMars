@@ -5,6 +5,7 @@ PlaceObj('XTemplate', {
 	id = "sectionPowerProduction",
 	PlaceObj('XTemplateTemplate', {
 		'__context_of_kind', "ElectricityProducer",
+		'__condition', function (parent, context) return context and context:ShowUISectionElectricityProduction() end,
 		'__template', "InfopanelSection",
 		'RolloverText', T{508800248152, --[[XTemplate sectionPowerProduction RolloverText]] "Production per Sol<right><power(UIPowerProductionToday)><newline><left>Lifetime production<right><power(UIPowerProductionLifetime)>"},
 		'Title', T{80, --[[XTemplate sectionPowerProduction Title]] "Production"},

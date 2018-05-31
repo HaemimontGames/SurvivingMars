@@ -160,7 +160,7 @@ function UpgradableBuilding:GetUpgradeIcon(upgrade_tier)
 	return self[string.format("upgrade%s_icon", tostring(upgrade_tier))]
 end
 
-function UICreateUpgradeButtons(parent, obj)
+function UICreateUpgradeButtons(parent, obj, notify)
 	for i = 1, 3 do
 		local id = obj:GetUpgradeID(i) or ""
 		if id ~= "" and UICity:IsUpgradeUnlocked(id) then
@@ -248,6 +248,9 @@ function UICreateUpgradeButtons(parent, obj)
 								bld:ConstructUpgrade(id)
 							end
 						end
+						if notify then
+							ObjModified(bld)
+						end
 					end)
 				else
 					if obj:HasUpgrade(id) then
@@ -257,6 +260,9 @@ function UICreateUpgradeButtons(parent, obj)
 					end
 				end
 				RebuildInfopanel(obj)
+				if notify then
+					ObjModified(obj)
+				end
 			end)
 			button.OnPress = function(self, gamepad)
 				self:ProcessUpgrade(not gamepad and IsMassUIModifierPressed())

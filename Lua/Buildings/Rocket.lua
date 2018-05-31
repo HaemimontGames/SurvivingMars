@@ -136,6 +136,7 @@ DefineClass.SupplyRocket = {
 	can_fly_colonists = true,
 	
 	compatibility_thread = false,
+	dome_label = false,
 }
 
 -- commands
@@ -263,8 +264,7 @@ function SupplyRocket:LandOnMars(site, from_ui)
 		self:SetCommand("OnEarth")
 	end
 	local spot = site:GetSpotBeginIndex("Rocket")
-	local dest = site:GetSpotPos(spot)
-	local angle = site:GetSpotRotation(spot)
+	local dest, angle = site:GetSpotLoc(spot)
 
 	self:UpdateStatus("landing")
 
@@ -479,7 +479,7 @@ function SupplyRocket:Unload()
 	self.cargo = nil
 	self.placement = nil
 	
-	self:SetCommand(self.launch_after_unload and "Takeoff" or "Refuel")
+	self:SetCommand(self.launch_after_unload and "Countdown" or "Refuel")
 end
 
 function SupplyRocket:Refuel()
@@ -507,7 +507,7 @@ function SupplyRocket:WaitLaunchOrder()
 
 		self:UpdateStatus(can_take_off and "ready for launch" or "launch suspended")
 		
-		if self:IsLaunchAutomated() and not self:HasCargoSpaceLeft() and can_take_off then
+		if self:IsLaunchAutomated() and not self:HasCargoSpaceLeft() and not issue then
 			self:SetCommand("Countdown")
 		end
 		WaitWakeup()
@@ -517,11 +517,15 @@ end
 function SupplyRocket:DropBrokenDrones(t)
 	for i=#t, 1, -1 do
 		local drone = t[i]
-		if drone:IsBroken() then
-			if self:IsValidPos() then
-				drone:SetPos(self:GetVisualPos2D())
-			else
-				drone:delete()
+		if drone:IsBroken() or 
+			not IsValid(drone) or
+			drone.command == "WaitingCommand" then --fallback..
+			if IsValid(drone) then
+				if self:IsValidPos() then
+					drone:SetPos(self:GetVisualPos2D())
+				else
+					drone:delete()
+				end
 			end
 			table.remove(t, i)
 		end
@@ -534,6 +538,8 @@ function SavegameFixups.DropBrokenDrones()
 		obj:DropBrokenDrones(obj.drones_entering)
 	end }
 end
+
+SavegameFixups.DropBrokenDronesAgain = SavegameFixups.DropBrokenDrones
 
 function SupplyRocket:InterruptIncomingDronesAndDisconnect()
 	self:InterruptDrones(nil, function(drone)
@@ -1300,11 +1306,19 @@ function SupplyRocket:OnWaypointStartGoto(drone, pos, next_pos)
 	end
 end
 
+function SupplyRocket:GetEntrance(target, entrance_type, spot_name)
+	return WaypointsObj.GetEntrance(self, target, entrance_type or "rocket_entrance", spot_name)
+end
+
 --override of leadin and leadout that don't use goto, so that Step(cpp) doesn't switch our axis
 --mostly cpy paste from WaypointsObj
 function SupplyRocket:LeadIn(unit)
 	if unit.holder == self then return end
 	unit:PushDestructor(function(unit)
+		if not IsValid(unit) then 
+			table.remove_entry(self.drones_exiting, unit)
+			return 
+		end
 		self:LeadOut(unit)
 	end)		
 	if IsKindOf(unit, "Drone") then
@@ -1336,7 +1350,7 @@ function SupplyRocket:LeadIn(unit)
 							local t = p1:Dist(p2) * 1000 / speed
 							unit:SetPos(p2, t)
 							Sleep(t)
-							if not IsValid(self) or not unit:IsValidPos() then
+							if not IsValid(self) or not IsValid(unit) or not unit:IsValidPos() then
 								break
 							end
 						end
@@ -1346,8 +1360,7 @@ function SupplyRocket:LeadIn(unit)
 				end
 			end
 		end
-		if not IsValid(unit) then return end
-		if IsValid(self) then
+		if IsValid(self) and IsValid(unit) then
 			unit:DetachFromMap()
 			unit:SetHolder(self)
 		end
@@ -1357,9 +1370,9 @@ function SupplyRocket:LeadIn(unit)
 			if IsValid(unit) then
 				unit:SetGameFlags(const.gofSpecialOrientMode)
 				unit:SetAxis(axis_z)
-			end
-			if self == SelectedObj and table.find(self.drones, unit) then
-				SelectionArrowRemove(unit)
+				if self == SelectedObj and table.find(self.drones, unit) then
+					SelectionArrowRemove(unit)
+				end
 			end
 		end
 	end)
@@ -1369,7 +1382,8 @@ end
 
 function SupplyRocket:DroneExitQueue(drone)
 	RechargeStationBase.DroneExitQueue(self, drone)
-	if not self.working and drone.holder == self then --since approach is hacked to lead in we have to leadout hackily as well
+	if drone.holder == self and
+		(not self.working or drone.command ~= "EmergencyPower") then --since approach is hacked to lead in we have to leadout hackily as well
 		self:LeadOut(drone)
 	end
 end
@@ -1394,6 +1408,7 @@ function SupplyRocket:LeadOut(unit)
 	unit:PushDestructor(function(unit)
 		-- uninterruptible code:
 		if not IsValid(unit) then return end
+		unit:SetOutside(true)
 		unit:SetState(unit:GetMoveAnim()) --fix for drones sometimes exiting in weird animation
 		local entrance = self.waypoint_chains and self.waypoint_chains.rocket_exit[1]
 		if entrance then
@@ -1471,6 +1486,10 @@ function SupplyRocket:SetCount()
 	--intentionally empty.
 end
 
+function SupplyRocket:GetRequestUnitCount(max_storage)
+	return 3 + (max_storage / (const.ResourceScale * 5)) -- 1 per 5 + 3
+end
+
 function SupplyRocket:CreateResourceRequests()
 	UniversalStorageDepot.CreateResourceRequests(self)
 	
@@ -1484,7 +1503,7 @@ function SupplyRocket:CreateResourceRequests()
 		v:AddFlags(const.rfPostInQueue)
 	end
 	
-	local unit_count = 3 + (self.launch_fuel / (const.ResourceScale * 5)) --1 per 10
+	local unit_count = self:GetRequestUnitCount(self.launch_fuel)
 	self.refuel_request = self:AddDemandRequest("Fuel", self.launch_fuel, const.rfRestrictorRocket, unit_count)
 	
 	self:CreateExportRequests()
@@ -1496,7 +1515,7 @@ end
 
 function SupplyRocket:CreateExportRequests()
 	if self.allow_export then
-		local unit_count = 1 + (self.max_export_storage / (const.ResourceScale * 10)) --1 per 10
+		local unit_count = self:GetRequestUnitCount(self.max_export_storage)
 		self.export_requests = { self:AddDemandRequest("PreciousMetals", self.max_export_storage, 0, unit_count) }
 	else
 		self.export_requests = nil
@@ -1523,7 +1542,7 @@ function SupplyRocket:ResetDemandRequests()
 		if self.export_requests then
 			self.export_requests[1]:ResetAmount(self.max_export_storage)
 		else
-			local unit_count = 1 + (self.max_export_storage / (const.ResourceScale * 10)) --1 per 10
+			local unit_count = self:GetRequestUnitCount(self.max_export_storage)
 			self.export_requests = { self:AddDemandRequest("PreciousMetals", self.max_export_storage, 0, unit_count) }
 		end
 	else
@@ -1823,8 +1842,8 @@ function SupplyRocket:DroneUnloadResource(drone, request, resource, amount)
 		if self:HasEnoughFuelToLaunch() then
 			Msg("RocketRefueled", self)
 		end
-	elseif self.command == "WaitLaunchOrder" and self:IsLaunchAutomated() and not self:HasCargoSpaceLeft() then
-		self:SetCommand("Countdown")
+	elseif self.command == "WaitLaunchOrder" then
+		Wakeup(self.command_thread)
 	end
 	RebuildInfopanel(self)
 	drone:PopAndCallDestructor()
@@ -1839,6 +1858,9 @@ function SupplyRocket:DroneLoadResource(drone, request, resource, amount)
 	end)
 	UniversalStorageDepot.DroneLoadResource(self, drone, request, resource, amount, true)
 	drone:SetCarriedResource(resource, amount) --hack
+	if self.command == "WaitLaunchOrder" then
+		Wakeup(self.command_thread)
+	end
 	RebuildInfopanel(self)
 	drone:PopAndCallDestructor()
 end
@@ -1878,13 +1900,12 @@ function SupplyRocket:GenerateArrivals(amount, applicants)
 			free_space[dome] = space - 1
 		end
 		
-		applicant.dome = dome
+		applicant.emigration_dome = dome -- the colonist will try to reach the dome by foot:
 		applicant.city = dome and dome.city or city
+		applicant.arriving = self
 		
 		local colonist = Colonist:new(applicant)
 		self.disembarking[#self.disembarking + 1] = colonist
-		colonist.arriving = self
-		colonist:SetOutside(true)
 		-- sleep to avoid all colonists disembarking at once
 		Sleep(1000 + Random(0, 500))
 	end
@@ -1958,7 +1979,8 @@ function SupplyRocket:GetLaunchIssue()
 		return "fuel"
 	end
 	
-	if self:GetStoredAmount() > 0 then
+	local stored, unload = self:GetStoredAmount()
+	if stored > 0 and stored > unload then
 		return "cargo"
 	end	
 end
@@ -2128,6 +2150,7 @@ function SupplyRocket:ToggleAutoExport()
 		self.reserved_site = nil
 	else -- can only be enabled when rocket is landed and has valid landing site
 		assert(IsValid(self.landing_site))
+		self.landing_site.disable_selection = false
 		if self.command == "WaitLaunchOrder" then
 			Wakeup(self.command_thread)
 		end
@@ -2213,10 +2236,12 @@ end
 
 function SupplyRocket:GetStoredAmount(resource)
 	local stored = UniversalStorageDepot.GetStoredAmount(self, resource)
+	local unload = 0
 	if self.unload_request and (not resource or self.unload_request:GetResource() == resource) then
-		stored = stored + self.unload_request:GetActualAmount()
+		unload = self.unload_request:GetActualAmount()
+		stored = stored + unload
 	end
-	return stored
+	return stored, unload
 end
 
 function SupplyRocket:GetUIExportStatus()
@@ -2327,15 +2352,14 @@ end
 
 function RocketLandingSite:SelectionPropagate()
 	local rocket = GetLandingRocket(self)
-	assert(rocket)
 
-	if rocket_on_gnd_cmd[rocket.command] then
+	if rocket and rocket_on_gnd_cmd[rocket.command] then
 		if IsValid(self.landing_pad) then
 			return self.landing_pad
 		end
 		return rocket
 	else
-		if rocket.auto_export or not IsValid(self.landing_pad) then
+		if rocket and rocket.auto_export or not IsValid(self.landing_pad) then
 			return rocket
 		end
 		return self.landing_pad

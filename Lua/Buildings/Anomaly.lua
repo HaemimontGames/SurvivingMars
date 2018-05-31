@@ -10,6 +10,7 @@ DefineClass.SubsurfaceAnomalyMarker = {
 	properties = {
 		{ category = "Anomaly", name = T{4, "Tech Action"},             id = "tech_action",              editor = "dropdownlist", default = false, items = anomaly_tech_actions },
 		{ category = "Anomaly", name = T{5, "Sequence"},                id = "sequence",                 editor = "dropdownlist", default = "",    items = function() return table.map(DataInstances.Scenario.Anomalies, "name") end, help = "Sequence to start when the anomaly is scanned" },
+		{ category = "Anomaly", name = T{3775, "Sequence List"}, 		id = "sequence_list", default = "Anomalies",    editor = "dropdownlist", items = function() return table.map(DataInstances.Scenario, "name") end, },
 		{ category = "Anomaly", name = T{6, "Depth Layer"},             id = "depth_layer",              editor = "number",       default = 1,     min = 1, max = const.DepositDeepestLayer}, --depth layer
 		{ category = "Anomaly", name = T{7, "Is Revealed"},             id = "revealed",                 editor = "bool",         default = false },
 		{ category = "Anomaly", name = T{8, "Breakthrough Tech"},       id = "breakthrough_tech",        editor = "text",       default = "" },
@@ -39,8 +40,8 @@ function SubsurfaceAnomalyMarker:SpawnDeposit()
 		granted_resource = self.granted_resource,
 		granted_amount = self.granted_amount,
 		sequence = self.sequence,
+		sequence_list = self.sequence_list,
 		breakthrough_tech = self.breakthrough_tech, --randomly assigned in City:InitBreakThroughAnomalies
-		marker = self,
 	}
 end
 
@@ -82,6 +83,10 @@ DefineClass.SubsurfaceAnomaly = {
 	fx_actor_class = "SubsurfaceAnomaly",
 	ip_template = "ipAnomaly",
 }
+
+function SubsurfaceAnomaly:GetModifiedBSphereRadius(r)
+	return MulDivRound(r, 75, 100)
+end
 
 DefineClass.SubsurfaceAnomaly_breakthrough = {
 	__parents = { "SubsurfaceAnomaly" },
@@ -139,28 +144,9 @@ end
 
 function SubsurfaceAnomaly:StartSequence(sequence, scanner, pos)
 	if sequence ~= ""  then
-		local list = DataInstances.Scenario.Anomalies
-		
-		local checked = { Anomalies = true }
-		local found = true
-		
-		if not list or not table.find(list, "name", sequence) then
-			--the sequence is in another castle.
-			found = false
-			for k, v in pairs(DataInstances.Scenario) do
-				if not checked[k] then
-					checked[k] = true
-					list = v
-					if table.find(list, "name", sequence) then
-						found = true
-						break
-					end
-				end
-			end
-		end
-		
-		if not found then
-			print("Could not find sequence " .. sequence .. " in DataInstances.Scenario!")
+		local list = DataInstances.Scenario[self.sequence_list]
+		if not list then
+			printf("Subsurface anomaly sequence start failed - probably missing sequence list %s?", self.sequence_list)
 			return 
 		end
 		
@@ -282,6 +268,7 @@ function SubsurfaceAnomaly:ScanCompleted(scanner)
 		if self.granted_resource ~= "" and self.granted_amount > 0 then
 			PlaceResourceStockpile_Delayed(self:GetPos(), self.granted_resource, self.granted_amount, self:GetAngle(), true)
 		end
+		AddOnScreenNotification("AnomalyAnalyzed")
 	elseif tech_action == "aliens" then
 		AddOnScreenNotification("AlienArtifactsAnomalyAnalyzed", nil, {})
 	elseif not tech_action then
@@ -396,7 +383,8 @@ DefineClass.SA_SpawnDustDevilAtAnomaly = {
 		{ name = T{19, "Spawn Chance (%)"}, id = "probability", editor = "number", min = 0, max = 100, default = 30 },
 		{ name = T{20, "Lifetime (s)"}, id = "lifetime", editor = "number", min = 0, max = 300*1000, scale = 1000, default = 60*1000 },
 --		{ id = "range", editor = "number", min = 50, max = 500, scale = guim },
-		{ name = T{21, "Speed (m/s)"}, id = "speed", editor = "number", min = 5*guim, max = 100*guim, scale = guim, default = 3*guim}
+		{ name = T{21, "Speed (m/s)"}, id = "speed", editor = "number", min = 5*guim, max = 100*guim, scale = guim, default = 3*guim},
+		{ name = T{3567, "Preset"}, id = "preset", editor = "choice", default = "DustDevils_VeryLow", items = DataInstanceCombo("MapSettings_DustDevils") },
 	},
 	
 	Menu = "Gameplay",
@@ -416,8 +404,10 @@ function SA_SpawnDustDevilAtAnomaly:Exec(sequence_player, ip, seq, registers)
 	marker:SetVisible(false)
 	marker:SetPos( registers.anomaly_pos )
 	
-	local descr = GetDustDevilsDescr()
-	if descr and not descr.forbidden then	
+	local data = DataInstances.MapSettings_DustDevils
+	descr = data[self.preset] or data[1]
+	assert(descr)
+	if descr then	
 		marker.thread = CreateDustDevilMarkerThread(descr, marker)
 	end
 end
@@ -441,9 +431,9 @@ function City:InitBreakThroughAnomalies()
 	}
 	local rand, trand = self:CreateSessionRand("InitBreakThroughAnomalies")
 	markers = table.shuffle(markers)
-	local field = TechFields.Breakthroughs or ""
-	assert(#field >= #markers, "Too many breakthrough anomalies found!")
-	local techs = table.icopy(field)
+	local techs = Presets.TechPreset.Breakthroughs
+	assert(#techs >= #markers, "Too many breakthrough anomalies found!")
+	local techs = table.icopy(techs)
 	-- assign breakthrough tech to each marker
 	local assigned = 0
 	while assigned < #markers do

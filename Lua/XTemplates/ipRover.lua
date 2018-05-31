@@ -33,6 +33,54 @@ end
 end,
 		}),
 		PlaceObj('XTemplateTemplate', {
+			'comment', "build drone",
+			'__context_of_kind', "RCRover",
+			'__template', "InfopanelButton",
+			'RolloverText', T{8460, --[[XTemplate ipRover RolloverText]] "Unpack an existing Drone Prefab to build a new Drone. Drone Prefabs can be created from existing Drones or in a Drone Assembler (requires research). This action can be used to quickly reassign Drones between controllers.<newline><newline>Available Drone Prefabs: <drone(available_drone_prefabs)>"},
+			'RolloverDisabledText', T{994737607038, --[[XTemplate ipRover RolloverDisabledText]] "Unpack an existing Drone Prefab to build a new Drone. Drone Prefabs can be created from existing Drones or in a Drone Assembler (requires research). This action can be used to quickly reassign Drones between controllers.<newline><newline>Available Drone Prefabs: <drone(available_drone_prefabs)>"},
+			'RolloverTitle', T{349, --[[XTemplate ipRover RolloverTitle]] "Unpack Drone"},
+			'RolloverHint', T{8461, --[[XTemplate ipRover RolloverHint]] "<left_click> Unpack Drone <em>Ctrl + <left_click></em> Unpack five Drones"},
+			'RolloverHintGamepad', T{8462, --[[XTemplate ipRover RolloverHintGamepad]] "<ButtonA> Unpack Drone <ButtonX> Unpack five Drones"},
+			'OnContextUpdate', function (self, context, ...)
+self:SetEnabled(UICity.drone_prefabs > 0)
+end,
+			'OnPressParam', "UseDronePrefab",
+			'OnPress', function (self, gamepad)
+	self.context:UseDronePrefab(not gamepad and IsMassUIModifierPressed())
+end,
+			'AltPress', true,
+			'OnAltPress', function (self, gamepad)
+if gamepad then
+	self.context:UseDronePrefab(true)
+end
+end,
+			'Icon', "UI/Icons/IPButtons/drone_assemble.tga",
+		}),
+		PlaceObj('XTemplateTemplate', {
+			'comment', "convert drone to drone prefab",
+			'__context_of_kind', "RCRover",
+			'__template', "InfopanelButton",
+			'RolloverText', T{8665, --[[XTemplate ipRover RolloverText]] "Recalls a Drone and packs it into a Drone Prefab. Can be used to reassign Drones between controllers."},
+			'RolloverDisabledText', T{8666, --[[XTemplate ipRover RolloverDisabledText]] "No available Drones."},
+			'RolloverTitle', T{8667, --[[XTemplate ipRover RolloverTitle]] "Pack Drone for Reassignment"},
+			'RolloverHint', T{8668, --[[XTemplate ipRover RolloverHint]] "<left_click> Pack Drone for reassignment <em>Ctrl + <left_click></em> Pack five Drones"},
+			'RolloverHintGamepad', T{8669, --[[XTemplate ipRover RolloverHintGamepad]] "<ButtonA> Pack Drone for reassignment <ButtonX> Pack five Drones"},
+			'OnContextUpdate', function (self, context, ...)
+	self:SetEnabled(not not context:FindDroneToConvertToPrefab())
+end,
+			'OnPressParam', "ConvertDroneToPrefab",
+			'OnPress', function (self, gamepad)
+	self.context:ConvertDroneToPrefab(not gamepad and IsMassUIModifierPressed())
+end,
+			'AltPress', true,
+			'OnAltPress', function (self, gamepad)
+if gamepad then
+	self.context:ConvertDroneToPrefab(true)
+end
+end,
+			'Icon', "UI/Icons/IPButtons/drone_dismantle.tga",
+		}),
+		PlaceObj('XTemplateTemplate', {
 			'comment', "load",
 			'__context_of_kind', "RCTransport",
 			'__template', "InfopanelButton",
@@ -231,34 +279,42 @@ end,
 			'Icon', "UI/Icons/Sections/storage.tga",
 		}, {
 			PlaceObj('XTemplateTemplate', {
+				'__condition', function (parent, context) return context:HasMember("GetStored_Concrete") end,
 				'__template', "InfopanelText",
 				'Text', T{343032565187, --[[XTemplate ipRover Text]] "Concrete<right><concrete(Stored_Concrete)>"},
 			}),
 			PlaceObj('XTemplateTemplate', {
+				'__condition', function (parent, context) return context:HasMember("GetStored_Metals") end,
 				'__template', "InfopanelText",
 				'Text', T{455677282700, --[[XTemplate ipRover Text]] "Metals<right><metals(Stored_Metals)>"},
 			}),
 			PlaceObj('XTemplateTemplate', {
+				'__condition', function (parent, context) return context:HasMember("GetStored_Food") end,
 				'__template', "InfopanelText",
 				'Text', T{788345915802, --[[XTemplate ipRover Text]] "Food<right><food(Stored_Food)>"},
 			}),
 			PlaceObj('XTemplateTemplate', {
+				'__condition', function (parent, context) return context:HasMember("GetStored_PreciousMetals") end,
 				'__template', "InfopanelText",
 				'Text', T{925417865592, --[[XTemplate ipRover Text]] "Rare Metals<right><preciousmetals(Stored_PreciousMetals)>"},
 			}),
 			PlaceObj('XTemplateTemplate', {
+				'__condition', function (parent, context) return context:HasMember("GetStored_Polymers") end,
 				'__template', "InfopanelText",
 				'Text', T{157677153453, --[[XTemplate ipRover Text]] "Polymers<right><polymers(Stored_Polymers)>"},
 			}),
 			PlaceObj('XTemplateTemplate', {
+				'__condition', function (parent, context) return context:HasMember("GetStored_Electronics") end,
 				'__template', "InfopanelText",
 				'Text', T{624861249564, --[[XTemplate ipRover Text]] "Electronics<right><electronics(Stored_Electronics)>"},
 			}),
 			PlaceObj('XTemplateTemplate', {
+				'__condition', function (parent, context) return context:HasMember("GetStored_MachineParts") end,
 				'__template', "InfopanelText",
 				'Text', T{407728864620, --[[XTemplate ipRover Text]] "Machine Parts<right><machineparts(Stored_MachineParts)>"},
 			}),
 			PlaceObj('XTemplateTemplate', {
+				'__condition', function (parent, context) return context:HasMember("GetStored_Fuel") end,
 				'__template', "InfopanelText",
 				'Text', T{317815331128, --[[XTemplate ipRover Text]] "Fuel<right><fuel(Stored_Fuel)>"},
 			}),
@@ -273,9 +329,11 @@ end,
 			'TitleHAlign', "stretch",
 		}),
 		PlaceObj('XTemplateTemplate', {
+			'__condition', function (parent, context) return not g_RoverCommandResearched end,
 			'__template', "InfopanelSection",
 			'RolloverText', T{39, --[[XTemplate ipRover RolloverText]] "Vehicles can recharge their batteries from active Power grids. Vehicles are also able to recharge each other, equalizing the Power in their batteries.<newline><newline><left><battery_ui_str>"},
 			'RolloverTitle', T{38, --[[XTemplate ipRover RolloverTitle]] "Battery  <percent(BatteryPerc)>"},
+			'Id', "idBattery",
 			'OnContextUpdate', function (self, context, ...)
 self:SetVisible(context.command ~= "Dead")
 end,

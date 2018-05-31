@@ -43,3 +43,11 @@ PlaceObj('PhotoFilterPreset', {
 	id = "BleachBypass",
 })
 
+PlaceObj('PhotoFilterPreset', {
+	SortKey = 6000,
+	desc = T{725335706535, --[[PhotoFilterPreset OrtonEffect desc]] "A vivid effect"},
+	displayName = T{206642846467, --[[PhotoFilterPreset OrtonEffect displayName]] "Orton"},
+	filename = "PhotoFilter.fx|ORTON_EFFECT",
+	group = "Default",
+	id = "OrtonEffect",
+})

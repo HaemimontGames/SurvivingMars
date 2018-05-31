@@ -117,6 +117,7 @@ local MapSettings_DustDevils ={
 		'name', "DustDevils_CrystalBig",
 		'strength', 2,
 		'use_in_gen', false,
+		'major_chance', 1,
 		'electro_chance', 100,
 		'movement_range', 40000,
 		'marker_spawntime', 1500000,
@@ -126,6 +127,7 @@ local MapSettings_DustDevils ={
 	PlaceObj('MapSettings_DustDevils', {
 		'name', "DustDevils_CrystalSmall",
 		'use_in_gen', false,
+		'major_chance', 1,
 		'electro_chance', 100,
 		'movement_range', 20000,
 		'marker_spawntime', 3000000,

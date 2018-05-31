@@ -38,7 +38,7 @@ end,
 				'name', "Press",
 				'func', function (self, ...)
 local obj = ResolvePropObj(self.parent.context)
-local dlg = GetDialog(self)
+local dlg = GetXDialog(self)
 local prop_meta = self.parent.prop_meta
 obj:FilterTrait(prop_meta, false)
 end,
@@ -65,7 +65,7 @@ end,
 				'name', "Press",
 				'func', function (self, ...)
 local obj = ResolvePropObj(self.parent.context)
-local dlg = GetDialog(self)
+local dlg = GetXDialog(self)
 local prop_meta = self.parent.prop_meta
 obj:FilterTrait(prop_meta, true)
 end,
@@ -105,8 +105,11 @@ end,
 			'func', function (self, pos, button)
 local obj = ResolvePropObj(self.context)
 if obj.dome and button == "L" then
-	XPropControl.OnMouseButtonDown(self, pos, button)
-	obj:SelectColonistsInDome(self.prop_meta.value)
+	XPropControl.OnMouseButtonDoubleClick(self, pos, button)
+	CloseXDialog("DomeTraits")
+	CreateRealTimeThread(function()
+		OpenCommandCenter({dome = obj.dome, trait = {name = self.prop_meta.value, display_name = self.prop_meta.name}}, "Colonists")
+	end)
 	return "break"
 end
 end,

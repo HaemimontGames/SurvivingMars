@@ -38,7 +38,7 @@ function AbortPhotoMode()
 end
 
 local function ActivateFreeCamera()
-	local dlg = GetDialog("PhotoMode")
+	local dlg = GetXDialog("PhotoMode")
 	if dlg then
 		dlg.idFreeCameraWarning:SetVisible(true)
 	end
@@ -55,7 +55,7 @@ local function DeactivateFreeCamera()
 		end
 		SetDefaultCameraRTS()
 	end
-	local dlg = GetDialog("PhotoMode")
+	local dlg = GetXDialog("PhotoMode")
 	if dlg then
 		dlg.idFreeCameraWarning:SetVisible(false)
 	end
@@ -191,7 +191,7 @@ function PhotoModeTake()
 		MovieWriteScreenshot(folder .. proposed_name, 0, 32, false, width, height)
 		UnlockCamera("Screenshot")
 		g_PhotoModeShotNum = g_PhotoModeShotNum + 1
-		local dlg = GetDialog("PhotoMode")
+		local dlg = GetXDialog("PhotoMode")
 		if dlg then
 			dlg:BlinkFilePath(ConvertToOSPath(folder .. proposed_name))
 		end

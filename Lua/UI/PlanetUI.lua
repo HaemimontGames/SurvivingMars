@@ -51,6 +51,7 @@ function SetPlanetCamera(planet, state)
 		if old_planet then
 			WaitNextFrame(1)
 			table.restore(hr, "PlanetCamera")
+			WaitNextFrame(1)
 			RecreateRenderObjects()
 			if PlanetCamera then
 				SetCamera(unpack_params(PlanetCamera))
@@ -252,7 +253,7 @@ local function MapChallengeRatingToDifficulty(rating)
 	elseif rating <= 139 then
 		return T{4156, "Steep"}
 	else
-		return T{4157, "Mountainious"}
+		return T{4157, "Mountainous"}
 	end
 end
 

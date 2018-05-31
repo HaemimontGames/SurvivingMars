@@ -6,7 +6,8 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateWindow', {
 		'__context', function (parent, context) return TraitsObjectCreateAndLoad() end,
 		'__class', "XDialog",
-		'Padding', box(0, 65, 100, 80),
+		'Id', "idPassengers",
+		'Padding', box(0, 65, 100, 50),
 		'InitialMode', "traitCategories",
 		'InternalModes', "traitCategories,items,review",
 	}, {
@@ -72,13 +73,13 @@ end,
 					PlaceObj('XTemplateFunc', {
 						'name', "OnHyperLink(self, hyperlink, argument, hyperlink_box, pos, button)",
 						'func', function (self, hyperlink, argument, hyperlink_box, pos, button)
-local host = GetDialog(self)
+local host = GetXDialog(self)
 host.context:RenameRocket(host)
 end,
 					}),
 					}),
 				PlaceObj('XTemplateWindow', {
-					'__condition', function (parent, context) local mode = GetDialog(parent).Mode return mode == "traitCategories" or mode == "items" end,
+					'__condition', function (parent, context) local mode = GetXDialog(parent).Mode return mode == "traitCategories" or mode == "items" end,
 					'__class', "XText",
 					'Id', "idSubtitle",
 					'Dock', "top",
@@ -91,7 +92,7 @@ end,
 					'TextHAlign', "right",
 				}),
 				PlaceObj('XTemplateWindow', {
-					'__condition', function (parent, context) return GetDialog(parent).Mode == "review" end,
+					'__condition', function (parent, context) return GetXDialog(parent).Mode == "review" end,
 					'__class', "XText",
 					'Id', "idSubtitle",
 					'Dock', "top",

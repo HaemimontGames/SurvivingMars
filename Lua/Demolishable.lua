@@ -69,6 +69,9 @@ function Demolishable:ToggleDemolish_Update(button)
 	button:SetIcon(self.demolishing and "UI/Icons/IPButtons/cancel.tga" or "UI/Icons/IPButtons/salvage_1.tga")
 	button:SetEnabled(self:CanDemolish())
 	if self:IsKindOf("ConstructionSite") then
+		if g_Tutorial then
+			button:SetEnabled(false)
+		end
 		button:SetRolloverHint(T{7573, "<left_click> Cancel construction"})
 		button:SetRolloverHintGamepad(T{7574, "<ButtonY> Cancel construction"})
 		return
@@ -114,12 +117,12 @@ function Demolishable:DoDemolish()
 	self.demolishing = nil
 	
 	if IsValid(self) then
+		self:OnDemolish()
 		if self.use_demolished_state then
 			PlayFXAroundBuilding(self, "Demolish")
 		else
 			PlayFXAroundBuilding(self, "Remove")
 		end
-		self:OnDemolish()
 		if not self.use_demolished_state then
 			DoneObject(self)
 		else

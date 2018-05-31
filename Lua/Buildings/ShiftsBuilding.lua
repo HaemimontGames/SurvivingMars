@@ -43,8 +43,17 @@ function ShiftsBuilding:GameInit()
 	self:SetWorkshift(CurrentWorkshift)
 end
 
-function ShiftsBuilding:Done()
+function ShiftsBuilding:RemoveFromShiftsBuildingLabel()
 	self.city:RemoveFromLabel("ShiftsBuilding", self)
+	self.RemoveFromShiftsBuildingLabel = __empty_function__
+end
+
+function ShiftsBuilding:OnDestroyed()
+	self:RemoveFromShiftsBuildingLabel()
+end
+
+function ShiftsBuilding:Done()
+	self:RemoveFromShiftsBuildingLabel()
 end
 
 function ShiftsBuilding:GetUnitsInShifts()

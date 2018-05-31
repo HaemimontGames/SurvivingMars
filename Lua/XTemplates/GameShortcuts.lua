@@ -61,7 +61,7 @@ end,
 			'ActionGamepad', "Start",
 			'OnAction', function (self, host, source, toggled)
 local igi = GetInGameInterface()
-local dlg = GetDialog("HUD")
+local dlg = GetHUD()
 local modal = terminal.desktop:GetModalWindow()
 if igi and dlg and dlg.ctrl_state ~= "destroying" and igi:GetVisible() and (not modal or modal == terminal.desktop) then
 	dlg.idMenu:Press()
@@ -163,7 +163,7 @@ end,
 			'ActionBindable', true,
 			'OnAction', function (self, host, source, toggled)
 local igi = GetInGameInterface()
-if igi and igi:GetVisible() then
+if igi and igi:GetVisible() or GetCommandCenterDialog() then
 	if PauseReasons.Debug then Resume("Debug") else TogglePause() end
 end
 end,
@@ -178,7 +178,7 @@ end,
 			'ActionBindable', true,
 			'OnAction', function (self, host, source, toggled)
 local igi = GetInGameInterface()
-if not igi or not igi:GetVisible() then return end
+if not igi or (not igi:GetVisible() and not GetCommandCenterDialog()) then return end
 if Platform.developer then
 	local factor = GetTimeFactor() * 12 / 10
 	SetTimeFactor(Clamp(factor, 0, 100000), "sync")
@@ -186,7 +186,7 @@ if Platform.developer then
 	if factor > 0 and factor == current_factor then
 		PlayFX("GameSpeedUp", "start")
 	end
-elseif GetDialog("HUD") then
+elseif GetHUD() then
 	ChangeGameSpeedState(1)
 end
 end,
@@ -200,7 +200,7 @@ end,
 			'ActionBindable', true,
 			'OnAction', function (self, host, source, toggled)
 local igi = GetInGameInterface()
-if not igi or not igi:GetVisible() then return end
+if not igi or (not igi:GetVisible() and not GetCommandCenterDialog()) then return end
 if Platform.developer then
 	local current_factor = GetTimeFactor()
 	local new_factor = current_factor * 10 / 12
@@ -213,7 +213,7 @@ if Platform.developer then
 		end
 	end
 	SetTimeFactor(Clamp(new_factor, 0, 100000), "sync")
-elseif GetDialog("HUD") then
+elseif GetHUD() then
 	ChangeGameSpeedState(-1)
 end
 end,
@@ -225,7 +225,7 @@ end,
 			'ActionBindable', true,
 			'OnAction', function (self, host, source, toggled)
 local igi = GetInGameInterface()
-if not igi or not igi:GetVisible() then return end
+if not igi or (not igi:GetVisible() and not GetCommandCenterDialog()) then return end
 if UICity then
 	if GetTimeFactor() ~= const.DefaultTimeFactor then
 		UICity:SetGameSpeed(1)
@@ -277,7 +277,7 @@ end,
 			'ActionBindable', true,
 			'OnAction', function (self, host, source, toggled)
 local igi = GetInGameInterface()
-local dlg = GetDialog("HUD")
+local dlg = GetHUD()
 if igi and dlg and dlg.ctrl_state ~= "destroying" and igi:GetVisible() and igi.mode == "selection" then
 	dlg.idBuild:Press()
 end
@@ -292,7 +292,7 @@ end,
 			'OnAction', function (self, host, source, toggled)
 if not g_PhotoMode then
 	local igi = GetInGameInterface()
-	local dlg = GetDialog("HUD")
+	local dlg = GetHUD()
 	if igi and igi:GetVisible() and dlg and dlg.ctrl_state ~= "destroying" then
 		dlg.idOverview:Press()
 	end
@@ -340,7 +340,7 @@ end,
 			'ActionBindable', true,
 			'OnAction', function (self, host, source, toggled)
 local igi = GetInGameInterface()
-local dlg = GetDialog("HUD")
+local dlg = GetHUD()
 if igi and dlg and dlg.ctrl_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
 	dlg.idRadio:Press()
 else
@@ -356,7 +356,7 @@ end,
 			'ActionBindable', true,
 			'OnAction', function (self, host, source, toggled)
 local igi = GetInGameInterface()
-local dlg = GetDialog("HUD")
+local dlg = GetHUD()
 if igi and dlg and dlg.ctrl_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
 	dlg.idResupply:Press()
 else
@@ -372,7 +372,7 @@ end,
 			'ActionBindable', true,
 			'OnAction', function (self, host, source, toggled)
 local igi = GetInGameInterface()
-local dlg = GetDialog("HUD")
+local dlg = GetHUD()
 if igi and dlg and dlg.ctrl_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
 	dlg.idResearch:Press()
 else
@@ -388,9 +388,25 @@ end,
 			'ActionBindable', true,
 			'OnAction', function (self, host, source, toggled)
 local igi = GetInGameInterface()
-local dlg = GetDialog("HUD")
+local dlg = GetHUD()
 if igi and dlg and dlg.ctrl_state ~= "destroying" and igi:GetVisible() then
 	dlg.idColonyOverview:Press()
+end
+end,
+			'IgnoreRepeated', true,
+		}),
+		PlaceObj('XTemplateAction', {
+			'ActionId', "actionColonyControlCenter",
+			'ActionName', T{137542936955, --[[XTemplate GameShortcuts ActionName]] "Command Center"},
+			'ActionShortcut', "Z",
+			'ActionBindable', true,
+			'OnAction', function (self, host, source, toggled)
+local igi = GetInGameInterface()
+local dlg = GetHUD()
+if igi and dlg and dlg.ctrl_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
+	dlg.idColonyControlCenter:Press()
+else
+	CloseCommandCenter()
 end
 end,
 			'IgnoreRepeated', true,
@@ -402,7 +418,7 @@ end,
 			'ActionBindable', true,
 			'OnAction', function (self, host, source, toggled)
 local igi = GetInGameInterface()
-local dlg = GetDialog("HUD")
+local dlg = GetHUD()
 if igi and dlg and dlg.ctrl_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
 	dlg.idMarkers:Press()
 else
@@ -478,7 +494,7 @@ return SelectedObj and IsKindOf(SelectedObj, "Demolishable") or "disabled"
 end,
 			'OnAction', function (self, host, source, toggled)
 FocusInfopanel = false
-if SelectedObj and IsKindOf(SelectedObj, "Demolishable") then
+if SelectedObj and IsKindOf(SelectedObj, "Demolishable") and not (g_Tutorial and IsKindOf(SelectedObj, "ConstructionSite")) then
 	SelectedObj:ToggleDemolish()
 	if SelectedObj then
 		RebuildInfopanel(SelectedObj)
@@ -742,29 +758,13 @@ end,
 			'IgnoreRepeated', true,
 		}),
 		PlaceObj('XTemplateAction', {
-			'ActionId', "actionMaintenance",
-			'ActionName', T{292941424864, --[[XTemplate GameShortcuts ActionName]] "Request maintenance"},
-			'ActionToolbar', "SelectedObj",
-			'ActionGamepad', "RightTrigger-ButtonB",
-			'ActionBindable', true,
-			'ActionState', function (self, host)
-return IsKindOf(SelectedObj, "RequiresMaintenance") and SelectedObj:DoesRequireMaintenance() or "disabled"
-end,
-			'OnAction', function (self, host, source, toggled)
-FocusInfopanel = false
-if not IsKindOf(SelectedObj, "RequiresMaintenance") or not SelectedObj:DoesRequireMaintenance() then return end
-if SelectedObj.accumulated_maintenance_points > 0 and SelectedObj.maintenance_phase == false then
-	SelectedObj:UIRequestMaintenance()
-	RebuildInfopanel(SelectedObj)
-end
-end,
-		}),
-		PlaceObj('XTemplateAction', {
 			'ActionId', "actionLastNotification",
 			'ActionName', T{748588275043, --[[XTemplate GameShortcuts ActionName]] "Last Notification"},
 			'ActionShortcut', "Backspace",
 			'ActionBindable', true,
 			'OnAction', function (self, host, source, toggled)
+local igi = GetInGameInterface()
+if not igi or not igi:GetVisible() then return end
 local dlg = GetXDialog("OnScreenNotificationsDlg")
 local notifications = dlg and dlg.idNotifications
 if dlg and #notifications > 0 then
@@ -779,6 +779,8 @@ end,
 			'ActionShortcut', "End",
 			'ActionBindable', true,
 			'OnAction', function (self, host, source, toggled)
+local igi = GetInGameInterface()
+if not igi or not igi:GetVisible() then return end
 local bld = UICity and UICity.LastConstructedBuilding
 if bld then
 	if IsValid(bld) then
@@ -794,6 +796,7 @@ end,
 			'ActionShortcut', "C",
 			'ActionBindable', true,
 			'OnAction', function (self, host, source, toggled)
+if g_Tutorial and g_Tutorial.BuildMenuWhitelist and not g_Tutorial.BuildMenuWhitelist.PowerCables then return end
 local igi = GetInGameInterface()
 if not igi or not igi:GetVisible() then return end
 local require_construction = not(g_Consts and g_Consts.InstantCables ~= 0)
@@ -807,6 +810,7 @@ end,
 			'ActionShortcut', "V",
 			'ActionBindable', true,
 			'OnAction', function (self, host, source, toggled)
+if g_Tutorial and g_Tutorial.BuildMenuWhitelist and not g_Tutorial.BuildMenuWhitelist.Pipes then return end
 local igi = GetInGameInterface()
 if not igi or not igi:GetVisible() then return end
 local require_construction = not(g_Consts and g_Consts.InstantPipes ~= 0)

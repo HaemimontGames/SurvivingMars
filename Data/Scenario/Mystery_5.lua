@@ -342,6 +342,10 @@ PlaceObj('Scenario', {
 			'register', "_AIMysteryLog",
 			'text', T{6216, --[[Scenario Mystery 5 text]] "After a long and hard debate, we have decided to release Number Six into the Colony networks."},
 		}),
+		PlaceObj('SA_RunSequence', {
+			'sequence_list', "Mystery 5",
+			'sequence', "Update Mystery Log",
+		}),
 		PlaceObj('SA_WaitMarsTime', {
 			'wait_type', "Sols",
 			'duration', 750000,

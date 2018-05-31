@@ -1,6 +1,6 @@
 DefineClass.HUD = 
 {
-	__parents = { "XDialog" },
+	__parents = { "XDrawCacheDialog" },
 	FocusOnOpen = "",
 	
 	last_highlight = false,
@@ -45,6 +45,12 @@ HUD.button_definitions = {
 				progress = function() return UICity:GetResearchProgress() end},
 			hint = T{4005, "<em><ShortcutName('actionResearchScreen')></em> - open Research Screen"},
 			id = "Research"},
+		rollover_disabled = {title = T{311, "Research"},
+			descr = T{8958, "Not yet available."},	-- only disabled in tutorial
+			id = "Research disabled",
+			},
+		
+		enabled = IsHUDResearchEnabled,
 		selection = true,
 		image = "UI/HUD/research.tga",
 		shine = "UI/HUD/research_shine.tga",
@@ -57,16 +63,19 @@ HUD.button_definitions = {
 			id = "Resupply",
 			},
 		
-		rollover_disabled = {title = T{4008, "Resupply disabled"},
-			descr = T{4009, "<red>All resupply missions are suspended.</red>"},
+		rollover_disabled = {title = T{3997, "Resupply"},
+			descr = function()
+				if g_Tutorial and not g_Tutorial.EnableResupply then
+					return T{8958, "Not yet available."}
+				end
+				return T{4009, "<red>All resupply missions are suspended.</red>"}
+			end,
 			id = "Resupply disabled",
 			},
 
 		
 		selection = true,
-		enabled = function()
-			return g_Consts.SupplyMissionsEnabled == 1 and true or false
-		end,
+		enabled = IsHUDResupplyEnabled,
 		callback = function(this)
 			OpenDialog("Resupply")
 		end,
@@ -75,7 +84,15 @@ HUD.button_definitions = {
 		FXPress = "ResupplyButtonClick",
 	},
 	idMarkers = {
-		rollover = {title = T{973748367669, "Milestones"}, descr = T{4010, "Shows Colony Milestones and Score."}, hint = T{4011, "<em><ShortcutName('actionMilestonesScreen')></em> - open Milestones Screen"}, id = "Show areas of effect"},
+		rollover = {
+			title = T{973748367669, "Milestones"}, 
+			descr = T{4010, "Shows Colony Milestones and Score."}, 
+			hint = T{4011, "<em><ShortcutName('actionMilestonesScreen')></em> - open Milestones Screen"}, 
+			id = "Show areas of effect"},
+		rollover_disabled = {
+			title = T{973748367669, "Milestones"}, 
+			descr = T{8958, "Not yet available."},	-- only disabled in tutorial
+		},
 		selection = true,
 		enabled = function()
 			return not g_Tutorial
@@ -131,9 +148,19 @@ HUD.button_definitions = {
 		Rows = 2,
 		FXPress = "ResourceOverviewButtonClick",
 	},
+	idColonyControlCenter = {
+		rollover = {title = T{137542936955, "Command Center"}, descr = T{8980, "Provides historical stats and tools to inspect and manage Buildings, Domes, Colonists and transportation."}, hint = T{8981, "<em><ShortcutName('actionColonyControlCenter')></em> - toggle Command Center"}, id = "Command Center"},
+		selection = true,
+		callback = function(this)
+			OpenCommandCenter()
+		end,
+		image = "UI/HUD/command_center.tga",
+		shine = "UI/HUD/command_center_shine.tga",
+		FXPress = "ColonyControlCenterButtonClick",
+	},
 	
 	idPause = {
-		rollover = {title = T{6869, "Pause"}, descr = T{4017, "Pause the game."}, id = "Pause", hint = T{4018, "<em><ShortcutName('actionPauseGame')>:</em> Pause/unpause"}},
+		rollover = {title = T{6869, "Pause"}, descr = T{4017, "Pause the game."}, id = "Pause", hint_gamepad = T{4018, "<em><ShortcutName('actionPauseGame')>/<DPadUp>:</em> Pause/unpause"}, hint = T{9826, "<em><ShortcutName('actionPauseGame')>:</em> Pause/unpause"}},
 		image = "UI/HUD/pause.tga",
 		shine = "UI/HUD/double_speed_shine.tga",
 	},
@@ -177,7 +204,7 @@ HUD.button_definitions = {
 HUD.button_list = table.keys2(HUD.button_definitions, true)
 
 local LeftHUDButtons = {"idBuild", "idOverview", "idResupply", "idResearch"}
-local RightHUDButtons = {"idColonyOverview", "idMarkers", "idRadio", "idMenu"}
+local RightHUDButtons = {"idColonyControlCenter", "idColonyOverview", "idMarkers", "idRadio", "idMenu"}
 local SpeedControlButtons = {"idPause", "idPlay", "idMedium", "idFast"}
 
 function HUD:Init()
@@ -398,9 +425,16 @@ function HUD:InitControls()
 			ctrl:SetEnabled(v.enabled(self))
 		end
 	end
+	rawset(self.idPause, "prev_UISpeedState", UISpeedState)
 	self.idPause.OnPress = function(this)
-		UICity:SetGameSpeed(0)
-		UISpeedState = "pause"
+		if GetTimeFactor() == 0 then
+			UICity:SetGameSpeed(false)
+			UISpeedState = this.prev_UISpeedState
+		else
+			UICity:SetGameSpeed(0)
+			this.prev_UISpeedState = UISpeedState
+			UISpeedState = "pause"
+		end
 	end
 	self.idPlay.OnPress = function(this)
 		UICity:SetGameSpeed(1)
@@ -417,17 +451,11 @@ function HUD:InitControls()
 	
 	self:SetDayProgress(UICity.hour * const.MinutesPerHour + UICity.minute)
 	self.idSol:SetText(T{4031, "Sol <day>", UICity})
+	self:DeleteThread("update_stats")
 	self:CreateThread("update_stats", function()
-		while UICity do			
-			local drones = 0
-			local arr = UICity.labels.DroneControl or {}
-			for i = 1, #arr do
-				local obj = arr[i]
-				drones = drones + #(obj.drones or "")
-			end
-			self.idDrones:SetText(tostring(drones))
-			local arr = UICity.labels.Colonist or {}
-			self.idHumans:SetText(tostring(#arr))
+		while UICity do
+			self.idDrones:SetText(tostring(#(UICity.labels.Drone or "")))
+			self.idHumans:SetText(tostring(#(UICity.labels.Colonist or "")))
 			self:UpdateTimeButtons()
 			self:UpdateHUDButtons()
 			Sleep(1000)
@@ -443,11 +471,13 @@ end
 
 function HUD:RecalculateMargins()
 	--This is temporarily and should be removed when implementing InGameInterface with new UI
-	self:SetMargins(HUD.Margins + GetSafeMargins())
+	local margins = GetSafeMargins()
+	self:SetMargins(HUD.Margins + margins)
+	self.idtxtConstructionStatus:SetPadding(box(-margins:minx(), -margins:miny(), 0, 0))
 end
 
 function OnMsg.SafeAreaMarginsChanged()
-	local hud = GetXDialog("HUD")
+	local hud = GetHUD()
 	if hud then
 		hud:RecalculateMargins()
 	end
@@ -525,16 +555,16 @@ function HUD:UpdateHintHighlight(force)
 end
 
 function OnMsg.OnScreenHintChanged(hint)
-	local hud = GetXDialog("HUD")
+	local hud = GetHUD()
 	if hud then
 		hud:UpdateHintHighlight("force")
 	end
 end
 
 local function UpdateHUDUIStyle()
-	local hud = GetXDialog("HUD")
+	local hud = GetHUD()
 	if hud then
-		hud:UpdateGamepadControls()
+		hud:InitControls()
 	end
 end
 
@@ -574,7 +604,7 @@ function HUD:UpdateTimeButtons()
 end
 
 function HUDUpdateTimeButtons()
-	local dlg = GetXDialog("HUD")
+	local dlg = GetHUD()
 	if dlg then
 		dlg:UpdateTimeButtons()
 	end
@@ -585,19 +615,21 @@ function HUD:SetCtrlRollover(ctrl, descr_t)
 		local rollover = descr_t.rollover
 		ctrl:SetRolloverTitle(T{rollover.title, UICity})
 		ctrl:SetRolloverText(T{rollover.descr, UICity})
-		if rollover.hint then
-			ctrl:SetRolloverHint(T{rollover.hint, UICity})
-		end
+		ctrl:SetRolloverHint(GetUIStyleGamepad() and rollover.hint_gamepad and T{rollover.hint_gamepad, UICity} or rollover.hint and T{rollover.hint, UICity} or "")
 		local disabled_rollover = descr_t.rollover_disabled
 		if disabled_rollover then
-			ctrl:SetRolloverDisabledText(T{disabled_rollover.descr, UICity})
+			local descr = disabled_rollover.descr
+			if type(descr) == "function" then
+				descr = descr()
+			end
+			ctrl:SetRolloverDisabledText(T{descr, UICity})
 			ctrl:SetRolloverDisabledTitle(T{disabled_rollover.title, UICity})
 		end
 	end
 end
 
 function OnMsg.NewHour(hour)
-	local dlg = GetXDialog("HUD")
+	local dlg = GetHUD()
 	if dlg then
 		local defs = HUD.button_definitions
 		for _, id in ipairs(HUD.button_list) do
@@ -610,14 +642,14 @@ function OnMsg.NewHour(hour)
 end
 
 function OnMsg.NewMinute(hour, minute)
-	local dlg = GetXDialog("HUD")
+	local dlg = GetHUD()
 	if dlg then
 		dlg:SetDayProgress(hour * const.MinutesPerHour + minute)
 	end
 end
 
 function OnMsg.NewDay(day)
-	local dlg = GetXDialog("HUD")
+	local dlg = GetHUD()
 	if dlg then
 		dlg.idSol:SetText(T{4031, "Sol <day>", day=day})
 	end
@@ -634,7 +666,10 @@ end
 
 function SetGameSpeedState(speed)
 	HintDisable("HintGameSpeed")
-	local hud = GetDialog("HUD")
+	local hud = GetHUD()
+	if not hud then
+		return
+	end
 	if speed == "pause" then
 		hud.idPause:Press()
 	elseif speed == "play" then
@@ -689,3 +724,7 @@ DefineClass.HUDSpeedControlButton =
 	FXMouseIn = "SpeedControlMouseOver",
 	Transparency = 237,
 }
+
+function GetHUD()
+	return GetXDialog("HUD")
+end

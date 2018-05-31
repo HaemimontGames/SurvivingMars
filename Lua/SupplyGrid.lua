@@ -224,7 +224,7 @@ function SupplyGridElement:GetProductionEstimate() if self.building.working then
 function SupplyGridElement:GetStoragePercent() return 100 * self.current_storage / self.storage_capacity end
 
 function SetObjDust(obj, normalized_dust, in_dome)
-	if obj:GetClassFlags(const.cfConstructible + const.cfDecal) ~= 0 and 
+	if obj and obj:GetClassFlags(const.cfConstructible + const.cfDecal) ~= 0 and 
 	   obj:GetEnumFlags(const.efBakedTerrainDecal + const.efBakedTerrainDecalLarge) == 0 then
 		obj:SetDust(normalized_dust, in_dome and const.DustMaterialInterior or const.DustMaterialExterior)
 	end
@@ -454,7 +454,11 @@ function SupplyGridFragment:UpdateGrid(update, update_consumer_state)
 	self.current_waste = self.current_production - current_consumption - storage_change
 	self.current_reserve = self.production + self.discharge - current_consumption
 	for _, producer in ipairs(self.producers) do
-		producer.building:UpdateAttachedSigns()
+		local building = producer.building
+		building:UpdateAttachedSigns()
+		if SelectedObj==building then
+			ReopenSelectionXInfopanel(building)
+		end
 	end
 	for _, consumer in ipairs(self.consumers) do
 		local building = consumer.building
@@ -462,9 +466,16 @@ function SupplyGridFragment:UpdateGrid(update, update_consumer_state)
 		if supply_resource == "electricity" then
 			building:RefreshNightLightsState()
 		end
+		if SelectedObj== building then
+			ReopenSelectionXInfopanel(building)
+		end
 	end
 	for _, storage in ipairs(self.storages) do
-		storage.building:UpdateAttachedSigns()
+		local building = storage.building
+		building:UpdateAttachedSigns()
+		if SelectedObj== building then
+			ReopenSelectionXInfopanel(building)
+		end
 	end
 end
 
@@ -915,6 +926,10 @@ function SupplyGridFragment:CreateNewSwitchGrid(params)
 	return PlaceholderSupplyGrid:new(params)
 end
 
+function IsSwitch(element)
+	return IsKindOfClasses(element.building, "ElectricityGridElement", "LifeSupportGridElement") and element.building.is_switch
+end
+
 function IsSwitchedSwitch(element)
 	return IsKindOfClasses(element.building, "ElectricityGridElement", "LifeSupportGridElement") and element.building.switched_state
 end
@@ -1087,6 +1102,25 @@ function SupplyGridObject:SupplyGridConnectElement(element, grid_class, new_grid
 	end
 end
 
+local KillSupplySplitNotifThread = {electricity = false, water = false}
+
+local function ManageKillNotifThread(thread, container, notif_name, delay)
+	if IsValidThread(thread) then
+		DeleteThread(thread)
+		thread = false
+	end
+	
+	delay = delay or 120000
+	
+	return CreateGameTimeThread(function(container, notif_name, delay)
+		Sleep(delay)
+		while #container > 0 do
+			table.remove(container)
+		end
+		RemoveOnScreenNotification(notif_name)
+	end, container, notif_name, delay)
+end
+
 local ConstructionMask = 64
 local SwitchMask = 16384
 
@@ -1217,6 +1251,14 @@ function SupplyGridObject:SupplyGridDisconnectElement(element, grid_class, force
 	end
 	
 	visited:free()
+	
+	if not IsSwitch(element) and not is_construction and grid ~= new_grid then
+		local sr = supply_resource == "air" and "water" or supply_resource
+		local container = g_SplitSupplyGridPositions[sr]
+		table.insert_unique(container, self:GetPos())
+		KillSupplySplitNotifThread[sr] = ManageKillNotifThread(KillSupplySplitNotifThread[sr], container, 
+							sr == "water" and "SplitLifeSupportGrid" or "SplitPowerGrid")
+	end
 end
 
 function MergeGrids(new_grid, grid) --merges grid into new_grid
@@ -1644,7 +1686,7 @@ end
 
 function BreakableSupplyGridElement:Getdescription()
 	if self.auto_connect then
-		return T{3892, "This section of the grid has malfunctioned and it's now leaking. It can be repaired by Drones for <metals(number)>.<newline><newline>Larger networks will malfunction more often.", number = 1000}
+		return T{3892, "This section of the grid has malfunctioned and it's now leaking. It can be repaired by Drones for <metals(number)>.\n\nLarger networks will malfunction more often.", number = 1000}
 	else
 		return self.description
 	end
@@ -1667,3 +1709,13 @@ function TestSupplyGridUpdateThreads()
 	print("<red>dead update threads", dead, "</red>")
 	print("<blue>ele production thread", IsValidThread(UICity.electricity.production_thread) and "alive" or "dead", "water p thread",  IsValidThread(UICity.water.production_thread) and "alive" or "dead", "air p thread", IsValidThread(UICity.air.production_thread)and "alive" or "dead", "</blue>")
 end
+
+GlobalVar("g_SplitSupplyGridPositions", function() return { electricity = {}, water = {} } end)
+
+GlobalGameTimeThread("SplitPowerGridNotif", function()
+	HandleNewObjsNotif(g_SplitSupplyGridPositions.electricity, "SplitPowerGrid", nil, nil, false)
+end)
+
+GlobalGameTimeThread("SplitLifeSupportGridNotif", function()
+	HandleNewObjsNotif(g_SplitSupplyGridPositions.water, "SplitLifeSupportGrid", nil, nil, false)
+end)

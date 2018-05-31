@@ -42,6 +42,15 @@ local GetEnumFlags = CObject.GetEnumFlags
 local IsValidEntity = IsValidEntity
 local developer = Platform.developer
 
+Flight_MaxSplineDist = 100*guim
+function OnMsg.ClassesBuilt()
+	local max_spline_dist = 0
+	ClassDescendants("FlyingObject", function(name, def)
+		max_spline_dist = Max(max_spline_dist, def.avg_spline_dist)
+	end)
+	Flight_MaxSplineDist = max_spline_dist
+end
+
 function OnMsg.PersistGatherPermanents(permanents)
 	-- avoid trying to save a C function
 	permanents["CObject.GetEnumFlags"] = CObject.GetEnumFlags
@@ -272,6 +281,13 @@ function Flight_Mark(obj)
 	MarkThreadStart()
 end
 
+function Flight_MarkCustom(obj, x, y, r, h)
+	assert(not Flight_MarkedObjs[obj])
+	Flight_MarkedObjs[obj] = {x, y, r, h}
+	Flight_ObjsToMark[obj] = true
+	MarkThreadStart()
+end
+
 function Flight_Unmark(obj)
 	if Flight_ObjToUnmark[obj] then
 		return
@@ -410,7 +426,7 @@ function FlyingObject:IdleMark(mark)
 end
 
 function FlyingObject:CheckCollisions()
-	Flight_CheckCollisions(self, FlyingObjs)
+	Flight_CheckCollisions(self, FlyingObjs, Flight_MaxSplineDist)
 	return max_int -- backward compat
 end
 
@@ -558,8 +574,13 @@ function FlyingObject:FollowPathDstr()
 		table.remove_entry(FlyingObjs, self)
 	end
 	self:OnMoveEnd()
-	self:OnMoveEnd()
 	Msg(self)
+end
+
+function FlyingObject:OnCommandDestructors()
+	if FlyingObjs[self] then
+		return self:FollowPathDstr()
+	end
 end
 
 function FlyingObject:FollowPathCmd(path)
@@ -567,7 +588,6 @@ function FlyingObject:FollowPathCmd(path)
 		assert(false, "Invalid flying object")
 		return
 	end
-	self:PushDestructor(self.FollowPathDstr)
 	local curr_thread = CurrentThread()
 	local prev_thread = FlyingObjs[self]
 	if not prev_thread then
@@ -620,7 +640,7 @@ function FlyingObject:FollowPathCmd(path)
 	local pitch_height_adjust = self.pitch_height_adjust
 	local roll_modifier = self.roll_modifier
 	local max_roll_speed = self.max_roll_speed
-	local step = self.step
+	local step = self.step * (100 + #FlyingObjs / 2) / 100
 	local max_sleep = self.max_sleep
 	local turn_slow_down = self.turn_slow_down
 	local len = BS3_GetSplineLengthEst(spline)
@@ -747,7 +767,7 @@ function FlyingObject:FollowPathCmd(path)
 		end
 		self:MoveSleep(time)
 	end
-	self:PopAndCallDestructor()
+	self:FollowPathDstr()
 end
 
 function FlyingObject:OnMoveStart()

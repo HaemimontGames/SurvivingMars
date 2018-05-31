@@ -1106,6 +1106,452 @@ PlaceObj('ActionFXParticles', {
 })
 
 PlaceObj('ActionFXParticles', {
+	'Action', "CrystalActive",
+	'Moment', "start",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "end",
+	'handle', 1422245656,
+	'Particles', "Crystal_Center_Alive",
+	'Scale', 200,
+	'Spot', "Crystalb6",
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalActive",
+	'Moment', "start",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "end",
+	'handle', 164259958,
+	'Particles', "Crystal_Center_Alive",
+	'Scale', 200,
+	'Spot', "Crystalb1",
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalActive",
+	'Moment', "start",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "end",
+	'handle', 545149899,
+	'Particles', "Crystal_Center_Alive",
+	'Scale', 200,
+	'Spot', "Crystalb4",
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalActive",
+	'Moment', "start",
+	'Actor', "CrystalsBig",
+	'Target', "ignore",
+	'DetailLevel', 60,
+	'Behavior', "BehaviorDetachAndDestroy",
+	'BehaviorMoment', "end",
+	'handle', 671374803,
+	'Particles', "Crystal_PoweredUp",
+	'Flags', "OnGround",
+	'Scale', 80,
+	'OffsetDir', "",
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalActive",
+	'Moment', "start",
+	'Actor', "CrystalsSmall",
+	'Target', "ignore",
+	'DetailLevel', 60,
+	'Behavior', "BehaviorDetachAndDestroy",
+	'BehaviorMoment', "end",
+	'handle', 1173891420,
+	'Particles', "Crystal_PoweredUp",
+	'Flags', "OnGround",
+	'Scale', 55,
+	'OffsetDir', "",
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "attach",
+	'Actor', "CrystalShard",
+	'DetailLevel', 60,
+	'EndMoment1', "end",
+	'handle', 1636033009,
+	'Particles', "Crystal_Shard_Attach_Trail",
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "attach",
+	'Actor', "CrystalShard",
+	'DetailLevel', 60,
+	'EndMoment1', "go",
+	'EndMoment2', "end",
+	'handle', 53888569,
+	'Particles', "Crystal_Shard_Attach",
+	'Scale', 600,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "attach1",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "go",
+	'EndMoment2', "end",
+	'handle', 1315322880,
+	'Particles', "Crystal_Center_Compose_Grow",
+	'Scale', 150,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "attach10",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "go",
+	'EndMoment2', "end",
+	'handle', 305216978,
+	'Particles', "Crystal_Center_Compose_Grow_02",
+	'Scale', 540,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "attach11",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "go",
+	'EndMoment2', "end",
+	'handle', 1354817621,
+	'Particles', "Crystal_Center_Compose_Grow_02",
+	'Scale', 580,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "attach12",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "go",
+	'EndMoment2', "end",
+	'handle', 1669220949,
+	'Particles', "Crystal_Center_Compose_Grow_02",
+	'Scale', 600,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "attach2",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "go",
+	'EndMoment2', "end",
+	'handle', 363544333,
+	'Particles', "Crystal_Center_Compose_Grow",
+	'Scale', 250,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "attach3",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "go",
+	'EndMoment2', "end",
+	'handle', 525261199,
+	'Particles', "Crystal_Center_Compose_Grow",
+	'Scale', 400,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "attach4",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "go",
+	'EndMoment2', "end",
+	'handle', 1510101083,
+	'Particles', "Crystal_Center_Compose_Grow_02",
+	'Scale', 300,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "attach5",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "go",
+	'EndMoment2', "end",
+	'handle', 298879274,
+	'Particles', "Crystal_Center_Compose_Grow_02",
+	'Scale', 340,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "attach6",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "go",
+	'EndMoment2', "end",
+	'handle', 677442557,
+	'Particles', "Crystal_Center_Compose_Grow_02",
+	'Scale', 380,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "attach7",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "go",
+	'EndMoment2', "end",
+	'handle', 961001260,
+	'Particles', "Crystal_Center_Compose_Grow_02",
+	'Scale', 420,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "attach8",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "go",
+	'EndMoment2', "end",
+	'handle', 124011569,
+	'Particles', "Crystal_Center_Compose_Grow_02",
+	'Scale', 460,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "attach9",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "go",
+	'EndMoment2', "end",
+	'handle', 1169587951,
+	'Particles', "Crystal_Center_Compose_Grow_02",
+	'Scale', 500,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "end",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'Time', 10000,
+	'Particles', "Crystal_Center_Compose_End",
+	'Scale', 300,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "go",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "go",
+	'EndMoment2', "end",
+	'handle', 965014142,
+	'Particles', "Crystal_Center_Compose_Go",
+	'Scale', 300,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "start",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "go",
+	'EndMoment2', "end",
+	'handle', 560942446,
+	'Particles', "Crystal_Center_Compose",
+	'Scale', 300,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "start",
+	'Actor', "CrystalShard",
+	'DetailLevel', 60,
+	'EndMoment1', "attach",
+	'EndMoment2', "end",
+	'handle', 898467372,
+	'Particles', "Crystal_Center_Compose_Direction",
+	'Scale', 200,
+	'Source', "ActionPos",
+	'OffsetDir', "",
+	'Orientation', "ActionDir",
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalCompose",
+	'Moment', "start",
+	'Actor', "CrystalShard",
+	'Target', "ignore",
+	'DetailLevel', 60,
+	'EndMoment1', "attach",
+	'EndMoment2', "end",
+	'Behavior', "BehaviorFollow",
+	'handle', 2118871931,
+	'Particles', "Crystal_Takeoff_Approach",
+	'Scale', 60,
+	'OffsetDir', "",
+	'Orientation', "ActionDir",
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalLiftoff",
+	'Moment', "go",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'Delay', 500,
+	'Behavior', "BehaviorDetachAndDestroy",
+	'BehaviorMoment', "end",
+	'handle', 819256430,
+	'Particles', "Crystal_Leave_Beam_Takeoff",
+	'Scale', 200,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalLiftoff",
+	'Moment', "go",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "end",
+	'handle', 134620235,
+	'Particles', "Crystal_Leave_Dust",
+	'Scale', 200,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalLiftoff",
+	'Moment', "go",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'EndMoment1', "end",
+	'handle', 1490851637,
+	'Particles', "Crystal_Leave",
+	'Scale', 200,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalLiftoff",
+	'Moment', "start",
+	'Actor', "Crystal",
+	'DetailLevel', 60,
+	'Time', 8000,
+	'EndMoment1', "end",
+	'handle', 433506680,
+	'Particles', "Crystal_Leave_Charge",
+	'Scale', 200,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalLiftoff",
+	'Moment', "start",
+	'Actor', "CrystalShard",
+	'DetailLevel', 60,
+	'Delay', 1500,
+	'EndMoment1', "hover",
+	'EndMoment2', "end",
+	'handle', 2038953783,
+	'Particles', "Crystals_Leave_Dust",
+	'Scale', 150,
+	'Attach', true,
+	'OffsetDir', "",
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalLiftoff",
+	'Moment', "start",
+	'Actor', "CrystalShard",
+	'DetailLevel', 60,
+	'EndMoment1', "end",
+	'handle', 593937359,
+	'Particles', "Crystal_Shard_Beam_Takeoff",
+	'Scale', 60,
+	'Spot', "Crystal",
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalPoweredUp",
+	'Moment', "start",
+	'Actor', "CrystalsBig",
+	'Target', "ignore",
+	'DetailLevel', 60,
+	'EndMoment1', "end",
+	'handle', 1049539094,
+	'Particles', "Crystal_PoweredUp_Beam_Overview",
+	'Flags', "OnGround",
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalPoweredUp",
+	'Moment', "start",
+	'Actor', "CrystalsBig",
+	'Target', "ignore",
+	'DetailLevel', 60,
+	'EndMoment1', "end",
+	'handle', 1936566628,
+	'Particles', "Crystal_PoweredUp_Beam",
+	'Flags', "OnGround",
+	'Scale', 80,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalPoweredUp",
+	'Moment', "start",
+	'Actor', "CrystalsSmall",
+	'Target', "ignore",
+	'DetailLevel', 60,
+	'EndMoment1', "end",
+	'handle', 1261550412,
+	'Particles', "Crystal_PoweredUp_Beam_Overview",
+	'Flags', "OnGround",
+	'Scale', 75,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "CrystalPoweredUp",
+	'Moment', "start",
+	'Actor', "CrystalsSmall",
+	'Target', "ignore",
+	'DetailLevel', 60,
+	'EndMoment1', "end",
+	'handle', 386043488,
+	'Particles', "Crystal_PoweredUp_Beam",
+	'Flags', "OnGround",
+	'Scale', 55,
+})
+
+PlaceObj('ActionFXParticles', {
 	'Action', "Dead",
 	'Moment', "start",
 	'Target', "ignore",
@@ -1300,6 +1746,17 @@ PlaceObj('ActionFXParticles', {
 })
 
 PlaceObj('ActionFXParticles', {
+	'Action', "DrainWater",
+	'Moment', "start",
+	'Actor', "Firefly",
+	'EndMoment1', "end",
+	'handle', 697999810,
+	'Particles', "Firefly_DranWater_Trail",
+	'Spot', "Particle",
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
 	'Action', "DroneExplode",
 	'Moment', "start",
 	'Target', "ignore",
@@ -1384,109 +1841,6 @@ PlaceObj('ActionFXParticles', {
 	'Source', "Camera",
 	'Attach', true,
 	'OffsetDir', "",
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "DustStorm",
-	'Moment', "start",
-	'Disabled', true,
-	'EndMoment1', "end",
-	'Particles', "Test__Env_Rain",
-	'Source', "Camera",
-	'Attach', true,
-	'OffsetDir', "",
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Electrostatic",
-	'Moment', "end",
-	'Actor', "DustDevil1",
-	'DetailLevel', 60,
-	'Particles', "DustDevil_Electrostatic_End",
-	'AlwaysVisible', true,
-	'Scale', 400,
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Electrostatic",
-	'Moment', "end",
-	'Actor', "DustDevil2",
-	'DetailLevel', 60,
-	'Particles', "DustDevil_Electrostatic_End",
-	'AlwaysVisible', true,
-	'Scale', 400,
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Electrostatic",
-	'Moment', "end",
-	'Actor', "DustDevilMajor1",
-	'DetailLevel', 60,
-	'Particles', "DustDevil_Electrostatic_End",
-	'AlwaysVisible', true,
-	'Scale', 800,
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Electrostatic",
-	'Moment', "end",
-	'Actor', "DustDevilMajor2",
-	'DetailLevel', 60,
-	'Particles', "DustDevil_Electrostatic_End",
-	'AlwaysVisible', true,
-	'Scale', 800,
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Electrostatic",
-	'Moment', "start",
-	'Actor', "DustDevil1",
-	'Behavior', "BehaviorDetachAndDestroy",
-	'BehaviorMoment', "end",
-	'handle', 766838729,
-	'Particles', "DustDevil_Electrostattic",
-	'AlwaysVisible', true,
-	'Scale', 400,
-	'Attach', true,
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Electrostatic",
-	'Moment', "start",
-	'Actor', "DustDevil2",
-	'Behavior', "BehaviorDetachAndDestroy",
-	'BehaviorMoment', "end",
-	'handle', 1212499477,
-	'Particles', "DustDevil_Electrostattic",
-	'AlwaysVisible', true,
-	'Scale', 400,
-	'Attach', true,
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Electrostatic",
-	'Moment', "start",
-	'Actor', "DustDevilMajor1",
-	'Behavior', "BehaviorDetachAndDestroy",
-	'BehaviorMoment', "end",
-	'handle', 340353600,
-	'Particles', "DustDevil_Electrostattic",
-	'AlwaysVisible', true,
-	'Scale', 800,
-	'Attach', true,
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Electrostatic",
-	'Moment', "start",
-	'Actor', "DustDevilMajor2",
-	'Behavior', "BehaviorDetachAndDestroy",
-	'BehaviorMoment', "end",
-	'handle', 1277454235,
-	'Particles', "DustDevil_Electrostattic",
-	'AlwaysVisible', true,
-	'Scale', 800,
-	'Attach', true,
 })
 
 PlaceObj('ActionFXParticles', {
@@ -1587,6 +1941,30 @@ PlaceObj('ActionFXParticles', {
 	'Particles', "ElStorm_Lightning_01_Area",
 	'Scale', 400,
 	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "ElectrostaticStormArea",
+	'Moment', "start",
+	'Target', "ignore",
+	'Time', 5000,
+	'Particles', "ElStorm_Lightning_01_Area_Hit",
+	'Scale', 400,
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Emerge",
+	'Moment', "start",
+	'Actor', "Firefly",
+	'Time', 5000,
+	'EndMoment1', "end",
+	'handle', 243394727,
+	'Particles', "Fireflies_Spawn",
+	'Flags', "LockedOrientation",
+	'Scale', 600,
+	'Source', "Target",
+	'Offset', point(0, 0, -500),
 })
 
 PlaceObj('ActionFXParticles', {
@@ -1960,8 +2338,6 @@ PlaceObj('ActionFXParticles', {
 	'Actor', "FarmSprinkler",
 	'DetailLevel', 60,
 	'EndMoment1', "end",
-	'Behavior', "BehaviorDetachAndDestroy",
-	'BehaviorMoment', "end",
 	'handle', 74047923,
 	'Particles', "HydroponicFarm_Shower",
 	'Spot', "Particle",
@@ -2136,6 +2512,16 @@ PlaceObj('ActionFXParticles', {
 })
 
 PlaceObj('ActionFXParticles', {
+	'Action', "Kill",
+	'Moment', "start",
+	'Actor', "Firefly",
+	'Target', "ignore",
+	'Particles', "Fireflies_LightTrap_Kill",
+	'Scale', 80,
+	'Spot', "Particle",
+})
+
+PlaceObj('ActionFXParticles', {
 	'Action', "Land",
 	'Moment', "start",
 	'Actor', "AttackRover",
@@ -2271,6 +2657,268 @@ PlaceObj('ActionFXParticles', {
 	'handle', 86461706,
 	'Particles', "RCTransport_Load",
 	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronAnomaly",
+	'Moment', "start",
+	'Actor', "SubsurfaceAnomaly",
+	'EndMoment1', "end",
+	'handle', 1793029463,
+	'Particles', "Metatron_Small_Alive",
+	'Scale', 50,
+	'Attach', true,
+	'Offset', point(0, 0, 1000),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronArrive",
+	'Moment', "end",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'EndAction1', "MetatronLeave",
+	'EndMoment1', "start",
+	'handle', 1223956593,
+	'Particles', "Metatron_Alive",
+	'Scale', 600,
+	'Attach', true,
+	'Offset', point(0, 0, 500),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronArrive",
+	'Moment', "start",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'EndMoment1', "end",
+	'handle', 1329953790,
+	'Particles', "Metatron_Arrive",
+	'Scale', 600,
+	'Attach', true,
+	'Offset', point(0, 0, 1000),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronGiftShrink",
+	'Moment', "start",
+	'Actor', "MetatronGiftAnomaly",
+	'Target', "ignore",
+	'Time', 5000,
+	'EndMoment1', "end",
+	'handle', 2099764912,
+	'Particles', "Metatron_Small_Alive",
+	'Scale', 50,
+	'Source', "ActionPos",
+	'Offset', point(0, 0, 1000),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronGiftShrink",
+	'Moment', "start",
+	'Actor', "MetatronGiftIonStorm",
+	'Target', "ignore",
+	'Time', 10000,
+	'EndMoment1', "0",
+	'handle', 1050633322,
+	'Particles', "Metatron_Shrink_AnomalyStorm",
+	'Scale', 135,
+	'Source', "ActionPos",
+	'Offset', point(0, 0, 1000),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronLeave",
+	'Moment', "pre-leave",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 560,
+	'EndMoment1', "end",
+	'handle', 491924001,
+	'Particles', "Metatron_Disappear",
+	'Scale', 600,
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronLeave",
+	'Moment', "start",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'EndMoment1', "end",
+	'handle', 1414892019,
+	'Particles', "AlienDigger_Launch",
+	'Scale', 600,
+	'Attach', true,
+	'Offset', point(0, 0, 1000),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronLeave",
+	'Moment', "start",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'EndMoment1', "end",
+	'handle', 78491542,
+	'Particles', "Metatron_Leave",
+	'Scale', 600,
+	'Attach', true,
+	'Offset', point(0, 0, 1000),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronLeave",
+	'Moment', "start",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Time', 1000,
+	'EndMoment1', "end",
+	'handle', 564355049,
+	'Particles', "Metatron_Leave_Dust",
+	'Scale', 400,
+	'Offset', point(0, 0, -5000),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronPreArrive",
+	'Moment', "start",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 580,
+	'EndMoment1', "end",
+	'handle', 465996884,
+	'Particles', "Metatron_Appear",
+	'Scale', 600,
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronRotation",
+	'Moment', "End1",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 500,
+	'Time', 3000,
+	'Particles', "Metatron_Rotate",
+	'Scale', 600,
+	'Attach', true,
+	'Offset', point(0, 0, 10000),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronRotation",
+	'Moment', "End2",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 500,
+	'Time', 3000,
+	'EndMoment1', "end",
+	'handle', 113780486,
+	'Particles', "Metatron_Rotate",
+	'Scale', 600,
+	'Attach', true,
+	'Offset', point(0, 0, 10000),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronRotation",
+	'Moment', "End3",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 500,
+	'Time', 3000,
+	'EndMoment1', "end",
+	'handle', 787283685,
+	'Particles', "Metatron_Rotate",
+	'Scale', 600,
+	'Attach', true,
+	'Offset', point(0, 0, 10000),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronRotation",
+	'Moment', "End4",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 500,
+	'Time', 3000,
+	'EndMoment1', "end",
+	'handle', 989380486,
+	'Particles', "Metatron_Rotate",
+	'Scale', 600,
+	'Attach', true,
+	'Offset', point(0, 0, 10000),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronRotation",
+	'Moment', "End5",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 500,
+	'Time', 3000,
+	'EndMoment1', "end",
+	'handle', 137249348,
+	'Particles', "Metatron_Rotate",
+	'Scale', 600,
+	'Attach', true,
+	'Offset', point(0, 0, 10000),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronRotation",
+	'Moment', "End6",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 500,
+	'Time', 3000,
+	'EndMoment1', "end",
+	'handle', 1433178185,
+	'Particles', "Metatron_Rotate",
+	'Scale', 600,
+	'Attach', true,
+	'Offset', point(0, 0, 10000),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronRotation",
+	'Moment', "End7",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 500,
+	'Time', 3000,
+	'EndMoment1', "end",
+	'handle', 1265411348,
+	'Particles', "Metatron_Rotate",
+	'Scale', 600,
+	'Attach', true,
+	'Offset', point(0, 0, 10000),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronSpawnGifts",
+	'Moment', "start",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Delay', 5000,
+	'Time', 10000,
+	'Particles', "Metatron_SpawnGifts",
+	'Scale', 600,
+	'Attach', true,
+	'Offset', point(0, 0, 10000),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "MetatronSpawnGifts",
+	'Moment', "start",
+	'Actor', "Metatron",
+	'Target', "ignore",
+	'Time', 5500,
+	'EndMoment1', "end",
+	'handle', 2141033319,
+	'Particles', "Metatron_SpawnGifts_Charge",
+	'Scale', 600,
+	'Attach', true,
+	'Offset', point(0, 0, 10000),
 })
 
 PlaceObj('ActionFXParticles', {
@@ -3005,6 +3653,21 @@ PlaceObj('ActionFXParticles', {
 })
 
 PlaceObj('ActionFXParticles', {
+	'Action', "Pulse",
+	'Moment', "start",
+	'Actor', "BlackCubeMonolith",
+	'Target', "ignore",
+	'DetailLevel', 40,
+	'EndMoment1', "end",
+	'handle', 222969909,
+	'Particles', "BlackCubeMonolith_Pulse",
+	'Scale', 120,
+	'Spot', "Center",
+	'Attach', true,
+	'Offset', point(0, 0, 500),
+})
+
+PlaceObj('ActionFXParticles', {
 	'Action', "Recharge",
 	'Moment', "start",
 	'Actor', "Drone",
@@ -3110,6 +3773,15 @@ PlaceObj('ActionFXParticles', {
 	'EndMoment2', "digEnd",
 	'handle', 491105276,
 	'Particles', "RegolithExtractor_DigReverse",
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Release",
+	'Moment', "start",
+	'Actor', "LightTrap",
+	'Target', "ignore",
+	'Particles', "Fireflies_LightTrap_Trap",
 	'Attach', true,
 })
 
@@ -3279,13 +3951,27 @@ PlaceObj('ActionFXParticles', {
 PlaceObj('ActionFXParticles', {
 	'Action', "Revealed",
 	'Moment', "true",
+	'Actor', "CrystalsBig",
 	'Target', "ignore",
 	'DetailLevel', 60,
 	'EndMoment1', "end",
 	'handle', 268598213,
 	'Particles', "AnomalyMarker_Revealed",
 	'Flags', "OnGround",
-	'Scale', 120,
+	'Scale', 300,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Revealed",
+	'Moment', "true",
+	'Actor', "CrystalsSmall",
+	'Target', "ignore",
+	'DetailLevel', 60,
+	'EndMoment1', "end",
+	'handle', 970291401,
+	'Particles', "AnomalyMarker_Revealed",
+	'Flags', "OnGround",
+	'Scale', 200,
 })
 
 PlaceObj('ActionFXParticles', {
@@ -3298,6 +3984,19 @@ PlaceObj('ActionFXParticles', {
 	'Particles', "ConstructionSite_Spawn",
 	'Flags', "LockedOrientation",
 	'Offset', point(0, 0, 100),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Revealed",
+	'Moment', "true",
+	'Target', "ignore",
+	'Id', "Revealed",
+	'DetailLevel', 60,
+	'EndMoment1', "end",
+	'handle', 153400784,
+	'Particles', "AnomalyMarker_Revealed",
+	'Flags', "OnGround",
+	'Scale', 120,
 })
 
 PlaceObj('ActionFXParticles', {
@@ -3541,16 +4240,6 @@ PlaceObj('ActionFXParticles', {
 	'Particles', "RCRover_Unsiege",
 	'Scale', 200,
 	'Attach', true,
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Scan",
-	'Moment', "end",
-	'Actor', "ExplorerRover",
-	'Disabled', true,
-	'Particles', "AnomalyMarker_Revealed",
-	'Flags', "LockedOrientation",
-	'Source', "Target",
 })
 
 PlaceObj('ActionFXParticles', {
@@ -3850,7 +4539,7 @@ PlaceObj('ActionFXParticles', {
 	'Moment', "start",
 	'Actor', "Sinkhole",
 	'EndMoment1', "end",
-	'handle', 2123928958,
+	'handle', 7860856,
 	'Particles', "Selection_Rover",
 	'Flags', "LockedOrientation",
 	'Scale', 500,
@@ -4194,6 +4883,16 @@ PlaceObj('ActionFXParticles', {
 PlaceObj('ActionFXParticles', {
 	'Action', "Spawn",
 	'Moment', "end",
+	'Actor', "DustDevilElectro",
+	'DetailLevel', 60,
+	'Particles', "DustDevil_Electrostatic_End",
+	'AlwaysVisible', true,
+	'Scale', 150,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Spawn",
+	'Moment', "end",
 	'Actor', "DustDevilMajor1",
 	'DetailLevel', 60,
 	'Particles', "DustDevil_01_End",
@@ -4207,6 +4906,16 @@ PlaceObj('ActionFXParticles', {
 	'DetailLevel', 60,
 	'Particles', "DustDevil_01_End",
 	'Scale', 400,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Spawn",
+	'Moment', "end",
+	'Actor', "DustDevilMajorElectro",
+	'DetailLevel', 60,
+	'Particles', "DustDevil_Electrostatic_End",
+	'AlwaysVisible', true,
+	'Scale', 300,
 })
 
 PlaceObj('ActionFXParticles', {
@@ -4541,6 +5250,7 @@ PlaceObj('ActionFXParticles', {
 	'BehaviorMoment', "end",
 	'handle', 2102815325,
 	'Particles', "DustDevil_04",
+	'AlwaysVisible', true,
 	'Scale', 800,
 	'Attach', true,
 })
@@ -4553,6 +5263,20 @@ PlaceObj('ActionFXParticles', {
 	'BehaviorMoment', "end",
 	'handle', 353684318,
 	'Particles', "DustDevil_04",
+	'AlwaysVisible', true,
+	'Scale', 800,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "DustDevilElectro",
+	'Behavior', "BehaviorDetachAndDestroy",
+	'BehaviorMoment', "end",
+	'handle', 1022713216,
+	'Particles', "DustDevil_04_Electrostatic",
+	'AlwaysVisible', true,
 	'Scale', 800,
 	'Attach', true,
 })
@@ -4565,6 +5289,7 @@ PlaceObj('ActionFXParticles', {
 	'BehaviorMoment', "end",
 	'handle', 1691741188,
 	'Particles', "DustDevil_04",
+	'AlwaysVisible', true,
 	'Scale', 1400,
 	'Attach', true,
 })
@@ -4577,6 +5302,7 @@ PlaceObj('ActionFXParticles', {
 	'BehaviorMoment', "end",
 	'handle', 1430933536,
 	'Particles', "DustDevil_04",
+	'AlwaysVisible', true,
 	'Scale', 1400,
 	'Attach', true,
 })
@@ -4584,10 +5310,69 @@ PlaceObj('ActionFXParticles', {
 PlaceObj('ActionFXParticles', {
 	'Action', "Spawn",
 	'Moment', "start",
-	'Actor', "Firefly",
-	'Disabled', true,
-	'Particles', "FireflyGlow_01",
+	'Actor', "DustDevilMajorElectro",
+	'Behavior', "BehaviorDetachAndDestroy",
+	'BehaviorMoment', "end",
+	'handle', 283834862,
+	'Particles', "DustDevil_04_Electrostatic",
+	'AlwaysVisible', true,
+	'Scale', 1400,
 	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "MetatronGiftAnomaly",
+	'EndMoment1', "end",
+	'handle', 1659281785,
+	'Particles', "Metatron_Small_Alive_Trail",
+	'Scale', 30,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "MetatronGiftAnomaly",
+	'EndMoment1', "end",
+	'handle', 255029010,
+	'Particles', "Metatron_Small_Alive",
+	'Scale', 30,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "MetatronGiftIonStorm",
+	'EndMoment1', "end",
+	'handle', 1762545609,
+	'Particles', "Metatron_Small_Alive",
+	'Scale', 30,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "MetatronGiftIonStorm",
+	'EndMoment1', "end",
+	'handle', 419237361,
+	'Particles', "Metatron_Small_Alive_Trail",
+	'Scale', 30,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "MetatronIonStorm",
+	'Target', "ignore",
+	'EndMoment1', "end",
+	'handle', 1917046783,
+	'Particles', "IonicStorm",
+	'Scale', 135,
 })
 
 PlaceObj('ActionFXParticles', {
@@ -4613,6 +5398,19 @@ PlaceObj('ActionFXParticles', {
 	'Particles', "Demolish_Warning",
 	'Spot', "Light",
 	'SpotsPercent', 100,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "Sinkhole",
+	'EndMoment1', "end",
+	'handle', 131495745,
+	'Particles', "Fireflies_SinkHole_Spawn",
+	'Flags', "LockedOrientation",
+	'Scale', 175,
+	'Spot', "Particle",
 	'Attach', true,
 })
 
@@ -4759,6 +5557,33 @@ PlaceObj('ActionFXParticles', {
 	'Particles', "RocketUI_Glow",
 	'SpotsPercent', 100,
 	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Trap",
+	'Moment', "end",
+	'Actor', "Firefly",
+	'Target', "ignore",
+	'EndAction1', "Release",
+	'EndMoment1', "start",
+	'EndAction2', "Kill",
+	'EndMoment2', "start",
+	'handle', 1045178950,
+	'Particles', "Firefly_LightTrap_Trapped",
+	'Scale', 60,
+	'Spot', "Particle",
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Trap",
+	'Moment', "start",
+	'Actor', "LightTrap",
+	'Target', "ignore",
+	'Delay', 1200,
+	'Particles', "Fireflies_LightTrap_Trap",
+	'Attach', true,
+	'Offset', point(0, 0, 500),
 })
 
 PlaceObj('ActionFXParticles', {
@@ -4992,8 +5817,8 @@ PlaceObj('ActionFXParticles', {
 	'Target', "ignore",
 	'DetailLevel', 40,
 	'EndMoment1', "end",
-	'handle', 222969909,
-	'Particles', "BlackCubeMonolith_Pulse",
+	'handle', 542518272,
+	'Particles', "BlackCubeMonolith_Alive",
 	'Scale', 120,
 	'Spot', "Center",
 	'Attach', true,
@@ -5384,6 +6209,18 @@ PlaceObj('ActionFXParticles', {
 	'handle', 531240068,
 	'Particles', "Lake_Ripples",
 	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Working",
+	'Moment', "start",
+	'Actor', "LightTrap",
+	'EndMoment1', "end",
+	'handle', 2114993826,
+	'Particles', "Fireflies_LightTrap_Alive",
+	'Scale', 300,
+	'Attach', true,
+	'Offset', point(0, 0, 1000),
 })
 
 PlaceObj('ActionFXParticles', {

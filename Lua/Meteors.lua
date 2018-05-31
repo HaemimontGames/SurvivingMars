@@ -248,20 +248,17 @@ local meteor_query =
 }
 
 GlobalVar("g_MeteorsPredicted", {})
-GlobalVar("g_MeteorImpactIdx", false)		-- currently shown meteor impact through the On-Screen Notification
+GlobalVar("g_MeteorImpactIdx", 0)		-- currently shown meteor impact through the On-Screen Notification
 
-local function CycleMeteorImpacts()
-	if #g_MeteorsPredicted == 0 then return end
-	g_MeteorImpactIdx = g_MeteorImpactIdx or 1
-	local start_idx
-	while g_MeteorImpactIdx ~= start_idx do
-		start_idx = start_idx or g_MeteorImpactIdx
+function CycleMeteorImpacts()
+	for i=1,#g_MeteorsPredicted do
+		if g_MeteorImpactIdx >= #g_MeteorsPredicted then
+			g_MeteorImpactIdx = 0
+		end
 		g_MeteorImpactIdx = g_MeteorImpactIdx + 1
-		if g_MeteorImpactIdx > #g_MeteorsPredicted then
-			g_MeteorImpactIdx = 1
-		end	
 		if g_MeteorsPredicted[g_MeteorImpactIdx].notification then
 			ViewObjectMars(g_MeteorsPredicted[g_MeteorImpactIdx].dest)
+			break
 		end
 	end
 end
@@ -424,7 +421,7 @@ function BaseMeteor:SpawnPrefab()
 	for _, obj in ipairs(objs) do
 		if obj:IsKindOfClasses("SurfaceDepositMarker", "SubsurfaceAnomalyMarker") then
 			-- check for buildable
-			local q, r = WorldToHex(obj:GetPos())	
+			local q, r = WorldToHex(obj)	
 			if GetBuildableZ(q, r) ~= UnbuildableZ then		
 				if IsKindOf(obj, "SubsurfaceAnomalyMarker") then
 					obj.revealed = true
@@ -556,7 +553,7 @@ function BaseMeteorSmall:Explode()
 	
 	if #buildings_hit == 0 then
 		local has_neighbour_obj = false
-		local q, r = WorldToHex(self:GetPos())
+		local q, r = WorldToHex(self)
 		for j = 1, #HexSurroundingsCheckShape do
 			local dq, dr = HexSurroundingsCheckShape[j]:xy()
 			if HexGetAnyObj(q + dq, r + dr) then
@@ -679,7 +676,7 @@ function BaseMeteorLarge:Explode()
 	
 	if #buildings_hit == 0 then
 		local has_neighbour_obj = false
-		local q, r = WorldToHex(self:GetPos())
+		local q, r = WorldToHex(self)
 		for j = 1, #HexSurroundingsCheckShape do
 			local dq, dr = HexSurroundingsCheckShape[j]:xy()
 			if HexGetAnyObj(q + dq, r + dr) then
@@ -707,16 +704,6 @@ end
 
 DefineClass("MeteorSmall1", { __parents = {"BaseMeteorSmall"}, entity = "Asteroid" })
 DefineClass("MeteorLarge1", { __parents = {"BaseMeteorLarge"}, entity = "Asteroid" })
-
-function TriggerMeteors(meteors_type)
-	local data = DataInstances.MapSettings_Meteor
-	local meteors = data[mapdata.MapSettings_Meteor] or data["Meteor_VeryLow"]
-	if meteors then
-		CreateGameTimeThread(function()
-			MeteorsDisaster(meteors, meteors_type)
-		end)
-	end
-end
 
 GlobalVar("g_MeteorDecals", {})
 
@@ -906,7 +893,7 @@ end
 if Platform.developer then
 	function TestMeteor()
 		CreateGameTimeThread(function()
-			local def = MapSettings_Meteor:new{storm_radius = 0}
+			local def = MapSettings_Meteor:new{storm_radius = 1000}
 			MeteorsDisaster(def, "single", IsValid(SelectedObj) and SelectedObj:GetVisualPos() or GetTerrainCursor())
 		end)
 	end

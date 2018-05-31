@@ -108,3 +108,19 @@ function LabelContainer:SetLabelModifier(label, id, modifier, check_if_prop_exis
 		end
 	end
 end
+
+if Platform.developer then
+	function DbgTestLabelAccess(label, container)
+		container = container or UICity
+		local labels = container.labels
+		container.labels = setmetatable({}, {
+			__index = function(_, name)
+				assert(name ~= label)
+				return labels[name]
+			end,
+			__newindex = function(_, name, new_label)
+				labels[name] = new_label
+			end,
+		})
+	end
+end

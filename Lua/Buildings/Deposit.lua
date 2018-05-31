@@ -5,6 +5,9 @@ DefineClass.Deposit = {
 	encyclopedia_id = false,
 	resource = false, --"Metals", "Concrete", "Polymers" --something from Resources global table preferably.
 	
+	properties = {
+		{ category = "Debug", name = "Marker", id = "DepositMarker", editor = "object", default = false, developer = true, read_only = true, dont_save = true},
+	},
 	display_name = "",
 	display_icon = "",
 	description = T{634, "<resource(resource)> Deposit"},
@@ -17,6 +20,8 @@ DefineClass.Deposit = {
 	
 	city_label = false,
 	max_amount = 0,
+	
+	marker = false,
 }
 
 function Deposit:GetDisplayName()
@@ -62,10 +67,8 @@ function Deposit:GetResourceName()
 	return self.resource and Resources[self.resource] and Resources[self.resource].display_name or ""
 end
 
-function Deposit:UpdateUI()
-	if self == SelectedObj then
-		Msg("UIPropertyChanged", self)
-	end	
+function Deposit:GetDepositMarker()
+	return self.marker or GetObjects{classes = "DepositMarker", filter = function(marker, deposit) return marker.placed_obj == deposit end, self}[1]
 end
 
 function Deposit:IsExplorationBlocked()
@@ -99,6 +102,7 @@ DefineClass.DepositMarker = {
 	entity = "Hex1_Placeholder",
 	resource = "",
 	properties = {
+		{ category = "Debug", name = T{8927, "Deposit"},      id = "Deposit",     editor = "object", default = false, developer = true, read_only = true, dont_save = true},
 		{ category = "Debug", name = T{635, "Feature"}, id = "dbg_feature", editor = "object", default = false, developer = true},
 		{ category = "Debug", name = T{636, "Cluster"}, id = "dbg_cluster", editor = "number", default = -1, developer = true},
 		{ category = "Debug", name = T{637, "Prefab"},  id = "dbg_prefab",  editor = "text", default = "", developer = true},
@@ -120,6 +124,10 @@ function DepositMarker:Done()
 	if UICity then
 		UICity:RemoveFromLabel(self.class, self)
 	end
+end
+
+function DepositMarker:GetDeposit()
+	return self.placed_obj
 end
 
 function DepositMarker:GetObstructionRadius()
@@ -185,6 +193,7 @@ function DepositMarker:PlaceDeposit(dont_move_if_obstruct)
 			sector:RegisterDeposit(self) -- for deposits which got spawned later by means other than exploration
 		end
 		if IsValid(self.placed_obj) then
+			self.placed_obj.marker = self
 			self.placed_obj:SetPos(mx, my, const.InvalidZ)
 			if IsKindOf(self.placed_obj, "SubsurfaceDeposit") then
 				self.placed_obj:SetAngle(mapdata and (mapdata.OverviewOrientation * 60) or 0)

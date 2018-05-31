@@ -5,7 +5,7 @@ DefineClass.MapSettings_DustDevils =
 	{
 		{ id = "name",					name = "Name",						editor = "text",		default = "dust devil" },
 		{ id = "birth_hour",			no_edit = true },
-		{ id = "spawn_chance",			name = "Spawn Chance",				editor = "number",	default = 30, min = 1, max = 100 },
+		{ id = "spawn_chance",			name = "Spawn Chance",				editor = "number",	default = 30, min = 1, max = 100, slider = true },
 		{ id = "count_min",				name = "Count Min",					editor = "number",	default = 2, help = "Lo Range - how many Dust Devils to spawn" },
 		{ id = "count_max",				name = "Count Max",					editor = "number",	default = 4, help = "Hi Range - how many Dust Devils to spawn" },
 		{ id = "spawn_delay_min",		name = "Spawn Delay Min",			editor = "number",	default = 500, help = "In ms" },
@@ -14,7 +14,7 @@ DefineClass.MapSettings_DustDevils =
 		{ id = "duration_random",		name = "Duration Random",			editor = "number",	default = 8 * const.HourDuration, scale = const.HourDuration, help = "In Hours" },
 		{ id = "speed",					name = "Speed",						editor = "number",	default = 3*guim, scale = guim },
 		{ id = "speed_random",			name = "Speed Random",				editor = "number",	default = 3*guim, scale = guim },
-		{ id = "major_chance",			name = "Major Chance",				editor = "number",	default = 3*guim, min = 1, max = 100 },
+		{ id = "major_chance",			name = "Major Chance (%)",			editor = "number",	default = 3, min = 1, max = 100, slider = true },
 		{ id = "devil_radius",			name = "Radius",						editor = "number",	default = 80 * guim, scale = guim, category = "Devil Properties" },
 		{ id = "devil_malfunction_radius",	name = "Malfunction Radius",				editor = "number",	default = 20 * guim, scale = guim, category = "Devil Properties" },
 		{ id = "devil_dust",			name = "Dust Per Second",			editor = "number",	default = 2500, category = "Devil Properties" },
@@ -26,7 +26,7 @@ DefineClass.MapSettings_DustDevils =
 		{ id = "major_minions_radius",name = "Major Minions Radius",	editor = "number",	default = 100 * guim, scale = guim, category = "Devil Properties" },
 		{ id = "minion_delay_min",		name = "Minion Delay Min",			editor = "number",	default = 3000, category = "Devil Properties", help = "Desync min delay spawn for minions, in ms" },
 		{ id = "minion_delay_max",		name = "Minion Delay Max",			editor = "number",	default = 9000, category = "Devil Properties", help = "Desync max delay spawn for minions, in ms" },
-		{ id = "electro_chance",		name = "Electrostatic Chance",	editor = "number",	default = 5, min = 0, max = 100, category = "Devil Properties" },
+		{ id = "electro_chance",		name = "Electrostatic Chance",	editor = "number",	default = 5, min = 0, max = 100, category = "Devil Properties", slider = true },
 		{ id = "electro_battery",		name = "Electrostatic Battery",	editor = "number",	default = 50 * 100, category = "Devil Properties" },
 		{ id = "colonist_health",		name = "Colonist Health Loss",	editor = "number",	default = 100, category = "Devil Properties" },
 		{ id = "drone_speed_down",		name = "Drone Speed Down",			editor = "number",	default = 60, category = "Devil Properties" },
@@ -35,7 +35,7 @@ DefineClass.MapSettings_DustDevils =
 		
 		{ id = "marker_spawntime",        name = "Spawn Time (h)",        editor = "number", default = 20 * const.HourDuration, scale = const.HourDuration, category = "Dust Devil Markers" },
 		{ id = "marker_spawntime_random", name = "Spawn Time Random (h)", editor = "number", default = 10 * const.HourDuration, scale = const.HourDuration, category = "Dust Devil Markers" },
-		{ id = "marker_spawn_chance",     name = "Spawn Chance (%)",      editor = "number", default = 30, min = 1, max = 100, category = "Dust Devil Markers" },
+		{ id = "marker_spawn_chance",     name = "Spawn Chance (%)",      editor = "number", default = 30, min = 1, max = 100, category = "Dust Devil Markers", slider = true },
 	},
 }
 
@@ -127,6 +127,9 @@ function GenerateDustDevil(pos, descr, range, major)
 		drone_speed_down = descr.drone_speed_down,
 		drone_battery = electro and descr.electro_battery,
 	}
+	if electro then
+		devil.fx_actor_class = major and "DustDevilMajorElectro" or "DustDevilElectro"
+	end
 	if major then
 		local minions = UICity:Random(descr.major_minions_min, descr.major_minions_max)
 		devil:SpawnMinions(minions, descr)
@@ -244,9 +247,6 @@ end
 
 function BaseDustDevil:StartFX()
 	PlayFX("Spawn", "start", self)
-	if self.drone_battery then
-		PlayFX("Electrostatic", "start", self)
-	end
 end
 
 function BaseDustDevil:Start()
@@ -402,13 +402,13 @@ function BaseDustDevil:Done()
 		DoneObject(self.line)
 		self.line = false
 	end
-	if self.drone_battery then
-		PlayFX("Electrostatic", "end", self)
-	end
 	PlayFX("Spawn", "end", self)
 end
 
-DefineClass("DustDevil", "BaseDustDevil")
+DefineClass.DustDevil =
+{
+	__parents = { "BaseDustDevil" },
+}
 
 DefineClass.DustDevilMajor =
 {

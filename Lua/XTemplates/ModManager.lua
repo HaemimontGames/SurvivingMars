@@ -31,7 +31,7 @@ end,
 			}),
 			PlaceObj('XTemplateWindow', {
 				'comment', "margins",
-				'Margins', box(0, 80, 100, 80),
+				'Margins', box(0, 30, 100, 50),
 			}, {
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
@@ -143,7 +143,7 @@ end,
 							}, {
 								PlaceObj('XTemplateCode', {
 									'run', function (self, parent, context)
-local host = GetDialog(parent)
+local host = GetXDialog(parent)
 host.idTitle:SetTitle(T{5460, "FILTER"})
 host.idModInfo:SetVisible(false)
 end,
@@ -202,7 +202,7 @@ end,
 											'func', function (self, rollover)
 XTextButton.OnSetRollover(self, rollover)
 if rollover then
-	ShowModDescription(self.context, GetDialog(self))
+	ShowModDescription(self.context, GetXDialog(self))
 end
 end,
 										}),
@@ -247,7 +247,7 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "OnPageChanged",
 							'func', function (self, ...)
-GetDialog(self).idModInfo:SetVisible(false)
+GetXDialog(self).idModInfo:SetVisible(false)
 end,
 						}),
 						}),

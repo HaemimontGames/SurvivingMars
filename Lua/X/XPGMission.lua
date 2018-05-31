@@ -41,6 +41,7 @@ local function MissionParamCombo(id)
 				text = v.display_name,
 				rollover = rollover,
 				image = id == "idMissionLogo" and v.image,
+				mystery = id == "idMystery"
 			}
 		end
 	end
@@ -225,8 +226,10 @@ function ResupplyDialogOpen(host, ...)
 	if g_ActiveHints["HintResupply"] then
 		HintDisable("HintResupply")
 	end
-	if HintsEnabled then
-		ContextAwareHintShow("HintResupplyUI", true)
+	if HintsEnabled or g_Tutorial then
+		if HintsEnabled then
+			ContextAwareHintShow("HintResupplyUI", true)
+		end
 		local hintdlg = GetOnScreenHintDlg()
 		if hintdlg then
 			hintdlg:SetParent(terminal.desktop)
@@ -244,7 +247,7 @@ function ResupplyDialogClose(host, ...)
 	if g_ActiveHints["HintResupplyUI"] then
 		ContextAwareHintShow("HintResupplyUI", false)
 	end
-	if HintsEnabled then
+	if HintsEnabled or g_Tutorial then
 		local hintdlg = GetOnScreenHintDlg()
 		if hintdlg then
 			hintdlg:SetParent(GetInGameInterface())

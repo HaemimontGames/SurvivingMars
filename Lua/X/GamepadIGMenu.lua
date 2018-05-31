@@ -4,8 +4,16 @@ DefineClass.GamepadIGMenu = {
  hide_single_category = true,
 }
 
+function IsHUDResupplyEnabled()
+	return (not g_Tutorial or g_Tutorial.EnableResupply) and g_Consts.SupplyMissionsEnabled == 1 and true or false
+end
+
+function IsHUDResearchEnabled()
+	return (not g_Tutorial or g_Tutorial.EnableResearch) and true or false
+end
+
 local fnaction = function(content_data,item)
-	local hud = GetDialog("HUD")
+	local hud = GetHUD()
 	if hud then
 		local ctrl = hud[item.name]
 		if ctrl then
@@ -37,7 +45,7 @@ local game_items = {
 		name = "idResupply",
 		display_name = T{3997, "Resupply"},
 		icon = "UI/Icons/console_resupply.tga",
-		enabled = function() return g_Consts.SupplyMissionsEnabled == 1 end,
+		enabled_fn = IsHUDResupplyEnabled,
 		action = fnaction,
 		description = "",
 	},
@@ -45,8 +53,17 @@ local game_items = {
 		name = "idResearch",
 		display_name = T{311, "Research"},
 		icon = "UI/Icons/console_research.tga",
+		enabled_fn = IsHUDResearchEnabled,
 		action = fnaction,
 		description = "",
+	},
+	{ --command center
+		name = "idColonyControlCenter",
+		display_name = T{137542936955, "Command Center"},
+		icon = "UI/Icons/console_command_center.tga",
+		action = fnaction,
+		description = "",
+		close_parent = false,
 	},
 	{ --resource overview
 		name = "idColonyOverview",
@@ -101,7 +118,15 @@ function GamepadIGMenu:GetItems(category_id)
 	for i=1, #game_items do
 		local item = game_items[i]
 		item.ButtonAlign = i%2==1 and "top" or "bottom"
-		buttons[#buttons + 1] = HexButtonItem:new(item, self.idButtonsList)
+		local enabled_fn = rawget(item, "enabled_fn")
+		if enabled_fn then
+			item.enabled = enabled_fn()
+		end
+		local btn = HexButtonItem:new(item, self.idButtonsList)
+		if enabled_fn then
+			btn:SetEnabled(item.enabled)
+		end
+		buttons[#buttons + 1] = btn
 	end
 	return buttons
 end
@@ -135,7 +160,7 @@ function OpenXGamepadMainMenu()
 	if not GameState.gameplay then return end
 	
 	--Don't open this one while the build menu is opened
-	if GetDialog("XBuildMenu") then
+	if GetXDialog("XBuildMenu") then
 		return 
 	end
 	

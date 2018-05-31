@@ -378,7 +378,7 @@ function Workplace:CloseAllWorkplacesWithoutClosingShift(shift)
 		worker:SetWorkplace(false)
 		worker:UpdateWorkplace()
 	end
-	self.workers[shift] = {}
+	assert(#workers == 0)
 end
 
 function Workplace:OpenShift(shift)
@@ -431,8 +431,11 @@ function UpdateWorkplaces(colonists)
 end
 
 function Workplace:IsSuitable(colonist)
-	return colonist:CanWork()
-		and (not self.specialist_enforce_mode or (self.specialist or "none") == (colonist.specialist or "none"))
+	return colonist:CanWork() and self:CanWorkHere(colonist)
+end
+
+function Workplace:CanWorkHere(colonist)
+	return not self.specialist_enforce_mode or (self.specialist or "none") == (colonist.specialist or "none")
 end
 
 function Workplace:ColonistCanInteract(col)
@@ -451,7 +454,7 @@ function Workplace:ColonistCanInteract(col)
 	if not self:HasOpenWorkSlots() then
 		return false, T{4312, "<red>Current work shift is closed</red>"}
 	end
-	return true, T{4313, "<em><left_click></em>: Set Workplace"}
+	return true, T{4313, "<UnitMoveControl('ButtonA', interaction_mode)>: Set Workplace", col}
 end
 
 function Workplace:CheckServicedDome(test_dome)
@@ -459,11 +462,8 @@ function Workplace:CheckServicedDome(test_dome)
 	if dome then
 		return dome
 	end
-	if test_dome then
-		local max_dist = test_dome:GetRadius() / const.GridSpacing + g_Consts.DefaultOutsideWorkplacesRadius
-		if HexAxialDistance(self, test_dome) <= max_dist then
-			return test_dome
-		end
+	if test_dome and test_dome:IsBuildingInDomeRange(self) then
+		return test_dome
 	end
 	return FindNearestObject(UICity.labels.Dome, self)
 end
@@ -497,8 +497,9 @@ function Workplace:CheckWorkForUnemployed()
 	if self.parent_dome then
 		UpdateWorkplaces(self.parent_dome.labels.Unemployed)
 	else
+		local shape = GetShapePointsToWorldPos(self)
 		for _, dome in ipairs(self.city.labels.Dome or empty_table) do
-			if HexAxialDistance(self, dome) <= dome:GetOutsideWorkplacesDist() then
+			if dome:IsBuildingInDomeRange(self, shape) then
 				UpdateWorkplaces(dome.labels.Unemployed)
 			end
 		end
@@ -683,7 +684,7 @@ local domes_query = {
 	area = false,
 	hexradius = 0,
 	exec = function(obj, workplace, shape)
-		local dome_class = obj
+		local dome_class
 		if IsKindOf(obj, "ConstructionSite") then
 			if IsKindOf(obj.building_class_proto, "Dome") then
 				dome_class = obj.building_class_proto
@@ -691,16 +692,20 @@ local domes_query = {
 				return
 			end
 		end
-		local r = dome_class:GetOutsideWorkplacesDist()
 		local outside = true
-		for i = 1, #shape do
-			if HexAxialDistance(obj, shape[i]) <= r then
-				outside = false
-				break
+		if dome_class then
+			local r = dome_class:GetOutsideWorkplacesDist()
+			for i = 1, #shape do
+				if HexAxialDistance(obj, shape[i]) <= r then
+					outside = false
+					break
+				end
 			end
+		elseif obj:IsBuildingInDomeRange(workplace, shape) then 
+			outside = false
 		end
-		if outside then 
-			return 
+		if outside then
+			return
 		end
 		workplace.domes_query_res = true
 		return "break"
@@ -719,12 +724,7 @@ function Workplace:HasNearByWorkers()
 	self.domes_query_res = false
 	domes_query.area = self
 	domes_query.hexradius = g_Consts.DefaultOutsideWorkplacesRadius + 50
-	local shape = table.copy(GetEntityOutlineShape(self:GetEntity()))
-	local pos = self:GetPos()
-	for i = 1, #shape do
-		local offset = point(HexToWorld(shape[i]:xy())):SetZ(0)
-		shape[i] = pos + offset
-	end
+	local shape = GetShapePointsToWorldPos(self)
 	ForEach(domes_query, self, shape)
 	domes_query.area = nil
 	return self.domes_query_res
@@ -835,14 +835,13 @@ function FindWorkSlot(bld, unit, current_bld, current_shift, specialist, renegad
 	local required_specialist = bld.specialist or "none"
 	local specialist_match = specialist == required_specialist
 	local from, to = active_shift > 0 and active_shift or 1, active_shift > 0 and active_shift or bld.max_shifts
-	local is_current_workplace
-	
-	
+
 	for shift = from, to do
 		local list = workers[shift]
 		local units = #list
-		is_current_workplace = bld == current_bld and shift == current_shift
+		local is_current_workplace = bld == current_bld and shift == current_shift
 		if is_current_workplace then
+			assert(current_bld == ValidateBuilding(unit.workplace) and current_shift == unit.workplace_shift)
 			assert(table.find(list, unit))
 			units = units - 1
 		end
@@ -885,7 +884,7 @@ function FindWorkSlot(bld, unit, current_bld, current_shift, specialist, renegad
 		end
 	end
 	
-	return shift_found, shift_to_kick, min_shift_occupation, specialist_match, no_workers, is_current_workplace
+	return shift_found, shift_to_kick, min_shift_occupation, specialist_match, no_workers
 end
 
 function DbgAddWorkVector(unit, bld, color)
@@ -913,7 +912,7 @@ function ChooseWorkplace(unit, workplaces, allow_exchange)
 	for _, bld in ipairs(workplaces or empty_table) do
 		local priority = bld.priority
 		if ShouldProc(bld, avoid_workplace, specialist) and (allow_exchange or priority >= best_priority) then
-			local shift_found, shift_to_kick, min_shift_occupation, specialist_match, no_workers, is_current_workplace = FindWorkSlot(bld, unit, current_bld, current_shift, specialist, renegade)
+			local shift_found, shift_to_kick, min_shift_occupation, specialist_match, no_workers = FindWorkSlot(bld, unit, current_bld, current_shift, specialist, renegade)
 			if shift_found then				
 				if best_priority < priority -- workplaces with higher priority are always prefered
 				or best_priority == priority  -- for buildings with the same priority,
@@ -921,7 +920,7 @@ function ChooseWorkplace(unit, workplaces, allow_exchange)
 					or min_occupation == min_shift_occupation-- if the workers ratio is the same,
 						and (specialist_match and not best_specialist_match -- try to match specialization
 						or no_workers and not best_no_workers -- or try to avoid having buildings with no workers
-						or is_current_workplace)) -- try to preserve the current workplace if all of the above conditions are met
+						or bld == current_bld and shift_found == current_shift)) -- try to preserve the current workplace if all of the above conditions are met
 				then
 					min_occupation = min_shift_occupation
 					best_shift = shift_found
@@ -975,8 +974,8 @@ function CompareWorkplaces(bld1, bld2, unit)
 	local current_bld = ValidateBuilding(unit.workplace)
 	local current_shift = unit.workplace_shift
 	local renegade = unit.traits.Renegade or false
-	local sf1, stk1, mso1, sm1, nw1, icw1 = FindWorkSlot(bld1, unit, current_bld, current_shift, specialist, renegade)
-	local sf2, stk2, mso2, sm2, nw2, icw2 = FindWorkSlot(bld2, unit, current_bld, current_shift, specialist, renegade)
+	local sf1, stk1, mso1, sm1, nw1 = FindWorkSlot(bld1, unit, current_bld, current_shift, specialist, renegade)
+	local sf2, stk2, mso2, sm2, nw2 = FindWorkSlot(bld2, unit, current_bld, current_shift, specialist, renegade)
 	
 	if sf1 ~= sf2 then
 		return sf1 and bld1 or bld2
@@ -994,7 +993,7 @@ function CompareWorkplaces(bld1, bld2, unit)
 		return mso1 < mso2 and bld2 or bld1
 	end
 	
-	return icw2 and bld2 or bld1
+	return bld2 == current_bld and sf2 == current_shift and bld2 or bld1
 end
 
 function Workplace:GetUISpecialization()
@@ -1041,6 +1040,9 @@ function UIWorkshiftUpdate(self, building, shift)
 	local shift_overtime = workplace and building.overtime[shift]
 	local single_shift = workplace and building.active_shift ~= 0
 	
+	if self.Id == "" then
+		self:SetId("idWorkshift" .. shift)
+	end
 	-- idCurrentShift
 	self.idActive:SetVisible(shift_active)
 	-- idShift & idStoppedWorkshift
@@ -1098,7 +1100,10 @@ function UIWorkshiftUpdate(self, building, shift)
 				else
 					building:OpenPositions(shift, i)
 				end
-				ObjModified(building)
+				ObjModified(building)	
+				if GetUIStyleGamepad() then
+					RolloverWin:UpdateRolloverContent()
+				end
 			end
 		end
 		self.idWorkers:ResolveRelativeFocusOrder()

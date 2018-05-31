@@ -6,7 +6,7 @@ DefineClass.FakeAttackRover = {
 }
 
 DefineClass.AttackRover = {
-	__parents = { "BaseRover", "PinnableObject" },
+	__parents = { "BaseRover" },
 	entity = "CombatRover",
 
 	properties = {
@@ -14,8 +14,6 @@ DefineClass.AttackRover = {
 		{ template = true, category = "Attack Rover", name = T{673, "Protect Range"},	id = "protect_range",	editor = "number", default = 20, help = "If meteors would fall within dist range it can be destroyed by the rocket (in hexes)" },
 	},
 	
-	pin_on_start = true,
-
 	display_name = T{6921, "Experimental Vehicle"},
 	description = T{6922, "A remote-controlled vehicle, property of EsoCorp."},
 	reclaimed_description = T{6923, "A remote-controlled combat vehicle, reclaimed by the Colony. Protects against meteor strikes and EsoCorp vehicles."},
@@ -459,7 +457,7 @@ function AttackRover:CanInteractWithObject(obj, interaction_mode)
 
 	if self.interaction_mode == false or self.interaction_mode == "default" or self.interaction_mode == "move" then --the 3 move modes..
 		if IsKindOf(obj, "Tunnel") and obj.working then
-			return true --UseTunnel
+			return true,  T{9627, "<UnitMoveControl('ButtonA',interaction_mode)>: Use Tunnel",self}--UseTunnel
 		end
 	end
 	

@@ -19,7 +19,7 @@ __game_font_styles =
 	InfopanelSectionTitle = T{993, --[[InfopanelTitle]] "LibelSuitRg, 22, aa"},
 	InfopanelText = T{994, --[[InfopanelText]] "SchemeBk, 18, aa"},
 	
-	HUDSol = T{992, --[[HUDSol]] "SchemeBk, 20, aa"},
+	HUDSol = T{9762, --[[HUDSol]] "SchemeBk, 18, aa"},
 	HUDHumans = T{992, --[[HUDHumans]] "SchemeBk, 20, aa"},
 	HUDDrones = T{992, --[[HUDDrones]] "SchemeBk, 20, aa"},
 	HUDConstruction = T{995, --[[HUDHumans]] "LibelSuitRg, 26, aa"},

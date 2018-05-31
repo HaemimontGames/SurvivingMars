@@ -19,6 +19,9 @@ function XBuildMenu:Init()
 	BuildingWithRCRover = false
 	CloseInfopanelItems()
 	SelectObj(false)
+	if GetInGameInterfaceMode() == "overview" then
+		GetInGameInterface():SetMode("selection")
+	end
 end
 
 function XBuildMenu:Open(...)
@@ -370,6 +373,30 @@ end
 TFormat.formatedbuildinginfo = FormatBuildingCostInfo
 TFormat.buildinginfo = BuildingInfoLine
 
+function TFormat.optionaldomeinfo(template_name, dont_modify)
+	local template = DataInstances.BuildingTemplate[template_name]
+	if IsDlcAvailable(template.requires_dlc) then
+		return T{8955, "\nNew Dome: <em><template_display_name></em> ", template_display_name = template.display_name} .. TFormat.buildinginfo(template_name, dont_modify)
+	end
+	return ""
+end
+
+function TFormat.optionalbuildinginfo(template_name, dont_modify)
+	local template = DataInstances.BuildingTemplate[template_name]
+	if IsDlcAvailable(template.requires_dlc) then
+		return T{8956, "\nNew Building: <em><template_display_name></em> ", template_display_name = template.display_name} .. TFormat.buildinginfo(template_name, dont_modify)
+	end
+	return ""
+end
+
+function TFormat.optionalspireinfo(template_name, dont_modify)
+	local template = DataInstances.BuildingTemplate[template_name]
+	if IsDlcAvailable(template.requires_dlc) then
+		return T{8957, "\nNew Spire Building: <em><template_display_name></em> ", template_display_name = template.display_name} .. TFormat.buildinginfo(template_name, dont_modify)
+	end
+	return ""
+end
+
 function UICountItemMenu(category_id)
 	local count = 0
 	local templates = DataInstances.BuildingTemplate
@@ -461,9 +488,11 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems)
 		can_build = true
 	end
 	
+	local prefab_disabled
 	if g_Tutorial and g_Tutorial.BuildMenuWhitelist and not g_Tutorial.BuildMenuWhitelist[template.name] then
-		description = T{"(design)Not yet available"} -- due to tutorial
+		description = T{8958, "Not yet available."} -- due to tutorial
 		can_build = false
+		prefab_disabled = true
 	end
 	
 	
@@ -489,7 +518,7 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems)
 				end
 				local variants
 				if IsKindOf(data, "XWindow") then
-					local parent = GetDialog(data)
+					local parent = GetXDialog(data)
 					variants = parent:GetSubCategoryTemplates()
 				else
 					variants = data.template_variants
@@ -502,7 +531,7 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems)
 				if not data.enabled then return end
 				local variants
 				if IsKindOf(data, "XWindow") then
-					local parent = GetDialog(data)
+					local parent = GetXDialog(data)
 					variants = parent:GetSubCategoryTemplates()
 				else
 					variants = data.template_variants
@@ -512,7 +541,7 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems)
 		end
 	end
 	
-	return true, require_prefab or available_prefabs>0, can_build, action, description
+	return true, (require_prefab or available_prefabs>0) and not prefab_disabled, can_build, action, description
 end
 
 function XBuildMenu:GetItems(category_id)
@@ -594,7 +623,7 @@ function UIItemMenu(category_id, bCreateItems)
 					category = "Storage",
 					close_parent = false,
 					action = function(obj, data)
-						local parent = GetDialog(data)
+						local parent = GetXDialog(data)
 						parent:SelectSubCategory(data, category_id)
 					end,
 					Id = "Depots",
@@ -610,7 +639,7 @@ function UIItemMenu(category_id, bCreateItems)
 					category = "Storage",
 					close_parent = false,
 					action = function(obj, data)
-						local parent = GetDialog(data)
+						local parent = GetXDialog(data)
 						parent:SelectSubCategory(data, category_id)
 					end
 				}
@@ -629,23 +658,27 @@ function UIItemMenu(category_id, bCreateItems)
 			end
 			items[#items + 1] = {
 				name = "PowerCables",
+				Id = "PowerCables",
 				display_name = T{881, "Power Cables"},
 				icon = "UI/Icons/Buildings/power_cables.tga",
 				description = description,
+				enabled = not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.PowerCables or false,
 				action = function()
 					if GetUIStyleGamepad() then g_LastBuildItem =  "PowerCables" end
 					GetInGameInterface():SetMode("electricity_grid", {grid_elements_require_construction = require_construction})
 				end,
 				build_pos = 8,
 			}
-			
+		
 			local building_template = DataInstances.BuildingTemplate.ElectricitySwitch
-			description = T{8101, "<description>\n\n<formatedbuildinginfo('ElectricitySwitch')>",description = building_template.description}
+			local description = T{8101, "<description>\n\n<formatedbuildinginfo('ElectricitySwitch')>",description = building_template.description}
 			items[#items + 1] = {
 				name = building_template.name,
+				Id = building_template.name,
 				display_name = building_template.display_name,
 				icon = building_template.display_icon,
 				description = description,
+				enabled = not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.ElectricitySwitch or false,
 				action = function()
 					if GetUIStyleGamepad() then g_LastBuildItem =  building_template.name end
 					GetInGameInterface():SetMode("electricity_switch")
@@ -665,23 +698,27 @@ function UIItemMenu(category_id, bCreateItems)
 			end
 			items[#items + 1] = {
 				name = "Pipes",
+				Id = "Pipes",
 				display_name = T{882, "Pipes"},
 				icon = "UI/Icons/Buildings/pipes.tga",
 				description = description,
+				enabled = not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.Pipes or false,
 				action = function()
 					if GetUIStyleGamepad() then g_LastBuildItem = "Pipes" end
 					GetInGameInterface():SetMode("life_support_grid", {grid_elements_require_construction = require_construction})
 				end,
 				build_pos = 6,
 			}
-			
+		
 			local building_template = DataInstances.BuildingTemplate.LifesupportSwitch
-			description = T{8103, "<description>\n\n<formatedbuildinginfo('LifesupportSwitch')>",description = building_template.description}
+			local description = T{8103, "<description>\n\n<formatedbuildinginfo('LifesupportSwitch')>",description = building_template.description}
 			items[#items + 1] = {
 				name = building_template.name,
+				Id = building_template.name,
 				display_name = building_template.display_name,
 				icon = building_template.display_icon,
 				description = description,
+				enabled = not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.LifesupportSwitch or false,
 				action = function()
 					if GetUIStyleGamepad() then g_LastBuildItem = building_template.name end
 					GetInGameInterface():SetMode("lifesupport_switch")
@@ -694,18 +731,21 @@ function UIItemMenu(category_id, bCreateItems)
 		count = count + 1
 		local next_bld_pos = 20
 		if bCreateItems then
-			items[#items + 1] = {
-				name = "Salvage",
-				display_name = T{3973, "Salvage"},
-				icon = "UI/Icons/Buildings/salvage.tga",
-				description = T{3974, "Marks buildings, cables and pipes to be demolished. Half of the construction resource cost of any salvaged buildings will be refunded."},
-				action = function()
-					if GetUIStyleGamepad() then g_LastBuildItem = "Salvage" end
-					GetInGameInterface():SetMode("demolish")
-					PlayFX("DemolishButton", "start")
-				end,
-				build_pos = next_bld_pos,
-			}
+			if not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.Salvage then
+				items[#items + 1] = {
+					name = "Salvage",
+					Id = "Salvage",
+					display_name = T{3973, "Salvage"},
+					icon = "UI/Icons/Buildings/salvage.tga",
+					description = T{3974, "Marks buildings, cables and pipes to be demolished. Half of the construction resource cost of any salvaged buildings will be refunded."},
+					action = function()
+						if GetUIStyleGamepad() then g_LastBuildItem = "Salvage" end
+						GetInGameInterface():SetMode("demolish")
+						PlayFX("DemolishButton", "start")
+					end,
+					build_pos = next_bld_pos,
+				}
+			end
 		end
 	end
 	if category_id == "Domes" then
@@ -715,6 +755,7 @@ function UIItemMenu(category_id, bCreateItems)
 			display_name = building_template.display_name,
 			icon = building_template.display_icon,
 			description = T{8720, "<description>\n\n<formatedbuildinginfo('Passage')>",description = building_template.description},
+			enabled =  not g_Tutorial or (g_Tutorial.BuildMenuWhitelist and g_Tutorial.BuildMenuWhitelist[building_template.name]) or false,
 			action = function()
 				GetInGameInterface():SetMode("passage_grid", {grid_elements_require_construction = true}) --TODO: instant passages.
 			end,
@@ -726,6 +767,7 @@ function UIItemMenu(category_id, bCreateItems)
 			display_name = building_template.display_name,
 			icon = building_template.display_icon,
 			description = T{8721, "<description>\n\n<formatedbuildinginfo('PassageRamp')>",description = building_template.description},
+			enabled =  not g_Tutorial or (g_Tutorial.BuildMenuWhitelist and g_Tutorial.BuildMenuWhitelist[building_template.name]) or false,
 			action = function()
 				GetInGameInterface():SetMode("passage_ramp")
 			end,

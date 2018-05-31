@@ -38,7 +38,7 @@ end,
 			}),
 			PlaceObj('XTemplateWindow', {
 				'comment', "margins",
-				'Margins', box(0, 80, 100, 80),
+				'Margins', box(0, 30, 100, 50),
 			}, {
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
@@ -77,7 +77,7 @@ end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
-			'parent', function (parent, context) return GetDialog(parent) end,
+			'parent', function (parent, context) return GetXDialog(parent) end,
 			'func', function (self, ...)
 XDialog.Open(self, ...)
 local pad = self.idFrame:GetPadding()
@@ -100,6 +100,7 @@ end,
 			'Margins', box(-170, 6, -155, -100),
 			'Dock', "top",
 			'VAlign', "top",
+			'Transparency', 100,
 			'Image', "UI/Common/bm_pad_small.tga",
 			'FrameBox', box(170, 0, 165, 0),
 			'SqueezeY', false,

@@ -387,11 +387,13 @@ function ElectricityGridElement:UpdateVisuals()
 		self:SetHierarchyGameFlags(const.gofTerrainDistortedMesh)
 	end
 	self:AddDust(0) --refresh dust visuals
+	
+	self.fx_actor_class = self.is_switch and "CableSwitch" or "PowerCable"
 end
 
 function ElectricityGridElement:CanMakePillar(direction)
 	if self.pillar then return direction == self.unbuildable_chunk_dir end --cable pillars can only connect from 1 angle with floaty cables.
-	local q, r = WorldToHex(self:GetPos())
+	local q, r = WorldToHex(self)
 	local pipe = HexGetPipe(q, r)
 	return pipe == nil or excluded_obj and pipe == excluded_obj
 end
@@ -409,7 +411,7 @@ function ElectricityGridElement:TryConnectInDir(dir)
 	local conn = self.conn
 	if not testbit(conn, dir) and testbit(shift(conn, -8), dir) then --not connected yet and has potential
 		local dq, dr = HexNeighbours[dir + 1]:xy()
-		local my_q, my_r = WorldToHex(self:GetPos())
+		local my_q, my_r = WorldToHex(self)
 		local obj = HexGetCable(my_q + dq, my_r + dr)
 		if obj and obj.electricity then --its a cable or cable constr
 			local his_conn = HexGridGet(SupplyGridConnections["electricity"], obj)
@@ -928,7 +930,7 @@ function ElectricityProducer:GetUIPowerProduction()
 end
 
 function ElectricityProducer:GetUIPowerProductionToday()
-	return self.electricity.production_today
+	return Max(self.electricity.production_today, self.electricity.production_yesterday)
 end
 
 function ElectricityProducer:GetUIPowerProductionLifetime()
@@ -962,7 +964,10 @@ end
 
 function ElectricityConsumer:SetPriority(priority)
 	Building.SetPriority(self, priority)
-	self.electricity:SetPriority(priority)
+	local electricity = self.electricity
+	if electricity then
+		self.electricity:SetPriority(priority)
+	end
 end
 
 function ElectricityConsumer:HasPower()

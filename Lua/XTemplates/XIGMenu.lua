@@ -10,8 +10,8 @@ PlaceObj('XTemplate', {
 	}, {
 		PlaceObj('XTemplateCode', {
 			'run', function (self, parent, context)
-parent:SetPadding(box(80,80,120,80))
-local toolbar = GetDialog(parent).idToolbar
+parent:SetPadding(box(80,30,120,50))
+local toolbar = GetXDialog(parent).idToolbar
 toolbar:SetPadding(box(80, 0, 0, 0))
 toolbar:SetHAlign("center")
 end,
@@ -20,6 +20,7 @@ end,
 			'__class', "XFrame",
 			'Margins', box(-80, 6, -155, -100),
 			'VAlign', "top",
+			'Transparency', 100,
 			'Image', "UI/Common/bm_pad_small.tga",
 			'FrameBox', box(170, 0, 165, 0),
 			'SqueezeY', false,
@@ -40,6 +41,7 @@ end,
 			'BorderWidth', 0,
 			'LayoutVSpacing', 12,
 			'Background', RGBA(0, 0, 0, 0),
+			'HandleMouse', false,
 			'FocusedBackground', RGBA(0, 0, 0, 0),
 			'VScroll', "idScroll",
 			'ShowPartialItems', false,
@@ -121,7 +123,9 @@ CreateRealTimeThread(function()
 		host:Close()
 		TelemetryRestartSession()
 		g_SessionSeed = g_InitialSessionSeed
-		if g_InitialRocketCargo and g_InitialCargoCost ~= 0 and g_InitialCargoWeight ~= 0 then
+		if g_Tutorial then
+			CreateRealTimeThread(StartTutorial, g_Tutorial.Map)
+		elseif g_InitialRocketCargo and g_InitialCargoCost ~= 0 and g_InitialCargoWeight ~= 0 then
 			g_RocketCargo = g_InitialRocketCargo
 			g_CargoCost = g_InitialCargoCost
 			g_CargoWeight = g_InitialCargoWeight

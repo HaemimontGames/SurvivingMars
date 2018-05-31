@@ -3,7 +3,7 @@ local max_visible_fractures = 4
 local max_visible_leaks = 4
 
 function AreDomesCapped()
-	return #(UICity.labels.Domes or "") >= const.DomeCap
+	return #(UICity.labels.Dome or "") >= const.DomeCap
 end
 
 --fx control objs
@@ -70,7 +70,7 @@ local function ResolvePos(bld1, bld2)
 	return pos and pos ~= InvalidPos() and GetPassablePointNearby(pos)
 end
 
-local function CheckDist(bld1, bld2, min_dist, force_no_passages)
+local function CheckDist(bld1, bld2)
 	local p1, p2 = ResolvePos(bld1, bld2), ResolvePos(bld2, bld1)
 	if not p1 or not p2 then
 		return false, max_int
@@ -78,13 +78,15 @@ local function CheckDist(bld1, bld2, min_dist, force_no_passages)
 	if p1 == p2 then
 		return true, 0
 	end
-	local dist = p1:Dist2D(p2)
-	local passage = not force_no_passages and AreDomesConnectedWithPassage(ResolveDome(bld1), ResolveDome(bld2)) or false
-	if dist > min_dist then
-		return passage, dist, true
+	local has_path
+	local len = p1:Dist2D(p2)
+	if len <= dome_walk_dist then
+		has_path, len = PathLenCached(p1, Colonist.pfclass, p2)
 	end
-	local has_path, len, pt_pf = PathLenCached(p1, Colonist.pfclass, p2)
-	return has_path and len <= min_dist or passage, len
+	if not has_path or len > dome_walk_dist then
+		has_path = AreDomesConnectedWithPassage(ResolveDome(bld1), ResolveDome(bld2))
+	end
+	return has_path or false, len
 end
 
 function UpdateDistToDomes(cur_dome, action)
@@ -104,7 +106,7 @@ function UpdateDistToDomes(cur_dome, action)
 			local data = map[cur_dome][dome]
 			local too_far = data and data[3]
 			if not too_far then
-				data = {CheckDist(cur_dome, dome, dome_walk_dist)}
+				data = {CheckDist(cur_dome, dome)}
 				map[cur_dome][dome] = data
 				map[dome] = map[dome] or setmetatable({}, weak_keys_meta)
 				map[dome][cur_dome] = data
@@ -113,9 +115,13 @@ function UpdateDistToDomes(cur_dome, action)
 	end
 end
 
-function IsInWalkingDist(bld1, bld2, min_dist)
-	bld1 = ResolveDome(bld1) or bld1
-	bld2 = ResolveDome(bld2) or bld2
+function IsInWalkingDist(bld1, bld2)
+	return IsInWalkingDistDome(ResolveDome(bld1) or bld1, ResolveDome(bld2) or bld2)
+end
+
+local unpack = table.unpack
+
+function IsInWalkingDistDome(bld1, bld2)
 	if bld1 == bld2 then
 		return true, 0
 	end
@@ -125,7 +131,7 @@ function IsInWalkingDist(bld1, bld2, min_dist)
 		--only when bld1 and bld2 are domes can there be cache, hence
 		return dist[1] or AreDomesConnectedWithPassage(bld1, bld2), dist[2]
 	end
-	return CheckDist(bld1, bld2, min_dist or dome_walk_dist)
+	return CheckDist(bld1, bld2)
 end
 
 DefineClass.Dome = {
@@ -199,6 +205,13 @@ DefineClass.Dome = {
 	connected_domes = false,   --{connected_dome = numberofconnections, ...}
 	passage_entrances = false, --{connected_dome = {pt,pt,pt...}}
 	passage_exits = false,     --{connected_dome = {pt,pt,pt...}}
+	
+	air_interrupted = false,
+	water_interrupted = false,
+	power_interrupted = false,
+	supply_interrupted = false,
+	
+	passage_skin_override = false,
 }
 
 local dome_lerp_dust_total_time = 1000
@@ -418,17 +431,34 @@ function Dome:GameInit()
 	UpdateDistToDomes(self,"add")
 	
 	g_DomeVersion = g_DomeVersion + 1
+	
+	local skin = self:GetCurrentSkin()
+	local palette = skin.palettes
+	palette = palette ~= "" and EntityPalettes[palette] or nil
+	if palette then
+		palette:ApplyToObj(self)
+		self:ForEachAttach(function(attach)
+			palette:ApplyToObj(attach)
+		end)
+	end
+	
+	if not self.landing_slots then
+		CreateGameTimeThread(self.InitLandingSpots, self)
+	end
 end
 
 function Dome:AddOutskirtBuildings()
 	ForEach({ 
 		class = "DomeOutskirtBld", 
 		area = self, 
-		hexradius = self:GetOutsideWorkplacesDist(),
-		exec = function(bld, dome)
+		hexradius = self:GetOutsideWorkplacesDist() + 7, --a little wider radius to catch borderline buildings
+		exec = function(bld, self)
+			if not self:IsBuildingInDomeRange(bld) then
+				return
+			end
 			local dome = IsObjInDome(bld)
 			if not dome or dome == self then
-				bld:AddToDomeLabels(dome)
+				bld:AddToDomeLabels(self)
 			end
 		end
 	}, self)
@@ -535,6 +565,8 @@ function Dome:BuildingUpdate()
 			table.remove(self.panic_markers, i)
 		end
 	end
+	
+	self:UpdateSupplyInterruptionStatuses(now)
 end
 
 function Dome:AddCommandCenter(center)
@@ -564,10 +596,10 @@ function Dome:GenerateWalkablePoints()
 	
 	local size = point(0, const.HexSize / 2)
 	local axis, angle = self:GetAxis(), self:GetAngle()
-	local dome_hex = { WorldToHex(self:GetPos()) }
+	local dome_q, dome_r = WorldToHex(self)
 	for i,street_hex in ipairs(street_hexes) do
-		local q = dome_hex[1] + street_hex:x()
-		local r = dome_hex[2] + street_hex:y()
+		local q = dome_q + street_hex:x()
+		local r = dome_r + street_hex:y()
 		local center = point(HexToWorld(q, r))
 		for j=1,6 do
 			local pt = center + RotateAxis(size, axis, j * 60 * 60)
@@ -692,7 +724,7 @@ function Dome:OnDestroyed()
 	self.my_interior:SetPos(self:GetPos())
 	self.my_interior:SetAngle(self:GetAngle()) --hex grid setters deduce rot and q, r from these so set them.
 	HexGridShapeAddObject(ObjectGrid, self.my_interior, interior)
-	
+
 	
 	local glass = self.cupola_attach[1]
 	if not IsValid(glass) then
@@ -711,8 +743,43 @@ function Dome:GetEntrances()
 	return self:GetAttaches(self.configurable_attaches[2][1])
 end
 
-function Dome:GetLandingObjects()
-	return self:GetEntrances()
+function Dome:InitLandingSpots()
+	--define the landing spots
+	local slots
+	for _, obj in ipairs(self:GetEntrances() or empty_table) do
+		local chains = obj.waypoint_chains or empty_table
+		local landing_pos1, landing_pos2
+		for _, chain in ipairs(chains.entrance or empty_table) do
+			if chain.name == "Doorentrance1" then
+				landing_pos1 = chain[5]
+			elseif chain.name == "Doorexit2" then
+				landing_pos2 = chain[5]
+			end
+		end
+		if landing_pos1 and landing_pos2 then
+			local dir = NormalVector2D(landing_pos1, landing_pos2)
+			local cen = AveragePoint2D(landing_pos1, landing_pos2)
+			local far = self:GetDist2D(cen + dir) > self:GetDist2D(cen)
+			local pos = cen
+			for i=1,3 do
+				local test = far and (cen + dir) or (cen - dir)
+				local q, r = WorldToHex(test)
+				if HexGridGetObject(ObjectGrid, q, r, "Dome") == self then
+					pos = test
+					break
+				end
+				dir = dir / 2
+			end
+			slots = slots or {}
+			slots[#slots + 1] = {
+				reserved_by = false,
+				pos = pos,
+			}
+		end
+	end
+	self.landing_slots = slots
+	self.free_landing_slots = #(slots or "")
+	self.has_free_landing_slots = #(slots or "") > 0
 end
 
 function Dome:IsOpen()
@@ -720,8 +787,11 @@ function Dome:IsOpen()
 	return self.cupola_attach and self.cupola_attach[1]:GetGameFlags(const.gofMarkOnly) ~= 0
 end
 
+GlobalVar("l_DomeLastOpened", false)
+
 function Dome:Open()
 	if not self:IsOpen() and self.cupola_attach then
+		l_DomeLastOpened = self
 		self.cupola_attach[1]:SetGameFlags(const.gofMarkOnly)
 		if self.cupola_attach[2] then
 			self.cupola_attach[2]:SetVisible(false)
@@ -737,6 +807,9 @@ end
 
 function Dome:Close()
 	if self:IsOpen() then
+		if l_DomeLastOpened == self then
+			l_DomeLastOpened = false
+		end
 		self.cupola_attach[1]:ClearGameFlags(const.gofMarkOnly)
 		if self.cupola_attach[2] then
 			self.cupola_attach[2]:SetVisible(true)
@@ -873,14 +946,27 @@ function Dome:VisualizeFractures()
 	end
 end
 
+function Dome:PropagateSetSupplyToPassages()
+	for d, pt_t in pairs(self.passage_entrances) do
+		for i = 1, #pt_t do
+			local q, r = WorldToHex(pt_t[i])
+			local pge = HexGetPassageGridElement(q, r)
+			local passage = pge.passage_obj
+			passage:UpdateElectricityAvailability()
+		end
+	end
+end
+
 function Dome:SetSupply(resource, amount)
 	ElectricityConsumer.SetSupply(self, resource, amount)
 	LifeSupportConsumer.SetSupply(self, resource, amount)
 	self:UpdateNoPowerSuppliedDomesNotification()
 
 	self:Notify("CheckConditionsAll")
+	self:Notify("UpdateSupplyInterruptionStatuses")
 
 	if resource == "electricity" then 
+		self:Notify("PropagateSetSupplyToPassages")
 		return --tube attaches don't care bout electricity.
 	end
 	
@@ -892,7 +978,39 @@ function Dome:SetSupply(resource, amount)
 	end
 end
 
-function Dome:CheckConditionsAll()	
+local time_to_consider_supply_interrupted = const.DayDuration
+function Dome:UpdateSupplyInterruptionStatuses(now)
+	now = now or GameTime()
+	self.air_interrupted = not self:HasAir() and (self.air_interrupted or now)
+	self.water_interrupted = not self:HasWater() and (self.water_interrupted or now)
+	self.power_interrupted = not self:HasPower() and (self.power_interrupted or now)
+	
+	local t = now - time_to_consider_supply_interrupted
+	local supply_interrupted = (self.air_interrupted or t) < t
+			or (self.water_interrupted or t) < t
+			or (self.power_interrupted or t) < t
+	if self.supply_interrupted ~= supply_interrupted then
+		self.supply_interrupted = supply_interrupted
+		if supply_interrupted then
+			self:OnSupplyInterrupted()
+		end
+	end
+end
+
+function Dome:OnSupplyInterrupted()
+	for _, wp in ipairs(self.labels.Workplaces or empty_table) do
+		for _, list in ipairs(wp.workers) do
+			for i = #list, 1, -1 do
+				local worker = list[i]
+				if worker.dome ~= self and (not worker.user_forced_workplace or worker.user_forced_workplace[1] ~= wp) then
+					worker:SetWorkplace(false)
+				end
+			end
+		end
+	end
+end
+
+function Dome:CheckConditionsAll()
 	local t = GameTime()
 	for _, colonist in ipairs(self.labels.Colonist or empty_table) do
 		if not colonist.outside_start then
@@ -935,13 +1053,22 @@ function Dome:GetInnerBuildingConsumption()
 end
 
 function Dome:UpdateUISectionConsumption(win)
-	local intentionally_not_consuming = self:IsSupplyGridDemandStoppedByGame()
-	local permited = self:IsWorkPermitted()
-
 	win.idPower:SetText("")
 	win.idAir:SetText("")
 	win.idWater:SetText("")
 	win.idResource:SetText("")
+	local res = self:GetUIConsumptionTexts()
+	if res.power then win.idPower:SetText(res.power) end
+	if res.air then win.idAir:SetText(res.air) end
+	if res.water then win.idWater:SetText(res.water) end
+	if res.resource then win.idResource:SetText(res.resource) end
+end
+
+function Dome:GetUIConsumptionTexts(short)
+	local statuses = short and ConsumptionStatusesShort or ConsumptionStatuses
+	local res = {}
+	local intentionally_not_consuming = self:IsSupplyGridDemandStoppedByGame()
+	local permited = self:IsWorkPermitted()
 	local power, water, air = self:GetInnerBuildingConsumption()
 	local not_permited = (not permited or intentionally_not_consuming)
 	local not_enough = self:ShouldShowNoElectricitySign() and not (intentionally_not_consuming or self.suspended)
@@ -950,42 +1077,56 @@ function Dome:UpdateUISectionConsumption(win)
 	water = water + dome_water
 	air = air + dome_air
 	if power ~= dome_electricity then
-		win.idPower:SetText(
-			not_enough and T{7939, "Insufficient Power<right><red><resource(total)>(<resource(dome)>)<icon_Power></red>",total = power, dome =  dome_electricity}
-			or not_permited and T{7940, "Required Power<right><resource(total)>(<resource(dome)>)<icon_Power>",total = power, dome =  dome_electricity}
-			or T{7941, "Power<right><green><resource(total)>(<resource(dome)>)<icon_Power></green>",total = power, dome = dome_electricity})			
+		if short then
+			res.power = not_enough and T{9703, "<red><resource(dome)><icon_Power></red>",dome =  dome_electricity}
+				or not_permited and T{9704, "<resource(dome)><icon_Power>",dome =  dome_electricity}
+				or T{9705, "<green><resource(dome)><icon_Power></green>",dome = dome_electricity}
+
+		else
+			res.power = not_enough and T{7939, "Insufficient Power<right><red><resource(total)>(<resource(dome)>)<icon_Power></red>",total = power, dome =  dome_electricity}
+				or not_permited and T{7940, "Required Power<right><resource(total)>(<resource(dome)>)<icon_Power>",total = power, dome =  dome_electricity}
+				or T{7941, "Power<right><green><resource(total)>(<resource(dome)>)<icon_Power></green>",total = power, dome = dome_electricity}
+		end
 	else
-		win.idPower:SetText(
-			not_enough and ConsumptionStatuses["PowerNotEnough"]
-			or not_permited and ConsumptionStatuses["PowerRequired"]
-			or ConsumptionStatuses["Power"])
+		res.power = not_enough and statuses["PowerNotEnough"]
+			or not_permited and statuses["PowerRequired"]
+			or statuses["Power"]
 	end
 	local no_air = not (self:HasAir() or intentionally_not_consuming) and permited
 	if air ~= dome_air then
-		win.idAir:SetText(
-			no_air and T{7942, "Insufficient Oxygen<right><red><resource(total)>(<resource(dome)>)<icon_Air></red>",total = air, dome = dome_air}
-			or not_permited and T{7943, "Required Oxygen<right><resource(total)>(<resource(dome)>)<icon_Air>",total = air, dome = dome_air}
-			or  T{7944, "Oxygen<right><green><resource(total)>(<resource(dome)>)<icon_Air></green>",total = air, dome = dome_air})
+		if short then
+			res.air = no_air and T{9706, "<red><resource(dome)><icon_Air></red>", dome = dome_air}
+				or not_permited and T{9707, "<resource(dome)><icon_Air>", dome = dome_air}
+				or  T{9708, "<green><resource(dome)><icon_Air></green>",total = air, dome = dome_air}
+		else
+			res.air = no_air and T{7942, "Insufficient Oxygen<right><red><resource(total)>(<resource(dome)>)<icon_Air></red>",total = air, dome = dome_air}
+				or not_permited and T{7943, "Required Oxygen<right><resource(total)>(<resource(dome)>)<icon_Air>",total = air, dome = dome_air}
+				or  T{7944, "Oxygen<right><green><resource(total)>(<resource(dome)>)<icon_Air></green>",total = air, dome = dome_air}
+		end
 	else
-		win.idAir:SetText(
-			no_air and ConsumptionStatuses["OxygenNotEnough"]
-			or not_permited and ConsumptionStatuses["OxygenRequired"]
-			or ConsumptionStatuses["Oxygen"])
+		res.air = no_air and statuses["OxygenNotEnough"]
+			or not_permited and statuses["OxygenRequired"]
+			or statuses["Oxygen"]
 	end
 	local no_water = not (self:HasWater() or intentionally_not_consuming) and permited 
 	if water ~= dome_water then
-		win.idWater:SetText(
-			no_water and T{7945, "Insufficient Water<right><red><resource(total)>(<resource(dome)>)<icon_Water></red>",total = water, dome = dome_water}
-			or not_permited and T{7946, "Required Water<right><resource(total)>(<resource(dome)>)<icon_Water>",total = water, dome = dome_water}
-			or  T{7947, "Water<right><green><resource(total)>(<resource(dome)>)<icon_Water></green>",total = water, dome = dome_water})
+		if short then
+			res.water = no_water and T{9709, "<resource(dome)><icon_Water></red>", dome = dome_water}
+				or not_permited and T{9710, "<resource(dome)><icon_Water>", dome = dome_water}
+				or  T{9711, "<green><resource(dome)><icon_Water></green>", dome = dome_water}
+		else
+			res.water = no_water and T{7945, "Insufficient Water<right><red><resource(total)>(<resource(dome)>)<icon_Water></red>",total = water, dome = dome_water}
+				or not_permited and T{7946, "Required Water<right><resource(total)>(<resource(dome)>)<icon_Water>",total = water, dome = dome_water}
+				or  T{7947, "Water<right><green><resource(total)>(<resource(dome)>)<icon_Water></green>",total = water, dome = dome_water}
+		end
 	else
-		win.idWater:SetText(
-			no_water and ConsumptionStatuses["WaterNotEnough"]
-			or not_permited  and ConsumptionStatuses["WaterRequired"]
-			or ConsumptionStatuses["Water"])
+		res.water = no_water and statuses["WaterNotEnough"]
+			or not_permited  and statuses["WaterRequired"]
+			or statuses["Water"]
 	end
 	local count = (#(self.labels.Colonist or empty_table) + #(self.labels.Glutton or empty_table)) * g_Consts.eat_food_per_visit
-	win.idResource:SetText(T{7526, "Food<right><food(count)>", count = count})
+	res.resource = not short and T{7526, "Food<right><food(count)>", count = count} or nil
+	return res
 end
 
 local birth_comfort_cap = 150*stat_scale
@@ -1028,7 +1169,6 @@ function Dome:SpawnChild(dreamer_chance)
 	self.born_children = self.born_children + 1
 	g_TotalChildrenBornWithMating = g_TotalChildrenBornWithMating + 1
 	Msg("ColonistBorn", colonist, "born")
-	self:UpdateUI()
 	return colonist
 end
 
@@ -1235,6 +1375,17 @@ function Dome:GetOutsideWorkplacesDist()
 	return (r + const.GridSpacing/2) / const.GridSpacing + g_Consts.DefaultOutsideWorkplacesRadius
 end
 
+function Dome:IsBuildingInDomeRange(bld, shape)
+	local r = self:GetOutsideWorkplacesDist()
+	shape = shape or GetShapePointsToWorldPos(bld)
+	for i = 1, #shape do
+		if HexAxialDistance(self, shape[i]) <= r then
+			return true
+		end
+	end
+	return false
+end
+
 function Dome:GetSelectionRadiusScale()
 	return self:GetOutsideWorkplacesDist()
 end
@@ -1406,7 +1557,7 @@ function Dome:GetComfortRollover()
 	return table.concat(texts, "<newline><left>")
 end
 
-function Dome:SpawnColonist(refresh)
+function Dome:SpawnColonist()
 	local colonist = GenerateColonistData(self.city)
 	colonist.dome = self
 	colonist.current_dome = self
@@ -1414,9 +1565,6 @@ function Dome:SpawnColonist(refresh)
 	Msg("ColonistBorn", colonist)
 	local pt = self:PickColonistSpawnPt()
 	colonist:SetPos(pt)
-	if refresh==nil or refresh then
-		self:UpdateUI()
-	end
 	return colonist
 end
 
@@ -1432,13 +1580,14 @@ function Dome:ToggleDomePolicy(policy_member, broadcast)
 			if dome[policy_member] ~= state then
 				PlayFX("DomeAcceptColonistsChanged", "start", dome)
 				dome[policy_member] = state
+				ObjModified(dome)
 			end
 		end
 	else
 		PlayFX("DomeAcceptColonistsChanged", "start", self)
 		self[policy_member] = state
+		ObjModified(self)
 	end
-	ObjModified(self)
 end
 
 function Dome:ToggleAcceptColonists(broadcast)
@@ -1516,6 +1665,16 @@ function Dome:GetUnemployed()
 	return self.labels.Unemployed and #self.labels.Unemployed or 0
 end
 
+function Dome:HasAnyWorkers()
+	local buildings = self.labels.Buildings
+	for _, bld in ipairs(buildings) do
+		if bld:IsKindOf("Workplace") and bld:HasAnyWorkers() then
+			return true
+		end	
+	end
+	return false
+end
+
 function Dome:GetEmploymentMessage()
 	local unemployed = self.labels.Unemployed and #self.labels.Unemployed or 0
 	local vacant_on, vacant_off = GetFreeWorkplacesAround(self)
@@ -1527,9 +1686,10 @@ function Dome:GetEmploymentMessage()
 		return T{568, "Disabled work slots<right><colonist(number)>", number = vacant_off}
 	elseif self.labels.Colonist and #self.labels.Colonist > 0 then
 		return T{569, "No unemployment, no vacant workplaces"}
-	else
+	elseif not self:HasAnyWorkers() then
 		return T{570, "This Dome is not operational due to lack of Colonists"}
 	end
+	return ""
 end
 
 function Dome:GetResidenceMessage()
@@ -1868,6 +2028,61 @@ DefineClass.DomeStar = {
 	},
 }
 
+DefineClass.DomeMicro = {
+	__parents = { "Dome" },
+	configurable_attaches = {
+		{"DomeMicroSmooth_Glass", "Origin"},
+		{"DomePack_Entrance", "Entrance"},
+		{"DomePack_EntranceTube", "Entrancetube"},
+		{"DomeMicroSmooth_Top", "Origin"},
+	},
+	passage_skin_override = "GenericPassageSkinName1",
+}
+
+DefineClass.DomeTrigon = {
+	__parents = { "Dome" },
+	configurable_attaches = {
+		{"DomeTrigonSmooth_Glass", "Origin"},
+		{"DomePack_Entrance", "Entrance"},
+		{"DomePack_EntranceTube", "Entrancetube"},
+		{"DomeTrigonSmooth_Top", "Origin"},
+	},
+	passage_skin_override = "GenericPassageSkinName1",
+}
+
+DefineClass.DomeMegaTrigon = {
+	__parents = { "Dome" },
+	configurable_attaches = {
+		{"DomeMegaTrigonSmooth_Glass", "Origin"},
+		{"DomePack_Entrance", "Entrance"},
+		{"DomePack_EntranceTube", "Entrancetube"},
+		{"DomeMegaTrigonSmooth_Top", "Origin"},
+	},
+	passage_skin_override = "GenericPassageSkinName1",
+}
+
+DefineClass.DomeDiamond = {
+	__parents = { "Dome" },
+	configurable_attaches = {
+		{"DomeDiamondSmooth_Glass", "Origin"},
+		{"DomePack_Entrance", "Entrance"},
+		{"DomePack_EntranceTube", "Entrancetube"},
+		{"DomeDiamondSmooth_Top", "Origin"},
+	},
+	passage_skin_override = "GenericPassageSkinName1",
+}
+
+DefineClass.DomeHexa = {
+	__parents = { "Dome" },
+	configurable_attaches = {
+		{"DomeHexaSmooth_Glass", "Origin"},
+		{"DomePack_Entrance", "Entrance"},
+		{"DomePack_EntranceTube", "Entrancetube"},
+		{"DomeHexaSmooth_Top", "Origin"},
+	},
+	passage_skin_override = "GenericPassageSkinName1",
+}
+
 DefineClass.GeoscapeDome = {
 	__parents = { "Dome" },
 	configurable_attaches = {
@@ -2176,7 +2391,7 @@ local function GetServiceInDome(dome, need, colonist)
 end
 
 function Dome:CanColonistsFromDifferentDomesWorkServiceTrainHere()
-	return self.accept_colonists
+	return self.accept_colonists and not self.supply_interrupted
 end
 
 function Dome:GetService(need, colonist, starving)
@@ -2231,11 +2446,15 @@ function Dome:GetNextSkinIdx(skins)
 	return skin_idx
 end
 
-function Dome:GetCurrentSkinStrId()
+function Dome:GetCurrentSkinStrIdForPassage()
+	local data = self:GetCurrentSkin()
+	return data.skin_category or self.passage_skin_override or "default"
+end
+
+function Dome:GetCurrentSkin()
 	local skins = self:GetSkins()
 	local skin_idx = table.find(skins, 1, self:GetEntity()) or 1
-	local data = skins[skin_idx]
-	return data.skin_category or "default"
+	return skins[skin_idx]
 end
 
 function Dome:OnSkinChanged(skin)
@@ -2301,16 +2520,22 @@ function Dome:ChangeSkin(skin)
 		fracture:SetAttachOffset(fracture.dir)
 	end
 	self:VisualizeFractures()
+	
+	local palette = skin.palettes
+	palette = palette ~= "" and EntityPalettes[palette] or nil
+	if palette then
+		palette:ApplyToObj(self)
+		self:ForEachAttach(function(attach)
+			palette:ApplyToObj(attach)
+		end)
+	end
 end
 
 function Dome:OnDomeDisconnected(other_dome)
-	local container = self.labels.Workplaces
-	for i = 1, #container do
-		local wp = container[i]
-		local workers = wp.workers
-		for j = 1, #workers do
-			for k = #workers[j], 1, -1 do
-				local worker = workers[j][k]
+	for _, wp in ipairs(self.labels.Workplaces or empty_table) do
+		for _, list in ipairs(wp.workers) do
+			for i = #list, 1, -1 do
+				local worker = list[i]
 				if worker.dome == other_dome then
 					worker:SetWorkplace(false)
 				end
@@ -2372,34 +2597,15 @@ function Dome:UpdateColonists()
 	end
 end
 
-function Dome:GetUISectionCitizensRollover()
-	local ui_on_vacant, ui_off_vacant = GetFreeWorkplacesAround(self)
-	local free_all = self:GetFreeLivingSpace(true)
-	local free_adult = self:GetFreeLivingSpace()
+function Dome:GetBirthText()
 	local texts = {
-		T{7622, "<center><em>Jobs</em>"},
-		T{548, "Unemployed and looking for work<right><colonist(number)>", number = self.labels.Unemployed and #self.labels.Unemployed or 0, empty_table},
-		T{549, "Vacant work slots<right><colonist(number)>",  number = ui_on_vacant},
-		T{550, "Disabled work slots<right><colonist(number)>",  number = ui_off_vacant},
-		T{7346, "Renegades<right><colonist(number)>", number = self.labels.Renegade and #self.labels.Renegade or 0},
-		T{7623, "<newline><center><em>Living space</em>"},
-		T{552, "Vacant residential slots<right><colonist(number)>", number = free_adult},
-		T{7624, "Vacant nursery slots<right><colonist(number)>", number = free_all - free_adult},
-		T{551, "Homeless<right><colonist(number)>",   number = self.labels.Homeless and #self.labels.Homeless or 0},
-		T{553, "<newline><center><em>Age Groups</em>"},
-		T{554, "Children<right><colonist(number)>",   number = self.labels.Child and #self.labels.Child or 0},
-		T{555, "Youth<right><colonist(number)>",      number = self.labels.Youth and #self.labels.Youth or 0},
-		T{556, "Adults<right><colonist(number)>",     number = self.labels.Adult and #self.labels.Adult or 0},
-		T{557, "Middle Aged<right><colonist(number)>",number = self.labels["Middle Aged"] and #self.labels["Middle Aged"] or 0},
-		T{558, "Senior<right><colonist(number)>",     number = self.labels.Senior and #self.labels.Senior or 0},
 		T{559, "<newline><center><em>Births</em>"},
-		T {7701, "Birth Threshold<right><resource(MinComfortBirth, Comfort)> Comfort", self},
+		T{7701, "Birth Threshold<right><resource(MinComfortBirth, Comfort)> Comfort", self},
 		T{560, "Males who want children<right><colonist(fertile_male)>", self},
 		T{561, "Females who want children<right><colonist(fertile_female)>", self},
 		T{562, "Children born<right><colonist(born_children)>", self},
 		T{7769, "Homeless penalty<right><HomelessBirthRatePenalty>%", self}, 
 	}
-	
 	if self.clones_created > 0 or #(self.labels.CloningVats or empty_table) > 0 then
 		texts[#texts + 1] = T{7347, "Clones created<right><colonist(clones_created)>", self}
 	end
@@ -2414,6 +2620,33 @@ function Dome:GetUISectionCitizensRollover()
 		texts[#texts + 1] = T{8738, "<green>Children will be born if births are allowed.</green>"}	
 	end
 	
+	return table.concat(texts, "<newline><left>")
+end
+
+function Dome:GetUISectionCitizensRollover()
+	local ui_on_vacant, ui_off_vacant = GetFreeWorkplacesAround(self)
+	local free_all = self:GetFreeLivingSpace(true)
+	local free_adult = self:GetFreeLivingSpace()
+	local texts = {
+		T{7622, "<center><em>Jobs</em>"},
+		T{548, "Unemployed, seeking work<right><colonist(number)>", number = self.labels.Unemployed and #self.labels.Unemployed or 0, empty_table},
+		T{549, "Vacant work slots<right><colonist(number)>",  number = ui_on_vacant},
+		T{550, "Disabled work slots<right><colonist(number)>",  number = ui_off_vacant},
+		T{7346, "Renegades<right><colonist(number)>", number = self.labels.Renegade and #self.labels.Renegade or 0},
+		T{7623, "<newline><center><em>Living space</em>"},
+		T{552, "Vacant residential slots<right><colonist(number)>", number = free_adult},
+		T{7624, "Vacant nursery slots<right><colonist(number)>", number = free_all - free_adult},
+		T{551, "Homeless<right><colonist(number)>",   number = self.labels.Homeless and #self.labels.Homeless or 0},
+		
+		T{553, "<newline><center><em>Age Groups</em>"},
+		T{554, "Children<right><colonist(number)>",   number = self.labels.Child and #self.labels.Child or 0},
+		T{555, "Youth<right><colonist(number)>",      number = self.labels.Youth and #self.labels.Youth or 0},
+		T{556, "Adults<right><colonist(number)>",     number = self.labels.Adult and #self.labels.Adult or 0},
+		T{557, "Middle Aged<right><colonist(number)>",number = self.labels["Middle Aged"] and #self.labels["Middle Aged"] or 0},
+		T{558, "Senior<right><colonist(number)>",     number = self.labels.Senior and #self.labels.Senior or 0},
+	}
+	
+	texts[#texts + 1]  = self:GetBirthText()	
 	return table.concat(texts, "<newline><left>")
 end
 
@@ -2469,6 +2702,7 @@ DefineClass.DomeSkins = {
 		{ id = "construction_entity", name = T{8647, "Dome entity during construction"}, editor = "text", default = "", help = "Should have full block pass, all configurable attaches should be auto attaches for this entity"},
 		
 		{ id = "dlc", name = T{6760, "DLC"}, editor = "text", default = "", },
+		{ id = "palettes", name = T{7685, "Available Palettes"}, editor = "combo", items = PresetsCombo("EntityPalette"), default = "" },
 	},
 }
 
@@ -2509,16 +2743,15 @@ end
 function CheatSpawnNColonists(n)
 	if IsKindOf(SelectedObj,"Dome") then
 		for i=1, n do
-			SelectedObj:SpawnColonist(false)
+			SelectedObj:SpawnColonist()
 		end
-		SelectedObj:UpdateUI()
 	else
 		local domes = UICity.labels.Dome		
 		if #domes>0 then
 			while n>0 do
 				for _, dome in ipairs(domes) do
 					if n>0 then
-						dome:SpawnColonist(false)
+						dome:SpawnColonist()
 						n = n - 1
 					else 
 						break

@@ -360,10 +360,10 @@ DefineClass.SA_StartDisaster =
 	{
 		{category = "General", id = "disaster",	name = "Disaster",  default = "", editor = "dropdownlist", items = { "Dust Storm", "Cold Wave", "Dust Devils", "Meteors" }, },
 		{category = "General", id = "storm",		name = "Storm Type",  default = "normal", editor = "dropdownlist", items = { "normal", "great", "electrostatic" }, no_edit = function(self) return self.disaster ~= "Dust Storm" end,},
-		{category = "General", id = "strength",		name = "Strength",  default = 3, editor = "dropdownlist", items = StrengthCombo,},
+		{category = "General", id = "strength",		name = "Strength",  default = 2, editor = "dropdownlist", items = StrengthCombo,},
 		{category = "General", id = "meteors",	name = "Meteors Type",default = "single", editor = "dropdownlist", items = { "single", "multispawn", "storm" }, no_edit = function(self) return self.disaster ~= "Meteors" end,},
 		{category = "General", id = "endless", name = "Endless", default = false, editor = "bool", no_edit = function(self) return self.disaster ~= "Cold Wave" end,},
-		{category = "General", id = "wait", name = "Wait to Finish", default = false, editor = "bool", no_edit = function(self) return self.disaster ~= "Cold Wave" and self.disaster ~= "Dust Storm" end, },
+		{category = "General", id = "wait", name = "Wait to Finish", default = false, editor = "bool", no_edit = function(self) return self.disaster == "Dust Devils" end, },
 	},
 
 	Menu = "Gameplay",
@@ -374,11 +374,21 @@ DefineClass.SA_StartDisaster =
 }
 
 function SA_StartDisaster:Exec(sequence_player, ip, seq, registers)
+	local disaster_to_data = {
+		["Dust Storm"] = DataInstances.MapSettings_DustStorm,
+		["Cold Wave"] = DataInstances.MapSettings_ColdWave,
+		["Meteors"] = DataInstances.MapSettings_Meteor,
+		["Dust Devils"] = DataInstances.MapSettings_DustDevils,
+	}
+	local list = table.ifilter(disaster_to_data[self.disaster], function(_, data)
+		return data.strength == self.strength
+	end)
+	local data = UICity:TableRand(list)
+	if not data then
+		sequence_player:Error(self, "No such disaster preset!")
+		return
+	end
 	if self.disaster == "Dust Storm" then
-		local list = table.ifilter(DataInstances.MapSettings_DustStorm, function(_, data)
-			return data.strength == self.strength
-		end)
-		local data = UICity:TableRand(list)
 		if self.wait then
 			StartDustStorm(self.storm, data)
 		else
@@ -387,10 +397,6 @@ function SA_StartDisaster:Exec(sequence_player, ip, seq, registers)
 			end)
 		end
 	elseif self.disaster == "Cold Wave" then
-		local list = table.ifilter(DataInstances.MapSettings_ColdWave, function(_, data)
-			return data.strength == self.strength
-		end)
-		local data = UICity:TableRand(list)
 		if self.wait then
 			StartColdWave(data, self.endless)
 		else
@@ -399,16 +405,21 @@ function SA_StartDisaster:Exec(sequence_player, ip, seq, registers)
 			end)
 		end
 	elseif self.disaster == "Meteors" then
-		TriggerMeteors(self.meteors)
+		if self.wait then
+			MeteorsDisaster(data, self.meteors)
+		else
+			CreateGameTimeThread(function()
+				MeteorsDisaster(data, self.meteors)
+			end)
+		end
 	elseif self.disaster == "Dust Devils" then
 		local pos = GetRandomPassable()
-		if pos then
-			local descr = GetDustDevilsDescr()
-			if descr then
-				local devil = GenerateDustDevil(pos, descr)
-				devil:Start()
-			end
+		if not pos then
+			sequence_player:Error(self, "No passable pos found!")
+			return
 		end
+		local devil = GenerateDustDevil(pos, data)
+		devil:Start()
 	end
 end
 

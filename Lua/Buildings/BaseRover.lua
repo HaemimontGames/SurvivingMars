@@ -6,7 +6,7 @@ const.BaseRoverBatteryEqualizationRate = 100000 --2 hrs tops, this var is used f
 const.RoverToGridElectricityScale = 20 --rovers will draw 1/const.RoverToGridElectricityScale to charge 1 from el grids
 --container for common stuffs between rc rover and workshop rover.
 DefineClass.BaseRover = {
-	__parents = { "DroneBase", "Demolishable", "TaskRequester", "SkinChangeable" },
+	__parents = { "DroneBase", "Demolishable", "TaskRequester", "SkinChangeable", "PinnableObject" },
 
 	move_speed = 1000,
 	scale = 100,
@@ -23,7 +23,10 @@ DefineClass.BaseRover = {
 
 
 	fx_actor_base_class = "Rover",
-
+	-- pin section
+	pin_summary1 = T{9613, "<percent(BatteryPerc)> <icon_Power_small>"},
+	pin_on_start = true,
+	
 	--battery
 	battery_max = const.BaseRoverMaxBattery,
 	battery_current = const.BaseRoverMaxBattery,
@@ -50,7 +53,6 @@ DefineClass.BaseRover = {
 	
 	--inheritance, wrapper functions because of load order
 	Gossip = function(self, ...) Unit.Gossip(self, ...) end,
-	UpdateUI = function(self, ...) Unit.UpdateUI(self, ...) end,
 	GossipName = function(self, ...) Unit.GossipName(self, ...) end,
 	ip_template = "ipRover",
 	
@@ -184,6 +186,13 @@ function BaseRover:Malfunction(suppress_repair_request)
 		if not IsValid(self) then return end
 	end
 	
+	self:SetEnumFlags(const.efCollision + const.efApplyToGrids)
+	self:PushDestructor(function(self)
+		if IsValid(self) then
+			self:ClearEnumFlags(const.efCollision + const.efApplyToGrids)
+		end
+	end)
+	
 	if self.malfunction_idle_state then
 		self:SetState(self.malfunction_idle_state)
 	else
@@ -297,7 +306,8 @@ function BaseRover:Dead()
 	self:PlayState("destroyed", 1)
 	self:SetState("destroyedIdle")
 	self:SetIsNightLightPossible(false)
-
+	self:SetEnumFlags(const.efCollision + const.efApplyToGrids)
+	
 	Halt()
 end
 
@@ -732,7 +742,7 @@ function BaseRover:OnChargingCableDestroyed()
 end
 
 function BaseRover:GetShapeOffsetedAndRotatedGridPos()
-	return WorldToHex(self:GetPos())
+	return WorldToHex(self)
 end
 
 --called by electricty grid on change of supply amount
@@ -759,15 +769,15 @@ function BaseRover:CanInteractWithObject(obj, interaction_mode)
 	if self.command=="Dead" then return false end
 	if interaction_mode == false or interaction_mode == "recharge" then
 		if IsKindOf(obj, "ElectricityGridElement") and not IsKindOf(obj, "ConstructionSite") then
-			return true --RechargeFromGrid
-		elseif obj ~= self and IsKindOf(obj, "BaseRover") and obj.command ~= "Dead" and obj.command ~= "Malfunction" and not obj:IsKindOf("AttackRover") then
-			return true --EqualizePowerWithOtherRover
+			return true, T{9614, "<UnitMoveControl('ButtonB',interaction_mode)>: Recharge", self}  --RechargeFromGrid
+		elseif obj ~= self and IsKindOf(obj, "BaseRover") and obj.command ~= "Dead" and obj.command ~= "Malfunction" and not IsKindOf(obj,"AttackRover") then
+			return true, T{9615, "<UnitMoveControl('ButtonA',interaction_mode)>: Transfer Power", self} --EqualizePowerWithOtherRover
 		end
 	end
 	
 	if self.interaction_mode == false or self.interaction_mode == "default" or self.interaction_mode == "move" then --the 3 move modes..
 		if IsKindOf(obj, "Tunnel") and obj.working then
-			return true --UseTunnel
+			return true, T{9616, "<UnitMoveControl('ButtonA',interaction_mode)>: Use Tunnel",self} --UseTunnel
 		end
 	end
 	
@@ -927,6 +937,7 @@ RoverCommands = {
 	NoBattery = T{66, "Out of power"},
 	PickupResource = T{67, "Loading resources"},
 	RechargeFromGrid = T{68, "<green>Charging battery from Power grid</green>"},
+	Goto_RechargeFromGrid = T{9804, "Going to recharge at target coordinates"},
 	RechargeFromGridNoPower = T{69, "Trying to recharge battery, insufficient Power"},
 	RepairDrone = T{70, "Repairing Drones"},
 	Siege = T{71, "Commanding Drones"},
@@ -1017,4 +1028,8 @@ end
 function BaseRover:Select()
 	SelectObj(self)
 	ViewObjectMars(self:GetLogicalPos())
+end
+
+function BaseRover:CanDemolish()
+	return not g_Tutorial and Demolishable.CanDemolish(self)
 end

@@ -11,6 +11,7 @@ DefineClass.PinnableObject = {
 		{ template = true, name = T{765, "Pin Rollover"}, id = "pin_rollover", category = "Pin",  editor = "text", default = "", translate = true, },
 		{ template = true, name = T{3460, "Pin Rollover Hint"}, id = "pin_rollover_hint", category = "Pin",  editor = "text", default = T{7604, "<left_click> Select"}, translate = true, },
 		{ template = true, name = T{3461, "Pin Rollover Hint Xbox"}, id = "pin_rollover_hint_xbox", category = "Pin",  editor = "text", default = T{7605, "<ButtonA> View"}, translate = true, },
+		{ template = true, name = T{9622, "Pin Summary 2"}, id = "pin_summary2", category = "Pin",  editor = "text", default = "", translate = true, },
 		{ template = true, name = T{3462, "Pin Summary 1"}, id = "pin_summary1", category = "Pin",  editor = "text", default = "", translate = true, },
 		{ template = true, name = T{3465, "Pin Progress Value"}, id = "pin_progress_value", category = "Pin",  editor = "text", default = "", },
 		{ template = true, name = T{3466, "Pin Progress Max"}, id = "pin_progress_max", category = "Pin",  editor = "text", default = "", },
@@ -50,6 +51,14 @@ end
 
 function PinnableObject:GetTitle()
 	return self:GetDisplayName()
+end
+
+function PinnableObject:GetPinSummary()
+	if self.pin_summary2 ~= "" then
+		return T{9623, "<pin_summary1><newline><pin_summary2>"}
+	else
+		return self.pin_summary1
+  end
 end
 
 function PinnableObject:TogglePin()

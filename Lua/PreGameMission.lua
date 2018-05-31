@@ -176,9 +176,9 @@ function OnMsg.ClassesBuilt()
 end
 
 function OnMsg.ChangeMap(map)
-	g_CurrentMissionParams.idMissionSponsor = g_CurrentMissionParams.idMissionSponsor or "IMM"
-	g_CurrentMissionParams.idCommanderProfile = g_CurrentMissionParams.idCommanderProfile or "rocketscientist"
-	g_CurrentMissionParams.idGameRules = g_CurrentMissionParams.idGameRules or {}
+	g_CurrentMissionParams.idMissionSponsor = g_Tutorial and "None" or g_CurrentMissionParams.idMissionSponsor or "IMM"
+	g_CurrentMissionParams.idCommanderProfile = g_Tutorial and "None" or g_CurrentMissionParams.idCommanderProfile or "rocketscientist"
+	g_CurrentMissionParams.idGameRules = g_Tutorial and {} or g_CurrentMissionParams.idGameRules or {}
 end
 
 function InitNewGameMissionParams()
@@ -484,7 +484,7 @@ function GetSponsorModifierConsts(sponsor)
 	for _, const in ipairs(modifiableConsts) do
 		local value_id = const.local_id
 		local global_name = const.global_id
-		if sponsor[value_id] and sponsor[value_id]>0 then 
+		if sponsor[value_id] and sponsor[value_id] ~= 0 then 
 			t[global_name] = MulDivRound(g_Consts[global_name], 100, 100) + sponsor[value_id]			
 		end
 		t[global_name] = t[global_name] or g_Consts[global_name]
@@ -622,8 +622,8 @@ function GenerateRandomMissionParams()
 			g_CurrentMissionParams[k] = GetRandomMissionParam(k)
 		end
 	end
-	g_CurrentMissionParams.idMissionSponsor = "IMM"
-	g_CurrentMissionParams.idCommanderProfile = "rocketscientist"
+	g_CurrentMissionParams.idMissionSponsor = g_Tutorial and "None" or "IMM"
+	g_CurrentMissionParams.idCommanderProfile = g_Tutorial and "None" or "rocketscientist"
 	g_CurrentMissionParams.idMystery = "random"
 	g_CurrentMissionParams.idGameRules = {}
 	g_CurrentMissionParams.GameSessionID = srp.random_encode64(96)

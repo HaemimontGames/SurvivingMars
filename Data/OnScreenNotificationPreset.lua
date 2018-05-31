@@ -701,6 +701,78 @@ PlaceObj('OnScreenNotificationPreset', {
 })
 
 PlaceObj('OnScreenNotificationPreset', {
+	'name', "Mystery10CrystalsAssemble",
+	'title', T{9685, --[[OnScreenNotificationPreset Mystery10CrystalsAssemble title]] "Strange behavior"},
+	'text', T{9686, --[[OnScreenNotificationPreset Mystery10CrystalsAssemble text]] "The crystals are merging into a single entity"},
+	'expiration', 150000,
+	'game_time', true,
+	'display_countdown', true,
+	'priority', "Important",
+	'VignetteImage', "UI/Vignette_Red.tga",
+	'VignettePulseDuration', 2000,
+})
+
+PlaceObj('OnScreenNotificationPreset', {
+	'name', "Mystery11NewSinkhole",
+	'title', T{9815, --[[OnScreenNotificationPreset Mystery11NewSinkhole title]] "Sinkhole Detected"},
+	'expiration', 150000,
+	'game_time', true,
+	'display_countdown', true,
+	'priority', "Important",
+	'VignetteImage', "UI/Vignette_Red.tga",
+	'VignettePulseDuration', 2000,
+})
+
+PlaceObj('OnScreenNotificationPreset', {
+	'name', "Mystery11WispsKilled",
+	'title', T{9816, --[[OnScreenNotificationPreset Mystery11WispsKilled title]] "Wisps Analyzed"},
+	'text', T{5652, --[[OnScreenNotificationPreset Mystery11WispsKilled text]] "Gained <research(points)>"},
+	'image', "UI/Icons/Notifications/anomaly_analyzed.tga",
+	'close_on_read', true,
+	'expiration', 150000,
+})
+
+PlaceObj('OnScreenNotificationPreset', {
+	'name', "Mystery11ExperimentProgress",
+	'title', T{9817, --[[OnScreenNotificationPreset Mystery11ExperimentProgress title]] "Experiment 03-K64"},
+	'image', "UI/Icons/Notifications/anomaly_analyzed.tga",
+	'dismissable', false,
+})
+
+PlaceObj('OnScreenNotificationPreset', {
+	'name', "Mystery12IonStorms",
+	'title', T{9224, --[[OnScreenNotificationPreset Mystery12IonStorms title]] "Ion Storm Detected"},
+	'text', T{5619, --[[OnScreenNotificationPreset Mystery12IonStorms text]] "Remaining duration: <countdown>"},
+	'game_time', true,
+	'display_countdown', true,
+	'dismissable', false,
+	'priority', "Important",
+	'VignetteImage', "UI/Vignette_Red.tga",
+	'VignettePulseDuration', 2000,
+})
+
+PlaceObj('OnScreenNotificationPreset', {
+	'name', "Mystery12IonStormsPredicted",
+	'title', T{9225, --[[OnScreenNotificationPreset Mystery12IonStormsPredicted title]] "Ion Storms Incoming!"},
+	'text', T{9226, --[[OnScreenNotificationPreset Mystery12IonStormsPredicted text]] "Expected Ion Storms: <reg_param1>"},
+	'dismissable', false,
+	'priority', "Important",
+	'VignetteImage', "UI/Vignette_Red.tga",
+	'VignettePulseDuration', 2000,
+})
+
+PlaceObj('OnScreenNotificationPreset', {
+	'name', "Mystery12FinalCountdown",
+	'title', T{9818, --[[OnScreenNotificationPreset Mystery12FinalCountdown title]] "Metatron's Challenge"},
+	'text', T{9819, --[[OnScreenNotificationPreset Mystery12FinalCountdown text]] "Remaining Time: <countdown>"},
+	'game_time', true,
+	'display_countdown', true,
+	'dismissable', false,
+	'VignetteImage', "UI/Vignette_Red.tga",
+	'VignettePulseDuration', 2000,
+})
+
+PlaceObj('OnScreenNotificationPreset', {
 	'name', "MysteryLog",
 	'title', T{5661, --[[OnScreenNotificationPreset MysteryLog title]] "Mystery Log"},
 	'text', T{5662, --[[OnScreenNotificationPreset MysteryLog text]] "History of Events"},

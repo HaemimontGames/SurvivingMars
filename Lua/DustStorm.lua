@@ -180,8 +180,10 @@ function StartDustStorm(storm_type, dust_storm)
 					end
 				end,
 			}
-			for i=1,#(fuel_explosions or "") do
-				FuelExplosion(fuel_explosions[i])
+			for _, obj in ipairs(fuel_explosions or empty_table) do
+				if IsValid(obj) then
+					FuelExplosion(obj)
+				end
 			end
 		end
 		if time > hour_duration then

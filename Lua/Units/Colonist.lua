@@ -1,6 +1,7 @@
 local stat_scale = const.Scale.Stat
 local max_stat = const.Scale.Stat * 100
 local cutoff_time =  3
+local wait_dome_turned_off = const.ColonistMaxWaitInDomeTurnedOff
 
 
 DefineClass.Colonist =
@@ -113,7 +114,12 @@ DefineClass.Colonist =
 	failed_domes = false,
 	
 	use_passages = true,
+	next_heavy_update = 0,
+	
+	assigned_to_service_with_amount = false,
 }
+
+GlobalVar("ColonistHeavyUpdateTime", 0)
 
 ColonistStatList = { "Health", "Sanity", "Comfort", "Morale" }
 ColonistStat = 
@@ -276,6 +282,7 @@ function Colonist:SetDome(dome)
 				trait:AddDomeColonistsModifier(self, trait.modify_trait)
 			end
 		end
+		self.emigration_dome = false
 		self:UpdateWorkplace()
 		self:UpdateResidence()
 		Msg("ColonistJoinsDome", self, dome)
@@ -479,6 +486,48 @@ function Colonist:GetTraitsWarnings()
 		return  "<newline><newline>"..T{8039, "Trait: Idiot (can cause a malfunction)"}
 	end
 	return ""
+end
+
+function Colonist:GetUIWarning()
+	local status_effect = GetTopPriorityStatusEffect(self)
+	if status_effect and ColonistStatusEffectsWarnings[status_effect] then
+		return T{ColonistStatusEffectsWarnings[status_effect], self}
+	end	
+	local detrimental_traits = GetDetrimentalTraits()
+	for _, trait in ipairs(detrimental_traits) do
+		if self.traits[trait] then
+			return T{ColonistTraitsWarnings[trait], self}
+		end
+	end
+end
+
+function GetDetrimentalStatusColonists(city, return_first)
+	local objs = {}
+	local detrimental_status_effects = GetDetrimentalStatusEffects()
+	local detrimental_traits = GetDetrimentalTraits()
+	local array = city.labels.Colonist or empty_table
+	for _, colonist in ipairs(array) do
+		local added
+		for i, effect in ipairs(detrimental_status_effects) do
+			if colonist.status_effects[effect] then
+				if return_first then return colonist end
+				objs[#objs + 1] = colonist
+				added = true
+				break
+			end
+		end	
+		if not added then
+			for i, trait in ipairs(detrimental_traits) do
+				if colonist.traits[trait] then
+					if return_first then return colonist end
+					objs[#objs + 1] = colonist
+					break
+				end
+			end	
+		end	
+	end
+	if return_first then return false end
+	return objs
 end	
 -------------------------------------------------------------
 function Colonist:ExitBuilding(building, target, entrance_type, spot_name)
@@ -650,7 +699,7 @@ function Colonist:ProjectPhoenixEffect()
 		if not dome then
 			return
 		end
-		local heir = GenerateColonistData(self.city, "Youth", "martianborn", self.gender, self.entity_gender, "no traits")		
+		local heir = GenerateColonistData(self.city, "Youth", "martianborn",{gender = self.gender, entity_gender = self.entity_gender, no_traits = "no_traits",no_specialization = true})		
 		for trait_id, _ in pairs(traits) do
 			local trait = DataInstances.Trait[trait_id]
 			local category = trait and trait.category or false
@@ -666,6 +715,7 @@ function Colonist:ProjectPhoenixEffect()
 		heir.serial = self.serial + 1
 		heir.name = T{4301, "<name> <roman(serial)>", name = heir.progenitor_name, serial = heir.serial}
 		local colonist = Colonist:new(heir)
+		colonist:SetSpecialization(self.specialist)
 		dome:RandPlaceColonist(colonist)
 		--@@@msg ColonistBorn,colonist, event- fired when a colonist has been born/cloned/reborn/spawned/...
 		Msg("ColonistBorn", colonist, "reborn")
@@ -682,6 +732,8 @@ function Colonist:OnEnterDomeFail(dome)
 end
 
 function Colonist:Abandoned()
+	self:ExitBuilding()
+	
 	assert(not self.current_dome)
 	assert(self.outside_start)
 	assert(self:IsValidPos())
@@ -797,8 +849,19 @@ end
 function Colonist:Arrive()
 	local rocket = self.arriving
 	assert(rocket)
-	local from_rocket = IsKindOf(rocket,"SupplyRocket")
-	if from_rocket then
+	if not rocket then
+		return
+	end
+	local dome = self.emigration_dome or self.dome
+	self.emigration_dome = nil
+	self:PushDestructor(self.OnArrival)
+	if not IsKindOf(rocket, "SupplyRocket") then
+		-- backward compatibility
+		if rocket.parent_dome then
+			self:OnEnterDome(rocket.parent_dome)
+		end
+		rocket:OnEnterUnit(self)
+	else
 		if HintsEnabled then
 			HintTrigger("HintDecorations")
 			HintTrigger("HintComfortStatAndServices")
@@ -806,74 +869,35 @@ function Colonist:Arrive()
 		
 		--@@@msg ColonistArrived,colonist- fired when a colonist has arrived on Mars with a rocket.
 		Msg("ColonistArrived", self)
-	end
-	self:PushDestructor(function(self)
+		
+		self:SetOutside(true)
 		self.current_dome = false
-		local pos = self:GetPos()
 		-- disembark
-		if from_rocket then
-			local spot = rocket:GetSpotBeginIndex("Colonistout")
-			pos = rocket:GetSpotLoc(spot)
-			local dir = pos - rocket:GetPos()
-			dir = dir:SetZ(0)
-			rocket:Attach(self, spot)
-			self:SetAnim(1, "disembarkRocket")
+		local spot = rocket:GetSpotBeginIndex("Colonistout")
+		local pos = rocket:GetSpotLoc(spot)
+		rocket:Attach(self, spot)
+		self:SetAnim(1, "disembarkRocket")
+		self:PushDestructor(function(self)
 			Sleep(self:TimeToAnimEnd())
 			self:Detach()
 			self:SetPos(pos)
 			self:SetState("idle")
-			if not self.dome then
-				rocket.disembarking_confused = true
-			end
 			table.remove_value(rocket.disembarking, self)
+		end)
+		self:PopAndCallDestructor() -- Disembark uninterruptible
 
-			if not self.dome then
-				-- pick a nearby pos and goto there if there's no dome to go to
-				pos = rocket:PickArrivalPos(pos, dir, 20*guim, 10*guim, 90*60, -90*60)
-				self:Goto(pos)
-				
-				self:SetState("idle")
-				
-				self.city:AddToLabel("Arrivals", self)
-			end
-		elseif IsKindOf(self.arriving, "Building") then
-			self:SetHolder(self.arriving)
-			pos = self.arriving:GetPos()
-		end
-		if not self.dome then
-			while IsValid(self) and self.command ~= "Die" and not self.dome do
-				local domes, safety_dome = GetDomesInWalkableDistance(self.city, pos)
-				local dome = ChooseDome(self.traits, domes, safety_dome)
-				if dome then
-					self:SetDome(dome)
-					Wakeup(self.command_thread)
-					break
-				end
-				WaitWakeup(5000 + Random(0, 5000) )
-			end
-			self.city:RemoveFromLabel("Arrivals", self)			
-			if not IsValid(self) or self.command == "Die" then
-				return
-			end
-		end
-		
-		self.arriving = nil
-		self:OnArrival()
-	end)
-	self:PopAndCallDestructor()
-end
-
-function OnMsg.BuildingPlaced(bld)
-	local arrivals = bld.city.labels.Arrivals
-	if IsKindOf(bld, "Dome") and arrivals then		
-		for i = #arrivals, 1, -1 do
-			arrivals[i]:SetDome(bld)
-			Wakeup(arrivals[i].command_thread)
+		if not dome then
+			rocket.disembarking_confused = true
+		elseif self:EnterBuilding(dome) then
+			self:SetDome(dome)
 		end
 	end
+	self:PopAndCallDestructor() -- OnArrival
 end
 
 function Colonist:OnArrival()
+	assert(self.holder or self:IsValidPos())
+	self.arriving = nil
 	self:UpdateHomelessLabels()	
 	self:UpdateEmploymentLabels()
 	if self.residence then
@@ -927,37 +951,38 @@ function Colonist:UpdateEmploymentLabels()
 		self.city:AddToLabel("Unemployed", self)			
 		self:Affect("StatusEffect_Unemployed", "start")
 	end
-	self:UpdateUI()
 end
 
 function Colonist:SetWorkplace(building, shift)
 	assert(not building or ValidateBuilding(building) and building.ui_working)
 	
 	building = not self:IsDying() and ValidateBuilding(building)
-	if not building and not self.workplace then
+	local old_workplace = self.workplace
+	if not building and not old_workplace then
 		return
 	end
-	if building == self.workplace and shift == self.workplace_shift then
+	if building == old_workplace and shift == self.workplace_shift then
 		return
 	end
 	
-	local refresh = not building and self.workplace or not self.workplace and building
-	if self.workplace then
+	local refresh = not building and old_workplace or not old_workplace and building
+	if old_workplace then
 		--remove overtime from daily routine
-		self.workplace:RemoveWorker(self)
+		old_workplace:RemoveWorker(self)
 	end
-	local old_workplace = self.workplace
+	
 	self.workplace = building
 	self.workplace_shift = shift or 1
 	
 	if building then
+		assert(shift)
 		assert(building:IsSuitable(self))
 		building:AddWorker(self, shift)
 		self.avoid_workplace = false -- last workplace , avoid when choose new workplace and reset when new workplace is set
 		self.avoid_workplace_start = false
 	end
 	--@@@msg ColonistChangeWorkplace,colonist, new_workplace, old_workplace - fired when any colonist changes its workplace and the new and old are different
-	Msg("ColonistChangeWorkplace",self, self.workplace, old_workplace)
+	Msg("ColonistChangeWorkplace",self, building, old_workplace)
 	 
 	self:UpdateEmploymentLabels()
 	if refresh then
@@ -968,7 +993,7 @@ function Colonist:SetWorkplace(building, shift)
 	self:ChangeWorkplacePerformance()
 
 	-- set command
-	if not self.workplace and self:IsInWorkCommand() then
+	if not building and self:IsInWorkCommand() then
 		self:InterruptCommand()
 	end
 end
@@ -1057,7 +1082,7 @@ function Colonist:UpdateWorkplace()
 			local lst = my_dome.labels.Workplaces
 			work_bld, work_shift, work_to_kick, specialist_match = ChooseWorkplace(self, lst, true)
 			
-			if my_dome.allow_work_in_connected and my_dome.accept_colonists and (not work_bld or not specialist_match) and next(my_dome.connected_domes) then
+			if my_dome.allow_work_in_connected and my_dome.accept_colonists and (not work_bld or work_bld.priority < max_priority or not specialist_match) and next(my_dome.connected_domes) then
 				for connected_dome, connections in pairs(my_dome.connected_domes) do
 					if connected_dome:CanColonistsFromDifferentDomesWorkServiceTrainHere() then
 						lst = connected_dome.labels.Workplaces
@@ -1067,7 +1092,9 @@ function Colonist:UpdateWorkplace()
 						if od_sm and not specialist_match then
 							--found specialist match in other dome
 							cpy = true
-							brk = true
+							if od_wp.priority >= max_priority then
+								brk = true
+							end
 						elseif CompareWorkplaces(work_bld, od_wp, self) == od_wp then
 							cpy = true
 						end
@@ -1253,10 +1280,11 @@ function Colonist:Idle()
 		self:SetCommand("Arrive")
 		return
 	end
-	if not (self.holder or self:IsValidPos()) then
-		assert(self.holder or self:IsValidPos())
-		if self.current_dome then
-			self.current_dome:RandPlaceColonist(self)
+	if not (self.holder or self:IsValidPos() or terrain.IsPassable(self)) then
+		Sleep(2000)
+		local dome = self.current_dome or self.dome
+		if dome then
+			dome:RandPlaceColonist(self)
 		end
 	end
 	
@@ -1350,9 +1378,22 @@ function Colonist:Idle()
 		self:TryVisit("needMedical")
 	end
 	
-	self:UpdateWorkplace()
-	self:UpdateResidence()
-	self:TryToEmigrate()
+	if time > self.next_heavy_update then
+		self.next_heavy_update = time + ColonistHeavyUpdateTime
+		self:UpdateWorkplace()
+		self:UpdateResidence()
+		self:TryToEmigrate()
+	else
+		if self.user_forced_dome then
+			self:TryToEmigrate()
+		end
+		if self.user_forced_workplace then
+			self:UpdateWorkplace()
+		end
+		if self.user_forced_residence or self.reserved_residence then
+			self:UpdateResidence()
+		end
+	end
 	
 	if self.workplace then
 		assert(ValidateBuilding(self.workplace))
@@ -1390,9 +1431,9 @@ function Colonist:Idle()
 	self:Roam(const.HourDuration)
 end
 
-function Colonist:AssignToService(service, force)
+function Colonist:AssignToService(service, force, ...)
 	if self.assigned_to_service and not force then
-		self.assigned_to_service:Unassign(self)
+		self.assigned_to_service:Unassign(self, ...)
 		self.assigned_to_service = false
 	end
 	if service and self.assigned_to_service~=service then
@@ -1808,53 +1849,69 @@ function Colonist:SetSpecialization(specialist, init)
 
 	self.city:AddToLabel(self.specialist, self)
 	if not init then
-		self:AddTrait(specialist)
-	end
+		self:AddTrait(self.specialist)
+	end 
 end
 -------------------------------------- Transport -----------------------------------------------
+
+local function HasFreeWorkplacesAround(dome, colonist)
+	for _, b in ipairs(dome.labels.Workplaces or empty_table) do
+		if not b.destroyed and b.ui_working and b:CanWorkHere(colonist) and b:HasFreeWorkSlots() then
+			return true
+		end
+	end
+	for d in pairs(dome.connected_domes or empty_table) do
+		for _, b in ipairs(d.labels.Workplaces or empty_table) do
+			if not b.destroyed and b.ui_working and b:CanWorkHere(colonist) and b:HasFreeWorkSlots() then
+				return true
+			end
+		end
+	end
+end
 
 function Colonist:FindEmigrationDome()
 	--check is forced by user to go to any dome
 	local my_dome = self.dome
+	local pos = self.current_dome or self:GetPos()
 	local forced_dome = self:CheckForcedDome()
 	if forced_dome then
 		if forced_dome == my_dome then
 			return
 		end
-		local is_walking, dist = IsInWalkingDist(forced_dome, my_dome)
+		local is_walking, dist = IsInWalkingDistDome(forced_dome, pos)
 		return forced_dome, is_walking, dist
 	end
+	local can_work = self:CanWork()
 	--check if match filters to its dome or any other dome
 	local traits = self.traits
 	local is_child = traits.Child
 	local eval = -1
-	local pos = my_dome or self
-	local LR_transport_available = IsLRTransportAvailable(self.city)
 	local choosen
 	local workplaces
 	if my_dome then
 		if not my_dome.accept_colonists then
 			-- quarantine, no one enters or leaves
 			return
-		elseif not self:IsHomeless()
-		and (my_dome.ui_working or GameTime() - my_dome.ui_working_changed < const.ColonistMaxWaitInDomeTurnedOff) then
+		end
+		if not self:IsHomeless() and (my_dome.ui_working or GameTime() - my_dome.ui_working_changed < wait_dome_turned_off) then
 			-- could stay only if not homeless and if the Dome is switched ON
 			eval = TraitFilterColonist(my_dome.traits_filter, traits)
 		end
-		workplaces = HasFreeWorkplacesAround(my_dome)
+		workplaces = can_work and HasFreeWorkplacesAround(my_dome, self)
 	end
-	local is_unemployed = self:CanWork() and not IsValid(self.workplace) and not self.user_forced_workplace
+	local LR_transport_available = IsLRTransportAvailable(self.city)
+	local is_unemployed = can_work and not IsValid(self.workplace) and not self.user_forced_workplace
 	local is_walking, dist
 	for _, dome in ipairs(self.city.labels.Dome or empty_table) do
 		if my_dome ~= dome and not dome.destroyed and not dome.demolishing
 		and dome.accept_colonists and dome.ui_working
 		and dome:HasPower() and dome:HasWater() and dome:HasAir() then
 			-- dome to dome dist is cached, thus IsInWalkingDist is fast
-			local new_is_walking, new_dist = IsInWalkingDist(dome, pos)
+			local new_is_walking, new_dist = IsInWalkingDistDome(dome, pos)
 			if new_is_walking or LR_transport_available then
 				local new_eval = TraitFilterColonist(dome.traits_filter, traits)
 				if new_eval >= 0 and dome:HasFreeLivingSpace(is_child) then
-					local new_workplaces = HasFreeWorkplacesAround(dome)
+					local new_workplaces = can_work and HasFreeWorkplacesAround(dome, self)
 					if new_eval > eval -- the new dome is a better match for our traits
 					or new_eval == eval and is_unemployed and not workplaces and new_workplaces then -- if unemployed, change dome if it has workplaces
 						choosen = dome
@@ -1880,17 +1937,20 @@ function Colonist:TransportByFoot(dest_dome)
 	local source_dome = self.dome
 	self.emigration_dome = dest_dome
 	--abandon old life
-	if self.dome then
-		self:SetDome(false)
-	end
+	self:SetDome(false)
 	
 	if not self:EnterBuilding(dest_dome) then
-		self:CancelResidenceReservation()
-		self:SetCommand("Abandoned")
+		local current_dome = self.current_dome
+		if not current_dome then
+			-- will be handled by the abandoned logic
+			return
+		end
+		assert(current_dome ~= dest_dome, "Colonist failed to enter a dome while being in that dome!")
+		assert(current_dome ~= source_dome, "Colonist failed to enter a dome without leaving its own dome!")
+		dest_dome = current_dome
 	end
 	
 	self:SetDome(dest_dome)
-	self.emigration_dome = false
 end
 
 function IsTransportAvailableBetween(source_dome, dest_dome)
@@ -2047,13 +2107,18 @@ function Colonist:GetUIDeathReason()
 	return DeathReasons[self.dying_reason]
 end
 
-function Colonist:GetUIInfo()
-	return table.concat({
+function Colonist:GetUIInfo(remove_descr)
+	local remove_descr = remove_descr or false
+	local t = {
 		T{4354, "Colonists are required to operate Dome buildings.<newline>"},
 		T{4355, "Sols on Mars<right><sols>", self},
 		T{4356, "Sex<right><Gender>", self},
 		T{4357, "Birthplace<right><UIBirthplace>", self}
-	}, "<newline><left>")
+	}
+	if remove_descr then
+		table.remove(t, 1)
+	end
+	return table.concat(t, "<newline><left>")
 end
 
 function Colonist:UIStatUpdate(win, stat)
@@ -2157,7 +2222,7 @@ function Colonist:UIStatUpdate(win, stat)
 				for i=1, #interests do
 					int_names[#int_names+1] = GetInterestDisplayName(interests[i])													
 				end
-				texts[#texts + 1] = T{4375, "Interests: <em><list></em><newline>", list = table.concat(int_names, ", ")}
+				texts[#texts + 1] = T{4375, "Interests: <em><list></em><newline>", list = TList(int_names)}
 			end
 			local title = false
 			for i = 1, #log, 3 do
@@ -2210,20 +2275,34 @@ function Colonist:GetUIWorkplaceLine()
 	end
 end
 
-function Colonist:GetUITraitsList()
+function Colonist:GetUITraitsLine(separator)
 	local texts
-	for trait_id in pairs(self.traits) do
+	for trait_id in sorted_pairs(self.traits) do
 		local trait = DataInstances.Trait[trait_id]
 		if trait and trait.show_in_traits_ui then
 			texts = texts or {}
 			if trait.rare then
 				texts[#texts + 1] = T{7550, "<em><trait></em>", trait = trait.display_name}
 			else
-				texts[#texts + 1] = T{7551, "<trait>", trait = trait.display_name}
+				texts[#texts + 1] = trait.display_name
 			end
 		end
 	end
-	return texts and table.concat(texts, "<newline>") or T{7552, "No traits"}
+	return texts and (separator and table.concat(texts, separator) or TList(texts)) or T{7552, "No traits"}
+end
+
+function Colonist:GetUITraitsList()
+	return self:GetUITraitsLine("<newline>")
+end
+
+function Colonist:GetUIInterestsLine()
+	local interests = GetInterests(self)
+	local texts
+	for _, interest in ipairs(interests) do
+		texts = texts or {}
+		texts[#texts + 1] = GetInterestDisplayName(interest)
+	end
+	return texts and TList(texts) or T{8935, "No interests"}
 end
 
 function Colonist:GetUITraitsRollover()
@@ -2259,9 +2338,15 @@ function Colonist:SetForcedDome(dome)
 end
 
 function Colonist:CanInteractWithObject(obj, mode)
-	if mode == "assign_to_bld" then
-		if IsKindOf(obj, "Building") and ValidateBuilding(obj) then
-			return obj:ColonistCanInteract(self)
+	if mode == "assign_to_bld" or mode == false then
+		if IsKindOf(obj, "Building") and ValidateBuilding(obj) then	
+			local can, hint, go_to = obj:ColonistCanInteract(self)
+			if IsKindOfClasses(obj, "TrainingBuilding", "Workplace", "Residence")
+				and can and not IsInWalkingDist(obj, self:GetPos()) 
+				then
+				return can, hint.."\n"..T{9628, "<em>No Shuttle Available</em>"}, go_to 
+			end
+			return can, hint, go_to
 		end
 	end
 	return false, false, true
@@ -2269,7 +2354,7 @@ end
 
 function Colonist:InteractWithObject(obj, mode)
 	local interacted
-	if mode == "assign_to_bld" then
+	if mode == "assign_to_bld" or mode == false then
 		if IsKindOf(obj, "Building") and ValidateBuilding(obj) and obj:ColonistInteract(self) then
 			interacted = true
 		end
@@ -2279,8 +2364,8 @@ function Colonist:InteractWithObject(obj, mode)
 	end
 end
 
-function Colonist:CanBeControlled()
-	return self:CanChangeCommand() and self.interaction_mode == "assign_to_bld"
+function Colonist:CanBeControlled(mode)
+	return mode ~= "move" and self:CanChangeCommand() and (MoveUnitsOnRightClick() or self.interaction_mode == "assign_to_bld")
 end
 -------------------------------------- UI -----------------------------------------------
 function Colonist:GetSelectionArrow() 
@@ -2320,6 +2405,11 @@ function Colonist:SelectResidence()  -- for hyperlinks
 	if bld then bld:Select() end
 end
 
+function Colonist:SelectDome()  -- for hyperlinks
+	local dome = self.dome
+	if dome then dome:Select() end
+end
+
 function Colonist:SelectService()  -- for hyperlinks
 	if self.assigned_to_service then self.assigned_to_service:Select() end
 end
@@ -2330,6 +2420,12 @@ end
 function Colonist:GetWorkplaceDisplayName()  -- for hyperlinks
 	local bld = self.workplace or self.last_workplace
 	if bld then return bld:GetDisplayName() end
+end
+
+function Colonist:GetDomeDisplayName()  -- for hyperlinks
+	local bld = self.dome
+	if bld then return bld:GetDisplayName() end
+	return T{6761, "None"}
 end
 
 function Colonist:GetResidenceDisplayName()  -- for hyperlinks
@@ -2359,7 +2455,7 @@ function Colonist:GetStatusEffects()
 			return priority1>priority2 
 		end)
 	for i=1, #sorted do text[#text + 1] = g_Classes[sorted[i] ].display_name end
-	return table.concat(text,", ")
+	return TList(text)
 end
 
 function Colonist:GetDescription()
@@ -2386,7 +2482,7 @@ function Colonist:GetPinDescription()
 			traits[#traits+1] = trait.display_name
 		end
 	end
-	local traits_text = next(traits) and T{7782, "<newline><nbsp><nbsp><em>Traits:</em> <traits_list>", traits_list = table.concat(traits, ", ")} or ""
+	local traits_text = next(traits) and T{7782, "<newline><nbsp><nbsp><em>Traits:</em> <traits_list>", traits_list = TList(traits)} or ""
 	return text..traits_text
 end
 
@@ -2435,7 +2531,7 @@ function Colonist:GetGender()
 end
 
 local ColonistCommands = {
-	Abandoned = T{4318, "Abandoned the expedition"},
+	Abandoned = T{4318, "Seeking a Dome"},
 	Arrive = T{4319, "Just arrived"},
 	Die = T{4320, "Deceased"},
 	Embark = T{4321, "On an expedition"},
@@ -2530,7 +2626,7 @@ function GenerateTraits(unit, newborn, max)
 	return new_traits
 end
 
-function GenerateColonistData(city, age_trait, martianborn, gender, entity_gender, no_traits)
+function GenerateColonistData(city, age_trait, martianborn, params)
 	city = city or UICity
 	-- birthplace and age	
 	martianborn = martianborn or false
@@ -2557,12 +2653,16 @@ function GenerateColonistData(city, age_trait, martianborn, gender, entity_gende
 		end
 	end
 	-- traits
-	local traits = no_traits and {} or GenerateTraits({city = city, traits = {Martianborn = (not not martianborn or newborn)}}, age_trait=="Child")
+	local traits =  params and params.no_traits and {} or GenerateTraits({city = city, traits = {Martianborn = (not not martianborn or newborn)}}, age_trait=="Child")
 	traits[birthplace] = true
 	traits["Martianborn"] = (not not martianborn or newborn) or nil
 	traits[age_trait]  = true
 	--gender	
 	local rand
+	local gender, entity_gender 
+	if params then
+		gender, entity_gender = params.gender, params.entity_gender 
+	end	
 	if not gender or not entity_gender then
 		rand = Random(1, 100)
 		if rand<=g_Consts.Other_gender_chance then
@@ -2578,7 +2678,8 @@ function GenerateColonistData(city, age_trait, martianborn, gender, entity_gende
 	
 	-- specialist
 	local specialist = "none" 
-	if not newborn then
+	local generate_specialization = not newborn and (not params or not params.no_specialization)
+	if generate_specialization then
 		rand = Random(0, 100)
 		local threshold = 0
 		local multiplier = g_Consts.specialist_chance_mul
@@ -2608,11 +2709,11 @@ function GenerateColonistData(city, age_trait, martianborn, gender, entity_gende
 	NameUnit(colonist)	
 	return colonist
 end
-
+--[[
 function Colonist:Getui_control_hint()
-	return GetUnitControlInteractionHint(self, T{4339, "<em>Ctrl + <left_click></em>: Move"} ,T{4340, "No available interaction"})
+	return GetUnitControlInteractionHint(self, T{4339, "<UnitMoveControl()>: Move"} ,T{4340, "No available interaction"})
 end
-
+--]]
 local hour_duration = const.HourDuration
 local hours_per_day = const.HoursPerDay
 local before_start_first_shift = (const.DefaultWorkshifts[1][1] + const.HoursPerDay - 1) % const.HoursPerDay

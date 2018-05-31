@@ -136,7 +136,7 @@ function OverviewModeDialog:Init()
 		hr.CameraFovEasing = "QuinticOut"
 		camera.SetAutoFovX(1, transition_time, const.Camera.OverviewFovX_4_3, 4, 3, const.Camera.OverviewFovX_16_9, 16, 9)
 		ShowOverviewMapCurtains(true)
-		self:ScaleSigns(transition_time, "up")
+		self:ScaleSmallObjects(transition_time, "up")
 		Sleep(transition_time/2)
 		hr.NearZ = 1000
 		Sleep(transition_time/2)
@@ -179,7 +179,7 @@ function OverviewModeDialog:Open(...)
 		self:SelectSector(sector, nil, "forced")
 	end
 	
-	local hud = GetDialog("HUD")
+	local hud = GetHUD()
 	if hud then
 		local overview_btn = hud.idOverview
 		if overview_btn then
@@ -211,7 +211,7 @@ function OverviewModeDialog:Close(...)
 		HideResourceIcons("overview")
 
 		local transition_time = self.camera_transition_time
-		self:ScaleSigns(transition_time, "down")
+		self:ScaleSmallObjects(transition_time, "down")
 		SetSubsurfaceDepositsVisible(false)
 		SetSubsurfaceDepositsVisibleExpiration(const.OverlaysVisibleDuration)
 		local cpos, clookat = cameraRTS.GetEye(), cameraRTS.GetLookAt()
@@ -275,7 +275,7 @@ function OverviewModeDialog:Close(...)
 		ForEach{class = "RangeHexRadius", exec = function(o) o:SetVisible(true) end}
 	end, self, CameraTransitionThread)
 
-	local hud = GetDialog("HUD")
+	local hud = GetHUD()
 	if hud then
 		local overview_btn = hud.idOverview
 		if overview_btn then
@@ -332,7 +332,7 @@ function OverviewModeDialog:SelectSector(sector, rollover_pos, forced)
 			self.sector_obj:SetScale(MulDivRound(sector.area:sizex(), 100, 100*guim))
 
 			--Don't show the rollover if there's a notification displayed right now
-			if not GetDialog("PopupNotification") then
+			if not GetXDialog("PopupNotification") then
 				local rollover_context = self:GenerateSectorRolloverContext(sector, forced)
 				
 				-- rollover position might be given before hand - if not -> take the center of the sector
@@ -571,8 +571,9 @@ local gamepad_directional_buttons = {
 local sector_change_min_time = 1 --the sector change with the gamepad will not happen twice within this timespan(ms)
 function OverviewModeDialog:OnShortcut(shortcut, source)
 	if source == "gamepad" then
+		local invertLook = const.CameraControlInvertLook
 		--Zoom-in from overview
-		if shortcut == "+RightThumbUp" then
+		if (shortcut == "+RightThumbUp" and not invertLook) or (shortcut == "+RightThumbDown" and invertLook) then
 			if not self:IsThreadRunning("ZoomInFromOverview") then
 				self:CreateThread("ZoomInFromOverview", function(self)
 					Sleep(300)
@@ -581,7 +582,7 @@ function OverviewModeDialog:OnShortcut(shortcut, source)
 					self.parent:SetMode("selection")
 				end, self)
 			end
-		elseif shortcut == "-RightThumbUp" then
+		elseif (shortcut == "-RightThumbUp" and not invertLook) or (shortcut == "-RightThumbDown" and invertLook) then
 			if self:IsThreadRunning("ZoomInFromOverview") then
 				self:DeleteThread("ZoomInFromOverview")
 			end
@@ -680,10 +681,11 @@ function OverviewModeDialog:SetCameraAngle(angle, time)
 	cameraRTS.SetCamera(pos, lookat, time or 0)
 end
 
-local signs_query = {classes = { "SubsurfaceDeposit", "TerrainDeposit" }, area = "realm"}
-
-function OverviewModeDialog:ScaleSigns(time, direction)
+local signs_query = {classes = { "SubsurfaceDeposit", "TerrainDeposit", "ArrowTutorialBase" }, area = "realm"}
+local ropes_query = {class = "SpaceElevatorRope"}
+function OverviewModeDialog:ScaleSmallObjects(time, direction)
 	local signs = GetObjects(signs_query)
+	local ropes = GetObjects(ropes_query)
 	CreateRealTimeThread( function()
 		g_CurrentDepositScale = direction == "up" and const.SignsOverviewCameraScaleUp or const.SignsOverviewCameraScaleDown
 	
@@ -691,16 +693,23 @@ function OverviewModeDialog:ScaleSigns(time, direction)
 		local step = 33
 		repeat
 			Sleep(step)
-			local scale
+			local sings_scale, ropes_scale
 			if time == 0 then
-				scale = direction == "up" and const.SignsOverviewCameraScaleUp or const.SignsOverviewCameraScaleDown
+				sings_scale = direction == "up" and const.SignsOverviewCameraScaleUp or const.SignsOverviewCameraScaleDown
+				ropes_scale = direction == "up" and const.ElevatorRopesOverviewCameraScaleUp or const.ElevatorRopesOverviewCameraScaleDown
 			else
-				scale = const.SignsOverviewCameraScaleDown + MulDivRound(direction == "up" and i or time-i, const.SignsOverviewCameraScaleUp - const.SignsOverviewCameraScaleDown, time)
+				sings_scale = const.SignsOverviewCameraScaleDown + MulDivRound(direction == "up" and i or time-i, const.SignsOverviewCameraScaleUp - const.SignsOverviewCameraScaleDown, time)
+				ropes_scale = const.ElevatorRopesOverviewCameraScaleDown + MulDivRound(direction == "up" and i or time-i, const.ElevatorRopesOverviewCameraScaleUp - const.ElevatorRopesOverviewCameraScaleDown, time)
 			end
 			for _, sign in ipairs(signs) do
 				if IsValid(sign) then
 					sign:SetVisible(direction == "up" and g_SignsVisible or g_SignsVisible and g_ResourceIconsVisible)
-					sign:SetScale(scale)
+					sign:SetScale(sings_scale)
+				end
+			end
+			for _,rope in ipairs(ropes) do
+				if IsValid(rope) then
+					rope:SetScale(ropes_scale)
 				end
 			end
 			i = i + step

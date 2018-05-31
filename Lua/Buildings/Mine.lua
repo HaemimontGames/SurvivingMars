@@ -1,6 +1,5 @@
 DefineClass.Mine = {
 	__parents = { "ResourceProducer", "Building", "BuildingDepositExploiterComponent", "ElectricityConsumer" },
-	UpdateUI = BuildingDepositExploiterComponent.UpdateUI,
 
 	last_serviced_time = 0, --(TODO: is still needed?) moment the mine was last serviced by a working drone, or turned on	
 	building_update_time = const.HourDuration,
@@ -315,10 +314,12 @@ end
 GlobalVar("RegolithExtractorHintPopupThread", false)
 
 local function StartRegolithExtractorHintPopupThread(delay)
-	RegolithExtractorHintPopupThread = CreateGameTimeThread(function(delay)
-		Sleep(delay or const.DayDuration*(7 - 1))
-		ShowPopupNotification("SuggestedBuildingConcreteExtractor")
-	end, delay)
+	if not g_Tutorial then
+		RegolithExtractorHintPopupThread = CreateGameTimeThread(function(delay)
+			Sleep(delay or const.DayDuration*(7 - 1))
+			ShowPopupNotification("SuggestedBuildingConcreteExtractor")
+		end, delay)
+	end
 end
 
 function OnMsg.LoadGame()

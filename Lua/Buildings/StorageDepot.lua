@@ -137,6 +137,9 @@ function StorageDepot:Done() --should this be in building::returnresources?
 		LRManagerInstance:RemoveBuilding(self)
 	end
 	self:ReturnStockpiledResources()
+	if IsGameRuleActive("EndlessSupply") and FirstUniversalStorage and FirstUniversalStorage == self then
+		FirstUniversalStorage = {}
+	end
 end
 
 function StorageDepot:RoverWork(rover, request, resource, amount, reciprocal_req, interaction_type, total_amount)
@@ -249,6 +252,11 @@ function UniversalStorageDepot:GameInit()
 	if self.class == "UniversalStorageDepot" then
 		HintDisable("HintStorageDepot")
 	end
+	
+	if IsGameRuleActive("EndlessSupply") and self.class == "UniversalStorageDepot" and #self.resource > 1 and FirstUniversalStorage == false then
+		FirstUniversalStorage = self
+		FirstUniversalStorage:Fill()
+	end
 end
 
 function UniversalStorageDepot:SetCount(new_count, resource)
@@ -308,14 +316,13 @@ function UniversalStorageDepot:GetMaxStorage(resource)
 	end
 end
 
---cpy paste from SharedStorageBaseVisualOnly
 function UniversalStorageDepot:GetStoredAmount(resource)
 	if resource then
-		return self.stockpiled_amount[resource] or 0
+		return self.supply and self.supply[resource] and self.supply[resource]:GetActualAmount() or self.stockpiled_amount[resource] or 0
 	else
 		local total = 0
-		for k, v in pairs(self.stockpiled_amount) do
-			total = total + v
+		for k, v in pairs(self.supply) do
+			total = total + v:GetActualAmount()
 		end
 		
 		return total
@@ -443,6 +450,8 @@ function UniversalStorageDepot:CheatFill()
 		end
 	end
 end
+
+UniversalStorageDepot.Fill = UniversalStorageDepot.CheatFill
 
 function UniversalStorageDepot:ClearAllResources()
 	local storable_resources = self.storable_resources
@@ -578,7 +587,14 @@ DefineClass.MechanizedDepot = {
 	
 	--this is the function the will be called after the animation ends (see cheats)
 	func_after_anim_end = false,
+	
+	is_unloading = false,
+	GetIPTextColor = UniversalStorageDepot.GetIPTextColor,
 }
+
+function MechanizedDepot:IsResourceEnabled(res_id)
+	return not self.is_unloading
+end
 
 function MechanizedDepot:Init()
 	self.parent = self
@@ -598,9 +614,14 @@ function MechanizedDepot:GameInit()
 	end
 	
 	rawset(self, "GetStored_"..resource, function(self)
-		local stored = self.stockpiles[1].supply[self.resource]:GetActualAmount() + self.stockpiled_amount
-		local carried = self.carrying and 5*const.ResourceScale or 0
-		return stored + carried
+		local supply = self.stockpiles[1].supply
+		if supply then
+			local stored = supply[self.resource]:GetActualAmount() + self.stockpiled_amount
+			local carried = self.carrying and 5*const.ResourceScale or 0
+			return stored + carried
+		else
+			return 0
+		end
 	end)
 	rawset(self, "GetMaxAmount_"..resource, function(self)
 		return self.max_storage_per_resource + self:GetIOStockpileMaxAmount()
@@ -618,10 +639,13 @@ function MechanizedDepot:GameInit()
 	
 	self.hoist:Detach()
 	self.hoist_org_pos = self.hoist:GetVisualPos() - self:GetVisualPos()
+	self.hoist:SetAngle(self:GetAngle())
 	self.beam:Detach()
 	self.beam_org_pos = self.beam:GetVisualPos() - self:GetVisualPos()
+	self.beam:SetAngle(self:GetAngle())
 	self.pillars:Detach()
 	self.pillars_org_pos = self.pillars:GetVisualPos() - self:GetVisualPos()
+	self.pillars:SetAngle(self:GetAngle())
 	
 	self.hoist_curr_pos = point(0, -1, 10)
 	
@@ -667,8 +691,6 @@ function MechanizedDepot:CreateLane(pos, spot_idx, long_lane)
 end
 
 function MechanizedDepot:Done()
-	self:ReturnStockpiledResources()
-	
 	self.hoist:delete()
 	self.beam:delete()
 	self.pillars:delete()
@@ -683,6 +705,13 @@ end
 
 function MechanizedDepot:DroneLoadResource(drone, request, resource, amount)
 	self:TryStore()
+	if self.demolishing then
+		self:WakupDemolishThread()
+	end
+end
+
+function MechanizedDepot:WakupDemolishThread()
+	Wakeup(self.demolishing_thread)
 end
 
 function MechanizedDepot:DroneUnloadResource(drone, request, resource, amount)
@@ -747,12 +776,14 @@ function MechanizedDepot:Store(amount)
 	if not IsValid(self) then return end
 	if amount > 0 then
 		beam_up_pos, time = self:CraneGoToIO()
+		if not IsValid(self) then return end
 		interact_with_io(self, -amount)
 	else
 		--curr pos
 		local lane = self:FindStockLaneToTakeFrom()
 		assert(lane)
 		beam_up_pos, time = self:CraneGoToStock(lane.lane_idx, lane:CalculateLastCubesPos())
+		if not IsValid(self) then return end
 		interact_with_stock(self, amount)
 	end
 	
@@ -774,9 +805,11 @@ function MechanizedDepot:Store(amount)
 		local lane = self:FindStockLaneToGiveTo()
 		assert(lane)
 		beam_up_pos, time = self:CraneGoToStock(lane.lane_idx, lane:CalculateNextCubesPos())
+		if not IsValid(self) then return end
 		interact_with_stock(self, amount)
 	else
 		beam_up_pos, time = self:CraneGoToIO()
+		if not IsValid(self) then return end
 		interact_with_io(self, -amount)
 	end
 	
@@ -887,12 +920,16 @@ function MechanizedDepot:SetCount(new_count)
 end
 
 function MechanizedDepot:SetDustVisuals(dust, in_dome)
-	local normalized_dust = MulDivRound(dust, 255, self.visual_max_dust)
-	SetObjDust(self,         normalized_dust, in_dome)
-	SetObjDust(self.hoist,   normalized_dust, in_dome)
-	SetObjDust(self.beam,    normalized_dust, in_dome)
-	SetObjDust(self.pillars, normalized_dust, in_dome)
-	SetObjDust(self.crane,   normalized_dust, in_dome)
+	if self.hoist then
+		local normalized_dust = MulDivRound(dust, 255, self.visual_max_dust)
+		SetObjDust(self,         normalized_dust, in_dome)
+		SetObjDust(self.hoist,   normalized_dust, in_dome)
+		SetObjDust(self.beam,    normalized_dust, in_dome)
+		SetObjDust(self.pillars, normalized_dust, in_dome)
+		SetObjDust(self.crane,   normalized_dust, in_dome)
+	else
+		RequiresMaintenance.SetDustVisuals(self, dust, in_dome)
+	end
 end
 
 --animation
@@ -949,10 +986,12 @@ function MechanizedDepot:CraneGoToCubes(x, y, z)
 		--detach hoist and set proper position
 		local hoist_old_pos = self.hoist:GetVisualPos()
 		self.hoist:Detach()
+		self.hoist:SetAngle(self:GetAngle())
 		self.hoist:SetPos(hoist_old_pos)
 		
 		--fix pillars and beams
 		self.pillars:Detach()
+		self.pillars:SetAngle(self:GetAngle())
 		self.pillars:Attach(self.beam, self.pillars:GetSpotBeginIndex("Autoattach"))
 		
 		local y_tweak = y ~= 0 and 84*guic or 18*guic
@@ -979,6 +1018,7 @@ function MechanizedDepot:CraneGoToCubes(x, y, z)
 	
 	--detach beam from pillars
 	self.beam:Detach()
+	self.beam:SetAngle(self:GetAngle())
 	local beam_up_pos = self.beam:GetVisualPos(top_z) --will return to this pos later
 	local z_tweak = y ~= 0 and 68*guic or 55*guic
 	local beam_down_pos = self.beam:GetVisualPos():SetZ(z_tweak + top_z - sz*(max_z - z + 2)) --hoist is up
@@ -1022,6 +1062,7 @@ function MechanizedDepot:CenterHoist()
 	--detach hoist and set proper position
 	local hoist_old_pos = self.hoist:GetVisualPos()
 	self.hoist:Detach()
+	self.hoist:SetAngle(self:GetAngle())
 	self.hoist:SetPos(hoist_old_pos)
 	
 	--position the hoist in the middle of the beam
@@ -1053,33 +1094,81 @@ function MechanizedDepot:CraneGoToStock(lane_idx, hor, vert)
 end
 
 --demolishion
-function MechanizedDepot:ShouldShowDemolishButton()
-	return true
-end
-
-function MechanizedDepot:CanDemolish()
-	return self.stockpiled_amount <= 50 * const.ResourceScale and Building.CanDemolish(self)
-end
-
-function MechanizedDepot:ToggleDemolish_Update(button)
-	Demolishable.ToggleDemolish_Update(self, button)
-	if not self:CanDemolish() then
-		button:SetRolloverText(T{8897, "Cannot salvage mechanized depot with more than 50 resource stocked"})
-	end
-end
-
-function MechanizedDepot:ReturnStockpiledResources()
-	local pos = self:GetVisualPos()
-	if pos ~= InvalidPos() then
-		local stock_amount = self.stockpiled_amount
-		local io_amount = self.stockpiles[1].supply[self.resource]:GetActualAmount()
-		local total_amount = stock_amount + io_amount
-		if total_amount > 0 then
-			PlaceResourceStockpile_Delayed(pos, self.resource, total_amount, self:GetAngle(), true)
-		end
+local allow_demolish_below = 50 * const.ResourceScale
+function MechanizedDepot:OnDemolish()
+	self.demolishing = true
+	local f = self["GetStored_" .. self.resource]
+	while f(self) > allow_demolish_below do
+		WaitWakeup(9999999999)
 	end
 	
-	self:ClearAllResources()
+	self:ReturnResources()
+end
+
+function MechanizedDepot:GetRefundResources()
+	local r = Building.GetRefundResources(self)
+	local stored = self["GetStored_" .. self.resource](self)
+	if stored <= 0 then return r end
+	
+	local idx = false
+	for i = 1, #r do
+		if r[i].resource == self.resource then
+			idx = i
+			break
+		end
+	end
+	idx = idx or (#r + 1)
+	r[idx] = r[idx] or {resource = self.resource, amount = 0}
+	r[idx].amount = r[idx].amount + stored
+	return r
+end
+
+function MechanizedDepot:OnSetDemolishing(val)
+	if self.demolishing then
+		if not self.is_unloading then
+			self:ToggleAcceptResource()
+		end
+	else
+		if self.is_unloading then
+			self:ToggleAcceptResource()
+		end
+	end
+end
+
+function MechanizedDepot:GetUIWarning()
+	if self.demolishing and (self.demolishing_countdown or 1) <= 0 then
+		return NotWorkingWarning.MechDepotWaitingForResourceUnload
+	end
+	
+	return Building.GetUIWarning(self)
+end
+
+function MechanizedDepot:ToggleAcceptResource(res_id)
+	if self.demolishing and self.is_unloading then return end
+	local resource = self.resource
+	local io_stockpile = self.stockpiles[1]
+	local s_req = io_stockpile.supply[resource]
+	local req = io_stockpile.demand[resource]
+	
+	assert(req)
+	local task_requests = io_stockpile.task_requests
+	LRManagerInstance:RemoveBuilding(io_stockpile)
+	if table.find(task_requests, req) then
+		io_stockpile:InterruptDrones(nil,function(drone) return drone.d_request==req and drone end)
+		io_stockpile:DisconnectFromCommandCenters()
+		table.remove_entry(task_requests, req)
+		s_req:AddFlags(const.rfPostInQueue)
+		s_req:ClearFlags(const.rfStorageDepot)
+		self.is_unloading = true
+	else
+		io_stockpile:DisconnectFromCommandCenters()
+		table.insert(task_requests, req)
+		s_req:ClearFlags(const.rfPostInQueue)
+		s_req:AddFlags(const.rfStorageDepot)
+		self.is_unloading = false
+	end
+	LRManagerInstance:AddBuilding(io_stockpile)
+	io_stockpile:ConnectToCommandCenters()
 end
 
 function MechanizedDepot:ClearAllResources()
@@ -1135,6 +1224,7 @@ function MechanizedDepot:CheatEmpty()
 	else
 		self:ClearAllResources()
 	end
+	self:WakupDemolishThread()
 end
 
 --mechanized stock lane

@@ -127,6 +127,10 @@ DefineClass.MapSector = {
 	revealed_deep = false,	
 }
 
+function MapSector:GetDisplayName()
+	return Untranslated(self.display_name)
+end
+
 function MapSector:CanBeScanned()
 	if self:HasBlockers() then
 		return false
@@ -157,7 +161,7 @@ end
 
 local function OnDepositsSpawned()
 	if GetInGameInterfaceMode() == "overview" then
-		GetInGameInterfaceModeDlg():ScaleSigns(0, "up")
+		GetInGameInterfaceModeDlg():ScaleSmallObjects(0, "up")
 	end
 	Msg("DepositsSpawned")
 end
@@ -587,19 +591,16 @@ function GetMapSector(x, y)
 		x, y = x:xy()
 	elseif IsValid(x) then
 		x, y = x:GetVisualPosXYZ()
+	elseif not x then
+		return
 	end
 	return GetMapSectorXY(x, y)
 end
 
 function GetMapSectorXY(mx, my)
 	local x, y = PosToSectorXY(mx, my)
-	local row = g_MapSectors[x]
+	local row = x and g_MapSectors[x]
 	return row and row[y]
-end
-
-function GetMapExplorationAt(x, y)
-	local sector = GetMapSector(x, y)
-	return sector and sector.status, sector
 end
 
 function DisplayExplorationQueue(initial) -- create/update visuals
@@ -702,7 +703,7 @@ function City:ExplorationTick()
 		local boost = sector:GetTowerBoost(self)
 		
 		-- calc scan progress
-		local scan_rate = MulDivRound(const.SectorScanBase, 100 + boost, 100)
+		local scan_rate = MulDivRound(g_Tutorial and g_Tutorial.SectorScanBase or const.SectorScanBase, 100 + boost, 100)
 		local scan_time = sector.scan_time
 		local scan_last = MulDivRound(scan_time, scan_rate, const.HourDuration)		
 		scan_time = scan_time + const.ScanTick
@@ -986,7 +987,7 @@ function City:InitExploration()
 					marker.revealed = true
 					marker:PlaceDeposit()
 					if GetInGameInterfaceMode() == "overview" then
-						GetInGameInterfaceModeDlg():ScaleSigns(0, "up")
+						GetInGameInterfaceModeDlg():ScaleSmallObjects(0, "up")
 					end
 				end
 			end
@@ -1045,6 +1046,7 @@ function OnMsg.TechResearched(tech_id, city)
 			-- anomaly
 			marker = PlaceObject("SubsurfaceAnomalyMarker")
 			marker.sequence = "Alien Artifacts"
+			marker.sequence_list = "BreakthroughAlienArtifacts"
 			marker.tech_action = "aliens"
 		end
 

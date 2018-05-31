@@ -4,7 +4,7 @@ PlaceObj('XTemplate', {
 	group = "Infopanel Sections",
 	id = "sectionPowerGrid",
 	PlaceObj('XTemplateTemplate', {
-		'__context', function (parent, context) return context:IsKindOfClasses("ElectricityProducer", "ElectricityStorage") and context.electricity and context.electricity.grid end,
+		'__context', function (parent, context) return context:ShowUISectionElectricityGrid() and context.electricity.grid end,
 		'__condition', function (parent, context) return context end,
 		'__template', "InfopanelSection",
 		'RolloverText', T{957982342940, --[[XTemplate sectionPowerGrid RolloverText]] "<UISectionPowerGridRollover>"},

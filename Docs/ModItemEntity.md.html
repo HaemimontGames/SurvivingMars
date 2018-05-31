@@ -50,9 +50,13 @@ Here's an incomplete list of some of the object names that must be used to provi
 		- *srad* - Optional; Defines the physical dimensions of the light source (its radius).
 		- *imp* - Optional; If marked as important, the light will always be turned on at night. Otherwise the game might ignore it for optimization purposes.
 		- *sim* - Optional; All lights marked with *sim* will light up simultaneously, instead of one by one in random order (think of apartment building rooms vs. vehicle headlights).
-	* *Autoattach;att,Logo,show* - spot where the Colony Logo will be attached. It must have a specific orientation:
+	* *-Autoattach;att,Logo,show* - spot where the Colony Logo will be attached. It must have a specific orientation:
 		- The *+Z* axis must point away from the surface of the object (parallel to the normal vector at that point).
 		- The *-Y* axis must point up.
+	* *Autoattach* spots automatically attach objects at the specified location. These spots should have the following syntax: *-Autoattach;att,[object class],show* . The autoattached object will inherit the rotation and scale of the spot.
+	* Building entrances can be created using Blender paths named *-Door*. The path must point in the direction the colonists will be leaving the building. Also, even though Blender will display curved path, the colonists will actually follow the line segments between control points. These path objects only define the way colonists will move in and out of the building. Animated doors cannot be handled this way.
+
+Note: *Blender* imposes a limit to the length of object names. To work around that, in case you need a longer name for your spot, you can add a *Custom Property* to the object in question. The property name must be *attach* and can contain an arbitrary value that will be appended to the spot name.
 
 
 Marking Static Objects for Export

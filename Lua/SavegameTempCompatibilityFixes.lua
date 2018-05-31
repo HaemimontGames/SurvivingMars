@@ -76,7 +76,7 @@ function FixResearch(city,lua_revision)
 		for i=#list,1,-1 do
 			local tech_id = list[i]
 			local def = TechDef[tech_id]
-			local new_field = def and def.field
+			local new_field = def and def.group
 			if new_field ~= filed_id then
 				table.remove(list, i)
 				if new_field then
@@ -291,7 +291,7 @@ function SavegameFixups.pre_fixup(metadata, lua_revision)
 	FixRockets(lua_revision)
 		
 	ForEach{
-		class = "Farm",
+		class = "FarmConventional",
 		exec = function(o)
 			if not o.anim_thread then
 				o:StartAnimThread()
@@ -620,4 +620,107 @@ function SavegameFixups.MoholeExcavatorUpgrades()
 	UnlockUpgrade("Excavator_ImprovedRefining_1")
 	UnlockUpgrade("Excavator_ImprovedRefining_2")
 	UnlockUpgrade("Excavator_ImprovedRefining_3")
+end
+
+function SavegameFixups.MarsgateRoverBattery()
+	ForEach{
+		class = "AttackRover",
+		exec = function(o)
+			if o.command == "Roam" then
+				o:SetCommand("Roam") -- force restart of the command to fix saved wrong battery thread state
+			end
+		end,
+	}
+end
+
+function SavegameFixups.RemovedUserRequestMaintenanceButton()
+	local f = TaskRequester.GetPriorityForRequest
+	ForEach{
+		class = "RequiresMaintenance",
+		area = "realm",
+		exec = function(o)
+			rawset(o, "GetPriorityForRequest", f)
+		end,
+	}
+end
+
+function SavegameFixups.RemoveBlackCubeRFWaitToFill()
+	local f = const.rfWaitToFill
+	ForEach{
+		class = "BlackCubeStockpileBase",
+		area = "realm",
+		exec = function(o)
+			if o.has_supply_request and o.supply_request then
+				o.supply_request:ClearFlags(f)
+			end
+		end,
+	}
+end
+
+function SavegameFixups.CleanDestroyedShiftsBuildingsFromCityLabels()
+	local c = UICity and UICity.labels and UICity.labels.ShiftsBuilding
+	for i = #(c or ""), 1, -1 do
+		local bld = c[i]
+		if bld.destroyed then
+			bld:RemoveFromShiftsBuildingLabel()
+		end
+	end
+end
+
+function SavegameFixups.ShuttleHubReturResource()
+	ForEach{class = "ShuttleHub", exec = function(shub)
+		shub:CreateResourceRequestsSupply()
+	end}
+	ForEach{class = "DroneFactory", exec = function(bld)
+		bld:CreateResourceRequestsSupply()
+	end}
+end
+
+function SavegameFixups.ClearConstructionMarkers()
+	ForEach{class="GridTile", action="delete"} -- fix saves where construction marker tiles are already present
+end
+
+function SavegameFixups.FixDomeLandingSpots()
+	UICity:ForEachLabelObject("Dome", "InitLandingSpots")
+end
+
+function SavegameFixups.FixBioroboticWorkshopArms()
+	local c = UICity and UICity.labels and UICity.labels.BioroboticsWorkshop
+	for i = 1, #(c or "") do
+		c[i].arms = c[i]:GetAttaches("BioroboticsWorkshopArm")
+	end
+end
+
+function FixWorkplaceWorkers()
+	local count = 0
+	for _, col in ipairs(UICity.labels.Colonist or empty_table) do
+		local workplace = col.workplace
+		local list = workplace and workplace:GetUnitsInShifts()[col.workplace_shift]
+		if list and not table.find(list, col) then
+			list[#list + 1] = col
+			count = count + 1
+		end
+	end
+	return count
+end
+
+SavegameFixups.FixWorkplaceWorkers = FixWorkplaceWorkers
+
+function SavegameFixups.FixMultipleSpecializations()
+	for _, colonist in ipairs(UICity.labels.Colonist or empty_table) do
+		local traits = table.keys(colonist.traits)
+		for i = #traits, 1, -1 do
+			local trait = traits[i]
+			if const.ColonistSpecialization[trait] and colonist.specialist ~= trait then --specialization in traits different than the assigned one
+				colonist:RemoveTrait(trait)
+			end
+		end
+	end
+end
+
+function SavegameFixups.RegisterBorderlineDomeOutskirtBuildings()
+	local domes = UICity.labels.Dome or empty_table
+	for _, dome in ipairs(domes) do
+		dome:AddOutskirtBuildings()
+	end
 end

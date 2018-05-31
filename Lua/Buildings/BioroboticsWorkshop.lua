@@ -65,7 +65,7 @@ function BioroboticsWorkshop:OnSetWorking(working)
 end
 
 function OnMsg.GatherFXActors(list)
-	list[#list + 1] = BioroboticsWorkshopArm
+	list[#list + 1] = "BioroboticsWorkshopArm"
 end
 
 function OnMsg.GatherFXActions(list)

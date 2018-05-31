@@ -31,6 +31,7 @@ PlaceObj('Scenario', {
 			'rand_duration', 60000,
 		}),
 		PlaceObj('SA_SpawnAnomaly', {
+			'check_dome', "outside",
 			'random_pos_label', "Building",
 			'random_pos_label_dist', 25000,
 			'use_random_pos', true,
@@ -147,12 +148,12 @@ PlaceObj('Scenario', {
 			'comment', "Stop Infection Level increase",
 			'sequence', "Infection Increase",
 		}),
-		PlaceObj('SA_WaitMessage', {
-			'title', T{8293, --[[Scenario Mystery 8 title]] "Wildfire: The Cure"},
-			'voiced_text', T{8294, --[[voice:narrator]] "Tremendous news! The cure for the Wildfire disease has been discovered!"},
-			'text', T{8295, --[[Scenario Mystery 8 text]] "A genetically modified strain of the Martian Wildfire interfaces with the RNA of the virus and effectively stops it from coagulating the blood plasma of the host. The intake of only a small amount of the cure is enough to halt the development of the disease, even though it wouldn't repair the tissue damage suffered so far.\n\nThe scientists experimented with multiple growth mediums and discovered that the most effective way to proliferate the medicine is by introducing it in mold cells growing on potatoes. This is great news because we can provide enough biomass for the modified mold to grow and if we do it quickly, we can still stand a chance to end the suffering on Earth.\n\n<effect>The Curetato Crop has become available. Harvesting it will produce Cure for the Wildfire infection, which in turn has to be exported to Earth to end the crisis.\n\n<effect> Colonists with the Infected trait will be cured permanently after their first visit in a Medical Building."},
-			'image', "UI/Messages/wildfire_mystery_03.tga",
-			'choice1', T{8296, --[[Scenario Mystery 8 choice1]] "Start the process immediately. Time is of the essence!"},
+		PlaceObj('SA_StopSequence', {
+			'comment', "Stop contaminating colonists with trait",
+			'sequence', "Infection Trait Spread",
+		}),
+		PlaceObj('SA_Exec', {
+			'expression', 'UnlockCrop("Cure")',
 		}),
 		PlaceObj('SA_AppendToLog', {
 			'register', "_MysteryLog",
@@ -162,16 +163,26 @@ PlaceObj('Scenario', {
 			'comment', "updates the mystery log notification",
 			'sequence', "Update Mystery Log",
 		}),
-		PlaceObj('SA_StopSequence', {
-			'comment', "Stop contaminating colonists with trait",
-			'sequence', "Infection Trait Spread",
-		}),
-		PlaceObj('SA_Exec', {
-			'expression', 'UnlockCrop("Cure")',
-		}),
 		PlaceObj('SA_Exec', {
 			'comment', "trait will now start to disappear",
 			'expression', 'Msg("Mystery8_BeginHealing")',
+		}),
+		PlaceObj('SA_CheckExpression', {
+			'sa_id', 1,
+			'end_block', 2,
+			'expression', "_Doomsday == 1",
+		}),
+		PlaceObj('SA_ExitSequence', nil),
+		PlaceObj('SA_Block', {
+			'sa_id', 2,
+			'parent', 1,
+		}),
+		PlaceObj('SA_WaitMessage', {
+			'title', T{8293, --[[Scenario Mystery 8 title]] "Wildfire: The Cure"},
+			'voiced_text', T{8294, --[[voice:narrator]] "Tremendous news! The cure for the Wildfire disease has been discovered!"},
+			'text', T{8295, --[[Scenario Mystery 8 text]] "A genetically modified strain of the Martian Wildfire interfaces with the RNA of the virus and effectively stops it from coagulating the blood plasma of the host. The intake of only a small amount of the cure is enough to halt the development of the disease, even though it wouldn't repair the tissue damage suffered so far.\n\nThe scientists experimented with multiple growth mediums and discovered that the most effective way to proliferate the medicine is by introducing it in mold cells growing on potatoes. This is great news because we can provide enough biomass for the modified mold to grow and if we do it quickly, we can still stand a chance to end the suffering on Earth.\n\n<effect>The Curetato Crop has become available. Harvesting it will produce Cure for the Wildfire infection, which in turn has to be exported to Earth to end the crisis.\n\n<effect> Colonists with the Infected trait will be cured permanently after their first visit in a Medical Building."},
+			'image', "UI/Messages/wildfire_mystery_03.tga",
+			'choice1', T{8296, --[[Scenario Mystery 8 choice1]] "Start the process immediately. Time is of the essence!"},
 		}),
 		PlaceObj('SA_RunSequence', {
 			'sequence', "Trade Rockets",
@@ -191,6 +202,9 @@ PlaceObj('Scenario', {
 		}),
 		PlaceObj('SA_Exec', {
 			'expression', "_EarthCured = false",
+		}),
+		PlaceObj('SA_Exec', {
+			'expression', "_Doomsday = 0",
 		}),
 		PlaceObj('SA_Exec', {
 			'expression', "_FundingReward = 200 * 1000000",
@@ -674,6 +688,9 @@ PlaceObj('Scenario', {
 	}, {
 		PlaceObj('SA_WaitExpression', {
 			'expression', "_InfectionLevel >= 100",
+		}),
+		PlaceObj('SA_Exec', {
+			'expression', "_Doomsday = 1",
 		}),
 		PlaceObj('SA_Comment', {
 			'comment', "Cleanup",

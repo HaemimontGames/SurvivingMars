@@ -18,6 +18,7 @@ local table_remove = table.remove
 local remove_entry = table.remove_entry
 local IsFlagSet    = IsFlagSet
 local rfRestrictorRocket = const.rfRestrictorRocket
+local rfRestrictorWasteRockDump = const.rfRestrictorWasteRockDump
 
 DefineClass.DroneControl = {
 	__parents = { "SyncObject" }, --or object?
@@ -49,8 +50,10 @@ DefineClass.DroneControl = {
 	no_requests_time = 0,
 	
 	serviced_rockets = false,
+	serviced_wasterock_dumps = false,
 	restrictor_update_thread = false,
 	restrictor_tables = false,  --[rfRestritcorFlag] = {[resource] = request,..}
+	restrictor_update_mask = 0,
 	
 	deficit_table = false, --sums up total deficits so shuttles know what to deliver
 	deficit_thread = false,
@@ -134,6 +137,12 @@ function DroneControl:InitRocketRestrictors()
 	self.restrictor_tables[rfRestrictorRocket] = {}
 end
 
+function DroneControl:InitDumpRestrictors()
+	self.serviced_wasterock_dumps = self.serviced_wasterock_dumps or {}
+	self.restrictor_tables = self.restrictor_tables or {}
+	self.restrictor_tables[rfRestrictorWasteRockDump] = {}
+end
+
 function DroneControl:Init()
 	self.drones = {}
 	self.constructions = {}
@@ -141,6 +150,7 @@ function DroneControl:Init()
 	self.under_construction = {}
 	
 	self:InitRocketRestrictors()
+	self:InitDumpRestrictors()
 	
 	--  priority queue lists requests per priority
 	self.priority_queue = {}
@@ -215,7 +225,7 @@ end
 function DroneControl:BuildingUpdate(delta, day, hour)
 	assert(not self.working or self.are_requesters_connected or delta == 0) --deposits may retain us as cc, if not first tick
 	self:UpdateConstructions()
-	self:UpdateRockets()
+	self:UpdateAllRestrictors()
 	self:UpdateDeficits()
 	self:UpdateHeavyLoadNotification()
 end
@@ -330,23 +340,96 @@ end
 
 ---------------------------------------------------------------------------
 ---------------------------------------------------------------------------
-function DroneControl:UpdateRockets()
+function SavegameFixups.InitWasteRockDumpRestrictor()
+	ForEach { area = "realm", class = "DroneControl", exec = function(obj)
+		obj:FillDumpTablesFromConnectedRequestors()
+		obj:KillRestrictorThread()
+		obj:InitDumpRestrictors()
+	end}
+end
+
+function DroneControl:FillDumpTablesFromConnectedRequestors()
+	assert(not self.serviced_wasterock_dumps or #self.serviced_wasterock_dumps <= 0)
+	if not self.connected_task_requesters or #self.connected_task_requesters <= 0 then return end
+	self.serviced_wasterock_dumps = table.ifilter(self.connected_task_requesters, function(i, o)
+												return IsKindOf(o, "WasteRockDumpSite")
+											end)
+end
+
+function DroneControl:KillRestrictorThread()
+	if self.restrictor_update_thread then
+		if IsValidThread(self.restrictor_update_thread) then
+			DeleteThread(self.restrictor_update_thread)
+		end
+		self.restrictor_update_thread = false
+	end
+end
+
+function DroneControl:UpdateRestrictors()
 	local t = self.restrictor_update_thread
 	if IsValidThread(t) then
 		Wakeup(t)
 	else
-		self.restrictor_update_thread = CreateGameTimeThread(function(self, context)
-			while IsValid(self) do
-				self:UpdateRocketsInternal() --rfRestrictorRocket
-				WaitWakeup()
-			end
+		self.restrictor_update_thread = CreateGameTimeThread(function(self)
+			self:RestrictorThreadBody()
 		end, self)
 	end
 end
 
+function DroneControl:RestrictorThreadBody()
+	while IsValid(self) do
+		local m = self.restrictor_update_mask
+		if band(m, rfRestrictorRocket) ~= 0 then
+			self:UpdateRocketsInternal()
+		end
+		if band(m, rfRestrictorWasteRockDump) ~= 0 then
+			self:UpdateDumpsInternal()
+		end
+		self.restrictor_update_mask = 0
+		WaitWakeup()
+	end
+end
+
+function DroneControl:UpdateRockets()
+	self.restrictor_update_mask = bor(self.restrictor_update_mask, rfRestrictorRocket)
+	self:UpdateRestrictors()
+end
+
+function DroneControl:UpdateDumps()
+	self.restrictor_update_mask = bor(self.restrictor_update_mask, rfRestrictorWasteRockDump)
+	self:UpdateRestrictors()
+end
+
+function DroneControl:UpdateAllRestrictors()
+	self.restrictor_update_mask = -1
+	self:UpdateRestrictors()
+end
+
+function DroneControl:UpdateDumpsInternal()
+	local r_t = self.restrictor_tables[rfRestrictorWasteRockDump]
+	r_t.WasteRock = nil
+	
+	local min = max_int
+	local found_req
+	
+	for i = 1, #(self.serviced_wasterock_dumps or "") do
+		local d = self.serviced_wasterock_dumps[i]
+		local dr = d.demand.WasteRock
+		local a = dr:GetTargetAmount()
+		if a > 0 and a < min then
+			min = a
+			found_req = dr
+		end
+	end
+	
+	if found_req then
+		r_t["WasteRock"] = found_req
+	end
+end
+
 function DroneControl:UpdateRocketsInternal()
-	local r_t = {}
-	self.restrictor_tables[rfRestrictorRocket] = r_t
+	local r_t = self.restrictor_tables[rfRestrictorRocket]
+	r_t.Fuel = nil
 	
 	for i = 1, #(self.serviced_rockets or "") do
 		local r = self.serviced_rockets[i]
@@ -422,6 +505,11 @@ function DroneControl:AddBuilding(building)
 	table.insert(self.connected_task_requesters, building)
 	building:OnAddedByControl(self)
 	self:UpdateDeficits()
+	
+	if IsKindOf(building, "WasteRockDumpSite") then
+		table.insert(self.serviced_wasterock_dumps, building)
+		self:UpdateDumps()
+	end
 end
 
 function DroneControl:OnRemoveBuilding(building)
@@ -451,6 +539,11 @@ function DroneControl:RemoveBuilding(building)
 	table.remove_entry(self.connected_task_requesters, building)
 	building:OnRemovedByControl(self)
 	self:UpdateDeficits()
+	
+	if IsKindOf(building, "WasteRockDumpSite") then
+		table.remove_entry(self.serviced_wasterock_dumps, building)
+		self:UpdateDumps()
+	end
 end
 
 local Request_FindDemand_C = Request_FindDemand
@@ -696,6 +789,62 @@ function DroneControl:AbandonAllDrones()
 	end
 end
 
+function DroneControl:UseDronePrefab(bulk)
+	bulk = bulk and 5 or 1
+	while bulk > 0 do
+		if self.city and self.city.drone_prefabs > 0 then
+			if self:SpawnDrone() then
+				self.city.drone_prefabs = self.city.drone_prefabs - 1
+			end
+		else
+			break
+		end
+		bulk = bulk - 1
+	end
+end
+
+function DroneControl:FindDroneToConvertToPrefab()
+	if #self.drones <= 0 then return false end
+	
+	local idles = {}
+	local all = {}
+	for i = 1, #self.drones do
+		local d = self.drones[i]
+		if not d:IsDisabled() then
+			table.insert(all, d)
+			if d.command == "Idle" then
+				table.insert(idles, d)
+			end
+		end
+	end
+	
+	if #idles > 0 then
+		return FindNearestObject(idles, self:GetPos())
+	elseif #all > 0 then
+		return FindNearestObject(all, self:GetPos())
+	end
+end
+
+function DroneControl:ConvertDroneToPrefab(bulk)
+	bulk = bulk and 5 or 1
+	while bulk > 0 do
+		local drone = self:FindDroneToConvertToPrefab()
+		if drone then
+			if drone.demolishing then
+				drone:ToggleDemolish()
+			end
+			drone.can_demolish = false
+			UICity.drone_prefabs = UICity.drone_prefabs + 1
+			table.remove_entry(self.drones, drone)
+			SelectionArrowRemove(drone)
+			drone:SetCommand("DespawnAtHub")
+		else
+			break
+		end
+		bulk = bulk - 1
+	end
+end
+
 DefineClass.DroneHub = {
 	__parents = { "Building", "TaskRequester", "DroneControl", "ElectricityConsumer" },
 	
@@ -801,7 +950,6 @@ function DroneHub:SpawnDrone()
 	local drone = Drone:new{ city = self.city }
 	drone:SetHolder(self)
 	drone:SetCommandCenter(self)
-	self:UpdateUI()
 	return true
 end
 
@@ -811,49 +959,6 @@ function DroneHub:GetSelectionRadiusScale()
 		return const.CommandCenterMaxRadius
 	else
 		return self.work_radius
-	end
-end
-
-function DroneHub:UseDronePrefab()
-	if self.city and self.city.drone_prefabs > 0 then
-		if self:SpawnDrone() then
-			self.city.drone_prefabs = self.city.drone_prefabs - 1
-		end
-	end
-end
-
-function DroneHub:FindDroneToConvertToPrefab()
-	if #self.drones <= 0 then return false end
-	
-	local idles = {}
-	local all = {}
-	for i = 1, #self.drones do
-		local d = self.drones[i]
-		if not d:IsDisabled() then
-			table.insert(all, d)
-			if d.command == "Idle" then
-				table.insert(idles, d)
-			end
-		end
-	end
-	
-	if #idles > 0 then
-		return FindNearestObject(idles, self:GetPos())
-	elseif #all > 0 then
-		return FindNearestObject(all, self:GetPos())
-	end
-end
-
-function DroneHub:ConvertDroneToPrefab()
-	local drone = self:FindDroneToConvertToPrefab()
-	if drone then
-		if drone.demolishing then
-			drone:ToggleDemolish()
-		end
-		drone.can_demolish = false
-		UICity.drone_prefabs = UICity.drone_prefabs + 1
-		table.remove_entry(self.drones, drone)
-		drone:SetCommand("DespawnAtHub")
 	end
 end
 
@@ -952,17 +1057,20 @@ local LoadTexts = {
 	T{8662, "Drones load <right>N/A<left>"},
 }
 
-local low_threshold = const.HourDuration / 3
-local medium_threshold = const.HourDuration * 3
-
 GlobalVar("g_HeavyLoadDroneHubs", {})
 GlobalGameTimeThread("HeavyLoadDroneHubsNotif", function()
-	HandleNewObjsNotif(g_HeavyLoadDroneHubs, "TransportationDroneOverload")
+	Sleep(100)
+	if not g_Tutorial or g_Tutorial.EnableTransportProblemNotif then
+		HandleNewObjsNotif(g_HeavyLoadDroneHubs, "TransportationDroneOverload")
+	end
 end)
 
+function DroneControl:CalcLapTime()
+	return #self.drones == 0 and 0 or Max(self.lap_time, GameTime() - self.lap_start)
+end
+
 function DroneControl:UpdateHeavyLoadNotification()
-	local lap_time = #self.drones == 0 and 0 or Max(self.lap_time, GameTime() - self.lap_start)
-	if lap_time >= medium_threshold then
+	if self.working and self:CalcLapTime() >= const.DroneLoadMediumThreshold then
 		table.insert_unique(g_HeavyLoadDroneHubs, self)
 	else
 		table.remove_entry(g_HeavyLoadDroneHubs, self)
@@ -970,28 +1078,34 @@ function DroneControl:UpdateHeavyLoadNotification()
 end
 
 function DroneControl:GetDronesStatusText()
+	local ret
 	if (self:IsKindOf("DroneHub") and not self.working) then
-		return T{647, "<red>Not working. Drones won't receive further instructions.</red>"}
-	end
-	local brokenDrones = self:GetBrokenDronesCount()
-	local broken = 
-		brokenDrones == 1 and T{648, "There is <red>1</red> malfunctioning Drone</red>"} .. "\n"
-		or brokenDrones > 1 and T{649, "There are <red><number></red> malfunctioning Drones</red>", number = brokenDrones} .. "\n"
-		or ""
-		
-	local t = table.ifilter(self.drones, function(i, o) return not o:IsDisabled() end)
-	if #t <= 0 then
-		return broken .. LoadTexts[4]
+		ret = T{647, "<red>Not working. Drones won't receive further instructions.</red>"}
 	else
-		local lap_time = #self.drones == 0 and 0 or Max(self.lap_time, GameTime() - self.lap_start)
-		if lap_time < low_threshold then
-			return broken .. LoadTexts[1]
-		elseif lap_time < medium_threshold then
-			return broken .. LoadTexts[2]
+		local brokenDrones = self:GetBrokenDronesCount()
+		local broken = 
+			brokenDrones == 1 and T{648, "There is <red>1</red> malfunctioning Drone</red>"} .. "\n"
+			or brokenDrones > 1 and T{649, "There are <red><number></red> malfunctioning Drones</red>", number = brokenDrones} .. "\n"
+			or ""
+			
+		local t = table.ifilter(self.drones, function(i, o) return not o:IsDisabled() end)
+		if #t <= 0 then
+			ret = broken .. LoadTexts[4]
 		else
-			return broken .. LoadTexts[3]
+			local lap_time = self:CalcLapTime()
+			if lap_time < const.DroneLoadLowThreshold then
+				ret = broken .. LoadTexts[1]
+			elseif lap_time < const.DroneLoadMediumThreshold then
+				ret = broken .. LoadTexts[2]
+			else
+				ret = broken .. LoadTexts[3]
+			end
 		end
 	end
+	
+	ret = ret .. "\n" .. T{9757, "Available Prefabs <right><drone(available_drone_prefabs)>"}
+	
+	return ret
 end
 
 DroneHub.GetConstructDroneCost = DroneFactory.GetConstructDroneCost
@@ -1028,4 +1142,15 @@ end
 
 function DroneHub:GetOrderedDronesCount()
 	return T{8492, "Drones ordered: <num>", num = self.total_requested_drones}
+end
+
+function BulkObjModifiedInCityLabels(...)
+	local lbls = table.pack(...)
+	local city_labels = UICity.labels
+	for i = 1, #lbls do
+		local container = city_labels[lbls[i]] or empty_table
+		for _, obj in ipairs(container) do
+			ObjModified(obj)
+		end
+	end
 end

@@ -83,13 +83,19 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 	
 	--Tutorial hint dismissing
 	elseif shortcut == "Back" or shortcut == "TouchPadClick" then
-		if DismissCurrentOnScreenHint() then
+		local dlg = GetOnScreenHintDlg()
+		if dlg and not dlg.minimized then
+			dlg:DismissCurrentHint()
+			return "break"
+		else
+			OpenEncyclopedia("HintGameStart")
 			return "break"
 		end
 	end
 	
 	--Common gamepad button actions (selection/build menu)
 	local cursor = g_GamepadObjects and GetGamepadCursor()
+	local invertLook = const.CameraControlInvertLook
 	if shortcut == "ButtonA" and cursor then
 		SelectObj(g_GamepadObjects:GetObject())
 		return "break"
@@ -111,7 +117,7 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 		return "break"
 		
 	--Zoom-out to overview
-	elseif shortcut == "RightThumbDown" and InGameInterfaceMode ~= "overview" and cameraRTS.IsActive() then
+	elseif ((shortcut == "+RightThumbDown" and not invertLook) or (shortcut == "+RightThumbUp" and invertLook)) and InGameInterfaceMode ~= "overview" and cameraRTS.IsActive() then
 		local minZoom, maxZoom = cameraRTS.GetZoomLimits()
 		if cameraRTS.GetZoom() >= maxZoom then
 			if not self:IsThreadRunning("ZoomOutToOverview") then
@@ -121,7 +127,7 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 				end, self)
 			end
 		end
-	elseif shortcut == "-RightThumbDown" then
+	elseif (shortcut == "-RightThumbDown" and not invertLook) or (shortcut == "-RightThumbUp" and invertLook) then
 		if self:IsThreadRunning("ZoomOutToOverview") then
 			self:DeleteThread("ZoomOutToOverview")
 		end
@@ -132,7 +138,7 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 		CancelAllNotificationsThread = CreateRealTimeThread(function ()
 			Sleep(800)
 			CancelAllNotificationsThread = false
-			local notifications = GetDialog("OnScreenNotificationsDlg")
+			local notifications = GetXDialog("OnScreenNotificationsDlg")
 			if notifications then
 				notifications:CancelAllNotifications()
 			end
@@ -140,7 +146,7 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 	elseif shortcut == "-LeftShoulder" and self == self.desktop:GetKeyboardFocus() then
 		if IsValidThread(CancelAllNotificationsThread) then
 			DeleteThread(CancelAllNotificationsThread)
-			local notifications = GetDialog("OnScreenNotificationsDlg")
+			local notifications = GetXDialog("OnScreenNotificationsDlg")
 			if notifications and #notifications.idNotifications > 0 then
 				notifications:SetFocus(true)
 			end
@@ -194,11 +200,11 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 end
 
 function InterfaceModeDialog:OnSetFocus()
-	local pins = GetDialog("PinsDlg")
+	local pins = GetXDialog("PinsDlg")
 	if pins then pins:UpdateGamepadHint() end
 end
 
 function InterfaceModeDialog:OnKillFocus()
-	local pins = GetDialog("PinsDlg")
+	local pins = GetXDialog("PinsDlg")
 	if pins then pins:UpdateGamepadHint() end
 end

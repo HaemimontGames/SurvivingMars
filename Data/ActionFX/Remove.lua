@@ -8,3 +8,27 @@ PlaceObj('ActionFXRemove', {
 	'Id', "RCRoverRepair",
 })
 
+PlaceObj('ActionFXRemove', {
+	'Action', "Revealed",
+	'Moment', "true",
+	'Actor', "CrystalsBig",
+	'Target', "ignore",
+	'Id', "Revealed",
+})
+
+PlaceObj('ActionFXRemove', {
+	'Action', "Revealed",
+	'Moment', "true",
+	'Actor', "CrystalsSmall",
+	'Target', "ignore",
+	'Id', "Revealed",
+})
+
+PlaceObj('ActionFXRemove', {
+	'Action', "Revealed",
+	'Moment', "true",
+	'Actor', "MetatronAnomaly",
+	'Target', "ignore",
+	'Id', "Revealed",
+})
+

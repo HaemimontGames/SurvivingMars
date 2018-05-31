@@ -1,10 +1,23 @@
+local function TutorialsCombo()
+	local combo = { }
+	for name in pairs(g_TutorialScenarios) do
+		table.insert(combo, name)
+	end
+	table.sort(combo)
+	table.insert(combo, 1, "none")
+	
+	return combo
+end
+
 DefineDataInstance("OnScreenHint",
 	{
 		{ category = "General", id = "title",        name = T{1000016, "Title"},        editor = "text",            default = "", translate = true },
-		{ category = "General", id = "text",         name = T{1000145, "Text"},         editor = "multi_line_text", default = "", translate = true },
-		{ category = "General", id = "gamepad_text", name = T{4094, "Gamepad text"}, editor = "multi_line_text", default = "", translate = true },
 		{ category = "General", id = "voiced_text",  name = T{6855, "Voiced Text"},        editor = "multi_line_text", default = "", translate = true, context = VoicedContextFromField("actor")},
 		{ category = "General", id = "actor",        name = T{6857, "Voice Actor"},        editor = "combo",           default = "narrator", items = VoiceActors },
+		{ category = "General", id = "text",         name = T{1000145, "Text"},         editor = "multi_line_text", default = "", translate = true },
+		{ category = "General", id = "gamepad_text", name = T{4094, "Gamepad text"}, editor = "multi_line_text", default = "", translate = true },
+		{ category = "General", id = "tutorial",     name = T{8982, "Tutorial"},                 editor = "combo",           default = "none", items = TutorialsCombo },
+		{ category = "Misc", id = "encyclopedia_image",     name = T{161, "Encyclopedia Image"},         editor = "browse",           default = "", folder = "UI" },
 	},
 	"[203]Editors/[01]Mars/OnScreenHint Editor"
 )
@@ -51,10 +64,18 @@ function OnScreenHintDlg:Init()
 		Translate = true,
 		MouseCursor = "UI/Cursors/Rollover.tga",
 		Press = function(this)
-			OpenEncyclopedia("HintGameStart")
+			OpenEncyclopedia(LastDisabledHint or "HintGameStart")
 		end,
 	}, min_win)
-	self.idMinimized:SetText(T{4248, "Hints"})
+	XText:new({
+		Id = "idActualText",
+		HAlign = "center",
+		TextColor = RGBA(244,228,117,255),
+		RolloverTextColor = RGBA(244,228,117,255),
+		TextFont = "HUDButton",
+		Translate = true,
+	}, self.idMinimized)
+	self.idMinimized.idActualText:SetText(GetUIStyleGamepad() and T{8983, "<Back> Hints"} or T{4248, "Hints"})
 	-------- maximized controls
 	local maximized_win = XWindow:new({
 		Id = "idMaximizedControls",
@@ -206,7 +227,14 @@ end
 
 function OnScreenHintDlg:RecalculateMargins()
 	--This is temporarily and should be removed when implementing InGameInterface with new UI
-	self:SetMargins(OnScreenHintDlg.Margins + GetSafeMargins())
+	local margins = OnScreenHintDlg.Margins + GetSafeMargins()
+	local infobar = GetXDialog("Infobar")
+	if infobar then
+		local left, top, right, bottom = margins:xyxy()
+		local infobar_offset = infobar.PadHeight
+		margins = box(left, top + infobar_offset, right, bottom)
+	end
+	self:SetMargins(margins)
 end
 
 function OnMsg.SafeAreaMarginsChanged()
@@ -236,9 +264,11 @@ function OnScreenHintDlg:ShowPage(page)
 	
 	local hint_id = self:CurrentHintId()
 	if hint_id then
+		local hint_obj = g_ActiveHints[hint_id]
+		self.context = hint_obj
 		self:SetMinimized(false)
 		UpdateHintHighlight(g_Classes[hint_id].highlight_dialog)
-		Msg("OnScreenHintChanged", g_ActiveHints[hint_id])
+		Msg("OnScreenHintChanged", hint_obj)
 	else--if not hint_id then
 		self:SetMinimized(true)
 		self.current_page = 0
@@ -390,7 +420,7 @@ function UpdateHintHighlight(dialog_id)
 	local dialog_id = type(dialog_id)=="table" and dialog_id or {dialog_id} 
 	
 	for i=1, #dialog_id do
-		local highlight_dialog = GetDialog(dialog_id[i])
+		local highlight_dialog = GetXDialog(dialog_id[i])
 		if highlight_dialog and highlight_dialog:HasMember("UpdateHintHighlight") then
 			highlight_dialog:UpdateHintHighlight()
 		end
@@ -432,7 +462,9 @@ function OnScreenHintDlg:UpdateVisuals()
 	local data = DataInstances.OnScreenHint[self:CurrentHintId()]
 	if data then
 		self.idTitle:SetText(data.title)
-		local text = (GetUIStyleGamepad() and data.gamepad_text ~= "") and data.gamepad_text or data.text
+		local body_text = (GetUIStyleGamepad() and data.gamepad_text ~= "") and data.gamepad_text or data.text
+		body_text = T{body_text, self.context}
+		local text = (data.voiced_text ~= "") and (data.voiced_text.."\n\n"..body_text) or body_text
 		self.idText:SetText(T{text, self.context})
 		self.idPage:SetText(Untranslated(string.format("%d/%d", self.current_page, #g_ShownOnScreenHints)))
 		self.idGamepadHint:SetText(self.idGamepadHint:GetText())
@@ -455,6 +487,7 @@ function OnScreenHintDlg:UpdateVisuals()
 	self.idEncyclopediaBtn:SetVisible(not gamepad and maximized)
 	self.idClose:SetVisible(not gamepad and maximized)
 	self:UpdateMinimizedVisibility()
+	self.idMinimized.idActualText:SetText(GetUIStyleGamepad() and T{8983, "<Back> Hints"} or T{4248, "Hints"})
 end
 
 function OnScreenHintDlg:UpdateMinimizedVisibility()
@@ -462,7 +495,7 @@ function OnScreenHintDlg:UpdateMinimizedVisibility()
 end
 
 function OnScreenHintDlg:IsMinimizedVisible()
-	return self.minimized and not GetUIStyleGamepad() and self.hidden_minimized == 0
+	return self.minimized and self.hidden_minimized == 0
 end
 
 function OnMsg.GamepadUIStyleChanged()

@@ -2,7 +2,6 @@ DefineClass.XPageScroll = {
 	__parents = { "XScroll", "XFontControl" },
 	properties = {
 		{ category = "Visual", id = "PageFormat", editor = "text", default = "%d/%d", },
-		{ category = "Visual", id = "AutoHide", editor = "bool", default = true, },
 		{ category = "Visual", id = "ForceFocusFirstItem", editor = "bool", default = false, },
 	},
 	Max = 0,
@@ -15,7 +14,7 @@ DefineClass.XPageScroll = {
 	page_info = false,
 	visible = false,
 	target_visible = false,
-	FoldWhenHidden = true,
+	AutoHide = true,
 }
 LinkFontPropertiesToChild(XPageScroll, "idPage")
 

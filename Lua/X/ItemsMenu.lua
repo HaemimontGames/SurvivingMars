@@ -128,10 +128,9 @@ end
 
 function ItemMenuBase:Close()
 	UnlockHRXboxLeftThumb(self.class)
-	local pins_dlg = GetDialog("PinsDlg")
+	local pins_dlg = GetXDialog("PinsDlg")
 	if pins_dlg then pins_dlg:SetVisible(true, "instant") end
 	self:CreateThread(function()
-		PlayFX("BuildMenuOut", "start")
 		if not self.hide_single_category then
 			EdgeAnimation(false, self.idCategoryList, 0, self.box:sizey() - self.idCategoryList.idCatBkg.box:miny())
 		end	
@@ -147,6 +146,16 @@ function ItemMenuBase:Close()
 		
 		XDialog.Close(self)		
 	end)		
+end
+
+function ItemMenuBase:OnSetFocus()
+	LockHRXboxLeftThumb(self.class)
+	XDialog.OnSetFocus(self)
+end
+
+function ItemMenuBase:OnKillFocus()
+	UnlockHRXboxLeftThumb(self.class)
+	XDialog.OnKillFocus(self)
 end
 
 function ItemMenuBase:GetCategories()
@@ -404,6 +413,17 @@ function ItemMenuBase:OnMouseButtonDown(pt, button)
 	end
 end
 
+function ItemMenuBase:OnMouseEnter(pos)
+	if GetUIStyleGamepad() then return end
+
+	local igi = GetInGameInterface()
+	local dlg = igi and igi.mode_dialog
+	if dlg and dlg:IsKindOf("UnitDirectionModeDialog") and dlg.unit then
+		dlg:HideMouseCursorText(pos)
+	end	
+	return XDialog.OnMouseEnter(self, pos)
+end
+
 function ItemMenuBase:UpdateHintHighlight(force)
 	--local element = self.idCategoryHighlight
 	local id = HintsGetHighlightedID(self.class)
@@ -480,7 +500,7 @@ end
 function OnMsg.OnScreenHintChanged(hint)
 	local children = ClassDescendantsList("ItemMenuBase")
 	for i=1,#children do
-		local child = GetDialog(children[i])
+		local child = GetXDialog(children[i])
 		if child then
 			child:UpdateHintHighlight("force")
 		end
@@ -494,7 +514,7 @@ DefineClass.ItemMenu = {
 function ItemMenu:Init()
 	CloseInfopanelItems()
 	SelectObj(false)
-	local pins_dlg = GetDialog("PinsDlg")
+	local pins_dlg = GetXDialog("PinsDlg")
 	if pins_dlg then pins_dlg:SetVisible(false, "instant") end
 	PlayFX("BuildMenuIn", "start")
 end

@@ -65,17 +65,6 @@ function BuildingDepositExploiterComponent:HasNearbyDeposits()
 	return self.nearby_deposits and #self.nearby_deposits > 0
 end
 
-function BuildingDepositExploiterComponent:UpdateUI()
-	if self == SelectedObj then
-		Msg("UIPropertyChanged", self)
-		for i = 1, #self.nearby_deposits do
-			if IsValid(self.nearby_deposits[i]) then
-				Msg("UIPropertyChanged", self.nearby_deposits[i])
-			end
-		end
-	end
-end
-
 function BuildingDepositExploiterComponent:GetWorkNotPossibleReason()
 	if self.city:IsTechResearched("NanoRefinement") then
 		return
@@ -498,6 +487,7 @@ function ResourceProducer:AddProducer(i) --expects relevant props to be filled
 				self.max_storage = self.max_storage + producer_obj.max_storage
 				self.production_per_day = self.production_per_day + producer_obj.production_per_day
 			end
+			producer_obj:OnSetWorking(self.working)
 			return true
 		else
 			printf("<red>Creating resource producer for non-existing resource '%s'</color>", resource_type)
@@ -887,7 +877,6 @@ function SingleResourceProducer:Produce(amount_to_produce) --produces amount_to_
 		self.parent:AttachSign(true, "SignFullStorage")
 	end
 	
-	self.parent:UpdateUI()
 	assert(self:GetAmountStored() <= self.max_storage)
 	
 	return amount_to_produce
@@ -987,13 +976,6 @@ function SingleResourceProducer:GetPredictedDailyProduction()
 	return self.production_per_day
 end
 
-function OnMsg.UIPropertyChanged(obj, prop)
-	if IsKindOf(obj, "ResourceProducer") and prop=="performance" then
-		for _, producer in ipairs(obj.producers) do
-			ObjModified(producer)
-		end
-	end
-end
 ----
 
 local function GatherSpotsFromStockpiles(stockpiles, resource)

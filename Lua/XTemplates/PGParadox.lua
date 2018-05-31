@@ -30,7 +30,7 @@ end,
 			}),
 			PlaceObj('XTemplateWindow', {
 				'comment', "margins",
-				'Margins', box(0, 80, 100, 80),
+				'Margins', box(0, 30, 100, 50),
 			}, {
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
@@ -54,7 +54,6 @@ end,
 					'MinWidth', 620,
 					'MaxWidth', 620,
 					'LayoutVSpacing', 16,
-					'UniformRowHeight', true,
 					'Clip', false,
 					'Background', RGBA(0, 0, 0, 0),
 					'FocusedBackground', RGBA(0, 0, 0, 0),
@@ -116,12 +115,6 @@ end,
 								'ActionName', T{143709976272, --[[XTemplate PGParadox ActionName]] "LINK ACCOUNT"},
 								'ActionToolbar', "ActionBar",
 								'ActionGamepad', "ButtonX",
-								'ActionState', function (self, host)
-local obj = ResolvePropObj(host.context)
-if not obj:CanLink() then
-	return "disabled"
-end
-end,
 								'OnAction', function (self, host, source, toggled)
 local obj = host.context
 obj:Login()
@@ -133,12 +126,6 @@ end,
 								'ActionName', T{696496147405, --[[XTemplate PGParadox ActionName]] "LOG IN"},
 								'ActionToolbar', "ActionBar",
 								'ActionGamepad', "ButtonX",
-								'ActionState', function (self, host)
-local obj = ResolvePropObj(host.context)
-if not obj:CanLink() then
-	return "disabled"
-end
-end,
 								'OnAction', function (self, host, source, toggled)
 local obj = host.context
 obj:Login()

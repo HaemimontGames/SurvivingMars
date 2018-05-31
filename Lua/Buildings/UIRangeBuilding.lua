@@ -28,16 +28,17 @@ function UIRangeBuilding:SetUIRange(value)
 		for i = 1, #rxs do
 			rxs[i]:SetScale(value)
 		end
+		
+		DeleteThread(UIRangeUpdateThread)
+		UIRangeUpdateThread = CreateMapRealTimeThread(function(self)
+			Sleep(100)		-- wait for the user to finish UI manipulation
+			self:OnPreChangeRange(value)
+			self.UIRange = value
+			self.incoming_range = false
+			self:OnPostChangeRange()
+			UIRangeUpdateThread = false
+		end, self)
 	end
-	DeleteThread(UIRangeUpdateThread)
-	UIRangeUpdateThread = CreateMapRealTimeThread(function(self)
-		Sleep(100)		-- wait for the user to finish UI manipulation
-		self:OnPreChangeRange(value)
-		self.UIRange = value
-		self.incoming_range = false
-		self:OnPostChangeRange()
-		UIRangeUpdateThread = false
-	end, self)
 end
 
 function UIRangeBuilding:GetUIRange(value)

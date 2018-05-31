@@ -2,6 +2,7 @@ DefineClass.ProjectMorpheus = {
 	__parents = { "ElectricityConsumer"},
 	added_traits_log = false,
 	lifetime = false,
+	wait_working_anims_to_finish = true,
 }
 
 function ProjectMorpheus:Init()

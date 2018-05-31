@@ -1,5 +1,5 @@
 DefineClass.ExplorerRover = {
-	__parents = {  "BaseRover", "ComponentAttach", "PinnableObject", },
+	__parents = {  "BaseRover", "ComponentAttach" },
 	entity = "RoverExplorer",
 	
 	display_name = T{1684, "RC Explorer"},
@@ -15,7 +15,6 @@ DefineClass.ExplorerRover = {
 	scanning_start = false,
 	scan_time = false,
 	scanning = false,
-	pin_on_start = true,
 	
 	fx_actor_class = "ExplorerRover", --temp
 	encyclopedia_id = "ExplorerRover",
@@ -69,12 +68,6 @@ function ExplorerRover:Analyze(anomaly)
 			end
 		end
 		
-		if self == SelectedObj then
-			Msg("UIPropertyChanged", self)
-		elseif IsValid(anomaly) and anomaly == SelectedObj then
-			Msg("UIPropertyChanged", anomaly)
-		end
-		
 		self:StopFX()
 		self.scanning = false
 		self.scanning_start = false
@@ -93,11 +86,6 @@ function ExplorerRover:Analyze(anomaly)
 		Sleep(1000)
 		time = time - 1000
 		anomaly.scanning_progress = self:GetScanAnomalyProgress()
-		if self == SelectedObj then
-			Msg("UIPropertyChanged", self)
-		elseif anomaly == SelectedObj then
-			Msg("UIPropertyChanged", anomaly)
-		end	
 	end
 		
 	self:PopAndCallDestructor()
@@ -110,7 +98,7 @@ end
 function ExplorerRover:CanInteractWithObject(obj, interaction_mode)
 	if self.command=="Dead" then return false end
 	if interaction_mode ~= "recharge" and IsKindOf(obj, "SubsurfaceAnomaly") then
-		return true
+		return true, T{9634, "<UnitMoveControl('ButtonA', interaction_mode)>:  Scan Anomaly", self} 
 	end
 	
 	return BaseRover.CanInteractWithObject(self, obj, interaction_mode)

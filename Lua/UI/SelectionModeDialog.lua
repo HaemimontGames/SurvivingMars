@@ -73,7 +73,7 @@ function SelectionModeDialog:OnMouseButtonDown(pt, button)
 				HintTrigger("HintVehicleOrders")
 			end
 			if g_RightClickOpensBuildMenu then
-				local dlg = GetDialog("XBuildMenu")
+				local dlg = GetXDialog("XBuildMenu")
 				if dlg then
 					dlg:SelectParentCategory()
 				else

@@ -9,7 +9,7 @@ function CategoryList:Init()
 		LayoutMethod = "VList",
 	},self) 
 	--category title
-	local title = XWindow:new({},ctrl)
+	local title = XWindow:new({Margins = box(0,0,0,-1)},ctrl)
 	XImage:new({
 		Id = "idCatBkg",
 		Image =  "UI/Common/bm_category_title.tga",

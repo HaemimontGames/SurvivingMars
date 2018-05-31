@@ -124,9 +124,7 @@ end
 function Residence:SetUIWorking(working)
 	Building.SetUIWorking(self, working)
 	if working then
-		if self.working then 
-			self:CheckHomeForHomeless()
-		end	
+		self:CheckHomeForHomeless()
 	else
 		for i = #self.colonists, 1, -1 do
 			local colonist = self.colonists[i]
@@ -201,6 +199,9 @@ function Residence:ReserveResidence(unit)
 end
 
 function Residence:ColonistCanInteract(col)
+	if self:GetUICapacity() == 0 then
+		return false, false, true
+	end
 	if self.children_only and not col.traits.Child then
 		return false, T{4306, "<red>Building accepts only children</red>"}
 	end
@@ -210,7 +211,7 @@ function Residence:ColonistCanInteract(col)
 	if not col:CanReachBuilding(self) then
 		return false, T{4308, "<red>Out of reach</red>"}
 	end
-	return true, T{4309, "<em><left_click></em>: Set Residence"}
+	return true, T{4309, "<UnitMoveControl('ButtonA', interaction_mode)>: Set Residence", col}
 end
 
 function Residence:ColonistInteract(col)
@@ -224,9 +225,8 @@ function Residence:ColonistInteract(col)
 	
 	col.user_forced_residence = {self, GameTime()}
 
-	if not self:CanReserveResidence(col) then
-		--design - kick oldest resident.
-		self:KickOldestResident()
+	if not self:CanReserveResidence(col) and not self:KickOldestResident() then
+		return
 	end
 	if self.parent_dome == col.dome then
 		col:SetResidence(self)
@@ -264,6 +264,7 @@ function Residence:KickOldestResident()
 			self:CancelResidenceReservation(oldest_resident)
 		end
 	end
+	return oldest_resident
 end
 
 function Residence:CancelResidenceReservation(unit)
@@ -307,42 +308,27 @@ end
 --Choose 'best' Residence for that unit
 function ChooseResidence(unit)	
 	local is_child = unit.traits["Child"]
-	local current_home = unit.residence
-	local max_score
+	local best_home = false
 	local dome = unit.dome
-	local current_score = current_home and current_home.parent_dome == dome and GetResidenceComfort(current_home, is_child)
-	local best_building = false
-	local buildings = dome and dome.labels.Residence or unit.city.labels.Residence or empty_table
+	local best_score, best_space = min_int, 0
+	local current_home = unit.residence
+	if current_home and current_home.parent_dome == dome and current_home.ui_working then
+		best_home = current_home
+		best_score = GetResidenceComfort(current_home, is_child) or min_int
+		best_space = current_home:GetFreeSpace() + 1
+	end
+	local buildings = dome and dome.labels.Residence or empty_table
 	for i = 1, #buildings do
 		local home = buildings[i]
-		local score = home:GetFreeSpace() > 0 and GetResidenceComfort(home, is_child)
-		if score then
-			if best_building then
-				local best_working = best_building.ui_working
-				local home_working = home.ui_working
-				if not best_working and home_working then
-					max_score = score
-					best_building = home				
-				elseif best_working and home_working then	
-					if max_score < score or (max_score == score and Random(0, 100)<50 ) then
-						max_score = score
-						best_building = home
-					end
-				--elseif best_working and not home_working then
-				-- does not change	
-				end
-			elseif (not max_score or max_score < score) or (max_score == score  and Random(0, 100)<50 ) then
-				max_score = score
-				best_building = home
-			end
-		end	
-	end
-	if not max_score or (current_score and current_score >= max_score) then
-		if current_home and current_home.ui_working or (best_building and not best_building.ui_working) then
-			return current_home
+		local space = home.ui_working and home:GetFreeSpace() or 0
+		local score = space > 0 and GetResidenceComfort(home, is_child) or min_int
+		if score > best_score or score == best_score and space > best_space and best_home ~= current_home then
+			best_home = home
+			best_score = score
+			best_space = space
 		end
 	end
-	return best_building
+	return best_home
 end
 
 local l_TemplateSkinRadius = {}

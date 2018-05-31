@@ -572,7 +572,7 @@ DefineConst{
 }
 DefineConst{
 	group = "Gameplay",
-	help = T{524823774609, --[[ConstDef Gameplay GameRuleRebelYellProgress help]] "GameRule - RebelYell -  points to add to renegate generation."},
+	help = T{524823774609, --[[ConstDef Gameplay GameRuleRebelYellProgress help]] "GameRule - RebelYell -  points to add to renegade generation."},
 	id = "GameRuleRebelYellProgress",
 	name = T{782696503433, --[[ConstDef Gameplay GameRuleRebelYellProgress name]] "GameRuleRebelYellProgress"},
 	scale = "Stat",

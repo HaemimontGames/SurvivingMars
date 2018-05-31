@@ -684,6 +684,654 @@ PlaceObj('PopupNotificationPreset', {
 	'choice2', T{1139, --[[PopupNotificationPreset ExitToMainMenu choice2]] "No"},
 })
 
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial1_Popup1_Intro",
+	'title', T{9227, --[[PopupNotificationPreset Tutorial1_Popup1_Intro title]] "IMM Training Simulation"},
+	'voiced_text', T{7155, --[[voice:narrator]] "Welcome to Mars!"},
+	'text', T{9229, --[[PopupNotificationPreset Tutorial1_Popup1_Intro text]] "In this training exercise you will learn how to gather basic resources from the Martian surface, how to construct a small base and how to refuel the Rocket in order to send it back to Earth.\n\nLet’s get started!\n\n<effect>Achievements are disabled during all tutorials."},
+	'image', "UI/Messages/outsource.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial1_Popup2_ZoomAndCamera",
+	'title', T{5497, --[[PopupNotificationPreset Tutorial1_Popup2_ZoomAndCamera title]] "Camera Controls"},
+	'voiced_text', T{9230, --[[voice:narrator]] "You need to master the camera controls and familiarize yourself with the terrain around the prospective colony site."},
+	'text', T{9231, --[[PopupNotificationPreset Tutorial1_Popup2_ZoomAndCamera text]] "<goal>Zoom in towards the suggested landing site."},
+	'image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_ZoomAndCamera.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial1_Popup3_LandRocket",
+	'title', T{9232, --[[PopupNotificationPreset Tutorial1_Popup3_LandRocket title]] "Landing the Rocket"},
+	'voiced_text', T{9233, --[[voice:narrator]] "Now it's time to land your first Rocket."},
+	'text', T{9234, --[[PopupNotificationPreset Tutorial1_Popup3_LandRocket text]] "Proceed by selecting the pinned icon representing the Rocket that is currently in orbit around Mars.\n\n<goal>Land the Rocket on Mars."},
+	'image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_LandRocket.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial1_Popup4_DronesAndResources",
+	'title', T{9235, --[[PopupNotificationPreset Tutorial1_Popup4_DronesAndResources title]] "Drones and Resources"},
+	'voiced_text', T{9236, --[[voice:narrator]] "...and we have touchdown! The Rocket has landed on Mars."},
+	'text', T{9237, --[[PopupNotificationPreset Tutorial1_Popup4_DronesAndResources text]] "It carries Drones - remotely controlled robots which constitute your construction and resources gathering workforce.\n\nGathering basic resources for building construction is one of the first things our Martian base needs. Place a Metals Depot so the Drones begin automatically bringing Metals from the scattered surface deposits nearby.\n\n<goal>Gather 5 Metals in a Metals Depot."},
+	'image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_DronesAndResources.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial1_Popup5_UnloadRocket",
+	'title', T{9238, --[[PopupNotificationPreset Tutorial1_Popup5_UnloadRocket title]] "Unloading the Payload"},
+	'voiced_text', T{9239, --[[voice:narrator]] "Our Rocket carries valuable resources that will be essential for the construction and maintenance of the Colony. Initially it's best to designate a Universal Depot, so the Drones have a place to store them."},
+	'text', T{9240, --[[PopupNotificationPreset Tutorial1_Popup5_UnloadRocket text]] "<goal>Place a Universal Depot near your Rocket."},
+	'image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_UnloadRocket.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial1_Popup6_ConcreteExtractor",
+	'title', T{5032, --[[PopupNotificationPreset Tutorial1_Popup6_ConcreteExtractor title]] "Concrete Extractor"},
+	'voiced_text', T{9241, --[[voice:narrator]] "Along with Metals, Concrete is the other vital basic construction resource."},
+	'text', T{9242, --[[PopupNotificationPreset Tutorial1_Popup6_ConcreteExtractor text]] "The Concrete Extractor building must be placed over a Concrete deposit. Look for a patch of yellow terrain near your landing site. Maximizing the yellow terrain covered by the work area of the Concrete Extractor is a good practice - this way the extractor will produce more Concrete in the long run.\n\n<goal>From the build menu, select to build a Concrete Extractor and place it at the proposed location."},
+	'image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_ConcreteExtractor.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial1_Popup7_DroneRange",
+	'title', T{9243, --[[PopupNotificationPreset Tutorial1_Popup7_DroneRange title]] "Drone Range"},
+	'voiced_text', T{9244, --[[voice:narrator]] "You are trying to place a construction outside of the work range of your Drones."},
+	'text', T{9245, --[[PopupNotificationPreset Tutorial1_Popup7_DroneRange text]] "Buildings are constructed by Drones. If you place a building outside the Drones' work range it won't be constructed. When placing buildings, make sure that those buildings are within range of drone controllers like the Rocket, Drone Hubs or RC Rovers.\n\nYou can select the Rocket to view its control radius."},
+	'image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_DronesAndDroneHubs.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial1_Popup8_Power",
+	'title', T{79, --[[PopupNotificationPreset Tutorial1_Popup8_Power title]] "Power"},
+	'voiced_text', T{9246, --[[voice:narrator]] "Like most buildings, the Concrete Extractor needs  power in order to operate. Having a reliable electrical grid and supply is essential for the success of the colony."},
+	'text', T{9247, --[[PopupNotificationPreset Tutorial1_Popup8_Power text]] "Stirling Generators are excellent power sources but they are too complex to be built on Mars during the early stages of our colonization effort. That is why we ship them from Earth partially assembled in prefabs. Prefabs do not require any resources, only drones to unpack and assemble them.\n\nWe've provided you with a Stirling Generator prefab.\n\n<goal>Construct a Stirling Generator and then connect it to the Concrete extractor with a Power Cable."},
+	'image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_Power.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial1_Popup9_WasteRockConcreteDepot",
+	'title', T{9248, --[[PopupNotificationPreset Tutorial1_Popup9_WasteRockConcreteDepot title]] "Waste Rock and the Concrete Depot"},
+	'voiced_text', T{9249, --[[voice:narrator]] "Waste Rock is a byproduct of all extractors and is best stored at designated locations. This way you can ensure that it will not be in the way of future construction."},
+	'text', T{9250, --[[PopupNotificationPreset Tutorial1_Popup9_WasteRockConcreteDepot text]] "The amount of Waste Rock per resource extracted depends on the Grade of the resource deposit. You can select a resource deposit to view its Grade and the amount of resources remaining in it.\n\n<goal>Place a Dumping Site and a Concrete Depot to store the extracted Concrete."},
+	'image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_WasteRockConcreteDepot.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial1_Popup10_DronesAndDroneHubs",
+	'title', T{9251, --[[PopupNotificationPreset Tutorial1_Popup10_DronesAndDroneHubs title]] "Drones and Drone Hubs"},
+	'voiced_text', T{9252, --[[voice:narrator]] "Drones will pick pending tasks on their own within the range of the drone controllers they are assigned to."},
+	'text', T{9253, --[[PopupNotificationPreset Tutorial1_Popup10_DronesAndDroneHubs text]] "Currently all Drones are assigned to the Rocket. When the Rocket is selected the work range of all Drones assigned to it will be visualized. If the Rocket takes off, however, all these Drones will need another controller.\n\n<goal>Build a Drone Hub and make sure it is supplied with power."},
+	'image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_DronesAndDroneHubs.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial1_Popup11_DroneBatteries",
+	'title', T{5541, --[[PopupNotificationPreset Tutorial1_Popup11_DroneBatteries title]] "Drone Batteries"},
+	'voiced_text', T{9254, --[[voice:narrator]] "Drones run on batteries that have to be recharged periodically."},
+	'text', T{9255, --[[PopupNotificationPreset Tutorial1_Popup11_DroneBatteries text]] "Every Drone Hub has two Recharge Stations built-in, but you might need additional ones as the Colony spreads out. Constructing Recharge Stations, especially along areas with heavy Drone activity, will prove vital for maintaining an efficient work force.\n\n<goal>Build a Recharge Station near the Concrete Extractor."},
+	'image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_DronesRecharge.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial1_Popup12_RefuelingRocket",
+	'title', T{5503, --[[PopupNotificationPreset Tutorial1_Popup12_RefuelingRocket title]] "Refueling the Rocket"},
+	'voiced_text', T{9256, --[[voice:narrator]] "Maintaining a steady supply chain between Earth and Mars is essential, especially during the early colonization stages. "},
+	'text', T{9257, --[[PopupNotificationPreset Tutorial1_Popup12_RefuelingRocket text]] "Every Rocket has enough fuel for a one-way trip to Mars and has to be refueled on site, so it can return to Earth and be reused.\n \nFuel is produced in a Fuel Refinery. To setup the production chain, we will also need Water.\n\n<goal>Build a Moisture Vaporator and then a Fuel Refinery."},
+	'image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_Pipes.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial1_Popup12_RefuelingRocket_1",
+	'title', T{9258, --[[PopupNotificationPreset Tutorial1_Popup12_RefuelingRocket_1 title]] "Insufficient Power"},
+	'voiced_text', T{9259, --[[voice:narrator]] "We don't have sufficient Power for all the buildings in the colony."},
+	'text', T{9260, --[[PopupNotificationPreset Tutorial1_Popup12_RefuelingRocket_1 text]] "Luckily, we have an extra Stirling Generator Prefab we could use.\n\n<goal>Build a new Stirling Generator along the power network."},
+	'image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_DronesAndDroneHubs.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial1_Popup13_Pipes",
+	'title', T{882, --[[PopupNotificationPreset Tutorial1_Popup13_Pipes title]] "Pipes"},
+	'voiced_text', T{9261, --[[voice:narrator]] "A system of Pipes is used to deliver resources such as Water and Air where they are needed."},
+	'text', T{9262, --[[PopupNotificationPreset Tutorial1_Popup13_Pipes text]] "The Moisture Vaporator has to be connected with Pipes to the Fuel Refinery. \n\n<goal>Connect the Moisture Vaporator to the Fuel Refinery with Pipes."},
+	'image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_Pipes.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial1_Popup14_Fuel",
+	'title', T{4765, --[[PopupNotificationPreset Tutorial1_Popup14_Fuel title]] "Fuel"},
+	'voiced_text', T{9263, --[[voice:narrator]] "Fuel production is now underway and the Drones will begin to deliver the Fuel to the Rocket."},
+	'text', T{9264, --[[PopupNotificationPreset Tutorial1_Popup14_Fuel text]] "Use the Speed Controls to increase the game speed, so the Rocket refuels faster.\n\n<effect>For the purposes of this tutorial simulation the Rocket needs far less fuel (5) than it would during a normal playthrough (60).\n\n<goal>Refuel the Rocket."},
+	'image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_Fuel.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial1_Popup15_Epilogue",
+	'title', T{9265, --[[PopupNotificationPreset Tutorial1_Popup15_Epilogue title]] "Mission Complete!"},
+	'voiced_text', T{9266, --[[voice:narrator]] "Congratulations, you have finished the first tutorial!"},
+	'text', T{9267, --[[PopupNotificationPreset Tutorial1_Popup15_Epilogue text]] "You've learned how to setup a basic outpost on Mars that can gather resources for further expansion and refuel Rockets. Using Rockets to bring in additional supplies from Earth is essential for a fledgling colony."},
+	'image', "UI/Messages/space.tga",
+	'choice1', T{9268, --[[PopupNotificationPreset Tutorial1_Popup15_Epilogue choice1]] 'Play Next Tutorial - "Rovers, Exploration & Research"'},
+	'choice2', T{1010, --[[PopupNotificationPreset Tutorial1_Popup15_Epilogue choice2]] "Main Menu"},
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial2_Popup1_Intro",
+	'title', T{5438, --[[PopupNotificationPreset Tutorial2_Popup1_Intro title]] "Rovers"},
+	'voiced_text', T{9269, --[[voice:narrator]] "Welcome, Commander! In this training exercise you will get acquainted with one of your most valuable tools - Rovers."},
+	'text', T{9270, --[[PopupNotificationPreset Tutorial2_Popup1_Intro text]] "Rovers are vehicles with a variety of useful functions like transporting resources, commanding Drones and analyzing Anomalies. You have direct control over all Rovers in the colony.\n\n<goal>Select the RC Transport and move it to the designated area."},
+	'image', "UI/Messages/outsource.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial2_Popup2_Battery",
+	'title', T{9084, --[[PopupNotificationPreset Tutorial2_Popup2_Battery title]] "Rover Batteries"},
+	'voiced_text', T{9271, --[[voice:narrator]] "Rovers consume battery power while operational. From time to time you'll have to recharge their batteries."},
+	'text', T{9272, --[[PopupNotificationPreset Tutorial2_Popup2_Battery text]] "Every command that the rover executes gradually depletes its battery. To recharge it you must simply move the vehicle near a Power Cable. The Rover will draw power from the Power network so expect a spike in Power consumption.\n\n<goal>Move the RC Transport next to a Cable and wait until it is fully recharged."},
+	'image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_Battery.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial2_Popup3_RCTransport",
+	'title', T{1683, --[[PopupNotificationPreset Tutorial2_Popup3_RCTransport title]] "RC Transport"},
+	'voiced_text', T{9273, --[[voice:narrator]] "The RC Transport can load and carry resources around the map. Let's use it to refuel the nearby Rocket."},
+	'text', T{9274, --[[PopupNotificationPreset Tutorial2_Popup3_RCTransport text]] "Use the RC Transport to load Fuel from the fuel depot in the base, then unload it close to the Rocket, so that its drones can load it into the rocket.\n\nDrones can also take resources directly from the RC Transport if they need them, however unloading the resources is quicker and will free up the RC Transport for other tasks.\n\n<goal>Load Fuel on to the RC Transport and unload it next to the Rocket."},
+	'image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_RCTransport.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial2_Popup4_OrphanedDrones",
+	'title', T{5672, --[[PopupNotificationPreset Tutorial2_Popup4_OrphanedDrones title]] "Orphaned Drones"},
+	'voiced_text', T{9275, --[[voice:narrator]] "Some Drones are left without a controller after the Rocket launch."},
+	'text', T{9276, --[[PopupNotificationPreset Tutorial2_Popup4_OrphanedDrones text]] "If Drones lose their controller they will look for new controllers nearby. However, when there are no controllers nearby you'll have to manually reassign them to a new controller.\n\nThe \"Reassign\" command also allows you to reassign Drones to understaffed controllers with heavy Drone load.\n\n<goal>Assign these Drones to the nearby Drone Hub."},
+	'image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_OrphanedDrones.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial2_Popup4_1_Gathering Metals",
+	'title', T{9096, --[[PopupNotificationPreset Tutorial2_Popup4_1_Gathering Metals title]] "RC Transport - Gathering Metals"},
+	'voiced_text', T{9277, --[[voice:narrator]] "The RC Transport is able to gather resources directly from surface deposits without the help of Drones."},
+	'text', T{9278, --[[PopupNotificationPreset Tutorial2_Popup4_1_Gathering Metals text]] "Send the RC Transport to gather some Metals from the deposit indicated by the arrow.\n\n<goal>Gather 5 Metals with the RC Transport."},
+	'image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_Gathering Metals.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial2_Popup5_TransporRoute",
+	'title', T{9099, --[[PopupNotificationPreset Tutorial2_Popup5_TransporRoute title]] "RC Transport - Transport Routes"},
+	'voiced_text', T{9279, --[[voice:narrator]] "Let's set up a small expand some distance away from the main base."},
+	'text', T{9280, --[[PopupNotificationPreset Tutorial2_Popup5_TransporRoute text]] 'We will need resources for the new base. The RC Transport can be ordered to transfer a large amount of resources in multiple goes via the "Create Transport Route" command. The RC Transport will automatically recharge itself if starting or ending point of the route is near a Power network.\n\n<goal>Set a transport route between the Universal Storage in the base and the marked location above the main base.'},
+	'image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_TransporRoute.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial2_Popup6_RCRover",
+	'title', T{1682, --[[PopupNotificationPreset Tutorial2_Popup6_RCRover title]] "RC Rover"},
+	'voiced_text', T{9429, --[[voice:narrator]] "Commander, one other thing."},
+	'text', T{9282, --[[PopupNotificationPreset Tutorial2_Popup6_RCRover text]] "The RC Rover is a mobile drone controller that carries its own drones. With its help you can gather resources from surface deposits, construct and maintain buildings.\n\nWhen moving far distances the RC Rover will first recall its drones before moving off to its destination.\n\n<goal>Move the RC Rover to the site of the expand."},
+	'image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_RCRover.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial2_Popup7_SensorTower",
+	'title', T{9283, --[[PopupNotificationPreset Tutorial2_Popup7_SensorTower title]] "New Expand"},
+	'voiced_text', T{9284, --[[voice:narrator]] "We need to construct a new Sensor Tower to scan the nearby environment."},
+	'text', T{9285, --[[PopupNotificationPreset Tutorial2_Popup7_SensorTower text]] "Use the resources that the RC Transport delivered to build and power a new Sensor Tower that will help us scan the nearby locations for new resources and Anomalies.\n\n<goal> Construct a Sensor Tower and a Stirling Generator to power it."},
+	'image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_SensorTower.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial2_Popup8_GoToOverview",
+	'title', T{5422, --[[PopupNotificationPreset Tutorial2_Popup8_GoToOverview title]] "Exploration"},
+	'voiced_text', T{9286, --[[voice:narrator]] "It is time to learn about scanning sectors and exploration."},
+	'text', T{9287, --[[PopupNotificationPreset Tutorial2_Popup8_GoToOverview text]] "You can scan new sectors to discover more resource deposits and Anomalies. This is done from the Map Overview.\n\n<goal>Go to the Map Overview."},
+	'image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_GoToOverview.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial2_Popup9_Exploration",
+	'title', T{5422, --[[PopupNotificationPreset Tutorial2_Popup9_Exploration title]] "Exploration"},
+	'voiced_text', T{9288, --[[voice:narrator]] "You can scan sectors of the map to discover new resources and Anomalies."},
+	'text', T{9289, --[[PopupNotificationPreset Tutorial2_Popup9_Exploration text]] "There are two main ways to scan - you can queue sectors for scanning. These sectors will be scanned one by one gradually over time. Sensor Towers speed up the scanning process of sectors near them.\n\nThe other alternative is to use Probes which you can buy using funding and bring on resupply Rockets from Earth.\n\n<goal>Use a Probe to explore a sector."},
+	'image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_Exploration.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial2_Popup11_AnalyzeAnomaly",
+	'title', T{3984, --[[PopupNotificationPreset Tutorial2_Popup11_AnalyzeAnomaly title]] "Anomalies"},
+	'voiced_text', T{9292, --[[voice:narrator]] "Well done! Now it's time to use our fully operational RC Explorer to analyze the Anomaly."},
+	'text', T{9293, --[[PopupNotificationPreset Tutorial2_Popup11_AnalyzeAnomaly text]] 'Select the RC Explorer and use the "Move/Interact" action to order it to analyze the Anomaly. This will take a while, so consider increasing the game speed to fastest.\n\n<goal>Use the RC Explorer to analyze the Anomaly.'},
+	'image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_AnalyzeAnomaly.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial2_Popup12_OpenResearch",
+	'title', T{311, --[[PopupNotificationPreset Tutorial2_Popup12_OpenResearch title]] "Research"},
+	'voiced_text', T{9294, --[[voice:narrator]] "The Anomaly has yielded interesting insights into new technologies."},
+	'text', T{9295, --[[PopupNotificationPreset Tutorial2_Popup12_OpenResearch text]] "Researching new technologies unlocks new options for the colony such as new Buildings, Domes and Upgrades.\n\nAnomalies often provide bonuses to research, such as unlocking new technologies for research or providing Research Points.\n\n<goal>Open the Research Screen."},
+	'image', "UI/Messages/research.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial2_Popup13_Research",
+	'title', T{311, --[[PopupNotificationPreset Tutorial2_Popup13_Research title]] "Research"},
+	'voiced_text', T{9296, --[[voice:narrator]] "This is the Research screen. From here you can choose and queue techs for Research."},
+	'text', T{9297, --[[PopupNotificationPreset Tutorial2_Popup13_Research text]] "Techs are divided into five basic fields and a field for special breakthrough Techs. When you research a Tech from a given basic field you will unlock a new tech in that field. Breakthrough techs are special unique techs that are unlocked via Anomalies.\n\n<goal>Queue at least one technology for research."},
+	'image', "UI/Messages/hints.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial2_Popup13_1_Research2",
+	'title', T{9755, --[[PopupNotificationPreset Tutorial2_Popup13_1_Research2 title]] "Research Points"},
+	'voiced_text', T{9429, --[[voice:narrator]] "Commander, one other thing."},
+	'text', T{9756, --[[PopupNotificationPreset Tutorial2_Popup13_1_Research2 text]] "Each tech has a cost in Research Points which are generated in various ways. Your sponsor provides some Research Points to start with. Once colonists arrive you will be able to construct Research Labs which generate Research Points faster.\n\nYou can view a breakdown of the Research Points generated per Sol on the right side of the Research screen.\n\n<goal>Close the Research screen to complete this tutorial. "},
+	'image', "UI/Messages/research.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial2_Popup14_Epilogue",
+	'title', T{9265, --[[PopupNotificationPreset Tutorial2_Popup14_Epilogue title]] "Mission Complete!"},
+	'voiced_text', T{9298, --[[voice:narrator]] "Nice work! Now you know how to handle Rovers."},
+	'text', T{9299, --[[PopupNotificationPreset Tutorial2_Popup14_Epilogue text]] "In this tutorial you learned how to command and use the different Rover vehicles at your disposal as well as how to scan sectors and how to research new technologies."},
+	'image', "UI/Messages/space.tga",
+	'choice1', T{9300, --[[PopupNotificationPreset Tutorial2_Popup14_Epilogue choice1]] 'Play Next Tutorial - "Power, Water & Maintenance"'},
+	'choice2', T{1010, --[[PopupNotificationPreset Tutorial2_Popup14_Epilogue choice2]] "Main Menu"},
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial3_Popup1_Intro",
+	'title', T{9301, --[[PopupNotificationPreset Tutorial3_Popup1_Intro title]] "The Aftermath"},
+	'voiced_text', T{9302, --[[voice:narrator]] "Welcome Commander! It looks like this forward base has gone through a major dust storm. "},
+	'text', T{9303, --[[PopupNotificationPreset Tutorial3_Popup1_Intro text]] "Now it is you job to fix it up and prepare it for the first Colonists.\n\nIn this tutorial you will learn how to handle Power, Live Support grids and Building maintenance as well as how to construct your first Dome."},
+	'image', "UI/Messages/outsource.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial3_Popup2_SalvageBuilding",
+	'title', T{9304, --[[PopupNotificationPreset Tutorial3_Popup2_SalvageBuilding title]] "Salvaging Buildings"},
+	'voiced_text', T{9305, --[[voice:narrator]] "First things first! Let's remove some unnecessary structures."},
+	'text', T{9306, --[[PopupNotificationPreset Tutorial3_Popup2_SalvageBuilding text]] "This Concrete Extractor has depleted its deposit and will be of no use now. We can salvage some construction materials from it.\n\n<goal>Salvage the Concrete Extractor."},
+	'image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_SalvageBuilding.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial3_Popup3_PowerDroneHub",
+	'title', T{9307, --[[PopupNotificationPreset Tutorial3_Popup3_PowerDroneHub title]] "Powering The Drone Hub"},
+	'voiced_text', T{9308, --[[voice:narrator]] "Now let's get that Drone Hub operational."},
+	'text', T{9309, --[[PopupNotificationPreset Tutorial3_Popup3_PowerDroneHub text]] "We need to supply the Drone Hub with Power. The resources from the salvaged Concrete Extractor should be enough to construct a Solar Panel. It would be best to use the existing Power Cables to connect the two buildings and avoid wasting more Metals on Cables.\n\n<goal>Power the Drone Hub with the help of a Solar Panel."},
+	'image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_PowerDroneHub.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial3_Popup4_Priority",
+	'title', T{9310, --[[PopupNotificationPreset Tutorial3_Popup4_Priority title]] "Building Priority"},
+	'voiced_text', T{9311, --[[voice:narrator]] "We have some Power but it's not enough. We should prioritize the Drone Hub."},
+	'text', T{9312, --[[PopupNotificationPreset Tutorial3_Popup4_Priority text]] "You can change the Priority of buildings manually. Buildings on higher Priority get Power, Maintenance and workers first. \n\n<goal>Set the Drone Hub to High Priority."},
+	'image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_Priority.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial3_Popup5_WindTurbine",
+	'title', T{5316, --[[PopupNotificationPreset Tutorial3_Popup5_WindTurbine title]] "Wind Turbines"},
+	'voiced_text', T{9313, --[[voice:narrator]] "We can use the Machine Parts left from the Concrete Extractor to build a Wind Turbine"},
+	'text', T{9314, --[[PopupNotificationPreset Tutorial3_Popup5_WindTurbine text]] "Wind Turbines are a good alternative to Solar Panels as they operate day and night. They also get bonus Power production if built on high ground. However Wind Turbines have high upkeep cost and require maintenance more often than Solar Panels.\n\n<goal>Construct a Wind Turbine and connect it to the existing Power network."},
+	'image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_WindTurbine.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial3_Popup6_NightShifts",
+	'title', T{9137, --[[PopupNotificationPreset Tutorial3_Popup6_NightShifts title]] "Shifts & Power Management"},
+	'voiced_text', T{9315, --[[voice:narrator]] "Even with the Wind Turbine there won't be enough electricity to power the base, especially during the night."},
+	'text', T{9316, --[[PopupNotificationPreset Tutorial3_Popup6_NightShifts text]] "Solar Panels provide power only during the day and we don't have Accumulators to compensate at night. You can set some of the base buildings to automatically turn off at night using the building's shifts. \n\nThere are three shifts - First Shift, Second Shift and Night Shift. Buildings will require Power, Resources and workers only during their active shifts.\n\n<goal>Disable the Night Shifts of the Moisture Vaporator and Fuel Refinery."},
+	'image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_NightShifts.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial3_Popup7_Maintenance",
+	'title', T{619281504128, --[[PopupNotificationPreset Tutorial3_Popup7_Maintenance title]] "Maintenance"},
+	'voiced_text', T{9317, --[[voice:narrator]] "You managed to get things operational, but this won't last as buildings require maintenance and we are out of Resources."},
+	'text', T{9318, --[[PopupNotificationPreset Tutorial3_Popup7_Maintenance text]] "Buildings require maintenance with Resources roughly every 6 or 7 Sols. Buildings that don't get maintenance break and won't function until repaired.\n\nTo showcase this we have simulated a breakdown of your Solar Panel. Drones will automatically repair this breakdown provided that there are Metals in range of their controller.\n\n<goal>Examine the broken down Solar Panel."},
+	'image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_Maintenance.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial3_Popup8_MoreMetals",
+	'title', T{9096, --[[PopupNotificationPreset Tutorial3_Popup8_MoreMetals title]] "RC Transport - Gathering Metals"},
+	'voiced_text', T{9319, --[[voice:narrator]] "We need more Metals to secure this base. Use the RC Transport to collect some Metals and transport them back."},
+	'text', T{9320, --[[PopupNotificationPreset Tutorial3_Popup8_MoreMetals text]] "The RC Transport can mine surface Metal deposits. Use it to gather 20-30 Metals and bring them back to the base. \n\nYou can then use these Metals to setup additional Solar Panels and power up everything.\n\n<goal>Deliver at least 20 Metals to the base with the help of the RC Transport."},
+	'image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_MoreMetals.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial3_Popup9_AdvancedResources",
+	'title', T{9321, --[[PopupNotificationPreset Tutorial3_Popup9_AdvancedResources title]] "Advanced Resources and Resupply"},
+	'voiced_text', T{9322, --[[voice:narrator]] "Good job! However we need more than just Metals. Fortunately we can call a resupply Rocket from Earth."},
+	'text', T{9323, --[[PopupNotificationPreset Tutorial3_Popup9_AdvancedResources text]] "Using Rockets to resupply from Earth is the best way to secure Resources early on. You'll need funding to buy the Resources but your sponsor usually will provide you with enough to get a basic colony up and running.\n\n<goal>Open the Resupply screen and order Advanced resources from Earth."},
+	'image', "UI/Messages/universal_depot.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial3_Popup10_ClearingBuildings",
+	'title', T{9147, --[[PopupNotificationPreset Tutorial3_Popup10_ClearingBuildings title]] "Clearing Buildings"},
+	'voiced_text', T{9324, --[[voice:narrator]] "Let's do some cleaning up around the base while we wait for the Rocket to arrive."},
+	'text', T{9325, --[[PopupNotificationPreset Tutorial3_Popup10_ClearingBuildings text]] "The remains of destroyed or salvaged Buildings will obstruct other constructions. To clear such ruins you'll need to research the \"Decommission Protocol\" technology in the Engineering field. For the purposes of this simulation we have provided you with the tech.\n\n<goal>Clear the ruins of the Concrete Extractor."},
+	'image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_ClearingBuildings.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial3_Popup11_DeletingCables",
+	'title', T{9326, --[[PopupNotificationPreset Tutorial3_Popup11_DeletingCables title]] "Deleting Cables & Pipes"},
+	'voiced_text', T{9327, --[[voice:narrator]] "Now let's remove some of the unnecessary Cables."},
+	'text', T{9328, --[[PopupNotificationPreset Tutorial3_Popup11_DeletingCables text]] "You can use the Salvage tools in the Build Menu to remove Cables and Pipes, as well as an alternative way to salvage Buildings.\n\n<goal>Remove the Cables that were connected to the Concrete Extractor."},
+	'image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_DeletingCables.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial3_Popup12_Battery",
+	'title', T{5206, --[[PopupNotificationPreset Tutorial3_Popup12_Battery title]] "Power Accumulators"},
+	'voiced_text', T{9329, --[[voice:narrator]] "The supplies from Earth have arrived and we can use them to expand the base."},
+	'text', T{9330, --[[PopupNotificationPreset Tutorial3_Popup12_Battery text]] "Let's start with a Power Accumulator - it allows you to store power for nighttime or emergencies. Keep in mind that accumulators have a capped maximum output so a single one may not be enough to power all Buildings at night.\n\n<goal>Construct a Power Accumulator and connect it to the Power grid.\n\n<hint>You may want to construct some additional Solar Panels and Wind Turbines in advance to sustain the base expansion."},
+	'image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_Battery.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial3_Popup13_WaterExtractor",
+	'title', T{9331, --[[PopupNotificationPreset Tutorial3_Popup13_WaterExtractor title]] "Extracting Water"},
+	'voiced_text', T{9332, --[[voice:narrator]] "Water is essential for a sustainable Martian colony. Fortunately there is a Water deposit nearby."},
+	'text', T{9333, --[[PopupNotificationPreset Tutorial3_Popup13_WaterExtractor text]] "Let us build a Water Extractor near the deposit. All Extractors must be placed near a deposit of the corresponding type. Remember to then connect it with Power. You may also have to build more Power producers to generate the required Power.\n\n<goal>Construct and power a Water Extractor."},
+	'image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_WaterExtractor.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial3_Popup14_WaterTower",
+	'title', T{956519352717, --[[PopupNotificationPreset Tutorial3_Popup14_WaterTower title]] "Water Storage"},
+	'voiced_text', T{9334, --[[voice:narrator]] "The Water Extractor is ready but we don't have a storage for the Water it will extract."},
+	'text', T{9335, --[[PopupNotificationPreset Tutorial3_Popup14_WaterTower text]] "We will need Water for Domes, Farming and Polymer production but for now we don't have any of that so we can store some water in a Water Tower. Storages are important safety measures for your colony as they will provide Water, Oxygen or Power in the case of a producer breaking down or ceasing operation during a disaster.\n\n<goal>Construct a Water Tower and connect it to the Water Extractor with Pipes."},
+	'image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_WaterTower.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial3_Popup15_Dome",
+	'title', T{83, --[[PopupNotificationPreset Tutorial3_Popup15_Dome title]] "Domes"},
+	'voiced_text', T{9336, --[[voice:narrator]] "The time has finally come to build the first Dome that will house our Colonists."},
+	'text', T{9337, --[[PopupNotificationPreset Tutorial3_Popup15_Dome text]] "Domes are large superstructures that house Colonists. You can construct many buildings inside Domes. Some of them will require Colonists as workforce. Domes have limited space but can be connected via Passages to form larger systems.\n\nRemember to use the RC Transport to mine Metals and to call resupply Rockets if you need Advanced resources to finish the Dome.\n\n<goal>Construct a Basic Dome. This will take a long time so you might wish to speed things up with the speed controls."},
+	'image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_Dome.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial3_Popup16_DomeSupply",
+	'title', T{9338, --[[PopupNotificationPreset Tutorial3_Popup16_DomeSupply title]] "Domes - Water, Power and Oxygen"},
+	'voiced_text', T{9339, --[[voice:narrator]] "The Dome is complete but we have to supply it with Water, Power and Oxygen before we can use it."},
+	'text', T{9340, --[[PopupNotificationPreset Tutorial3_Popup16_DomeSupply text]] "Domes require life-support. Namely Water, Power and Oxygen. Connect the Dome to the existing Power and Water infrastructure. You may need to build additional Power producers.\n\nFor Oxygen you will need to construct a MOXIE - a device that extracts Oxygen from the carbon dioxide in the Martian atmosphere. Once the MOXIE is ready and powered up connect it to the Dome with Pipes. It may be wise to build an Oxygen Storage as well.\n\n<goal>Provide Water, Power and Oxygen to the Dome."},
+	'image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_DomeSupply.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial3_Popup17_Epilogue",
+	'title', T{9265, --[[PopupNotificationPreset Tutorial3_Popup17_Epilogue title]] "Mission Complete!"},
+	'voiced_text', T{9341, --[[voice:narrator]] "Well done! You have completed the simulation successfully."},
+	'text', T{9342, --[[PopupNotificationPreset Tutorial3_Popup17_Epilogue text]] "You have learned how to handle Power, Water and Oxygen, as well as how building maintenance works. You are ready to setup a basic colony, ready to accept the first human pioneers on Mars.\n\nThe next tutorial deals with Colonists and their needs. You can continue to it now or simply start a new game and return later when you are ready to learn more."},
+	'image', "UI/Messages/space.tga",
+	'choice1', T{9343, --[[PopupNotificationPreset Tutorial3_Popup17_Epilogue choice1]] 'Play Next Tutorial - "Colonists"'},
+	'choice2', T{1010, --[[PopupNotificationPreset Tutorial3_Popup17_Epilogue choice2]] "Main Menu"},
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial4_Popup1_Intro",
+	'title', T{9344, --[[PopupNotificationPreset Tutorial4_Popup1_Intro title]] "The Founders"},
+	'voiced_text', T{9345, --[[voice:narrator]] "Welcome back, Commander! In this tutorial you will finally familiarize yourself with the challenges of sustaining a society on Mars."},
+	'text', T{9346, --[[PopupNotificationPreset Tutorial4_Popup1_Intro text]] "Everything done beforehand was a prelude to this very moment – the arrival of The Founders. \n\nOur first Colonists are called the Founders. After they set foot on Mars a trial period meant to test how humans fare on Mars will begin. No more Colonists will arrive from Earth until the Founder stage ends. Be careful, if all of your Colonists die during this period the mission will be terminated. \n\nBest of luck, Commander!"},
+	'image', "UI/Messages/outsource.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial4_Popup2_Housing",
+	'title', T{9347, --[[PopupNotificationPreset Tutorial4_Popup2_Housing title]] "Housing"},
+	'voiced_text', T{9348, --[[voice:narrator]] "The foundations for bringing your first Colonists have already been laid down. One of the final things left to do is to provide the Founders with living space."},
+	'text', T{9349, --[[PopupNotificationPreset Tutorial4_Popup2_Housing text]] "Living Quarters are built inside the Dome. The space within the Dome is limited, so each building has to be carefully planned.\n\n<goal>Construct Living Quarters at the indicated location."},
+	'image', "UI/Messages/Tutorials/Tutorial4/Tutorial4_Housing.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial4_Popup3_Founders",
+	'title', T{1116, --[[PopupNotificationPreset Tutorial4_Popup3_Founders title]] "Passenger Rocket"},
+	'voiced_text', T{9350, --[[voice:narrator]] "With all preparations complete, the Colony is ready for the arrival of the Founders."},
+	'text', T{9351, --[[PopupNotificationPreset Tutorial4_Popup3_Founders text]] "<goal>Order a Passenger Rocket from the Resupply screen."},
+	'image', "UI/Messages/Tutorials/Tutorial4/Tutorial4_Founders.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial4_PopUp4_FilterUI",
+	'title', T{9352, --[[PopupNotificationPreset Tutorial4_PopUp4_FilterUI title]] "Applicants Filter"},
+	'voiced_text', T{9353, --[[voice:narrator]] "From this screen you can inspect all available applicants and determine which ones will travel to the Colony."},
+	'text', T{9354, --[[PopupNotificationPreset Tutorial4_PopUp4_FilterUI text]] "Colonists are organized by their age, specialization and various traits. You can set desired and undesired traits in every category using the Thumbs Up and Thumbs Down icons.\n\nColonists with MORE of the desired traits will board the Rocket while colonists with ANY undesired traits will be rejected."},
+	'image', "UI/Messages/research.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial4_PopUp5_ReviewUI",
+	'title', T{4071, --[[PopupNotificationPreset Tutorial4_PopUp5_ReviewUI title]] "Review Applicants"},
+	'voiced_text', T{9355, --[[voice:narrator]] "You may want to review and hand pick individual candidates for the Founders."},
+	'text', T{9356, --[[PopupNotificationPreset Tutorial4_PopUp5_ReviewUI text]] "The Review option allows you to view individual applicants one by one and review their Perks and Flaws. It may be a good idea to do this for the Founders in order to get an exact number of specialists you desire as well as hand pick the traits of these Colonists. The Review page will show you all Colonists that fit the criteria of the filter set in the previous page."},
+	'image', "UI/Messages/colonists.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial4_PopUp6_Food",
+	'title', T{1022, --[[PopupNotificationPreset Tutorial4_PopUp6_Food title]] "Food"},
+	'voiced_text', T{9357, --[[voice:narrator]] "Colonists will arrive on Mars with a small amount of Food, but it will not last long. We need to make sure that they will be able to produce their own Food on the red planet. The Hydroponic Farm can produce Food. Although the Colonists can take Food directly from a Food Depot, they will be happier if they can pick it up from a Grocer."},
+	'text', T{9358, --[[PopupNotificationPreset Tutorial4_PopUp6_Food text]] "<goal>Construct a Hydroponic Farm and a Grocer inside your Dome."},
+	'image', "UI/Messages/Tutorials/Tutorial4/Tutorial4_Food.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial4_PopUp7_Services",
+	'title', T{5439, --[[PopupNotificationPreset Tutorial4_PopUp7_Services title]] "Service Buildings"},
+	'voiced_text', T{9359, --[[voice:narrator]] "Colonists need service buildings to keep them comfortable on Mars. The Grocer that you already constructed is one such service building."},
+	'text', T{9360, --[[PopupNotificationPreset Tutorial4_PopUp7_Services text]] "Different services satisfy different interests colonists may have. A colonist will feel more comfortable inside a Dome which has his interests covered but you don't need to cover every interest and in smaller Dome this might not be even possible.\n\nIf the comfort of colonists falls too low they may become Earthsick and decide to leave Mars and go back to Earth. However, Martianborn colonists will never get Earthsick.\n\n<goal>Construct a Spacebar inside the Dome."},
+	'image', "UI/Messages/Tutorials/Tutorial4/Tutorial4_Services.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial4_PopUp8_ManagingJobs",
+	'title', T{9177, --[[PopupNotificationPreset Tutorial4_PopUp8_ManagingJobs title]] "Managing Jobs"},
+	'voiced_text', T{9361, --[[voice:narrator]] "Great! Now that you have a Spacebar you can customize its work settings."},
+	'text', T{9362, --[[PopupNotificationPreset Tutorial4_PopUp8_ManagingJobs text]] "The Founders that just arrived have taken available jobs automatically, but you can customize their work assignments.\n\nWith the building selected, notice the three available work shifts on the info panel. Two of them are active, with two workers employed at each shift.\n\nThe more workers assigned to a building, the better the building performes. Initially, however, we won’t be needing so many people working at the Space Bar as there will be other important jobs to fill and limited people to fill them – especially during the Founder Stage.\n\n<goal>Disable one job slot in every active shift."},
+	'image', "UI/Messages/Tutorials/Tutorial4/Tutorial4_ManagingJobs.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial4_PopUp9_Research",
+	'title', T{9363, --[[PopupNotificationPreset Tutorial4_PopUp9_Research title]] "Colonist Specializations  "},
+	'voiced_text', T{9364, --[[voice:narrator]] "Healthy colonists at working age are able to fill any position but how well they perform at a certain position varies between colonists.  "},
+	'text', T{9365, --[[PopupNotificationPreset Tutorial4_PopUp9_Research text]] "Some buildings are more effective with workers with a certain specialization. For example, Scientists are the best workers for a Research Lab.\n\n<goal>Construct a Research Lab inside the Dome."},
+	'image', "UI/Messages/Tutorials/Tutorial4/Tutorial4_Research.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial4_PopUp10_Shifts",
+	'title', T{217, --[[PopupNotificationPreset Tutorial4_PopUp10_Shifts title]] "Work Shifts"},
+	'voiced_text', T{9366, --[[voice:narrator]] "Work Shifts, among other things, are a way to manage your work force. The more shifts a building has open the more colonists it will attract to work there.  "},
+	'text', T{9367, --[[PopupNotificationPreset Tutorial4_PopUp10_Shifts text]] "Colonists don't like to work at night and will lose Sanity while doing so. Furthermore, you may activate the Heavy Workload option which boosts the performance of a building during that shift but inflicts Sanity and Health problems on the workers due to the increased stress at their job.\n\n<goal> With the Research Lab selected, activate the second Work Shift."},
+	'image', "UI/Messages/emergency.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial4_PopUp11_HightPriority",
+	'title', T{9310, --[[PopupNotificationPreset Tutorial4_PopUp11_HightPriority title]] "Building Priority"},
+	'voiced_text', T{9368, --[[voice:narrator]] "Buildings with higher priority will be allocated workers, Power and Maintenance before others.  "},
+	'text', T{9369, --[[PopupNotificationPreset Tutorial4_PopUp11_HightPriority text]] "On-site research is very important for the long-term prosperity and survival of your colony, so let us prioritize it!\n\n<goal>Set the priority of the Research Lab to High."},
+	'image', "UI/Messages/research_lab.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial4_PopUp12_Research_2",
+	'title', T{311, --[[PopupNotificationPreset Tutorial4_PopUp12_Research_2 title]] "Research"},
+	'voiced_text', T{9370, --[[voice:narrator]] "With the Research Lab up and running let's begin researching some technologies."},
+	'text', T{9371, --[[PopupNotificationPreset Tutorial4_PopUp12_Research_2 text]] "<goal>From the Research screen, queue at least three of the available technologies. "},
+	'image', "UI/Messages/hints.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial4_PopUp13_FounderStage",
+	'title', T{9372, --[[PopupNotificationPreset Tutorial4_PopUp13_FounderStage title]] "The Founder Stage"},
+	'voiced_text', T{9373, --[[voice:narrator]] "Congratulations! You have provided everything needed for a successful Founder Stage."},
+	'text', T{9374, --[[PopupNotificationPreset Tutorial4_PopUp13_FounderStage text]] "The Founder Stage takes ten Sols to complete. Be careful, if all of your colonists die during this period the mission will be terminated. \n\nHaving a baby born on Mars before the end of this period will also complete the Founder Stage. This can happen if the comfort of your Colonists is very high."},
+	'image', "UI/Messages/Tutorials/Tutorial4/Tutorial4_Founders.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial4_PopUp13_FounderStage_2",
+	'title', T{9375, --[[PopupNotificationPreset Tutorial4_PopUp13_FounderStage_2 title]] "The First Baby"},
+	'voiced_text', T{9376, --[[voice:narrator]] "Congratulations! A baby has been born on Mars and the Founder stage is completed!"},
+	'text', T{9377, --[[PopupNotificationPreset Tutorial4_PopUp13_FounderStage_2 text]] "Normally the Founder Stage takes ten Sols to complete, but you have performed beyond expectations as the first born Martian baby proves. The founder stage is now over and you are free to invite more colonists to Mars. "},
+	'image', "UI/Messages/Tutorials/Tutorial4/Tutorial4_Founders.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial4_PopUp14_Epilogue",
+	'title', T{9265, --[[PopupNotificationPreset Tutorial4_PopUp14_Epilogue title]] "Mission Complete!"},
+	'voiced_text', T{9378, --[[voice:narrator]] "You have completed the tutorial for the Founder Stage."},
+	'text', T{9379, --[[PopupNotificationPreset Tutorial4_PopUp14_Epilogue text]] "The Founder Stage takes ten Sols to complete normally, but for the purposes of this tutorial it has already been completed\n\nIn the next and final tutorial you will learn how to manage a larger colony, consisting of multiple Domes."},
+	'image', "UI/Messages/space.tga",
+	'choice1', T{9380, --[[PopupNotificationPreset Tutorial4_PopUp14_Epilogue choice1]] 'Play Next Tutorial - "Multiple Domes"'},
+	'choice2', T{1010, --[[PopupNotificationPreset Tutorial4_PopUp14_Epilogue choice2]] "Main Menu"},
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial5_Popup1_Intro",
+	'title', T{9381, --[[PopupNotificationPreset Tutorial5_Popup1_Intro title]] "Multiple Domes Tutorial"},
+	'voiced_text', T{9382, --[[voice:narrator]] "Welcome back Commander! In this tutorial you will manage a larger colony that consists of multiple Domes."},
+	'text', T{9383, --[[PopupNotificationPreset Tutorial5_Popup1_Intro text]] "As you expand your base and try to obtain various resources scattered across the map you will inevitably end up with a colony that consists of several Domes. This tutorial will introduce you to a lot of the typical situations that you can expect to come up in a big colony."},
+	'image', "UI/Messages/outsource.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial5_Popup2_Shuttles",
+	'title', T{745, --[[PopupNotificationPreset Tutorial5_Popup2_Shuttles title]] "Shuttles"},
+	'voiced_text', T{9384, --[[voice:narrator]] "Shuttles can transport resources and colonists across great distances. "},
+	'text', T{9385, --[[PopupNotificationPreset Tutorial5_Popup2_Shuttles text]] "The complex technology needed for Shuttles flying in the thin Martian atmosphere typically must be researched. For the purposes of this tutorial, however, it has been already granted to you.\n\n<goal>Construct a Shuttle Hub."},
+	'image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup2_Shuttles.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial5_Popup3_Mining",
+	'title', T{9386, --[[PopupNotificationPreset Tutorial5_Popup3_Mining title]] "Workplaces Outside the Domes"},
+	'voiced_text', T{9387, --[[voice:narrator]] "Now that we have operational Shuttles it's time to establish a mining Dome."},
+	'text', T{9388, --[[PopupNotificationPreset Tutorial5_Popup3_Mining text]] "Colonists can work in some outside buildings placed close to their Domes - such as extractors for Metals and Rare Metals. Since colonists will be needed for the extraction of these underground deposits, it is a good practice to place Domes near such deposits, as is the case in this simulation.\n\n<goal>Construct a Rare Metals Extractor next to the Rare Metals Deposit and connect it to the power grid using a Power Cable."},
+	'image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup3_Mining.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial5_Popup4_Housing",
+	'title', T{9347, --[[PopupNotificationPreset Tutorial5_Popup4_Housing title]] "Housing"},
+	'voiced_text', T{9389, --[[voice:narrator]] "There are no Colonists in the mining Dome. We must provide living space for the Colonists so they can move there."},
+	'text', T{9390, --[[PopupNotificationPreset Tutorial5_Popup4_Housing text]] "Once you have provided a Dome with living space, colonists from other Domes will be able to resettle in it, provided it is within walkable distance or there are available Shuttles to fly them there.\n\n<goal>Construct Living Quarters inside the mining Dome."},
+	'image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup4_Housing.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial5_Popup5_FilterUI",
+	'title', T{9391, --[[PopupNotificationPreset Tutorial5_Popup5_FilterUI title]] "Filter Colonists"},
+	'voiced_text', T{9392, --[[voice:narrator]] "You can setup filters for every Dome to attract colonists with desired traits and block or push out colonists with undesired ones."},
+	'text', T{9393, --[[PopupNotificationPreset Tutorial5_Popup5_FilterUI text]] "<goal>Select a Dome and open the Filter Screen from its Info Panel."},
+	'image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup5_FilterUI.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial5_Popup6_FilterUI_2_Research",
+	'title', T{9394, --[[PopupNotificationPreset Tutorial5_Popup6_FilterUI_2_Research title]] "Research Dome"},
+	'voiced_text', T{9395, --[[voice:narrator]] "This Dome has been designated for research purposes so it's best to attract more colonists with the Scientist specialization."},
+	'text', T{9396, --[[PopupNotificationPreset Tutorial5_Popup6_FilterUI_2_Research text]] "And because we want to make sure that the mining Dome gets all the available Geologists (which are best suited for work inside extractor buildings) we will also ban Geologists from inhabiting this Dome.\n\n<goal> From the Specialization Category, activate the Thumbs Up icon for Scientists and the Thumbs Down one for Geologists."},
+	'image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup6_FilterUI_2_Research.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial5_Popup7_FilterUI_3_Mining",
+	'title', T{9397, --[[PopupNotificationPreset Tutorial5_Popup7_FilterUI_3_Mining title]] "Mining Dome"},
+	'voiced_text', T{9398, --[[voice:narrator]] "Being near a Rare Metals Deposit, this Dome is best suited as a mining hub so it's best to encourage Geologists to migrate here."},
+	'text', T{9399, --[[PopupNotificationPreset Tutorial5_Popup7_FilterUI_3_Mining text]] "And because we want to make sure that the research Dome gets all the available Scientists we will also ban Scientists from inhabiting this Dome.\n\n<goal> From the Specialization Category, activate the Thumbs Up icon for Geologists and the Thumbs Down one for Scientists."},
+	'image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup6_FilterUI_2_Research.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial5_Popup8_NewDome",
+	'title', T{9400, --[[PopupNotificationPreset Tutorial5_Popup8_NewDome title]] "Third Dome"},
+	'voiced_text', T{9401, --[[voice:narrator]] "Colonists can migrate between Domes using shuttles or walking when they are positioned close to one another. However, they cannot usually visit buildings in nearby Domes on a daily basis, unless they are connected to their own Dome."},
+	'text', T{9402, --[[PopupNotificationPreset Tutorial5_Popup8_NewDome text]] "To demonstrate Dome connections, let's first build a new Dome near our research Dome.\n\n<goal>Construct a Dome at the indicated location."},
+	'image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup8_NewDome.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial5_Popup9_Passages",
+	'title', T{8776, --[[PopupNotificationPreset Tutorial5_Popup9_Passages title]] "Passages"},
+	'voiced_text', T{9403, --[[voice:narrator]] "Domes positioned closely to each other may be connected with Passages."},
+	'text', T{9404, --[[PopupNotificationPreset Tutorial5_Popup9_Passages text]] "Passages allow colonists to travel safely to Domes directly connected to their own, seeking work or services there.\n\n<goal>Connect the Research Dome and the newly constructed dome with a Passage"},
+	'image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup9_Passages.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial5_Popup10_Passages_2",
+	'title', T{8776, --[[PopupNotificationPreset Tutorial5_Popup10_Passages_2 title]] "Passages"},
+	'voiced_text', T{9405, --[[voice:narrator]] "Good job!"},
+	'text', T{9406, --[[PopupNotificationPreset Tutorial5_Popup10_Passages_2 text]] "Now that the two Domes are connected, colonists from the first can start working on the newly built farms in the third Dome. The Passage will also connect the two Domes for the purposes of distributing Power, Water and Oxygen."},
+	'image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup9_Passages.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial5_Popup11_Upgrades",
+	'title', T{9407, --[[PopupNotificationPreset Tutorial5_Popup11_Upgrades title]] "Upgrades"},
+	'voiced_text', T{9408, --[[voice:narrator]] "Some buildings can have upgrades that can improve them in various ways."},
+	'text', T{9409, --[[PopupNotificationPreset Tutorial5_Popup11_Upgrades text]] "All upgrades become available after specific technologies are researched and have construction costs. Furthermore, some upgrades will increase the resource consumption of the building.\n\n<goal>Research the Extractor Amplification tech from the Research screen."},
+	'image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup11_Upgrades.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial5_Popup12_Upgrades_2",
+	'title', T{9410, --[[PopupNotificationPreset Tutorial5_Popup12_Upgrades_2 title]] "Upgrades "},
+	'voiced_text', T{9411, --[[voice:narrator]] "Congratulations - with the research complete, a new upgrade for your Extractors is now available. It is not automatically activated in your buildings, you must construct it first."},
+	'text', T{9412, --[[PopupNotificationPreset Tutorial5_Popup12_Upgrades_2 text]] "<goal>Select the Water Extractor and then select the indicated Upgrade Icon."},
+	'image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup12_Upgrades_2.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial5_Popup13_Upgrades_3",
+	'title', T{9413, --[[PopupNotificationPreset Tutorial5_Popup13_Upgrades_3 title]] "Upgrade Complete"},
+	'voiced_text', T{9414, --[[voice:narrator]] "The Upgrade has been constructed."},
+	'text', T{9415, --[[PopupNotificationPreset Tutorial5_Popup13_Upgrades_3 text]] "Some Upgrades will consume more Power or Water while active. After an Upgrade has been constructed it may be turned On and Off from the same button that was used for its construction."},
+	'image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup12_Upgrades_2.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial5_Popup14_CommandCenterUI",
+	'title', T{137542936955, --[[PopupNotificationPreset Tutorial5_Popup14_CommandCenterUI title]] "Command Center"},
+	'voiced_text', T{9416, --[[voice:narrator]] "The Command Center is a treasure trove of information about the colony."},
+	'text', T{9417, --[[PopupNotificationPreset Tutorial5_Popup14_CommandCenterUI text]] "It offers historical data for various colony metrics as well as overviews of Domes, Buildings, Colonists and transportation.\n\n<goal>Open the Command Center and try it out. "},
+	'image', "UI/Messages/research.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial5_Popup15_Epilogue",
+	'title', T{9418, --[[PopupNotificationPreset Tutorial5_Popup15_Epilogue title]] "Mission Complete"},
+	'voiced_text', T{9419, --[[voice:narrator]] "Congratulations, Commander! You have graduated from the International Mars Mission training simulation! "},
+	'text', T{9420, --[[PopupNotificationPreset Tutorial5_Popup15_Epilogue text]] "The team at Mission Control is eager to meet you and serve under your command. The challenge of conquering Mars for the sake of humankind is still a tough one, but with a Commander as skillful and resourceful as you the task seems a bit easier now.\n\nThe colonization of Mars awaits! Good luck, Commander, and may the Cosmos be with you!"},
+	'image', "UI/Messages/space.tga",
+	'choice1', T{1010, --[[PopupNotificationPreset Tutorial5_Popup15_Epilogue choice1]] "Main Menu"},
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial_FirstTimePlayers",
+	'title', T{9421, --[[PopupNotificationPreset Tutorial_FirstTimePlayers title]] "Tutorials Available"},
+	'text', T{9422, --[[PopupNotificationPreset Tutorial_FirstTimePlayers text]] "Several tutorials are available to familiarize you with Surviving Mars. If you are a new player, consider completing the tutorials before your first game."},
+	'choice1', T{9423, --[[PopupNotificationPreset Tutorial_FirstTimePlayers choice1]] "Play Tutorials"},
+	'choice2', T{9424, --[[PopupNotificationPreset Tutorial_FirstTimePlayers choice2]] "Skip Tutorials"},
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Tutorial_ActiveMods",
+	'title', T{9425, --[[PopupNotificationPreset Tutorial_ActiveMods title]] "Active Mods"},
+	'text', T{9426, --[[PopupNotificationPreset Tutorial_ActiveMods text]] "You have active mods that may affect the tutorial in unexpected ways and result in an unplayable tutorial. We recommend disabling all mods before continuing."},
+	'choice1', T{9427, --[[PopupNotificationPreset Tutorial_ActiveMods choice1]] "Disable All Mods"},
+	'choice2', T{9428, --[[PopupNotificationPreset Tutorial_ActiveMods choice2]] "Skip"},
+})
 
 PlaceObj('PopupNotificationPreset', {
 	'name', "AutosaveFailedNoSpace",
@@ -747,5 +1395,50 @@ PlaceObj('PopupNotificationPreset', {
 	'choice3_img', "UI/Icons/message_ok.tga",
 	'choice4', T{7831, --[[PopupNotificationPreset LegalAgreement choice4]] "I do not agree to the Terms of Use and the Privacy Policy"},
 	'choice4_img', "UI/Icons/message_cancel.tga",
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Placeholder_1",
+	'voiced_text', T{9429, --[[voice:narrator]] "Commander, one other thing."},
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Placeholder_2",
+	'voiced_text', T{9430, --[[voice:narrator]] "A new situation has arisen."},
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Placeholder_3",
+	'voiced_text', T{9431, --[[voice:narrator]] "Commander, some interesting readings are just in."},
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Placeholder_4",
+	'voiced_text', T{9432, --[[voice:narrator]] "On another note, Commander..."},
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Placeholder_5",
+	'voiced_text', T{9433, --[[voice:narrator]] "Things just took a turn for the weird."},
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Placeholder_6",
+	'voiced_text', T{9434, --[[voice:narrator]] "What just transpired has left us speechless."},
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Placeholder_7",
+	'voiced_text', T{9435, --[[voice:narrator]] "Our Explorer just stumbled upon something fascinating."},
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Placeholder_8",
+	'voiced_text', T{9436, --[[voice:narrator]] "Bad news, Commander!"},
+})
+
+PlaceObj('PopupNotificationPreset', {
+	'name', "Placeholder_9",
+	'voiced_text', T{9437, --[[voice:narrator]] "Commander, good news!"},
 })
 

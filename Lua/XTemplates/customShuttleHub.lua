@@ -10,8 +10,8 @@ PlaceObj('XTemplate', {
 			'comment', "make shuttles",
 			'__template', "InfopanelButton",
 			'RolloverTitle', T{821612835210, --[[XTemplate customShuttleHub RolloverTitle]] "Construct a Shuttle"},
-			'RolloverHint', T{860716957818, --[[XTemplate customShuttleHub RolloverHint]] "<left_click> Construct a new Shuttle<newline><right_click> Cancel a Shuttle construction"},
-			'RolloverHintGamepad', T{655064239120, --[[XTemplate customShuttleHub RolloverHintGamepad]] "<ButtonA> Construct a new Shuttle<newline><ButtonX> Cancel a Shuttle construction"},
+			'RolloverHint', T{9803, --[[XTemplate customShuttleHub RolloverHint]] "<left_click> Construct a new Shuttle<newline><right_click> Cancel a Shuttle construction<newline>Ctrl + <left_click> Construct five new Shuttles"},
+			'RolloverHintGamepad', T{655064239120, --[[XTemplate customShuttleHub RolloverHintGamepad]] "<ButtonA> Construct a new Shuttle<newline><ButtonX> Cancel a Shuttle construction<newline><ButtonY> Construct five new Shuttles"},
 			'OnContextUpdate', function (self, context, ...)
 local can_construct = context.max_shuttles - (#context.shuttle_infos + context.queued_shuttles_for_construction) > 0
 if can_construct then
@@ -21,9 +21,27 @@ else
 end
 end,
 			'OnPressParam', "QueueConstructShuttle",
+			'OnPress', function (self, gamepad)
+self.context:QueueConstructShuttle(1 * (not gamepad and IsMassUIModifierPressed() and 5 or 1))
+end,
 			'AltPress', true,
+			'OnAltPress', function (self, gamepad)
+self.context:QueueConstructShuttle(-1 * (not gamepad and IsMassUIModifierPressed() and 5 or 1))
+end,
 			'Icon', "UI/Icons/IPButtons/shuttle.tga",
-		}),
+		}, {
+			PlaceObj('XTemplateFunc', {
+				'name', "OnShortcut(self, shortcut, source)",
+				'func', function (self, shortcut, source)
+if shortcut == "ButtonY" then
+	self.context:QueueConstructShuttle(5)
+	return "break"
+end
+
+return XTextButton.OnShortcut(self, shortcut, source)
+end,
+			}),
+			}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelSection",
 			'OnContextUpdate', function (self, context, ...)

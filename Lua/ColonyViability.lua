@@ -98,6 +98,7 @@ end
 const.ColonyViableByDelay = 10*const.DayDuration
 
 function AreNewColonistsAccepted()
+	if g_Tutorial and not g_Tutorial.EnablePassengerRockets then return false end
 	return g_ColonyNotViableUntil == -3 or (g_ColonyNotViableUntil == -1 and not IsGameRuleActive("TheLastArk"))
 end
 

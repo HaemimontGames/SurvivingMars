@@ -78,7 +78,7 @@ function Encyclopedia:Init(parent, context)
 	}, self)
 	--margins window
 	local container = XWindow:new({
-		Margins = box(0, 80, 100, 80),
+		Margins = box(0, 30, 100, 50),
 	}, self)
 	container.Open = function(self, ...)
 		XWindow.Open(self, ...)
@@ -332,6 +332,7 @@ function Encyclopedia:RebuildActionbar()
 	if self.mode_param and self.mode_param.category_id then
 		XAction:new({
 			ActionName = T{4254, "BACK"},
+			ActionId = "back",
 			ActionToolbar = "ActionBar",
 			ActionShortcut = "Escape",
 			ActionGamepad = "ButtonB",
@@ -340,6 +341,7 @@ function Encyclopedia:RebuildActionbar()
 		}, self)
 		XAction:new({
 			ActionName = T{4523, "CLOSE"},
+			ActionId = "close",
 			ActionToolbar = "ActionBar",
 			ActionGamepad = "ButtonX",
 			OnActionEffect = close_effect,
@@ -347,6 +349,7 @@ function Encyclopedia:RebuildActionbar()
 	else
 		XAction:new({
 			ActionName = T{4523, "CLOSE"},
+			ActionId = "close",
 			ActionToolbar = "ActionBar",
 			ActionShortcut = "Escape",
 			ActionGamepad = "ButtonB",
@@ -402,15 +405,23 @@ function Encyclopedia:GetListItems()
 		elseif cat_id == "Hints" then
 			param.title_text_upper = T{5402, "HINTS"}
 			local hints = DataInstances.OnScreenHint
+			local tutorial = g_Tutorial and g_Tutorial.Map or "none"
+			local check_if_passed = (tutorial ~= "none")
 			for k, v in ipairs(hints) do
-				local description = (GetUIStyleGamepad() and v.gamepad_text ~= "") and v.gamepad_text or v.text
-				items[#items + 1] = {
-					id = v.name,
-					title_text = v.title,
-					text = description,
-					image = "UI/Encyclopedia/Hints.tga",
-					category_id = cat_id,
-				}
+				if v.tutorial == tutorial then
+					if not check_if_passed or g_ActiveHints[v.name] then
+						local body_text = (GetUIStyleGamepad() and v.gamepad_text ~= "") and v.gamepad_text or v.text
+						body_text = T{body_text, g_Classes[v.name]}
+						local text = (v.voiced_text ~= "") and (v.voiced_text.."\n\n"..body_text) or body_text
+						items[#items + 1] = {
+							id = v.name,
+							title_text = v.title,
+							text = text,
+							image = v.encyclopedia_image ~= "" and v.encyclopedia_image or "UI/Encyclopedia/Hints.tga",
+							category_id = cat_id,
+						}
+					end
+				end
 			end	
 		else
 			local articles = DataInstances.EncyclopediaArticle

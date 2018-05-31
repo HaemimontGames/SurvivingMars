@@ -68,7 +68,7 @@ end
 
 local Sleep = Sleep
 function Unit:MoveSleep(time)
-	Sleep(time)
+	return Sleep(time)
 end
 
 function Unit:StartFX(fx, target, actor)
@@ -99,6 +99,20 @@ function Unit:OnCommandStart()
 	self.goto_target = false
 end
 
+function Unit:OnCommandDestructors()
+	self:StopFX()
+	if IsValid(self) then
+		self:StopMoving()
+		self.goto_target = false
+		self:ClearPath()
+	end
+	local door = self.visit_door_opened
+	if IsValid(door) then
+		door:Close()
+		self.visit_door_opened = false
+	end
+end
+
 function Unit:StartMoving()
 end
 
@@ -112,13 +126,6 @@ local pfFailed = const.pfFailed
 local pfDestLocked = const.pfDestLocked
 local pfTunnel = const.pfTunnel
 local pfTeleportDist = 50*guim
-local function goto_dtor(self)
-	if IsValid(self) then
-		self:StopMoving()
-		self.goto_target = false
-		self:ClearPath()
-	end
-end
 function Unit:Goto(...)
 	local pfStep = self.Step
 	local status = pfStep(self, ...)
@@ -127,7 +134,6 @@ function Unit:Goto(...)
 	end
 	self.goto_target = ...
 	self:StartMoving()
-	self:PushDestructor(goto_dtor)
 	local pfSleep = self.MoveSleep
 	while true do
 		if status > 0 then
@@ -135,7 +141,9 @@ function Unit:Goto(...)
 		elseif status == pfTunnel then
 			local end_point = pf.GetPathPoint(self, pf.GetPathPointCount(self))
 			local tunnel, param = pf.GetTunnel(self:GetPos(), end_point)
-			if not tunnel or not tunnel:TraverseTunnel(self, self:GetPos(), end_point, param) then
+			if not tunnel then
+				self:ClearPath()
+			elseif not tunnel:TraverseTunnel(self, self:GetPos(), end_point, param) then
 				self:ClearPath()
 				status = pfFailed
 				break
@@ -145,7 +153,6 @@ function Unit:Goto(...)
 		end
 		status = pfStep(self, ...)
 	end
-	self:PopDestructor()
 	self:StopMoving()
 	self.goto_target = false
 	return status == pfFinished
@@ -196,7 +203,6 @@ function Unit:FixCurrentDome(dome)
 	if dome then
 		self:OnEnterDome(dome)
 	end
-	Sleep(10000)
 end
 
 function Unit:EnterBuilding(building, entrance_type, spot_name) -- works only if unit/building are both outside or inside the same dome
@@ -336,6 +342,21 @@ function Unit:GotoUnitSpot(unit, spot)
 	Sleep(1000)
 end
 
+function Unit:GotoBuildingsSpot(buildings, spot)
+	local result = self:Goto(buildings, spot)
+	if result then
+		local building = FindNearestObject(buildings, self:GetPos())
+		local idx = spot and building:GetNearestSpot("idle", spot, self)
+		if idx then
+			local angle = building:GetSpotRotation(idx)
+			self:SetAngle(angle, 100)
+		else
+			self:Face(building, 100)
+		end
+	end
+	return result
+end
+
 function Unit:GotoBuildingSpot(building, spot, force_teleport)
 	if not self:ExitHolder(building) or not IsValid(building) then
 		return false
@@ -418,12 +439,6 @@ else
 	end
 end]]
 
-function Unit:UpdateUI()
-	if self == SelectedObj then
-		Msg("UIPropertyChanged", self)
-	end
-end
-
 function Unit:IsInDome()
 	return IsObjInDome(self)
 end
@@ -441,7 +456,7 @@ function Unit:SetHolder(building)
 	if building then
 		building:OnEnterHolder(self)
 	end
-	assert(self.holder or self:IsValidPos())
+	assert(IsBeingDestructed(self) or self.holder or self:IsValidPos())
 end
 
 function Unit:UpdateEntity()

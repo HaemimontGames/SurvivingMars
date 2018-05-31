@@ -128,7 +128,7 @@ function DroneBase:ToggleControlMode_Update(button)
 		(self:IsKindOf("RCTransport") or self:IsKindOf("RCDesireTransport")) and T{4463, "Give command to move or harvest resources."}
 		or self:IsKindOf("RCRover") and T{4483, "Give command to move or repair Drones."}
 		or T{4424, "Give command to move or interact with an object."})
-	button:SetRolloverHint(to_mode and T{7401, "<left_click> Select target mode<newline><UnitMoveControl()> on target to move or interact"}
+	button:SetRolloverHint(to_mode and T{7401, "<left_click> Select target mode<newline><UnitMoveControl()> on target to move or interact", self}
 		or T{7510, "<left_click> on target to select it  <right_click> Cancel"})
 	button:SetRolloverHintGamepad(to_mode and T{7511, "<ButtonA> Select target mode"} or T{7512, "<ButtonA> Cancel"})
 end

@@ -142,6 +142,7 @@ end,
 			'TextFont', "HexChoice",
 			'TextColor', RGBA(254, 237, 122, 255),
 			'RolloverTextColor', RGBA(255, 255, 255, 255),
+			'DisabledTextColor', RGBA(196, 196, 196, 255),
 			'Translate', true,
 		}, {
 			PlaceObj('XTemplateFunc', {

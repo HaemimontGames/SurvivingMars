@@ -34,6 +34,7 @@ end,
 			'__class', "XFrame",
 			'Margins', box(-80, 6, -160, -100),
 			'Dock', "top",
+			'Transparency', 100,
 			'Image', "UI/Common/bm_pad_small.tga",
 			'FrameBox', box(170, 0, 170, 0),
 			'SqueezeY', false,
@@ -70,7 +71,7 @@ end,
 local prev_item = self.focused_item
 local ret = XList.OnShortcut(self, shortcut, source)
 if shortcut == "Down" and prev_item == #self then
-	local dlg = GetDialog(self)
+	local dlg = GetXDialog(self)
 	dlg.idVolume:SetFocus()
 	return "break"
 end
@@ -123,7 +124,7 @@ end,
 				'name', "OnShortcut(self, shortcut, source)",
 				'func', function (self, shortcut, source)
 if shortcut == "DPadUp" or shortcut == "LeftThumbUp" then
-	local obj = GetDialog(self)
+	local obj = GetXDialog(self)
 	obj.idList:SetFocus()
 	obj.idList:SetSelection(#obj.idList)
 elseif shortcut == "DPadLeft" or shortcut == "LeftThumbLeft" then

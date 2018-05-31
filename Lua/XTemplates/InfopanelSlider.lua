@@ -6,10 +6,9 @@ PlaceObj('XTemplate', {
 	id = "InfopanelSlider",
 	PlaceObj('XTemplateWindow', {
 		'__class', "XScrollThumb",
-		'Margins', box(10, 16, 10, 16),
+		'Margins', box(0, 16, 0, 16),
 		'MouseCursor', "UI/Cursors/Rollover.tga",
 		'Horizontal', true,
-		'Icon', "UI/Infopanel/progress_bar_slider.tga",
 	}, {
 		PlaceObj('XTemplateWindow', {
 			'__class', "XFrame",
@@ -17,6 +16,11 @@ PlaceObj('XTemplate', {
 			'Image', "UI/Infopanel/progress_bar.tga",
 			'FrameBox', box(5, 0, 5, 0),
 			'SqueezeY', false,
+		}),
+		PlaceObj('XTemplateWindow', {
+			'__class', "XImage",
+			'Id', "idThumb",
+			'Image', "UI/Infopanel/progress_bar_slider.tga",
 		}),
 		}),
 })

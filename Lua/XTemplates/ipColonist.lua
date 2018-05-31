@@ -71,6 +71,10 @@ end,
 			}),
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
+				'Text', T{9612, --[[XTemplate ipColonist Text]] "Dome<right><h SelectDome InfopanelSelect><DomeDisplayName></h>"},
+			}),
+			PlaceObj('XTemplateTemplate', {
+				'__template', "InfopanelText",
 				'Text', T{4360, --[[XTemplate ipColonist Text]] "Residence<right><h SelectResidence InfopanelSelect><ResidenceDisplayName></h>"},
 			}),
 			PlaceObj('XTemplateTemplate', {
@@ -113,6 +117,9 @@ end,
 				'Text', T{868555682819, --[[XTemplate ipColonist Text]] "<UITraitsList>"},
 			}),
 			}),
+		PlaceObj('XTemplateTemplate', {
+			'__template', "sectionWarning",
+		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "sectionCheats",
 		}),

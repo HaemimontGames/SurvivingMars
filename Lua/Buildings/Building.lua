@@ -132,6 +132,7 @@ DefineClass.Building = {
 		{ template = true, category = "Construction", name = T{176, "Construction Mode"}, id = "construction_mode", editor = "text", default = "construction", help = "The type of construction controller to launch", no_edit = true},
 		{ template = true, category = "Construction", name = T{7891, --[[Post-Cert]] "Refund on Salvage"}, id = "refund_on_salvage", editor = "bool", default = true},
 		
+		{ template = true, category = "General", name = T{9611, "Count as Building"}, id = "count_as_building", editor = "bool", default = true, items = DlcCombo(), help = "Count as building for achievement / control center purposes"},
 		{ template = true, category = "General", name = T{8698, "Requires DLC"}, id = "requires_dlc", editor = "combo", default = "", items = DlcCombo(), help = "Hide this building from build menu if dlc is not available."}
 	},
 	
@@ -164,6 +165,9 @@ DefineClass.Building = {
 		
 	resource_spots = false,
 	name = "",
+	
+	orig_terrain1 = false,
+	orig_terrain2 = false,
 }
 
 function Building:Random(...)
@@ -317,6 +321,7 @@ function Building:Done()
 		end
 	end
 	self.demolish_debris_objs = nil
+	BumpDroneUnreachablesVersion()
 end
 
 function Building:InitInside(dome)
@@ -325,6 +330,7 @@ function Building:InitInside(dome)
 	self.show_dust_visuals = false --from maintenance, whether to show dust visuals.
 	self.accumulate_dust = false
 	self:SetDustVisualsPerc(0)
+	self:ForEachAttach("ResourceStockpile", ResourceStockpileBase.InitInside, dome)
 end
 
 function Building:SetSuspended(suspended, reason, duration)
@@ -340,6 +346,7 @@ function Building:InitOutside()
 	self:SetDome(false)
 	self.show_dust_visuals = nil
 	self.accumulate_dust = nil
+	self:ForEachAttach("ResourceStockpile", ResourceStockpileBase.InitOutside)
 end
 
 function Building:MoveInside(dome)
@@ -615,6 +622,7 @@ function Building:InterruptUnitsInHolder()
 end
 
 function Building:OnDemolish()
+	self:RestoreTerrain()
 	self:Destroy()
 	if self.demolish_return_resources then
 		self:ReturnResources()	
@@ -931,8 +939,6 @@ function Building:ApplyUpgrade(tier, force)
 	end
 	
 	Msg("BuildingUpgraded", self, id)
-	
-	print(id, " - Upgrade applied!")
 end
 
 for i = 1, 3 do
@@ -1107,6 +1113,41 @@ function DestroyBuildingImmediate(bld, return_resources)
 	return true
 end
 
+local function IsSandTerrain(idx)
+	local info = idx and TerrainTextures[idx]
+	return info and info.type == "Sand"
+end
+
+function Building:RestoreTerrain()
+	if HasAnySurfaces(self, EntitySurfaces.Terrain, true) and not terrain.HasRestoreType() then
+		local type_noise, type_thres
+		local type_idx1, type_idx2 = self.orig_terrain1, self.orig_terrain2
+		if not IsSandTerrain(type_idx1) or not IsSandTerrain(type_idx2) then
+			local default_idx = GetTerrainTextureIndex("DomeDemolish")
+			local peripheral_shape = GetEntityPeripheralHexShape(self:GetEntity())
+			local all_tiles, terrain1, tiles1, terrain2, tiles2 = TerrainDeposit_CountTiles(peripheral_shape, self)
+			type_idx1 = IsSandTerrain(type_idx1) and type_idx1 or IsSandTerrain(terrain1) and terrain1 or default_idx
+			type_idx2 = IsSandTerrain(type_idx2) and type_idx2 or IsSandTerrain(terrain2) and terrain2 or default_idx
+		end
+		if type_idx1 and type_idx2 and type_idx1 ~= type_idx2 then
+			local form_obj = DataInstances.NoisePreset.Terrain
+			if form_obj then
+				local map = g_CurrentMapParams or empty_table
+				local seed = xxhash(map.latitude, map.longitude, self:GetVisualPosXYZ())
+				type_noise = form_obj:GetNoise(256, seed)
+				type_thres = 512
+			end
+		end
+		if type_idx1 then
+			SetTerrainInShape(self:GetBuildShape(), self, type_idx1, type_idx2, type_thres, type_noise)
+			GridOpFree(type_noise)
+		end
+	end
+	if HasAnySurfaces(self, EntitySurfaces.Height, true) and not terrain.HasRestoreHeight() then
+		FlattenTerrainInBuildShape(self:GetFlattenShape(), self)
+	end
+end
+
 function Building:Destroy()
 	if self.destroyed or self.indestructible or not self.use_demolished_state then
 		return
@@ -1130,6 +1171,7 @@ function Building:Destroy()
 	self:ConsumptionOnDestroyed()
 	self:UpdateNotWorkingBuildingsNotification() --rem from not working notif
 	self:KickUnitsFromHolder()
+	self:RestoreTerrain()
 	self:OnDestroyed()
 	self:SetDustVisualsPerc(100)
 
@@ -1152,7 +1194,7 @@ function Building:Destroy()
 	
 	-- sink & tilt into the ground
 	local tilt, sink = 0, 0
-	if not HasAnySurfaces(self, EntitySurfaces.TerrainHole + EntitySurfaces.Height) then
+	if not HasAnySurfaces(self, EntitySurfaces.TerrainHole + EntitySurfaces.Height, true) then
 		local bbox = ObjectHierarchyBBox(self, const.efVisible, const.cfConstructible)
 		--terrain.InvalidateType(bbox)
 		local sx, sy, sz = 0, 0, 0
@@ -1174,6 +1216,7 @@ function Building:Destroy()
 			sink = Max(sink, MulDivRound(radius, tilt, 4096))
 		end
 	end
+	
 	if sink > 0 or tilt > 0 then
 		local spots = {Drone.work_spot_task, BaseRover.work_spot_task}
 		for i = 1, #spots do
@@ -1230,17 +1273,21 @@ function Building:Destroy()
 	end
 	
 	PlayFX("Destroyed", "start", self)
+	self:SetEnumFlags(flags)
+	ResumePassEdits("Building.Destroy")
+	
+	self:Notify("DisableCustomFX")
+end
 
+function Building:DisableCustomFX()
 	local prev_sel = SelectedObj
 	if SelectedObj == self then
 		SelectObj(false)
-	end	
+	end
 	self.fx_actor_class = "Building" -- disable FX linked to this specific building (e.g. hex radius)
 	if prev_sel == self then
 		SelectObj(self)
 	end
-	self:SetEnumFlags(flags)
-	ResumePassEdits("Building.Destroy")
 end
 
 function ApplyToObjAndAttaches(obj, func, ...)
@@ -1364,6 +1411,7 @@ function Building:DroneWork(drone, request, resource, amount)
 end
 
 function Building:CheatDestroy()
+	self.indestructible = false
 	DestroyBuildingImmediate(self)
 end
 
@@ -2067,11 +2115,14 @@ end
 function Building:Getui_dronehub_drones() return T{180, "Drones<right><DronesCount>/<CommandCenterMaxDrones>", self, CommandCenterMaxDrones = g_Consts.CommandCenterMaxDrones} end
 
 NotWorkingWarning = {
+	MechDepotWaitingForResourceUnload = T{9617, "Waiting for resources to unload."},
+	PassageWaitingForColonistsToExit = T{9618, "Waiting for colonists to exit."},
 	Demolish = T{181, "This building will be demolished in <em><FormatScale(demolishing_countdown,1000,true)></em> sec."},
 	Malfunction = T{182, "This building has malfunctioned. Repair it with Drones."},
 	MalfunctionRes = T{60192, "This building has malfunctioned. Drones can repair it with <resource(maintenance_resource_amount, maintenance_resource_type)>."},
 	Frozen = T{183, "This building is frozen. It can be repaired by Drones after the Cold Wave has passed."},
 	FrozenPerma = T{7892, "This building is frozen. Use a Subsurface Heater to heat the surrounding cold area."},
+	IonStorm = T{8926, "This building has been disabled by an Ion Storm."},
 	Defrosting = T{8520, "Defrosting. This building will need repair after it is defrosted."},
 	TurnedOff = T{184, "This building has been turned off."},
 	SuspendedDustStorm = T{185, "Doesn't function during Dust Storms."},
@@ -2121,6 +2172,8 @@ function Building:GetUIWarning()
 		end
 	elseif self.destroyed then
 		reason = "Destroyed"
+	elseif #(self.ion_storms or empty_table) > 0 then
+		reason = "IonStorm"
 	elseif self.frozen then
 		reason = g_ColdWave and "Frozen" or self:IsFreezing() and "FrozenPerma" or "Defrosting"
 	elseif self.suspended then
@@ -2179,18 +2232,8 @@ function Building:GetUIWarning()
 		reason = "NoDroneHub"
 	end
 	
-	if not reason then
-		reason = self:GetNotWorkingReason()
-	end
-	if not reason or reason == "NotLanded" then
-		return
-	end
-	local text = NotWorkingWarning[reason]
-	if not text then
-		assert(false, "No display text associated with a not working reason " .. reason)
-		return NotWorkingWarning.Default
-	end
-	return text
+	reason = reason or self:GetNotWorkingReason()
+	return reason and NotWorkingWarning[reason]
 end
 
 function Building:ShowUISectionConsumption()
@@ -2202,6 +2245,14 @@ function Building:ShowUISectionConsumption()
 				or (self.water_consumption and (self.water_consumption>0 or self:GetClassValue("water_consumption")>0)))
 		or self:IsKindOf("HasConsumption") and self:DoesHaveConsumption()
 		or #(self.upgrade_consumption_objects or empty_table)>0 
+end
+
+function Building:ShowUISectionElectricityProduction()
+	return self:IsKindOf("ElectricityProducer")
+end
+
+function Building:ShowUISectionElectricityGrid()
+	return self:IsKindOfClasses("ElectricityProducer", "ElectricityStorage") and self.electricity
 end
 
 ConsumptionStatuses = {
@@ -2219,53 +2270,75 @@ ConsumptionStatuses = {
 	StoredWater = T{7336, "Stored Water<right><water(stored_water,water_capacity)>"},
 }
 
+ConsumptionStatusesShort = {
+	Power = T{9689, "<green><power(electricity_consumption)></green>"},
+	PowerNotEnough = T{9690, "<red><power(electricity_consumption)></red>"},
+	PowerRequired = T{9691, "<power(electricity_consumption)>"},
+	Oxygen = T{9692, "<green><air(air_consumption)></green>"},
+	OxygenNotEnough = T{9693, "<red><air(air_consumption)></red>"},
+	OxygenRequired = T{9694, "<air(air_consumption)>"},
+	Water = T{9695, "<green><water(water_consumption)></green>"},
+	WaterNotEnough = T{9696, "<red><water(water_consumption)></red>"},
+	WaterRequired = T{9697, "<water(water_consumption)>"},
+	InsufficientResource = T{9698, "<red><resource(consumption_stored_resources,consumption_max_storage,consumption_resource_type)></red>"},
+	Resource = T{9699, "<resource(consumption_stored_resources,consumption_max_storage,consumption_resource_type)>"},
+	StoredWater = T{9700, "<water(stored_water,water_capacity)>"},
+}
+
 function Building:UpdateUISectionConsumption(win)
-	local intentionally_not_consuming = self:IsSupplyGridDemandStoppedByGame()
-	local permited = self:IsWorkPermitted()
-	
 	win.idPower:SetText("")
 	win.idAir:SetText("")
 	win.idWater:SetText("")
 	win.idResource:SetText("")
+	local res = self:GetUIConsumptionTexts()
+	if res.power then win.idPower:SetText(res.power) end
+	if res.air then win.idAir:SetText(res.air) end
+	if res.water then win.idWater:SetText(res.water) end
+	if res.stored_water then win.idStoredWater:SetText(res.stored_water) end
+	if res.resource then win.idResource:SetText(res.resource) end
+	if res.upgrade then win.idUpgrade:SetText(res.upgrade) end
+end
+
+function Building:GetUIConsumptionTexts(short)
+	local statuses = short and ConsumptionStatusesShort or ConsumptionStatuses
+	local res = {}
+	local intentionally_not_consuming = self:IsSupplyGridDemandStoppedByGame()
+	local permited = self:IsWorkPermitted()
 
 	local not_permited = (not permited or intentionally_not_consuming)
 	if self:IsKindOf("ElectricityConsumer") and self.electricity_consumption
 		and (self.electricity_consumption>0 or self:GetClassValue("electricity_consumption")>0) 
 	then
 		local not_enough = self:ShouldShowNoElectricitySign() and not (intentionally_not_consuming or self.suspended)
-		win.idPower:SetText(
-			not_enough and ConsumptionStatuses["PowerNotEnough"]
-			or not_permited and ConsumptionStatuses["PowerRequired"]
-			or ConsumptionStatuses["Power"])
+		res.power = not_enough and statuses["PowerNotEnough"]
+			or not_permited and statuses["PowerRequired"]
+			or statuses["Power"]
 	end
 	if self:IsKindOf("LifeSupportConsumer") then
 		if self.air_consumption and (self.air_consumption>0 or self:GetClassValue("air_consumption")>0) then
 			local no_air = not (self:HasAir() or intentionally_not_consuming) and permited
-			win.idAir:SetText(
-				no_air and ConsumptionStatuses["OxygenNotEnough"]
-				or not_permited and ConsumptionStatuses["OxygenRequired"]
-				or ConsumptionStatuses["Oxygen"])
+			res.air = no_air and statuses["OxygenNotEnough"]
+				or not_permited and statuses["OxygenRequired"]
+				or statuses["Oxygen"]
 		end
 		if IsKindOf(self, "ArtificialSun") then
 			if self.work_state ~= "produce" then
-				win.idWater:SetText(
-					not (self:HasWater() or intentionally_not_consuming) and permited and ConsumptionStatuses["WaterNotEnough"]
-					or not_permited and ConsumptionStatuses["WaterRequired"]
-					or T{345, "Water<right><green><water(number)></green>", number = self.water.current_consumption})
-				win.idStoredWater:SetText(ConsumptionStatuses["StoredWater"])
+				res.water = not (self:HasWater() or intentionally_not_consuming) and permited and statuses["WaterNotEnough"]
+					or not_permited and statuses["WaterRequired"]
+					or (short and T{9701, "<green><water(number)></green>", number = self.water.current_consumption} 
+						or T{345, "Water<right><green><water(number)></green>", number = self.water.current_consumption})
+				res.stored_water = statuses["StoredWater"]
 			end
 		elseif self.water_consumption and (self.water_consumption>0 or self:GetClassValue("water_consumption")>0) then
 			local no_water = not (self:HasWater() or intentionally_not_consuming) and permited 
-			win.idWater:SetText(
-				no_water and ConsumptionStatuses["WaterNotEnough"]
-				or not_permited  and ConsumptionStatuses["WaterRequired"]
-				or ConsumptionStatuses["Water"])
+			res.water = no_water and statuses["WaterNotEnough"]
+				or not_permited  and statuses["WaterRequired"]
+				or statuses["Water"]
 		end
 	end
 	if self:IsKindOf("HasConsumption") and self:DoesHaveConsumption() and self.consumption_stored_resources then
-		win.idResource:SetText(
-			self.consumption_stored_resources > 0 and ConsumptionStatuses["Resource"] 
-			or ConsumptionStatuses["InsufficientResource"])
+		res.resource = self.consumption_stored_resources > 0 and statuses["Resource"] 
+			or statuses["InsufficientResource"]
 	end
 
 	-- consumption from upgrades
@@ -2274,11 +2347,13 @@ function Building:UpdateUISectionConsumption(win)
 		for _,cons_obj in ipairs(self.upgrade_consumption_objects) do
 			if self.upgrade_on_off_state[cons_obj.upgrade_id] then
 				local res_type = cons_obj.consumption_resource_type
-				texts[#texts+1] = T{7767, "<resource_name><right><resource(consumed_amount,res_type)>",resource_name = Resources[res_type].display_name,  res_type = res_type, consumed_amount = cons_obj.consumption_amount }
+				texts[#texts+1] = short and T{9702, "<resource(consumed_amount,res_type)>",resource_name = Resources[res_type].display_name,  res_type = res_type, consumed_amount = cons_obj.consumption_amount }
+					or T{7767, "<resource_name><right><resource(consumed_amount,res_type)>",resource_name = Resources[res_type].display_name,  res_type = res_type, consumed_amount = cons_obj.consumption_amount }
 			end
 		end
-		win.idUpgrade:SetText(table.concat(texts, "<newline>"))
+		res.upgrade = table.concat(texts, short and " " or "<newline>")
 	end
+	return res
 end
 
 function Building:GetUISectionConsumptionRollover()
@@ -2348,14 +2423,6 @@ function Building:TogglePriority(change, broadcast)
 	end
 end
 
-function Building:UIRequestMaintenance(broadcast)
-	self:RequestMaintenance(true)
-	RebuildInfopanel(self)
-	if broadcast then 
-		BroadcastAction(self, "RequestMaintenance", true)
-	end
-end
-
 function GetBuildingObj(bld_or_site)
 	if IsKindOf(bld_or_site, "ConstructionSite") and bld_or_site.building_class_proto:IsKindOf("Building") then
 		return bld_or_site.building_class_proto
@@ -2372,8 +2439,9 @@ function PlayFXBuildingType(fx, moment, city, class, ignore)
 			end
 		end
 	end
-	if city.labels.ConstructionSite then
-		for _, site in ipairs(city.labels.ConstructionSite) do
+	local label = class == "Dome" and city.labels.Domes_Construction or city.labels.ConstructionSite
+	if label then
+		for _, site in ipairs(label) do
 			if site ~= ignore and IsKindOf(site.building_class_proto, class) then
 				PlayFX(fx, moment, site, class)
 			end
@@ -2447,11 +2515,11 @@ function TrackAllMoments(obj, fx_action, fx_actor, fx_target) --expects to obj a
 end
 
 function GetDomeSkins(template, class)
-	local skins = {{template.entity, class.configurable_attaches, construction_entity = template.construction_entity}}
+	local skins = {{template.entity, class.configurable_attaches, construction_entity = template.construction_entity, palettes = template.palettes}}
 	ForEachPreset("DomeSkins", function(preset, grp, skins, class)
 		if preset.dome_type == class.class and IsDlcAvailable(preset.dlc) then
 			table.insert(skins, {preset.entity, GetConfigAttachTableFromPreset(preset),
-							construction_entity = preset.construction_entity, skin_category = preset.preset})
+							construction_entity = preset.construction_entity, skin_category = preset.preset, palettes = preset.palettes ~= "" and preset.palettes or template.palettes})
 		end
 	end, skins, class)
 	
@@ -2536,7 +2604,7 @@ function PlayFXAroundBuilding(obj, action)
 	end
 	--DbgClear()
 	local dir = HexAngleToDirection(obj:GetAngle())
-	local cq, cr = WorldToHex(obj:GetPos())
+	local cq, cr = WorldToHex(obj)
 	for _, shape_pt in ipairs(shape) do
 		local sx, sy = shape_pt:xy()
 		local q, r = HexRotate(sx, sy, dir)

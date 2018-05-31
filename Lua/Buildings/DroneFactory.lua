@@ -8,6 +8,7 @@ DefineClass.DroneFactory = {
 	androids_in_construction = false,
 	construct_drone_start = false,
 	drone_construction_request = false,
+	transport_request  = false,
 	drone_construction_resource = 0,
 	
 	drone_construction_progress = 0, -- 0 -> 100000 (drone_construction_progress_delim)
@@ -25,6 +26,16 @@ function DroneFactory:CreateResourceRequests()
 	local resource = self.city:IsTechResearched("PrintedElectronics") and "Metals" or "Electronics"
 	self.drone_construction_request = self:AddDemandRequest(resource, 0)
 	self.transport_request = self:AddSupplyRequest(resource, 0)
+end
+
+--savegame compatibility
+function DroneFactory:CreateResourceRequestsSupply()
+	if not self.transport_request then
+		local resource = self.city:IsTechResearched("PrintedElectronics") and "Metals" or "Electronics"
+		self:DisconnectFromCommandCenters()
+		self.transport_request = self:AddSupplyRequest(resource, 0)
+		self:ConnectToCommandCenters()
+	end
 end
 
 function DroneFactory:BuildingUpdate(delta, day, hour)
@@ -148,29 +159,33 @@ function DroneFactory:DroneLoadResource(drone, request, resource, amount)
 end
 
 function DroneFactory:ConstructDrone(change, requestor)
-	if self.drones_in_construction + change < 0 then
-		return
-	end
-	assert(abs(change)==1)
-	self.drones_in_construction = self.drones_in_construction + change
 	if change>0 then
-		self.construction_queue[#self.construction_queue+1] = "Drone"
-			
-		if requestor then
-			self.drone_requests = self.drone_requests or {}
-			self.drone_requests[requestor] = (self.drone_requests[requestor] or 0) + 1
-		end
-	else 
-		for i=#self.construction_queue, 1, -1 do
-			if self.construction_queue[i] == "Drone" then
-				table.remove(self.construction_queue, i)
-				if i == 1 then
-					self:StopDroneConstruction()  --reset progress
-				end
-								
-				self:DecrementRequestedDrones()
-				break
+		self.drones_in_construction = self.drones_in_construction + change
+		while change > 0 do
+			self.construction_queue[#self.construction_queue+1] = "Drone"
+				
+			if requestor then
+				self.drone_requests = self.drone_requests or {}
+				self.drone_requests[requestor] = (self.drone_requests[requestor] or 0) + 1
 			end
+			
+			change = change - 1
+		end
+	else
+		while change < 0 and self.drones_in_construction > 0 do
+			for i=#self.construction_queue, 1, -1 do
+				if self.construction_queue[i] == "Drone" then
+					table.remove(self.construction_queue, i)
+					if i == 1 then
+						self:StopDroneConstruction()  --reset progress
+					end
+									
+					self:DecrementRequestedDrones()
+					break
+				end
+			end
+			change = change + 1
+			self.drones_in_construction = self.drones_in_construction - 1
 		end
 	end
 	
@@ -180,21 +195,25 @@ function DroneFactory:ConstructDrone(change, requestor)
 end
 
 function DroneFactory:ConstructAndroid(change)
-	if self.androids_in_construction + change < 0 then
-		return
-	end
-	self.androids_in_construction = self.androids_in_construction + change
 	if change>0 then
-		self.construction_queue[#self.construction_queue + 1] = "Android"
-	else 
-		for i=#self.construction_queue, 1, -1 do
-			if self.construction_queue[i] == "Android" then
-				table.remove(self.construction_queue, i)
-				if i == 1 then
-					self:StopDroneConstruction() --reset progress
+		self.androids_in_construction = self.androids_in_construction + change
+		while change > 0 do
+			self.construction_queue[#self.construction_queue + 1] = "Android"
+			change = change - 1
+		end
+	else
+		while change < 0 and self.androids_in_construction > 0 do
+			for i=#self.construction_queue, 1, -1 do
+				if self.construction_queue[i] == "Android" then
+					table.remove(self.construction_queue, i)
+					if i == 1 then
+						self:StopDroneConstruction() --reset progress
+					end
+					break
 				end
-				break
 			end
+			change = change + 1
+			self.androids_in_construction = self.androids_in_construction - 1
 		end
 	end
 	
@@ -208,15 +227,21 @@ function DroneFactory:SpawnDrone(delay)
 	self.city.drone_prefabs = self.city.drone_prefabs + 1
 end
 
-function DroneFactory:SpawnAndroid(delay)
-	local colonist_table = GenerateColonistData(self.city, "Adult", "Martianborn")
-	colonist_table.dome = self.parent_dome
-	colonist_table.current_dome = self.parent_dome
+function DroneFactory:SpawnAndroid()
+	local colonist_table = GenerateColonistData(self.city, "Adult", "Martianborn", {no_specialization = true})
+	if IsValid(self.parent_dome) then
+		colonist_table.dome = self.parent_dome
+		colonist_table.current_dome = self.parent_dome
+	else
+		local domes, safety_dome = GetDomesInWalkableDistance(self.city, self:GetPos())
+		local dome = ChooseDome(colonist_table.traits, domes, safety_dome)
+		colonist_table.dome = dome
+		colonist_table.current_dome = false
+	end
 	colonist_table.traits["Android"] = true
 	colonist_table.specialist = "none"
 	local colonist = Colonist:new(colonist_table)
 	self:OnEnterUnit(colonist)
-	self:UpdateUI()
 	Msg("ColonistBorn", colonist, "android")
 end 
 

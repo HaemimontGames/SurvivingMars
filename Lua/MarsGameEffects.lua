@@ -6,11 +6,13 @@ DefineClass.Tech_Effect = {
 	__parents = { "ModEffect" },
 }
 
+function Tech_Effect:OnDataLoaded(parent)
+end
 
 ----- Effect_Code
 
 DefineClass.Effect_Code = {
-	__parents = { "Tech_Effect", "ModEffect" },
+	__parents = { "Tech_Effect" },
 	properties = {
 		{ category = "General", id = "OnInitEffect", editor = "func", params = "self, city, parent", max_lines = 60, 
 			name = T{1000725, "OnInitEffect"}, help = T{1000726, "Called early during the player setup - player structures not fully inited."}, },
@@ -33,7 +35,7 @@ DefineClass.Effect_TechUnlockBuilding = {
 	Description = T{8781, "<Building>"},
 }
 
-function Effect_TechUnlockBuilding:OnInitEffect(city, parent)
+function Effect_TechUnlockBuilding:OnDataLoaded(parent)
 	local building = self.Building
 	local requirements = BuildingTechRequirements[building] or {}
 	BuildingTechRequirements[building] = requirements
@@ -64,7 +66,7 @@ end
 DefineClass.Effect_TechBoost = {
 	__parents = { "Tech_Effect" },
 	properties = {
-		{ category = "General", id = "Field", name = "Field", editor = "choice", default = "", items = function() return GetTechFieldsCombo() end },
+		{ category = "General", id = "Field", name = "Field", editor = "choice", default = "", items = function() return ResearchFieldsCombo() end },
 		{ category = "General", id = "Percent", name = "Boost (%)", editor = "number", default = 0, },
 	},
 	EditorName = "Boost research",

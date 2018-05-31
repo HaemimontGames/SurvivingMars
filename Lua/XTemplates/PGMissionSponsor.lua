@@ -5,7 +5,7 @@ PlaceObj('XTemplate', {
 	id = "PGMissionSponsor",
 	PlaceObj('XTemplateWindow', {
 		'__class', "XDialog",
-		'Padding', box(0, 65, 100, 80),
+		'Padding', box(0, 65, 100, 50),
 		'ContextUpdateOnOpen', true,
 		'InitialMode', "properties",
 		'InternalModes', "properties,items",
@@ -177,7 +177,7 @@ end,
 					PlaceObj('XTemplateForEach', {
 						'comment', "item",
 						'array', function (parent, context) return GetDialogModeParam(parent).items() end,
-						'condition', function (parent, context, item, i) return not item.game_rule end,
+						'condition', function (parent, context, item, i) return not item.game_rule and not item.mystery end,
 						'__context', function (parent, context, item, i, n) return item end,
 						'run_after', function (child, context, item, i, n)
 if item.rollover then
@@ -238,6 +238,24 @@ end
 end,
 							}),
 							}),
+						}),
+					PlaceObj('XTemplateForEach', {
+						'comment', "item",
+						'array', function (parent, context) return GetDialogModeParam(parent).items() end,
+						'condition', function (parent, context, item, i) return item.mystery end,
+						'__context', function (parent, context, item, i, n) return item end,
+						'run_after', function (child, context, item, i, n)
+if item.rollover then
+	child:SetRolloverTitle(item.rollover.title)
+	local descr = item.rollover.descr
+	child:SetRolloverText(descr)
+	child:SetRolloverHintGamepad(item.rollover.gamepad_hint)
+end
+end,
+					}, {
+						PlaceObj('XTemplateTemplate', {
+							'__template', "MysteryItem",
+						}),
 						}),
 					PlaceObj('XTemplateForEach', {
 						'comment', "item",

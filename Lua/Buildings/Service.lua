@@ -110,7 +110,7 @@ function Service:GetServiceList()
 	interests[#interests + 1] = GetInterestDisplayName(self.interest2)
 	interests[#interests + 1] = GetInterestDisplayName(self.interest3)
 	interests[#interests + 1] = GetInterestDisplayName(self.interest4)
-	return table.concat(interests, ", ")
+	return TList(interests)
 end
 
 function Service:SetCustomLabels(obj, add)

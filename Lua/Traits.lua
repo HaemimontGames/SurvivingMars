@@ -872,6 +872,17 @@ end
 
 TraitFilterUnit = TraitFilterColonist --old fn. name (for savegame compatibility)
 
+function GetTSortedTraits()
+	local t = table.icopy(DataInstances.Trait)
+	for i = #t, 1, -1 do
+		if g_HiddenTraits[t[i].name] then
+			table.remove(t, i)
+		end
+	end
+	TSort(t, "display_name")
+	return t
+end
+
 -- a Guru only gives out traits from these categories
 GuruTraitCategories = {
 	Positive = true,

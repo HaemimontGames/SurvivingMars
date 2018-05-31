@@ -16,22 +16,36 @@ PlaceObj('XTemplate', {
 		'RelativeFocusOrder', "new-line",
 	}, {
 		PlaceObj('XTemplateFunc', {
-			'name', "OnSetRollover(self, rollover)",
-			'func', function (self, rollover)
-XWindow.OnSetRollover(self, rollover)
-	if self.idSectionTitle.visible then
-		self.idRollover2:SetVisible(rollover)
-		local b = self.idRollover2.box
-		self.idRollover2:AddInterpolation{
+			'name', "Highlight(self, highlight)",
+			'func', function (self, highlight)
+if self.idSectionTitle.visible then
+		self.idHighlight:SetVisible(highlight)
+		self.idHighlight2:SetVisible(highlight)
+		local b = self.idHighlight2.box
+		self.idHighlight2:AddInterpolation{
 			type = const.intRect,
-			duration = self.idRollover2:GetFadeInTime(),
+			duration = self.idHighlight2:GetFadeInTime(),
 			startRect = b,
 			endRect = sizebox(b:minx(), b:miny(), 40, b:sizey()),
 			flags = const.intfInverse,
 			autoremove = true,
 		}
-		PlayFX("UIInfoPanelItemHover", rollover and "start" or "end", self, self.Id)
+		PlayFX("UIInfoPanelItemHover", highlight and "start" or "end", self, self.Id)
 	end
+end,
+		}),
+		PlaceObj('XTemplateFunc', {
+			'name', "OnSetFocus(self)",
+			'func', function (self)
+self:Highlight(true)
+return XWindow.OnSetFocus(self)
+end,
+		}),
+		PlaceObj('XTemplateFunc', {
+			'name', "OnKillFocus(self)",
+			'func', function (self)
+self:Highlight(false)
+return XWindow.OnKillFocus(self)
 end,
 		}),
 		PlaceObj('XTemplateWindow', {
@@ -48,7 +62,7 @@ end,
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XImage",
-				'Id', "idRollover2",
+				'Id', "idHighlight2",
 				'IdNode', false,
 				'Margins', box(0, 22, 0, 0),
 				'VAlign', "top",
@@ -75,7 +89,7 @@ end,
 		}, {
 			PlaceObj('XTemplateWindow', {
 				'__class', "XImage",
-				'Id', "idRollover",
+				'Id', "idHighlight",
 				'IdNode', false,
 				'Margins', box(-3, -3, -3, -3),
 				'Dock', "box",
@@ -103,7 +117,6 @@ end,
 		'editor', "text",
 		'Set', function (self, value)
 self.idSectionTitle:SetText(value)
-self.idSectionTitle:SetVisible(value~="")
 end,
 		'Get', function (self)
 return self.idSectionTitle:GetText()

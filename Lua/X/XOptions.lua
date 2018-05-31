@@ -133,6 +133,7 @@ function ApplyDisplayOptions(host)
 		else
 			-- user doesn't like it, restore
 			original_obj:ApplyVideoMode()
+			original_obj:SetBrightness(original_obj.Brightness)
 		end
 		SetBackDialogMode(host)
 	end, host)

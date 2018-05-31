@@ -40,7 +40,8 @@ OptionsData.VideoPresetsData = {
 		Bloom = "On",
 		EyeAdaptation = "On",
 		Vignette = "On",
-		ObjectDetail = "Low"
+		ObjectDetail = "Low",
+		MaxFps = "240",
 	},
 	Medium = {
 		Textures = "Medium",
@@ -56,7 +57,8 @@ OptionsData.VideoPresetsData = {
 		Bloom = "On",
 		EyeAdaptation = "On",
 		Vignette = "On",
-		ObjectDetail = "High"
+		ObjectDetail = "High",
+		MaxFps = "240",
 	},
 	High = {
 		Textures = "High",
@@ -72,7 +74,8 @@ OptionsData.VideoPresetsData = {
 		Bloom = "On",
 		EyeAdaptation = "On",
 		Vignette = "On",
-		ObjectDetail = "High"
+		ObjectDetail = "High",
+		MaxFps = "240",
 	},
 	Ultra = {
 		Textures = "Ultra",
@@ -88,7 +91,8 @@ OptionsData.VideoPresetsData = {
 		Bloom = "On",
 		EyeAdaptation = "On",
 		Vignette = "On",
-		ObjectDetail = "High"
+		ObjectDetail = "High",
+		MaxFps = "240",
 	},
 	Durango = {
 		Textures = "High",
@@ -106,6 +110,7 @@ OptionsData.VideoPresetsData = {
 		Vignette = "On",
 		Vsync = true,
 		FPSCounter = "Off",
+		MaxFps = "Unlimited",
 	},
 	Scorpio = {
 		Textures = "Ultra",
@@ -123,6 +128,7 @@ OptionsData.VideoPresetsData = {
 		Vignette = "On",
 		Vsync = true,
 		FPSCounter = "Off",
+		MaxFps = "Unlimited",
 	},
 	Ps4 = {
 		Textures = "High",
@@ -140,6 +146,7 @@ OptionsData.VideoPresetsData = {
 		Vignette = "On",
 		Vsync = true,
 		FPSCounter = "Off",
+		MaxFps = "Unlimited",
 	},
 	Neo = {
 		Textures = "High",
@@ -157,6 +164,7 @@ OptionsData.VideoPresetsData = {
 		Vignette = "On",
 		Vsync = true,
 		FPSCounter = "Off",
+		MaxFps = "Unlimited",
 	},
 }
 
@@ -278,6 +286,15 @@ OptionsData.Options.RightClickAction = {
 	{ value = "Both", text = T{3561, "Both"}},
 }
 
+OptionsData.Options.MaxFps = {
+	{ value = "30", text = Untranslated("30 ") .. T{3558, --[[options: frame limit]] "FPS"}, hr = { MaxFps = 30 } },
+	{ value = "60", text = Untranslated("60 ") .. T{3558, --[[options: frame limit]] "FPS"}, hr = { MaxFps = 60 } },
+	{ value = "120", text = Untranslated("120 ") .. T{3558, --[[options: frame limit]] "FPS"}, hr = { MaxFps = 120 } },
+	{ value = "144", text = Untranslated("144 ") .. T{3558, --[[options: frame limit]] "FPS"}, hr = { MaxFps = 144 } },
+	{ value = "240", text = Untranslated("240 ") .. T{3558, --[[options: frame limit]] "FPS"}, hr = { MaxFps = 240 } },
+	{ value = "Unlimited", text = T{9718, --[[options: frame limit]] "Unlimited"}, hr = { MaxFps = 0 } },
+}
+
 -- storage is "local", "account", "session"
 -- items is Options.OptionsData[id], if not specified
 
@@ -331,6 +348,7 @@ function OnMsg.ClassesGenerate(classdefs)
 		--{ name = T{"Subtitles"}, id = "Subtitles", category = "Gameplay", storage = "account", editor = "bool", default = true},
 		{ name = T{3591, "Autosave"}, id = "Autosave", category = "Gameplay", storage = "account", editor = "bool", default = true},
 		{ name = T{3592, "Hint Notifications"}, id = "HintsEnabled", category = "Gameplay", storage = "account", editor = "bool", default = true},
+		{ name = T{9764, "Infobar"}, id = "InfobarEnabled", category = "Gameplay", storage = "account", editor = "bool", default = true},
 		{ name = T{7544, "Display Area Margin"}, id = "DisplayAreaMargin", category = "Gameplay", storage = "local", editor = "number", min = 0, max = 10, slider = true, default = 0, filter = function() return Platform.developer or Platform.durango end },
 		--{ name = T{"Colorblind Mode"}, id = "Colorblind", category = "Gameplay", storage = "account", editor = "bool", default = false},
 		{ name = T{8529, "Save to Cloud"}, id = "AutosaveToCloud", category = "Gameplay", storage = "account", editor = "bool", default = false, filter = function() return IsParadoxPlatform() end },
@@ -342,6 +360,7 @@ function OnMsg.ClassesGenerate(classdefs)
 		{ name = T{1601, "Resolution"}, id = "Resolution", category = "Display", storage = "local", editor = "dropdown", default = point(1920, 1080) },
 		{ name = T{3563, "Refresh Rate"}, id = "RefreshRate", category = "Display", storage = "local", editor = "dropdown", default = 0 },
 		{ name = T{3564, "Vsync"}, id = "Vsync", category = "Display", storage = "local", editor = "bool", default = true },
+		{ name = T{9714, "Frame Rate Limit"}, id = "MaxFps", category = "Display", storage = "local", editor = "dropdown", default = "240", },
 		{ name = T{3565, "UI Scale"}, id = "UIScale", category = Platform.console and "Gameplay" or "Display", storage = "local", editor = "number", min = 65, max = const.MaxUserUIScaleHighRes, slider = true, default = 100, step = 5, snap_offset = 5 },
 		{ name = T{3566, "Brightness"}, id = "Brightness", category = "Display", storage = "local", editor = "number", min = -50, max = 1050, slider = true, default = 500, step = 50, snap_offset = 50 },
 	}
@@ -420,17 +439,17 @@ end
 
 function OptionsObject:SetSound(x)
 	self.Sound = x
-	SetOptionsGroupVolume("Sound", x * self.MasterVolume / 1000)
+	SetOptionVolume("Sound", x * self.MasterVolume / 1000)
 end
 
 function OptionsObject:SetMusic(x)
 	self.Music = x
-	SetOptionsGroupVolume("Music", x * self.MasterVolume / 1000)
+	SetOptionVolume("Music", x * self.MasterVolume / 1000)
 end
 
 function OptionsObject:SetVoice(x)
 	self.Voice = x
-	SetOptionsGroupVolume("Voice", x * self.MasterVolume / 1000)
+	SetOptionVolume("Voice", x * self.MasterVolume / 1000)
 end
 
 function OptionsObject:SetRadioStation(station)
@@ -468,7 +487,7 @@ function UpdateCrosshairVisibility()
 end
 
 local function UpdateHintsOption(hints_enabled)
-	hints_enabled = hints_enabled or false
+	hints_enabled = not g_Tutorial and hints_enabled or false
 	if HintsEnabled ~= hints_enabled then
 		if mapdata.GameLogic and hints_enabled then
 			CreateGameTimeThread(PeriodicHintChecks)
@@ -487,6 +506,7 @@ function ApplyProjectAccountOptions()
 		UpdateUIStyleGamepad(options.Gamepad)
 		UpdateCrosshairVisibility()
 		UpdateHintsOption(options.HintsEnabled)
+		UpdateInfobarVisibility()
 		
 		cameraRTS.SetProperties(1, {MoveSpeedNormal = options.CameraMoveSpeed or const.DefaultCameraRTS.MoveSpeedNormal, MoveSpeedFast = options.CameraMoveSpeed and options.CameraMoveSpeed * 2 or const.DefaultCameraRTS.MoveSpeedFast})
 	end
@@ -497,7 +517,7 @@ function ApplyLanguageOption()
 		local options = AccountStorage.Options
 		local lang = options.Language
 		if lang then
-			local current = RegistryRead("Language")
+			local current = GetLanguage()
 			if current ~= lang then
 				RegistryWrite("Language", lang)
 				if current ~= "" or lang ~= "English" then
@@ -534,6 +554,9 @@ end
 
 function OnMsg.LocalStorageChanged()
 	Options.ApplyEngineOptions(EngineOptions)
+	if terminal.desktop then
+		terminal.desktop:OnSystemSize(UIL.GetScreenSize())
+	end
 end
 
 function OnMsg.EngineOptionsSaved()
@@ -628,5 +651,6 @@ if FirstLoad then
 	if DefaultAccountStorage and DefaultAccountStorage.Options then
 		DefaultAccountStorage.Options.Autosave = true
 		DefaultAccountStorage.Options.HintsEnabled = true
+		DefaultAccountStorage.Options.InfobarEnabled = true
 	end
 end

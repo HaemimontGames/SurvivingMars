@@ -22,6 +22,21 @@ There are no required precursors for research - players can skip techs they don'
 To research a tech the player needs to generate a certain number of research points (RP). This resource is generated via buildings (Research Lab, Science Institute), anomalies or provided by the Mission Sponsor. Certain techs may add additional sources of RP (for example a Breakthrough turns excess power into RP). The player may also choose to give money in return for RP from the outsourcing option in the research screen.
 The RP cost of a tech is determined by its position within its field. The positions of techs change and are shuffled on every new game. Each field has a table of defined research costs. Breakthrough techs are in general twice as expensive as base techs in terms of RP.
 
+Here is an example of how to redefine the research cost of all trees with a Code Effect 
+
+~~~~~~~~~ Lua
+function OnApplyEffect(self, city, parent)
+	for filed_id, list in sorted_pairs(UICity.tech_field) do
+		if TechFields[filed_id].discoverable then
+			for _, tech_id in ipairs(list) do
+				local status = UICity.tech_status[tech_id]
+				status.cost = status.cost + parent.param1
+			end
+		end
+	end
+end
+~~~~~~~~~
+
 ## Breakthroughs
 Breakthroughs are special techs that provide a powerful bonus but not all of them are available to the player on each playthrough. At the start of a new game 13 Breakthrough (const.BreakthroughTechsPerGame = 13) techs are chosen from all available and added to the Breakthrough field (all of them are locked).
 To unlock the next Breakthrough for research in the field - the player has to analyse a specific anomaly (Breakthrough anomaly). At the start of the game exactly 13 such anomalies are spread throughout the map.

@@ -58,6 +58,7 @@ PlaceObj('XTemplate', {
 			'comment', "control hints",
 			'__template', "InfopanelSection",
 			'RolloverText', T{894, --[[XTemplate ipConstruction RolloverText]] "List of applicable shortcuts and what they do."},
+			'Id', "idControlHints",
 			'Title', T{893, --[[XTemplate ipConstruction Title]] "Control hints"},
 			'Icon', "UI/Icons/Sections/attention.tga",
 		}, {

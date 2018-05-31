@@ -2,17 +2,39 @@ GlobalVar("ShowResourceOverview", false)
 GlobalObj("ResourceOverviewObj", "ResourceOverview")
 GlobalRealTimeThread("ResourceOverviewThread", function()
 	while true do
-		if UICity and ResourceOverviewObj.data then
-			ResourceOverviewObj.estimated_maintenance_time = RealTime() -- avoid performing estimation on a regular basis
-			pcall(GatherResourceOverviewData, ResourceOverviewObj.data)
-			ResourceOverviewObj:GatherPerDomeInfo()
-			ResourceOverviewObj:CalcColonistsTraits()
-			Msg("UIPropertyChanged", ResourceOverviewObj)
-			ObjModified(ResourceOverviewObj)
-		end
+		ResourceOverviewThreadBody()
 		Sleep(1000)
 	end
 end)
+
+function SavegameFixups.ResourceOverviewThread_MovedBodyOutOfLoop()
+	RestartGlobalRealTimeThread("ResourceOverviewThread")
+	ResourceOverviewThreadBody()
+end
+
+function ResourceOverviewThreadBody()
+	if UICity and ResourceOverviewObj.data then
+		ResourceOverviewObj.estimated_maintenance_time = RealTime() -- avoid performing estimation on a regular basis
+		pcall(GatherResourceOverviewData, ResourceOverviewObj.data)
+		ResourceOverviewObj:GatherPerDomeInfo()
+		ResourceOverviewObj:CalcColonistsTraits()
+		ObjModified(ResourceOverviewObj)
+
+		local gtime = GameTime()
+		local data = ResourceOverviewObj.data
+		if GameTime() - (data.last_averages_gtime or 0) > 0 then
+			-- "consumption" below actually means "demand" - not changing to preserve savegames
+			data.total_power_production_sum = (data.total_power_production_sum or 0) + data.total_power_production
+			data.total_power_consumption_sum = (data.total_power_consumption_sum or 0) + data.total_power_demand
+			data.total_water_production_sum = (data.total_water_production_sum or 0) + data.total_water_production
+			data.total_water_consumption_sum = (data.total_water_consumption_sum or 0) + data.total_water_demand
+			data.total_air_production_sum = (data.total_air_production_sum or 0) + data.total_air_production
+			data.total_air_consumption_sum = (data.total_air_consumption_sum or 0) + data.total_air_demand
+			data.total_grid_samples = (data.total_grid_samples or 0) + 1
+			data.last_averages_gtime = gtime
+		end
+	end
+end
 
 DefineClass.ResourceOverview =
 {
@@ -31,6 +53,7 @@ DefineClass.ResourceOverview =
 }
 
 local function RoundResourceAmount(r)
+	r = r or 0
 	r = (r + const.ResourceScale / 2) / const.ResourceScale
 	r = r * const.ResourceScale
 	return r
@@ -72,39 +95,43 @@ function ResourceOverview:Getdescription()
 end
 
 function ResourceOverview:GetTotalProducedPower()
-	return self.data.total_power_production
+	return self.data.total_power_production or 0
 end
 
 function ResourceOverview:GetTotalStoredPower()
-	return self.data.total_power_storage
+	return self.data.total_power_storage or 0
 end
 
 function ResourceOverview:GetTotalRequiredPower()
-	return self.data.total_power_demand
+	return self.data.total_power_demand or 0
 end
 
 function ResourceOverview:GetTotalProducedAir()
-	return self.data.total_air_production
+	return self.data.total_air_production or 0
 end
 
 function ResourceOverview:GetTotalStoredAir()
-	return self.data.total_air_storage
+	return self.data.total_air_storage or 0
 end
 
 function ResourceOverview:GetTotalRequiredAir()
-	return self.data.total_air_demand
+	return self.data.total_air_demand or 0
 end
 
 function ResourceOverview:GetTotalProducedWater()
-	return self.data.total_water_production
+	return self.data.total_water_production or 0
 end
 
 function ResourceOverview:GetTotalStoredWater()
-	return self.data.total_water_storage
+	return self.data.total_water_storage or 0
 end
 
 function ResourceOverview:GetTotalRequiredWater()
-	return self.data.total_water_demand
+	return self.data.total_water_demand or 0
+end
+
+function ResourceOverview:GetFoodStoredInServiceBuildings()
+	return self.data.food_in_service_buildings or 0
 end
 
 function ResourceOverview:GetAvailable(resource_type) --stuff stored in stockpiles + carried by drones + carried by rovers + carried by shuttles
@@ -215,7 +242,17 @@ function ResourceOverview:GetFundingRollover()
 end
 
 function ResourceOverview:GetFunding()
-	return self.city:GetFunding()
+	return self.city and self.city:GetFunding() or 0
+end
+
+function ResourceOverview:GetResearchProgress()
+	local city = self.city
+	local queue = city:GetResearchQueue()
+	if not next(queue) then
+		return T{9765, "n/a"}
+	else
+		return T{9766, "<percent(number)>", number = city:GetResearchProgress()}
+	end
 end
 
 function ResourceOverview:GetEstimatedRP()
@@ -257,8 +294,20 @@ function ResourceOverview:GetGridRollover()
 	return table.concat(ret, "<newline><left>")
 end
 
+function ResourceOverview:GetPowerNumber()
+	return self:GetTotalProducedPower() - self:GetTotalRequiredPower()
+end
+
+function ResourceOverview:GetAirNumber()
+	return self:GetTotalProducedAir() - self:GetTotalRequiredAir()
+end
+
+function ResourceOverview:GetWaterNumber()
+	return self:GetTotalProducedWater() - self:GetTotalRequiredWater()
+end
+
 function ResourceOverview:GetPowerLine()
-	local difference = self:GetTotalProducedPower() - self:GetTotalRequiredPower()
+	local difference = self:GetPowerNumber()
 	if difference >= 0 then
 		return T{3629, "Power surplus<right><green><power(number)></green>", number = difference}
 	else
@@ -267,7 +316,7 @@ function ResourceOverview:GetPowerLine()
 end
 
 function ResourceOverview:GetAirLine()
-	local difference = self:GetTotalProducedAir() - self:GetTotalRequiredAir()
+	local difference = self:GetAirNumber()
 	if difference >= 0 then
 		return T{3631, "Oxygen surplus<right><green><air(number)></green>", number = difference}
 	else
@@ -276,7 +325,7 @@ function ResourceOverview:GetAirLine()
 end
 
 function ResourceOverview:GetWaterLine()
-	local difference = self:GetTotalProducedWater() - self:GetTotalRequiredWater()
+	local difference = self:GetWaterNumber()
 	if difference >= 0 then
 		return T{3633, "Water surplus<right><green><water(number)></green>", number = difference}
 	else
@@ -299,6 +348,7 @@ function ResourceOverview:GetBasicResourcesRollover()
 			T{316, "<newline>"},
 			T{3643, "Food production<right><food(FoodProducedYesterday)>", self},
 			T{3644, "Food consumption<right><food(FoodConsumedByConsumptionYesterday)>", self},
+			T{9767, "Stored in service buildings<right><food(FoodStoredInServiceBuildings)>", self},
 			T{316, "<newline>"},
 			T{3646, "Rare Metals production<right><preciousmetals(PreciousMetalsProducedYesterday)>", self},
 			T{3647, "Rare Metals consumption<right><preciousmetals(PreciousMetalsConsumedByConsumptionYesterday)>", self},
@@ -375,6 +425,24 @@ function ResourceOverview:GetColonistCount()
 	return #(self.city.labels.Colonist or empty_table)
 end
 
+function ResourceOverview:GetFreeLivingSpace(count_children)
+	return GetFreeLivingSpace(self.city, count_children)
+end
+
+function ResourceOverview:GetHomelessColonists()
+	local city_labels = self.city.labels
+	return city_labels.Homeless and #city_labels.Homeless or 0
+end
+
+function ResourceOverview:GetFreeWorkplaces()
+	return GetFreeWorkplaces(self.city)
+end
+
+function ResourceOverview:GetUnemployedColonists()
+	local city_labels = self.city.labels
+	return city_labels.Unemployed and #city_labels.Unemployed or 0
+end
+
 function ResourceOverview:GetEmploymentMessage()
 	local city_labels = self.city.labels
 	local unemployed = city_labels.Unemployed and #city_labels.Unemployed or 0
@@ -439,10 +507,11 @@ function ResourceOverview:GetJobsText()
 		end
 	end
 	local texts = {
-		T{548, "Unemployed and looking for work<right><colonist(number)>", number = city_labels.Unemployed and #city_labels.Unemployed or 0, empty_table},
+		T{548, "Unemployed, seeking work<right><colonist(number)>", number = city_labels.Unemployed and #city_labels.Unemployed or 0, empty_table},
 		T{549, "Vacant work slots<right><colonist(number)>",  number = ui_on_vacant},
 		T{550, "Disabled work slots<right><colonist(number)>",  number = ui_off_vacant},
 		T{7346, "Renegades<right><colonist(number)>", number = renegades},
+		T{3879, "Earthsick"} .. T{9719, "<right><colonist(number)>", number = #g_EarthSickColonists},
 	}	
 	if city_labels.Workshop and next(city_labels.Workshop) then
 		texts[#texts +1] = T{8802, "Workers in Workshops<right><percent(WorkshopWorkersPercent)>", self.city}		
@@ -472,7 +541,43 @@ function ResourceOverview:GetAgeGroupsText()
 		T{556, "Adults<right><colonist(number)>",     number = data.adults},
 		T{557, "Middle Aged<right><colonist(number)>",number = data.middleageds},
 		T{558, "Senior<right><colonist(number)>",     number = data.seniors},
-		T{316, "<newline>"},
+		T{9768, "<newline><center><em>Origin</em>"},
+		T{8035, "Martianborn<right><colonist(number)>", number = data.martianborn},
+		T{8036, "Earthborn<right><colonist(number)>",   number = data.earthborn},
+	}
+	return table.concat(texts, "<newline><left>")
+end
+
+function ResourceOverview:GetColonistsRollover()
+	local data = self.data
+	if not rawget(data, "children") then
+		self:GatherPerDomeInfo()
+	end
+	
+	local ui_on_vacant, ui_off_vacant = GetFreeWorkplaces(self.city)
+	local free_all = self:GetFreeLivingSpace(true)
+	local free_adult = self:GetFreeLivingSpace()
+	local city_labels = self.city.labels
+	local texts = {
+		T{7622, "<center><em>Jobs</em>"},
+		T{548, "Unemployed, seeking work<right><colonist(number)>", number = city_labels.Unemployed and #city_labels.Unemployed or 0 },
+		T{549, "Vacant work slots<right><colonist(number)>",        number = ui_on_vacant },
+		T{550, "Disabled work slots<right><colonist(number)>",      number = ui_off_vacant },
+		T{7346, "Renegades<right><colonist(number)>",               number = city_labels.Renegade and #city_labels.Renegade or 0 },
+		
+		T{7623, "<newline><center><em>Living space</em>"},
+		T{552, "Vacant residential slots<right><colonist(number)>", number = free_adult },
+		T{7624, "Vacant nursery slots<right><colonist(number)>",    number = free_all - free_adult },
+		T{551, "Homeless<right><colonist(number)>",                 number = city_labels.Homeless and #city_labels.Homeless or 0 },
+		
+		T{553, "<newline><center><em>Age Groups</em>"},
+		T{554, "Children<right><colonist(number)>",    number = data.children },
+		T{555, "Youth<right><colonist(number)>",       number = data.youths },
+		T{556, "Adults<right><colonist(number)>",      number = data.adults },
+		T{557, "Middle Aged<right><colonist(number)>", number = data.middleageds },
+		T{558, "Senior<right><colonist(number)>",      number = data.seniors },
+		
+		T{9768, "<newline><center><em>Origin</em>"},
 		T{8035, "Martianborn<right><colonist(number)>", number = data.martianborn},
 		T{8036, "Earthborn<right><colonist(number)>",   number = data.earthborn},
 	}
@@ -592,17 +697,7 @@ end
 
 ------------------------------------------------------------------
 function ResourceOverview:GetFirstWithDetrimentalStatusEffect()
-local city = self.city
-	local detrimental_status_effects = GetDetrimentalStatusEffects()
-	local array = city.labels.Colonist or empty_table
-	for _, colonist in ipairs(array) do
-		for i, effect in ipairs(detrimental_status_effects) do
-			if colonist.status_effects[effect] then				
-				return colonist
-			end	
-		end
-	end	
-	return false
+	return GetDetrimentalStatusColonists(self.city, true)
 end
 
 function ResourceOverview:GetHomelessRolloverTitle()
@@ -611,7 +706,7 @@ end
 
 function ResourceOverview:GetHomelessRolloverText()
 	if #(self.city.labels.Homeless or empty_table)>0 then
-		return T{7865, --[[Post-Cert]] "Select a homeless colonist."}
+		return T{9624, --[[Post-Cert]] "Inspect all homeless colonists in the Command Center."}
 	else	
 		return T{7866, --[[Post-Cert]] "There are no homeless colonists."}
 	end	
@@ -623,7 +718,7 @@ end
 
 function ResourceOverview:GetUnemployedRolloverText()
 	if #(self.city.labels.Unemployed or empty_table)>0 then
-		return T{7868, --[[Post-Cert]] "Select an unemployed colonist."}
+		return T{9625, --[[Post-Cert]] "Inspect all unemployed colonists in the Command Center."}
 	else	
 		return T{7869, --[[Post-Cert]] "There are no unemployed colonists."}
 	end	
@@ -635,7 +730,7 @@ end
 
 function ResourceOverview:GetProblematicRolloverText()
 	if self:GetFirstWithDetrimentalStatusEffect() then
-		return T{7871, --[[Post-Cert]] "Select a colonist suffering from a status effect."}
+		return T{9626, --[[Post-Cert]] "Inspect all colonists suffering from status effects in the Command Center."}
 	else	
 		return T{7971, --[[Post-Cert]] "There are no colonists suffering from status effects."}
 	end	

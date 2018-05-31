@@ -354,7 +354,7 @@ function LRManager:FindTransportTask(requestor, demand_only, force_resource)
 	end
 	--]]
 	
-	local res_s_req, res_d_req, res_prio, res_resource, req_count = Request_FindShuttleTask(requestor, resources, self.demand_queues, self.supply_queues, demand_only)
+	local res_s_req, res_d_req, res_prio, res_resource, req_count = Request_FindShuttleTask(requestor, resources, demand_queues, supply_queues, demand_only)
 	
 	local hystory = self.req_hystory or {}
 	self.req_hystory = hystory
@@ -379,6 +379,13 @@ function LRManager:FindTransportTask(requestor, demand_only, force_resource)
 	end
 end
 
+function LRManager:GetLastTaskCount()
+	local hystory = self.req_hystory or empty_table
+	local last_entry = hystory[#hystory] or point20
+	local time, tasks = last_entry:xy()
+	return tasks
+end
+
 function LRManager:EstimateTaskCount()
 	local hystory = self.req_hystory or empty_table
 	local time_now = GameTime()
@@ -392,5 +399,5 @@ function LRManager:EstimateTaskCount()
 		avg_tasks = avg_tasks + tasks * weight
 		total_weight = total_weight + weight
 	end
-	return total_weight > 0 and avg_tasks / total_weight
+	return total_weight > 0 and (avg_tasks / total_weight) or self:GetLastTaskCount()
 end

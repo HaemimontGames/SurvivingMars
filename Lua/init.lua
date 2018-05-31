@@ -28,5 +28,5 @@ end
 end -- Platform.desktop and not Platform.steam and not Platform.gog
 
 function CanUnlockAchievement(xplayer, achievement)
-	return true
+	return not g_Tutorial
 end

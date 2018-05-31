@@ -752,7 +752,7 @@ function SA_AddApplicants:Exec(seq_player, ip, seq, registers)
 			for trait in pairs(to_add) do
 				colonist.traits[trait] = true
 			end
-		else
+		elseif to_add then
 			colonist.traits[to_add] = true
 		end
 		if self.Specialization ~= "any" then
@@ -785,7 +785,7 @@ function SA_GrantResearchPts:ShortDescription()
 	if self.Percent ~= 0 then
 		return string.format("Grant %d%% from the rest of the points of %s tech", self.Percent, tech_id)
 	else
-		return string.format("Grant %.3f points to %s tech", self.Amount, tech_id)
+		return string.format("Grant %d points to %s tech", self.Amount, tech_id)
 	end
 end
 
@@ -837,7 +837,7 @@ function GrantWonderTech()
 	end
 	local techs_list = table.keys(wonder_techs)
 	if #techs_list == 0 then
-		local all_techs = TechFields.Breakthroughs or ""
+		local all_techs = Presets.TechPreset.Breakthroughs or ""
 		for i = 1, #all_techs do
 			local id = all_techs[i].id
 			if not city:IsTechResearched(id) then
@@ -872,10 +872,6 @@ function SA_GrantTechBoost:ShortDescription()
 end
 
 function SA_GrantTechBoost:Exec(seq_player, ip, seq, registers)
-	local field = TechFields[self.Field]
-	if not field then return end
-	
-	local object = field
 	if self.Research == "" then
 		UICity.TechBoostPerField[self.Field] = (UICity.TechBoostPerField[self.Field] or 0) + self.Amount
 	else
@@ -1085,7 +1081,7 @@ function SA_CustomNotification:Exec(seq_player, ip, seq, registers)
 				Sleep(self.interval*1000)
 			
 				--Get the controller dialog
-				local dlg = GetDialog("OnScreenNotificationsDlg")
+				local dlg = GetXDialog("OnScreenNotificationsDlg")
 				if not dlg then break end
 				
 				--Check if notification still exists
@@ -1222,8 +1218,9 @@ local function RevealableTechs()
 	}
 	for id, field in sorted_pairs(TechFields) do
 		if not field.discoverable then
-			for i=1,#field do
-				techs[#techs + 1] = {value = field[i].id, text = field[i].display_name}
+			local defs = Presets.TechPreset[field.id]
+			for i=1,#defs do
+				techs[#techs + 1] = {value = defs[i].id, text = defs[i].display_name}
 			end
 		end
 	end
@@ -1261,7 +1258,7 @@ function SA_RevealTech:Exec(seq_player, ip, seq, registers)
 	local tech_id = self.tech
 	if tech_id == "" then
 		local not_revealed_techs = {}
-		local all_techs = TechFields.Breakthroughs or ""
+		local all_techs = Presets.TechPreset.Breakthroughs or ""
 		for i = 1, #all_techs do
 			local id = all_techs[i].id
 			if not city:IsTechDiscovered(id) then
@@ -1362,8 +1359,10 @@ function PositionFinder:TestPos(pt_pos, q, r, angle, class_def, building_shape, 
 		return
 	end
 	if check_exploration then
-		if check_exploration == "explored" and GetMapExplorationAt(pt_pos) == "unexplored"
-		or check_exploration == "unexplored" and GetMapExplorationAt(pt_pos) ~= "unexplored" then
+		local sector = GetMapSector(pt_pos)
+		local status = sector and (sector.blocked_status or sector.status)
+		if check_exploration == "explored" and status == "unexplored"
+		or check_exploration == "unexplored" and status ~= "unexplored" then
 			return
 		end
 	end
@@ -1424,8 +1423,10 @@ function PositionFinder:TestPos(pt_pos, q, r, angle, class_def, building_shape, 
 					end
 				end
 				if check_exploration then
-					if check_exploration == "explored" and GetMapExplorationAt(pt_x, pt_y) == "unexplored"
-					or check_exploration == "unexplored" and GetMapExplorationAt(pt_x, pt_y) ~= "unexplored" then
+					local sector = GetMapSector(pt_x, pt_y)
+					local status = sector and (sector.blocked_status or sector.status)
+					if check_exploration == "explored" and status == "unexplored"
+					or check_exploration == "unexplored" and status ~= "unexplored" then
 						return
 					end
 				end
@@ -1468,12 +1469,26 @@ function PositionFinder:TryFindRandomPos(class_def, building_shape, building_oth
 	local city = UICity
 	local check_dome = self.check_dome
 	local check_exploration = self.check_exploration
+	local valid_objs
 	while true do
 		if random_pos_label then
-			local label_objs = city.labels[random_pos_label] or empty_table
+			local label_objs = valid_objs or city.labels[random_pos_label] or empty_table
 			local label_obj = city:TableRand(label_objs)
 			if not label_obj then
 				return false
+			end
+			if not IsValid(label_obj) or not label_obj:IsValidPos() then
+				assert(not valid_objs)
+				valid_objs = {}
+				for _, obj in ipairs(label_objs) do
+					if IsValid(obj) and obj:IsValidPos() then
+						valid_objs[#valid_objs + 1] = obj
+					end
+				end
+				label_obj = city:TableRand(valid_objs)
+				if not label_obj then
+					return false
+				end
 			end
 			local r_l = city:Random(random_pos_max_dist_from_label)
 			local a = city:Random(360*60)
@@ -1493,8 +1508,9 @@ function PositionFinder:TryFindRandomPos(class_def, building_shape, building_oth
 				local sectors = sectors[x]
 				for y = 1, const.SectorCount do
 					local sector = sectors[y]
-					if check_exploration == "unexplored" and sector.status == "unexplored"
-					or check_exploration == "explored" and sector.status ~= "unexplored" then
+					local status = sector.blocked_status or sector.status
+					if check_exploration == "unexplored" and status == "unexplored"
+					or check_exploration == "explored" and status ~= "unexplored" then
 						filtered[#filtered + 1] = sector
 					end
 				end
@@ -1717,7 +1733,7 @@ function SA_PlaceObject:Exec(seq_player, ip, seq, registers)
 			else
 				pos = self.placement_pos
 			end
-			q, r = WorldToHex(pos:x(), pos:y())
+			q, r = WorldToHex(pos)
 			angle = 0
 			--todo : test more angles?
 			if self:TestPos(pos, q, r, angle, class_def, outline, interior) then
@@ -2053,7 +2069,7 @@ function SA_SpawnAnomaly:WarningsCheck(seq_player, seq, registers)
 end
 
 function SA_SpawnAnomaly:ShortDescription()
-	return string.format("Place anomaly %s at %s%s", type(self.display_name) == "table" and self.display_name[1] ~= "" and self.display_name[1] or "with default name", SA_PlaceObject.GetPosStr(self), SA_PlaceObject.GetChecksStr(self))
+	return string.format("Place anomaly %s at %s%s",_InternalTranslate(self.display_name), SA_PlaceObject.GetPosStr(self), SA_PlaceObject.GetChecksStr(self))
 end
 
 function SA_SpawnAnomaly:Exec(seq_player, ip, seq, registers)
@@ -2082,7 +2098,7 @@ function SA_SpawnAnomaly:Exec(seq_player, ip, seq, registers)
 			else
 				pos = self.placement_pos
 			end
-			q, r = WorldToHex(pos:x(), pos:y())
+			q, r = WorldToHex(pos)
 			angle = 0		
 			pos_test_result = self:TestPos(pos, q, r, angle, class_def, outline, interior)
 		else
@@ -2106,6 +2122,7 @@ function SA_SpawnAnomaly:Exec(seq_player, ip, seq, registers)
 			description = self.description ~= "" and self.description or nil,
 			tech_action = self.is_breakthrough and "breakthrough",
 			sequence = self.sequence,
+			sequence_list = self.sequence_list == "" and seq_player.seq_list.name or self.sequence_list,
 			expiration_time = self.expiration_time,
 			revealed = true,
 		}
@@ -2633,7 +2650,7 @@ function SA_CallRefugeeRocket:Exec(seq_player, ip, seq, registers)
 	local data = cargo[1].applicants_data
 	
 	for j = 1, self.num_refugees do
-		data[j] = GenerateColonistData(city, nil, nil, nil, nil, true)
+		data[j] = GenerateColonistData(city, nil, nil,{no_traits = true})
 		if self.refugee then
 			data[j].traits.Refugee = true
 		end

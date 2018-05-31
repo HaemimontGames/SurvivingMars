@@ -4,9 +4,9 @@ DefineClass.TheMarsBug = {
 	scenario_name = "Mystery 8",
 	
 	display_name = T{8067, "Wildfire (Hard)"},
-	rollover_text = T{8068, "\"The worst pandemic in modern history was the Spanish flu of 1918, which killed tens of millions of people. Today, with how interconnected the world is, it would spread faster.\"<newline><right>- Bill Gates"},
-	challenge_mod = 55,
-	order_pos = 9,
+	rollover_text = T{8068, '"The worst pandemic in modern history was the Spanish flu of 1918, which killed tens of millions of people. Today, with how interconnected the world is, it would spread faster."<newline><right>- Bill Gates'},
+	challenge_mod = 60,
+	order_pos = 11,
 	
 	--mystery resource properties
 	resource_display_name = T{8458, "Wildfire Cure"}, 

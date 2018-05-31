@@ -1,6 +1,6 @@
 
 DefineClass.PinsDlg = {
-	__parents = { "XDialog" },
+	__parents = {"XDrawCacheDialog"},
 	
 	HAlign = "center",
 	VAlign = "bottom",
@@ -126,6 +126,17 @@ local blocked_xbox_shortcuts = {
 	["LeftThumbUp"] = true,
 	["LeftThumbDown"] = true,
 }
+
+function PinsDlg:OnMouseEnter(pos)
+	if GetUIStyleGamepad() then return end
+	local igi = GetInGameInterface()
+	local dlg = igi and igi.mode_dialog
+	if dlg and dlg:IsKindOf("UnitDirectionModeDialog") and dlg.unit then
+		dlg:HideMouseCursorText(pos)
+	end	
+	return XDialog.OnMouseEnter(self, pos)
+end
+
 function PinsDlg:OnShortcut(shortcut, source)
 	if shortcut == "Escape" then
 		self:SetFocus(false, true)
@@ -217,6 +228,10 @@ end
 function PinsDlg:InitPinButton(button)
 	local obj = button.context
 	button.keep_highlighted = false
+		
+	if obj.pin_summary2 ~= "" then
+		button.idTextBackground:SetImage("UI/Common/pin_shadow_2.tga")
+	end
 	
 	local icon = obj:GetPinIcon()
 	button:SetIcon(icon)
@@ -306,9 +321,13 @@ function PinsDlg:InitPinButton(button)
 	button:SetRolloverHintGamepad(resolve_pin_rollover_hint(obj, "pin_rollover_hint_xbox"))
 	
 	local old_OnSetFocus = button.OnSetFocus
-	if obj and IsValid(obj) and obj:IsKindOf("InfopanelObj") and (obj:HasMember("GetPos") and obj:GetPos() ~= InvalidPos()) then
+	if obj and IsValid(obj) and obj:IsKindOf("InfopanelObj") and obj:HasMember("GetPos") then
 		function button:OnSetFocus(...)
-			SelectObj(self.context)
+			if self.context:GetPos() ~= InvalidPos() then
+				SelectObj(self.context)
+			else
+				SelectObj()
+			end
 			return old_OnSetFocus(self, ...)
 		end
 	else
@@ -366,7 +385,7 @@ function SortPinnedObjs()
 	g_PinnedObjs = new_order
 
 	--update order of ctrls in the pins dialog
-	local pins_dlg = GetDialog("PinsDlg")
+	local pins_dlg = GetXDialog("PinsDlg")
 	if pins_dlg then
 		local obj_to_ctrl = {}
 		--the first ctrl in PinsDlg is the gamepad hint icon

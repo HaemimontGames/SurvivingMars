@@ -334,7 +334,7 @@ PlaceObj('Trait', {
 
 PlaceObj('Trait', {
 	'name', "OtherGender",
-	'display_name', T{6677, --[[Trait OtherGender display_name]] "Other"},
+	'display_name', T{6677, --[[Trait OtherGender display_name]] "Other Sex"},
 	'category', "Gender",
 	'description', T{6678, --[[Trait OtherGender description]] "The birth rate in any Dome is determined by the number of Male/Female couples at high Comfort."},
 	'auto', false,

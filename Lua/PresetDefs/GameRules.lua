@@ -15,7 +15,7 @@ DefineClass.GameRules = {
 			editor = "number", default = 0, min = -500, max = 500, },
 		{ category = "General", id = "exclusionlist", name = T{452690473931, "Exclusion List"}, help = T{959078240221, "List of other game rules that are not compatible with this one. If this rule is active the player won't be able to enable the rules in the exclusion list."}, 
 			editor = "text", default = false, },
-		{ category = "General", id = "param1", name = T{3904, "Param 1"}, 
+		{ category = "General", id = "param1", name = T{3904, "Param 1"}, help = T{521110102469, "Arbitrary parameter you can reference from code as self.param1"}, 
 			editor = "number", default = 0, },
 		{ category = "General", id = "param1_desc", 
 			editor = "text", default = false, },

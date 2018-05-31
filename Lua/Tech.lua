@@ -1,21 +1,18 @@
-function ClearTechTree()
-	TechTree = {}
-	TechFields = {}
-	TechDef = {}
+function ClearTechRequirements()
 	BuildingTechRequirements = {}
 	CropTechRequirements = {}
 	TraitTechRequirements = {}
 end
 
 if FirstLoad then
-	ClearTechTree()
+	ClearTechRequirements()
 end
 
-function GetTechFieldsCombo()
-	local results = table.imap(TechTree, "id")
-	table.sort(results)
-	table.insert(results, 1, "")
-	return results
+function OnMsg.DataLoaded()
+	ClearTechRequirements()
+	for _, tech in pairs(TechDef) do
+		tech:OnDataLoaded()
+	end
 end
 
 --tech research costs
@@ -35,7 +32,7 @@ DefineClass.TechField = {
 		{ category = "Field", id = "dlc",               name = T{3895, "Required DLC"},          editor = "combo",        default = "", items = DlcCombo() },
 		{ category = "Field", id = "costs",             name = T{3896, "Research Costs"},        editor = "table",        default = def_cost, help = "Required Research Points For Each Tech Slot" },
 		{ category = "Field", id = "discoverable",      name = T{3897, "Discoverable"},          editor = "bool",         default = true, help = "The tech in this field can be discovered through normal means." },
-		{ category = "Field", id = "show_in_field",    	name = T{7545, "Show in Other Field"}, editor = "dropdownlist", default = "", items = GetTechFieldsCombo, help = "The tech in this field are visible in another UI group." },
+		{ category = "Field", id = "show_in_field",    	name = T{7545, "Show in Other Field"}, editor = "dropdownlist", default = "", items = ResearchFieldsCombo, help = "The tech in this field are visible in another UI group." },
 		{ category = "Field", id = "hex_direction",     name = T{3899, "Position on hex grid"},  editor = "number",       default = 0, help = "Position on research screen hex grid, starting at 1 for upper right and proceeding CCW" },
 	},
 	PropEditorPaste = { "Tech" },
@@ -86,21 +83,6 @@ DefineClass.Tech = {
 	disable_reason = false,
 }
 
-function Tech:Setid(id)
-	if id == def_id then
-		self.id = nil
-		return
-	end
-	if TechDef[self.id] == self then
-		TechDef[self.id] = nil
-	end
-	while TechDef[id] do
-		id = id .. "_new"
-	end
-	self.id = id
-	TechDef[id] = self
-end
-
 function Tech:GetIdentifier()
 	return self.id
 end
@@ -113,53 +95,18 @@ function Tech:ResearchQueueCost(queue_idx)
 	return UICity:ResearchQueueCost(self.id, queue_idx)
 end
 
-function Tech:Getseq_position()
-	return UICity:TechSeqPosition(self.id)
-end
-
-function Tech:WarningsCheck(params)
-	for i=1,#self do
-		self[i]:WarningsCheck(self, params)
-	end
-end
-
-function Tech:Initialize(city)
-	self:OnGameInit(city)
-	for i=1,#self do
-		self[i]:OnGameInit(city, self)
-	end
-end
-
 function Tech:OnGameInit(city)
 end
-
-function Tech:ResearchComplete(city)
-	self:OnResearchComplete(city)
-	for i=1,#self do
-		self[i]:OnResearchComplete(city, self)
-	end
-end
-
 function Tech:OnResearchComplete(city)	
 end
-
-function Tech:GetFieldDisplayName()
-	local field = TechFields[self.field]
-	return field and field.display_name or ""
-end
-
-function Tech:GetFieldDescription()
-	local field = TechFields[self.field]
-	return field and field.description or ""
-end
-
 function OnMsg.GenerateDocs(project_folder, empty_name)
 	local output = {
 		"# Documentation for *Technology Names*\n",		
 		}
 	local outputFileName = project_folder.."LuaFunctionDoc_TechnologyNames.md.html"
-	for i = 1 , #TechTree do
-		local field = TechTree[i]
+	local fields = Presets.TechFieldPreset.Default
+	for i = 1 , #fields do
+		local field = fields[i]
 		local field_id = field.id
 		if field_id~="Mysteries" then
 			output[#output+1] = "##  "..field_id
@@ -168,7 +115,7 @@ function OnMsg.GenerateDocs(project_folder, empty_name)
 			end
 			output[#output+1] = ""
 			local techs_by_name = {}
-			for _, tech in ipairs(field) do
+			for _, tech in ipairs(Presets.TechPreset[field_id]) do
 				local tech_info = {}
 				tech_info.name = TDevModeGetEnglishText(tech.display_name)
 				tech_info.desc = TDevModeGetEnglishText(tech.description)
@@ -211,18 +158,6 @@ function OnMsg.GenerateDocs(project_folder, empty_name)
 	end
 end
 
-function OnMsg.DataLoaded()
-	for i=1,#TechTree do
-		local field = TechTree[i]
-		for j=1,#field do
-			local tech = field[j]
-			for k=1,#tech do
-				tech[k]:OnDataLoaded(tech)
-			end
-		end
-	end
-end
-
 ----
 local tech_effect_classes = {}
 function OnMsg.ClassesBuilt()
@@ -256,17 +191,10 @@ function TechEffect:SetType(new_class)
 	end
 end
 
-function TechEffect:WarningsCheck(tech, params)
-end
-
 function TechEffect:OnGameInit(city, tech)
 end
 
 function TechEffect:OnResearchComplete(city, tech)
-end
-
-function TechEffect:GetResearchSpeedMod(city, tech)
-	return 0
 end
 
 function TechEffect:GetDescription()
@@ -282,14 +210,6 @@ DefineClass.TechEffect_UnlockBuilding = {
 		{ category = "Unlock", id = "HideBuilding", name = "Hide Building",    editor = "bool",         default = false,  },
 	},
 }
-
-function TechEffect_UnlockBuilding:WarningsCheck(tech, params)
-	if self.Building == "" then 
-		print("Specify building class for Unlock Building effect in Tech:", tech:GetIdentifier())
-	elseif not DataInstances.BuildingTemplate[self.Building] then
-		print("Non-existent building", self.Building, "for Unlock Building effect in Tech:", tech:GetIdentifier())
-	end
-end
 
 function TechEffect_UnlockBuilding:GetDescription()
 	return "Unlock building " .. self.Building
@@ -307,8 +227,8 @@ end
 
 	@function void Gameplay@LockBuilding(string template_name[, string lock_type, T disable_reason])
 	@param string template_name - The template name of the building to be locked.
-	@param string template_name - Optional. Lock type can be "hide", where the building will not be visible in the build menu, "disable", where the building will be visible but not clickable. Any string different from "hide" and "disable" defaults to "hide". Omitting the value defaults to "hide".
-	@param T template_name - Optional. If lock type is "disable" the rollover information string can be provided with this param. It has to be a localized string. If omitted will default to "This building has been disabled".
+	@param string lock_type - Optional. Lock type can be "hide", where the building will not be visible in the build menu, "disable", where the building will be visible but not clickable. Any string different from "hide" and "disable" defaults to "hide". Omitting the value defaults to "hide".
+	@param T disable_reason - Optional. If lock type is "disable" the rollover information string can be provided with this param. It has to be a localized string. If omitted will default to "This building has been disabled".
 	@result void
 ]]
 function LockBuilding(template_name, lock_type, disable_reason)
@@ -353,12 +273,6 @@ DefineClass.TechEffect_GiveFunding = {
 	},
 }
 
-function TechEffect_GiveFunding:WarningsCheck(tech, params)
-	if self.Funding == 0 then 
-		print("Zero funding value for Give Funding effect in Tech:", tech:GetIdentifier())
-	end
-end
-
 function TechEffect_GiveFunding:GetDescription()
 	return "Give funding " .. (self.Funding > 0 and tostring(self.Funding) or "")
 end
@@ -381,7 +295,7 @@ end
 DefineClass.TechEffect_TechBoost = {
 	__parents = { "TechEffect" },
 	properties = {
-		{ category = "Modify", id = "Field",     name = "Field",         editor = "dropdownlist", default = "", items = GetTechFieldsCombo },
+		{ category = "Modify", id = "Field",     name = "Field",         editor = "dropdownlist", default = "", items = ResearchFieldsCombo },
 		{ category = "Modify", id = "Percent",    name = "Boost percent (%)", editor = "number",         default = 0,  },
 	},
 }
@@ -426,14 +340,6 @@ function TechEffect_UnlockUpgrade:OnResearchComplete(city, tech)
 	city:UnlockUpgrade(self.Upgrade)
 end
 
-function TechEffect_UnlockUpgrade:WarningsCheck(tech, params)
-	params.upgrades = params.upgrades or GetUpgradeIdList()
-	if self.Upgrade == "" then 
-		print("Specify Upgrade for Unlock Upgrade effect in Tech:", tech:GetIdentifier())
-	elseif not table.find(params.upgrades, self.Upgrade) then
-		print("Unlock Upgrade effect from", tech:GetIdentifier(), "references non-existent ugrade", self.Upgrade)
-	end
-end
 --[[@@@
 	Unlock upgrade so it is available for construction in all building types that has such upgrade id described in their building template. 
 	@function void Gameplay@UnlockUpgrade(string upgrade_id)
@@ -486,17 +392,6 @@ function TechEffect_ModifyLabel:OnResearchComplete(city, tech)
 		percent = self.Percent,
 		id = tech:GetIdentifier(),
 	})
-end
-
-function TechEffect_ModifyLabel:WarningsCheck(tech, params)
-	params.labels = params.labels or LabelsCombo()
-	if self.Label == "" then 
-		print("Specify label to modify in", tech:GetIdentifier())
-	elseif not table.find(params.labels, self.Label) then
-		print("Modify Label effect from", tech:GetIdentifier(), "references non-existent label", self.Label)
-	elseif not ModifiablePropScale[self.Prop] then
-		print("Modify Label effect from", tech:GetIdentifier(), "targets a non-modifiable property", self.Prop)
-	end
 end
 
 --[[@@@
@@ -686,13 +581,6 @@ function TechEffect_ModifyResupplyParam:GetDescription()
 	return string.format("Modify resupply %s for %s", self.Param, self.Item)
 end
 
-function TechEffect_ModifyResupplyParam:WarningsCheck(tech, params)
-	if not CargoPreset[self.Item] then
-		print("Non-existent cargo item", self.Item, "for Modify Resupply Param effect in Tech:", tech:GetIdentifier())
-		return
-	end
-end
-
 function TechEffect_ModifyResupplyParam:OnResearchComplete(city, tech)
 	ModifyResupplyParam(self.Item, self.Param, self.Percent)
 end
@@ -708,13 +596,6 @@ DefineClass.TechEffect_UnlockResupplyItem = {
 
 function TechEffect_UnlockResupplyItem:GetDescription()
 	return "Unlock Resupply item " .. self.Item
-end
-
-function TechEffect_UnlockResupplyItem:WarningsCheck(tech, params)
-	if not CargoPreset[self.Item] then
-		print("Non-existent cargo item", self.Item, "for Unlock Resupply Item effect in Tech:", tech:GetIdentifier())
-		return
-	end
 end
 
 function TechEffect_UnlockResupplyItem:OnResearchComplete(city, tech)
@@ -755,36 +636,6 @@ function TechEffect_EditProps:GetOwner()
 	end
 end
 
-for i=1,#properties do
-	local meta = properties[i]
-	meta.dont_save = true
-	meta.modifiable = false
-	local id = meta.id
-	TechEffect_EditProps["Get" .. id] = function(self)
-		local owner = self:GetOwner()
-		return owner and owner:GetProperty(id)
-	end
-	TechEffect_EditProps["Set" .. id] = function(self, value)
-		local owner = self:GetOwner()
-		return owner and owner:SetProperty(id, value)
-	end
-end
-
-function OnMsg.DataLoaded()
-	for i=1,#TechTree do
-		local field = TechTree[i]
-		for j=1,#field do
-			local tech = field[j]
-			local props = table.find_value(tech, "class", "TechEffect_EditProps")
-			if not props then
-				table.insert(tech, 1, TechEffect_EditProps:new{owner = tech})
-			else
-				props.owner = tech
-			end
-		end
-	end
-end
-
 ----
 
 DefineClass.TechEffect_UnlockTrait = {
@@ -793,12 +644,6 @@ DefineClass.TechEffect_UnlockTrait = {
 		{ category = "Unlock", id = "Trait", name = "Trait", editor = "dropdownlist", default = "", items = DataInstanceCombo("Trait") },
 	},
 }
-
-function TechEffect_UnlockTrait:WarningsCheck(tech, params)
-	if self.Trait == "" then 
-		print("Specify Trait for unlocking in Tech:", tech:GetIdentifier())
-	end
-end
 
 function TechEffect_UnlockTrait:GetDescription()
 	return "Unlock trait " .. self.Trait
@@ -892,11 +737,6 @@ function TechEffect_ModifyConstructionCost:OnResearchComplete(city, tech)
 	end
 end
 
-function TechEffect_ModifyConstructionCost:WarningsCheck(tech, params)
-	if self.Building and not DataInstances.BuildingTemplate[self.Building] then
-		print("Non-existent building", self.Building, "for Modify Construction Cost effect in Tech:", tech:GetIdentifier())
-	end
-end
 --[[@@@
 Modify construction cost of  the specified building/category with the specified percent. Calling ModifyConstructionCost multiple times in one building with different percents, first sums all percents and then apply to the cost. 
 @function void Gameplay@ModifyConstructionCost(string building_name, string construction_resource, int percent)
@@ -954,13 +794,6 @@ function TechEffect_GrantTech:OnResearchComplete(city, tech)
 		return
 	end
 	city:SetTechResearched(self.Research)
-end
-
-function TechEffect_GrantTech:WarningsCheck(tech, params)
-	local field = TechFields[self.Field]
-	if not field or not table.find(field, "id", self.Research)  then
-		print("Grant Tech effect from", tech:GetIdentifier(), "references non-existent tech", self.Research, "in field", self.Field)
-	end
 end
 
 --[[@@@
@@ -1030,18 +863,6 @@ DefineClass.TechEffect_ModifyUprade = {
 	}
 }
 
-function TechEffect_ModifyUprade:WarningsCheck(tech, params)	
-	if not self.upgrade_id then
-		print(tech:GetIdentifier(), "- TechEffect_ModifyUprade: No ugprade id provided")
-	end
-	if self.prop == "" then
-		print(tech:GetIdentifier(), "- TechEffect_ModifyUprade: No property provided")
-	end
-	if self.amount == self.percent and self.amount == 0 then
-		print(tech:GetIdentifier(), "- TechEffect_ModifyUprade: No amount or percent provided")
-	end
-end
-
 function TechEffect_ModifyUprade:GetDescription()
 	if not self.upgrade_id then
 		return "Modify upgrade modifier"
@@ -1052,188 +873,6 @@ end
 function TechEffect_ModifyUprade:OnResearchComplete(city, tech)
 	RegisterUpgradeModifierModifier(self.upgrade_id, self.prop, self.amount, self.percent)
 end
-----
-
-DefineClass.TechEditor = {
-	__parents = { "PropEditor", "InitDone" },
-	
-	PropEditorPaste = { "TechField", "Tech", "TechEffect" },
-	PropEditorCloseOnChangeMap = false,
-	PropEditorSaveOnSaveMap = false,
-	PropEditorViews = {
-		{
-			name = "Default",
-			height = 780,
-			caption = "Tech Editor",
-			{ title = "Tech Fields",  type = "list",  width = 300, items = '{display_name}' },
-			{ title = "Tech List",    type = "list",  width = 300, items = '{display_name}', obj = 1 },
-			{ title = "Tech Effects", type = "list",  width = 300, items = '{GetDescription}', obj = 2 },
-			{ title = "Effect Props", type = "props", width = 300, obj = 3},
-		},
-	},
-
-	PropEditorActions = {
-		{ "New",       "ActionNew",    "Ctrl-N",    "new",     {"TechEditor", "TechField", "Tech"}},
-		{ "Delete",    "ActionDelete", "Delete",    "delete!", {"TechEditor", "TechField", "Tech"} },
-		{ "Save",      "ActionSave",   "Ctrl-S",    "save!"},
-		{ "Move Up",   "ActionUp",     "Ctrl-Up",   "up",      {"TechEditor", "TechField", "Tech"} },
-		{ "Move Down", "ActionDown",   "Ctrl-Down", "down!",   {"TechEditor", "TechField", "Tech"} },
-		{ "Research",  "Research",	  "Ctrl-R", 		"play", 	 { "TechField" } },
-	},
-}
-
-if Platform.developer then
-UserActions.AddActions {
-	["TechEditor"] = {
-		menu = "[203]Editors/[01]Mars/Tech Editor",
-		key = "Ctrl-Alt-T",
-		action = function() 
-			local _, window_id = PropEditor_GetFirstWindow("TechEditor")
-			if not window_id then
-				PropEditorOpen(TechEditor:new(TechTree)) 
-			else
-				PropEditorActivateWindow(window_id)
-			end
-		end,
-	}
-}
-end
-
-function TechEditor:Init()
-	self:WarningsCheck()
-end
-
---events
-function TechEditor:OnObjectModified(object, prop_id)
-	if prop_id == "Type" and IsKindOf(object, "TechEffect") then 
-		PropEditorObjChanged(self)
-	end
-end
-
---actions
-function TechEditor:ActionNew(obj, selected_index, selection, view_index)
-	local new_obj
-	if IsKindOf(obj, "Tech") then
-		new_obj = TechEffect:new()
-	elseif IsKindOf(obj, "TechField") then
-		new_obj = Tech:new()
-		new_obj[1] = TechEffect_EditProps:new{owner = new_obj}
-	else
-		obj = self
-		new_obj = TechField:new()
-	end
-	local idx = (selected_index or #obj) + 1
-	local redo_func = function()
-		table.insert(obj, idx, new_obj)
-		PropEditorObjChanged(self)
-		return idx
-	end
-	local undo_func = function()
-		local idx = table.remove_entry(obj, new_obj)
-		PropEditorObjChanged(self)
-		return idx and Max(1, idx - 1) or 1
-	end
-	redo_func()
-	return idx, undo_func, redo_func
-end
-
---actions
-function TechEditor:ActionDelete(obj,selected_index,selection,view_index)
-	obj = obj or self
-	local del_obj = obj[selected_index]
-	local redo_func = function()
-		local idx = table.remove_entry(obj, del_obj)
-		PropEditorObjChanged(self)
-		return idx and Max(1, idx - 1) or 1
-	end
-	local undo_func = function()
-		local idx = table.insert(obj, selected_index, del_obj)
-		PropEditorObjChanged(self)
-		return idx
-	end
-	local idx = redo_func()
-	return idx, undo_func, redo_func
-end
-
-function TechEditor:ActionSave()
-	self:WarningsCheck()
-	
-	--autofill the field of each tech
-	for i=1,#TechTree do
-		local field = TechTree[i]
-		local field_id = field.id
-		for j=1,#field do
-			local tech = field[j]
-			tech.field = field_id
-		end
-	end
-	
-	local data = {
-		exported_files_header_warning,
-		"ClearTechTree()\n\n",
-		"TechTree = ",
-		ArrayToLuaCode(TechTree),
-		[=[
-
-TechFields = {}
-for i=1,#TechTree do
-	local field = TechTree[i]
-	TechFields[field.id] = field
-end]=],
-	}
-	return AsyncStringToFile("Data/TechTree.lua", data)
-end
-
-function TechEditor:WarningsCheck()
-	local params = {}
-	for i=1,#TechTree do
-		local field = TechTree[i]
-		for j=1,#field do
-			local tech = field[j]
-			tech:WarningsCheck(params)
-		end
-	end
-end
-
-function TechEditor:MoveEntry(down, obj, selected_index, selection, view_index, column_index)
-	obj = obj or self
-	local target = obj[selected_index]
-	local move_up = function()
-		local idx = table.remove_entry(obj, target)
-		idx = Max(1, idx - 1)
-		table.insert(obj, idx, target)
-		PropEditorObjChanged(self)
-		return idx
-	end
-	local move_down = function()
-		local idx = table.remove_entry(obj, target)
-		idx = Min(#obj + 1, idx + 1)
-		table.insert(obj, idx, target)
-		PropEditorObjChanged(self)
-		return idx
-	end
-	local redo_func, undo_func = move_up, move_down
-	if down then
-		redo_func, undo_func = move_down, move_up
-	end
-	local idx = redo_func()
-	return idx, undo_func, redo_func
-end
-
-function TechEditor:ActionUp(obj, selected_index, selection, view_index, column_index)
-	return self:MoveEntry(false, obj, selected_index, selection, view_index, column_index)
-end
-
-function TechEditor:ActionDown(obj, selected_index, selection, view_index, column_index)
-	return self:MoveEntry(true, obj, selected_index, selection, view_index, column_index)
-end
-
-function TechEditor:Research(obj, selected_index, selection, view_index, column_index)
-	if IsKindOf(obj, "TechField") then
-		UICity:SetTechResearched(obj[selected_index].id)
-	end
-end
-
 ----
 
 -- purpose: store research on level-designer-created map (deprecated!!!, now stored in mapdata)
@@ -1254,3 +893,111 @@ You can read more details about the [Research](Research.md.html) and [Colonists]
 @class Gameplay
 --]]
 
+--------------  Tech to TechPreset  -------------------------
+
+local TechToGameEffect = {
+	TechEffect_UnlockBuilding = "Effect_TechUnlockBuilding",
+	TechEffect_GiveFunding = "Effect_Funding",
+	TechEffect_TechBoost = "Effect_TechBoost",
+	TechEffect_UnlockUpgrade = "Effect_UnlockUpgrade",
+	TechEffect_ModifyLabel = "Effect_ModifyLabel",
+	TechEffect_ModifyLabelOverTime = "Effect_ModifyLabelOverTime",
+	TechEffect_CompoundEfficiency = "Effect_CompoundEfficiency",
+	TechEffect_ModifyResupplyParam = "Effect_ModifyResupplyParam",
+	TechEffect_UnlockResupplyItem = "Effect_UnlockResupplyItem",
+	TechEffect_UnlockTrait = "Effect_UnlockTrait",
+	TechEffect_UnlockDeeperDeposits = "Effect_UnlockDeeperDeposits",
+	TechEffect_ModifyConstructionCost = "Effect_ModifyConstructionCost",
+	TechEffect_GrantTech = "Effect_GrantTech",
+	TechEffect_ModifyUprade = "Effect_ModifyUpgrade",
+}
+
+local function ConvertTechEffectToGameEffect(effect)
+	local class = TechToGameEffect[effect.class]
+	local t = {}
+	for _, prop_meta in ipairs(effect.properties) do
+		local id = prop_meta.id
+		local value = rawget(effect, id)
+		if value ~= effect:GetDefaultPropertyValue(id, prop_meta) then
+			if effect.class == "TechEffect_ModifyUprade" then
+				if id == "upgrade_id" then
+					id = "Upgrade"
+				elseif id == "prop" then
+					id = "Prop"
+				elseif id == "amount" then
+					id = "Amount"
+				elseif id == "percent" then
+					id = "Percent"
+				end
+			end
+			t[id] = value
+		end
+	end
+	return g_Classes[class]:new(t)
+end
+
+function ConvertTechToTechPreset(tech)
+	local t = {}
+	local game_init
+	local research_complete
+	for _, prop_meta in ipairs(tech.properties) do
+		local id = prop_meta.id
+		local value = rawget(tech, id)
+		if value ~= nil then
+			if id == "OnGameInit" and value ~= tech:GetDefaultPropertyValue(id, prop_meta) then
+				game_init = tech.OnGameInit
+			elseif id == "OnResearchComplete" and value ~= tech:GetDefaultPropertyValue(id, prop_meta) then
+				research_complete = tech.OnResearchComplete
+			elseif value ~= tech:GetDefaultPropertyValue(id, prop_meta) then
+				id = id == "field" and "group" or id
+				t[id] = value
+				if id == "dlc" then
+					t["save_in"] = value -- preset will be saved in the appropriate DLC folder when saving using the editor
+				end
+			end
+		end
+	end
+	for _, v in ipairs(tech) do
+		if v.class ~= "TechEffect_EditProps" then
+			t[#t + 1] = ConvertTechEffectToGameEffect(v)
+		end
+	end
+	if game_init or research_complete then
+		--"self" in OnGameInit and OnResearchComplete referred to the tech
+		--in Effect_Code's functions it refers to the Effect_Code instance
+		--so some substitution is required
+		--also, new methods have different params
+		local name, _, body
+		if game_init then
+			name, _, body = GetFuncSource(game_init)
+			for i = 1, #body do
+				body[i] = body[i]:gsub("self", "parent")
+			end
+			local new_params = Effect_Code:GetPropertyMetadata("OnInitEffect").params or "self, city, parent"
+			game_init = CompileFunc(name, new_params, table.concat(body, "\n"))
+		end
+		if research_complete then
+			name, _, body = GetFuncSource(research_complete)
+			for i = 1, #body do
+				body[i] = body[i]:gsub("self", "parent")
+			end
+			local new_params = Effect_Code:GetPropertyMetadata("OnApplyEffect").params or "self, city, parent"
+			research_complete = CompileFunc(name, new_params, table.concat(body, "\n"))
+		end
+		t[#t + 1] = Effect_Code:new{
+			OnInitEffect = game_init,
+			OnApplyEffect = research_complete,
+		}
+	end
+	local class = IsKindOf(tech, "ModItemTech") and "ModItemTechPreset" or "TechPreset"
+	return g_Classes[class]:new(t)
+end
+
+
+function TechEditor_Research(socket, preset)
+	if not UICity then return end
+	local obj = socket.selected_object
+	if obj and obj:IsKindOf("TechPreset") then
+		UICity:SetTechResearched(obj.id)
+	end
+end

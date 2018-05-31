@@ -344,7 +344,7 @@ function LifeSupportGridObject:DisconnectPipe(src_pt, pt)
 	
 	for i, pipe in ipairs(self:GetPipeConnections()) do
 		if pipe[1] == src and pipe[2] == dir then
-			for j = #self.connections[i], 1, -1 do
+			for j = #(self.connections[i] or ""), 1, -1 do
 				DoneObject(self.connections[i][j])
 				self.connections[i][j] = nil
 			end
@@ -534,7 +534,7 @@ local pipe_connections = { (1 + 8) * 256 + 128 }
 local pipe_connections_switched = { (1 + 8) * 256 + 128 + 16384}
 
 function LifeSupportGridElement:GetShapeConnections()
-	local q, r = WorldToHex(self:GetPos())
+	local q, r = WorldToHex(self)
 	local bld = HexGetBuilding(q, r)
 	return (bld == nil or bld == self) and not self.chain and (self.switched_state and full_connections_switched or full_connections) or (self.switched_state and pipe_connections_switched or pipe_connections)
 end
@@ -582,7 +582,7 @@ function LifeSupportGridElement:PromoteConnectionMask()
 end
 
 function LifeSupportGridElement:CanMakePillar(excluded_obj)
-	local q, r = WorldToHex(self:GetPos())
+	local q, r = WorldToHex(self)
 	local bld = HexGetBuilding(q, r)
 	local is_buildable = IsBuildableZoneQR(q, r)
 	return self.pillar or (is_buildable and (bld == nil or excluded_obj and bld == excluded_obj))
@@ -685,7 +685,7 @@ function LifeSupportGridElement:UpdateVisuals(supply_resource)
 			self:SetAngle(0)
 		end
 		
-		local my_q, my_r = WorldToHex(self:GetPos())
+		local my_q, my_r = WorldToHex(self)
 		for dir = 0, 5 do
 			if testbit(conn, dir) then
 				local dq, dr = HexNeighbours[dir + 1]:xy()
@@ -730,13 +730,15 @@ function LifeSupportGridElement:UpdateVisuals(supply_resource)
 	
 	palette:ApplyToObj(self)
 	self:AddDust(0) --refresh dust visuals
+	
+	self.fx_actor_class = self.is_switch and "PipeValve" or "Pipe"
 end
 --mostly copy paste from ElectricityGridElement
 function LifeSupportGridElement:TryConnectInDir(dir)
 	local conn = self.conn
 	if not testbit(conn, dir) and testbit(shift(conn, -8), dir) then --not connected yet and has potential
 		local dq, dr = HexNeighbours[dir + 1]:xy()
-		local my_q, my_r = WorldToHex(self:GetPos())
+		local my_q, my_r = WorldToHex(self)
 		local obj = HexGetPipe(my_q + dq, my_r + dr)
 		if obj and obj.water then
 			local his_conn = HexGridGet(SupplyGridConnections["water"], obj)
@@ -1280,12 +1282,12 @@ function WaterProducer:UpdateAttachedSigns()
 	self:AttachSign(self:ShouldShowNotConnectedToLifeSupportGridSign(), "SignNoPipeConnection")
 end
 
-function WaterProducer:GetWaterProductionText()
-	local real_production = self.water.production > 0 and (self.water.production - self.water.current_throttled_production) or 0
+function WaterProducer:GetWaterProductionText(short)
+	local real_production = self.water.production > 0 and Max(self.water.production - self.water.current_throttled_production, 0) or 0
 	local max_production = self.water.production
 	return real_production < max_production
-		and T{482, "Water production<right><water(number1,number2)>", number1 = real_production, number2 = max_production}
-		or T{483, "Water production<right><water(number)>", number = real_production}
+		and (short and T{9712, "<water(number1,number2)>", number1 = real_production, number2 = max_production} or T{482, "Water production<right><water(number1,number2)>", number1 = real_production, number2 = max_production})
+		or (short and T{9713, "<water(number)>", number = real_production} or T{483, "Water production<right><water(number)>", number = real_production})
 end
 
 function WaterProducer:GetUISectionWaterProductionRollover()

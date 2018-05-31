@@ -127,7 +127,7 @@ function TrainingBuilding:ColonistCanInteract(col)
 	if not self:HasOpenTrainSlots() then
 		return false, T{4312, "<red>Current work shift is closed</red>"}
 	end
-	return true, T{8741, "<em><left_click></em>: Set Training"}
+	return true, T{8741, "<UnitMoveControl('ButtonA', interaction_mode)>: Set Training", self}
 end
 
 function TrainingBuilding:ColonistInteract(col)
@@ -210,7 +210,7 @@ function TrainingBuilding:CloseShift(shift)
 		worker:SetWorkplace(false)
 		worker:UpdateWorkplace()
 	end
-	self.visitors[shift] = {}
+	assert(#visitors == 0)
 end
 
 function TrainingBuilding:OpenShift(shift)
@@ -315,7 +315,6 @@ function TrainingBuilding:BuildingUpdate(time, day, hour)
 		if self.evaluation_points>0 and (unit.training_points and unit.training_points[self.training_type] or 0)>= self.evaluation_points then	
 			self:OnTrainingCompleted(unit)
 			self.life_time_trained = self.life_time_trained + 1
-			self:UpdateUI()
 		end
 	end
 end
@@ -327,7 +326,6 @@ function TrainingBuilding:CheatCompleteTraining()
 			unit.training_points[self.training_type] = self.evaluation_points
 			self:OnTrainingCompleted(unit)
 			self.life_time_trained = self.life_time_trained + 1
-			self:UpdateUI()
 		end
 	end
 end

@@ -2,12 +2,6 @@ function MirrorSphere:CreateCheatActions()
 	return true
 end
 
-function MirrorSphereBuilding:UpdateUI()
-	if self == SelectedObj then
-		Msg("UIPropertyChanged", self)
-	end
-end
-
 function MirrorSphereBuilding:GetActionProgress()
 	local total = self.action and self.action_time or 0
 	if total == 0 then

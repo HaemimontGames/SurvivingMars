@@ -1,4 +1,5 @@
 local developer = Platform.developer
+local reassign_dist = 200*guim
 
 DefineClass.ShuttleLanding = {
 	__parents = { "Object" },
@@ -11,30 +12,23 @@ DefineClass.ShuttleLanding = {
 	queued_shuttles = false,
 }
 
-function ShuttleLanding:GetLandingObjects()
-	return {self}
-end
-
 function ShuttleLanding:InitLandingSpots()
 	--define the landing spots
 	local slots = {}
 	local spot_name = self.landing_spot_name or ""
 	if spot_name ~= "" then
-		local objs = self:GetLandingObjects() or empty_table
-		for _, obj in ipairs(objs) do
-			local first, last = -1, -2
-			if obj:HasSpot(spot_name) then
-				first, last = obj:GetSpotRange(spot_name)
-			end	
-			if last - first + 1 > 256 then
-				StoreErrorSource(obj, "Too many spots detected for", name)
-			else
-				for i = first, last do
-					slots[#slots + 1] = {
-						reserved_by = false,
-						pos = obj:GetSpotPos(i),
-					}
-				end
+		local first, last = -1, -2
+		if self:HasSpot(spot_name) then
+			first, last = self:GetSpotRange(spot_name)
+		end	
+		if last - first + 1 > 256 then
+			StoreErrorSource(self, "Too many spots detected for", name)
+		else
+			for i = first, last do
+				slots[#slots + 1] = {
+					reserved_by = false,
+					pos = self:GetSpotPos(i),
+				}
 			end
 		end
 	end
@@ -77,17 +71,23 @@ function ShuttleLanding:IsLandingSpotFree(idx)
 	return slot and not IsValid(slot.reserved_by)
 end
 
-function ShuttleLanding:GetLandingSpot(shuttle, reassign_dist)
-	reassign_dist = reassign_dist or 0
+function ShuttleLanding:GetLandingSpot(shuttle, reassign)
 	local slots = self.landing_slots
 	local slot, idx = table.find_value(slots, "reserved_by", shuttle)
-	if not slot and reassign_dist > 0 and self.queued_shuttles[1] == shuttle then
+	if not slot and reassign then
 		for i, s in ipairs(slots) do
-			local owner_shuttle = s.reserved_by
-			if not IsValid(owner_shuttle) or not self:IsCloser2D(owner_shuttle, reassign_dist) then
-				slot = s
-				idx = i
+			local shuttle_i = s.reserved_by
+			if not IsValid(shuttle_i) or not self:IsCloser2D(shuttle_i, reassign_dist) then
+				idx, slot = i, s
 				break
+			end
+		end
+		if not slot then
+			return
+		end
+		for i, shuttle_i in ipairs(self.queued_shuttles) do
+			if shuttle_i ~= shuttle and self:IsCloser2D(shuttle_i, shuttle) then
+				return
 			end
 		end
 	end
@@ -291,15 +291,22 @@ if Platform.developer then
 			end
 		end)
 	end
-	function ShowColonistDropPositions(bld)
+	function DbgShowColonistDropPositions(bld)
 		bld = bld or SelectedObj
 		DbgClearVectors()
 		if not IsKindOf(bld, "ShuttleLanding") then
 			return
 		end
-		for _, slot in ipairs(bld.landing_slots) do
+		local hex_rad = const.GridSpacing / 2
+		for _, slot in ipairs(bld.landing_slots or empty_table) do
 			local pos = point(FindDropPos(slot.pos:xy()))
+			local close = IsCloser2D(pos, slot.pos, hex_rad)
+			local color = close and green or red
 			DbgAddVector(pos, 100*guim)
+			DbgAddCircle(slot.pos, hex_rad, color)
+			if not close then
+				DbgAddVector(pos, slot.pos - pos, color)
+			end
 		end
 	end
 	function ShowDropPosition(pos)
@@ -337,31 +344,24 @@ function ShuttleInfo:CanLaunch()
 	return self.current_fuel >= self.max_fuel and self.shuttle_obj == false
 end
 
-function ShuttleInfo:Launch(task)
-	local hub = self.hub
-	if not hub or not hub.has_free_landing_slots then
-		return false
-	end
+function ShuttleInfo:CreateShuttle(task)
 	assert(not self.shuttle_obj)
 	assert(task)
 	local shuttle = CargoShuttle:new{
-		hub = hub,
-		transport_task = task, 
+		hub = self.hub,
 		info_obj = self,
 	}
 	self.shuttle_obj = shuttle
-	local slot = hub:ReserveLandingSpot(shuttle)
-	shuttle:SetPos(slot.pos)
-	shuttle:SetCommand("Launch")
+	shuttle:SetTransportTask(task)
+	shuttle:SetCommand("Transport")
+	return shuttle
 end
 
 function ShuttleInfo:Land(shuttle)
 	assert(self.shuttle_obj == shuttle)
 	DoneObject(shuttle)
-	self.shuttle_obj = false
-	local hub = self.hub
-	if hub then
-		hub:RefuelShuttle(self)
+	if self.hub then
+		self.hub:RefuelShuttle(self)
 	end
 end
 -----------------------------------------------------------------------------------------
@@ -430,16 +430,23 @@ function CargoShuttle:GameInit()
 	local city = self.hub and self.hub.city or UICity
 	city:AddToLabel("CargoShuttle", self)
 	self.placement_offset = point(0, 0, 5 * guim)
-	self:OnTaskAssigned()
 end
 
 function CargoShuttle:Done()
-	local city = self.hub and self.hub.city or UICity
+	local hub = self.hub or empty_table
+	local city = hub.city or UICity
 	city:RemoveFromLabel("CargoShuttle", self)
 	self:ClearRequests()
-	self:ClearTransportRequest()
+	self:SetTransportTask(false)
 	self:LandingEnd()
 	self:WaitingEnd()
+	if IsValid(hub) and hub.launched == self then
+		hub.launched = false
+	end
+	local info_obj = self.info_obj or empty_table
+	if info_obj.shuttle_obj == self then
+		info_obj.shuttle_obj = false
+	end
 end
 
 function OnMsg.GatherLabels(labels)
@@ -454,12 +461,23 @@ function CargoShuttle:MoveSleep(t)
 	end
 end
 
+function CargoShuttle:LaunchDstr()
+	local hub = self.hub
+	self:SetPos(hub.landing_slots[1].pos)
+	hub:ShuttleLeadOut(self)
+	if IsValid(hub) and hub.launched == self then
+		hub.launched = false
+		hub:SendOutShuttles()
+	end
+end
+
 function CargoShuttle:Launch()
-	self:PushDestructor(function(self)
-		self.hub:ShuttleLeadOut(self)
-		self.hub:FreeLandingSpot(self)
-	end)
-	self:SetCommand("Transport")
+	if self.hub.launched ~= self then
+		assert(self:IsValidPos())
+		return
+	end
+	self:PushDestructor(self.LaunchDstr)	
+	self:PopAndCallDestructor()
 end
 
 function CargoShuttle:LandingStart()
@@ -476,23 +494,34 @@ function CargoShuttle:LandingEnd()
 end
 
 function CargoShuttle:WaitingStart()
-	if not self.waiting then
-		self.waiting = true
-		self:PlayFX("Waiting", "start")
+	if self.waiting then
+		return
+	end
+	self.waiting = true
+	self:PlayFX("Waiting", "start")
+	if self:GetState() ~= GetStateIdx("fly") then
+		self:SetState("fly")
 	end
 end
 function CargoShuttle:WaitingEnd()
-	if self.waiting then
-		self.waiting = false
-		self:PlayFX("Waiting", "end")
+	if not IsValid(self) or not self.waiting then
+		return
+	end
+	self.waiting = false
+	self:PlayFX("Waiting", "end")
+	if self:GetState() ~= GetStateIdx("idle") then
+		self:SetState("idle")
 	end
 end
 
 function FindDropPos(x, y, pfclass, err_dist)
 	pfclass = pfclass or 0
+	if terrain.IsPassable(x, y, pfclass) then
+		return x, y
+	end
 	local HexGridGetObject = HexGridGetObject
 	local GetPassablePointNearby = GetPassablePointNearby
-	local hex_radius = const.GridSpacing / 2	
+	local hex_radius = const.GridSpacing / 2
 	local grid = ObjectGrid
 	local px, py = GetPassablePointNearby(x, y, pfclass, hex_radius)
 	if px then
@@ -551,22 +580,6 @@ function CargoShuttle:LeaveColonist(colonist)
 	Wakeup(colonist.command_thread)
 end
 
-function CargoShuttle:ClearTransportRequest()
-	local task = self.transport_task
-	if not task then
-		return
-	elseif self.is_colonist_transport_task then
-		if task.state == "transporting" and task.colonist then
-			--colo has been picked up... 
-			self:AddResource(-const.ResourceScale, "Colonist")
-			self:LeaveColonist(task.colonist)
-		end
-		assert((task.shuttle or self) == self)
-		task.shuttle = false
-		self.transport_task = false
-	end
-end
-
 function CargoShuttle:TransportColonist()
 	assert(self.is_colonist_transport_task)
 	assert(IsValid(self.transport_task.source_dome))
@@ -616,6 +629,8 @@ function CargoShuttle:TransportColonist()
 	local dest_landing_slot = dest_dome:ReserveLandingSpot(self)
 	local source_landing_slot = source_dome:ReserveLandingSpot(self, source_landing_spot_id)
 
+	self:Launch()
+	
 	--goto source
 	local dest = source_landing_slot.pos
 	if not self:IsCloser2D(dest, self.max_land_dist) then
@@ -731,6 +746,19 @@ function CargoShuttle:ClearRequests()
 	end
 end
 
+function CargoShuttle:CalcPath(...)
+	assert(self:IsValidPos())
+	return FlyingObject.CalcPath(self, ...)
+end
+
+local function ReqToStr(req)
+	local building = req and req:GetBuilding()
+	if not building then	
+		return "none"
+	end
+	return req:GetTargetAmount() .. " from " .. building.class
+end
+
 function CargoShuttle:Transport()
 	if self.is_colonist_transport_task then
 		self:SetCommand("TransportColonist")
@@ -741,8 +769,19 @@ function CargoShuttle:Transport()
 		self:PickUp()
 	end
 	self:Deliver()
-	Sleep(start_time + 1000 - GameTime())
 	self:PopDestructor()
+	if GameTime() == start_time then
+		print("Invalid transport task:\n\tDemand " .. ReqToStr(self.transport_task[3]) .. "\n\tSupply " .. ReqToStr(self.transport_task[2]))
+		assert(false, "Invalid transport task!")
+		if not self:IsValidPos() then
+			DoneObject(self)
+			return
+		end
+		self:PushDestructor(self.WaitingEnd)
+		self:WaitingStart()
+		Sleep(999)
+		self:PopAndCallDestructor()
+	end
 end
 
 function CargoShuttle:WaitForFreeLandingSpot(bld)
@@ -768,9 +807,9 @@ function CargoShuttle:WaitForFreeLandingSpot(bld)
 				return
 			end
 		end
-		while IsValid(bld) and not bld:GetLandingSpot(self) do
+		while IsValid(bld) and not bld:GetLandingSpot(self, true) do
 			self:WaitingStart()
-			WaitWakeup(9999)
+			WaitWakeup(999)
 		end
 		if not IsValid(bld) then
 			self:PopAndCallDestructor()
@@ -779,7 +818,7 @@ function CargoShuttle:WaitForFreeLandingSpot(bld)
 		self:WaitingEnd()
 		self:PopDestructor()
 	end
-	return bld:GetLandingSpot(self)
+	return bld:GetLandingSpot(self, true)
 end
 
 function CargoShuttle:PickUp()
@@ -791,7 +830,9 @@ function CargoShuttle:PickUp()
 	local resource = self.transport_task[4]
 	local amount = self.assigned_to_s_req and self.assigned_to_s_req[2] or Min(self.max_shared_storage, supply_request:GetTargetAmount(), demand_request:GetTargetAmount())
 	
-	if amount <= 0 then return end
+	if amount <= 0 then
+		return false
+	end
 	
 	if not self.assigned_to_s_req and not supply_request:AssignUnit(amount) then
 		return false
@@ -802,6 +843,8 @@ function CargoShuttle:PickUp()
 		self.assigned_to_s_req = false
 		return false
 	end
+	
+	self:Launch()
 		
 	self.assigned_to_s_req = self.assigned_to_s_req or {supply_request, amount}
 	self.assigned_to_d_req = self.assigned_to_d_req or {demand_request, amount}
@@ -897,6 +940,8 @@ function CargoShuttle:Deliver()
 		self.assigned_to_d_req = {demand_request, amount}
 	end
 	
+	self:Launch()
+	
 	local state = "approach_demand"
 	
 	local d_building = demand_request:GetBuilding()
@@ -985,34 +1030,57 @@ function CargoShuttle:SetCount(new_count)
 end
 
 --task maintanance
-function CargoShuttle:OnTaskAssigned()
-	if IsKindOf(self.transport_task, "ColonistTransportTask") then
-		self.is_colonist_transport_task = true
-		self.transport_task.shuttle = self
-	else
-		assert(not self.assigned_to_s_req and not self.assigned_to_d_req)
-		self.is_colonist_transport_task = false
-		local supply_request = self.transport_task[2]
-		local demand_request = self.transport_task[3]
-		local resource = self.transport_task[4]
-		local amount = Min(self.max_shared_storage, supply_request and supply_request:GetTargetAmount() or max_int, demand_request:GetTargetAmount())
-		
-		--assign early so cc's updating their deficit will see us
-		if amount <= 0 or (supply_request and not supply_request:AssignUnit(amount)) then
-			return false
-		end
-		
-		if not demand_request:AssignUnit(amount) then
-			if supply_request then
-				supply_request:UnassignUnit(amount, false)
-			end
-			return false
-		end
-		
-		self.assigned_to_s_req = supply_request and {supply_request, amount} or false
-		self.assigned_to_d_req = {demand_request, amount}
-		demand_request:GetBuilding():ChangeDeficit(resource, amount)
+function CargoShuttle:SetTransportTask(task)
+	task = task or false
+	local prev_task = self.transport_task
+	if prev_task == task then
+		return
 	end
+	
+	assert(not self.assigned_to_s_req and not self.assigned_to_d_req)
+	self:ClearRequests()
+	
+	if prev_task then
+		if self.is_colonist_transport_task then
+			if prev_task.state == "transporting" and prev_task.colonist then
+				--colo has been picked up... 
+				self:AddResource(-const.ResourceScale, "Colonist")
+				self:LeaveColonist(prev_task.colonist)
+			end
+			assert((prev_task.shuttle or self) == self)
+			prev_task.shuttle = false
+		end
+	end
+	self.transport_task = task
+	
+	if IsKindOf(task, "ColonistTransportTask") then
+		self.is_colonist_transport_task = true
+		task.shuttle = self
+		return true
+	end
+	
+	self.is_colonist_transport_task = false
+	local supply_request = task[2]
+	local demand_request = task[3]
+	local resource = task[4]
+	local amount = Min(self.max_shared_storage, supply_request and supply_request:GetTargetAmount() or max_int, demand_request:GetTargetAmount())
+	
+	local building = demand_request:GetBuilding()
+	--assign early so cc's updating their deficit will see us
+	if not building or amount <= 0 or (supply_request and not supply_request:AssignUnit(amount)) then
+		return false
+	end
+	
+	if not demand_request:AssignUnit(amount) then
+		if supply_request then
+			supply_request:UnassignUnit(amount, false)
+		end
+		return false
+	end
+	
+	self.assigned_to_s_req = supply_request and {supply_request, amount} or false
+	self.assigned_to_d_req = {demand_request, amount}
+	building:ChangeDeficit(resource, amount)
 	
 	return true
 end
@@ -1028,7 +1096,7 @@ function CargoShuttle:Idle()
 		DoneObject(self)
 		return
 	end
-
+	
 	if self.hub.working and self:GetCurrentFuel() > 0 or self:GetStoredAmount() > 0 then
 		--we got fuel we can do stuffs, or we got stuffs to deliver and we cant go home yet.
 		if self:GetStoredAmount() > 0 then	--we are already carrying sumthing, get dest only
@@ -1037,8 +1105,7 @@ function CargoShuttle:Idle()
 			if not self.is_colonist_transport_task then --if colo, should disembark in destros
 				local task = LRManagerInstance:FindTransportTask(self, true, self.carried_resource_type)
 				if task then
-					self.transport_task = task
-					self:OnTaskAssigned()
+					self:SetTransportTask(task)
 					self:SetCommand("Transport")
 					return
 				else
@@ -1052,8 +1119,7 @@ function CargoShuttle:Idle()
 			--check for full transport tasks.
 			local task = LRManagerInstance:FindTransportTask(self)
 			if task then
-				self.transport_task = task
-				self:OnTaskAssigned()
+				self:SetTransportTask(task)
 				self:SetCommand("Transport")
 				return
 			end
@@ -1063,9 +1129,15 @@ function CargoShuttle:Idle()
 end
 
 function CargoShuttle:GoHome()
-	self:ClearTransportRequest()
+	self:SetTransportTask(false)
 	if not IsValid(self.hub) then
 		Sleep(1000)
+		return
+	end
+	
+	if not self:IsValidPos() then
+		print("killing shuttle that wasn't successfuly launched.")
+		DoneObject(self)
 		return
 	end
 
@@ -1075,7 +1147,7 @@ function CargoShuttle:GoHome()
 		end
 		self:WaitingEnd()
 	end)
-	local reassign_dist = 200*guim
+	
 	if not self.hub:ReserveLandingSpot(self) then
 		--go somewhere nearby and wait for a free spot
 		local my_pos = self:GetPos()
@@ -1092,21 +1164,17 @@ function CargoShuttle:GoHome()
 			end
 			self:FollowPathCmd(path)
 		end
-		if IsValid(self.hub) and not self.hub:GetLandingSpot(self, reassign_dist) then
+		if IsValid(self.hub) and not self.hub:GetLandingSpot(self, true) then
 			self:WaitingStart()
-			self:SetState("fly")
-			self:PushDestructor(function(self)
-				self:WaitingEnd()
-				self:SetState("idle")
-			end)
-			while IsValid(self.hub) and not self.hub:GetLandingSpot(self) do
-				WaitWakeup(9999)
+			self:PushDestructor(self.WaitingEnd)
+			while IsValid(self.hub) and not self.hub:GetLandingSpot(self, true) do
+				WaitWakeup(999)
 			end
 			self:PopAndCallDestructor()
 		end
 	end
 	
-	local slot = IsValid(self.hub) and self.hub:GetLandingSpot(self, reassign_dist)
+	local slot = IsValid(self.hub) and self.hub:GetLandingSpot(self, true)
 	if not slot then
 		self:PopAndCallDestructor()
 		Sleep(1000)
@@ -1195,8 +1263,10 @@ DefineClass.ShuttleHub = {
 	shuttle_construction_time_start_ts = false,
 	shuttle_construction_resource_requests = false,
 	shuttle_construction_stockpiled_resources = false, --TODO: should probably return those on building demolish
+	shuttle_construction_resource_requests_supply = false,
 	
 	landing_spot_name = "In",
+	launched = false,
 }
 
 
@@ -1268,6 +1338,18 @@ function ShuttleHub:CreateResourceRequests()
 		self.shuttle_construction_resource_requests[resource_name] = self:AddDemandRequest(resource_name, 0)
 		self.shuttle_construction_resource_requests_supply [resource_name] = self:AddSupplyRequest(resource_name, 0)
 		self.shuttle_construction_stockpiled_resources[resource_name] = 0
+	end
+end
+
+--savegamecompatibility
+function ShuttleHub:CreateResourceRequestsSupply()
+	if not self.shuttle_construction_resource_requests_supply then
+		self:DisconnectFromCommandCenters()
+		self.shuttle_construction_resource_requests_supply = {}
+		for resource_name, value in pairs(shuttle_construction_cost) do
+			self.shuttle_construction_resource_requests_supply [resource_name] = self:AddSupplyRequest(resource_name, 0)
+		end
+		self:ConnectToCommandCenters()
 	end
 end
 
@@ -1394,7 +1476,7 @@ function ShuttleHub:GetRefuelingShuttles()
 	return c
 end
 
-function ShuttleHub:GetUIRolloverText()
+function ShuttleHub:GetUIRolloverText(exclude_description)
 	local FlyingShuttles, RefuelingShuttles, IdleShuttles = 0, 0, 0
 	for _, hub in ipairs(self.city.labels.ShuttleHub or empty_table) do
 		for _, sinfo in ipairs(hub.shuttle_infos) do
@@ -1408,7 +1490,9 @@ function ShuttleHub:GetUIRolloverText()
 		end
 	end
 	local items = {}
-	items[#items+1] = T{236268272624, "Shuttles facilitate long range transportation of resources between Storages and people between Domes."}
+	if not exclude_description then
+		items[#items+1] = T{236268272624, "Shuttles facilitate long range transportation of resources between Storages and people between Domes."}
+	end
 	items[#items+1] = T{8699, "<newline><center><em>Global Statistics<left></em>"}
 	items[#items+1] = T{398, "In flight<right><FlyingShuttles>", FlyingShuttles = FlyingShuttles}
 	items[#items+1] = T{8700, "Refueling<right><RefuelingShuttles>", RefuelingShuttles = RefuelingShuttles}
@@ -1423,9 +1507,9 @@ function ShuttleHub:RefuelShuttles()
 	end
 end
 
-function ShuttleHub:SendOutShuttles(dt)
+function ShuttleHub:SendOutShuttles()
 	--check if we have available shuttles
-	if not LRManagerInstance then
+	if not LRManagerInstance or IsValid(self.launched) then
 		return
 	end
 	for _, s_i in pairs(self.shuttle_infos) do
@@ -1433,7 +1517,7 @@ function ShuttleHub:SendOutShuttles(dt)
 			local task = LRManagerInstance:FindTransportTask(self)
 			if task then
 				--we got shuttles and tasks!
-				s_i:Launch(task)
+				self.launched = s_i:CreateShuttle(task)
 			end
 			return
 		end
@@ -1447,7 +1531,6 @@ function ShuttleHub:BuildShuttles(dt)
 	end
 	--we are constructing a shuttle.
 	if GameTime() - time_start < shuttle_construction_time then
-		--Msg("UIPropertyChanged", self)
 		return
 	end
 	assert(self.queued_shuttles_for_construction > 0) --built more shuttles then there were queued.
@@ -1533,30 +1616,41 @@ function ShuttleHub:GetGlobalLoad()
 			end
 		end
 	end
-	return shuttles, tasks
+	local shuttle_load
+	if not tasks or shuttles == 0 then
+		shuttle_load = 0
+	elseif tasks < shuttles then -- the available tasks don't exceed the shuttle count
+		shuttle_load = 1
+	elseif tasks < 3 * shuttles then -- the available tasks are less than a few times the shuttles count
+		shuttle_load = 2
+	else
+		shuttle_load = 3
+	end
+	return shuttle_load, tasks, shuttles
 end
 
+local ShuttleLoadTexts = {
+	T{8702, "<green>Low</green>"},
+	T{8703, "<yellow>Medium</yellow>"},
+	T{8704, "<red>Heavy</red>"},
+}
+
 function ShuttleHub:GetGlobalLoadText()
-	local shuttles, tasks = self:GetGlobalLoad()
-	if not tasks or shuttles == 0 then
-		return T{130, "N/A"}
-	elseif tasks < shuttles then -- the available tasks after an hour wont exceed the shuttle count
-		return T{8702, "<green>Low</green>"}
-	elseif tasks < 3 * shuttles then -- the available tasks after an hour will be less than a few times the shuttles count
-		return T{8703, "<yellow>Medium</yellow>"}
-	else
-		return T{8704, "<red>Heavy</red>"}
-	end
+	local shuttle_load = self:GetGlobalLoad()
+	return ShuttleLoadTexts[shuttle_load] or T{130, "N/A"}
 end
 
 GlobalVar("g_HeavyLoadShuttleHubs", {})
 GlobalGameTimeThread("HeavyLoadShuttleHubsNotif", function()
-	HandleNewObjsNotif(g_HeavyLoadShuttleHubs, "TransportationShuttleOverload")
+	Sleep(100)
+	if not g_Tutorial or g_Tutorial.EnableTransportProblemNotif then
+		HandleNewObjsNotif(g_HeavyLoadShuttleHubs, "TransportationShuttleOverload")
+	end
 end)
 
 function ShuttleHub:UpdateHeavyLoadNotification()
-	local shuttles, tasks = self:GetGlobalLoad()
-	if tasks and tasks > 0 and tasks >= 3 * shuttles then
+	local shuttle_load = self:GetGlobalLoad()
+	if shuttle_load > 2 then
 		table.insert_unique(g_HeavyLoadShuttleHubs, self)
 	else
 		table.remove_entry(g_HeavyLoadShuttleHubs, self)
@@ -1565,7 +1659,10 @@ end
 
 GlobalVar("g_NoFuelShuttleHubs", {})
 GlobalGameTimeThread("NoFuelShuttleHubsNotif", function()
-	HandleNewObjsNotif(g_NoFuelShuttleHubs, "TransportationShuttleNoFuel")
+	Sleep(100)
+	if not g_Tutorial or g_Tutorial.EnableTransportProblemNotif then
+		HandleNewObjsNotif(g_NoFuelShuttleHubs, "TransportationShuttleNoFuel")
+	end
 end)
 
 function ShuttleHub:UpdateNoFuelNotification()
@@ -1584,4 +1681,28 @@ function OnMsg.GatherFXActions(list)
 	list[#list + 1] = "ShuttleHubEnter"
 	list[#list + 1] = "ShuttleLoad"
 	list[#list + 1] = "ShuttleUnload"
+end
+
+if Platform.developer then
+	function DbgShowWaitingShuttles(landing_site)
+		landing_site = landing_site or SelectedObj
+		local pos0 = landing_site:GetVisualPos()
+		local offset = point(0, 0, 3*guim)
+		DbgClear()
+		for i, slot in ipairs(landing_site.landing_slots or empty_table) do
+			local shuttle = slot.reserved_by
+			if IsValid(shuttle) and shuttle:IsValidPos() then
+				local pos = slot.reserved_by:GetVisualPos()
+				DbgAddVector(pos0, pos - pos0, green)
+				DbgAddText(tostring(i), pos + offset, green)
+			end
+		end
+		for i, shuttle in ipairs(landing_site.queued_shuttles or empty_table) do
+			if IsValid(shuttle) and shuttle:IsValidPos() then
+				local pos = shuttle:GetVisualPos()
+				DbgAddVector(pos0, pos - pos0, red)
+				DbgAddText(tostring(i), pos + offset, red)
+			end
+		end
+	end
 end

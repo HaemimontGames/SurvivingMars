@@ -73,7 +73,7 @@ function OnScreenIndication:RecalculateMargins()
 end
 
 function OnMsg.SafeAreaMarginsChanged()
-	local osi_dlg = GetXDialog("OnScreenIndication")
+	local osi_dlg = GetDialog("OnScreenIndication")
 	if osi_dlg then
 		osi_dlg:RecalculateMargins()
 	end
@@ -125,7 +125,7 @@ function ShowPauseDialog(bShow, force)
 				dlg:ForceDelete()
 			end
 			dlg = OpenMarsPauseDlg()
-		elseif dlg and GetXDialog("Resupply") then
+		elseif dlg and GetDialog("Resupply") then
 			dlg:SetParent(GetInGameInterface())
 		end
 		if dlg then
@@ -150,13 +150,13 @@ function ShowPauseDialog(bShow, force)
 end
 
 function OpenMarsPauseDlg()
-	if not GetXDialog("Resupply") and GameState.gameplay then
-		return OpenXDialog("MarsPauseDlg")
+	if not GetDialog("Resupply") and GameState.gameplay then
+		return OpenDialog("MarsPauseDlg")
 	end
 end
 
 function GetMarsPauseDlg()
-	return GetXDialog("MarsPauseDlg")
+	return GetDialog("MarsPauseDlg")
 end
 
 function OnMsg.MarsPause()
@@ -176,5 +176,5 @@ function OnMsg.ChangeMap()
 end
 
 function CloseMarsPauseDlg()
-	CloseXDialog("MarsPauseDlg")
+	CloseDialog("MarsPauseDlg")
 end

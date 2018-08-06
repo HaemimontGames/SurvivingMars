@@ -35,7 +35,7 @@ function XBuildMenu:RecalculateMargins()
 end
 
 function OnMsg.SafeAreaMarginsChanged()
-	local dlg = GetXDialog("XBuildMenu")
+	local dlg = GetDialog("XBuildMenu")
 	if dlg then
 		dlg:RecalculateMargins()
 	end
@@ -102,21 +102,6 @@ function XBuildMenu:CreateCategoryItems(all_categories)
 	list:CreateThread(function()
 		EdgeAnimation(true, list, 0, self.box:sizey() - self.idCategoryList.idCatBkg.box:miny(), self.cat_section_show_time)
 	end)	
-
-	if self.hide_single_category and #self.cat_items <= 1 then
-		--calcluate offset amount for items
---[[	local categoires_bbox = GetControlsBBox(self, "category")
-		local dy = MulDivRound(categoires_bbox:sizey(), 75, 100)
-		
-		--move down items
-		ForEachSubviewControl(self, "default",
-		function(ctrl)
-			ctrl:SetY(ctrl:GetY() + dy)
-		end)
-		
-		--hide categories (must be done after GetControlsBBox())
-		SetSubviewVisible(self, "category", false)
-]]	end
 end
 
 function XBuildMenu:Close()
@@ -161,7 +146,12 @@ function GetBuildingTechsStatus(building, category)
 	local tech_t = BuildingTechRequirements[building] or ""
 	for i = 1, #tech_t do
 		local rinfo = tech_t[i]
-		if UICity:IsTechResearched(rinfo.tech) then
+		if rinfo.check_supply and not IsResupplyItemAvailable(rinfo.check_supply) then
+			shown = false
+			enabled = false
+			rollover_t = false
+			break
+		elseif UICity:IsTechResearched(rinfo.tech) then
 			-- continue
 		elseif rinfo.hide or not UICity:IsTechDiscovered(rinfo.tech) then
 			shown = false
@@ -178,18 +168,44 @@ function GetBuildingTechsStatus(building, category)
 	return shown, enabled, rollover_t and table.concat(rollover_t, "\n") or ""
 end
 
-function GetBuildingDlcStatus(building_template)
-	return IsDlcAvailable(building_template.requires_dlc)
+function GetAdditionalBuildingLock(template)
+end
+
+function GetGridElementConstructionCost(class_name, is_passage, multiplier)
+	if IsGameRuleActive("FreeConstruction") then
+		return false
+	end
+	
+	if class_name == "ElectricityGridElement" and g_Consts.InstantCables ~= 0 or
+		class_name == "LifeSupportGridElement" and g_Consts.InstantPipes ~= 0 or 
+		is_passage and GetMissionSponsor().name == "Brazil" then
+		return false
+	end
+	
+	local cost = {}
+	local class = is_passage and BuildingTemplates[class_name] or g_Classes[class_name]
+	multiplier = multiplier or 100
+	for _,resource in ipairs(ConstructionResourceList) do
+		local number = UICity:GetConstructionCost(class, resource)
+		if number > 0 then
+			cost[resource] = MulDivRound(number, multiplier, 100)
+		end
+	end
+	
+	return cost
 end
 
 function GetGridElementConstructionCostDescription(class, is_passage)
 	-- stage 1
+	if IsGameRuleActive("FreeConstruction") then
+		return T{10540, "Cost: Nothing (Free Construction rule)"}
+	end
 	local text = ""
 	local cost1= {}
 	for _,resource in ipairs(ConstructionResourceList) do
 		local number = UICity:GetConstructionCost(class, resource)
 		if number and number>0 then
-			cost1[#cost1+1] = FormatResource(number, resource, empty_table)
+			cost1[#cost1+1] = FormatResource(empty_table,number, resource)
 		end		
 	end
 	if next(cost1)then
@@ -220,23 +236,28 @@ local maintenance_props = {
 function GetConstructionDescription(class, cost1, dont_modify) --class is a building template and not a class
 	local modifier_obj = GetModifierObject(class)
 	-- stage 1
-	local texts = {}
-	if cost1 then
-		texts[1] = cost1
+	local texts
+	if IsGameRuleActive("FreeConstruction") then
+		texts = {T{10540, "Cost: Nothing (Free Construction rule)"}}
 	else
-		local cost1= {}
-		for _,resource in ipairs(ConstructionResourceList) do
-			local number = UICity:GetConstructionCost(class, resource, not dont_modify and modifier_obj or nil)
-			if number and number>0 then
-				cost1[#cost1+1] =  FormatResource(number, resource, empty_table)
-			end		
-		end
-		if next(cost1)then
-			texts[#texts+1] =  T{263, "Cost: "}..table.concat(cost1," ") .. "\n"
+		texts = {}
+		if cost1 then
+			texts[1] = cost1
+		else
+			local cost1= {}
+			for _,resource in ipairs(ConstructionResourceList) do
+				local number = UICity:GetConstructionCost(class, resource, not dont_modify and modifier_obj or nil)
+				if number and number>0 then
+					cost1[#cost1+1] =  FormatResource(empty_table, number, resource)
+				end		
+			end
+			if next(cost1)then
+				texts[#texts+1] =  T{263, "Cost: "}..table.concat(cost1," ") .. "\n"
+			end
 		end
 	end
 	-- stage 2
-	local template_class = ClassTemplates.Building[class.name]
+	local template_class = ClassTemplates.Building[class.id]
 	local properties = template_class.properties
 	
 	-- electricity, air, water
@@ -253,12 +274,12 @@ function GetConstructionDescription(class, cost1, dont_modify) --class is a buil
 				val = template_class[prop.id]
 			end
 			if val ~= 0 then
-				consumption[#consumption + 1] = FormatResource(val, maintenance_props[i][2], empty_table)
+				consumption[#consumption + 1] = FormatResource(empty_table, val, maintenance_props[i][2])
 			end
 		end
 	end
 	if template_class:DoesHaveConsumption() then
-		consumption[#consumption + 1] = FormatResource(1000, template_class.consumption_resource_type, empty_table)
+		consumption[#consumption + 1] = FormatResource(empty_table, 1000, template_class.consumption_resource_type)
 	end
 	if next(consumption) then
 		texts[#texts+1] = T{3959, "Consumption: "} .. table.concat(consumption, " ")
@@ -272,7 +293,7 @@ function GetConstructionDescription(class, cost1, dont_modify) --class is a buil
 	
 	-- living space
 	if IsKindOf(template_class, "Residence") and template_class:HasMember("capacity") then
-		texts[#texts+1] = T{3961, "Residential space: <colonist(capacity)>", capacity = template_class["capacity"], empty_table}
+		texts[#texts+1] = T{3961, "Residential space: <home(capacity)>", capacity = template_class["capacity"], empty_table}
 	end
 
 	if template_class.dome_comfort>0 then
@@ -310,7 +331,7 @@ function GetConstructionDescription(class, cost1, dont_modify) --class is a buil
 					end
 				end
 				if resource_name then
-					production[#production + 1] = FormatResource(template_class[prop.id], resource_name, empty_table)
+					production[#production + 1] = FormatResource(empty_table, template_class[prop.id], resource_name)
 				end
 			end
 		end
@@ -324,27 +345,31 @@ end
 
 function FormatBuildingCostInfo(template_name, dont_modify)
 	-- grid elements
-	local is_grid_element = template_name=="LifeSupportGridElement" or template_name == "ElectricityGridElement"	
+	local is_grid_element = template_name=="LifeSupportGridElement" or template_name == "ElectricityGridElement"
 	local is_passage = template_name == "Passage"
-	local class = is_grid_element and g_Classes[template_name] or DataInstances.BuildingTemplate[template_name]
+	local class = is_grid_element and g_Classes[template_name] or BuildingTemplates[template_name]
 	if is_grid_element or is_passage then
 		return GetGridElementConstructionCostDescription(class, is_passage)
 	else
-		return GetConstructionDescription(class, nil, dont_modify) --class is a building template and not a class
+		return GetConstructionDescription(class, nil, dont_modify) -- class is a building template and not a class
 	end	
 end
 
 function BuildingInfoLine(template_name, dont_modify)
 	-- grid elements
-	local is_grid_element = template_name=="LifeSupportGridElement" or template_name == "ElectricityGridElement"	
-	local class = is_grid_element and g_Classes[template_name] or DataInstances.BuildingTemplate[template_name]
-	if  is_grid_element then
+	local is_grid_element = template_name=="LifeSupportGridElement" or template_name == "ElectricityGridElement"
+	local class = is_grid_element and g_Classes[template_name] or BuildingTemplates[template_name]
+	if not class then
+		assert(false, "No such class / template: " .. tostring(template_name))
+		return ""
+	end
+	if is_grid_element then
 		local text = ""
 		local cost1= {}
 		for _,resource in ipairs(ConstructionResourceList) do
 			local number = UICity:GetConstructionCost(class, resource)
 			if number and number>0 then
-				cost1[#cost1+1] = FormatResource(number, resource, empty_table)
+				cost1[#cost1+1] = FormatResource(empty_table, number, resource)
 			end		
 		end
 		if next(cost1)then
@@ -357,11 +382,11 @@ function BuildingInfoLine(template_name, dont_modify)
 		for _,resource in ipairs(ConstructionResourceList) do
 			local number = UICity:GetConstructionCost(class, resource, GetModifierObject(class) )
 			if number and number>0 then
-				texts[#texts+1] =  FormatResource(number, resource, empty_table)
+				texts[#texts+1] =  FormatResource(empty_table, number, resource)
 			end		
 		end
 		-- workforce
-		local template_class = ClassTemplates.Building[class.name]	
+		local template_class = ClassTemplates.Building[class.id]
 		if IsKindOf(template_class, "Workplace") and template_class["max_workers"]>0 then
 			texts[#texts+1] = T{8099, "<colonist(workers)> ", workers = class["max_workers"], empty_table}
 		end
@@ -370,38 +395,27 @@ function BuildingInfoLine(template_name, dont_modify)
 	end	
 end
 
-TFormat.formatedbuildinginfo = FormatBuildingCostInfo
-TFormat.buildinginfo = BuildingInfoLine
+TFormat.formatedbuildinginfo = function(context_obj, ...) return FormatBuildingCostInfo(...) end
+TFormat.buildinginfo = function(context_obj, ...) return BuildingInfoLine(...) end
 
-function TFormat.optionaldomeinfo(template_name, dont_modify)
-	local template = DataInstances.BuildingTemplate[template_name]
-	if IsDlcAvailable(template.requires_dlc) then
-		return T{8955, "\nNew Dome: <em><template_display_name></em> ", template_display_name = template.display_name} .. TFormat.buildinginfo(template_name, dont_modify)
-	end
-	return ""
+function TFormat.optionaldomeinfo(context_obj,template_name, dont_modify)
+	local template = BuildingTemplates[template_name]
+	return T{8955, "\nNew Dome: <em><template_display_name></em> ", template_display_name = template.display_name} .. TFormat.buildinginfo(context_obj,template_name, dont_modify)
 end
 
-function TFormat.optionalbuildinginfo(template_name, dont_modify)
-	local template = DataInstances.BuildingTemplate[template_name]
-	if IsDlcAvailable(template.requires_dlc) then
-		return T{8956, "\nNew Building: <em><template_display_name></em> ", template_display_name = template.display_name} .. TFormat.buildinginfo(template_name, dont_modify)
-	end
-	return ""
+function TFormat.optionalbuildinginfo(context_obj, template_name, dont_modify)
+	local template = BuildingTemplates[template_name]
+	return T{8956, "\nNew Building: <em><template_display_name></em> ", template_display_name = template.display_name} .. TFormat.buildinginfo(context_obj, template_name, dont_modify)
 end
 
-function TFormat.optionalspireinfo(template_name, dont_modify)
-	local template = DataInstances.BuildingTemplate[template_name]
-	if IsDlcAvailable(template.requires_dlc) then
-		return T{8957, "\nNew Spire Building: <em><template_display_name></em> ", template_display_name = template.display_name} .. TFormat.buildinginfo(template_name, dont_modify)
-	end
-	return ""
+function TFormat.optionalspireinfo(context_obj, template_name, dont_modify)
+	local template = BuildingTemplates[template_name]
+	return T{8957, "\nNew Spire Building: <em><template_display_name></em> ", template_display_name = template.display_name} .. TFormat.buildinginfo(context_obj, template_name, dont_modify)
 end
 
 function UICountItemMenu(category_id)
 	local count = 0
-	local templates = DataInstances.BuildingTemplate
-	for i = 1, #templates do
-		local building_template = templates[i]
+	for _, building_template in pairs(BuildingTemplates) do
 		local show, prefabs, can_build, action, description = UIGetBuildingPrerequisites(category_id, building_template)
  		if not show and category_id == "Storages" then
 			show, prefabs, can_build, action, description = UIGetBuildingPrerequisites("Depots", building_template)
@@ -429,25 +443,24 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems)
 		return false
 	end
 
-	local tech_shown, tech_enabled, tech_rollover = GetBuildingTechsStatus(template.name, template.build_category)
-	local available_prefabs = UICity:GetPrefabs(template.name)
-	local prefab_item = template.require_prefab and RocketPayload_GetMeta(template.name)
+	local tech_shown, tech_enabled, tech_rollover = GetBuildingTechsStatus(template.id, template.build_category)
+	local available_prefabs = UICity:GetPrefabs(template.id)
+	local prefab_item = template.require_prefab and RocketPayload_GetMeta(template.id)
 	local require_prefab = not tech_enabled and prefab_item and not prefab_item.locked
-	local is_dlc_locked = not GetBuildingDlcStatus(template)
-	
-	if not tech_shown and not require_prefab and available_prefabs == 0 or is_dlc_locked then
+
+	if not tech_shown and not require_prefab and available_prefabs == 0 or GetAdditionalBuildingLock(template) then
 		return false
 	end	
 	
 	local wonder_exists
 	if template.wonder then
-		if #(UICity.labels[template.name] or empty_table) > 0 then -- check buildings
+		if #(UICity.labels[template.id] or empty_table) > 0 then -- check buildings
 			wonder_exists = true
 		else -- check construction sites
 			local sites = UICity.labels.ConstructionSite or empty_table
 			for i = 1, #sites do 
 				local site = sites[i]
-				if site.building_class_proto.template_name == template.name then
+				if site.building_class_proto.template_name == template.id then
 					wonder_exists = true
 					break
 				end
@@ -457,7 +470,7 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems)
 				local sites = UICity.labels.ConstructionSiteWithHeightSurfaces or empty_table
 				for i = 1, #sites do 
 					local site = sites[i]
-					if site.building_class_proto.template_name == template.name then
+					if site.building_class_proto.template_name == template.id then
 						wonder_exists = true
 						break
 					end
@@ -468,7 +481,7 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems)
 	
 	local can_build, description, cost_text
 	if wonder_exists then
-		description = T{3968, "You can only build this building once."}
+		description = T{3968, "You can build this building only once."}
 		can_build = false
 	elseif available_prefabs > 0 then
 		-- allowed, display number of prefabs instead of cost
@@ -489,7 +502,7 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems)
 	end
 	
 	local prefab_disabled
-	if g_Tutorial and g_Tutorial.BuildMenuWhitelist and not g_Tutorial.BuildMenuWhitelist[template.name] then
+	if g_Tutorial and g_Tutorial.BuildMenuWhitelist and not g_Tutorial.BuildMenuWhitelist[template.id] then
 		description = T{8958, "Not yet available."} -- due to tutorial
 		can_build = false
 		prefab_disabled = true
@@ -509,16 +522,16 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems)
 	if bCreateItems then
 		if require_prefab or available_prefabs > 0 then
 			action = function(obj, data)
-				if GetUIStyleGamepad() then g_LastBuildItem = template.name end
+				if GetUIStyleGamepad() then g_LastBuildItem = template.id end
 				local params
-				if UICity:GetPrefabs(template.name) > 0 then
+				if UICity:GetPrefabs(template.id) > 0 then
 					params = { supplied = true, prefab = true }
 				elseif not data.enabled then
 					return
 				end
 				local variants
 				if IsKindOf(data, "XWindow") then
-					local parent = GetXDialog(data)
+					local parent = GetDialog(data)
 					variants = parent:GetSubCategoryTemplates()
 				else
 					variants = data.template_variants
@@ -531,7 +544,7 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems)
 				if not data.enabled then return end
 				local variants
 				if IsKindOf(data, "XWindow") then
-					local parent = GetXDialog(data)
+					local parent = GetDialog(data)
 					variants = parent:GetSubCategoryTemplates()
 				else
 					variants = data.template_variants
@@ -561,7 +574,7 @@ function XBuildMenu:GetSubCategoryTemplates()
 	end
 	local variants = {}
 	for _, item in ipairs(self.items) do
-		variants[#variants +1] = item.name
+		variants[#variants + 1] = item.name
 	end
 	return variants
 end
@@ -580,10 +593,8 @@ function UIItemMenu(category_id, bCreateItems)
 	local count = 0
 	for cat, val in pairs(subcategories) do
 		subcategories[cat] = false
-	end		
-	local templates = DataInstances.BuildingTemplate
-	for i = 1, #templates do
-		local building_template = templates[i]
+	end	
+	for _, building_template in pairs(BuildingTemplates) do
 		local show, prefabs, can_build, action, description = UIGetBuildingPrerequisites(category_id, building_template, bCreateItems)
 		local template_category = building_template.build_category
 		if category_id ~= template_category and subcategories[template_category]~=nil and UIGetBuildingPrerequisites(template_category, building_template) then
@@ -595,7 +606,7 @@ function UIItemMenu(category_id, bCreateItems)
 				local class = building_template.template_class
 				class = class and g_Classes[class]
 				table.insert(items, {
-					name = building_template.name,
+					name = building_template.id,
 					construction_mode = building_template.construction_mode,
 					display_name = class and class.GetDisplayName(building_template) or building_template.display_name,
 					icon = building_template.display_icon,
@@ -604,7 +615,7 @@ function UIItemMenu(category_id, bCreateItems)
 					enabled = can_build or false,
 					prefabs = prefabs or false,
 					action = action,
-					Id = building_template.name
+					Id = building_template.id
 				})
 			end
 		end
@@ -615,15 +626,15 @@ function UIItemMenu(category_id, bCreateItems)
 		if bCreateItems then
 			if subcategories["Depots"] then
 				items[#items + 1] ={
-					name ="Depots",
+					name = "Depots",
 					display_name = T{8878, "Depot"},
 					icon = "UI/Icons/Buildings/depots.tga",
-					description = "",
+					description = T{10420, "Resource-specific Depots"},
 					build_pos = 2,
 					category = "Storage",
 					close_parent = false,
 					action = function(obj, data)
-						local parent = GetXDialog(data)
+						local parent = GetDialog(data)
 						parent:SelectSubCategory(data, category_id)
 					end,
 					Id = "Depots",
@@ -631,15 +642,15 @@ function UIItemMenu(category_id, bCreateItems)
 			end
 			if subcategories["MechanizedDepots"] then
 				items[#items + 1] ={
-					name ="MechanizedDepots",
+					name = "MechanizedDepots",
 					display_name = T{519, "Storage"},
 					icon = "UI/Icons/Buildings/storages.tga",
-					description = "",
+					description = T{10421, "Resource-specific Storages"},
 					build_pos = 3,
 					category = "Storage",
 					close_parent = false,
 					action = function(obj, data)
-						local parent = GetXDialog(data)
+						local parent = GetDialog(data)
 						parent:SelectSubCategory(data, category_id)
 					end
 				}
@@ -667,23 +678,23 @@ function UIItemMenu(category_id, bCreateItems)
 					if GetUIStyleGamepad() then g_LastBuildItem =  "PowerCables" end
 					GetInGameInterface():SetMode("electricity_grid", {grid_elements_require_construction = require_construction})
 				end,
-				build_pos = 8,
+				build_pos = 20,
 			}
 		
-			local building_template = DataInstances.BuildingTemplate.ElectricitySwitch
+			local building_template = BuildingTemplates.ElectricitySwitch
 			local description = T{8101, "<description>\n\n<formatedbuildinginfo('ElectricitySwitch')>",description = building_template.description}
 			items[#items + 1] = {
-				name = building_template.name,
-				Id = building_template.name,
+				name = building_template.id,
+				Id = building_template.id,
 				display_name = building_template.display_name,
 				icon = building_template.display_icon,
 				description = description,
 				enabled = not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.ElectricitySwitch or false,
 				action = function()
-					if GetUIStyleGamepad() then g_LastBuildItem =  building_template.name end
+					if GetUIStyleGamepad() then g_LastBuildItem = building_template.id end
 					GetInGameInterface():SetMode("electricity_switch")
 				end,
-				build_pos = 9,
+				build_pos = 21,
 			}
 		end
 	end
@@ -707,23 +718,23 @@ function UIItemMenu(category_id, bCreateItems)
 					if GetUIStyleGamepad() then g_LastBuildItem = "Pipes" end
 					GetInGameInterface():SetMode("life_support_grid", {grid_elements_require_construction = require_construction})
 				end,
-				build_pos = 6,
+				build_pos = 7,
 			}
 		
-			local building_template = DataInstances.BuildingTemplate.LifesupportSwitch
+			local building_template = BuildingTemplates.LifesupportSwitch
 			local description = T{8103, "<description>\n\n<formatedbuildinginfo('LifesupportSwitch')>",description = building_template.description}
 			items[#items + 1] = {
-				name = building_template.name,
-				Id = building_template.name,
+				name = building_template.id,
+				Id = building_template.id,
 				display_name = building_template.display_name,
 				icon = building_template.display_icon,
 				description = description,
 				enabled = not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.LifesupportSwitch or false,
 				action = function()
-					if GetUIStyleGamepad() then g_LastBuildItem = building_template.name end
+					if GetUIStyleGamepad() then g_LastBuildItem = building_template.id end
 					GetInGameInterface():SetMode("lifesupport_switch")
 				end,
-				build_pos = 7,
+				build_pos = 8,
 			}
 		end
 	end
@@ -749,25 +760,30 @@ function UIItemMenu(category_id, bCreateItems)
 		end
 	end
 	if category_id == "Domes" then
-		local building_template = DataInstances.BuildingTemplate.Passage
+		local building_template = BuildingTemplates.Passage
+		local construction_cost = T{8720, "<formatedbuildinginfo('Passage')>"}
+		local description = building_template.description
+		if g_Consts.InstantPassages == 0 then
+			description = description .. Untranslated("\n\n") .. construction_cost
+		end
 		items[#items + 1] = {
 			name = "Passage",
 			display_name = building_template.display_name,
 			icon = building_template.display_icon,
-			description = T{8720, "<description>\n\n<formatedbuildinginfo('Passage')>",description = building_template.description},
-			enabled =  not g_Tutorial or (g_Tutorial.BuildMenuWhitelist and g_Tutorial.BuildMenuWhitelist[building_template.name]) or false,
+			description = description,
+			enabled =  not g_Tutorial or (g_Tutorial.BuildMenuWhitelist and g_Tutorial.BuildMenuWhitelist[building_template.id]) or false,
 			action = function()
-				GetInGameInterface():SetMode("passage_grid", {grid_elements_require_construction = true}) --TODO: instant passages.
+				GetInGameInterface():SetMode("passage_grid", {grid_elements_require_construction = g_Consts.InstantPassages == 0})
 			end,
 			build_pos = 20,
 		}
-		building_template = DataInstances.BuildingTemplate.PassageRamp
+		building_template = BuildingTemplates.PassageRamp
 		items[#items + 1] = {
 			name = "PassageRamp",
 			display_name = building_template.display_name,
 			icon = building_template.display_icon,
 			description = T{8721, "<description>\n\n<formatedbuildinginfo('PassageRamp')>",description = building_template.description},
-			enabled =  not g_Tutorial or (g_Tutorial.BuildMenuWhitelist and g_Tutorial.BuildMenuWhitelist[building_template.name]) or false,
+			enabled =  not g_Tutorial or (g_Tutorial.BuildMenuWhitelist and g_Tutorial.BuildMenuWhitelist[building_template.id]) or false,
 			action = function()
 				GetInGameInterface():SetMode("passage_ramp")
 			end,
@@ -789,7 +805,7 @@ function XBuildMenu:FindCategoryOfItem(item_name)
 	elseif item_name == "Pipes" or item_name == "Life-Support" then
 		return "Life-Support"
 	else
-		local content_data = DataInstances.BuildingTemplate[item_name]
+		local content_data = BuildingTemplates[item_name]
 		if content_data and not content_data.hide_from_build_menu then
 			local category = content_data.build_category
 			local tech_shown, tech_enabled = GetBuildingTechsStatus(item_name, category)
@@ -804,17 +820,17 @@ function XBuildMenu:FindCategoryOfItem(item_name)
 end		
 
 function OpenXBuildMenu(selected_dome)
-	CloseXDialog("GamepadIGMenu")
-	OpenXDialog("XBuildMenu", GetInGameInterface(), { selected_dome = selected_dome, first_category = g_LastBuildCat, first_selected_item = g_LastBuildItem })
+	CloseDialog("GamepadIGMenu")
+	OpenDialog("XBuildMenu", GetInGameInterface(), { selected_dome = selected_dome, first_category = g_LastBuildCat, first_selected_item = g_LastBuildItem })
 	OpenResourceOverviewInfopanel()
 end
 
 function CloseXBuildMenu()
-	CloseXDialog("XBuildMenu")
+	CloseDialog("XBuildMenu")
 end
 
 function RefreshXBuildMenu()
-	local dlg = GetXDialog("XBuildMenu")
+	local dlg = GetDialog("XBuildMenu")
 	if not dlg then return end
 	
 	dlg:SelectCategory(dlg.category)

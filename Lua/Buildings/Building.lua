@@ -88,9 +88,9 @@ DefineClass.Building = {
 		{ template = true, name = T{8697, "Suspend on Dust Storm"},     id = "suspend_on_dust_storm", category = "General",  editor = "bool",         default = false },
 		
 		--
-		{ template = true, name = T{159, "Exclude From Encyclopedia"},    id = "encyclopedia_exclude", category = "Encyclopedia",  editor = "bool",default = false, },
-		{ template = true, name = T{160, "Encyclopedia Text"},    id = "encyclopedia_text", category = "Encyclopedia",  editor = "multi_line_text",default = "", translate = true, },
-		{ template = true, name = T{161, "Encyclopedia Image"},   id = "encyclopedia_image",category = "Encyclopedia",  editor = "browse",       default = "", folder = "UI" },
+		{ template = true, name = T{4103, "Encyclopedia ID"},     id = "encyclopedia_id",      category = "Encyclopedia",  editor = "text", default = "" },
+		{ template = true, name = T{160, "Encyclopedia Text"},    id = "encyclopedia_text",    category = "Encyclopedia",  editor = "multi_line_text",default = "", translate = true, },
+		{ template = true, name = T{161, "Encyclopedia Image"},   id = "encyclopedia_image",   category = "Encyclopedia",  editor = "browse",       default = "", folder = "UI" },
 		--
 		{ template = true, name = T{7615, "Build Shortcut"},    id = "build_shortcut1", category = "Shortcuts",  editor = "text",default = "", },
 		{ template = true, name = T{7616, "Build Shortcut 2"},    id = "build_shortcut2", category = "Shortcuts",  editor = "text",default = "", },
@@ -132,8 +132,7 @@ DefineClass.Building = {
 		{ template = true, category = "Construction", name = T{176, "Construction Mode"}, id = "construction_mode", editor = "text", default = "construction", help = "The type of construction controller to launch", no_edit = true},
 		{ template = true, category = "Construction", name = T{7891, --[[Post-Cert]] "Refund on Salvage"}, id = "refund_on_salvage", editor = "bool", default = true},
 		
-		{ template = true, category = "General", name = T{9611, "Count as Building"}, id = "count_as_building", editor = "bool", default = true, items = DlcCombo(), help = "Count as building for achievement / control center purposes"},
-		{ template = true, category = "General", name = T{8698, "Requires DLC"}, id = "requires_dlc", editor = "combo", default = "", items = DlcCombo(), help = "Hide this building from build menu if dlc is not available."}
+		{ template = true, category = "General", name = T{9611, "Count as Building"}, id = "count_as_building", editor = "bool", default = true, help = "Count as building for achievement / control center purposes"},
 	},
 	
 	update_thread = false,
@@ -160,7 +159,6 @@ DefineClass.Building = {
 	clear_work_request = false,
 	
 	upgrade_on_off_state = false,
-	encyclopedia_id = false,
 	demolish_debris_objs = false,
 		
 	resource_spots = false,
@@ -168,7 +166,25 @@ DefineClass.Building = {
 	
 	orig_terrain1 = false,
 	orig_terrain2 = false,
+	
+	occupation_fx = false, --occupation FX prop
+	occupation = 0, --occupation FX prop
+	
+	auto_attach_at_init = false,
 }
+
+do
+	local status_items = {
+		{value = false, text = ""},
+		{value = "required", text = T{9828, "Required"}},
+		{value = "disabled", text = T{847439380056, "Disabled"}},
+	}
+	local properties = Building.properties
+	for i=1,3 do
+		properties[#properties + 1] = { template = true, category = "Sponsor Condition", id = "sponsor_name" .. i,  name = T{9829, "Sponsor <number>", number = i}, editor = "combo",    default = "", items = SponsorCombo() }
+		properties[#properties + 1] = { template = true, category = "Sponsor Condition", id = "sponsor_status" .. i, name = T{8692, "Status <number>", number = i}, editor = "dropdownlist", default = false, items = status_items}
+	end
+end
 
 function Building:Random(...)
 	return CityObject.Random(self, ...)
@@ -256,7 +272,7 @@ function Building:AddToCityLabels()
 		self.city:AddToLabel(category, self)
 	end
 	
-	if self.default_label == "Building" and not IsKindOf(self, "Dome") then
+	if self.default_label == "Building" and not IsKindOf(self, "Dome") and self.build_category ~= "Domes" then
 		self.city:AddToLabel("BuildingNoDomes", self)
 	end
 end
@@ -272,15 +288,22 @@ function Building:GameInit()
 	end
 
 	if not self:IsKindOf("ConstructionSite") then
-		if IsKindOf(self, "ElectricityConsumer") then
-			self:SetIsNightLightPossible(false) --init that we have no electricity. needs 2 be after auto attaches, before nightlightenable
-		end
+		self:SetIsNightLightPossible(false) --lights are turned off on init. needs 2 be after auto attaches, before nightlightenable
 		self:NightLightDisable()	
 		self:NightLightEnable()	
 	end
-
+	if not IsKindOfClasses(self, "ConstructionSite", "ConstructionSiteWithHeightSurfaces") then
+		Msg("BuildingInit", self)
+	end
 	self:Notify("UpdateNoCCSign")
 	self:Gossip("place", self:GetPos())
+	
+	if not dome and self.suspend_on_dust_storm then
+		local dust_storm_start_time = g_DustStorm and g_DustStorm.start_time or GameTime()
+		if GameTime() - dust_storm_start_time > const.HourDuration then
+			self:SetSuspended(true, const.DustStormSuspendReason)
+		end
+	end
 end
 
 function Building:Done()
@@ -362,6 +385,16 @@ function Building:GossipName()
 	return (self.template_name == "" and self.class or self.template_name)
 end
 
+function Building:CanWorkInTurnedOffDome()
+end
+
+function Building:GetWorkNotPermittedReason()
+	if not self:CanWorkInTurnedOffDome() and self.parent_dome and not self.parent_dome.ui_working then
+		return "DomeNotWorking"
+	end	
+	return BaseBuilding.GetWorkNotPermittedReason(self)
+end
+
 function Building:GetWorkNotPossibleReason()
 	if self.destroyed then
 		return "Destroyed"
@@ -388,21 +421,17 @@ end
 function OnMsg.GatherLabels(labels)
 	labels.Building = true
 	labels.EntertainmentBuildings = true
-	local templates = DataInstances.BuildingTemplate
-	for i=1,#templates do
-		if templates[i].name then
-			labels[templates[i].name] = true
-			labels[templates[i].name .. g_ConstructionSiteLabelSuffix] = true
-			if templates[i].build_category and not labels[templates[i].build_category] then
-				labels[templates[i].build_category] = true
-				labels[templates[i].build_category .. g_ConstructionSiteLabelSuffix] = true
-			end
+	for id, template in pairs(BuildingTemplates) do
+		labels[id] = true
+		labels[id .. g_ConstructionSiteLabelSuffix] = true
+		if template.build_category and not labels[template.build_category] then
+			labels[template.build_category] = true
+			labels[template.build_category .. g_ConstructionSiteLabelSuffix] = true
 		end
 		
 		local j = 1
 		while true do
 			local label_id = "label"..j
-			local template = templates[i]
 			if not template:HasMember(label_id) then break end
 			if template[label_id] ~= "" then
 				labels[template[label_id]] = true
@@ -465,14 +494,14 @@ OnMsg.DataLoaded = ReloadBuildingPalettes
 function ReapplyAllBuildingPalettes()
 	ReloadBuildingPalettes()
 	DelayedCall(100, function()
-		ForEach{ class = "Building" , exec = function(obj)
+		MapForEach("map", "Building", function(obj)
 			if obj:IsKindOf("Building") then
 				local palettes = BuildingPalettes[obj.template_name]
 				if palettes and palettes[1] then
 					obj:SetPalette(palettes[1])
 				end
 			end
-		end}
+		end)
 	end)
 end
 
@@ -492,9 +521,6 @@ end
 
 function Building:Settemplate_name(template_name, params)
 	ClassTemplateObject.Settemplate_name(self, template_name)
-	if not self.encyclopedia_id or self.encyclopedia_id == "" then
-		self.encyclopedia_id = template_name
-	end
 	local entity = params and params.alternative_entity or self.entity
 	self:ChangeEntity(entity)
 	AutoAttachObjectsToShapeshifter(self)
@@ -767,7 +793,7 @@ function Building:Select()  -- for hyperlinks
 	ViewObjectMars(self:GetVisualPos())
 end
 
-function Building:GatherConstructionStatuses(statuses) 
+function Building:GatherConstructionStatuses(statuses)
 end
 
 function Building:RepairNeeded()
@@ -793,11 +819,10 @@ function RegisterUpgradeModifierModifier(upgrade_id, prop, amount, percent)
 	local bld_lbl_name
 	local prop_names = { "upgrade1_id", "upgrade2_id", "upgrade3_id" }
 	--figure out which bld this is for so we can apply the mod for blds that are already constructed
-	local templates = DataInstances.BuildingTemplate
-	for _, template in ipairs(templates) do
+	for id, template in pairs(BuildingTemplates) do
 		for i, u_prop_name in ipairs(prop_names) do
 			if upgrade_id == template[u_prop_name] then
-				bld_lbl_name = template.name
+				bld_lbl_name = id
 				break
 			end
 		end
@@ -1171,7 +1196,6 @@ function Building:Destroy()
 	self:ConsumptionOnDestroyed()
 	self:UpdateNotWorkingBuildingsNotification() --rem from not working notif
 	self:KickUnitsFromHolder()
-	self:RestoreTerrain()
 	self:OnDestroyed()
 	self:SetDustVisualsPerc(100)
 
@@ -1374,7 +1398,7 @@ function Building:DestroyedClear(broadcast)
 		return
 	end
 	
-	local template = DataInstances.BuildingTemplate[self.template_name]
+	local template = BuildingTemplates[self.template_name]
 	local pts = template and template.build_points or 1000
 	self:DisconnectFromCommandCenters()
 	self.bulldozed = true
@@ -1399,6 +1423,7 @@ function Building:DroneWork(drone, request, resource, amount)
 			local self = drone.target
 			if drone.w_request:GetActualAmount() <= 0 and IsValid(self) then
 				PlayFXAroundBuilding(self, "Remove")
+				self:RestoreTerrain()
 				DoneObject(self)
 			end
 		end)
@@ -1477,15 +1502,7 @@ local function CheatSpawnRunPrg(bld, id, prg, can_spawn_children, visit_duration
 	unit.ip_specialization_icon, unit.pin_specialization_icon  = Colonist.GetSpecializationIcons(unit)
 
 	unit.inner_entity = entity
-	unit.SetOutside = function(self, outside)
-		if outside then
-			if self:GetEntity() ~= self.inner_entity then return end
-			self:ChangeEntity(GetOutsideEntity(self.entity_gender, self.race, self.age_trait, self.traits))
-		else
-			if self:GetEntity() == self.inner_entity then return end
-			self:ChangeEntity(self.inner_entity)
-		end
-	end
+	unit.SetOutside = unit.SetOutsideVisuals
 	unit.fx_actor_class = unit.entity_gender == "Male" and "ColonistMale" or "ColonistFemale"
 	unit:SetCollisionRadius(Colonist.radius)
 	unit:SetDestlockRadius(Colonist.radius)
@@ -1625,8 +1642,8 @@ function Building:StopUpgradeConstruction(id)
 	end
 	
 	if not can_clean_up then
-		self:CleanUpgradeConstructionRequests(id, true)
 		data.canceled = true
+		self:CleanUpgradeConstructionRequests(id, true)
 	else
 		self:CleanUpgradeConstructionRequests(id, false) 
 		self.upgrades_under_construction[id] = nil
@@ -1651,12 +1668,15 @@ function Building:GetCostsTArray(id, include_total_cost)
 	if self.upgrades_under_construction and self.upgrades_under_construction[id] then
 		local data = self.upgrades_under_construction[id]
 		local reqs = data.reqs
+		local sreqs = data.sreqs or empty_table
 		for i = 1, #(reqs or empty_table) do
 			local req = reqs[i]
+			local sreq = sreqs[i]
 			local r_n = req:GetResource()
 			local amount_remaining = req:GetActualAmount()
 			local total_cost = self:GetUpgradeCost(data.tier, r_n)
-			costs[#costs + 1] = FormatResource(total_cost - amount_remaining, total_cost, r_n, empty_table)
+			local amount_supplying = sreq and sreq:GetActualAmount() or nil
+			costs[#costs + 1] = FormatResource(empty_table, data.canceled and amount_supplying or (total_cost - amount_remaining), total_cost, r_n)
 		end
 	else
 		local tier = self:GetUpgradeTier(id)
@@ -1665,9 +1685,9 @@ function Building:GetCostsTArray(id, include_total_cost)
 			local c = self:GetUpgradeCost(tier, r_n)
 			if c > 0 then
 				if include_total_cost then
-					costs[#costs + 1] = FormatResource(0, c, r_n, empty_table)
+					costs[#costs + 1] = FormatResource(empty_table, 0, c, r_n)
 				else
-					costs[#costs + 1] = FormatResource(c, r_n, empty_table)
+					costs[#costs + 1] = FormatResource(empty_table, c, r_n)
 				end
 			end
 		end
@@ -1678,6 +1698,31 @@ end
 
 function Building:IsUpgradeBeingConstructed(id)
 	return self.upgrades_under_construction and self.upgrades_under_construction[id] and not self.upgrades_under_construction[id].canceled or false
+end
+
+function Building:UpdateUpgradeConstructionSupplyRequests(data)
+	assert(#self.command_centers == 0)
+	local reqs = data.reqs
+	if reqs then
+		local sreqs = data.sreqs or {}
+		data.sreqs = sreqs
+		for i = 1, #reqs do
+			local resource = reqs[i]:GetResource()
+			local amount = self:GetUpgradeCost(data.tier, resource) - reqs[i]:GetActualAmount()
+			local sreq = sreqs[i]
+			if amount > 0 and not sreq then
+				local max_units = Clamp(amount / (const.ResourceScale * 3) + 1, 1, 8)
+				sreq = self:AddSupplyRequest(resource, amount, const.rfUpgrade, max_units)
+				sreqs[i] = sreq
+			elseif sreq then
+				assert(sreq:GetActualAmount() == sreq:GetTargetAmount())
+				sreq:SetAmount(amount)
+				table.insert(self.task_requests, sreq)
+			else
+				sreqs[i] = false
+			end
+		end
+	end
 end
 
 function Building:CleanUpgradeConstructionRequests(id, preserve_requestes)
@@ -1697,6 +1742,24 @@ function Building:CleanUpgradeConstructionRequests(id, preserve_requestes)
 		end
 		if not preserve_requestes then
 			data.reqs = false
+			if data.resources_delivered then
+				if Platform.developer then
+					local sreqs = data and data.sreqs or empty_table
+					local t = false
+					local i = 1
+					while not t and i <= #sreqs do
+						t = sreqs[i]
+						i = i + 1
+					end
+					if t then
+						assert(not table.find(self.task_requests, t))
+					end
+				end
+				
+				data.sreqs = false
+			end
+		elseif not data.resources_delivered then
+			self:UpdateUpgradeConstructionSupplyRequests(data)
 		end
 		self:ConnectToCommandCenters()
 	end
@@ -1705,12 +1768,26 @@ end
 function Building:ResumeUpgradeConstruction(id)
 	local data = self.upgrades_under_construction[id]
 	local reqs = data and data.reqs
+	local sreqs = data and data.sreqs or empty_table
 	data.canceled = false
 	
 	if reqs and not data.resources_delivered then
+		self:InterruptDrones(nil, function(drone)
+											return drone.s_request and table.find(sreqs, drone.s_request) and drone
+										end, nil)
+										
 		self:DisconnectFromCommandCenters()
 		
 		for i = 1, #reqs do
+			if sreqs[i] then
+				assert(sreqs[i]:GetResource() == reqs[i]:GetResource())
+				local r = sreqs[i]
+				local a = self:GetUpgradeCost(data.tier, r:GetResource()) - r:GetActualAmount()
+				assert(reqs[i]:GetActualAmount() == reqs[i]:GetTargetAmount())
+				reqs[i]:SetAmount(a)
+				table.remove_entry(self.task_requests, r)
+			end
+			
 			table.insert(self.task_requests, reqs[i])
 		end
 		
@@ -1718,35 +1795,6 @@ function Building:ResumeUpgradeConstruction(id)
 	end
 	
 	self:OnUpgradeResourcesDelivered(id)
-end
-
---similar to CleanUpgradeConstructionRequests(id, true)/ResumeUpgradeConstruction
---however this is less loops
-function Building:OnSetWorkingRefreshUpgradeConstructionRequests(working)
-	if not self.upgrades_under_construction then return end
-	
-	local all_upgrade_requests = {}
-	self:DisconnectFromCommandCenters()
-	local functor = working and table.insert or table.remove_entry
-	for upgrade_id, data in pairs(self.upgrades_under_construction) do
-		if not data.resources_delivered and not data.canceled then
-			local reqs = data.reqs
-			for i = 1, #(reqs or empty_table) do
-				local request = reqs[i]
-				functor(self.task_requests, request)
-				table.insert(all_upgrade_requests, request)
-			end
-		end
-	end
-	self:ConnectToCommandCenters()
-	
-	if not working then
-		self:InterruptDrones(nil, function(drone)
-											if table.find(all_upgrade_requests, drone.d_request) then
-												return drone
-											end
-										end)
-	end
 end
 
 function Building:OnStartWorkingStartUpgradeConstructionTimers()
@@ -1917,145 +1965,13 @@ end
 
 DefineClassTemplate("Building") -- all descendants of Building can be templated in a "Building Editor"
 
-function OnMsg.ClassesBuilt()
-	table.insert(BuildingEditor.PropEditorViews[1], { title = "View", type = "props", width = 200})
+if FirstLoad then
+	SortedBuildingTemplates = {} -- used in GameShortcuts
 end
-
-local BuildingSortCombo = {
-	{ value = "",      text = T{177, "Order of Input"} },
-	{ value = "alpha", text = T{178, "Alphabetical"} },
-	{ value = "build", text = T{154, "Build Menu Pos"} },
-}
-
-local props = BuildingEditor.properties or {}
-props[#props + 1] = { category = "Filter", id = "Category", editor = "dropdownlist", default = "",      items = BuildCategoriesCombo }
-props[#props + 1] = { category = "Filter", id = "Class",    editor = "dropdownlist", default = "",      items = BuildingClassesCombo }
-props[#props + 1] = { category = "Sort",   id = "Order",    editor = "dropdownlist", default = "alpha", items = BuildingSortCombo }
-BuildingEditor.properties = props
-
-function BuildingEditor:OnPropertyChanged(prop_id)
-	self:Refresh()
-end
-
-function BuildingEditor:Filter(building)
-	if self.Category ~= "" and building.build_category ~= self.Category then
-		return false
-	end
-	if self.Class ~= "" and not IsKindOf(g_Classes[building.template_class], self.Class) then
-		return false
-	end
-	return true
-end
-
-function BuildingEditor:Sort()
-	if self.Order == "alpha" then
-		table.sort(self, function(a, b)
-			return string.cmp_lower(a.name or "", b.name or "") < 0
-		end)
-	elseif self.Order == "build" then
-		table.sortby_field(self, "build_pos")
-	end
-end
-
-BuildingChoiceList = {}
-
-function AddBuildingUA()
-	local BuildingUA = {
-		["Demolish"] = {
-			key = "Delete",
-			mode = "Game",
-			menu = "Buildings/[001]Demolish",
-			description = "Demolish",
-			action = function()
-				if GetInGameInterface() then
-					GetInGameInterface():SetMode("demolish")
-				end
-			end,
-		},
-		["Electricity Grid"] = {
-			mode = "Game",
-			menu = "Buildings/[002]Electricity Grid",
-			description = "Power Cables",
-			action = function()
-				if GetInGameInterface() then
-					GetInGameInterface():SetMode("electricity_grid")
-				end
-			end,
-		},
-		["LifeSupport Grid"] = {
-			mode = "Game",
-			menu = "Buildings/[003]LifeSupport Grid",
-			description = "Pipes",
-			action = function()
-				if GetInGameInterface() then
-					GetInGameInterface():SetMode("life_support_grid")
-				end
-			end,
-		},
-	}
-	
-	local folders = {{}}
-	for k,v in sorted_pairs(ClassTemplates.Building or empty_table) do
-		local this_folder = folders[#folders]
-		if #this_folder >= 20 then
-			this_folder = {}
-			folders[#folders+1] = this_folder
-		end
-		this_folder[#this_folder+1] = v
-	end
-	for i=1,#folders do
-		local this_folder = folders[i]
-		if #this_folder == 0 then break end
-		
-		local ExtractFirstWord = function(x)
-			if #x < 7 then return x end
-			local word = x:match("(.....[a-z]-)[A-Z]")
-			return word and #word > 5 and word or x
-		end
-		
-		local prefix_first = ExtractFirstWord(this_folder[1].template_name)
-		local prefix_last  = ExtractFirstWord(this_folder[#this_folder].template_name)
-		local name_format = string.format("Buildings/[%02d]%s - %s/[%%02d]%%s", i, prefix_first, prefix_last)
-	
-		for j=1,#this_folder do
-			local template = this_folder[j]
-			local name = template.template_name
-			
-			table.insert(BuildingUA, {
-				description = T{179, "Place <building>", building = template.display_name},
-				menu = string.format(name_format, j, name),
-				action = function() 
-					if IsEditorActive() then
-						g_EditorModeDlg = OpenXDialog("ConstructionModeDialog", GetEditorInterface(), { template = name })
-					elseif GetInGameInterface() then
-						GetInGameInterface():SetMode("construction", { template = name })
-					end			
-				end,
-			})
-		end
-	end
-
-	if Platform.developer and Platform.editor then
-		UserActions.AddActions(BuildingUA)
-	end
-	
-	BuildingChoiceList = {}
-	for k,v in pairs(BuildingUA) do
-		local item = {}
-		if v.description then
-			item.text = Untranslated(v.description)
-			item.action = v.action
-			item.sort_key = tostring(k)
-			table.insert(BuildingChoiceList, item)
-		end
-	end
-	table.sortby_field(BuildingChoiceList, "sort_key")
-end
-
-OnMsg.BinAssetsLoaded = AddBuildingUA
-
-if not FirstLoad then
-	AddBuildingUA()
+function OnMsg.BinAssetsLoaded()
+	SortedBuildingTemplates = table.keys(ClassTemplates.Building)
+	table.sort(SortedBuildingTemplates)
+	ReloadShortcuts()
 end
 
 local BuildingCSVColumns = {
@@ -2101,11 +2017,13 @@ local BuildingCSVColumns = {
 
 function ExportBuildingsCSV()
 	local data = {}
-	for i=1,#DataInstances.BuildingTemplate do
+	local template_names = table.keys(BuildingTemplates)
+	for i = 1, #template_names do
 		data[i] = {}
-		for j=1,#BuildingCSVColumns do
+		local template = BuildingTemplates[template_names[i]]
+		for j = 1, #BuildingCSVColumns do
 			local prop = BuildingCSVColumns[j][1]
-			data[i][prop] = PropObjHasMember(DataInstances.BuildingTemplate[i], prop) and DataInstances.BuildingTemplate[i][prop] or ""
+			data[i][prop] = PropObjHasMember(template, prop) and template[prop] or ""
 		end
 	end
 	SaveCSV("Buildings.csv", data, table.map(BuildingCSVColumns, 1), table.map(BuildingCSVColumns, 2))
@@ -2155,6 +2073,7 @@ NotWorkingWarning = {
 	NoCrop = T{7525, "No crop set"},
 	NoCommandCenter = T{632, "Outside Drone commander range."},
 	NoDroneHub = T{845, "Too far from working Drone commander."},
+	DomeNotWorking = T{10548, "This building doesn't work because the Dome has been turned off"},
 }
 
 function Building:GetUIWarning()
@@ -2423,6 +2342,50 @@ function Building:TogglePriority(change, broadcast)
 	end
 end
 
+function Building:UpdateOccupation(visitors, capacity)
+	local increase = visitors > self.occupation
+	local decrease = visitors < self.occupation
+	local occupation_percent = MulDivRound(visitors, 100, capacity)
+	if increase then
+		if self.occupation_fx ~= "OccupationFull" and occupation_percent > 66 then
+			if self.occupation_fx then
+				PlayFX(self.occupation_fx, "end", self)
+			end
+			self.occupation_fx = "OccupationFull"
+			PlayFX("OccupationFull ", "start", self)
+		elseif self.occupation_fx ~= "OccupationPopulated" and occupation_percent > 33 and occupation_percent < 67 then
+			if self.occupation_fx then
+				PlayFX(self.occupation_fx, "end", self)
+			end
+			self.occupation_fx = "OccupationPopulated"
+			PlayFX("OccupationPopulated", "start", self)
+		elseif self.occupation_fx ~= "OccupationLow" and occupation_percent < 34 then
+			self.occupation_fx = "OccupationLow"
+			PlayFX("OccupationLow", "start", self)
+		end
+	end
+	if decrease then
+		if self.occupation_fx and occupation_percent == 0 then
+			PlayFX(self.occupation_fx, "end", self)
+			self.occupation_fx = false
+		elseif self.occupation_fx ~= "OccupationLow" and occupation_percent > 0 and occupation_percent < 34 then
+			if self.occupation_fx then
+				PlayFX(self.occupation_fx, "end", self)
+			end
+			self.occupation_fx = "OccupationLow"
+			PlayFX("OccupationLow", "start", self)
+		elseif self.occupation_fx ~= "OccupationPopulated" and occupation_percent > 33 and occupation_percent < 67 then
+			if self.occupation_fx then
+				PlayFX(self.occupation_fx, "end", self)
+			end
+			self.occupation_fx = "OccupationPopulated"
+			PlayFX("OccupationPopulated", "start", self)
+		
+		end
+	end
+	self.occupation = visitors
+end
+
 function GetBuildingObj(bld_or_site)
 	if IsKindOf(bld_or_site, "ConstructionSite") and bld_or_site.building_class_proto:IsKindOf("Building") then
 		return bld_or_site.building_class_proto
@@ -2517,7 +2480,7 @@ end
 function GetDomeSkins(template, class)
 	local skins = {{template.entity, class.configurable_attaches, construction_entity = template.construction_entity, palettes = template.palettes}}
 	ForEachPreset("DomeSkins", function(preset, grp, skins, class)
-		if preset.dome_type == class.class and IsDlcAvailable(preset.dlc) then
+		if preset.dome_type == class.class then
 			table.insert(skins, {preset.entity, GetConfigAttachTableFromPreset(preset),
 							construction_entity = preset.construction_entity, skin_category = preset.preset, palettes = preset.palettes ~= "" and preset.palettes or template.palettes})
 		end
@@ -2527,7 +2490,7 @@ function GetDomeSkins(template, class)
 end
 
 function GetBuildingSkins(template_name, entity)
-	local template = DataInstances.BuildingTemplate[template_name]
+	local template = BuildingTemplates[template_name]
 	if not template then return {} end
 	local class = ClassTemplates.Building[template.template_class]
 	if IsKindOf(class, "Dome") then
@@ -2555,7 +2518,8 @@ end
 function Building:SetDustVisuals(dust)
 	local in_dome = IsObjInDome(self)
 	if in_dome and not self.destroyed then return end
-
+	if self:GetGameFlags(const.gofUnderConstruction) ~= 0 then return end
+	
 	return BuildingVisualDustComponent.SetDustVisuals(self, dust)
 end
 
@@ -2629,5 +2593,25 @@ function OnMsg.SelectionChange()
 	local o = SelectedObj
 	if o and IsKindOf(o, "LifeSupportGridObject") and SetWaterMarkers(o, true) then
 		ShowingGridTileWaterAttachesOn = o
+	end
+end
+
+function SelectNextBuildingOfSameType(dir)
+	local igi = GetInGameInterface()
+	if igi and igi:GetVisible() then
+		local bld
+		if IsKindOf(SelectedObj, "Building") and SelectedObj.build_category ~= "Hidden" then
+			local name = SelectedObj.template_name
+			local buildings = UICity.labels[name] or {}
+			local idx = table.find(buildings, SelectedObj)
+			local count = #buildings
+			repeat
+				idx = idx and buildings[idx + dir] and idx + dir or dir == 1 and 1 or count
+				bld = buildings[idx]
+			until bld.template_name == name
+		else
+			bld = MapFindNearest(GetTerrainGamepadCursor(), "map", "Building", const.efSelectable, function(obj) return obj.build_category ~= "Hidden" end)
+		end
+		ViewAndSelectObject(bld)
 	end
 end

@@ -1,6 +1,28 @@
+DefineClass.TriboelectricScrubberBase =
+{
+	__parents = { "Object"  },
+}
+
+function TriboelectricScrubberBase:OnDestroyed()
+	PlayFX("ChargedClean", "end", self.sphere)
+	DeleteThread(self.charge_thread)
+	DeleteThread(self.move_thread)
+end
+
+function TriboelectricScrubberBase:OnSetWorking(working)
+	if working then
+		self:ResetCharging()
+	else
+		self:StopCharging()
+	end
+	self:UpdateSphereRotation()
+end
+
+----
+
 DefineClass.TriboelectricScrubber =
 {
-	__parents = {"UIRangeBuilding", "ElectricityConsumer", "OutsideBuildingWithShifts"  },
+	__parents = {"UIRangeBuilding", "ElectricityConsumer", "OutsideBuildingWithShifts", "TriboelectricScrubberBase"  },
 
 	properties =
 	{
@@ -27,9 +49,7 @@ function TriboelectricScrubber:GameInit()
 end
 
 function TriboelectricScrubber:Done()
-	PlayFX("ChargedClean", "end", self.sphere)
-	DeleteThread(self.charge_thread)
-	DeleteThread(self.move_thread)
+	self:OnDestroyed()
 	DoneObject(self.sphere)
 end
 
@@ -41,21 +61,8 @@ function TriboelectricScrubber:UpdateElectricityConsumption()
 	self:SetBase("electricity_consumption", MulDivRound(range * range, template.electricity_consumption, min_range * min_range))
 end
 
-local l_TriboelectricScrubberQuery =
-{
-	classes = { "Building", "DustGridElement" },
-	area = false,
-	arearadius = false,
-	exec = false,
-}
-
 function TriboelectricScrubber:ForEachBuildingInRange(exec, ...)
-	l_TriboelectricScrubberQuery.area = self
-	l_TriboelectricScrubberQuery.hexradius = self.UIRange
-	l_TriboelectricScrubberQuery.exec = exec
-	ForEach(l_TriboelectricScrubberQuery, ...)
-	l_TriboelectricScrubberQuery.exec = false
-	l_TriboelectricScrubberQuery.area = false
+	MapForEach(self, "hex", self.UIRange, "Building", "DustGridElement", exec, ...)
 end
 
 function TriboelectricScrubber:OnPostChangeRange()
@@ -75,16 +82,6 @@ function TriboelectricScrubber:UpdateSphereRotation()
 	
 	assert(self.sphere:GetState() == GetStateIdx("idle"))
 	self.sphere:SetAnimSpeed(1, self.working and 1000 or 0, 1000)
-end
-
-function TriboelectricScrubber:OnSetWorking(working)
-	ElectricityConsumer.OnSetWorking(self, working)
-	if working then
-		self:ResetCharging()
-	else
-		self:StopCharging()
-	end
-	self:UpdateSphereRotation()
 end
 
 function TriboelectricScrubber:StopCharging()

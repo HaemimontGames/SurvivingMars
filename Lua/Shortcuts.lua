@@ -40,7 +40,7 @@ if FirstLoad then
 	}
 end
 
-TFormat.GamepadShortcutName = function(shortcut)
+TFormat.GamepadShortcutName = function(context_obj, shortcut)
 	if not shortcut or shortcut == "" then
 		return T{3847, "<red>Unassigned</red>"}
 	end
@@ -51,12 +51,12 @@ TFormat.GamepadShortcutName = function(shortcut)
 	return Untranslated(table.concat(buttons))
 end
 
-TFormat.ShortcutName = function(action_id)
+TFormat.ShortcutName = function(context_obj,action_id)
 	local shortcuts = GetShortcuts(action_id)
-	if GetUIStyleGamepad() and not (Platform.console and g_MouseConnected) then
-		return TFormat.GamepadShortcutName(shortcuts[3])
+	if GetUIStyleGamepad() then
+		return TFormat.GamepadShortcutName(context_obj,shortcuts[3])
 	else
-		if shortcuts and shortcuts[1] then
+		if shortcuts and shortcuts[1] and shortcuts[1] ~= "" then
 			local keys = SplitShortcut(shortcuts[1])
 			local last_key = keys[#keys]
 			if MouseButtonImagesInText[last_key] then
@@ -77,12 +77,9 @@ function GetShortcuts(action_id)
 	if AccountStorage and AccountStorage.Shortcuts[action_id] then
 		return AccountStorage.Shortcuts[action_id]
 	elseif XShortcutsTarget then
-		local idx = table.find(XShortcutsTarget.actions, "ActionId", action_id)
-		if idx then
-			local action = XShortcutsTarget.actions[idx]
-			if action.ActionShortcut ~= "" or action.ActionShortcut2 ~= "" or action.ActionGamepad ~= "" then
-				return {action.ActionShortcut, action.ActionShortcut2, action.ActionGamepad}
-			end
+		local action = table.find_value(XShortcutsTarget.actions, "ActionId", action_id)
+		if action and action.ActionShortcut ~= "" or action.ActionShortcut2 ~= "" or action.ActionGamepad ~= "" then
+			return {action.ActionShortcut, action.ActionShortcut2, action.ActionGamepad}
 		end
 	end
 	return false

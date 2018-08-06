@@ -30,7 +30,7 @@ end,
 		'FXPressDisabled', "UIDisabledButtonPressed",
 		'FocusedBackground', RGBA(0, 0, 0, 0),
 		'OnPress', function (self, gamepad)
-local dlg = GetXDialog(self)
+local dlg = GetDialog(self)
 dlg:SetMode("domes")
 end,
 		'RolloverBackground', RGBA(0, 0, 0, 0),

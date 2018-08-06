@@ -29,7 +29,6 @@ DefineClass.TechField = {
 		{ category = "Field", id = "display_name",      name = T{1000037, "Name"},               editor = "text",         default = T{3893, "No Name"}, translate = true },
 		{ category = "Field", id = "icon",              name = T{94, "Icon"},                    editor = "text",         default = "UI/Icons/Research/rm_placeholder.tga", help = "Tech Game Icon" },
 		{ category = "Field", id = "description",       name = T{1000017, "Description"},        editor = "text",         default = T{3894, "No Description"}, translate = true },
-		{ category = "Field", id = "dlc",               name = T{3895, "Required DLC"},          editor = "combo",        default = "", items = DlcCombo() },
 		{ category = "Field", id = "costs",             name = T{3896, "Research Costs"},        editor = "table",        default = def_cost, help = "Required Research Points For Each Tech Slot" },
 		{ category = "Field", id = "discoverable",      name = T{3897, "Discoverable"},          editor = "bool",         default = true, help = "The tech in this field can be discovered through normal means." },
 		{ category = "Field", id = "show_in_field",    	name = T{7545, "Show in Other Field"}, editor = "dropdownlist", default = "", items = ResearchFieldsCombo, help = "The tech in this field are visible in another UI group." },
@@ -52,7 +51,6 @@ DefineClass.Tech = {
 		{ category = "Tech", id = "id",               name = T{1000020, "ID"},                editor = "text",            default = def_id, help = "Tech ID" },
 		{ category = "Tech", id = "display_name",     name = T{1000067, "Display Name"},      editor = "text",            default = def_name, translate = true, help = "Tech Game Name - translated string" },
 		{ category = "Tech", id = "icon",             name = T{94, "Icon"},                   editor = "text",            default = "UI/Icons/Research/rm_placeholder.tga", help = "Tech Game Icon" },
-		{ category = "Tech", id = "dlc",              name = T{3895, "Required DLC"},         editor = "combo",           default = "",      items = DlcCombo(), help = "Required DLC" },
 		{ category = "Tech", id = "description",      name = T{1000017, "Description"},       editor = "multi_line_text", default = "",      translate = true, min = 3, font_size = 8, help = "Tech Description - translated text" },
 		{ category = "Tech", id = "position",         name = T{3901, "Unlock Position"},      editor = "range",           default = def_pos, min = 1, max = max_pos, help = "Shuffle slot range" },
 		{ category = "Tech", id = "repeatable",       name = T{3902, "Research Repeatable"},  editor = "bool",            default = false, help = "Can be researched multiple times" },
@@ -283,12 +281,12 @@ end
 
 --[[@@@
 Change funding  by adding or removing any value(in millions).
-@function void Gameplay@ChangeFunding(int funding)
+@function void Gameplay@ChangeFunding(int funding, [string source])
 @param int funding - +/- value in M 1M=1000*1000
 @result void
 ]]
-function ChangeFunding(value)
-	return UICity:ChangeFunding(value * 1000000)
+function ChangeFunding(value, source)
+	return UICity:ChangeFunding(value * 1000000, source)
 end
 ----
 
@@ -713,11 +711,9 @@ function TechEffect_ModifyConstructionCost:OnResearchComplete(city, tech)
 	else
 		--if modifying a whole category, first gather all building inside it
 		local buildings = {}
-		local templates = DataInstances.BuildingTemplate or ""
-		for i = 1, #templates do
-			local template = templates[i]
+		for id, template in pairs(BuildingTemplates or "") do
 			if template.build_category == category then
-				buildings[#buildings + 1] = template.name
+				buildings[#buildings + 1] = id
 			end
 		end
 		
@@ -745,15 +741,14 @@ Modify construction cost of  the specified building/category with the specified 
 @param int percent - change the cost with that percent.
 --]]
 function ModifyConstructionCost(building_name, construction_resource, percent)
-	local templates = DataInstances.BuildingTemplate or ""
+	local templates = BuildingTemplates or ""
 	local buildings = {}
 	if templates[building_name] then
 		buildings[#buildings + 1] = building_name
 	else	
-		for i = 1, #templates do
-			local template = templates[i]
+		for id, template in pairs(templates) do
 			if template.build_category == building_name then
-				buildings[#buildings + 1] = template.name
+				buildings[#buildings + 1] = id
 			end
 		end
 	end
@@ -997,7 +992,7 @@ end
 function TechEditor_Research(socket, preset)
 	if not UICity then return end
 	local obj = socket.selected_object
-	if obj and obj:IsKindOf("TechPreset") then
+	if obj and IsKindOf(obj, "TechPreset") then
 		UICity:SetTechResearched(obj.id)
 	end
 end

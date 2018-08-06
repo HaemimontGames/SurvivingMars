@@ -23,10 +23,7 @@ function OmegaTelescope:Done()
 end
 
 function OmegaTelescope:UnlockBreakthroughs(count)
-	local anomalies = GetObjects{
-		class = "SubsurfaceAnomalyMarker",
-		filter = function(a) return a.tech_action == "breakthrough" end
-	}
+	local anomalies = MapGet("map", "SubsurfaceAnomalyMarker", function(a) return a.tech_action == "breakthrough" end )
 	local rand, trand = self.city:CreateSessionRand("InitBreakThroughAnomalies")
 	local breakthroughs = table.icopy(Presets.TechPreset.Breakthroughs or empty_table)
 	local unlocked = 0

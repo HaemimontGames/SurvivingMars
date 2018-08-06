@@ -1,3 +1,4 @@
+g_StorageDepotInitialDesireAmount = 2000
 ResourceStates = {
 	"Auto",
 	"Import",
@@ -60,6 +61,10 @@ DefineClass.ResourceStockpileBase = {
 		{ id = "additional_supply_flags", editor = "number", default = 0, no_edit = true },
 		{ id = "additional_demand_flags", editor = "number", default = 0, no_edit = true },
 		{ id = "destroy_when_empty", editor = "bool", default = false, no_edit = true },
+		
+		{ id = "DesiredAmountSlider", name = T{10368, "DesiredAmount"}, category = "Storage Space", default = 0, editor = "number", min = 0, max = function(self) return self.desire_slider_max end, },
+		{ template = true, id = "desire_slider_max", name = T{10369, "Desire Slider Max"}, category = "Storage Space", default = 10000, editor = "number"},
+		{ template = true, id = "desired_amount", name = T{10370, "Desire Amount"}, category = "Storage Space", default = 0, editor = "number", scale = const.ResourceScale},
 	},
 	
 	gamepad_auto_deselect = true,
@@ -107,11 +112,75 @@ DefineClass.ResourceStockpileBase = {
 	interest2 = false,
 	interest3 = false,
 	interest4 = false,
-	
-	dome_label = false,
+	interest5 = false,
+	interest6 = false,
+	interest7 = false,
+	interest8 = false,
+	interest9 = false,
+	interest10 = false,
+	interest11 = false,
 	
 	dome_label = "ResourceStockpile",
 }
+
+function ResourceStockpileBase:GetFillIndex(resource)
+	local r = self.supply_request or self.demand_request
+	if r then
+		return r:GetFillIndex()
+	end
+	return const.FillIndexMultiplier
+end
+
+function ResourceStockpileBase:SetDesiredAmount(amount)
+	local max_storage = self:GetMax() * const.ResourceScale
+	amount = Clamp(amount, 0, max_storage)
+	self.desired_amount = amount
+	if self.supply_request then
+		self.supply_request:SetDesiredAmount(amount)
+	end
+	if self.demand_request then
+		self.demand_request:SetDesiredAmount(max_storage - amount)
+	end
+end
+--save compat
+function ResourceStockpileBase:PairRequests()
+	if self.supply_request and self.demand_request then
+		self.supply_request:SetReciprocalRequest(self.demand_request)
+	end
+end
+
+function ResourceStockpileBase:GetDesiredAmountSlider()
+	local max = self:GetMaxStorageForAnyOneResource()
+	return self.desired_amount * self.desire_slider_max / max
+end
+
+function ResourceStockpileBase:BroadcastVerify(other)
+	-- make sure broadcasts affect buildings of the same template only
+	return other.template_name == self.template_name
+end
+
+function ResourceStockpileBase:SetDesiredAmountSlider(perc)
+	local max = self:GetMaxStorageForAnyOneResource()
+	local amount =  ((MulDivRound(perc, max, self.desire_slider_max) + const.ResourceScale / 2) / const.ResourceScale) * const.ResourceScale
+	if IsMassUIModifierPressed() then
+		BroadcastAction(self, "SetDesiredAmount", amount)
+	else
+		self:SetDesiredAmount(amount)
+	end
+	ObjModified(self)
+end
+
+function ResourceStockpileBase:GetDesiredAmountUI()
+	return self.desired_amount / const.ResourceScale
+end
+
+function ResourceStockpileBase:GetMaxStorageForAnyOneResource()
+	if self.supply_request and self.demand_request then
+		return self.supply_request:GetActualAmount() + self.demand_request:GetActualAmount()
+	else
+		return self:GetMax() * const.ResourceScale
+	end
+end
 
 function CalcSingleResGroupEntity(info)
 	local single_entity = info.entity
@@ -222,10 +291,15 @@ function ResourceStockpileBase:CreateResourceRequests()
 		self.supply_request = self:AddSupplyRequest(self.resource, self.stockpiled_amount, bor(
 			self:GetParent() == nil and 0 or const.rfWaitToFill,
 			self.resource == "WasteRock" and const.rfCanExecuteAlone or 0,
-			self.additional_supply_flags))
+			self.additional_supply_flags), nil, self.desired_amount)
 	end	
 	if self.has_demand_request then
-		self.demand_request = self:AddDemandRequest(self.resource, self:GetMax() * const.ResourceScale - self.stockpiled_amount, self.additional_demand_flags)
+		local max_storage = self:GetMax() * const.ResourceScale
+		self.demand_request = self:AddDemandRequest(self.resource, max_storage - self.stockpiled_amount, self.additional_demand_flags, nil, max_storage - self.desired_amount)
+	end
+	
+	if self.supply_request and self.demand_request then
+		self.supply_request:SetReciprocalRequest(self.demand_request)
 	end
 end
 
@@ -275,7 +349,7 @@ function ResourceStockpileBase:CanService(unit)
 	local s_req = self:GetFoodSupplyRequest()
 	if s_req then
 		local eat_per_visit = unit:GetEatPerVisit()
-		local ret = s_req:CanAssignUnit() and s_req:GetTargetAmount() > eat_per_visit
+		local ret = s_req:CanAssignUnit() and s_req:GetTargetAmount() >= eat_per_visit
 		if ret then
 			unit.assigned_to_service_with_amount = eat_per_visit
 		end
@@ -287,6 +361,17 @@ function ResourceStockpileBase:Service(unit, duration)
 	assert(self.resource == "Food" or table.find(self.resource, "Food")) 
 	local stored_amount = self:GetStoredAmount("Food")
 	local eat_amount_assigned = unit.assigned_to_service_with_amount
+	local s_req = self:GetFoodSupplyRequest()
+	local timeout = 20
+	while eat_amount_assigned and eat_amount_assigned > stored_amount and timeout > 0 do
+		Sleep(1000)
+		if not IsValid(self) then
+			return
+		end
+		stored_amount = self:GetStoredAmount("Food")
+		timeout = timeout - 1
+	end
+	
 	local eat_amount = unit:Eat(Min(stored_amount, eat_amount_assigned or unit:GetEatPerVisit()))
 
 	if eat_amount <= 0 then return end
@@ -300,18 +385,17 @@ function ResourceStockpileBase:Service(unit, duration)
 	local will_kill_myself = stored_amount <= eat_amount and self.destroy_when_empty and unit.command_thread == CurrentThread()
 	if eat_amount_assigned then
 		--request flow
-		local s_req = self:GetFoodSupplyRequest()
-		s_req:Fulfill(eat_amount)
+		local f_result = s_req:Fulfill(eat_amount)
 		
-		local exec = function(self, unit, s_req, eat_amount)
-			self:DroneLoadResource(unit, s_req, "Food", eat_amount, true)
-			unit:AssignToService(nil, nil, true)
+		local exec = function(self, unit, s_req, eat_amount, f_result)
+			self:DroneLoadResource(nil, s_req, "Food", eat_amount, true)
+			unit:AssignToService(nil, nil, f_result)
 		end
 		
 		if will_kill_myself then
-			CreateGameTimeThread(exec, self, unit, s_req, eat_amount)
+			CreateGameTimeThread(exec, self, unit, s_req, eat_amount, f_result)
 		else
-			exec(self, unit, s_req, eat_amount)
+			exec(self, unit, s_req, eat_amount, f_result)
 		end
 	else
 		--no request flow
@@ -337,7 +421,7 @@ function ResourceStockpileBase:AddResourceAmount(amount_to_add, notify_parents)
 		self.demand_request:AddAmount(-amount_to_add)
 	end
 	
-	self.stockpiled_amount = self.stockpiled_amount + amount_to_add
+	self.stockpiled_amount = Max(self.stockpiled_amount + amount_to_add, 0)
 	
 	--update placed boxes.
 	if self.has_supply_request or self.has_demand_request then
@@ -640,12 +724,21 @@ end
 
 function ResourceStockpileBase:RoverWork(rover, request, resource, amount, reciprocal_req, interaction_type, total_amount)	
 	--temp presentation
-	rover:ContinuousTask(request, amount, "gatherStart", "gatherIdle", "gatherEnd",
+	return rover:ContinuousTask(request, amount, "gatherStart", "gatherIdle", "gatherEnd",
 	interaction_type == "load" and "Load" or "Unload",	"step", g_Consts.RCRoverTransferResourceWorkTime, "add resource", reciprocal_req, total_amount)
 end
 
 function ResourceStockpileBase:GetEmptyStorage(resource)
 	return self:GetMax() * const.ResourceScale - self:GetStoredAmount()
+end
+
+function ResourceStockpileBase:GetTargetEmptyStorage(resource)
+	if resource ~= self.resource then return 0 end
+	if self.demand_request then
+		return self.demand_request:GetTargetAmount()
+	else
+		return self:GetEmptyStorage(resource)
+	end
 end
 
 function ResourceStockpileBase:InitUnderConstruction(construction)
@@ -1133,18 +1226,13 @@ function ProcessPlaceStockpileCalls()
 	ResumePassEdits("ProcessPlaceStockpileCalls")
 end
 
-local stockpile_search = {
-	classes = "ResourceStockpile",
-	area = false,
-	arearadius = 2*const.HexSize,
-}
 --insta places stockpile
 function PlaceResourceStockpile_Instant(pos, resource, amount, angle, destroy_when_empty, max_z)
 	local best_stock = false
 	local other_resource_stock = false
 	local pos_to_stock = {}
-	stockpile_search.area = pos
-	stockpile_search.exec = function(o)
+
+	local stockpile_search = function(o)
 		if not o:GetParent() then --don't fill stocks attached to buildings
 			local opos = o:GetPos()
 			pos_to_stock[xxhash(opos)] = o
@@ -1155,9 +1243,7 @@ function PlaceResourceStockpile_Instant(pos, resource, amount, angle, destroy_wh
 			end
 		end
 	end
-	
-	ForEach(stockpile_search)
-	stockpile_search.area = false
+	MapForEach(pos, 2*const.HexSize, "ResourceStockpile", stockpile_search )
 	
 	--handle case where we already have a stockpile in the adjascent spot and we need its adjascent spot.
 	if other_resource_stock then
@@ -1211,11 +1297,6 @@ end
 function ResourceStockpileLR:Done()
 	LRManagerInstance:RemoveBuilding(self)
 end
-
-function ResourceStockpileLR:GetTargetEmptyStorage(resource)
-	return resource == self.resource and self.demand_request:GetTargetAmount() or 0
-end
-
 -------------------------------------------------------------------------------------------------------------
 --helper, brute forces a place to create a new stock
 function StockpileDumpSpotFilter(obj)
@@ -1233,32 +1314,22 @@ function HexGetAnyObj(q, r)
 end
 
 function TryFindStockpileDumpSpot(q, r, angle, p_shape, hex_getter_override, for_waste_rock_resource)
-	local hex_getter = HexGetLowBuilding
-	hex_getter = hex_getter_override or hex_getter
-	
+	local hex_getter = hex_getter_override or HexGetLowBuilding
 	local filter = for_waste_rock_resource and StockpileDumpSpotFilterForWasteRock or StockpileDumpSpotFilter
 	local classes = StockpileDumpQueryClasses
-	
-	local i = 1
-	local count = #p_shape
-	local pos = point(HexToWorld(q, r))
-	local is_there_a_unit_there = HexGetUnits(nil, nil, pos, 0, true, filter, classes)
 	local dir = HexAngleToDirection(angle)
 	local initial_q, initial_r = q, r
-	local r_q, r_r
-	
-	while i <= count 
-			and (hex_getter(q, r) or not terrain.IsPassable(pos)
-			or is_there_a_unit_there) do
-		r_q, r_r = HexRotate(p_shape[i]:x(), p_shape[i]:y(), dir)
+	for i = 1,#p_shape do
+		local dq, dr = p_shape[i]:xy()
+		local r_q, r_r = HexRotate(dq, dr, dir)
 		q = initial_q + r_q
 		r = initial_r + r_r
-		pos = point(HexToWorld(q, r))
-		is_there_a_unit_there = HexGetUnits(nil, nil, pos, 0, true, filter, classes)
-		i = i + 1
+		local x, y = HexToWorld(q, r)
+		if terrain.IsPassable(x, y) and not hex_getter(q, r)
+		and not HexGetUnits(nil, nil, point(x, y), 0, true, filter, classes) then
+			return true, q, r
+		end
 	end
-
-	return (not hex_getter(q, r) and not is_there_a_unit_there), q, r
 end
 
 -------------------------------------------------------------------------------------------------------------

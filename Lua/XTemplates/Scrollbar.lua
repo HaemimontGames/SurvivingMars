@@ -6,7 +6,6 @@ PlaceObj('XTemplate', {
 	id = "Scrollbar",
 	PlaceObj('XTemplateWindow', {
 		'__class', "XScrollThumb",
-		'Id', "idScroll",
 		'ZOrder', 10,
 		'Padding', box(5, 0, 5, 0),
 		'Dock', "right",

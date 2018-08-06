@@ -30,7 +30,7 @@ end,
 
 PlaceObj('Milestone', {
 	Complete = function (self)
-if CountObjects{class="SubsurfaceDeposit", filter = function(o) return o.revealed and o.resource == "Water" end } > 0 then return true end
+if MapCount("map", "SubsurfaceDeposit", function(o) return o.revealed and o.resource == "Water" end ) > 0 then return true end
 while true do
 	local ok, deposit = WaitMsg("SubsurfaceDepositRevealed")
 	if ok and deposit.resource == "Water" then return true end

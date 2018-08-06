@@ -68,10 +68,10 @@ end,
 if not self.idActionBar:GetVisible() and (shortcut == "Start" or shortcut == "ButtonB") then
 	self:ToggleUI()
 	return "break"
-elseif shortcut == "Alt" and cameraFly.IsActive() then
+elseif cameraFly.IsActive() and (shortcut == "Alt" or shortcut == "LeftTrigger") then
 	SetMouseDeltaMode(false)
 	return "break"
-elseif shortcut == "-Alt" and cameraFly.IsActive() then
+elseif cameraFly.IsActive() and (shortcut == "-Alt" or shortcut == "-LeftTrigger") then
 	SetMouseDeltaMode(true)
 	return "break"
 end
@@ -118,6 +118,7 @@ end,
 				PlaceObj('XTemplateWindow', {
 					'__class', "XFrame",
 					'Margins', box(-80, 6, -155, -100),
+					'Dock', "top",
 					'VAlign', "top",
 					'Transparency', 100,
 					'Image', "UI/Common/bm_pad_small.tga",
@@ -125,18 +126,23 @@ end,
 					'SqueezeY', false,
 				}),
 				PlaceObj('XTemplateWindow', {
-					'__class', "XContentTemplateList",
-					'Id', "idList",
-					'Margins', box(0, 30, 0, 0),
-					'BorderWidth', 0,
-					'LayoutVSpacing', 16,
-					'Clip', false,
-					'Background', RGBA(0, 0, 0, 0),
-					'FocusedBackground', RGBA(0, 0, 0, 0),
-					'VScroll', "idScroll",
-					'ShowPartialItems', false,
-					'LeftThumbScroll', false,
-					'OnContextUpdate', function (self, context, ...)
+					'Margins', box(0, 30, 0, 40),
+					'Dock', "top",
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XContentTemplateList",
+						'Id', "idList",
+						'BorderWidth', 0,
+						'LayoutVSpacing', 16,
+						'UniformRowHeight', true,
+						'Clip', false,
+						'Background', RGBA(0, 0, 0, 0),
+						'FocusedBackground', RGBA(0, 0, 0, 0),
+						'VScroll', "idScroll",
+						'ShowPartialItems', false,
+						'MouseScroll', true,
+						'LeftThumbScroll', false,
+						'OnContextUpdate', function (self, context, ...)
 XContentTemplateList.OnContextUpdate(self, context, ...)
 if self.focused_item then
 	self.focused_item =  Min(self.focused_item, #self)
@@ -146,87 +152,82 @@ if self.focused_item then
 	end)
 end
 end,
-					'RespawnOnContext', false,
-				}, {
-					PlaceObj('XTemplateMode', {
-						'mode', "properties",
+						'RespawnOnContext', false,
 					}, {
-						PlaceObj('XTemplateForEach', {
-							'comment', "props",
-							'array', function (parent, context) return context:GetProperties() end,
-							'condition', function (parent, context, item, i) return not item.filter or item.filter() end,
-							'item_in_context', "prop_meta",
+						PlaceObj('XTemplateMode', {
+							'mode', "properties",
 						}, {
-							PlaceObj('XTemplateTemplate', {
-								'__template', "PropEntry",
-								'RolloverTemplate', "Rollover",
+							PlaceObj('XTemplateForEach', {
+								'comment', "props",
+								'array', function (parent, context) return context:GetProperties() end,
+								'condition', function (parent, context, item, i) return not item.filter or item.filter() end,
+								'item_in_context', "prop_meta",
 							}, {
-								PlaceObj('XTemplateWindow', {
-									'__class', "XImage",
-									'Id', "idRollover",
-									'ZOrder', 0,
-									'Margins', box(-60, 0, -60, -6),
-									'Dock', "box",
-									'Visible', false,
-									'Image', "UI/Common/bm_buildings_pad.tga",
-									'ImageFit', "stretch",
+								PlaceObj('XTemplateTemplate', {
+									'__template', "PropEntry",
+									'RolloverTemplate', "Rollover",
+								}, {
+									PlaceObj('XTemplateWindow', {
+										'__class', "XImage",
+										'Id', "idRollover",
+										'ZOrder', 0,
+										'Margins', box(-60, 0, -60, -6),
+										'Dock', "box",
+										'Visible', false,
+										'Image', "UI/Common/bm_buildings_pad.tga",
+										'ImageFit', "stretch",
+									}),
+									}),
 								}),
-								}),
+							PlaceObj('XTemplateAction', {
+								'ActionId', "close",
+								'ActionName', T{4523, --[[XTemplate PhotoMode ActionName]] "CLOSE"},
+								'ActionToolbar', "ActionBar",
+								'ActionShortcut', "Escape",
+								'ActionGamepad', "ButtonB",
+								'OnActionEffect', "close",
 							}),
-						PlaceObj('XTemplateAction', {
-							'ActionId', "close",
-							'ActionName', T{4523, --[[XTemplate PhotoMode ActionName]] "CLOSE"},
-							'ActionToolbar', "ActionBar",
-							'ActionShortcut', "Escape",
-							'ActionGamepad', "ButtonB",
-							'OnActionEffect', "close",
-						}),
-						}),
-					PlaceObj('XTemplateMode', {
-						'mode', "items",
-					}, {
-						PlaceObj('XTemplateForEach', {
-							'comment', "item",
-							'array', function (parent, context) return GetDialogModeParam(parent).items() end,
-							'condition', function (parent, context, item, i) return not item.not_selectable end,
-							'__context', function (parent, context, item, i, n) return item end,
+							}),
+						PlaceObj('XTemplateMode', {
+							'mode', "items",
 						}, {
-							PlaceObj('XTemplateTemplate', {
-								'__template', "MenuEntrySmall",
-								'RolloverTemplate', "Rollover",
-								'Padding', box(0, 0, 0, 0),
-								'HAlign', "right",
-								'OnPress', function (self, gamepad)
+							PlaceObj('XTemplateForEach', {
+								'comment', "item",
+								'array', function (parent, context) return GetDialogModeParam(parent).items() end,
+								'condition', function (parent, context, item, i) return not item.not_selectable end,
+								'__context', function (parent, context, item, i, n) return item end,
+							}, {
+								PlaceObj('XTemplateTemplate', {
+									'__template', "MenuEntrySmall",
+									'RolloverTemplate', "Rollover",
+									'Padding', box(0, 0, 0, 0),
+									'HAlign', "right",
+									'OnPress', function (self, gamepad)
 local prop_meta = GetDialogModeParam(self)
 local obj = GetDialogContext(self)
 SetProperty(obj, prop_meta.id, self.context.value)
 SetBackDialogMode(self)
 end,
-								'TextColor', RGBA(221, 215, 170, 255),
-								'Text', T{730563403228, --[[XTemplate PhotoMode Text]] "<text>"},
+									'TextColor', RGBA(221, 215, 170, 255),
+									'Text', T{730563403228, --[[XTemplate PhotoMode Text]] "<text>"},
+								}),
+								}),
+							PlaceObj('XTemplateAction', {
+								'ActionId', "back",
+								'ActionName', T{4254, --[[XTemplate PhotoMode ActionName]] "BACK"},
+								'ActionToolbar', "ActionBar",
+								'ActionShortcut', "Escape",
+								'ActionGamepad', "ButtonB",
+								'OnActionEffect', "back",
 							}),
 							}),
-						PlaceObj('XTemplateAction', {
-							'ActionId', "back",
-							'ActionName', T{4254, --[[XTemplate PhotoMode ActionName]] "BACK"},
-							'ActionToolbar', "ActionBar",
-							'ActionShortcut', "Escape",
-							'ActionGamepad', "ButtonB",
-							'OnActionEffect', "back",
 						}),
-						}),
+					PlaceObj('XTemplateTemplate', {
+						'__template', "Scrollbar",
+						'Id', "idScroll",
+						'Target', "idList",
 					}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XPageScroll",
-					'Id', "idScroll",
-					'Margins', box(0, 30, 0, 80),
-					'Dock', "bottom",
-					'VAlign', "bottom",
-					'MinHeight', 42,
-					'Visible', false,
-					'FoldWhenHidden', false,
-					'Target', "idList",
-				}),
+					}),
 				}),
 			PlaceObj('XTemplateWindow', {
 				'Id', "idActionBar",
@@ -300,17 +301,17 @@ end,
 				'ActionName', T{954580699514, --[[XTemplate PhotoMode ActionName]] "TAKE SCREENSHOT"},
 				'ActionToolbar', "ActionBar",
 				'ActionGamepad', "LeftTrigger",
-				'OnAction', function (self, host, source, toggled)
+				'OnAction', function (self, host, source)
 PhotoModeTake()
 end,
-				'__condition', function (parent, context) return not Platform.console end,
+				'__condition', function (parent, context) return not Platform.console or g_PhotoModeChallengeId end,
 			}),
 			PlaceObj('XTemplateAction', {
 				'ActionId', "idToggleUI",
 				'ActionName', T{357021532351, --[[XTemplate PhotoMode ActionName]] "TOGGLE UI"},
 				'ActionToolbar', "ActionBar",
 				'ActionGamepad', "ButtonX",
-				'OnAction', function (self, host, source, toggled)
+				'OnAction', function (self, host, source)
 host:ToggleUI()
 end,
 			}),
@@ -323,7 +324,7 @@ end,
 				'ActionState', function (self, host)
 return GetTimeFactor() == 0 and "hidden"
 end,
-				'OnAction', function (self, host, source, toggled)
+				'OnAction', function (self, host, source)
 host.context:Pause()
 host.idList:RespawnContent()
 end,
@@ -337,7 +338,7 @@ end,
 				'ActionState', function (self, host)
 return GetTimeFactor() ~= 0 and "hidden"
 end,
-				'OnAction', function (self, host, source, toggled)
+				'OnAction', function (self, host, source)
 host.context:Resume()
 host.idList:RespawnContent()
 end,

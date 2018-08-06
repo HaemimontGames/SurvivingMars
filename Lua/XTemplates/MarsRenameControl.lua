@@ -55,7 +55,7 @@ PlaceObj('XTemplate', {
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "rename",
-			'ActionName', T{817350877792, --[[XTemplate MarsRenameControl ActionName]] "RENAME"},
+			'ActionName', T{10120, --[[XTemplate MarsRenameControl ActionName]] "RENAME"},
 			'ActionToolbar', "RenameActionBar",
 			'ActionGamepad', "ButtonY",
 			'__condition', function (parent, context) return Platform.console and context and context.console_show end,

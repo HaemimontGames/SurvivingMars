@@ -22,7 +22,7 @@ function LabelContainer:AddToLabel(label, obj)
 			--insert into label
 			label_list[#label_list + 1] = obj
 		else
-			--obj alraedy in label
+			--obj already in label
 			--exit so we don't modify properties multiple times
 			return
 		end

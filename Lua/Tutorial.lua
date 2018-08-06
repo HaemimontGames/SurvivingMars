@@ -56,7 +56,7 @@ function StartTutorial(id)
 	LoadingScreenOpen("idLoadingScreen", "Tutorial")
 	
 	AccountStorage.CompletedTutorials = AccountStorage.CompletedTutorials or {}
-	SaveAccountStorage()
+	SaveAccountStorage(5000)
 	
 	CloseMenuDialogs()
 	g_Tutorial = {
@@ -66,16 +66,14 @@ function StartTutorial(id)
 	}
 	ChangeMap(def.map)
 	
-	ForEach{
-		class = "TutorialMarker",
-		exec = function(o)
+	MapForEach("map", "TutorialMarker",
+		function(o)
 			if o.MarkerName ~= "" then
 				assert(not g_Tutorial.MapMarkers[o.MarkerName], "Duplicate TutorialMarker name")
 				g_Tutorial.MapMarkers[o.MarkerName] = o		
 			end
 			o:ClearEnumFlags(const.efVisible)
-		end,
-	}
+		end)
 	g_Tutorial.Loaded = true
 	
 	local idx = table.find(Presets.TutorialPreset.Default, "id", id)
@@ -104,7 +102,7 @@ function WinTutorial(next_id)
 
 	AccountStorage.CompletedTutorials = AccountStorage.CompletedTutorials or {}
 	AccountStorage.CompletedTutorials[g_Tutorial.Id] = true
-	SaveAccountStorage()
+	SaveAccountStorage(5000)
 	
 	if next_id then
 		CreateRealTimeThread(StartTutorial, next_id)
@@ -191,7 +189,7 @@ function TutorialUIArrow:Init()
 		while true do
 			-- update anchor
 			local target
-			if not GetXDialog("IGMainMenu") then
+			if not GetDialog("IGMainMenu") then
 				target = self:FindTarget()
 			end
 			if target and target:IsVisible() then
@@ -294,10 +292,7 @@ function ShowTutorialArrow(where, class, entity)
 end
 
 function RemoveAllTutorialArrows()
-	ForEach{
-		class = "ArrowTutorialBase",
-		action = "delete",
-	}
+	MapDelete("map", "ArrowTutorialBase")
 end
 
 DefineClass.TutorialGhostObj = {
@@ -428,21 +423,21 @@ function WaitBuildMenuItemSelected(category, item, mode, view_pos)
 				end	
 				return false
 			end	
-			if not XDialogs.XBuildMenu then 
+			if not Dialogs.XBuildMenu then 
 				if gamepad then 
-					local dlg = GetXDialog("GamepadIGMenu")					
+					local dlg = GetDialog("GamepadIGMenu")
 					return dlg and dlg.items and table.find_value(dlg.items, "name", "idBuild") or false
 				end
 				
 				local dlg = GetHUD()
 				return dlg and dlg.idBuild or false
 			end
-			local items = XDialogs.XBuildMenu.items
+			local items = Dialogs.XBuildMenu.items
 			local ctrl = table.find_value(items, "name", item)
 			if ctrl then
 				return ctrl
 			end
-			return XDialogs.XBuildMenu.idCategoryList[category]
+			return Dialogs.XBuildMenu.idCategoryList[category]
 		end,
 	}, terminal.desktop)
 	
@@ -467,22 +462,22 @@ function WaitBuildMenuItemSelected(category, item, mode, view_pos)
 end
 
 function FindBuildMenuItem(item, category, subcategory)
-	if not XDialogs.XBuildMenu then 
+	if not Dialogs.XBuildMenu then 
 		if GetUIStyleGamepad() then 
-			local dlg = GetXDialog("GamepadIGMenu")					
+			local dlg = GetDialog("GamepadIGMenu")
 			return dlg and dlg.items and table.find_value(dlg.items, "name", "idBuild") or false
 		end
 		
 		local dlg = GetHUD()
 		return dlg and dlg.idBuild or false
 	end
-	if XDialogs.XBuildMenu:HasMember(item) then
-		return XDialogs.XBuildMenu[item]
+	if Dialogs.XBuildMenu:HasMember(item) then
+		return Dialogs.XBuildMenu[item]
 	end
-	if subcategory and XDialogs.XBuildMenu:HasMember(subcategory) then
-		return XDialogs.XBuildMenu[subcategory]
+	if subcategory and Dialogs.XBuildMenu:HasMember(subcategory) then
+		return Dialogs.XBuildMenu[subcategory]
 	end
-	return XDialogs.XBuildMenu.idCategoryList[category]
+	return Dialogs.XBuildMenu.idCategoryList[category]
 end
 
 function WaitBuildMenuStorageSelected(item, anchor_type)
@@ -490,22 +485,22 @@ function WaitBuildMenuStorageSelected(item, anchor_type)
 	local arrow = TutorialUIArrow:new({
 		AnchorType = anchor_type or "center-top",
 		FindTarget = function() 
-			if not XDialogs.XBuildMenu then 
+			if not Dialogs.XBuildMenu then 
 				if gamepad then 
-					local dlg = GetXDialog("GamepadIGMenu")					
+					local dlg = GetDialog("GamepadIGMenu")
 					return dlg and dlg.items and table.find_value(dlg.items, "name", "idBuild") or false
 				end
 				
 				local dlg = GetHUD()
 				return dlg and dlg.idBuild or false
 			end
-			if XDialogs.XBuildMenu:HasMember(item) then
-				return XDialogs.XBuildMenu[item]
+			if Dialogs.XBuildMenu:HasMember(item) then
+				return Dialogs.XBuildMenu[item]
 			end
-			if XDialogs.XBuildMenu:HasMember("Depots") then
-				return XDialogs.XBuildMenu.Depots
+			if Dialogs.XBuildMenu:HasMember("Depots") then
+				return Dialogs.XBuildMenu.Depots
 			end
-			return XDialogs.XBuildMenu.idCategoryList.Storages
+			return Dialogs.XBuildMenu.idCategoryList.Storages
 		end,
 	}, terminal.desktop)
 	while GetInGameInterfaceMode() ~= "construction" or CityConstruction[UICity].template ~= item do
@@ -519,8 +514,8 @@ end
 function WaitInfopanelAction(class, action, condition_func)
 	local find_target = function(self)
 		if not IsKindOf(SelectedObj, class) then return false end
-		if not XDialogs.Infopanel then return false end
-		for i,button in ipairs(XDialogs.Infopanel.idMainButtons) do
+		if not Dialogs.Infopanel then return false end
+		for i,button in ipairs(Dialogs.Infopanel.idMainButtons) do
 			if button.OnPressParam == action then
 				return button
 			end
@@ -532,8 +527,8 @@ end
 
 function WaitResourceItemsChoice(name, condition_func, anchor_type)
 	local find_target = function(self)
-		if not XDialogs.ResourceItems then return false end
-		for i,item in ipairs(XDialogs.ResourceItems.items) do
+		if not Dialogs.ResourceItems then return false end
+		for i,item in ipairs(Dialogs.ResourceItems.items) do
 			if item.name == name then
 				return item
 			end
@@ -553,16 +548,16 @@ function WaitResearchQueued(tech_id, close, wait_any_tech)
 	local arrow = TutorialUIArrow:new({
 		AnchorType = "center-top",
 		FindTarget = function(self)
-			local dlg = XDialogs.ResearchDlg	
+			local dlg = Dialogs.ResearchDlg
 			if not dlg then
 				self.AnchorType = "center-top"
 				if GetUIStyleGamepad() then
-					local gamepadmenu = XDialogs.GamepadIGMenu
+					local gamepadmenu = Dialogs.GamepadIGMenu
 					if not gamepadmenu then return false end
 					if not gamepadmenu.items then return false end
 					return table.find_value(gamepadmenu.items, "name", "idResearch") or false
 				else
-					return XDialogs.HUD and XDialogs.HUD.idResearch or false
+					return Dialogs.HUD and Dialogs.HUD.idResearch or false
 				end
 			end
 			if table.find(UICity.research_queue, tech_id) and close then
@@ -570,13 +565,13 @@ function WaitResearchQueued(tech_id, close, wait_any_tech)
 			end
 			
 			--TODO: should the arrow change it's anchor type at this point?
-			local research_dlg = XDialogs.ResearchDlg
+			local research_dlg = Dialogs.ResearchDlg
 			--local tech = research_dlg:GetRelativeFocus(focus_order, "exact")
 			local tech
-			local fields = research_dlg.idArea.children
+			local fields = research_dlg.idArea
 			for _, field in ipairs(fields) do
 				if not tech and field:HasMember("idFieldTech") then
-					for _, ctrl in ipairs(field.idFieldTech.children) do
+					for _, ctrl in ipairs(field.idFieldTech) do
 						if ctrl.context.id == tech_id then
 							tech = ctrl
 							break
@@ -606,7 +601,7 @@ function WaitResearchQueued(tech_id, close, wait_any_tech)
 		end
 	end
 	if close then
-		while XDialogs.ResearchDlg do
+		while Dialogs.ResearchDlg do
 			Sleep(200)
 		end
 	end
@@ -618,12 +613,12 @@ end
 function WaitHUDButtonPressed(button, condition_func)
 	local find_target = function(self)
 		if GetUIStyleGamepad() then
-			local gamepadmenu = XDialogs.GamepadIGMenu
+			local gamepadmenu = Dialogs.GamepadIGMenu
 			if not gamepadmenu then return false end
 			if not gamepadmenu.items then return false end
 			return table.find_value(gamepadmenu.items, "name", button) or false
 		else
-			return XDialogs.HUD and XDialogs.HUD[button] or false
+			return Dialogs.HUD and Dialogs.HUD[button] or false
 		end
 	end
 	WaitCustomUIButtonPressed(find_target, condition_func, "center-top")
@@ -631,10 +626,10 @@ end
 
 function WaitUIButtonPressed(dialog, button, condition_func, anchor_type)
 	local find_target = function(self)
-		local dlg = XDialogs[dialog]
+		local dlg = Dialogs[dialog]
 		local gamepad = GetUIStyleGamepad()
 		if gamepad then 
-			local dlg = GetXDialog("GamepadIGMenu")					
+			local dlg = GetDialog("GamepadIGMenu")
 			return dlg and dlg.items and table.find_value(dlg.items, "name", button) or false
 		end
 		if not dlg then return false end
@@ -689,7 +684,7 @@ function WaitObjectSelected(obj, no_ingame_arrow, no_pin_arrow)
 		ui_arrow = TutorialUIArrow:new({
 			AnchorType = "center-top",
 			FindTarget = function(self)
-				local pins_dlg = XDialogs.PinsDlg
+				local pins_dlg = Dialogs.PinsDlg
 				if not pins_dlg then return false end
 				for _,win in ipairs(pins_dlg) do
 					if not win.Dock and win.context == obj then
@@ -723,14 +718,10 @@ function WaitResourcesNearPoint(point, resource, amount, radius, ignore_classes)
 
 	radius = radius or 100*guim
 	local total = 0
-	local query_stockpiles, query_drones
+	local stockpiles_func, drone_func
 	
 	if resource then --specific resource given
-		query_stockpiles = {
-			class = "ResourceStockpileBase",
-			area = point,
-			arearadius = radius,
-			exec = function(pile, resource, getter_name, ignore_classes)
+		stockpiles_func = function(pile, resource, getter_name, ignore_classes)
 				if IsKindOfClasses(pile, ignore_classes) then return end
 				if resource == "Fuel" and IsKindOf(pile, "SupplyRocket") then
 					local extra = pile.unload_fuel_request and pile.unload_fuel_request:GetActualAmount() or 0	
@@ -743,25 +734,15 @@ function WaitResourcesNearPoint(point, resource, amount, radius, ignore_classes)
 				else
 					total = total + (pile.stockpiled_amount or 0)
 				end
-			end,
-		}
-		query_drones = {
-			class = "Drone",
-			area = point,
-			arearadius = radius,
-			exec = function(drone, resource, getter_name, ignore_classes)
+		end
+		drone_func = function(drone, resource, getter_name, ignore_classes)
 				if IsKindOfClasses(drone, ignore_classes) then return end
 				if drone.resource == resource then
 					total = total + drone.amount
 				end
-			end,
-		}
+		end
 	else --no specific resource - gather all resources
-		query_stockpiles = {
-			class = "ResourceStockpileBase",
-			area = point,
-			arearadius = radius,
-			exec = function(pile, resource, getter_name, ignore_classes)
+		stockpiles_func = function(pile, resource, getter_name, ignore_classes)
 				if IsKindOfClasses(pile, ignore_classes) then return end
 				if IsKindOf(pile, "SupplyRocket") then
 					local extra = pile.unload_fuel_request and pile.unload_fuel_request:GetActualAmount() or 0	
@@ -774,25 +755,19 @@ function WaitResourcesNearPoint(point, resource, amount, radius, ignore_classes)
 				else
 					total = total + (pile.stockpiled_amount or 0)
 				end
-			end,
-		}
-		query_drones = {
-			class = "Drone",
-			area = point,
-			arearadius = radius,
-			exec = function(drone, resource, getter_name, ignore_classes)
+		end
+		drone_func = function(drone, resource, getter_name, ignore_classes)
 				if IsKindOfClasses(drone, ignore_classes) then return end
 				total = total + drone.amount
-			end,
-		}
+		end
 	end
 	
 	ignore_classes = ignore_classes or { }
 	local getter_name = "GetStored_" .. (resource or "")
 	while true do
 		total = 0
-		ForEach(query_stockpiles, resource, getter_name, ignore_classes)
-		ForEach(query_drones, resource, getter_name, ignore_classes)
+		MapForEach(point, radius, "ResourceStockpileBase", stockpiles_func, resource, getter_name, ignore_classes)
+		MapForEach(point, radius, "Drone", drone_func , resource, getter_name, ignore_classes)
 		--print("currently", total, resource, "; expecting", amount)
 		if total >= amount then
 			break
@@ -841,3 +816,12 @@ function GetSector(id)
 		end
 	end
 end
+
+TFormat.TutorialDisabledAchievementsText = function(context_obj)
+	if Platform.ps4 then
+		return T{10089, "Trophies are disabled during all tutorials."}
+	else
+		return T{10090, "Achievements are disabled during all tutorials."}
+	end
+end
+

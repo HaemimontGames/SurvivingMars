@@ -110,12 +110,7 @@ function WaitBombard(obj, radius, count, delay_min, delay_max)
 			end
 			Msg("BombardMissileHit")
 			if not interrupted and not dome_pt then
-				ForEach{
-					class = missile.explode_decal_name,
-					area = dest_pos,
-					arearadius = 20*guim,
-					action = "delete",
-				}
+				MapDelete(dest_pos, 20*guim, missile.explode_decal_name)
 				local explode_decal = PlaceObject(missile.explode_decal_name)
 				explode_decal:SetPos(dest_pos)
 				explode_decal:SetAngle(AsyncRand(360*60))

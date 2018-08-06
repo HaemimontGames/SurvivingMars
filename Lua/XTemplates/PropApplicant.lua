@@ -16,7 +16,23 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "PropName",
 			'VAlign', "center",
-		}),
+		}, {
+			PlaceObj('XTemplateFunc', {
+				'name', "CalcTextColor",
+				'func', function (self, ...)
+local traits = self.context.prop_meta.applicant[1].traits
+for trait_id, val in pairs(traits) do
+	local trait = TraitPresets[trait_id]
+	if trait and trait.rare then
+		return self.parent.rollover and self.RolloverTextColor or RGBA(250, 236, 208,255)
+	end
+end
+return self.enabled and 
+				(self.parent.rollover and self.RolloverTextColor or self.TextColor)
+				or self.DisabledTextColor
+end,
+			}),
+			}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "PropCheckBoxValue",
 			'Id', "idPositive",

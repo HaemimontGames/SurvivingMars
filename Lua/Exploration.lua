@@ -110,6 +110,7 @@ DefineClass.MapSector = {
 	exp_resources = false, -- list of expected resources, based on terrain features (not an actual list of available resources)	
 	markers = false, -- list of markers to spawn deposits when scanned, per category (terrain/surface, subsurface, deep)
 	deposits = false, -- actual resources available in placed deposits per category per type
+	notify_thread = false,
 	
 	row = false,
 	col = false,
@@ -154,7 +155,7 @@ local function CheckScanAvailability()
 		RemoveOnScreenNotification("SectorScanAvailable")
 	end
 	if fully_scanned then
-		ForEach{class = "OrbitalProbe", area = "realm", action = "delete"}
+		MapDelete(true, "OrbitalProbe")
 	end
 	RefreshSectorInfopanel(g_ExplorationQueue[1])
 end
@@ -174,6 +175,24 @@ function MapSector:HasBlockers()
 		end
 	end
 end
+
+function MapSector:HasMarkersOfType(class, list)
+	if not list then
+		for t, markers in pairs(self.markers) do
+			if self:HasMarkersOfType(class, markers) then
+				return true
+			end
+		end
+		return false
+	end
+	for _, marker in ipairs(list) do
+		if IsKindOf(marker, class) then
+			return true
+		end
+	end
+end
+
+GlobalVar("DeepSectorsScanned", 0)
 
 function MapSector:Scan(status, scanner)
 	if status == "unexplored" or status == self.status then
@@ -226,7 +245,8 @@ function MapSector:Scan(status, scanner)
 	self:UpdateDecal()
 	
 	-- scan notification & results
-	CreateGameTimeThread(function(self, status, old_status)
+	DeleteThread(self.notify_thread)
+	self.notify_thread = CreateGameTimeThread(function(self, status, old_status)
 		Sleep(10) -- allow newly placed deposits to GameInit properly
 		
 		local texts = {}
@@ -238,9 +258,16 @@ function MapSector:Scan(status, scanner)
 		else		
 			results = table.concat(texts, " ")
 		end
+		
+		DeepSectorsScanned = DeepSectorsScanned + (status == "deep scanned" and 1 or 0)
+		
 		AddOnScreenNotification("SectorScanned", GoToSector, {name = self.display_name, results = results, x = self.col, y = self.row})
 		Msg("SectorScanned", status, self.col, self.row)
-		local expiration = DataInstances.OnScreenNotificationPreset["SectorScanned"].expiration
+		local research_points = GetMissionSponsor().research_points_per_explored_sector or 0
+		if research_points > 0 and GameTime() > 100 then
+			GrantResearchPoints(research_points)
+		end
+		local expiration = OnScreenNotificationPresets["SectorScanned"].expiration
 		SetSectorSubsurfaceDepositsVisibleExpiration(self, expiration)
 		
 		self.revealed_surf = nil
@@ -542,18 +569,30 @@ function MapSector:GatherResourceTexts(texts, prev_status, short, new_only)
 	end]]--
 end
 
-function MapSector:QueueForExploration()
+function MapSector:QueueForExploration(add_first)
 	if g_Tutorial and not g_Tutorial.EnableExploration then
 		return
 	end
 
 	PlayFX("SectorClick", "start")
-	if self:CanBeScanned() and #g_ExplorationQueue < const.ExplorationQueueMaxSize then
+	local max = const.ExplorationQueueMaxSize
+	local queued = #g_ExplorationQueue 
+	if self:CanBeScanned() and queued <= max then
 		local idx = table.find(g_ExplorationQueue, self)
-		if not idx then
-			g_ExplorationQueue[#g_ExplorationQueue + 1] = self
+		if idx and idx>1 and add_first then
+			self:RemoveFromExplorationQueue(idx)
+			self:QueueForExploration(add_first)
+		elseif not idx and queued < max then
+			if add_first then
+				table.insert(g_ExplorationQueue,1,self)
+			else
+				g_ExplorationQueue[#g_ExplorationQueue + 1] = self
+			end	
 			DisplayExplorationQueue()
-			if #g_ExplorationQueue == 1 then
+			if #g_ExplorationQueue == 1 or add_first then
+				if add_first and g_ExplorationQueue[2] then
+					g_ExplorationQueue[2]:SetScanFx(false)
+				end
 				self:SetScanFx(true)
 			end
 			HintDisable("HintScanningSectors")
@@ -566,8 +605,8 @@ function MapSector:QueueForExploration()
 	return false
 end
 
-function MapSector:RemoveFromExplorationQueue()
-	local idx = table.find(g_ExplorationQueue, self)
+function MapSector:RemoveFromExplorationQueue(idx)
+	local idx = idx or table.find(g_ExplorationQueue, self)
 	if idx then
 		PlayFX("SectorCancel", "start")
 		table.remove(g_ExplorationQueue, idx)
@@ -713,6 +752,9 @@ function City:ExplorationTick()
 		sector.scan_progress = sector.scan_progress + scan_now - scan_last
 		
 		local target = deep and const.SectorDeepScanPoints or const.SectorScanPoints
+		if IsGameRuleActive("FastScan") then
+			target = target / 10
+		end
 		
 		if sector.scan_progress >= target then			
 			sector:Scan(deep and "deep scanned" or "scanned")
@@ -747,10 +789,7 @@ function InitSector(sector, eligible)
 	sector:UpdateDecal()
 
 	-- enum & process markers
-	local markers = GetObjects{classes = {"PrefabFeatureMarker", "DepositMarker"}, area = sector.area}
-	for i = 1, #markers do
-		local marker = markers[i]
-		
+	local exec = function(marker)
 		if IsKindOf(marker, "PrefabFeatureMarker") then -- data to display as expected findings prior to exploration
 			local ft = marker.FeatureType
 			local feature = rawget(PrefabFeatures, ft) or ""
@@ -775,16 +814,15 @@ function InitSector(sector, eligible)
 			end
 		end
 	end
+	MapForEach(sector.area, "PrefabFeatureMarker", "DepositMarker", exec)
 end
 
 function OnMsg.LoadGame()
-	ForEach{
-		class = "MapSector", 
-		area = "realm", 
-		exec = function(sector)
+	MapForEach(true, 
+		"MapSector", 
+		function(sector)
 			sector:SetPos(sector.area:Center())
-		end
-	}
+		end)
 end
 
 function InitialReveal(eligible, trand)
@@ -894,10 +932,7 @@ end--]]
 function City:InitExploration()
 	if not mapdata.GameLogic then return end
 
-	ForEach{
-		class = "Deposit",
-		exec = DoneObject,
-	}
+	MapForEach("map", "Deposit", DoneObject)
 
 	assert(hr.CameraRTSBorderAtMinZoom == hr.CameraRTSBorderAtMaxZoom)
 	
@@ -948,7 +983,9 @@ function City:InitExploration()
 
 	g_MapArea = box(g_MapSectors[1][1].area:min(), g_MapSectors[const.SectorCount][const.SectorCount].area:max())
 
-	if CountObjects{class = "RevealedMapSector", area = "realm"} == 0 then
+	if MapCount(true, "RevealedMapSector") == 0 then
+		SuspendPassEdits("InitialExplore")
+		
 		-- find sector(s) to initially reveal	
 		local revealed = InitialReveal(eligible, trand) or ""
 		
@@ -975,14 +1012,10 @@ function City:InitExploration()
 				deposit, resource = "SubsurfaceDepositPreciousMetals", "PreciousMetals"
 			end
 			
-			if deposit and CountObjects{class = deposit} == 0 then
-				local marker = FindNearest({
-					class = "SubsurfaceDepositMarker",
-					filter = function(o)
+			if deposit and MapCount("map", deposit) == 0 then
+				local marker = MapFindNearest(g_InitialSector.area:Center(), "map", "SubsurfaceDepositMarker", function(o)
 						return not o.is_placed and o.resource == resource and o.depth_layer <= 1
-					end,
-				}, g_InitialSector.area:Center())
-				
+					end)
 				if marker then
 					marker.revealed = true
 					marker:PlaceDeposit()
@@ -1000,6 +1033,8 @@ function City:InitExploration()
 				overview_dialog:SelectSector(last_revealed, nil, "forced")
 			end
 		end
+		
+		ResumePassEdits("InitialExplore")
 	end
 			
 	-- exploration thread

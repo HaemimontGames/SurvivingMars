@@ -17,7 +17,7 @@ PlaceObj('XTemplate', {
 				'name', "OnDelete",
 				'func', function (self, ...)
 self.context:SaveToTables()
-SaveAccountStorage()
+SaveAccountStorage(5000)
 end,
 			}),
 			}),
@@ -57,6 +57,7 @@ end,
 			'FocusedBackground', RGBA(0, 0, 0, 0),
 			'VScroll', "idScroll",
 			'ShowPartialItems', false,
+			'MouseScroll', true,
 			'OnContextUpdate', function (self, context, ...)
 local focus = self.focused_item
 XContentTemplate.OnContextUpdate(self, context, ...)
@@ -71,7 +72,7 @@ end,
 local prev_item = self.focused_item
 local ret = XList.OnShortcut(self, shortcut, source)
 if shortcut == "Down" and prev_item == #self then
-	local dlg = GetXDialog(self)
+	local dlg = GetDialog(self)
 	dlg.idVolume:SetFocus()
 	return "break"
 end
@@ -87,12 +88,12 @@ end,
 					'__template', "MenuEntrySmall",
 					'HAlign', "right",
 					'OnPress', function (self, gamepad)
-self.parent.parent.parent.context:SetRadioStation(self.context.name)
+self.parent.parent.parent.context:SetRadioStation(self.context.id)
 end,
 					'Text', T{460245435559, --[[XTemplate RadioStationDlg Text]] "<display_name>"},
 				}, {
 					PlaceObj('XTemplateWindow', {
-						'__condition', function (parent, context) return context.name == ActiveRadioStation end,
+						'__condition', function (parent, context) return context.id == ActiveRadioStation end,
 						'__class', "XImage",
 						'Id', "idActive",
 						'ZOrder', 0,
@@ -104,6 +105,11 @@ end,
 					}),
 				}),
 			}),
+		PlaceObj('XTemplateTemplate', {
+			'__template', "Scrollbar",
+			'Id', "idScroll",
+			'Target', "idList",
+		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "MenuEntrySmall",
 			'Id', "idVolume",
@@ -124,7 +130,7 @@ end,
 				'name', "OnShortcut(self, shortcut, source)",
 				'func', function (self, shortcut, source)
 if shortcut == "DPadUp" or shortcut == "LeftThumbUp" then
-	local obj = GetXDialog(self)
+	local obj = GetDialog(self)
 	obj.idList:SetFocus()
 	obj.idList:SetSelection(#obj.idList)
 elseif shortcut == "DPadLeft" or shortcut == "LeftThumbLeft" then
@@ -137,14 +143,6 @@ end
 end,
 			}),
 			}),
-		PlaceObj('XTemplateWindow', {
-			'__class', "XPageScroll",
-			'Id', "idScroll",
-			'Dock', "bottom",
-			'Visible', false,
-			'Target', "idList",
-			'ForceFocusFirstItem', true,
-		}),
 		}),
 })
 

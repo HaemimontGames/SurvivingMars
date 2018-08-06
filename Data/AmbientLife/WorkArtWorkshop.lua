@@ -103,8 +103,5 @@ PlaceObj('AmbientLife', {
 		'unit', "unit",
 		'spot_obj', "bld",
 	}),
-	PlaceObj('XPrgCheckExpression', {
-		'form', "else if <cond>",
-	}),
 })
 

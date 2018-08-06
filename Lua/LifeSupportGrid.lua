@@ -164,10 +164,10 @@ function WaterGrid:GetUISectionWaterGridRollover()
 
 	if self.production > self.consumption then
 		table.insert(ret, 
-		T{543, "Unused production<right><water(number)>", number = function (obj) return obj.production - obj.consumption end, self})
+		T{543, "Unused production<right><water(number)>", number = function (obj) local el = ResolvePropObj(obj) return el.grid.production - el.grid.consumption end, self})
 	elseif self.production < self.consumption then
 		table.insert(ret, 
-		T{544, "Insufficient production<right><water(number)>", number = function (obj) return obj.consumption - obj.production end, self})
+		T{544, "Insufficient production<right><water(number)>", number = function (obj) local el = ResolvePropObj(obj) return el.grid.consumption - el.grid.production end, self})
 	end
 
 	return table.concat(ret, "<newline><left>")
@@ -183,10 +183,22 @@ function AirGridFragment:GetUISectionAirGridRollover()
 
 	if self.production > self.consumption then
 		table.insert(ret, 
-		T{539, "Unused production<right><air(number)>", number = function (obj) return obj.production - obj.consumption end, self})
+		T{539, "Unused production<right><air(number)>", number = 
+			function (obj) 
+				local el = ResolvePropObj(obj) 
+				local grid = el.grid
+				grid = grid:IsKindOf("WaterGrid") and grid.air_grid or grid
+				return grid.production - grid.consumption 
+			end, self})
 	elseif self.production < self.consumption then
 		table.insert(ret, 
-		T{540, "Insufficient production<right><air(number)>", number = function (obj) return obj.consumption - obj.production end, self})
+		T{540, "Insufficient production<right><air(number)>", number = 
+			function (obj) 
+				local el = ResolvePropObj(obj) 
+				local grid = el.grid
+				grid = grid:IsKindOf("WaterGrid") and grid.air_grid or grid
+				return el.grid.consumption - el.grid.production 
+			end, self})
 	end
 
 	return table.concat(ret, "<newline><left>")
@@ -229,6 +241,13 @@ end
 
 function LifeSupportGridObject:OnDestroyed()
 	self:DeleteLifeSupport()
+end
+
+function LifeSupportGridObject:GetUISectionAirGridRollover()
+	local grid = self.air and self.air.grid or self.water and self.water.grid and self.water.grid.air_grid
+	if grid then
+		return grid:GetUISectionAirGridRollover()
+	end
 end
 
 -- override this function to create water/air elements - it is called before ancestors' GameInit
@@ -373,7 +392,10 @@ function LifeSupportGridObject:RecreatePipeConnections()
 			DoneObject(t[j])
 			t[j] = nil
 		end
-		self:PlacePipeConnection(pcs[i], i, palette)
+		assert(pcs[i], "Skin " .. self:GetGridSkinName() .. " does not have all pipe connections defined for building " .. self.template_name .. "!")
+		if pcs[i] then
+			self:PlacePipeConnection(pcs[i], i, palette)
+		end
 	end
 	
 	if self:HasMember("DeduceAndReapplyDustVisualsFromState") then
@@ -390,7 +412,7 @@ function LifeSupportGridObject:UpdateVisuals(supply_resource, change_building_en
 			local member_name = data[gsn]
 			if member_name then
 				local e = self:GetEntity()
-				local template = DataInstances.BuildingTemplate[t_n] or g_Classes[t_n]
+				local template = BuildingTemplates[t_n] or g_Classes[t_n]
 				local new_skin = template[member_name] or ""
 				
 				if new_skin ~= "" then
@@ -420,7 +442,7 @@ function LifeSupportGridObject:GetEntityNameForPipeConnections(grid_skin_name)
 	
 	local t_n = self.template_name or self.class
 	local data = BuildingGridSkins[t_n]
-	local template = DataInstances.BuildingTemplate[t_n] or g_Classes[t_n]
+	local template = BuildingTemplates[t_n] or g_Classes[t_n]
 	--we have special entity for this skin so we are already cached in a diff key
 	if data and data[grid_skin_name] then 
 		return template[data[grid_skin_name]]
@@ -442,6 +464,7 @@ DefineClass.LifeSupportGridElement = {
 	last_visual_pillar = false, --cached pillar val on last updatevisuals, so we can early exit the func and not cause flickering with large grids under construction
 	chain = false,
 	conn = -1,
+	force_hub = false,
 	--construction
 	construction_cost_Metals = 1 * const.ResourceScale,
 	build_points = 1000,
@@ -507,6 +530,7 @@ function LifeSupportGridElement:GameInit()
 	if self.entity == false then
 		self:UpdateVisuals()
 	end
+	self:SetPillar(self.pillar)
 end
 
 function LifeSupportGridElement:CreateLifeSupportElements()
@@ -541,7 +565,7 @@ end
 
 function LifeSupportGridElement:MakePipe(dir, dont_demote, skin)
 	if self.pillar then
-		self.pillar = nil
+		self:SetPillar(nil)
 		self.conn = nil
 	end
 	self:DestroyAttaches(PlugsAndSeams)
@@ -585,7 +609,7 @@ function LifeSupportGridElement:CanMakePillar(excluded_obj)
 	local q, r = WorldToHex(self)
 	local bld = HexGetBuilding(q, r)
 	local is_buildable = IsBuildableZoneQR(q, r)
-	return self.pillar or (is_buildable and (bld == nil or excluded_obj and bld == excluded_obj))
+	return self.pillar or self.force_hub or (is_buildable and (bld == nil or excluded_obj and bld == excluded_obj))
 end
 
 function LifeSupportGridElement:MakePillar(pipe_counter, excluded_obj)
@@ -599,7 +623,17 @@ function LifeSupportGridElement:MakePillar(pipe_counter, excluded_obj)
 			grid:UpdateGrid() --TODO: when is this pointless?
 		end
 	end
-	self.pillar = self.pillar == max_int and self.pillar or pipe_counter or self.pillar or true
+	local pillar = self.pillar == max_int and self.pillar or pipe_counter or self.pillar or true
+	self:SetPillar(pillar)
+end
+
+function LifeSupportGridElement:SetPillar(pillar)
+	self.pillar = pillar or nil
+	if pillar then
+		Flight_Mark(self)
+	else
+		Flight_Unmark(self)
+	end
 end
 
 function LifeSupportGridElement:MakeSwitch(constr_site)
@@ -647,30 +681,30 @@ end
 function LifeSupportGridElement:UpdateVisuals(supply_resource)
 	local conn = HexGridGet(SupplyGridConnections["water"], self)
 	local sn = self:GetGridSkinName()
-	if self.conn == conn and self.pillar == self.last_visual_pillar and sn == self.connections_skin_name then return end
+	if self.conn == conn and self.pillar == self.last_visual_pillar and sn == self.connections_skin_name then return false end
 	self.conn = conn
 	self.last_visual_pillar = self.pillar
 	self.connections_skin_name = sn
 	local skin = self:GetSkinFromGrid(sn)
 	
-	if not self.is_switch and not self.pillar then
+	if not self.is_switch and not self.pillar and not self.force_hub then
 		if self:GetEntity() ~= skin.Tube then --happens when loading gofPermanent tubes.
 			self:ChangeEntity(skin.Tube)
 		end
 		if self.chain then
-			self:SetPos(self:GetPos():SetZ(self.chain.base)) --temp presnetation
+			self:SetPos(self:GetPos():SetZ(self.chain.base))
 			self:SetChainParams(self.chain.delta, self.chain.index, self.chain.length)
 		end
 		
 		EntityPalettes.Pipes:ApplyToObj(self)
-		return
+		return false
 	end
 	
 	local palette = EntityPalettes.Pipes
 	local count, first, second = self:GetNumberOfConnections()
 	self:DestroyAttaches(PlugsAndSeams)
 	local is_ubuildable_chunk_pillar = type(self.pillar) == "number" and self.pillar == max_int
-	if not is_ubuildable_chunk_pillar and not self.is_switch and count == 2 and (second - first) == 3 then -- tube pillar
+	if not self.force_hub and not is_ubuildable_chunk_pillar and not self.is_switch and count == 2 and (second - first) == 3 then -- tube pillar
 		if type(self.pillar) == "number" then --should be pillar no matter what
 			self:ChangeEntity(skin.TubePillar)
 			self:SetAngle(first * 60 * 60)
@@ -690,8 +724,7 @@ function LifeSupportGridElement:UpdateVisuals(supply_resource)
 			if testbit(conn, dir) then
 				local dq, dr = HexNeighbours[dir + 1]:xy()
 				local pipe = HexGetPipe(my_q + dq, my_r + dr)
-				
-				local plug = PlaceObject(pipe and pipe.chain and skin.TubeJointSeam or skin.TubeHubPlug, nil, const.cfComponentAttach)
+				local plug = PlaceObject(pipe and pipe.chain and pipe.chain.delta ~= 0 and skin.TubeJointSeam or skin.TubeHubPlug, nil, const.cfComponentAttach)
 				if self:GetGameFlags(const.gofUnderConstruction) ~= 0 then
 					plug:SetGameFlags(const.gofUnderConstruction)
 				end
@@ -730,8 +763,8 @@ function LifeSupportGridElement:UpdateVisuals(supply_resource)
 	
 	palette:ApplyToObj(self)
 	self:AddDust(0) --refresh dust visuals
-	
-	self.fx_actor_class = self.is_switch and "PipeValve" or "Pipe"
+
+	return true
 end
 --mostly copy paste from ElectricityGridElement
 function LifeSupportGridElement:TryConnectInDir(dir)
@@ -795,10 +828,14 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 	end
 	
 	local construction_group = false
-	
+	local cs_grp_counter_for_cost = 1
+	local cs_grp_elements_in_this_group = 0
+	local cs_chunk_grp_counter_for_cost = 0
 	if not test and elements_require_construction or input_constr_grp then
 		if input_constr_grp then
 			construction_group = input_constr_grp
+			cs_grp_counter_for_cost = cs_grp_counter_for_cost - 1
+			cs_grp_elements_in_this_group = #input_constr_grp - 1
 		else
 			construction_group = CreateConstructionGroup("LifeSupportGridElement", point(HexToWorld(start_q, start_r)), 3, not elements_require_construction)
 		end
@@ -815,10 +852,22 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 	local last_status = false
 	local last_placed_data_cell = nil
 	local last_pass_idx = 0
+	local has_group_with_no_hub = false
+	local current_group_has_hub = false
+	local last_element_found_hub = false
+	local current_chunk_group_has_hub = false
 	if input_data and #input_data > 0 then
 		last_placed_data_cell = input_data[#input_data]
 		last_pass_idx = last_placed_data_cell.idx
 		last_status = last_placed_data_cell.status
+		cs_grp_counter_for_cost = input_data.cs_grp_counter_for_cost or cs_grp_counter_for_cost
+		cs_chunk_grp_counter_for_cost = input_data.cs_chunk_grp_counter_for_cost or cs_chunk_grp_counter_for_cost
+		cs_grp_elements_in_this_group = Max((input_data.cs_grp_elements_in_this_group or cs_grp_elements_in_this_group) - 1, 0)
+		has_group_with_no_hub = input_data.has_group_with_no_hub
+		current_group_has_hub = input_data.current_group_has_hub
+		if input_data.last_group_had_no_hub then
+			has_group_with_no_hub = false
+		end
 	end
 	
 	--preprocess
@@ -837,9 +886,10 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 		local cable = HexGetCable(q, r)
 		local pipe = HexGetPipe(q, r)
 		local is_buildable = IsBuildableZoneQR(q, r)
-		local surf_deps = is_buildable and HexGetUnits(nil, nil, point(HexToWorld(q, r)), 0, nil, function(o) return not obstructors or not table.find(obstructors, o) end, "SurfaceDeposit") or empty_table
-		local rocks = is_buildable and HexGetUnits(nil, nil, point(HexToWorld(q, r)), 0, false, nil, "WasteRockObstructor") or empty_table
-		local stockpiles = is_buildable and HexGetUnits(nil, nil, point(HexToWorld(q, r)), 0, false, function(obj) return obj:GetParent() == nil and IsKindOf(obj, "DoesNotObstructConstruction") and not IsKindOf(obj, "Unit") end, "ResourceStockpileBase") or empty_table
+		local world_pos = point(HexToWorld(q, r))
+		local surf_deps = is_buildable and HexGetUnits(nil, nil, world_pos, 0, nil, function(o) return not obstructors or not table.find(obstructors, o) end, "SurfaceDeposit") or empty_table
+		local rocks = is_buildable and HexGetUnits(nil, nil, world_pos, 0, false, nil, "WasteRockObstructor") or empty_table
+		local stockpiles = is_buildable and HexGetUnits(nil, nil, world_pos, 0, false, function(obj) return obj:GetParent() == nil and IsKindOf(obj, "DoesNotObstructConstruction") and not IsKindOf(obj, "Unit") end, "ResourceStockpileBase") or empty_table
 		local pillar = is_buildable and (i + last_pillar) % pillar_spacing or nil
 		pillar = pillar == 0 and pillar or is_buildable and i == steps and pillar or nil
 		
@@ -858,6 +908,15 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 				table.insert(obstructors, bld)
 				data[i].status = SupplyGridElementHexStatus.blocked
 			end
+			data[i].can_make_pillar = false
+		end
+		
+		if pipe and not pipe:CanMakePillar() then
+			if bld then
+				table.insert_unique(obstructors, bld)
+			end
+			table.insert(obstructors, pipe)
+			data[i].status = SupplyGridElementHexStatus.blocked
 			data[i].can_make_pillar = false
 		end
 		
@@ -924,6 +983,16 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 				elseif not start_node.pillar then
 					table.append(all_rocks, start_node.rocks)
 				end
+				
+				cs_grp_elements_in_this_group = cs_grp_elements_in_this_group - 1
+				if cs_grp_elements_in_this_group <= 0 then
+					cs_grp_elements_in_this_group = 0
+					cs_grp_counter_for_cost = Max(cs_grp_counter_for_cost - 1, 0)
+					if last_element_found_hub then
+						current_group_has_hub = false
+						current_chunk_group_has_hub = true
+					end
+				end
 			elseif last_status == SupplyGridElementHexStatus.unbuildable and data[i].status == SupplyGridElementHexStatus.blocked 
 				and unbuildable_chunks[chunk_idx] then
 				--blocked chunk
@@ -960,6 +1029,12 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 						unbuildable_chunks[chunk_idx].status = SupplyGridElementHexStatus.blocked
 					else
 						last_pillar = pillar_spacing - (i % pillar_spacing)
+						cs_chunk_grp_counter_for_cost = cs_chunk_grp_counter_for_cost + 1
+						if not current_chunk_group_has_hub then
+							has_group_with_no_hub = true
+						else
+							current_chunk_group_has_hub = false
+						end
 					end
 				end
 				
@@ -992,8 +1067,54 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 			end
 		end
 		
+		last_element_found_hub = false
+		if not data[i].chunk then
+			if cs_grp_elements_in_this_group >= const.ConstructiongGridElementsGroupSize then
+				cs_grp_counter_for_cost = cs_grp_counter_for_cost + 1
+				cs_grp_elements_in_this_group = 1
+				
+				if not current_group_has_hub then
+					has_group_with_no_hub = true
+				else
+					current_group_has_hub = false
+				end
+			else
+				cs_grp_elements_in_this_group = cs_grp_elements_in_this_group + 1
+			end
+			
+			if not current_group_has_hub and not has_group_with_no_hub then
+				if DoesAnyDroneControlServiceAtPoint(world_pos) then
+					current_group_has_hub = true
+					last_element_found_hub = true
+				end
+			end
+		else
+			if not current_chunk_group_has_hub and not has_group_with_no_hub then
+				if DoesAnyDroneControlServiceAtPoint(world_pos) then
+					current_chunk_group_has_hub = true
+				end
+			end
+		end
+		
 		last_status = data[i].status
 	end
+	
+	data.cs_grp_counter_for_cost = cs_grp_counter_for_cost
+	data.cs_grp_elements_in_this_group = cs_grp_elements_in_this_group
+	data.cs_chunk_grp_counter_for_cost = cs_chunk_grp_counter_for_cost
+	local total_cost = GetGridElementConstructionCost("LifeSupportGridElement")
+	for k, v in pairs(total_cost or empty_table) do
+		total_cost[k] = v * cs_grp_counter_for_cost + v * cs_chunk_grp_counter_for_cost * 5
+	end
+	
+	if not has_group_with_no_hub and 
+			((data[steps].chunk and not current_chunk_group_has_hub or not current_group_has_hub) or
+			 not data[steps].chunk and not current_group_has_hub)then
+		has_group_with_no_hub = true
+		data.last_group_had_no_hub = true
+	end
+	data.has_group_with_no_hub = has_group_with_no_hub
+	data.current_group_has_hub = current_group_has_hub
 	
 	--find last pillar
 	local data_count = #data
@@ -1029,7 +1150,7 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 	if test or not can_build_anything then
 		--ret
 		construction_group = clean_group(construction_group)
-		return can_build_anything, construction_group, obstructors, data, unbuildable_chunks, all_rocks
+		return can_build_anything, construction_group, obstructors, data, unbuildable_chunks, all_rocks, total_cost
 	end
 	
 	--postprocess and place
@@ -1199,7 +1320,7 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 
 	construction_group = clean_group(construction_group)
 	
-	return true, construction_group, obstructors, data, unbuildable_chunks, last_placed_obj
+	return true, construction_group, obstructors, data, unbuildable_chunks, last_placed_obj, total_cost
 end
 
 ----- WaterProducer

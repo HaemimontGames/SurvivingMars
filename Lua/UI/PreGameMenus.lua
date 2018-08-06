@@ -8,26 +8,31 @@ function CalcValueInQuarters(value)
 end
 
 local border_texture = "Prefab_Violet"
-local max_perc_style = "Dark"
 local max_prefab_styles = 2
-local altitude_dark_threshold = 150
+
+local altitude_dark_threshold = 120
+local altitude_slate_threshold = 40
 local altitude_decor_threshold = 150
+
+-- temp compatibility to ensure the same results:
+altitude_dark_threshold = 0
+altitude_slate_threshold = 0
+altitude_decor_threshold = 0
+
 local decor_above_threshold = 10
 local decor_bellow_threshold = 25
 local preset_suffix = {"_VeryLow", "_Low", "_High", "_VeryHigh"}
 
-function FillRandomMapProps(gen)
-	if const.PrefabVersionOverride then
-		gen.PrefabVersion = const.PrefabVersionOverride
-	end
-	local location = g_CurrentMapParams.Locales
-	local altitude = g_CurrentMapParams.Altitude
+function FillRandomMapProps(gen, params)
+	params = params or g_CurrentMapParams
+	local location = params.Locales
+	local altitude = OverlayAltitudeValue(params.Altitude) -- [0, 255]
 	local maps = {}
 	for map, data in pairs(MapData) do
 		if data.IsRandomMap then
 			local locations = data.map_location or empty_table
 			if #locations == 0 or table.find(locations, location) then
-				if altitude >= MapAltitudeValue(data.map_altitude.from * 100) and altitude <= MapAltitudeValue(data.map_altitude.to * 100) then
+				if altitude >= data.map_altitude.from and altitude <= data.map_altitude.to then
 					maps[#maps + 1] = map
 				end
 			end
@@ -42,7 +47,7 @@ function FillRandomMapProps(gen)
 		end
 	end
 	table.sort(maps)
-	local seed, idx, value = g_CurrentMapParams.seed
+	local seed, idx, value = params.seed
 	local function trand(tbl, weight)
 		if weight then
 			value, idx, seed = table.weighted_rand(tbl, weight, seed)
@@ -52,23 +57,22 @@ function FillRandomMapProps(gen)
 		return value
 	end
 	local map = trand(maps, function(map) return MapData[map].weight end)
+	
+	if not gen then
+		return map
+	end
 	gen.BlankMap = map
-	gen.DecorationRatio = altitude > MapAltitudeValue(altitude_decor_threshold) and decor_above_threshold or decor_bellow_threshold
+	gen.DecorationRatio = altitude > altitude_decor_threshold and decor_above_threshold or decor_bellow_threshold
+	
+	if const.PrefabVersionOverride then
+		gen.PrefabVersion = const.PrefabVersionOverride
+	end
 	
 	-- select texture_setup styles
 	local prefab_styles = table.icopy(PrefabStyles)
 	local map_type_info = table.copy(MapData[map].type_info)
 	map_type_info[border_texture] = nil
 	local texture_setup = {MapPrefabEntry:new({Texture = border_texture, Border = true})}
-	local max_perc_texture
-	if altitude > MapAltitudeValue(altitude_dark_threshold) then
-		for texture, perc in sorted_pairs(map_type_info) do
-			max_perc_texture = max_perc_texture or texture
-			if map_type_info[max_perc_texture] < perc then
-				max_perc_texture = texture
-			end
-		end
-	end
 	local choosen_styles = {}
 	local function add_style(texture, style)
 		texture_setup[#texture_setup + 1] = MapPrefabEntry:new({Texture = texture, Style = style})
@@ -85,9 +89,24 @@ function FillRandomMapProps(gen)
 			prefab_styles = PrefabStyles
 		end
 	end
-	if max_perc_texture then
-		map_type_info[max_perc_texture] = nil
-		add_style(max_perc_texture, max_perc_style)
+	local max_perc_style
+	if altitude > altitude_dark_threshold then
+		max_perc_style = "Dark"
+	elseif altitude < altitude_slate_threshold then
+		max_perc_style = "Slate"
+	end
+	if max_perc_style then
+		local max_perc_texture
+		for texture, perc in sorted_pairs(map_type_info) do
+			max_perc_texture = max_perc_texture or texture
+			if map_type_info[max_perc_texture] < perc then
+				max_perc_texture = texture
+			end
+		end
+		if max_perc_texture then
+			map_type_info[max_perc_texture] = nil
+			add_style(max_perc_texture, max_perc_style)
+		end
 	end
 	for texture, perc in sorted_pairs(map_type_info) do
 		if perc == 0 then
@@ -108,10 +127,10 @@ function FillRandomMapProps(gen)
 	local ResourceThreatOverlays = LandingSiteObject:GetProperties()
 	for k, t in ipairs(ResourceThreatOverlays) do
 		if t.resource then
-			gen["ResPreset_" .. t.id] = t.id .. preset_suffix[CalcValueInQuarters(g_CurrentMapParams[t.id])]
+			gen["ResPreset_" .. t.id] = t.id .. preset_suffix[CalcValueInQuarters(params[t.id])]
 		end
 		if t.threat then
-			local strength = CalcValueInQuarters(g_CurrentMapParams[t.id])
+			local strength = CalcValueInQuarters(params[t.id])
 			local name = "MapSettings_" .. t.id
 			if NoThreats(t.id) then 
 				gen[name] = "disabled" 
@@ -130,11 +149,12 @@ function FillRandomMapProps(gen)
 		end
 	end
 	
-	local cold_degree = CalcValueInQuarters(g_CurrentMapParams.ColdWave)
+	local cold_degree = CalcValueInQuarters(params.ColdWave)
 	local cold_area_chances = {10, 40, 70, 100}
 	local cold_area_sizes = {range(256*guim, 512*guim), range(256*guim, 512*guim), range(512*guim, 768*guim), range(768*guim, 1024*guim)}
 	gen.ColdAreaChance = cold_area_chances[cold_degree]
 	gen.ColdAreaSize = cold_area_sizes[cold_degree]
+	return map
 end
 
 function MaxThreat(id)
@@ -228,6 +248,9 @@ function DurangoTitleScreen:OnXButtonDown(button, controller_id)
 		local guest = Durango.IsPlayerGuest(XPlayerActive)
 		if signed and not guest then
 			StartPops()
+		else
+			--disable telemetry when not logged in or guest
+			TelemetrySetEnabled(false)
 		end
 		ClearParadoxParams()
 		LoadingScreenClose("idLoadingScreen", "DurangoSignIn")

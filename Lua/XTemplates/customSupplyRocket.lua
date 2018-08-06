@@ -18,7 +18,7 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateTemplate', {
 			'comment', "auto export",
 			'__template', "InfopanelButton",
-			'RolloverHint', T{8724, --[[XTemplate customSupplyRocket RolloverHint]] "<left_click> Activate<newline><em>"},
+			'RolloverHint', T{10110, --[[XTemplate customSupplyRocket RolloverHint]] "<left_click> Activate<newline><em>"},
 			'OnContextUpdate', function (self, context, ...)
 if not context.allow_export then
 	self:SetIcon("UI/Icons/IPButtons/automated_mode_off.tga")
@@ -31,10 +31,14 @@ else
 		self:SetIcon("UI/Icons/IPButtons/automated_mode_on.tga")
 		self:SetRolloverTitle(T{7814, "Automated Mode"})
 		self:SetRolloverText(T{7816, "If Automated mode is activated the Rocket will repeatedly travel to Earth and back. It will land on the same spot and won't carry any imports or passengers from Earth. The Rocket will launch to Earth when the cargo hold is full and the rocket is refueled.\n\nCurrent status: <em>Automated Mode</em>"})
+		self:SetRolloverHint(T{10111, --[[XTemplate customSupplyRocket RolloverHint]] "<left_click> Activate Manual Mode <newline><em>"})
+		self:SetRolloverHintGamepad(T{10112, "<ButtonA> Activate Manual Mode <newline><em>"})
 	else
 		self:SetIcon("UI/Icons/IPButtons/automated_mode_off.tga")
 		self:SetRolloverTitle(T{7814, "Automated Mode"})
 		self:SetRolloverText(T{7817, "If Automated mode is activated the Rocket will repeatedly travel to Earth and back. It will land on the same spot and won't carry any imports or passengers from Earth. The Rocket will launch to Earth when the cargo hold is full and the rocket is refueled.\n\nCurrent status: <em>Manual Mode</em>"})
+		self:SetRolloverHint(T{8724, --[[XTemplate customSupplyRocket RolloverHint]] "<left_click> Activate Automated Mode <newline><em>"})
+		self:SetRolloverHintGamepad(T{10113, "<ButtonA> Activate Automated Mode <newline><em>"})
 	end
 end
 end,
@@ -43,17 +47,19 @@ end,
 		PlaceObj('XTemplateTemplate', {
 			'comment', "alllow/forbid export",
 			'__template', "InfopanelButton",
-			'RolloverHint', T{8109, --[[XTemplate customSupplyRocket RolloverHint]] "<left_click> Activate<newline><em>Ctrl + <left_click></em> Activate in all Rockets"},
-			'RolloverHintGamepad', T{8110, --[[XTemplate customSupplyRocket RolloverHintGamepad]] "<ButtonA> Activate<newline><ButtonX> Activate in all Rockets"},
 			'OnContextUpdate', function (self, context, ...)
 if context.allow_export then
 	self:SetIcon("UI/Icons/IPButtons/forbid_exports_on.tga")
 	self:SetRolloverTitle(T{8040, "Allow/Forbid Exports"})
 	self:SetRolloverText(T{8041, "Allow or forbid the exports of Precious Metals to Earth. If precious metals are exported, the colony will gain Funding in exchange.\n\nCurrent status: Exports are <em>allowed</em>."})
+	self:SetRolloverHint(T{10114, --[[XTemplate customSupplyRocket RolloverHint]] "<left_click> Forbid Exports<newline><em>Ctrl + <left_click></em> Forbid Exports in all Rockets"})
+	self:SetRolloverHintGamepad(T{10115, --[[XTemplate customSupplyRocket RolloverHintGamepad]] "<ButtonA> Forbid Exports<newline><ButtonX> Forbid Exports in all Rockets"})
 else
 	self:SetIcon("UI/Icons/IPButtons/forbid_exports_off.tga")
 	self:SetRolloverTitle(T{8040, "Allow/Forbid Exports"})
 	self:SetRolloverText(T{8042, "Allow or forbid the exports of Precious Metals to Earth. If precious metals are exported, the colony will gain Funding in exchange.\n\nCurrent status: Exports are <em>forbidden</em>."})
+	self:SetRolloverHint(T{8109, --[[XTemplate customSupplyRocket RolloverHint]] "<left_click> Allow Exports<newline><em>Ctrl + <left_click></em> Allow Exports in all Rockets"})
+	self:SetRolloverHintGamepad(T{8110, --[[XTemplate customSupplyRocket RolloverHintGamepad]] "<ButtonA> Allow Exports<newline><ButtonX> Allow Exports in all Rockets"})
 end
 end,
 			'OnPressParam', "ToggleAllowExport",
@@ -68,6 +74,23 @@ end
 end,
 		}),
 		PlaceObj('XTemplateTemplate', {
+			'comment', "drones",
+			'__template', "InfopanelSection",
+			'RolloverText', T{260933228141, --[[XTemplate customSupplyRocket RolloverText]] "Drones commanded by the Rocket ship."},
+			'OnContextUpdate', function (self, context, ...)
+self:SetVisible(context.landed and not context.cargo)
+end,
+			'Title', T{963695586350, --[[XTemplate customSupplyRocket Title]] "Drones<right><drone(DronesCount)>"},
+			'Icon', "UI/Icons/Sections/drone.tga",
+			'TitleHAlign', "stretch",
+		}, {
+			PlaceObj('XTemplateTemplate', {
+				'__template', "InfopanelText",
+				'Text', T{134923339494, --[[XTemplate customSupplyRocket Text]] "<DronesStatusText>"},
+			}),
+			}),
+		PlaceObj('XTemplateTemplate', {
+			'comment', "status",
 			'__template', "InfopanelSection",
 			'RolloverText', T{414, --[[XTemplate customSupplyRocket RolloverText]] "Current status of the Rocket."},
 			'Title', T{49, --[[XTemplate customSupplyRocket Title]] "Status"},
@@ -79,6 +102,7 @@ end,
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
+			'comment', "payload",
 			'__template', "InfopanelSection",
 			'RolloverText', T{416, --[[XTemplate customSupplyRocket RolloverText]] "Payload of the Rocket."},
 			'OnContextUpdate', function (self, context, ...)
@@ -93,6 +117,7 @@ end,
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
+			'comment', "basic resources",
 			'__template', "InfopanelSection",
 			'RolloverText', T{495, --[[XTemplate customSupplyRocket RolloverText]] "Basic Resources available in this Depot."},
 			'OnContextUpdate', function (self, context, ...)
@@ -115,6 +140,7 @@ end,
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
+			'comment', "advanced resources",
 			'__template', "InfopanelSection",
 			'RolloverText', T{501, --[[XTemplate customSupplyRocket RolloverText]] "Advanced Resources available in this Depot."},
 			'OnContextUpdate', function (self, context, ...)
@@ -136,16 +162,6 @@ end,
 				'Text', T{514, --[[XTemplate customSupplyRocket Text]] "<resource('MachineParts' )><right><machineparts(Stored_MachineParts)>"},
 			}),
 			}),
-		PlaceObj('XTemplateTemplate', {
-			'__template', "InfopanelSection",
-			'RolloverText', T{260933228141, --[[XTemplate customSupplyRocket RolloverText]] "Drones commanded by the Rocket ship."},
-			'OnContextUpdate', function (self, context, ...)
-self:SetVisible(context.landed and not context.cargo)
-end,
-			'Title', T{963695586350, --[[XTemplate customSupplyRocket Title]] "Drones<right><drone(DronesCount)>"},
-			'Icon', "UI/Icons/Sections/drone.tga",
-			'TitleHAlign', "stretch",
-		}),
 		}),
 })
 

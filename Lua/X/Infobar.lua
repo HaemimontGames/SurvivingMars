@@ -7,6 +7,15 @@ DefineClass.Infobar = {
 	PadHeight = 30,
 }
 
+local function SetContextRecursive(root, context)
+	if IsKindOf(root, "XContextWindow") then
+		root:SetContext(context)
+	end
+	for i,child in ipairs(root) do
+		SetContextRecursive(child, context)
+	end
+end
+
 function Infobar:Open(...)
 	XDialog.Open(self, ...)
 	
@@ -14,7 +23,7 @@ function Infobar:Open(...)
 	self.idPad:SetMinHeight(self.PadHeight)
 	self:RecalculateMargins()
 	
-	local dlg = GetXDialog("OnScreenHintDlg")
+	local dlg = GetDialog("OnScreenHintDlg")
 	if dlg then
 		CreateGameTimeThread(dlg.RecalculateMargins, dlg)
 	end
@@ -26,16 +35,13 @@ function Infobar:Open(...)
 	self:CreateThread("UpdateThread", self.UpdateThreadFunc, self)
 	
 	--set contexts to each text field
-	self.obj = PlaceObject("InfobarObj")
-	for i,elem in ipairs(self.idPad) do
-		elem:SetContext(g_InfobarContextObj)
-	end
+	SetContextRecursive(self.idPad, g_InfobarContextObj)
 end
 
 function Infobar:Close(...)
 	XDialog.Close(self, ...)
 	
-	local dlg = GetXDialog("OnScreenHintDlg")
+	local dlg = GetDialog("OnScreenHintDlg")
 	if dlg then
 		CreateGameTimeThread(dlg.RecalculateMargins, dlg)
 	end
@@ -62,12 +68,12 @@ function UpdateInfobarVisibility()
 	
 	local visible = AccountStorage.Options.InfobarEnabled
 	if visible then
-		OpenXDialog("Infobar", igi)
+		OpenDialog("Infobar", igi)
 	else
-		CloseXDialog("Infobar")
+		CloseDialog("Infobar")
 	end
 	
-	local dlg = GetXDialog("OnScreenHintDlg")
+	local dlg = GetDialog("OnScreenHintDlg")
 	if dlg then
 		dlg:RecalculateMargins()
 	end
@@ -78,7 +84,7 @@ function OnMsg.CityStart(igi)
 end
 
 function OnMsg.SafeAreaMarginsChanged()
-	local infobar = GetXDialog("Infobar")
+	local infobar = GetDialog("Infobar")
 	if infobar then
 		infobar:RecalculateMargins()
 	end
@@ -91,18 +97,21 @@ DefineClass.InfobarObj = {
 }
 
 function InfobarObj:FmtFunding(n, colorized)
+	return self:FmtRes(n, colorized)
+
+	--note: temporarily commented out
 	--formatting funding in the infobar happens in a specific manner:
 	--0,1,2...,999, 1k,2k,3k,...,999k, 1M,2M,3M,...,999M, 1B,2B,3B,...
-	local abs_n = abs(n)
-	if abs_n >= 1000000000 then --billion (B)
-		return T{9775, "<n>B", n = T{tostring(n / 1000000000)}}
-	elseif abs_n >= 1000000 then --million (M)
-		return T{9776, "<n>M", n = T{tostring(n / 1000000)}}
-	elseif abs_n >= 1000 then --thousand (k)
-		return T{9777, "<n>k", n = T{tostring(n / 1000)}}
-	else -- 0-999
-		return T{9778, "<n>", n = T{tostring(n)}}
-	end
+	--local abs_n = abs(n)
+	--if abs_n >= 1000000000 then --billion (B)
+	--	return T{9775, "<n>B", n = T{tostring(n / 1000000000)}}
+	--elseif abs_n >= 1000000 then --million (M)
+	--	return T{9776, "<n>M", n = T{tostring(n / 1000000)}}
+	--elseif abs_n >= 1000 then --thousand (k)
+	--	return T{9777, "<n>k", n = T{tostring(n / 1000)}}
+	--else -- 0-999
+	--	return T{9778, "<n>", n = T{tostring(n)}}
+	--end
 end
 
 function InfobarObj:FmtRes(n, colorized)
@@ -166,14 +175,22 @@ function InfobarObj:GetResearchText()
 	local estimate = ResourceOverviewObj:GetEstimatedRP()
 	local progress = ResourceOverviewObj:GetResearchProgress()
 	
-	return T{9782, "<estimate><icon_Research> <progress><image UI/Icons/res_theoretical_research.tga 1300>",
+	return T{9782, "<estimate><icon_Research_orig>  <progress><image UI/Icons/res_theoretical_research.tga>",
 		estimate = self:FmtRes(estimate),
 		progress = progress,
 	}
 end
 
 function InfobarObj:GetResearchRollover()
-	return ResourceOverviewObj:GetResearchRollover()
+	local rollover_items = ResourceOverviewObj:GetResearchRolloverItems()
+	local current_research = T{10095, "Current Research<right><em><name></em>",
+		name = function()
+			local current_research = UICity and UICity:GetResearchInfo()
+			return current_research and TechDef[current_research].display_name or T{6761, "None"}
+		end,
+	}
+	table.insert(rollover_items, current_research)
+	return table.concat(rollover_items, "<newline><left>")
 end
 
 function InfobarObj:GetGridResourcesText()
@@ -181,7 +198,7 @@ function InfobarObj:GetGridResourcesText()
 	local air = ResourceOverviewObj:GetAirNumber() / const.ResourceScale
 	local water = ResourceOverviewObj:GetWaterNumber() / const.ResourceScale
 	
-	return T{9783, "<power><icon_Power> <air><icon_Air> <water><icon_Water>",
+	return T{9783, "<power><icon_Power_orig>  <air><icon_Air_orig>  <water><icon_Water_orig>",
 		power = self:FmtRes(power, "colorized"),
 		air = self:FmtRes(air, "colorized"),
 		water = self:FmtRes(water, "colorized"),
@@ -192,54 +209,154 @@ function InfobarObj:GetGridResourcesRollover()
 	return ResourceOverviewObj:GetGridRollover()
 end
 
-function InfobarObj:GetBasicResourcesText()
-	local metals = ResourceOverviewObj:GetAvailableMetals() / const.ResourceScale
-	local concrete = ResourceOverviewObj:GetAvailableConcrete() / const.ResourceScale
-	local food = ResourceOverviewObj:GetAvailableFood() / const.ResourceScale
-	local precious_metals = ResourceOverviewObj:GetAvailablePreciousMetals() / const.ResourceScale
+local function StockpileHasResource(obj, resource)
+	if type(obj.stockpiled_amount) == "table" then
+		return (obj.stockpiled_amount[resource] or 0) > 0
+	elseif obj.resource == resource then
+		return (obj.stockpiled_amount or 0) > 0
+	end
+end
+
+local function CycleObjects(list)
+	if not list or not next(list) then
+		return
+	end
+
+	--find the next object to select (or use the first one)
+	local idx = SelectedObj and table.find(list, SelectedObj) or 0
+	local idx = (idx % #list) + 1
+	local next_obj = list[idx]
 	
-	return T{9784, "<metals><icon_Metals> <concrete><icon_Concrete> <food><icon_Food> <precious_metals><icon_PreciousMetals>",
-		metals = self:FmtRes(metals),
-		concrete = self:FmtRes(concrete),
-		food = self:FmtRes(food),
-		precious_metals = self:FmtRes(precious_metals),
-	}
+	ViewAndSelectObject(next_obj)
+	XDestroyRolloverWindow()
+end
+
+local IsKindOf = IsKindOf
+local query_filter = function(obj, resource)
+		return (IsKindOf(obj, "ResourceStockpileBase") and StockpileHasResource(obj, resource)) or
+		       (IsKindOf(obj, "Drone") and obj.resource == resource) or
+		       (IsKindOf(obj, "CargoShuttle") and obj.carried_resource_type == resource) or
+		       (IsKindOf(obj, "ResourceProducer") and obj.producers[resource] and obj.producers[resource].total_stockpiled > 0)
+end
+
+function InfobarObj:CycleResources(resource)
+	--gather all objects
+	local all_objs = MapGet(true, "ResourceStockpileBase", "CargoShuttle", "DroneBase", "Building", query_filter, resource)
+	if not all_objs or not next(all_objs) then
+		return
+	end
+	
+	--this fixed the issue when one object is a child of another
+	--later SelectionPropagate() returns the same obj and cycling stucks
+	local unique_objs = { }
+	for i,obj in ipairs(all_objs) do
+		obj = SelectionPropagate(obj)
+		if not unique_objs[obj] then
+			table.insert(unique_objs, obj)
+			unique_objs[obj] = #unique_objs
+		end
+	end
+	
+	CycleObjects(unique_objs)
+end
+
+function InfobarObj:GetMetalsText()
+	local metals = ResourceOverviewObj:GetAvailableMetals() / const.ResourceScale
+	return T{10096, "<metals><icon_Metals_orig>", metals = self:FmtRes(metals)}
+end
+
+function InfobarObj:GetConcreteText()
+	local concrete = ResourceOverviewObj:GetAvailableConcrete() / const.ResourceScale
+	return T{10097, "<concrete><icon_Concrete_orig>", concrete = self:FmtRes(concrete)}
+end
+
+function InfobarObj:GetFoodText()
+	local food = ResourceOverviewObj:GetAvailableFood() / const.ResourceScale
+	return T{10098, "<food><icon_Food_orig>", food = self:FmtRes(food)}
+end
+
+function InfobarObj:GetPreciousMetalsText()
+	local precious_metals = ResourceOverviewObj:GetAvailablePreciousMetals() / const.ResourceScale
+	return T{10099, "<precious_metals><icon_PreciousMetals_orig>", precious_metals = self:FmtRes(precious_metals)}
 end
 
 function InfobarObj:GetBasicResourcesRollover()
 	return ResourceOverviewObj:GetBasicResourcesRollover()
 end
 
-function InfobarObj:GetAdvancedResourcesText()
+function InfobarObj:GetPolymersText()
 	local polymers = ResourceOverviewObj:GetAvailablePolymers() / const.ResourceScale
+	return T{10100, "<polymers><icon_Polymers_orig>", polymers = self:FmtRes(polymers)}
+end
+
+function InfobarObj:GetElectronicsText()
 	local electronics = ResourceOverviewObj:GetAvailableElectronics() / const.ResourceScale
+	return T{10101, "<electronics><icon_Electronics_orig>", electronics = self:FmtRes(electronics)}
+end
+
+function InfobarObj:GetMachinePartsText()
 	local machine_parts = ResourceOverviewObj:GetAvailableMachineParts() / const.ResourceScale
+	return T{10102, "<machine_parts><icon_MachineParts_orig>", machine_parts = self:FmtRes(machine_parts)}
+end
+
+function InfobarObj:GetFuelText()
 	local fuel = ResourceOverviewObj:GetAvailableFuel() / const.ResourceScale
-	
-	return T{9785, "<polymers><icon_Polymers> <electronics><icon_Electronics> <machine_parts><icon_MachineParts> <fuel><icon_Fuel>",
-		polymers = self:FmtRes(polymers),
-		electronics = self:FmtRes(electronics),
-		machine_parts = self:FmtRes(machine_parts),
-		fuel = self:FmtRes(fuel),
-	}
+	return T{10103, "<fuel><icon_Fuel_orig>", fuel = self:FmtRes(fuel)}
 end
 
 function InfobarObj:GetAdvancedResourcesRollover()
 	return ResourceOverviewObj:GetAdvancedResourcesRollover()
 end
 
-function InfobarObj:GetColonistsText()
-	local free_home = ResourceOverviewObj:GetFreeLivingSpace()
-	local homeless = ResourceOverviewObj:GetHomelessColonists()
-	local free_work = ResourceOverviewObj:GetFreeWorkplaces()
-	local unemployed = ResourceOverviewObj:GetUnemployedColonists()
+function InfobarObj:CycleColonists(label)
+	--gather the colonists
+	local list = UICity.labels[label]
 	
-	return T{9786, "<free_home><icon_Home> <homeless><icon_Homeless> <free_work><icon_Work> <unemployed><icon_Unemployed>",
-		free_home = self:FmtRes(free_home),
-		homeless = self:FmtRes(homeless),
-		free_work = self:FmtRes(free_work),
-		unemployed = self:FmtRes(unemployed),
-	}
+	CycleObjects(list)
+end
+
+function InfobarObj:CycleFreeHomes()
+	local list = { }
+	for _, home in ipairs(UICity.labels.Residence or empty_table) do
+		if not home.destroyed and not home.children_only and home:GetFreeSpace() > 0 then
+			table.insert(list, home)
+		end
+	end
+	
+	CycleObjects(list)
+end
+
+function InfobarObj:CycleFreeWorkplaces()
+	local list = { }
+	for _,workplace in ipairs(UICity.labels.Workplace or empty_table) do
+		if not workplace.destroyed and not workplace.demolishing then
+			if workplace.ui_working and workplace:GetFreeWorkSlots() > 0 then
+				table.insert(list, workplace)
+			end
+		end
+	end
+	
+	CycleObjects(list)
+end
+
+function InfobarObj:GetFreeHomes()
+	local free_homes = ResourceOverviewObj:GetFreeLivingSpace()
+	return T{10422, "<free_homes><icon_Home_orig>", free_homes = self:FmtRes(free_homes)}
+end
+
+function InfobarObj:GetHomeless()
+	local homeless = ResourceOverviewObj:GetHomelessColonists()
+	return T{10423, "<homeless><icon_Homeless_orig>", homeless = self:FmtRes(homeless)}
+end
+
+function InfobarObj:GetFreeWork()
+	local free_work = ResourceOverviewObj:GetFreeWorkplaces()
+	return T{10424, "<free_work><icon_Work_orig>", free_work = self:FmtRes(free_work)}
+end
+
+function InfobarObj:GetUnemployed()
+	local unemployed = ResourceOverviewObj:GetUnemployedColonists()
+	return T{10425, "<unemployed><icon_Unemployed_orig>", unemployed = self:FmtRes(unemployed)}
 end
 
 function InfobarObj:GetColonistCount()

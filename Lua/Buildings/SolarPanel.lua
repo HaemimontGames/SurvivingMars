@@ -1,24 +1,102 @@
-DefineClass.SolarPanel = {
-	__parents = { "ElectricityProducer" },
-	building_update_time = const.HourDuration,
-	panel_entity = false,
+DefineClass.SolarPanelBase = {
+	__parents = { "Object" },
+	artificial_sun = false,
 	panel_obj = false,
+}
+
+function SolarPanelBase:GameInit()
+	local sun = self.city.labels.ArtificialSun and self.city.labels.ArtificialSun[1] or nil
+	if sun and TestSunPanelRange(sun, self) then
+		self.artificial_sun = sun
+	end
+	self:UpdateProduction()
+end
+
+function SolarPanelBase:UpdateProduction()
+	local new_base_production = self:CanBeOpened() and self:GetClassValue("electricity_production") or 0
+	if self.base_electricity_production ~= new_base_production then
+		self:SetBase("electricity_production", new_base_production)
+		RebuildInfopanel(self)
+	end
+end
+
+function SolarPanelBase:IsAffectedByArtificialSun()
+	return self.artificial_sun and self.artificial_sun.work_state == "produce"
+end
+
+function SolarPanelBase:CanBeOpened()
+	return SunAboveHorizon or self:IsAffectedByArtificialSun()
+end
+
+function SolarPanelBase:SetArtificialSun(sun)
+	self.artificial_sun = sun
+	self:UpdateProduction()
+end
+
+function SolarPanelBase:IsOpened()
+	return true
+end
+
+----
+
+DefineClass.SolarPanelBuilding = {
+	__parents = { "SolarPanelBase", "ElectricityProducer" },
+}
+
+function SolarPanelBuilding:OnSetWorking(working)
+	self:UpdateProduction()
+	ElectricityProducer.OnSetWorking(self, working)
+end
+
+function SolarPanelBuilding:BuildingUpdate(dt, day, hour)
+	self:UpdateProduction(hour)
+end
+
+function SolarPanelBuilding:SetDustVisualsPerc(perc)
+	if not self.show_dust_visuals then return end
+	BuildingVisualDustComponent.SetDustVisualsPerc(self, perc)
+	if IsValid(self.panel_obj) then
+		BuildingVisualDustComponent.SetDustVisualsPerc(self.panel_obj, perc)
+	end
+end
+
+function SolarPanelBuilding:SetDustVisuals(dust)
+	if not self.show_dust_visuals then return end
+	if self:GetGameFlags(const.gofUnderConstruction) ~= 0 then return end
+	BuildingVisualDustComponent.SetDustVisuals(self, dust)
+	if IsValid(self.panel_obj) then
+		BuildingVisualDustComponent.SetDustVisuals(self.panel_obj, dust)
+	end
+end
+
+function SolarPanelBuilding:OnChangeState()
+	self.accumulate_dust = self:IsOpened() and not IsObjInDome(self)
+	if g_DustRepulsion then
+		local percent = self:IsOpened() and 0 or -(100 + g_DustRepulsion)
+		self:SetModifier("maintenance_build_up_per_hr", "DustRepulsion", 0, percent)
+	end
+	self.accumulate_maintenance_points = self:IsOpened() or not not g_DustRepulsion
+end
+
+----
+
+DefineClass.SolarPanel = {
+	__parents = { "SolarPanelBuilding" },
+	building_update_time = const.HourDuration,
 	open_close_thread = false,
 	interaction_state = false,
-	
-	artificial_sun = false,
 }
 
 function SolarPanel:GameInit()
 	self.panel_obj = self:GetAttaches(self:GetEntity() .. "Top")[1]
 	self.panel_obj:Detach()
+	self.panel_obj:SetAngle(self:GetAngle())
 	self.panel_obj.base = self
-	
-	local sun = self.city.labels.ArtificialSun and self.city.labels.ArtificialSun[1] or nil
-	if sun and HexAxialDistance(self, sun) <= sun.effect_range then
-		self.artificial_sun = sun
-	end
-	self:UpdateProduction()
+end
+
+function SolarPanel:UpdateProduction()
+	self:SetInteractionState(self:CanBeOpened() and self.working)
+	SolarPanelBase.UpdateProduction(self)
 end
 
 function SolarPanel:Done()
@@ -47,10 +125,6 @@ end
 function SolarPanel:RebuildCancel()
 	self:SetEnumFlags(const.efVisible)
 	self.panel_obj:SetEnumFlags(const.efVisible)
-end
-
-function SolarPanel:GetProductionPenalty()
-	return g_DustStorm and g_DustStorm.descr.solar_penalty or 0
 end
 
 function SolarPanel:IsOpened()
@@ -83,7 +157,7 @@ function SolarPanel:OrientToSun(sun_azi, time)
 end
 
 function OnMsg.SunChange()
-	UICity:ForEachLabelObject("SolarPanel", "UpdateProduction")
+	UICity:ForEachLabelObject("SolarPanelBase", "UpdateProduction")
 end
 
 function SunToSolarPanelAngle(sun_azi)
@@ -120,78 +194,12 @@ GlobalGameTimeThread("SolarPanelOrientation", function()
 	end
 end)
 
-function SolarPanel:UpdateProduction()
-	local affected = self:IsAffectedByArtificialSun()
-	self:SetInteractionState((SunAboveHorizon or affected) and self.working)
-	local base_production = (SunAboveHorizon or affected) and self:GetClassValue("electricity_production") or 0
-	local production_penalty = self:GetProductionPenalty()
-	self:SetBase("electricity_production", (100 - production_penalty) * base_production / 100)
-	RebuildInfopanel(self)
-end
-
-function SolarPanel:BuildingUpdate(dt, day, hour)
-	self:UpdateProduction(hour)
-end
-
-function SolarPanel:OnSetWorking(working)
-	self:UpdateProduction()
-	ElectricityProducer.OnSetWorking(self, working)
-end
-
 GlobalVar("g_DustRepulsion", false)
 
 function OnMsg.TechResearched(tech_id, city)
 	if tech_id == "DustRepulsion" then
 		g_DustRepulsion = TechDef.DustRepulsion.param1
 	end
-end
-
-function SolarPanel:OnChangeState()
-	self.accumulate_dust = self:IsOpened() and not IsObjInDome(self)
-	if g_DustRepulsion then
-		local percent = self:IsOpened() and 0 or -(100 + g_DustRepulsion) -- param1 is the target regen rate
-		self:SetModifier("maintenance_build_up_per_hr", "DustRepulsion", 0, percent)
-	end
-	self:SetAccumulateMaintenancePoints(self:IsOpened() or not not g_DustRepulsion)
-end
-
-function SolarPanel:AddVisualDust(dust)
-	if not self.show_dust_visuals then return end
-	BuildingVisualDustComponent.AddVisualDust(self, dust)
-	if IsValid(self.panel_obj) then
-		BuildingVisualDustComponent.AddVisualDust(self.panel_obj, dust)
-	end
-end
-function SolarPanel:ResetDust()
-	BuildingVisualDustComponent.ResetDust(self)
-	if IsValid(self.panel_obj) then
-		BuildingVisualDustComponent.ResetDust(self.panel_obj)
-	end
-end
-
-function SolarPanel:SetDustVisualsPerc(perc)
-	if not self.show_dust_visuals then return end
-	BuildingVisualDustComponent.SetDustVisualsPerc(self, perc)
-	if IsValid(self.panel_obj) then
-		BuildingVisualDustComponent.SetDustVisualsPerc(self.panel_obj, perc)
-	end
-end
-
-function SolarPanel:SetDustVisuals(dust)
-	if not self.show_dust_visuals then return end
-	BuildingVisualDustComponent.SetDustVisuals(self, dust)
-	if IsValid(self.panel_obj) then
-		BuildingVisualDustComponent.SetDustVisuals(self.panel_obj, dust)
-	end
-end
-
-function SolarPanel:SetArtificialSun(sun)
-	self.artificial_sun = sun
-	self:UpdateProduction()
-end
-
-function SolarPanel:IsAffectedByArtificialSun()
-	return self.artificial_sun and self.artificial_sun.work_state == "produce"
 end
 
 function SolarPanel:BroadcastVerify(other)

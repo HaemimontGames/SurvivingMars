@@ -130,13 +130,11 @@ end
 
 function GetUpgradeIdList()
 	local upgrade_id_list = {}
-	local templates = DataInstances.BuildingTemplate
 	local names = {}
 	for j=1,3 do
 		names[j] = string.format("upgrade%s_id", tostring(j))
 	end
-	for i=1,#templates do
-		local template = templates[i]
+	for _, template in pairs(BuildingTemplates) do
 		for j=1,3 do
 			local name = names[j]
 			local id = template[name]

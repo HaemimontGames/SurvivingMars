@@ -21,7 +21,7 @@ PlaceObj('XTemplate', {
 			'__template', "MenuEntry",
 			'Id', "idTitle",
 			'OnPress', function (self, gamepad)
-SetBackDialogMode(GetXDialog(self))
+SetBackDialogMode(GetDialog(self))
 end,
 		}),
 		}),

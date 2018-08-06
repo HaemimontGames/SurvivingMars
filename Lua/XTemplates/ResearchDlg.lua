@@ -97,7 +97,6 @@ parent:CreateThread(function ()
 			if dx then
 				local new_offset = Clamp(win.OffsetX + dx, 0, win.scroll_range_x - win.content_box:sizex() + 100)
 				win:ScrollTo(new_offset, win.OffsetY, true)
-				win.desktop:UpdateMouseTarget()
 				g_ResearchDlgPendingScrollOffsetX = 0
 			end
 		end
@@ -230,32 +229,38 @@ if (g_Consts.OutsourceDisabled or 0) > 0 then
 	return "disabled"
 end
 end,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 if host:IsThreadRunning("outsource") then
 	host:DeleteThread("outsource")
 end
 host:CreateThread("outsource", function()
 		local funding = UICity:GetFunding()
 		if funding >= g_Consts.OutsourceResearchCost then
-			local multiplier = 10
-			local has_money = funding >= g_Consts.OutsourceResearchCost * multiplier
-			local params = {
-				title = T{6882, "Warning"},
-				text = T{7876, "Are you sure you want to outsource research to Earth?"}, 
-				choice1 = T{7877, "Outsource <ResearchPoints(points)> for <funding(price)> in the next <time(sols)>", points = g_Consts.OutsourceResearch, price = g_Consts.OutsourceResearchCost, sols = g_Consts.OutsourceResearchTime},
-				choice2 = has_money and T{7877, "Outsource <ResearchPoints(points)> for <funding(price)> in the next <time(sols)>", points = g_Consts.OutsourceResearch * multiplier, price = g_Consts.OutsourceResearchCost * multiplier, sols = g_Consts.OutsourceResearchTime} or nil,
-				image = "UI/Messages/outsource.tga",
-			}
-			if has_money then
-				params.choice3 = T{1139, "No"}
+			local max_orders = g_Consts.OutsourceMaxOrderCount
+			local orders = UICity.OutsourceResearchOrders and UICity.OutsourceResearchOrders[1] or 0
+			if orders < max_orders then
+				local multiplier = max_orders
+				local multiple_outsource_allowed = orders == 0 and funding >= g_Consts.OutsourceResearchCost * multiplier
+				local params = {
+					title = T{6882, "Warning"},
+					text = T{7876, "Are you sure you want to outsource research to Earth?"}, 
+					choice1 = T{7877, "Outsource <ResearchPoints(points)> for <funding(price)> in the next <time(sols)>", points = g_Consts.OutsourceResearch, price = g_Consts.OutsourceResearchCost, sols = g_Consts.OutsourceResearchTime},
+					choice2 = multiple_outsource_allowed and T{7877, "Outsource <ResearchPoints(points)> for <funding(price)> in the next <time(sols)>", points = g_Consts.OutsourceResearch * multiplier, price = g_Consts.OutsourceResearchCost * multiplier, sols = g_Consts.OutsourceResearchTime} or nil,
+					image = "UI/Messages/outsource.tga",
+				}
+				if multiple_outsource_allowed then
+					params.choice3 = T{1139, "No"}
+				else
+					params.choice2 = T{1139, "No"}
+				end
+				local res = WaitPopupNotification(false, params, false, host)
+				if res == 1 or (multiple_outsource_allowed and res == 2) then
+					multiplier = (res == 1) and 1 or multiplier
+					UICity:ChangeFunding(-g_Consts.OutsourceResearchCost * multiplier, "OutsourceResearch")
+					UICity:OutsourceResearch(g_Consts.OutsourceResearch * multiplier, g_Consts.OutsourceResearchTime, multiplier)
+				end
 			else
-				params.choice2 = T{1139, "No"}
-			end
-			local res = WaitPopupNotification(false, params, false, host)
-			if res == 1 or (has_money and res == 2) then
-				multiplier = (res == 1) and 1 or multiplier
-				UICity:ChangeFunding(-g_Consts.OutsourceResearchCost * multiplier)
-				UICity:OutsourceResearch(g_Consts.OutsourceResearch * multiplier, g_Consts.OutsourceResearchTime)
+				CreateMarsMessageBox(T{6902, "Warning"}, T{10456, "You are not allowed to outsource more research to Earth at this time!"}, T{1000136, "OK"})
 			end
 		else
 			CreateMarsMessageBox(T{6902, "Warning"}, T{7562, "Insufficient funding! <funding(price)> required for outsourcing!", price = g_Consts.OutsourceResearchCost}, T{1000136, "OK"}, host)
@@ -360,40 +365,51 @@ end,
 					'SqueezeY', false,
 				}),
 				PlaceObj('XTemplateTemplate', {
+					'comment', "RP Sponsor",
 					'__template', "InfopanelText",
 					'Text', T{4533, --[[XTemplate ResearchDlg Text]] "Sponsor<right><ResearchPoints(EstimatedRP_Sponsor)>"},
 				}),
 				PlaceObj('XTemplateTemplate', {
+					'comment', "RP Outsource",
 					'__template', "InfopanelText",
 					'Text', T{4534, --[[XTemplate ResearchDlg Text]] "Outsourcing<right><ResearchPoints(EstimatedRP_Outsource)>"},
 				}),
 				PlaceObj('XTemplateTemplate', {
+					'comment', "RP Lab",
 					'__template', "InfopanelText",
-					'Text', T{4535, --[[XTemplate ResearchDlg Text]] "Research Labs<right><ResearchPoints(EstimatedRP_ResearchLab)>"},
+					'Text', T{10137, --[[XTemplate ResearchDlg Text]] "Research Labs<right><ResearchPoints(EstimatedRP_ResearchLab)>"},
 				}),
 				PlaceObj('XTemplateTemplate', {
+					'comment', "RP Hawking",
 					'__template', "InfopanelText",
 					'Text', T{4536, --[[XTemplate ResearchDlg Text]] "Hawking Institutes<right><ResearchPoints(EstimatedRP_ScienceInstitute)>"},
 				}),
 				PlaceObj('XTemplateTemplate', {
+					'comment', "RP Genius",
 					'__template', "InfopanelText",
 					'Text', T{4537, --[[XTemplate ResearchDlg Text]] "Genius Colonists<right><ResearchPoints(EstimatedRP_Genius)>"},
 				}),
 				PlaceObj('XTemplateTemplate', {
+					'comment', "RP Explorer",
 					'__condition', function (parent, context) return context:IsTechResearched("ExplorerAI") end,
 					'__template', "InfopanelText",
 					'Text', T{4538, --[[XTemplate ResearchDlg Text]] "Explorers<right><ResearchPoints(EstimatedRP_Explorer)>"},
 				}),
 				PlaceObj('XTemplateTemplate', {
+					'comment', "RP Power",
 					'__condition', function (parent, context) return g_Consts.ElectricityForResearchPoint ~= 0 end,
 					'__template', "InfopanelText",
 					'Text', T{4539, --[[XTemplate ResearchDlg Text]] "Excess Power<right><ResearchPoints(EstimatedRP_SuperconductingComputing)>"},
 				}),
 				PlaceObj('XTemplateTemplate', {
+					'comment', "RP Omega",
 					'__context', function (parent, context) return GetOmegaTelescope() end,
 					'__condition', function (parent, context) return context end,
 					'__template', "InfopanelText",
 					'Text', T{556459376226, --[[XTemplate ResearchDlg Text]] "<display_name><right><em><ResearchBoostPercent>%"},
+				}),
+				PlaceObj('XTemplateTemplate', {
+					'__template', "AddAdditionalResearchPointsTexts",
 				}),
 				PlaceObj('XTemplateWindow', {
 					'Margins', box(0, 40, 0, 20),

@@ -373,6 +373,22 @@ function TerrainDeposit:GetAmount()
 	return Min(amount, self.max_amount)
 end
 
+local function deposit_weight(a)
+	return a:z()
+end
+
+function TerrainDeposit:GetRandDepositPos(seed)
+	if not IsValid(self) then
+		return
+	end
+	local info = TerrainDepositsInfo[self.resource]
+	if not info then
+		return
+	end
+	local amount, hexes = TerrainDeposit_GetAmount(self, self.radius_max, TerrainDepositGrid, info, true)
+	return table.weighted_rand(hexes, deposit_weight, seed)
+end
+
 function TerrainDeposit:Done()
 	self:EditorShowRange(false)
 end
@@ -418,30 +434,19 @@ end
 function TerrainDepositExtractor:GetExtractionShape()
 end
 
-function TerrainDepositExtractor:GetDepositResource()
-	return ""
-end
-
 function TerrainDepositExtractor:GetRessourceInfo()
-	return TerrainDepositsInfo[self:GetDepositResource()]
+	return TerrainDepositsInfo[self.exploitation_resource]
 end
 
-function TerrainDepositExtractor:FindClosestDeposit()
+function TerrainDepositExtractor:FindClosestDeposit(center)
 	local info = self:GetRessourceInfo()
 	local shape = self:GetExtractionShape() or ""
 	if not info or #shape == 0 then
 		return
 	end
 	local radius, xc, yc = HexBoundingCircle(shape, self)
-	if radius == 0 then
-		return
-	end
-	local center = point(xc, yc)
-	local deposit = FindNearest({
-		class = info.deposit_class,
-		area = center,
-		arearadius = MaxTerrainDepositRadius + radius,
-	}, center)
+	center = center or point(xc, yc)
+	local deposit = MapFindNearest(center, center, MaxTerrainDepositRadius + radius, info.deposit_class)
 	if not deposit or not deposit:IsCloser2D(center, radius + deposit.radius_max) then
 		return
 	end

@@ -32,7 +32,7 @@ local function MirrorSphereEvent(event)
 	if not MirrorSphereEvents[event] then
 		MirrorSphereEvents[event] = true
 		local preset_name = "Mystery3_" .. event
-		if DataInstances.PopupNotificationPreset[preset_name] then
+		if PopupNotificationPresets[preset_name] then
 			ShowPopupNotification(preset_name)
 		end
 	end
@@ -48,7 +48,8 @@ DefineClass.MirrorSphere = {
 	
 	avoid_height = 60*guim,
 	collision_radius = 40*guim,
-	can_avoid = false,
+	avoid_mask = 0,
+	avoid_class = 4,
 	thrust_max = 20*guim,
 	pitch_height_adjust = 60*guim,
 	pitch_speed_adjust = 20,
@@ -58,7 +59,7 @@ DefineClass.MirrorSphere = {
 	hover_height = 40*guim,
 	accel_dist = 40*guim,
 	decel_dist = 80*guim,
-	max_speed = 20*guim,
+	move_speed = 20*guim,
 	min_speed = 3*guim,
 	max_sleep = 666,
 	decoy = false,
@@ -69,6 +70,7 @@ DefineClass.MirrorSphere = {
 	max_progress = max_progress,
 	
 	target = false,
+	irradiated = false,
 	
 	--ui
 	display_icon = "UI/Icons/Buildings/mirror_sphere.tga",
@@ -92,6 +94,7 @@ function MirrorSphere:Done()
 	if UICity then
 		UICity:RemoveFromLabel("MirrorSpheres", self)
 	end
+	self:IrradiateRemove()
 end
 
 function MirrorSphere:GetHeatRange()
@@ -211,6 +214,67 @@ local function is_valid_el_storage(bld)
 	return bld.electricity and bld.electricity.current_storage > 0 and not bld.destroyed
 end
 
+function OnMsg.ClassesPreprocess()
+	Colonist.spheres = false
+end
+
+function MirrorSphere:IrradiateRemoveBegin()
+	local irradiated = self.irradiated or empty_table
+	for colonist in pairs(irradiated) do
+		local spheres = colonist.spheres or empty_table
+		if next(spheres) then
+			spheres[self] = nil
+		end
+	end
+end
+function MirrorSphere:IrradiateRemoveEnd()
+	local irradiated = self.irradiated or empty_table
+	for colonist in pairs(irradiated) do
+		local spheres = colonist.spheres or empty_table
+		if not spheres[self] then
+			irradiated[colonist] = nil
+			if not next(spheres) then
+				colonist:Affect("StatusEffect_Irradiated", false)
+			end
+		end
+	end
+end
+function MirrorSphere:IrradiateRemove()
+	self:IrradiateRemoveBegin()
+	self:IrradiateRemoveEnd()
+	assert(not next(self.irradiated))
+end
+function MirrorSphere:IrradiateAdd(colonist)
+	self.irradiated[colonist]  = true
+	colonist.spheres = colonist.spheres or {}
+	colonist.spheres[self] = true
+	if not colonist.status_effects.StatusEffect_Irradiated then
+		colonist:Affect("StatusEffect_Irradiated", "start", false, "force")
+	end
+end
+
+local total_drained = 0
+local function drain_func(obj, self)
+	if IsKindOf(obj, "Colonist") then
+		if obj.city:IsTechResearched("Anti-Sphere Shield") then
+			return
+		end
+		self:IrradiateAdd(obj)
+	elseif is_valid_el_storage(obj) then
+		local storage = obj.electricity
+		local drained = Min(drained_per_bld, storage.current_storage)
+		total_drained = total_drained + MulDivRound(max_progress, drained, power_capacity)
+		storage.current_storage = storage.current_storage - drained
+		storage.grid.current_storage = storage.grid.current_storage - drained
+		storage:UpdateStorage()
+		local storage_mode = storage.current_storage > 0 and "discharging" or "empty"
+		if storage.storage_mode ~= storage_mode then
+			storage.storage_mode = storage_mode
+			storage.building:SetStorageState(storage.grid.supply_resource, storage_mode)
+		end
+	end
+end
+
 function MirrorSphere:ColdWaveCmd()
 	self:PushDestructor(function(self)
 		self.cold_wave = false
@@ -219,6 +283,7 @@ function MirrorSphere:ColdWaveCmd()
 		self:ApplyHeat(false)
 		SetIceStrength(0, self)
 		PlayFX("Freeze", "end", self)
+		self:IrradiateRemove()
 	end)
 	PlayFX("Freeze", "start", self)
 	self.cold_wave = true
@@ -229,37 +294,20 @@ function MirrorSphere:ColdWaveCmd()
 	self:IdleMark(true)
 	
 	SetIceStrength(ice_strength, self)
-	
-	local total_drained = 0
-	local drain_query = {
-		classes = "ElectricityStorage",
-		area = self,
-		arearadius = effect_range,
-		exec = function(bld)
-			if not is_valid_el_storage(bld) then
-				return
-			end
-			local storage = bld.electricity
-			local drained = Min(drained_per_bld, storage.current_storage)
-			total_drained = total_drained + MulDivRound(max_progress, drained, power_capacity)
-			storage.current_storage = storage.current_storage - drained
-			storage.grid.current_storage = storage.grid.current_storage - drained
-			storage:UpdateStorage()
-			local storage_mode = storage.current_storage > 0 and "discharging" or "empty"
-			if storage.storage_mode ~= storage_mode then
-				storage.storage_mode = storage_mode
-				storage.building:SetStorageState(storage.grid.supply_resource, storage_mode)
-			end
-		end,
-	}
-	
+	self.irradiated = self.irradiated or {}
+
 	local move_delay = min_move_delay + UICity:Random(max_move_delay - min_move_delay + 1)
 	local auto_charge = MulDivRound(split_progress_per_day, power_drain_interval, const.DayDuration)
 	while IsValid(self) and move_delay > 0 do
 		total_drained = 0
-		ForEach(drain_query)
+		self:IrradiateRemoveBegin()
+		MapForEach(self, effect_range, "ElectricityStorage", "Colonist", drain_func, self )
+		self:IrradiateRemoveEnd()
 		if total_drained > 0 then
 			MirrorSphereEvent("FirstCharge")
+		end
+		if next(self.irradiated) then
+			MirrorSphereEvent("FirstDamage")
 		end
 		self:SetCharge(self.sphere_charge + auto_charge + total_drained)
 		move_delay = move_delay - power_drain_interval
@@ -378,10 +426,12 @@ function MirrorSphere:SetTarget(target)
 	if l_mirror_sphere_targets[prev_target] == self then
 		l_mirror_sphere_targets[prev_target] = nil
 	end
-	if target then
+	if IsValid(target) then
 		l_mirror_sphere_targets[target] = self
+		self.target = target
+	else
+		self.target = false
 	end
-	self.target = target
 end
 
 function MirrorSphere:GetTarget()
@@ -393,9 +443,9 @@ function MirrorSphere:Idle()
 		Sleep(10000)
 		return
 	end
-	local target = self.target
+	local target = IsValid(self.target) and self.target
 	self:SetTarget(false)
-	if IsValid(target) and self:IsCloser2D(target, min_building_dist) then
+	if target and self:IsCloser2D(target, min_building_dist) then
 		if IsKindOf(target, "PowerDecoy") and target.working and not target.sphere then
 			self:SetCommand("CaptureCmd", target)
 		else
@@ -413,23 +463,20 @@ function MirrorSphere:Idle()
 		local buildings = UICity.labels.PowerDecoy or empty_table
 		for i=1,#buildings do
 			local decoy = buildings[i]
-			if not IsValid(decoy.sphere) and decoy.working
+			if IsValid(decoy) and not IsValid(decoy.sphere) and decoy.working
 			and (not target or self:IsCloser2D(decoy, target)) then
 				target = decoy
 			end
 		end
 	end
 	if not target and UICity:Random(100) < target_building_chance then
-		local buildings = GetObjects{
-			classes = "ElectricityStorage,ElectricityProducer,ElectricityConsumer",
-			enum_flags_any = const.efVisible
-		}
+		local buildings = MapGet("map","ElectricityStorage", "ElectricityProducer", "ElectricityConsumer", nil, const.efVisible ) 
 		if #buildings > 0 then
 			local last_building
 			for i=1,10 do
 				local building = UICity:TableRand(buildings)
 				assert(not IsKindOf(building, "MirrorSphereBuilding"))
-				if building ~= last_building and not IsValid(l_mirror_sphere_targets[building]) then
+				if IsValid(building) and building ~= last_building and not IsValid(l_mirror_sphere_targets[building]) then
 					target = building
 					break
 				end
@@ -438,7 +485,7 @@ function MirrorSphere:Idle()
 		end
 	end
 	for i=1,10 do
-		local pos = target and target:GetPos() or GetRandomPassable()
+		local pos = IsValid(target) and target:GetPos() or GetRandomPassable()
 		local far_from_to_target = not self:IsCloser2D(pos, min_building_dist)
 		if far_from_to_target or IsKindOf(target, "PowerDecoy") then
 			local too_close_to_another
@@ -483,35 +530,8 @@ function OnMsg.SelectedObjChange(obj, prev)
 	end
 end
 
-----
-local active_spheres_filter = {
-	class = "MirrorSphere",
-	arearadius = effect_range,
-	filter = function (sphere)
-		return sphere.cold_wave
-	end
-}
-
 function CheckRadiation(colonist)
-	local spheres_found = 0
-	if not colonist.city:IsTechResearched("Anti-Sphere Shield") then
-		active_spheres_filter.area = colonist
-		spheres_found = CountObjects(active_spheres_filter)
-		active_spheres_filter.area = false
-	end
-	local irradiated = spheres_found > 0
-	local prev_irradiated = colonist.status_effects.StatusEffect_Irradiated
-	if prev_irradiated and not irradiated then
-		colonist:Affect("StatusEffect_Irradiated", false)
-	elseif not prev_irradiated and irradiated then
-		colonist:Affect("StatusEffect_Irradiated", "start")
-	end
-	if irradiated then
-		local prc = Min(30, spheres_found * const.MirrorSphere_IrradiateDamageH)
-		local damage = MulDivRound(colonist.stat_health, prc, 100)
-		colonist:ChangeHealth(-damage, "Irradiated")
-		MirrorSphereEvent("FirstDamage")
-	end
+	-- compatibility
 end
 
 DefineClass.MirrorSphereMystery = {
@@ -526,25 +546,6 @@ DefineClass.MirrorSphereMystery = {
 
 function MirrorSphereMystery:Init()
 	self.city:InitEmptyLabel("MirrorSpheres")
-	
-	CreateGameTimeThread(function()
-		local update_interval = const.ColonistUpdateInterval or 50
-		local update_steps = const.HourDuration / update_interval
-		while true do
-			Sleep(const.HourDuration)
-			local colonists = table.copy(self.city.labels.Colonist or empty_table)
-			for i = 1, update_steps do
-				local t = GameTime()
-				for j = #colonists * (i - 1) / update_steps + 1, #colonists * i / update_steps do
-					local colonist = colonists[j]
-					if IsValid(colonist) then
-						CheckRadiation(colonist)
-					end
-				end
-				Sleep(update_interval)
-			end
-		end
-	end)
 end
 
 ----
@@ -748,19 +749,6 @@ function MirrorSphereBuilding:BuildingUpdate(dt)
 	end
 end
 
-local command_center_filter = {
-	class = "DroneControl",
-	hexradius = const.CommandCenterMaxRadius,
-	filter = function (center, sphere)
-		return #center.drones > 0 and HexAxialDistance(sphere, center) <= center.work_radius
-	end
-}
-local power_filter = {
-	class = "ElectricityStorage",
-	arearadius = effect_range,
-	filter = is_valid_el_storage,
-}
-
 function MirrorSphereBuilding:IsActionEnabled(action)
 	if self.action then
 		return false, self.action == action and T{6780, "Cancel."} or T{1188, "Action in progress."}
@@ -769,9 +757,7 @@ function MirrorSphereBuilding:IsActionEnabled(action)
 	elseif self.dbg_enable_all then
 		return true
 	elseif action == "PierceTheShell" then
-		command_center_filter.area = self
-		if CountObjects(command_center_filter, self) > 0 then
-			command_center_filter.area = false
+		if MapCount(self,"hex",const.CommandCenterMaxRadius,"DroneControl", function (center, sphere) return #center.drones > 0 and HexAxialDistance(sphere, center) <= center.work_radius end , self) > 0 then
 			return true
 		end
 		command_center_filter.area = false
@@ -786,12 +772,9 @@ function MirrorSphereBuilding:IsActionEnabled(action)
 		end
 		return false, T{1191, "No Sensor Tower in range."}
 	elseif action == "FeedPower" then
-		power_filter.area = self
-		if CountObjects(power_filter, self) > 0 then
-			power_filter.area = false
+		if MapCount(self, effect_range, "ElectricityStorage", is_valid_el_storage, self) > 0 then
 			return true
 		end
-		power_filter.area = false
 		return false, T{1192, "No Accumulator with stored Power in range."}
 	end
 end
@@ -999,7 +982,7 @@ end
 
 if Platform.developer then
 	function StartAllMirrorSpheres()
-		ForEach{classes = "MirrorSphere", exec = function(obj) obj:SetCommand("Idle") end}
+		MapForEach("map", "MirrorSphere", function(obj) obj:SetCommand("Idle") end)
 	end
 end
 

@@ -184,6 +184,10 @@ end
 function NightLightObject:NightLightDisable(all_lights)
 	self:NightLightOffAttaches()
 	self:NightLightOffEmissive()
+	self:NightLightDisableAttaches(all_lights)
+end
+
+function NightLightObject:NightLightDisableAttaches(all_lights)
 	if all_lights then
 		self:ForEachAttach(function(attach)
 			if attach:GetGameFlags(const.gofUIAttach) == 0 then
@@ -200,6 +204,7 @@ function NightLightObject:NightLightDisable(all_lights)
 end
 
 function OnMsg.LightmodelChange(view, lm, time, prev_lm)
+	prev_lm = prev_lm or empty_table
 	if not prev_lm.night and lm.night then
 		NightLightsOn(time == 0 and time or NightLightObjectsTotalDelay)
 	elseif prev_lm.night and not lm.night then
@@ -209,17 +214,15 @@ end
 
 -- to have this stable-shuffled (e.g. to preserve which lights are on across EXE runs, e.g. 
 -- different movie shooting sessions, or when the user changes options):
--- after GetObjects gathers the objects, sort them by hash(seed+handle) 
+-- after MapGet gathers the objects, sort them by hash(seed+handle) 
 -- not doing this unless necessary - it will be quite a bit slower
 
 -- reimplement this in C if you ever see it in a profiler
 
 function GetNightLightObjectsAttaches()
-	local nlobjs = GetObjects{ class="NightLightObject", game_flags_all = const.gofNightLightsEnabled }
 	local nlattaches = {}
 	local n = 1
-	for i=1,#nlobjs do
-		local obj = nlobjs[i]
+	local exec = function(obj)
 		local spec = NightLightSpecs[obj:GetEntity()]
 		if spec then
 			for j=1,#spec do
@@ -229,6 +232,7 @@ function GetNightLightObjectsAttaches()
 			end
 		end
 	end
+	MapForEach("map","NightLightObject", nil, nil, const.gofNightLightsEnabled, exec )
 	
 	if #nlattaches > 0 then
 		local seed = UICity.day or 0

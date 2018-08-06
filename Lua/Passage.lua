@@ -130,7 +130,7 @@ function GetPassageEntity(self, skin)
 	skin = skin or "default"
 	skin = passage_entites[skin] and skin or 
 			passage_skin_aliasing[skin] and passage_entites[passage_skin_aliasing[skin]] and passage_skin_aliasing[skin] or
-			"default"
+			"GenericPassageSkinName1"
 	local k1 = IsSolidPassageElement(self) and "inside_dome" or "outside_dome"
 	local k2 = "entrance"
 	if #self.connections >= 2 then
@@ -258,6 +258,9 @@ DefineClass.PassageGridElement = {
 	
 	is_construction_complete = false,
 	DisconnectPipe = __empty_function__,
+	SetSuspended = __empty_function__,
+	
+	node_idx = false,
 }
 
 function PassageGridElement:CanFracture()
@@ -430,13 +433,17 @@ function PassageGridElement:RemovePFTunnel()
 	end
 end
 
+function SavegameFixups.RemoveSupplyGridElementsFromPassageGridElements()
+	MapForEach(true, "PassageGridElement", function(o)
+					rawset(o, "electricity", nil)
+					rawset(o, "water", nil)
+				end)
+end
+
 function PassageGridElement:GameInit()
 	self:UpdateVisuals()
 	self:SetIsNightLightPossible(false, false)
 	if not self.is_construction_site then
-		--point to parent elements.
-		rawset(self, "electricity", self.passage_obj.electricity)
-		rawset(self, "water", self.passage_obj.water)
 		self.passage_obj:Notify("TryConnectDomes")
 	end
 end
@@ -484,13 +491,17 @@ function PassageGridElement:AreNightLightsAllowed()
 	return self.passage_obj:AreNightLightsAllowed()
 end
 
+function PassageGridElement:GetWorkNotPermittedReason()
+end
+
 PassageGridElement.ConnectPipe = empty_func
 PassageGridElement.OnEnterUnit = empty_func
 --hacks below
 local function CopyCostsFromTemplateToClassDef()
 	if DataLoaded then
 		--transfer template costs to class def
-		local t = DataInstances.BuildingTemplate.Passage
+		local t = BuildingTemplates.Passage
+		if not t then return end
 		for _, resource in ipairs(ConstructionResourceList) do
 			local key = "construction_cost_" .. resource
 			local a = t[key] or 0
@@ -541,9 +552,11 @@ DefineClass.Passage = {
 	fractures = false,
 	skin_id = "default",
 	ip_template = "ipPassage",
-	encyclopedia_id = "Passage",
 	
 	pf_tunnel_thread = false,
+	start_el = false,
+	end_el = false,
+	last_node_idx = 0,
 }
 
 function Passage:AreNightLightsAllowed()
@@ -552,6 +565,10 @@ end
 
 function Passage:UpdateElectricityAvailability()
 	self:RefreshNightLightsState()
+end
+
+function Passage:CanWork()
+	return #self.elements_under_construction <= 0
 end
 
 function Passage:RefreshNightLightsState()
@@ -614,7 +631,6 @@ end
 
 function Passage:ToggleDemolish()
 	if #self.elements_under_construction > 0 then
-		assert(#self.elements <= 0) --half complete passage..
 		local e = self.elements_under_construction[1]
 		e:Cancel() --canceling one will cancel the others because of group
 	else
@@ -708,6 +724,12 @@ function Passage:AddSupplyTunnel()
 	local e1, e2 = self.elements[self.supply_tunnel_nodes[1]], self.elements[self.supply_tunnel_nodes[2]]
 	local p1, p2 = point(e1.q, e1.r), point(e2.q, e2.r)
 	
+	--so supplygridconnect/disconnect can see these nodes
+	rawset(e1, "electricity", self.electricity)
+	rawset(e1, "water", self.water)
+	rawset(e2, "electricity", self.electricity)
+	rawset(e2, "water", self.water)
+	
 	ApplyRemoveSupppyTunnelMaskHelper(p1, bor)
 	ApplyRemoveSupppyTunnelMaskHelper(p2, bor)
 	
@@ -729,6 +751,16 @@ function Passage:RemoveSupplyTunnel()
 	
 	g_TunnelsAdjacency[xxhash(p1:x(), p1:y())] = nil
 	g_TunnelsAdjacency[xxhash(p2:x(), p2:y())] = nil
+	
+	local e1, e2 = self.elements[self.supply_tunnel_nodes[1]], self.elements[self.supply_tunnel_nodes[2]]
+	if e1 then
+		rawset(e1, "electricity", nil)
+		rawset(e1, "water", nil)
+	end
+	if e2 then
+		rawset(e2, "electricity", nil)
+		rawset(e2, "water", nil)
+	end
 	
 	self.supply_tunnel_set = false
 end
@@ -787,6 +819,9 @@ function Passage:GetUIWarning()
 	return Building.GetUIWarning(self)
 end
 
+function Passage:GetWorkNotPermittedReason()
+end
+
 function Passage:TraverseTunnel(unit, start_point, end_point, param, element)
 	if not IsValid(self) then
 		return false
@@ -825,7 +860,7 @@ function Passage:Init()
 end
 
 function Passage:GameInit()
-	self:TryConnectDomes() --insta build passage
+	self:Notify("TryConnectDomes") --insta build passage
 end
 
 function Passage:GetConstructionGroupLeader()
@@ -850,6 +885,7 @@ function ConnectDomesWithPassage(d1, d2)
 			d2.city.dome_networks = false
 		end
 	end
+	Msg("DomesConnected", d1, d2)
 end
 
 function DisconnectDomesConnectedWithPassage(d1, d2)
@@ -941,11 +977,65 @@ function Passage:SupplyGridDisconnectElement(element, ...)
 	self.parent_dome = d_c
 end
 
+function Passage:RebuildIndexes()
+	local first = nil
+	for i = 1, #self.elements do
+		local el = self.elements[i]
+		if #el.connections == 1 then
+			first = el
+			break
+		end
+	end
+	
+	if not first then return end
+	
+	local function fill_sn(self, sn, current)
+		for i = 1, #sn do
+			if self.elements[sn[i]] == current then
+				sn[i] = current.node_idx
+				return
+			end
+		end
+	end
+	
+	local sn = self.supply_tunnel_nodes
+	local new_elements = {first}
+	local current = first
+	local last = nil
+	local counter = 1
+	first.node_idx = counter
+	fill_sn(self, sn, current)
+	
+	while true do
+		local t = current.connections[1]
+		local idx = HexGetPassageGridElement(t.q, t.r) == last and 2 or 1
+		last = current
+		current = current.connections[idx]
+		current = HexGetPassageGridElement(current.q, current.r)
+		table.insert(new_elements, current)
+		counter = counter + 1
+		current.node_idx = counter
+		fill_sn(self, sn, current)
+		if #current.connections <= 1 then
+			break
+		end
+	end
+	
+	self.elements = new_elements
+	return true
+end
+
 function Passage:TryConnectDomes()
 	--check if passage is constructed
 	if self.domes_connected or #self.elements_under_construction > 0 then return end
 	if not self.shape_points then
 		--first time we pass here..
+		if not self.elements[1].node_idx then
+			--bad state, savegame most likely
+			self:RebuildIndexes()
+		end
+		table.sortby_field(self.elements, "node_idx")
+		self:UpdateWorking()
 		--supply grid conns seem to work regardless of other conns or so it seems from spec.
 		--so connect on constructed, disconnect on done
 		local d_c = self.parent_dome
@@ -955,7 +1045,12 @@ function Passage:TryConnectDomes()
 		self.parent_dome = d_c
 		
 		self:AddSupplyTunnel()
-	end
+		if IsGameRuleActive("FreeConstruction") then
+			local lead_element = self.elements[1]
+			lead_element.construction_cost_at_completion = {}
+			lead_element.construction_cost_at_completion["Concrete"] = #self.elements * self.city:GetConstructionCost(lead_element, "Concrete")
+		end
+	end	
 	
 	--first and last element should have the domes we need to connect
 	local d1 = self.elements[1] and self.elements[1].dome
@@ -1006,17 +1101,17 @@ function Passage:AddPFTunnel()
 	--register passage exits and entrances
 	local pe2 = elast_d.passage_entrances[e1_d] or {}
 	elast_d.passage_entrances[e1_d] = pe2
-	table.insert(pe2, t2_start)
+	table.insert_unique(pe2, t2_start)
 	pe2 = elast_d.passage_exits[e1_d] or {}
 	elast_d.passage_exits[e1_d] = pe2
-	table.insert(pe2, t1_exit)
+	table.insert_unique(pe2, t1_exit)
 	
 	local pe1 = e1_d.passage_entrances[elast_d] or {}
 	e1_d.passage_entrances[elast_d] = pe1
-	table.insert(pe1, t1_start)
+	table.insert_unique(pe1, t1_start)
 	pe1 = e1_d.passage_exits[elast_d] or {}
 	e1_d.passage_exits[elast_d] = pe1
-	table.insert(pe1, t2_exit)
+	table.insert_unique(pe1, t2_exit)
 	
 	local distance = 1 * guim -- passages are considered very short
 	local weight = distance * pathfind[1].terrain / terrain.RoadTileSize()
@@ -1043,7 +1138,9 @@ function Passage:CanDelete()
 end
 
 function Passage:GetEndElement()
-	if #self.elements_under_construction > 0 then
+	if self.end_el then
+		return self.end_el
+	elseif #self.elements_under_construction > 0 then
 		return self.elements_under_construction[#self.elements_under_construction]
 	else
 		return self.elements[#self.elements]
@@ -1051,7 +1148,9 @@ function Passage:GetEndElement()
 end
 
 function Passage:GetStartElement()
-	if #self.elements_under_construction > 0 then
+	if self.start_el then
+		return self.start_el
+	elseif #self.elements_under_construction > 0 then
 		return self.elements_under_construction[1]
 	else
 		return self.elements[1]
@@ -1112,6 +1211,20 @@ function Passage:GetIPDescription()
 	end	
 end
 
+--[[function Passage:CalcRefundAmount(amount)
+	if IsGameRuleActive("FreeConstruction") then
+		return #self.elements * self.city.GetConstructionCost("PassageGridElement", "Concrete")
+	end
+	return Building.CalcRefundAmount(amount)
+end
+
+function Passage:GetRefundResources()
+	if IsGameRuleActive("FreeConstruction") then
+		return #self.elements * self.city.GetConstructionCost("PassageGridElement", "Concrete")
+	end
+	return Building.GetRefundResources(amount)
+end]]
+
 Passage.Getdescription = Passage.GetIPDescription
 
 --so selection does not assert
@@ -1141,6 +1254,7 @@ DefineClass.PassageRamp = {
 	on_off_button = false,
 	prio_button = false,
 	use_demolished_state = false,
+	SetSuspended = __empty_function__,
 }
 
 function PassageRamp:GetPassageGridElement()
@@ -1185,13 +1299,20 @@ function PlacePassageLine(city, start_q, start_r, dir, steps, test, elements_req
 	local last_status = false
 	local last_placed_data_cell = nil
 	local last_pass_idx = 0
+	local total_data_count = 0
+	local has_group_with_no_hub = true
+	
 	if input_data and (#input_data > 0 or input_data[0]) then
 		last_placed_data_cell = input_data[#input_data]
 		last_pass_idx = last_placed_data_cell.idx
 		last_status = last_placed_data_cell.status
 		
 		local decrement = input_data[0] and 1 or 0
-		steps = Min(const.PassageConstructionGroupMaxSize - #input_data - decrement, steps)
+		total_data_count = #input_data + decrement
+		steps = Min(const.PassageConstructionGroupMaxSize - total_data_count, steps)
+		total_data_count = total_data_count - 1
+		
+		has_group_with_no_hub = input_data.has_group_with_no_hub
 	end
 	
 	--preprocess
@@ -1246,7 +1367,13 @@ function PlacePassageLine(city, start_q, start_r, dir, steps, test, elements_req
 			data[i] = {q = q, r = r, status = SupplyGridElementHexStatus.clear, cable = cable, rocks = rocks, stockpiles = stockpiles, pipe = pipe, idx = last_pass_idx + i, bld = bld, dome = dome}
 		end
 		
-		data[i].place_construction_site = elements_require_construction or construction_group or #rocks > 0 or #stockpiles > 0
+		if has_group_with_no_hub then
+			if DoesAnyDroneControlServiceAtPoint(world_pos) then
+				has_group_with_no_hub = false
+			end
+		end
+		
+		data[i].place_construction_site = elements_require_construction or #rocks > 0 or #stockpiles > 0
 		data[i].connections = build_connections(i, data[i].connections)
 		
 		--dome adjacency
@@ -1316,13 +1443,17 @@ function PlacePassageLine(city, start_q, start_r, dir, steps, test, elements_req
 			can_build_anything = false
 		end
 		
+		total_data_count = total_data_count + 1
 		last_status = data[i].status
 	end
-
+	
+	local total_cost = GetGridElementConstructionCost("Passage", true, total_data_count * 100)
+	data.has_group_with_no_hub = has_group_with_no_hub
+	
 	if test or not can_build_anything then
 		--ret
 		construction_group = clean_group(construction_group)
-		return can_build_anything, construction_group, obstructors, data, all_rocks
+		return can_build_anything, construction_group, obstructors, data, all_rocks, nil, total_cost
 	end
 	
 	--postprocess
@@ -1367,6 +1498,9 @@ function PlacePassageLine(city, start_q, start_r, dir, steps, test, elements_req
 		params.adjacent_dome = cell_data.adjacent_dome
 		params.connections = cell_data.connections
 		params.passage_obj = passage_obj
+		
+		passage_obj.last_node_idx = passage_obj.last_node_idx + 1
+		params.node_idx = passage_obj.last_node_idx
 
 		local pos = point(HexToWorld(q, r))
 		if not first_obj_z then
@@ -1383,7 +1517,6 @@ function PlacePassageLine(city, start_q, start_r, dir, steps, test, elements_req
 		return cs
 	end
 	
-	--local palette = EntityPalettes.Cables --TODO: palette
 	local InvalidZ = const.InvalidZ
 	local place_passage = function(data_idx)
 		local cell_data = data[data_idx]
@@ -1393,7 +1526,8 @@ function PlacePassageLine(city, start_q, start_r, dir, steps, test, elements_req
 		
 		local q = cell_data.q
 		local r = cell_data.r
-		local el = PassageGridElement:new{ city = city, q = q, r = r, dome = cell_data.dome, adjacent_dome = cell_data.adjacent_dome, connections = cell_data.connections, passage_obj = passage_obj }
+		passage_obj.last_node_idx = passage_obj.last_node_idx + 1
+		local el = PassageGridElement:new{ city = city, q = q, r = r, dome = cell_data.dome, adjacent_dome = cell_data.adjacent_dome, connections = cell_data.connections, passage_obj = passage_obj, node_idx = passage_obj.last_node_idx }
 		local x, y = HexToWorld(q, r)
 		local z = first_obj_z or terrain.GetHeight(x, y)
 		first_obj_z = first_obj_z or z 
@@ -1404,7 +1538,6 @@ function PlacePassageLine(city, start_q, start_r, dir, steps, test, elements_req
 			FlattenTerrainInBuildShape(nil, el)
 		end
 		cell_data.element = el
-		--palette:ApplyToObj(el)
 		return el
 	end
 	
@@ -1445,6 +1578,10 @@ function PlacePassageLine(city, start_q, start_r, dir, steps, test, elements_req
 			end
 		end
 		
+		if last_placed_obj and (#passage_obj.elements + #passage_obj.elements_under_construction) == 1 then
+			passage_obj.start_el = last_placed_obj
+		end
+		
 		i = i + 1
 	end
 	
@@ -1455,16 +1592,17 @@ function PlacePassageLine(city, start_q, start_r, dir, steps, test, elements_req
 	else
 		data.passage_obj = passage_obj
 		data.first_obj_z = first_obj_z
+		passage_obj.end_el = last_placed_obj
 		if not passage_obj:IsValidPos() then
 			passage_obj:SetPos(data[0].element:GetPos()) --cannot not place element (unlike pipes and cables)
 		end
 		
 		if construction_group then
-			construction_group[1].construction_cost_multiplier = (#construction_group - 1) * 100
+			construction_group[1].construction_cost_multiplier = not elements_require_construction and 0 or (#construction_group - 1) * 100
 		end
 	end
 	
-	return true, construction_group, obstructors, data, last_placed_obj
+	return true, construction_group, obstructors, data, last_placed_obj, nil, total_cost
 end
 ----------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------
@@ -1532,6 +1670,14 @@ function PassageConstructionSite:ProcessAppendedStocks()
 	end
 end
 
+function PassageConstructionSite:Cancel()
+	if #self.passage_obj.elements > 0 then
+		self.passage_obj:OnDemolish()
+		DoneObject(self.passage_obj)
+	end
+	ConstructionSite.Cancel(self)
+end
+
 function PassageConstructionSite:Complete(quick_build)
 	if not IsValid(self) then return end
 	
@@ -1539,18 +1685,23 @@ function PassageConstructionSite:Complete(quick_build)
 		self:OnQuickBuild()
 	end
 	
+	local po = self.passage_obj
 	local bld = PassageGridElement:new{
 		dome = self.dome,
 		adjacent_dome = self.adjacent_dome,
 		connections = self.connections,
 		q = self.q,
 		r = self.r,
-		passage_obj = self.passage_obj,
+		passage_obj = po,
+		node_idx = self.node_idx,
 	}
 	
 	bld:SetPos(self:GetPos())
 	bld:SetAngle(self:GetAngle())
-	local reselect = SelectedObj == self.passage_obj
+	local reselect = SelectedObj == po
+	
+	if po.end_el == self then po.end_el = bld
+	elseif po.start_el == self then po.start_el = bld end
 	
 	self.is_construction_complete = true
 	DoneObject(self)
@@ -1563,6 +1714,34 @@ function PassageConstructionSite:Complete(quick_build)
 	end
 	
 	return bld
+end
+
+function GetNumConnectedDomes(dome)
+	local n = 0
+	
+	local queue = { dome }
+	local counted = {}
+	
+	while #queue > 0 do
+		local d = table.remove(queue)
+		if not counted[d] then
+			counted[d] = true
+			n = n + 1
+			for cd, _ in pairs(d.connected_domes) do
+				queue[#queue + 1] = cd
+			end
+		end
+	end
+	
+	return n
+end
+
+function GetNumDomesConnectedToDome(dome)
+	local num = 0
+	for v, k in pairs(dome.connected_domes) do
+		num = num + 1
+	end
+	return num
 end
 
 ----

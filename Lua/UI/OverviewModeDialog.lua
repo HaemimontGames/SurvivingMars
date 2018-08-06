@@ -9,6 +9,7 @@ DefineClass.OverviewModeDialog = {
 	target_obj = false,
 	camera_transition_time = 500,	
 	sector_obj = false, --selection decal
+	sector_objs = false, -- selection decal for advanced probes
 	sector_id = false, -- for the sector currently selected
 	current_sector = false, --currently selected MapSector object
 	exit_to = false, --position to look at when exiting from overview mode
@@ -120,7 +121,7 @@ function OverviewModeDialog:Init()
 		if not (Platform.developer and IsEditorActive()) then
 			LockCamera("overview")
 		end
-		ForEach{class = "RangeHexRadius", exec = function(o) o:SetVisible(false) end}
+		MapForEach("map", "RangeHexRadius", function(o) o:SetVisible(false) end)
 
 		local transition_time = self.camera_transition_time
 		self.overview_angle = 45*60 --CalcOrientation(old_pos, old_lookat) - 45*60
@@ -137,9 +138,8 @@ function OverviewModeDialog:Init()
 		camera.SetAutoFovX(1, transition_time, const.Camera.OverviewFovX_4_3, 4, 3, const.Camera.OverviewFovX_16_9, 16, 9)
 		ShowOverviewMapCurtains(true)
 		self:ScaleSmallObjects(transition_time, "up")
-		Sleep(transition_time/2)
 		hr.NearZ = 1000
-		Sleep(transition_time/2)
+		Sleep(transition_time)
 		hr.CameraFovEasing = "Linear"
 		SetSubsurfaceDepositsVisible(true)
 		self.sector_id = nil
@@ -176,6 +176,16 @@ function OverviewModeDialog:Open(...)
 	UnitDirectionModeDialog.Open(self, ...)
 	if GetUIStyleGamepad() then
 		local sector = GetMapSector(GetTerrainGamepadCursor())
+		
+		local probes = UICity.labels.OrbitalProbe or empty_table
+		
+		if #probes > 0 and #probes[1].scan_pattern > 1 then
+			self.sector_objs = {}
+			for i = 1, #probes[1].scan_pattern - 1 do
+				self.sector_objs[i] = PlaceObject("SectorRadius")
+			end
+		end		
+		
 		self:SelectSector(sector, nil, "forced")
 	end
 	
@@ -248,11 +258,10 @@ function OverviewModeDialog:Close(...)
 		hr.CameraFovEasing = "SinIn"
 		camera.SetAutoFovX(1, transition_time, const.Camera.DefaultFovX_16_9, 16, 9)
 		local curains_fade_time = OverviewMapCurtains.FadeOutTime
-		Sleep(transition_time/2)
-		hr.NearZ = 100
-		Sleep(transition_time/2 - curains_fade_time)
+		Sleep(transition_time - curains_fade_time)
 		ShowOverviewMapCurtains(false)
 		Sleep(curains_fade_time)
+		hr.NearZ = 100
 		hr.CameraFovEasing = "Linear"
 
 		--hr.RenderTerrainFog = 0
@@ -264,6 +273,9 @@ function OverviewModeDialog:Close(...)
 		if IsValid(self.sector_obj) then
 			DoneObject(self.sector_obj)
 		end
+		for _, obj in ipairs(self.sector_objs or empty_table) do
+			DoneObject(obj)
+		end
 
 		table.restore(hr, "overview")
 		self.saved_camera = nil
@@ -272,7 +284,7 @@ function OverviewModeDialog:Close(...)
 		if CameraTransitionThread == CurrentThread() then
 			CameraTransitionThread = false
 		end
-		ForEach{class = "RangeHexRadius", exec = function(o) o:SetVisible(true) end}
+		MapForEach("map", "RangeHexRadius", function(o) o:SetVisible(true) end)
 	end, self, CameraTransitionThread)
 
 	local hud = GetHUD()
@@ -284,14 +296,27 @@ function OverviewModeDialog:Close(...)
 	end
 end
 
-function OverviewModeDialog:SetScan(enable)
-	if enable == self.scan_mode then
+function OverviewModeDialog:SetScan(mode)
+	if mode == self.scan_mode then
 		return
 	end
 	
-	self.scan_mode = enable
-	DoneObject(self.sector_obj)	
-	self.sector_obj = enable and PlaceObject("SectorTarget") or PlaceObject("SectorRadius")	
+	self.scan_mode = mode
+	DoneObject(self.sector_obj)
+	for _, obj in ipairs(self.sector_objs or empty_table) do
+		DoneObject(obj)
+	end
+	self.sector_objs = nil
+	
+	self.sector_obj = mode and PlaceObject("SectorTarget") or PlaceObject("SectorRadius")	
+	local probes = UICity.labels.OrbitalProbe or empty_table
+	
+	if mode and #probes > 0 and #probes[1].scan_pattern > 1 then
+		self.sector_objs = {}
+		for i = 1, #probes[1].scan_pattern - 1 do
+			self.sector_objs[i] = PlaceObject("SectorTarget")
+		end
+	end
 	self.sector_id = nil
 	self:SelectSectorAtPoint()
 end
@@ -300,7 +325,7 @@ function OverviewModeDialog:DeployProbe()
 	local probes = UICity.labels.OrbitalProbe or empty_table
 	local sector = self.current_sector
 	
-	if #probes == 0 or not sector then
+	if #probes == 0 or not sector or sector:HasBlockers() then
 		return
 	end
 	
@@ -330,9 +355,27 @@ function OverviewModeDialog:SelectSector(sector, rollover_pos, forced)
 			self.sector_obj:SetPos(sector.area:Center())
 			self.sector_obj:SetEnumFlags(const.efVisible)
 			self.sector_obj:SetScale(MulDivRound(sector.area:sizex(), 100, 100*guim))
+			
+			local pattern = self.sector_objs
+			
+			if pattern and #pattern > 0 then
+				local list = UICity.labels.OrbitalProbe[1]:GetAffectedSectors(sector)
+				local i = 1
+				local pt = sector.area:Center()
+				for idx = 2, #list do
+					local s = list[idx]
+					pattern[i]:SetPos(s.area:Center())
+					pattern[i]:SetEnumFlags(const.efVisible)
+					pattern[i]:SetScale(MulDivRound(s.area:sizex(), 100, 100*guim))
+					i = i + 1
+				end
+				for j = i, #pattern do
+					pattern[j]:ClearEnumFlags(const.efVisible)
+				end
+			end
 
 			--Don't show the rollover if there's a notification displayed right now
-			if not GetXDialog("PopupNotification") then
+			if not GetDialog("PopupNotification") then
 				local rollover_context = self:GenerateSectorRolloverContext(sector, forced)
 				
 				-- rollover position might be given before hand - if not -> take the center of the sector
@@ -351,6 +394,9 @@ function OverviewModeDialog:SelectSector(sector, rollover_pos, forced)
 		end
 	else
 		self.sector_obj:ClearEnumFlags(const.efVisible)
+		for _, obj in ipairs(self.sector_objs or empty_table) do
+			obj:ClearEnumFlags(const.efVisible)
+		end
 		if RolloverControl == self then
 			XDestroyRolloverWindow()
 		end
@@ -389,7 +435,11 @@ function OverviewModeDialog:GenerateSectorRolloverContext(sector, forced)
 		if deep and scanned and not deep_scanned then
 			status = "deep available"
 		end
-		texts[#texts + 1] = T{4049, "<em><status></em>", status = SectorStatusToDisplay[status]}
+		if sector:HasBlockers() then
+			texts[#texts + 1] = T{10411, "<em>An Alien Crystal is blocking the scanning of this sector</em>"}
+		else
+			texts[#texts + 1] = T{4049, "<em><status></em>", status = SectorStatusToDisplay[status]}
+		end
 	else		
 		local target = deep and const.SectorDeepScanPoints or const.SectorScanPoints
 		texts[#texts + 1] = T{4050, "Scanning <em><percent(number)></em>", number = MulDivRound(sector.scan_progress, 100, target)}
@@ -432,19 +482,35 @@ function OverviewModeDialog:GenerateSectorRolloverContext(sector, forced)
 			end
 		end
 
+		local max = const.ExplorationQueueMaxSize
+		local queued = #g_ExplorationQueue 
+		local queue_idx = table.find(g_ExplorationQueue, sector)
 		if not scanned or (deep and not deep_scanned) then
-			if has_probes then
-				hint_gamepad = T{4055, "<ButtonY> Add/Remove sector from scan queue<newline><ButtonX> Deploy an Orbital Probe to scan this sector<newline><ButtonA> Zoom in<newline>"}
-			else
-				hint_gamepad = T{4056, "<ButtonY> Add/Remove sector from scan queue<newline><ButtonA> Zoom in"}
+			local texts = {}
+			if queue_idx  or  queued < max then
+				texts = {T{4056, "<ButtonY> Add/Remove sector from scan queue"}}
 			end
+			if queued>=1 and (queue_idx  and queue_idx>1 or queued < max) then
+				texts[#texts +1] = T{"<RightTrigger><ButtonY> Queue first"}
+			end	
+			if has_probes then
+				texts[#texts +1] = T{10536, "<ButtonX> Deploy an Orbital Probe to scan this sector"}
+				texts[#texts +1] = T{7908, "<ButtonA> Zoom in"}
+				texts[#texts +1] = Untranslated("\n")
+			else
+				texts[#texts +1] = T{7908, "<ButtonA> Zoom in"}
+			end
+			hint_gamepad = table.concat(texts, "\n")	
 				
 			if not self.scan_mode then
-				if table.find(g_ExplorationQueue, sector) then
+				if queue_idx then
 					hint = T{4057, "<right_click> - remove from queue"}
-				else
+				elseif queued < max then
 					hint = T{4058, "<left_click> - add to queue"}
-				end
+				end				 
+				if queued>=1 and (queue_idx  and queue_idx>1 or queued < max) then
+					hint = (hint or "").."\n".. T{10537, "Ctrl + <left_click>: queue first"}
+				end					
 			end
 			if has_probes then
 				hint = hint and hint .. "<newline>" or ""
@@ -514,7 +580,7 @@ function OverviewModeDialog:OnMouseButtonDown(pt, button)
 				return
 			end
 			
-			if self.scan_mode then
+			if self.scan_mode and not sector:HasBlockers() then
 				local deep_probe = UICity:IsTechResearched("AdaptedProbes")
 				if sector.status == "unexplored" or (sector.status == "scanned" and deep_probe) then
 					local probes = #(UICity.labels.OrbitalProbe or empty_table)
@@ -527,7 +593,7 @@ function OverviewModeDialog:OnMouseButtonDown(pt, button)
 				return "break"
 			end
 			
-			if sector:QueueForExploration() then
+			if sector:QueueForExploration(terminal.IsKeyPressed(const.vkControl)) then
 				self:UpdateSectorRollover(sector)
 				return "break"
 			end
@@ -603,7 +669,12 @@ function OverviewModeDialog:OnShortcut(shortcut, source)
 		end
 		
 		--toggle sector in scan queue
-		if shortcut == "ButtonY" then
+		if shortcut == "RightTrigger-ButtonY" then
+			local sector = self.current_sector
+			if sector:QueueForExploration("add first") then
+				self:UpdateSectorRollover(sector)
+			end	
+		elseif shortcut == "ButtonY" then
 			local sector = self.current_sector
 			if sector:QueueForExploration() then
 				self:UpdateSectorRollover(sector)
@@ -615,7 +686,7 @@ function OverviewModeDialog:OnShortcut(shortcut, source)
 		
 		--sector selection change
 		if gamepad_directional_buttons[shortcut] then
-			shortcut = LeftThumbToDirection[shortcut] or shortcut
+			shortcut = XInput.LeftThumbToDirection[shortcut] or shortcut
 			if not self.current_sector then
 				local sector = GetMapSector(GetTerrainGamepadCursor())
 				self:SelectSector(sector, nil, "forced")
@@ -681,11 +752,9 @@ function OverviewModeDialog:SetCameraAngle(angle, time)
 	cameraRTS.SetCamera(pos, lookat, time or 0)
 end
 
-local signs_query = {classes = { "SubsurfaceDeposit", "TerrainDeposit", "ArrowTutorialBase" }, area = "realm"}
-local ropes_query = {class = "SpaceElevatorRope"}
 function OverviewModeDialog:ScaleSmallObjects(time, direction)
-	local signs = GetObjects(signs_query)
-	local ropes = GetObjects(ropes_query)
+	local signs = MapGet(true, "SubsurfaceDeposit", "TerrainDeposit", "ArrowTutorialBase")
+	local ropes = MapGet("map", "SpaceElevatorRope")
 	CreateRealTimeThread( function()
 		g_CurrentDepositScale = direction == "up" and const.SignsOverviewCameraScaleUp or const.SignsOverviewCameraScaleDown
 	

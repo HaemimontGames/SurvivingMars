@@ -3,7 +3,7 @@ DefineDataInstance("Label",
 		{ id = "display_name", name = T{1153, "Display Name"}, editor = "text", translate = true, default = "" },
 		{ id = "building", name = T{3702, "A building label"}, editor = "bool", default = true },
 	},
-	"[203]Editors/[01]Mars/Labels Editor")
+	"Editors.Game", "Labels")
 	
 function GetBuildingLabels(ret, used)
 	local ret = ret or {}
@@ -96,9 +96,9 @@ function GetColonistLabels(ret, used)
 			used[label.name] = true
 		end
 	end
-	for _, trait in ipairs(DataInstances.Trait) do
-		table.insert(ret, { value = trait_prefix .. trait.name, text = T{3703, "Trait: <display_name>", trait} })
-	end
+	ForEachPreset(TraitPreset, function(trait, group_list)
+		table.insert(ret, { value = trait_prefix .. trait.id, text = T{3703, "Trait: <display_name>", trait} })
+	end)
 	table.insert(ret, { value = "Working-age", text = T{7906, "Working-age Colonists"} })
 	return ret
 end
@@ -514,7 +514,7 @@ function SA_ChangeStat:Process(seq_player, registers, colonist)
 			CreateGameTimeThread( function()
 				Sleep(self.Duration * const.HourDuration )
 				if IsValid(colonist) then
-					unit:SetModifier("base_morale", seq_player, 0, 0)
+					colonist:SetModifier("base_morale", seq_player, 0, 0)
 				end
 			end )
 		end
@@ -1002,7 +1002,7 @@ DefineClass.SA_CustomNotification = {
 	__parents = { "SequenceAction" },
 	
 	properties = {
-		{ id = "id",         name = T{3725, "Notification ID"}, editor = "dropdownlist", items = NotificationPresetsCombo, default = "",  help = "Notification preset ID" },
+		{ id = "id",         name = T{3725, "Notification ID"}, editor = "dropdownlist", items = PresetsCombo("OnScreenNotificationPreset"), default = "",  help = "Notification preset ID" },
 		{ id = "autoupdate", name = T{6853, "Auto Update"},           editor = "bool",   default = false, help = "If <value> expression will be updated automatically and periodically" },
 		{ id = "expression", name = T{3726, "Expression"},      editor = "text",   default = "1", help = "Expression to be evaluation for <value>", no_edit = function(self) return not self.autoupdate end },
 		{ id = "interval",   name = T{3727, "Upd. Interval"},   editor = "number", default = 10,  help = "Update interval in seconds", no_edit = function(self) return not self.autoupdate end },
@@ -1023,7 +1023,7 @@ DefineClass.SA_CustomNotification = {
 }
 
 function SA_CustomNotification:WarningsCheck(seq_player, sequence, registers)
-	if not DataInstances.OnScreenNotificationPreset[self.id] then
+	if not OnScreenNotificationPresets[self.id] then
 		seq_player:Error(self, "Unspecified notification preset")
 	end
 end
@@ -1081,7 +1081,7 @@ function SA_CustomNotification:Exec(seq_player, ip, seq, registers)
 				Sleep(self.interval*1000)
 			
 				--Get the controller dialog
-				local dlg = GetXDialog("OnScreenNotificationsDlg")
+				local dlg = GetDialog("OnScreenNotificationsDlg")
 				if not dlg then break end
 				
 				--Check if notification still exists
@@ -1282,18 +1282,18 @@ end
 
 --
 local function ClassNameItems()
-	local blds =  DataInstances.BuildingTemplate
-	local ret = ClassDescendantsList("Object", function(name, class)
-																return not table.find(blds, "template_class", name)
-															end)
-	for k, v in pairs(blds) do
-		if not tonumber(k) then
-			table.insert_unique(ret, k)
-		end
+	local template_classes = {}
+	for _, template in pairs(BuildingTemplates) do
+		template_classes[template.template_class] = true
 	end
-	
+	local ret = ClassDescendantsList("Object",
+		function(name, class)
+			return not template_classes[name]
+		end)
+	for id, template in pairs(BuildingTemplates) do
+		table.insert_unique(ret, id)
+	end
 	table.sort(ret)
-	
 	return ret
 end
 local function CheckDomeCombo()
@@ -1338,6 +1338,7 @@ DefineClass.PositionFinder = {
 }
 
 local hex_edges
+local classes = {"Unit", "ResourceStockpileBase", "SurfaceDeposit"}
 function PositionFinder:TestPos(pt_pos, q, r, angle, class_def, building_shape, building_other_shape)
 	if self.check_playable and not IsBuildableZone(pt_pos) then
 		return
@@ -1447,7 +1448,7 @@ function PositionFinder:TestPos(pt_pos, q, r, angle, class_def, building_shape, 
 			end
 			return true
 		end
-		if HexGetUnits(nil, class_def:GetEntity(), pt_pos, angle * 60, true, filter_func, "Unit, ResourceStockpileBase, SurfaceDeposit", force_extend_bb ~= 0 and force_extend_bb) then
+		if HexGetUnits(nil, class_def:GetEntity(), pt_pos, angle * 60, true, filter_func, classes, force_extend_bb ~= 0 and force_extend_bb) then
 			return
 		end
 	end
@@ -1988,7 +1989,7 @@ function SA_PickRandomObject:GatherObjects(seq_player, ip, seq, registers)
 			copy = false
 		end
 	elseif self.obj_class then
-		objects = GetObjects{area = "realm", class = self.obj_class}
+		objects = MapGet(true, self.obj_class)
 		copy = false
 	else
 		objects = registers[self.obj_reg] or empty_table
@@ -2361,10 +2362,7 @@ end
 
 function ReplaceAllBuildingsOnMap()
 	CreateRealTimeThread(function()
-		local q = {
-			area = "realm",
-			class = "Building",
-			exec = function(bld)
+		local query_func = function(bld)
 				if not IsKindOf(bld, "DroneHub") and (not IsKindOf(bld, "RechargeStation") or bld.hub == false) then
 					local a = bld:GetAngle()
 					local p = bld:GetPos()
@@ -2386,14 +2384,12 @@ function ReplaceAllBuildingsOnMap()
 						bld:SetGameFlags(const.gofPermanent)
 					end
 				end
-			end,
-		}
+		end
 		
-		ForEach(q)
+		MapForEach(true, "Building", query_func)
 		Sleep(100)
 		--pass 2 all hubs
-		q.class = "DroneHub"
-		q.exec = function(bld)
+		query_func = function(bld)
 			local a = bld:GetAngle()
 			local p = bld:GetPos()
 			local t = bld.template_name
@@ -2412,8 +2408,7 @@ function ReplaceAllBuildingsOnMap()
 				bld:SetGameFlags(const.gofPermanent)
 			end
 		end
-		
-		ForEach(q)
+		MapForEach(true, "DroneHub", query_func)
 	end)
 end
 

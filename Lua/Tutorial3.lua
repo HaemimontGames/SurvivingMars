@@ -20,13 +20,7 @@ g_TutorialScenarios.Tutorial3 = function()
 	end
 	
 	-- store cables to be deleted in a far away step
-	local cables_to_delete = GetObjects{
-		class = "ElectricityGridElement",
-		filter = function(o)
-			return o.electricity.grid == mine.electricity.grid
-		end
-	}
-		
+	local cables_to_delete = MapGet("map","ElectricityGridElement", function(o) return o.electricity.grid == mine.electricity.grid end )
 	-- 1. Intro Popup
 	WaitTutorialPopup("Tutorial3_Popup1_Intro")
 	ViewObjectMars(UICity.labels.DroneHub[1])
@@ -40,7 +34,7 @@ g_TutorialScenarios.Tutorial3 = function()
 	ViewObjectMars(mine)
 	arrow = TutorialUIArrow:new({
 		AnchorType = "center-top",
-		FindTarget = function() return not mine.demolishing and not mine.destroyed and XDialogs.Infopanel and XDialogs.Infopanel.context == mine and XDialogs.Infopanel.idSalvage end,
+		FindTarget = function() return not mine.demolishing and not mine.destroyed and Dialogs.Infopanel and Dialogs.Infopanel.context == mine and Dialogs.Infopanel.idSalvage end,
 	}, terminal.desktop)
 	obj_arrow = ShowTutorialArrow(mine, "ArrowTutorialBase")
 	while IsValid(mine) and not mine.destroyed do
@@ -75,7 +69,7 @@ g_TutorialScenarios.Tutorial3 = function()
 	TutorialNextHint("Tutorial_3_HighPriority")
 	arrow = TutorialUIArrow:new({
 		AnchorType = "center-top",
-		FindTarget = function() return XDialogs.Infopanel and IsKindOf(XDialogs.Infopanel.context, "DroneHub") and XDialogs.Infopanel.idPriority end,
+		FindTarget = function() return Dialogs.Infopanel and IsKindOf(Dialogs.Infopanel.context, "DroneHub") and Dialogs.Infopanel.idPriority end,
 	}, terminal.desktop)	
 
 	obj_arrow = ShowTutorialArrow(hub, "ArrowTutorialBase")
@@ -117,7 +111,7 @@ g_TutorialScenarios.Tutorial3 = function()
 
 		arrow = TutorialUIArrow:new({
 			AnchorType = "left-center",
-			FindTarget = function() return XDialogs.Infopanel and XDialogs.Infopanel.context == bld and XDialogs.Infopanel.idWorkshift3 end,
+			FindTarget = function() return Dialogs.Infopanel and Dialogs.Infopanel.context == bld and Dialogs.Infopanel.idWorkshift3 end,
 		}, terminal.desktop)
 		
 		while IsValid(bld) and not bld:IsClosedShift(3) do
@@ -155,7 +149,7 @@ g_TutorialScenarios.Tutorial3 = function()
 	DoneObject(obj_arrow)
 	arrow = TutorialUIArrow:new({
 		AnchorType = "left-center",
-		FindTarget = function() return XDialogs.Infopanel and SelectedObj == panel and XDialogs.Infopanel.idSectionMaintenance end,
+		FindTarget = function() return Dialogs.Infopanel and SelectedObj == panel and Dialogs.Infopanel.idSectionMaintenance end,
 	}, terminal.desktop)		
 	
 	panel:CheatAddMaintenancePnts()
@@ -170,8 +164,8 @@ g_TutorialScenarios.Tutorial3 = function()
 	arrow = TutorialUIArrow:new({
 		AnchorType = "center-top",
 		FindTarget = function() 
-			if XDialogs.PinsDlg then 
-				for _, win in ipairs(XDialogs.PinsDlg.children) do
+			if Dialogs.PinsDlg then 
+				for _, win in ipairs(Dialogs.PinsDlg) do
 					if not selected_once and IsKindOf(win, "XBlinkingButton") and IsKindOf(win.context, "RCTransport") then
 						return win
 					end
@@ -223,12 +217,12 @@ g_TutorialScenarios.Tutorial3 = function()
 	local resup_arrow = TutorialUIArrow:new({	
 		AnchorType = "center-top", 
 		FindTarget = function() 
-			if XDialogs.Resupply then return end
+			if Dialogs.Resupply then return end
 			if GetUIStyleGamepad() then
-				local dlg = GetXDialog("GamepadIGMenu")					
+				local dlg = GetDialog("GamepadIGMenu")					
 				return dlg and dlg.items and table.find_value(dlg.items, "name", "idResupply") or false
 			end
-			return XDialogs.HUD and XDialogs.HUD.idResupply 
+			return Dialogs.HUD and Dialogs.HUD.idResupply 
 		end,
 	}, terminal.desktop)
 
@@ -242,15 +236,15 @@ g_TutorialScenarios.Tutorial3 = function()
 	local resource_arrow = TutorialUIArrow:new({	
 		AnchorType = "left-center", 
 		FindTarget = function() 
-			if not XDialogs.Resupply then 
+			if not Dialogs.Resupply then 
 				return false 
 			end
-			if XDialogs.Resupply.Mode == "categories" then
-				return XDialogs.Resupply.idTemplate.idCategories.idList.idCargo
-			elseif XDialogs.Resupply.Mode == "cargo" then
+			if Dialogs.Resupply.Mode == "categories" then
+				return Dialogs.Resupply.idTemplate.idCategories.idList.idCargo
+			elseif Dialogs.Resupply.Mode == "cargo" then
 				for i, res in ipairs(resources) do
 					if not cargo_loaded(res) then 
-						for _, win in ipairs(XDialogs.Resupply.idTemplate.idPayload.idList) do
+						for _, win in ipairs(Dialogs.Resupply.idTemplate.idPayload.idList) do
 							if win.prop_meta.id == res then
 								return win
 							end
@@ -265,10 +259,10 @@ g_TutorialScenarios.Tutorial3 = function()
 	local launch_arrow = TutorialUIArrow:new({	
 		AnchorType = "center-top", 
 		FindTarget = function()
-			if not XDialogs.Resupply or XDialogs.Resupply.Mode ~= "cargo" or g_Tutorial.SuppressResupplyLaunch then 
+			if not Dialogs.Resupply or Dialogs.Resupply.Mode ~= "cargo" or g_Tutorial.SuppressResupplyLaunch then 
 				return false
 			end
-			return XDialogs.Resupply.idTemplate.idPayload.idToolBar.idlaunch
+			return Dialogs.Resupply.idTemplate.idPayload.idToolBar.idlaunch
 		end,
 	}, terminal.desktop)	
 
@@ -278,7 +272,7 @@ g_TutorialScenarios.Tutorial3 = function()
 			loaded = loaded and cargo_loaded(res)
 		end
 		local suppress = not loaded
-		local dlg = GetXDialog("Resupply")
+		local dlg = GetDialog("Resupply")
 		if dlg and suppress ~= g_Tutorial.SuppressResupplyLaunch then
 			g_Tutorial.SuppressResupplyLaunch = suppress
 			ObjModified(dlg.context)
@@ -305,7 +299,7 @@ g_TutorialScenarios.Tutorial3 = function()
 	-- guide player to select building & use clear action
 	arrow = TutorialUIArrow:new({
 		AnchorType = "center-top",
-		FindTarget = function() return IsValid(mine) and XDialogs.Infopanel and XDialogs.Infopanel.context == mine and XDialogs.Infopanel.idDecommission end,
+		FindTarget = function() return IsValid(mine) and Dialogs.Infopanel and Dialogs.Infopanel.context == mine and Dialogs.Infopanel.idDecommission end,
 	}, terminal.desktop)
 	obj_arrow = ShowTutorialArrow(mine, "ArrowTutorialBase")
 	while IsValid(mine) do
@@ -350,8 +344,8 @@ g_TutorialScenarios.Tutorial3 = function()
 		arrow = TutorialUIArrow:new({
 			AnchorType = "center-top",
 			FindTarget = function() 
-				if XDialogs.PinsDlg then 
-					for _, win in ipairs(XDialogs.PinsDlg.children) do
+				if Dialogs.PinsDlg then 
+					for _, win in ipairs(Dialogs.PinsDlg) do
 						if IsKindOf(win, "XBlinkingButton") and IsKindOf(win.context, "SupplyRocket") and win.context.command == "WaitInOrbit" then
 							return win
 						end

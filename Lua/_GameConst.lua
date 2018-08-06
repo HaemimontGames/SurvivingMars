@@ -8,8 +8,12 @@ const.MinuteDuration = const.HourDuration / const.MinutesPerHour
 assert(const.HourDuration % const.MinutesPerHour == 0)
 const.MinDaysMaintenanceSupplyBeforeNotification = 3
 const.MinDaysFoodSupplyBeforeNotification = 3
+const.MinHoursAirResourceSupplyBeforeNotification =   3*const.HoursPerDay
+const.MinHoursWaterResourceSupplyBeforeNotification = 3*const.HoursPerDay
+const.MinHoursPowerResourceSupplyBeforeNotification = 3*const.HoursPerDay
 const.FullTransitionToMarsNames = 20--in sols
-const.AutosavePeriod = 5--in sols
+const.DefaultAutosaveCount = 2
+const.DefaultAutosaveInterval = 5--in sols
 
 const.ResearchQueueSize = 4
 
@@ -54,7 +58,7 @@ const.RCRoverDefaultRadius = 20
 const.RCRoverMaxRadius = 20
 const.RCRoverMinRadius = 5
 
-const.DroneBatteryMax = 700*100
+const.DroneBatteryMax = 800*100
 const.DroneTimeAfterUserGotoToRest = 30 * 1000
 const.DroneTimeAfterUserPickUpToRest = 30 * 1000
 const.DronePolymersPerFraction = 5 * const.ResourceScale
@@ -169,9 +173,10 @@ const.SubsurfaceHeaterFrameRange = const.HeatGridTileSize * 4
 const.DefaultPanaltyHeat = 210 -- Heat at which the cold penalty is applied
 const.DefaultPanaltyPct = 60   -- Cold penalty percents
 const.DefaultFreezeHeat = 100  -- Heat at which the building begins to freeze
-const.DefaultFreezeTime = 8 * const.HourDuration   -- Freeze time if under the freeze heat
+const.DefaultFreezeTime = 24 * const.HourDuration   -- Freeze time if under the freeze heat
 const.DefaultDefrostTime = 4 * const.HourDuration  -- Defrost time if above the freeze heat
 const.DustStormSuspendBuildings = {"MOXIE", "MoistureVaporator", "ShuttleHub"}
+const.DustStormSuspendReason = "SuspendedDustStorm"
 
 -- color tags
 const.TagLookupTable["red"]     = "<color  255 69 38><shadowcolor 1 60 40>"
@@ -195,6 +200,8 @@ const.TagLookupTable["/graph_left"] = "</color>"
 const.TagLookupTable["graph_right"] = "<color 32 151 219>"
 const.TagLookupTable["/graph_right"] = "</color>"
 
+const.TagLookupTable["outcome_text"]   = "<color 233 242 255>"
+const.TagLookupTable["/outcome_text"]  = "</color>"
 const.TagLookupTable["white_shadow"]   = "<shadowcolor  233 242 255>"
 const.TagLookupTable["/white_shadow"]  = "</shadowcolor>"
 
@@ -221,6 +228,30 @@ const.TagLookupTable["icon_Unemployed"]   = "<image UI/Icons/res_unemployed.tga 
 const.TagLookupTable["icon_Research"]     = "<image UI/Icons/res_experimental_research.tga 1300>"
 const.TagLookupTable["icon_MetalsDeep"]   = "<image UI/Icons/res_metal_undergrounds.tga 1300>"
 const.TagLookupTable["icon_MysteryResource"]= "<image UI/Icons/res_mystery_resource.tga 1300>"
+
+const.TagLookupTable["icon_Concrete_orig"]        = "<image UI/Icons/res_concrete.tga>"
+const.TagLookupTable["icon_Metals_orig"]          = "<image UI/Icons/res_metal.tga>"
+const.TagLookupTable["icon_Polymers_orig"]        = "<image UI/Icons/res_polymers.tga>"
+const.TagLookupTable["icon_WasteRock_orig"]       = "<image UI/Icons/res_waste_rock.tga>"
+const.TagLookupTable["icon_BlackCube_orig"]       = "<image UI/Icons/res_black_box.tga>"
+const.TagLookupTable["icon_Electronics_orig"]     = "<image UI/Icons/res_electronics.tga>"
+const.TagLookupTable["icon_MachineParts_orig"]    = "<image UI/Icons/res_machine_parts.tga>"
+const.TagLookupTable["icon_PreciousMetals_orig"]  = "<image UI/Icons/res_precious_metals.tga>"
+const.TagLookupTable["icon_Fuel_orig"]            = "<image UI/Icons/res_fuel.tga>"
+const.TagLookupTable["icon_Food_orig"]            = "<image UI/Icons/res_food.tga>"
+const.TagLookupTable["icon_Power_orig"]           = "<image UI/Icons/res_electricity.tga>"
+const.TagLookupTable["icon_Air_orig"]             = "<image UI/Icons/res_oxygen.tga>"
+const.TagLookupTable["icon_Water_orig"]           = "<image UI/Icons/res_water.tga>"
+const.TagLookupTable["icon_Drone_orig"]           = "<image UI/Icons/res_drone.tga>"
+const.TagLookupTable["icon_Shuttle_orig"]         = "<image UI/Icons/res_shuttle.tga>"
+const.TagLookupTable["icon_Colonist_orig"]        = "<image UI/Icons/res_colonist.tga>"
+const.TagLookupTable["icon_Home_orig"]            = "<image UI/Icons/res_home.tga>"
+const.TagLookupTable["icon_Homeless_orig"]        = "<image UI/Icons/res_homeless.tga>"
+const.TagLookupTable["icon_Work_orig"]            = "<image UI/Icons/res_work.tga>"
+const.TagLookupTable["icon_Unemployed_orig"]      = "<image UI/Icons/res_unemployed.tga>"
+const.TagLookupTable["icon_Research_orig"]        = "<image UI/Icons/res_experimental_research.tga>"
+const.TagLookupTable["icon_MetalsDeep_orig"]      = "<image UI/Icons/res_metal_undergrounds.tga>"
+const.TagLookupTable["icon_MysteryResource_orig"] = "<image UI/Icons/res_mystery_resource.tga>"
 
 const.TagLookupTable["icon_Food_small"]       = "<image UI/Icons/res_food.tga 800>"
 const.TagLookupTable["icon_Power_small"]      = "<image UI/Icons/res_electricity.tga 800>"
@@ -370,63 +401,6 @@ const.ElevatorRopesOverviewCameraScaleUp = 350
 const.ElevatorRopesOverviewCameraScaleDown = 100
 
 hr.CameraRTSPanSpeedZoomModifier = 0
-
---Construction/consumption/upkeep/workplace
-PropertyCategoryDef("Construction", 11025, T{4799, --[[Property Category]] "Construction"})
-PropertyCategoryDef("Second Stage Construction", 11026, T{4800, --[[Property Category]] "Second Stage Construction"})
-PropertyCategoryDef("Consumption", 11028, T{347, --[[Property Category]] "Consumption"})
-PropertyCategoryDef("Workplace", 11029, T{4801, --[[Property Category]] "Workplace"})
-PropertyCategoryDef("ShiftsBuilding", 11029, T{217, --[[Property Category]] "Work Shifts"})
-PropertyCategoryDef("OutsideBuildingWithShifts", 11030, T{4802, --[[Property Category]] "Outside building with shifts"})
---Class specific
-PropertyCategoryDef("Power Production", 11125, T{32, --[[Property Category]] "Power Production"})
-PropertyCategoryDef("Power Storage", 11126, T{4803, --[[Property Category]] "Power Storage"})
-PropertyCategoryDef("Deposit Requirements", 11127, T{4804, --[[Property Category]] "Deposit Requirements"})
-PropertyCategoryDef("ResourceProducer", 11128, T{4805, --[[Property Category]] "Resource Production"})
-PropertyCategoryDef("Oxygen production", 11129, T{923, --[[Property Category]] "Oxygen Production"})
-PropertyCategoryDef("Water Production", 11130, T{4806, --[[Property Category]] "Water Production"})
-PropertyCategoryDef("Storage", 11132, T{519, --[[Property Category]] "Storage"})
-PropertyCategoryDef("Storage Space", 11133, T{4808, --[[Property Category]] "Storage Space"})
-PropertyCategoryDef("Residence", 11134, T{4809, --[[Property Category]] "Residence"})
-PropertyCategoryDef("Service", 11135, T{4810, --[[Property Category]] "Service"})
-PropertyCategoryDef("Need Satisfying", 11136, T{4811, --[[Property Category]] "Satisfying"})
-PropertyCategoryDef("Research", 11137, T{311, --[[Property Category]] "Research"})
-PropertyCategoryDef("Farm", 11138, T{4812, --[[Property Category]] "Farm"})
-PropertyCategoryDef("MDSLaser", 11139, T{4813, --[[Property Category]] "MDS Laser"})
-PropertyCategoryDef("TrainingBuilding", 11140, T{4814, --[[Property Category]] "Education Building"})
-PropertyCategoryDef("University", 11141, T{4815, --[[Property Category]] "University"})
-PropertyCategoryDef("Polymer Plant", 11142, T{4816, --[[Property Category]] "Polymer Plant"})
-PropertyCategoryDef("Sanatorium", 11143, T{3540, --[[Property Category]] "Sanatorium"})
-PropertyCategoryDef("Spaceport", 11144, T{4817, --[[Property Category]] "Spaceport"})
-PropertyCategoryDef("Rocket", 11145, T{1685, --[[Property Category]] "Rocket"})
-PropertyCategoryDef("Triboelectric Scrubber", 11146, T{4818, --[[Property Category]] "Triboelectric Scrubber"})
-PropertyCategoryDef("Workshop", 11147, T{4819, --[[Property Category]] "Workshop"})
---Additionals
-PropertyCategoryDef("UI", 11225, T{4820, --[[Property Category]] "UI"})
-PropertyCategoryDef("Alternative Entities", 11226, T{4821, --[[Property Category]] "Alternative Entities"})
-PropertyCategoryDef("Custom Labels", 11227, T{4822, --[[Property Category]] "Custom Labels"})
-PropertyCategoryDef("Upgrade 1", 11228, T{4823, --[[Property Category]] "Upgrade 1"})
-PropertyCategoryDef("Upgrade 2", 11229, T{4824, --[[Property Category]] "Upgrade 2"})
-PropertyCategoryDef("Upgrade 3", 11230, T{4825, --[[Property Category]] "Upgrade 3"})
-PropertyCategoryDef("Pin", 11231, T{4826, --[[Property Category]] "Pin"})
-
-PropertyCategoryDef("Interaction", false, T{4827, --[[Property Category]] "Interaction"})
-PropertyCategoryDef("Gameplay", false, T{1000130, --[[Property Category]] "Gameplay"})
-PropertyCategoryDef("Rover", false, T{4828, --[[Property Category]] "Rover"})
-PropertyCategoryDef("Drone", false, T{1681, --[[Property Category]] "Drone"})
-PropertyCategoryDef("Buildings", false, T{3980, --[[Property Category]] "Buildings"})
-PropertyCategoryDef("Cost", false, T{4829, --[[Property Category]] "Cost"})
-PropertyCategoryDef("Colonist", false, T{4290, --[[Property Category]] "Colonist"})
-PropertyCategoryDef("Stat", false, T{3715, --[[Property Category]] "Stat"})
-PropertyCategoryDef("Traits", false, T{235, --[[Property Category]] "Traits"})
-
-PropertyCategoryDef("Gamepad", false, T{4830, --[[Property Category]] "Gamepad"})
-PropertyCategoryDef("Choice",  false, T{4831, --[[Property Category]] "Choice"})
-PropertyCategoryDef("Anomaly", false, T{9, --[[Property Category]] "Anomaly"})
-PropertyCategoryDef("Dome", false, T{1234, --[[Property Category]] "Dome"})
-PropertyCategoryDef("Night Light", false, T{4832, --[[Property Category]] "Night Light"})
-PropertyCategoryDef("Movement", false, T{4833, --[[Property Category]] "Movement"})
-PropertyCategoryDef("Resources", false, T{692, --[[Property Category]] "Resources"})
 
 const.MirrorSphere_MinBuildingDist = 30 * guim
 const.MirrorSphere_MaxSpheres = 16

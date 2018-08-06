@@ -105,16 +105,21 @@ end,
 					'Translate', true,
 				}),
 				PlaceObj('XTemplateWindow', {
-					'__class', "XContentTemplateList",
-					'Id', "idList",
-					'BorderWidth', 0,
-					'LayoutVSpacing', 10,
-					'Clip', false,
-					'Background', RGBA(0, 0, 0, 0),
-					'FocusedBackground', RGBA(0, 0, 0, 0),
-					'VScroll', "idScroll",
-					'ShowPartialItems', false,
-					'OnContextUpdate', function (self, context, ...)
+					'Margins', box(0, 0, 0, 60),
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XContentTemplateList",
+						'Id', "idList",
+						'BorderWidth', 0,
+						'LayoutVSpacing', 10,
+						'UniformRowHeight', true,
+						'Clip', false,
+						'Background', RGBA(0, 0, 0, 0),
+						'FocusedBackground', RGBA(0, 0, 0, 0),
+						'VScroll', "idScroll",
+						'ShowPartialItems', false,
+						'MouseScroll', true,
+						'OnContextUpdate', function (self, context, ...)
 XContentTemplateList.OnContextUpdate(self, context, ...)
 if self.focused_item then
 	self.focused_item =  Min(self.focused_item, #self)
@@ -124,21 +129,21 @@ if self.focused_item then
 	end)
 end
 end,
-					'RespawnOnContext', false,
-				}, {
-					PlaceObj('XTemplateMode', {
-						'mode', "traitCategories",
+						'RespawnOnContext', false,
 					}, {
-						PlaceObj('XTemplateCode', {
-							'run', function (self, parent, context)
+						PlaceObj('XTemplateMode', {
+							'mode', "traitCategories",
+						}, {
+							PlaceObj('XTemplateCode', {
+								'run', function (self, parent, context)
 parent:ResolveId("idTitle"):SetText(T{1117, "CATEGORIES"})
 end,
-						}),
-						PlaceObj('XTemplateForEach', {
-							'comment', "category",
-							'array', function (parent, context) return context:GetProperties() end,
-							'item_in_context', "prop_meta",
-							'run_after', function (child, context, item, i, n)
+							}),
+							PlaceObj('XTemplateForEach', {
+								'comment', "category",
+								'array', function (parent, context) return context:GetProperties() end,
+								'item_in_context', "prop_meta",
+								'run_after', function (child, context, item, i, n)
 local rollover = context:GetCategoryRollover(item)
 if rollover then
 	child:SetRolloverTitle(rollover.title)
@@ -148,37 +153,37 @@ if rollover then
 	child:SetId(item.id)
 end
 end,
-						}, {
-							PlaceObj('XTemplateTemplate', {
-								'__template', "PropTrait",
-								'RolloverTemplate', "Rollover",
 							}, {
-								PlaceObj('XTemplateWindow', {
-									'__class', "XImage",
-									'Id', "idRollover",
-									'ZOrder', 0,
-									'Margins', box(-60, 0, -60, -6),
-									'Dock', "box",
-									'Visible', false,
-									'Image', "UI/Common/bm_buildings_pad.tga",
-									'ImageFit', "stretch",
-								}),
+								PlaceObj('XTemplateTemplate', {
+									'__template', "PropTrait",
+									'RolloverTemplate', "Rollover",
+								}, {
+									PlaceObj('XTemplateWindow', {
+										'__class', "XImage",
+										'Id', "idRollover",
+										'ZOrder', 0,
+										'Margins', box(-60, 0, -60, -6),
+										'Dock', "box",
+										'Visible', false,
+										'Image', "UI/Common/bm_buildings_pad.tga",
+										'ImageFit', "stretch",
+									}),
+									}),
 								}),
 							}),
-						}),
-					PlaceObj('XTemplateMode', {
-						'mode', "items",
-					}, {
-						PlaceObj('XTemplateCode', {
-							'run', function (self, parent, context)
+						PlaceObj('XTemplateMode', {
+							'mode', "items",
+						}, {
+							PlaceObj('XTemplateCode', {
+								'run', function (self, parent, context)
 parent:ResolveId("idTitle"):SetText(GetDialogModeParam(parent).name)
 end,
-						}),
-						PlaceObj('XTemplateForEach', {
-							'comment', "item",
-							'array', function (parent, context) return GetDialogModeParam(parent).items(context) end,
-							'item_in_context', "prop_meta",
-							'run_after', function (child, context, item, i, n)
+							}),
+							PlaceObj('XTemplateForEach', {
+								'comment', "item",
+								'array', function (parent, context) return GetDialogModeParam(parent).items(context) end,
+								'item_in_context', "prop_meta",
+								'run_after', function (child, context, item, i, n)
 local rollover = item.rollover
 if rollover then
 	child:SetRolloverTitle(rollover.title)
@@ -188,36 +193,32 @@ if rollover then
 	child:SetId(item.value)
 end
 end,
-						}, {
-							PlaceObj('XTemplateTemplate', {
-								'__template', "PropTrait",
-								'RolloverTemplate', "Rollover",
 							}, {
-								PlaceObj('XTemplateWindow', {
-									'__class', "XImage",
-									'Id', "idRollover",
-									'ZOrder', 0,
-									'Margins', box(-60, 0, -60, -6),
-									'Dock', "box",
-									'Visible', false,
-									'Image', "UI/Common/bm_buildings_pad.tga",
-									'ImageFit', "stretch",
-								}),
+								PlaceObj('XTemplateTemplate', {
+									'__template', "PropTrait",
+									'RolloverTemplate', "Rollover",
+								}, {
+									PlaceObj('XTemplateWindow', {
+										'__class', "XImage",
+										'Id', "idRollover",
+										'ZOrder', 0,
+										'Margins', box(-60, 0, -60, -6),
+										'Dock', "box",
+										'Visible', false,
+										'Image', "UI/Common/bm_buildings_pad.tga",
+										'ImageFit', "stretch",
+									}),
+									}),
 								}),
 							}),
 						}),
+					PlaceObj('XTemplateTemplate', {
+						'__template', "Scrollbar",
+						'Id', "idScroll",
+						'Margins', box(0, 0, 0, 40),
+						'Target', "idList",
 					}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XPageScroll",
-					'Id', "idScroll",
-					'Margins', box(0, 10, 0, 80),
-					'Dock', "bottom",
-					'VAlign', "bottom",
-					'MinHeight', 42,
-					'Visible', false,
-					'FoldWhenHidden', false,
-					'Target', "idList",
-				}),
+					}),
 				}),
 			PlaceObj('XTemplateWindow', {
 				'Id', "idActionBar",
@@ -257,7 +258,7 @@ end,
 				'ActionName', T{5446, --[[XTemplate DomeTraits ActionName]] "PREVIOUS DOME"},
 				'ActionToolbar', "ActionBar",
 				'ActionGamepad', "LeftTrigger",
-				'OnAction', function (self, host, source, toggled)
+				'OnAction', function (self, host, source)
 host:CreateThread("close_dialog", function()
 	local prop_meta = GetDialogModeParam(host)
 	local category = prop_meta and prop_meta.id or nil
@@ -272,7 +273,7 @@ end,
 				'ActionName', T{5445, --[[XTemplate DomeTraits ActionName]] "NEXT DOME"},
 				'ActionToolbar', "ActionBar",
 				'ActionGamepad', "RightTrigger",
-				'OnAction', function (self, host, source, toggled)
+				'OnAction', function (self, host, source)
 host:CreateThread("close_dialog", function()
 	local prop_meta = GetDialogModeParam(host)
 	local category = prop_meta and prop_meta.id or nil
@@ -294,7 +295,7 @@ if not host.context:CanClearFilter(category) then
 	return "disabled"
 end
 end,
-				'OnAction', function (self, host, source, toggled)
+				'OnAction', function (self, host, source)
 local prop_meta = GetDialogModeParam(host)
 host.context:ClearTraits(prop_meta)
 end,
@@ -311,7 +312,7 @@ if not host.context:CanApplyFilter(category) then
 	return "disabled"
 end
 end,
-				'OnAction', function (self, host, source, toggled)
+				'OnAction', function (self, host, source)
 local param = GetDialogModeParam(host)
 host.context:ApplyDomeFilter(param and param.id)
 end,
@@ -329,7 +330,7 @@ end,
 						'ActionToolbar', "ActionBar",
 						'ActionShortcut', "Escape",
 						'ActionGamepad', "ButtonB",
-						'OnAction', function (self, host, source, toggled)
+						'OnAction', function (self, host, source)
 host:CreateThread("close_dialog", function()
 	host.context:WaitAskToApplyTraitsFilter()
 	host:Close()

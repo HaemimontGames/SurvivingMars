@@ -66,6 +66,7 @@ function Residence:AddResident(unit)
 	unit:CancelResidenceReservation()
 	assert(self:GetFreeSpace() > 0)
 	self.colonists[#self.colonists+1] = unit
+	self:UpdateOccupation(#self.colonists, self.capacity)
 	if self.parent_dome then
 		self.parent_dome:RecalcFreeSpace()
 	end
@@ -74,6 +75,7 @@ end
 function Residence:RemoveResident(unit)
 	assert(not self.reserved[unit])
 	table.remove_entry(self.colonists, unit)
+	self:UpdateOccupation(#self.colonists, self.capacity)
 	if self.parent_dome then
 		self.parent_dome:RecalcFreeSpace()
 	end
@@ -363,7 +365,7 @@ end
 OnMsg.HexShapesRebuilt = CalcTemplateSkinRadiuses
 
 function OnMsg.ClassesBuilt()
-	if DataInstances.BuildingTemplate then
+	if BuildingTemplates then
 		CalcTemplateSkinRadiuses()
 	end
 end

@@ -127,7 +127,7 @@ PlaceObj('XTemplate', {
 		}, {
 			PlaceObj('XTemplateForEach', {
 				'comment', "domes",
-				'array', function (parent, context) local domes = GetCommandCenterDomesList(); parent:ResolveId("idTitle"):SetTitle(T{9812, "<count> DOMES", count = #domes}) return domes end,
+				'array', function (parent, context) local domes = GetCommandCenterDomesList(); parent:ResolveId("idTitle"):SetTitle(T{9812, "<color 255 248 233><count></color> DOMES", count = #domes}) return domes end,
 				'__context', function (parent, context, item, i, n) return item end,
 				'run_before', function (parent, context, item, i, n)
 NewXVirtualContent(parent, context, "DomeOverviewRow", 1079, 46)
@@ -155,6 +155,7 @@ end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "Scrollbar",
+			'Id', "idScroll",
 			'Margins', box(10, 0, 0, 0),
 			'Target', "idList",
 		}),

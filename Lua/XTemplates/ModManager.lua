@@ -108,7 +108,7 @@ end,
 									'ActionName', T{5458, --[[XTemplate ModManager ActionName]] "ALL ON"},
 									'ActionToolbar', "ActionBar",
 									'ActionGamepad', "LeftTrigger",
-									'OnAction', function (self, host, source, toggled)
+									'OnAction', function (self, host, source)
 AllModsOn(host)
 end,
 									'__condition', function (parent, context) return not GetDialogModeParam(parent) end,
@@ -118,7 +118,7 @@ end,
 									'ActionName', T{5459, --[[XTemplate ModManager ActionName]] "ALL OFF"},
 									'ActionToolbar', "ActionBar",
 									'ActionGamepad', "RightTrigger",
-									'OnAction', function (self, host, source, toggled)
+									'OnAction', function (self, host, source)
 AllModsOff(host)
 end,
 									'__condition', function (parent, context) return not GetDialogModeParam(parent) end,
@@ -129,7 +129,7 @@ end,
 									'ActionToolbar', "ActionBar",
 									'ActionShortcut', "Escape",
 									'ActionGamepad', "ButtonB",
-									'OnAction', function (self, host, source, toggled)
+									'OnAction', function (self, host, source)
 if not GetDialogModeParam(host) then
 	ModManagerEnd(host)
 else
@@ -143,7 +143,7 @@ end,
 							}, {
 								PlaceObj('XTemplateCode', {
 									'run', function (self, parent, context)
-local host = GetXDialog(parent)
+local host = GetDialog(parent)
 host.idTitle:SetTitle(T{5460, "FILTER"})
 host.idModInfo:SetVisible(false)
 end,
@@ -159,30 +159,34 @@ end,
 								}),
 							}),
 						PlaceObj('XTemplateWindow', {
-							'__class', "XContentTemplateList",
-							'Id', "idList",
-							'Margins', box(0, 40, 0, 10),
-							'BorderWidth', 0,
 							'Dock', "top",
-							'LayoutVSpacing', 6,
-							'Clip', false,
-							'Background', RGBA(0, 0, 0, 0),
-							'FocusedBackground', RGBA(0, 0, 0, 0),
-							'VScroll', "idScroll",
-							'ShowPartialItems', false,
-							'RespawnOnContext', false,
 						}, {
-							PlaceObj('XTemplateMode', {
-								'mode', "mods",
+							PlaceObj('XTemplateWindow', {
+								'__class', "XContentTemplateList",
+								'Id', "idList",
+								'Margins', box(0, 40, 0, 10),
+								'BorderWidth', 0,
+								'LayoutVSpacing', 6,
+								'UniformRowHeight', true,
+								'Clip', false,
+								'Background', RGBA(0, 0, 0, 0),
+								'FocusedBackground', RGBA(0, 0, 0, 0),
+								'VScroll', "idScroll",
+								'ShowPartialItems', false,
+								'MouseScroll', true,
+								'RespawnOnContext', false,
 							}, {
-								PlaceObj('XTemplateForEach', {
-									'comment', "mods",
-									'array', function (parent, context) local param = GetDialogModeParam(parent) return GetModsListForTag(param and param.id) end,
-									'__context', function (parent, context, item, i, n) return item end,
-									'run_before', function (parent, context, item, i, n)
+								PlaceObj('XTemplateMode', {
+									'mode', "mods",
+								}, {
+									PlaceObj('XTemplateForEach', {
+										'comment', "mods",
+										'array', function (parent, context) local param = GetDialogModeParam(parent) return GetModsListForTag(param and param.id) end,
+										'__context', function (parent, context, item, i, n) return item end,
+										'run_before', function (parent, context, item, i, n)
 item.number = n
 end,
-									'run_after', function (child, context, item, i, n)
+										'run_after', function (child, context, item, i, n)
 child.idValue:SetText(item.title)
 if item.corrupted then
 	child.idCorrupted:SetVisible(true)
@@ -193,63 +197,56 @@ else
 	child.idCheckbox:SetVisible(true)
 end
 end,
-								}, {
-									PlaceObj('XTemplateTemplate', {
-										'__template', "ModItem",
 									}, {
-										PlaceObj('XTemplateFunc', {
-											'name', "OnSetRollover(self, rollover)",
-											'func', function (self, rollover)
+										PlaceObj('XTemplateTemplate', {
+											'__template', "ModItem",
+										}, {
+											PlaceObj('XTemplateFunc', {
+												'name', "OnSetRollover(self, rollover)",
+												'func', function (self, rollover)
 XTextButton.OnSetRollover(self, rollover)
 if rollover then
-	ShowModDescription(self.context, GetXDialog(self))
+	ShowModDescription(self.context, GetDialog(self))
 end
 end,
-										}),
+											}),
+											}),
 										}),
 									}),
-								}),
-							PlaceObj('XTemplateMode', {
-								'mode', "tags",
-							}, {
-								PlaceObj('XTemplateForEach', {
-									'comment', "tags",
-									'array', function (parent, context) return GetModTags() end,
-									'__context', function (parent, context, item, i, n) return item end,
-									'run_before', function (parent, context, item, i, n)
+								PlaceObj('XTemplateMode', {
+									'mode', "tags",
+								}, {
+									PlaceObj('XTemplateForEach', {
+										'comment', "tags",
+										'array', function (parent, context) return GetModTags() end,
+										'__context', function (parent, context, item, i, n) return item end,
+										'run_before', function (parent, context, item, i, n)
 item.number = n
 end,
-									'run_after', function (child, context, item, i, n)
+										'run_after', function (child, context, item, i, n)
 child.idValue:SetText(item.text)
 end,
-								}, {
-									PlaceObj('XTemplateTemplate', {
-										'__template', "ModItem",
 									}, {
-										PlaceObj('XTemplateFunc', {
-											'name', "OnPress(self)",
-											'func', function (self)
+										PlaceObj('XTemplateTemplate', {
+											'__template', "ModItem",
+										}, {
+											PlaceObj('XTemplateFunc', {
+												'name', "OnPress(self)",
+												'func', function (self)
 SetDialogMode(self, "mods", self.context)
 end,
-										}),
+											}),
+											}),
 										}),
 									}),
 								}),
+							PlaceObj('XTemplateTemplate', {
+								'__template', "Scrollbar",
+								'Id', "idScroll",
+								'Margins', box(0, 40, 0, 20),
+								'Target', "idList",
 							}),
-						}),
-					PlaceObj('XTemplateWindow', {
-						'__class', "XPageScroll",
-						'Id', "idScroll",
-						'Dock', "bottom",
-						'Target', "idList",
-						'ForceFocusFirstItem', true,
-					}, {
-						PlaceObj('XTemplateFunc', {
-							'name', "OnPageChanged",
-							'func', function (self, ...)
-GetXDialog(self).idModInfo:SetVisible(false)
-end,
-						}),
+							}),
 						}),
 					}),
 				PlaceObj('XTemplateWindow', {
@@ -296,7 +293,7 @@ end,
 							PlaceObj('XTemplateWindow', {
 								'__class', "XImage",
 								'Id', "idImage",
-								'Image', "UI/Mods/Placeholder.tga",
+								'Image', "UI/Common/Placeholder.tga",
 								'ImageFit', "smallest",
 							}),
 							}),

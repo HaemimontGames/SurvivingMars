@@ -43,7 +43,9 @@ DefineClass.StatusEffect =  {
 	sign = "", -- sign placed on top 
 	priority = 0,
 	popup_on_first = false, -- display popup notification the first time a unit is affected by this
-	popup_display_delay = 1000, -- don't display the message right away if it's a momentary condition causing the effect 
+	popup_display_delay = const.HourDuration / 10, -- don't display the message right away if it's a momentary condition causing the effect 
+	popup_group_delay = 2*const.HourDuration, -- don't display similar messages one after another for that time
+	popup_group = "",
 	move_anim = false,
 }
 
@@ -78,21 +80,14 @@ DefineClass.StatusEffect_Unemployed =  {
 	priority = 45,
 }
 
-DefineClass.StatusEffect_Irradiated =  {
-	__parents = { "StatusEffect"},
-	display_name = T{6861, "Irradiated"},
-	description = T{6862, "Loses health over time."},
-	sign = "UnitSignIrradiated",
-	selection_arrow = "UnitArrowIrradiated",
-	priority = 75,
-}
-
 DefineClass.StatusEffect_Shock = {
 	__parents = { "StatusEffect" },	
 	damage = 0,
+	damage_pct_hour = 0,
 	sanity_damage_percent = 15,
 	move_anim = "moveDepressed",
 	force_start = false,
+	unique_status_number = 1234,
 }
 
 local shock_grace_min = const.ShockGraceMin and const.ShockGraceMin / const.HourDuration or 12
@@ -101,10 +96,13 @@ local shock_grace_duration = Max(0, (const.ShockGraceMax and const.ShockGraceMax
 function StatusEffect_Shock:HourlyUpdate(unit, start, hours)
 	local grace_hours = shock_grace_min + BraidRandom(unit.handle, shock_grace_duration)
 	if self.force_start or hours > grace_hours then
-		local damage = self.damage
+		local damage = self.damage + unit.stat_health * self.damage_pct_hour / 100
+		local unique_seed = unit.handle + self.unique_status_number --unique number per unit per status effect
 		if unit.traits.Survivor then
-			damage = MulDivRound(damage, DataInstances.Trait.Survivor.param, 100)
-		end
+			damage = MulDivRound(damage, 50 + BraidRandom(unique_seed, TraitPresets.Survivor.param), 100)
+		else
+			damage = MulDivRound(damage, 100 + BraidRandom(unique_seed, 200), 100)
+		end	
 		unit:ChangeHealth(-damage, self.class)
 	end
 end
@@ -122,6 +120,21 @@ function StatusEffect_Shock:Stop(unit)
 	unit:CalcMoveAnim()
 end
 
+----
+
+DefineClass.StatusEffect_Irradiated =  {
+	__parents = { "StatusEffect_Shock"},
+	display_name = T{6861, "Irradiated"},
+	description = T{6862, "Loses health over time."},
+	sign = "UnitSignIrradiated",
+	selection_arrow = "UnitArrowIrradiated",
+	priority = 75,
+	unique_status_number = 1934,
+	damage_pct_hour = 5,
+}
+
+----
+
 DefineClass.StatusEffect_Suffocating = {
 	__parents = { "StatusEffect_Shock"},
 	display_name = T{3871, "Suffocating"},
@@ -130,15 +143,18 @@ DefineClass.StatusEffect_Suffocating = {
 	sign = "UnitSignSuffocating",
 	selection_arrow = "UnitArrowSuffocating",
 	popup_on_first = "FirstStatusEffect_Suffocating",
+	popup_group = "FirstStatusEffect",
 	
 	damage = 100*const.Scale.Stat/const.HoursPerDay,
 	move_anim = "moveSuffocation",
+	unique_status_number = 1334,
 }
 
 DefineClass.StatusEffect_Suffocating_Outside = {
 	__parents = { "StatusEffect_Suffocating"},
 	popup_on_first = false,
 	damage = 200*const.Scale.Stat/const.HoursPerDay,
+	unique_status_number = 1434,
 }
 
 ---------------------------------------------------
@@ -150,8 +166,10 @@ DefineClass.StatusEffect_Dehydrated = {
 	selection_arrow = "UnitArrowThirsty",
 	priority = 90,
 	popup_on_first = "FirstStatusEffect_Dehydrated",
+	popup_group = "FirstStatusEffect",
 	
 	damage = 50*const.Scale.Stat/const.HoursPerDay,
+	unique_status_number = 1534,
 }
 
 ----------------------------------
@@ -163,9 +181,11 @@ DefineClass.StatusEffect_Freezing = {
 	selection_arrow = "UnitArrowFreezing",
 	priority = 95,
 	popup_on_first = "FirstStatusEffect_Freezing",
+	popup_group = "FirstStatusEffect",
 	
 	damage = 100*const.Scale.Stat/const.HoursPerDay,
 	move_anim = "moveFreezing",
+	unique_status_number = 1634,
 }
 
 ---------------------------
@@ -181,8 +201,10 @@ DefineClass.StatusEffect_Starving = {
 	selection_arrow = "UnitArrowHungry",
 	priority = 85,
 	popup_on_first = "FirstStatusEffect_Starving",
+	popup_group = "FirstStatusEffect",
 	
 	damage = 25*const.Scale.Stat/const.HoursPerDay,
+	unique_status_number = 1734,
 }
 
 function StatusEffect_Starving:Start(unit, time)
@@ -214,6 +236,7 @@ DefineClass.StatusEffect_StressedOut = {
 	selection_arrow = "UnitArrowInsane",
 	priority = 60,
 	popup_on_first = "FirstStatusEffect_StressedOut",
+	popup_group = "FirstStatusEffect",
 	expire_after_hours = 3*const.HoursPerDay,
 	sanity_recovery = 50*const.Scale.Stat,
 }
@@ -273,6 +296,16 @@ ColonistStatusEffectsWarnings = {
 	["StatusEffect_StressedOut"] = T{8953, "This Colonist is stressed out due to low Sanity and temporarily unable to work."}, 
 	["StatusEffect_Earthsick"]   = T{8954, "This Colonist is Earthsick due to low comfort. Earthsick colonists can't work and will try to return to Earth."},
 }
+
+IronColonistsColonistStatusEffectsWarningsOverrides = {
+	["StatusEffect_Suffocating"] = T{10533, "This Colonist is suffocating and would have needed Oxygen to survive if not for the Iron Colonists rule."},
+	["StatusEffect_Dehydrated"] = T{10534, "This Colonist is dehydrated and would have needed Water to survive if not for the Iron Colonists rule."},
+	["StatusEffect_Starving"] = T{10535, "This Colonists is starving and would have needed Food to survive if not for the Iron Colonists rule."},
+}
+
+function GetColonistStatusEffectWarning(status_effect)
+	return IsGameRuleActive("IronColonists") and IronColonistsColonistStatusEffectsWarningsOverrides[status_effect] or ColonistStatusEffectsWarnings[status_effect]
+end
 
 function GetDetrimentalTraits()
 	return table.keys(ColonistTraitsWarnings)

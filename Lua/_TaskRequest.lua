@@ -3,7 +3,6 @@ GlobalVar("LastRequesterId", 0)
 GlobalVar("TaskResourceIdx", {})
 GlobalVar("TaskRequesters", {}, weak_values_meta)
 
-Request_GetMeta().__persist = true
 function OnMsg.PersistGatherPermanents(permanents)
 	permanents["TaskRequest.meta"] = Request_GetMeta()
 end
@@ -81,9 +80,9 @@ Creates a [TaskRequest](LuaFunctionDoc_TaskRequest.md.html) with the given prope
 @param int max_units - Optional. The max number of drones that can do this request simultaneously.
 @result TaskRequest result - The created request.
 --]]
-function TaskRequester:AddDemandRequest(resource, amount, flags, max_units)
+function TaskRequester:AddDemandRequest(resource, amount, flags, max_units, desired_amount)
 	flags = bor(flags or 0, const.rfDemand, const.rfPostInQueue)
-	return self:AddRequest(resource, amount, flags, max_units)
+	return self:AddRequest(resource, amount, flags, max_units, desired_amount)
 end
 
 --[[@@@
@@ -96,19 +95,19 @@ Creates a [TaskRequest](LuaFunctionDoc_TaskRequest.md.html) with the given prope
 @param int max_units - Optional. The max number of drones that can do this request simultaneously.
 @result TaskRequest result - The created request.
 --]]
-function TaskRequester:AddSupplyRequest(resource, amount, flags, max_units)
+function TaskRequester:AddSupplyRequest(resource, amount, flags, max_units, desired_amount)
 	flags = bor(flags or 0, const.rfSupply)
-	return self:AddRequest(resource, amount, flags, max_units)
+	return self:AddRequest(resource, amount, flags, max_units, desired_amount)
 end
 
-function TaskRequester:AddRequest(resource, amount, flags, max_units)
+function TaskRequester:AddRequest(resource, amount, flags, max_units, desired_amount)
 	if not self.requester_id then
 		LastRequesterId = LastRequesterId + 1
 		self.requester_id = LastRequesterId
 		TaskRequesters[LastRequesterId] = self
 	end
 	assert(#self.command_centers == 0)
-	local request = Request_New(self, resource, amount, flags, max_units or -1)
+	local request = Request_New(self, resource, amount, flags, max_units or -1, desired_amount or 0)
 	self.task_requests[#self.task_requests + 1] = request
 	assert(request:GetBuilding() == self)
 	return request
@@ -152,22 +151,25 @@ function TaskRequester:SetPriority(priority)
 			end
 		end
 	end
+	
+	self:UpdateNotWorkingBuildingsNotification()
+end
+
+function TaskRequester:ShouldShowNotWorkingNotification()
+	return self.priority > 1 and BaseBuilding.ShouldShowNotWorkingNotification(self)
 end
 
 function dbg_TestAttachedStockPriorities(class)
 	class = class or "Building"
-	ForEach{
-		area = "realm",
-		class = class,
-		exec = function(o)
+	MapForEach(true, class,
+		function(o)
 			local stockpiles = o:GetAttaches("ResourceStockpileBase")
 			for i = 1, #(stockpiles or "") do
 				if stockpiles[i].has_demand_request or stockpiles[i].has_supply_request then
 					assert(stockpiles[i].priority == o.priority, "Building/stockpile priority mismatch.")
 				end
 			end
-		end,
-	}
+		end)
 end
 
 function TaskRequester:GetPriorityForRequest(req)
@@ -224,15 +226,11 @@ end
 function TaskRequester:RoverWork(rover, request, resource, amount)
 end
 
-local command_center_search = {
-	class = "DroneControl",
-	hexradius = const.CommandCenterMaxRadius,
-	exec = function (center, building, dist_obj)
-		if center.accept_requester_connects and center.work_radius >= HexAxialDistance((dist_obj or building), center) then
-			building:AddCommandCenter(center)
-		end
+local command_center_search = function (center, building, dist_obj)
+	if center.accept_requester_connects and center.work_radius >= HexAxialDistance((dist_obj or building), center) then
+		building:AddCommandCenter(center)
 	end
-}
+end
 
 function TaskRequester:ConnectToCommandCenters()
 	local dome = IsObjInDome(self)
@@ -242,9 +240,7 @@ function TaskRequester:ConnectToCommandCenters()
 			self:AddCommandCenter(cc)
 		end
 	else
-		command_center_search.area = self
-		ForEach(command_center_search, self)
-		command_center_search.area = false
+		MapForEach(self, "hex", const.CommandCenterMaxRadius, "DroneControl", command_center_search, self)
 	end
 end
 
@@ -257,9 +253,7 @@ function TaskRequester:ConnectToOtherBuildingCommandCenters(other_building)
 			self:AddCommandCenter(cc)
 		end
 	else
-		command_center_search.area = other_building
-		ForEach(command_center_search, self, other_building)
-		command_center_search.area = false
+		MapForEach(other_building, "hex", const.CommandCenterMaxRadius, "DroneControl", command_center_search, self, other_building)
 	end
 end
 
@@ -313,3 +307,5 @@ function TaskRequester:ChangeDeficit(resource, amount)
 		t[resource] = t[resource] - amount
 	end
 end
+
+Request_GetMeta().__persist = "custom"

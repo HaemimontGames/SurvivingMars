@@ -29,6 +29,13 @@ end,
 				'Visible', false,
 				'FadeInTime', 300,
 			}, {
+				PlaceObj('XTemplateFunc', {
+					'name', "Open",
+					'func', function (self, ...)
+XWindow.Open(self, ...)
+UIShowParadoxFeeds(self, true)
+end,
+				}),
 				PlaceObj('XTemplateWindow', {
 					'comment', "upper line",
 					'__class', "XImage",
@@ -51,54 +58,65 @@ end,
 					'Angle', 10800,
 				}),
 				PlaceObj('XTemplateWindow', {
-					'comment', "news image",
-					'__class', "XImage",
-					'Id', "idImage",
-					'Margins', box(0, 20, 0, 0),
-					'Padding', box(20, 0, 20, 0),
-					'HAlign', "center",
-					'VAlign', "center",
-					'MaxHeight', 180,
-					'Image', "UI/Store Pictures/placeholder.tga",
-					'ImageFit', "height",
-				}),
-				PlaceObj('XTemplateWindow', {
-					'HAlign', "center",
-					'VAlign', "center",
+					'__class', "XTextButton",
+					'Id', "idLinkButton",
+					'IdNode', false,
+					'LayoutMethod', "VList",
+					'LayoutHSpacing', 0,
+					'Background', RGBA(0, 0, 0, 0),
+					'HandleMouse', false,
+					'MouseCursor', "UI/Cursors/Rollover.tga",
+					'FocusedBackground', RGBA(0, 0, 0, 0),
+					'RolloverBackground', RGBA(0, 0, 0, 0),
+					'PressedBackground', RGBA(0, 0, 0, 0),
 				}, {
 					PlaceObj('XTemplateWindow', {
+						'comment', "news image",
 						'__class', "XImage",
-						'Id', "idGamepadFeedHint",
-						'Dock', "left",
-						'FoldWhenHidden', true,
-						'ImageScale', point(550, 550),
+						'Id', "idImage",
+						'Margins', box(0, 20, 0, 0),
+						'Padding', box(20, 0, 20, 0),
+						'HAlign', "center",
+						'VAlign', "center",
+						'MaxHeight', 180,
+						'Image', "UI/Store Pictures/placeholder.tga",
+						'ImageFit', "height",
 					}),
 					PlaceObj('XTemplateWindow', {
-						'comment', "news",
-						'__class', "XText",
-						'Id', "idNews",
-						'TextFont', "InfopanelText",
-						'TextColor', RGBA(244, 228, 117, 255),
-						'RolloverTextColor', RGBA(244, 228, 117, 255),
-						'Translate', true,
-						'TextHAlign', "center",
-						'TextVAlign', "center",
-					}),
+						'HAlign', "center",
+						'VAlign', "center",
+					}, {
+						PlaceObj('XTemplateWindow', {
+							'__class', "XImage",
+							'Id', "idGamepadFeedHint",
+							'Dock', "left",
+							'FoldWhenHidden', true,
+							'ImageScale', point(550, 550),
+						}),
+						PlaceObj('XTemplateWindow', {
+							'comment', "news",
+							'__class', "XText",
+							'Id', "idNews",
+							'TextFont', "InfopanelText",
+							'TextColor', RGBA(244, 228, 117, 255),
+							'RolloverTextColor', RGBA(255, 255, 255, 255),
+							'TextHAlign', "center",
+							'TextVAlign', "center",
+						}, {
+							PlaceObj('XTemplateFunc', {
+								'name', "CalcTextColor",
+								'func', function (self, ...)
+return self.parent.parent.rollover and self.RolloverTextColor or self.TextColor
+end,
+							}),
+							}),
+						}),
 					}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "idSelectFeedEntry",
 					'ActionGamepad', "+RightShoulder",
-				}),
-				PlaceObj('XTemplateCode', {
-					'run', function (self, parent, context)
-UIShowParadoxFeeds(parent, true)
-local dlg = GetActionsHost(parent)
-local action = table.find_value(dlg.actions, "ActionId", "idSelectFeedEntry")
-if action then
-	action.OnAction = function()
-		dlg.idImage:OnMouseButtonDown()
-	end
-end
+					'OnAction', function (self, host, source)
+host.idContent.idLinkButton:Press()
 end,
 				}),
 				}),
@@ -113,7 +131,7 @@ end,
 					'Margins', box(-350, 0, -350, 30),
 					'VAlign', "center",
 					'LayoutMethod', "VList",
-					'LayoutVSpacing', 48,
+					'LayoutVSpacing', 49,
 				}, {
 					PlaceObj('XTemplateWindow', {
 						'VAlign', "top",
@@ -154,42 +172,43 @@ end,
 						}),
 						}),
 					}),
-				PlaceObj('XTemplateAction', {
-					'ActionId', "idTutorial",
-					'ActionName', T{756622437336, --[[XTemplate PGMenu ActionName]] "TUTORIAL"},
-					'ActionIcon', "UI/Icons/main_menu_tutorial.tga",
-					'ActionToolbar', "mainmenu",
-					'OnAction', function (self, host, source, toggled)
+				PlaceObj('XTemplateMode', {
+					'mode', "Main",
+				}, {
+					PlaceObj('XTemplateAction', {
+						'ActionId', "idTutorial",
+						'ActionName', T{756622437336, --[[XTemplate PGMenu ActionName]] "TUTORIAL"},
+						'ActionIcon', "UI/Icons/main_menu_tutorial.tga",
+						'ActionToolbar', "mainmenu",
+						'OnAction', function (self, host, source)
 CreateRealTimeThread(function()
 	if AccountStorage and AccountStorage.LoadMods and next(AccountStorage.LoadMods) ~= nil then
 		local choice = WaitPopupNotification("Tutorial_ActiveMods", nil, nil, host)
 		if choice == 1 then
-			if not ModsLoaded then
-				AllModsOff()			
-			else
-				if WaitMarsQuestion(host, T{6899, "Warning"}, T{8496, "Activating or deactivating mods requires a restart."}, T{8080, "Restart"}, T{3687, "Cancel"}) == "ok" then
-					AllModsOff()				
-					WaitSaveAccountStorage()
-					quit("restart")
-				end
+			AllModsOff()
+			SaveAccountStorage(5000)
+			if ModsLoaded then
+				ModsReloadItems()
 			end
 		end
 	end
 	host:SetMode("Tutorial")
 end)
 end,
-				}),
-				PlaceObj('XTemplateAction', {
-					'ActionId', "idQuickStart",
-					'ActionName', T{1126, --[[XTemplate PGMenu ActionName]] "EASY START"},
-					'ActionIcon', "UI/Icons/main_menu_quick_start.tga",
-					'ActionToolbar', "mainmenu",
-					'OnAction', function (self, host, source, toggled)
+					}),
+					PlaceObj('XTemplateAction', {
+						'RolloverText', T{223893111241, --[[XTemplate PGMenu RolloverText]] "Start a game with the easiest Mission Sponsor on one of several predefined easy maps."},
+						'RolloverTitle', T{1126, --[[XTemplate PGMenu RolloverTitle]] "EASY START"},
+						'ActionId', "idQuickStart",
+						'ActionName', T{1126, --[[XTemplate PGMenu ActionName]] "EASY START"},
+						'ActionIcon', "UI/Icons/main_menu_quick_start.tga",
+						'ActionToolbar', "mainmenu",
+						'OnAction', function (self, host, source)
 CreateRealTimeThread(function()
 	if not AccountStorage.CompletedTutorials then
 		local choice = WaitPopupNotification("Tutorial_FirstTimePlayers", nil, nil, host)
 		AccountStorage.CompletedTutorials = {}
-		SaveAccountStorage()
+		SaveAccountStorage(5000)
 		if choice == 1 then
 			host:SetMode("Tutorial")
 			return
@@ -204,116 +223,123 @@ CreateRealTimeThread(function()
 	LoadingScreenClose("idLoadingScreen", "QuickStart")
 end)
 end,
-				}),
-				PlaceObj('XTemplateAction', {
-					'ActionId', "idNewGame",
-					'ActionName', T{1127, --[[XTemplate PGMenu ActionName]] "NEW GAME"},
-					'ActionIcon', "UI/Icons/main_menu_new_game.tga",
-					'ActionToolbar', "mainmenu",
-					'OnAction', function (self, host, source, toggled)
-CreateRealTimeThread(function()
-		if not AccountStorage.CompletedTutorials then
-			local choice = WaitPopupNotification("Tutorial_FirstTimePlayers", nil, nil, host)
-			AccountStorage.CompletedTutorials = {}
-			SaveAccountStorage()
-			if choice == 1 then
-				host:SetMode("Tutorial")
-				return
-			end
-		end
-		InitNewGameMissionParams()
-		LoadingScreenOpen("idLoadingScreen", "pre_game")
-		ChangeMap("PreGame")
-		if host.window_state ~= "destroying" then
-			host:SetMode("Mission")
-		end
-		LoadingScreenClose("idLoadingScreen", "pre_game")
-end)
+					}),
+					PlaceObj('XTemplateAction', {
+						'RolloverText', T{10545, --[[XTemplate PGMenu RolloverText]] "Start a survival game, which allows you to choose Mission Sponsor, Commander Profile, Rocket payload and landing location."},
+						'RolloverTitle', T{10455, --[[XTemplate PGMenu RolloverTitle]] "NEW GAME"},
+						'ActionId', "idStandardGame",
+						'ActionName', T{10455, --[[XTemplate PGMenu ActionName]] "NEW GAME"},
+						'ActionIcon', "UI/Icons/main_menu_new_game.tga",
+						'ActionToolbar', "mainmenu",
+						'OnAction', function (self, host, source)
+StartNewGame(host, "Mission")
 end,
-				}),
-				PlaceObj('XTemplateAction', {
-					'ActionId', "idLoad",
-					'ActionName', T{1128, --[[XTemplate PGMenu ActionName]] "LOAD GAME"},
-					'ActionIcon', "UI/Icons/main_menu_load_game.tga",
-					'ActionToolbar', "mainmenu",
-					'ActionState', function (self, host)
+					}),
+					PlaceObj('XTemplateAction', {
+						'RolloverText', T{10555, --[[XTemplate PGMenu RolloverText]] "Start a game in which buildings cost nothing and never malfunction, colonists never die or leave Mars, base research is increased and map scanning is faster.<newline><newline><NoAchievements()>"},
+						'RolloverTitle', T{144559490492, --[[XTemplate PGMenu RolloverTitle]] "CREATIVE MODE"},
+						'ActionId', "idCreativeMode",
+						'ActionName', T{144559490492, --[[XTemplate PGMenu ActionName]] "CREATIVE MODE"},
+						'ActionIcon', "UI/Icons/main_menu_creative_mode.tga",
+						'ActionToolbar', "mainmenu",
+						'OnAction', function (self, host, source)
+StartNewGame(host, "Mission", {
+	EasyResearch = true,
+	FastRockets = true,
+	FastScan = true,
+	FreeConstruction = true,
+	EasyMaintenance = true,
+	IronColonists = true,
+	MoreApplicants = true,
+	RichCoffers = true,
+})
+end,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "idLoad",
+						'ActionName', T{1128, --[[XTemplate PGMenu ActionName]] "LOAD GAME"},
+						'ActionIcon', "UI/Icons/main_menu_load_game.tga",
+						'ActionToolbar', "mainmenu",
+						'ActionState', function (self, host)
 return IsLoadButtonDisabled(host.context) and "disabled"
 end,
-					'OnActionEffect', "mode",
-					'OnActionParam', "Load",
-				}),
-				PlaceObj('XTemplateAction', {
-					'ActionId', "idModManager",
-					'ActionName', T{1129, --[[XTemplate PGMenu ActionName]] "MOD MANAGER"},
-					'ActionIcon', "UI/Icons/main_menu_mod_manager.tga",
-					'ActionToolbar', "mainmenu",
-					'OnAction', function (self, host, source, toggled)
+						'OnActionEffect', "mode",
+						'OnActionParam', "Load",
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "idModManager",
+						'ActionName', T{1129, --[[XTemplate PGMenu ActionName]] "MOD MANAGER"},
+						'ActionIcon', "UI/Icons/main_menu_mod_manager.tga",
+						'ActionToolbar', "mainmenu",
+						'OnAction', function (self, host, source)
 CreateRealTimeThread(function()
 	ShowParadoxModManagerWarning()
 	host:SetMode("ModManager")
 end)
 end,
-					'__condition', function (parent, context) return Platform.steam or Platform.pc end,
-				}),
-				PlaceObj('XTemplateAction', {
-					'ActionId', "idModEditor",
-					'ActionName', T{1130, --[[XTemplate PGMenu ActionName]] "MOD EDITOR"},
-					'ActionIcon', "UI/Icons/main_menu_mod_editor.tga",
-					'ActionToolbar', "mainmenu",
-					'OnAction', function (self, host, source, toggled)
+						'__condition', function (parent, context) return Platform.steam or Platform.pc end,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "idModEditor",
+						'ActionName', T{1130, --[[XTemplate PGMenu ActionName]] "MOD EDITOR"},
+						'ActionIcon', "UI/Icons/main_menu_mod_editor.tga",
+						'ActionToolbar', "mainmenu",
+						'OnAction', function (self, host, source)
 CreateRealTimeThread(function()
 	ModEditorOpen()
 	host:delete()
 end)
 end,
-					'__condition', function (parent, context) return Platform.pc end,
-				}),
-				PlaceObj('XTemplateAction', {
-					'ActionId', "idOptions",
-					'ActionName', T{1131, --[[XTemplate PGMenu ActionName]] "OPTIONS"},
-					'ActionIcon', "UI/Icons/main_menu_options.tga",
-					'ActionToolbar', "mainmenu",
-					'OnActionEffect', "mode",
-					'OnActionParam', "Options",
-				}),
-				PlaceObj('XTemplateAction', {
-					'ActionId', "idAchievements",
-					'ActionName', T{498260347235, --[[XTemplate PGMenu ActionName]] "ACHIEVEMENTS"},
-					'ActionIcon', "UI/Icons/main_menu_achievements.tga",
-					'ActionToolbar', "mainmenu",
-					'OnAction', function (self, host, source, toggled)
-OpenXDialog("Achievements")
+						'__condition', function (parent, context) return Platform.pc end,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "idOptions",
+						'ActionName', T{1131, --[[XTemplate PGMenu ActionName]] "OPTIONS"},
+						'ActionIcon', "UI/Icons/main_menu_options.tga",
+						'ActionToolbar', "mainmenu",
+						'OnActionEffect', "mode",
+						'OnActionParam', "Options",
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "idAchievements",
+						'ActionName', T{498260347235, --[[XTemplate PGMenu ActionName]] "ACHIEVEMENTS"},
+						'ActionIcon', "UI/Icons/main_menu_achievements.tga",
+						'ActionToolbar', "mainmenu",
+						'OnAction', function (self, host, source)
+OpenDialog("Achievements")
 end,
-					'__condition', function (parent, context) return not Platform.steam and not Platform.console end,
-				}),
-				PlaceObj('XTemplateAction', {
-					'ActionId', "idParadoxAccount",
-					'ActionName', T{4525, --[[XTemplate PGMenu ActionName]] "PARADOX ACCOUNT"},
-					'ActionIcon', "UI/Icons/main_menu_paradox.tga",
-					'ActionToolbar', "mainmenu",
-					'ActionState', function (self, host)
+						'__condition', function (parent, context) return not Platform.steam and not Platform.console end,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "idParadoxAccount",
+						'ActionName', T{4525, --[[XTemplate PGMenu ActionName]] "PARADOX ACCOUNT"},
+						'ActionIcon', "UI/Icons/main_menu_paradox.tga",
+						'ActionToolbar', "mainmenu",
+						'ActionState', function (self, host)
 if Platform.durango and (Durango.IsPlayerGuest(XPlayerActive) or not Durango.IsPlayerSigned(XPlayerActive)) 
 	or (Platform.ps4 and not OrbisNetworkFeatures()) then
 	return "disabled"
 end
 end,
-					'OnActionEffect', "mode",
-					'OnActionParam', "Paradox",
-					'__condition', function (parent, context) return Platform.pops end,
-				}),
-				PlaceObj('XTemplateAction', {
-					'ActionId', "idQuit",
-					'ActionName', T{1132, --[[XTemplate PGMenu ActionName]] "QUIT"},
-					'ActionIcon', "UI/Icons/main_menu_exit.tga",
-					'ActionToolbar', "mainmenu",
-					'ActionShortcut', "Escape",
-					'OnAction', function (self, host, source, toggled)
+						'OnActionEffect', "mode",
+						'OnActionParam', "Paradox",
+						'__condition', function (parent, context) return Platform.pops end,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "idQuit",
+						'ActionName', T{1132, --[[XTemplate PGMenu ActionName]] "QUIT"},
+						'ActionIcon', "UI/Icons/main_menu_exit.tga",
+						'ActionToolbar', "mainmenu",
+						'ActionShortcut', "Escape",
+						'OnAction', function (self, host, source)
 QuitGame(terminal.desktop)
 end,
-					'__condition', function (parent, context) return not Platform.console end,
-				}),
+						'__condition', function (parent, context) return not Platform.console end,
+					}),
+					}),
 				PlaceObj('XTemplateWindow', {
 					'comment', "buttons list",
+					'Id', "idButtonsList",
 					'HAlign', "center",
 					'VAlign', "center",
 					'MinHeight', 250,
@@ -362,6 +388,8 @@ end,
 							PlaceObj('XTemplateWindow', {
 								'comment', "button",
 								'__class', "XTextButton",
+								'RolloverTemplate', "Rollover",
+								'RolloverAnchor', "center-top",
 								'Id', "idButton",
 								'IdNode', false,
 								'Shape', "InHHex",
@@ -379,22 +407,23 @@ end,
 								'ColumnsUse', "abbbb",
 							}, {
 								PlaceObj('XTemplateFunc', {
-									'name', "SetRollover",
-									'func', function (self, ...)
-local args = {...}
-local rollover = args[1]
+									'name', "SetRollover(self, rollover)",
+									'func', function (self, rollover)
 self.parent:SetRollover(rollover)
 self.parent.idSelection:SetVisible(self:GetEnabled() and rollover)
 XTextButton.SetRollover(self, rollover)
+local text = self.parent:ResolveId("idText")
+if text then
+	text:SetRollover(rollover)	
+end
 end,
 								}),
 								PlaceObj('XTemplateFunc', {
-									'name', "SetEnabled",
-									'func', function (self, ...)
-XTextButton.SetEnabled(self, ...)
-self.parent.idText:SetEnabled(...)
-local bEnabled = ...
-if not bEnabled then
+									'name', "SetEnabled(self, enabled)",
+									'func', function (self, enabled)
+XTextButton.SetEnabled(self, enabled)
+self.parent.idText:SetEnabled(enabled)
+if not enabled then
 	self.parent:AddInterpolation{id = "desat", type = const.intDesaturation, startValue = 255}
 	self.parent.GetEnabled = function() return false end
 end
@@ -416,7 +445,6 @@ end,
 								'Id', "idText",
 								'Padding', box(2, 4, 2, 4),
 								'HAlign', "center",
-								'DisabledTextColor', RGBA(128, 128, 128, 255),
 								'Translate', true,
 							}),
 							}),

@@ -80,27 +80,24 @@ local table = table
 function GetInterests(unit)
 	local unit_traits = unit.traits
 	local interests = unit_traits.Child and {} or table.copy(BaseInterests)
-	local traits = DataInstances.Trait
 	
-	for _, trait_def in ipairs(traits) do
-		local trait = trait_def.name
-		if unit_traits[trait] then
-			local add = trait_def.add_interest
+	ForEachPreset(TraitPreset, function(trait, group_list)
+		if unit_traits[trait.id] then
+			local add = trait.add_interest
 			if add ~= "" and not table.find(interests, add) then
 				interests[#interests + 1] = add
 			end
 		end
-	end
+	end)
 	
-	for _, trait_def in ipairs(traits) do
-		local trait = trait_def.name
-		if unit_traits[trait] then
-			local remove = trait_def.remove_interest
+	ForEachPreset(TraitPreset, function(trait, group_list)
+		if unit_traits[trait.id] then
+			local remove = trait.remove_interest
 			if remove ~= "" then
 				table.remove_entry(interests, remove)
 			end
 		end
-	end
+	end)
 	
 	return interests
 end
@@ -126,7 +123,7 @@ ColonistStatReasons =
 	["StatusEffect_Freezing"]    = T{1031, "<red>Freezing <amount></red>"},
 	["StatusEffect_Starving"]    = T{1032, "<red>Starving <amount></red>"},
 	["overtime"]                 = T{1033, "<red>Heavy Workload <amount></red>"},
-	["Irradiated"]               = T{1034, "<red>Irradiated <amount></red>"},
+	["StatusEffect_Irradiated"]  = T{1034, "<red>Irradiated <amount></red>"},
 	["rest"]                     = T{1035, "<green>Well rested <amount></green>"},
 	["ChronicCondition"]         = T{1036, "<red>Chronic Condition <amount></red>"}, -- ChronicCondition trait effect
 	

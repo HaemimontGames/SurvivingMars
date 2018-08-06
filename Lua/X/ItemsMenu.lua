@@ -105,6 +105,7 @@ function ItemMenuBase:InitButtonsUI()
 	XWindow:new( {
 		HAlign =  "center",
 		VAlign =  "center",
+		Margins = box(-168, 0,0,0),
 		MinHeight =  220,
 		LayoutMethod =  "HList",
 		LayoutHSpacing =  -168,
@@ -128,7 +129,7 @@ end
 
 function ItemMenuBase:Close()
 	UnlockHRXboxLeftThumb(self.class)
-	local pins_dlg = GetXDialog("PinsDlg")
+	local pins_dlg = GetDialog("PinsDlg")
 	if pins_dlg then pins_dlg:SetVisible(true, "instant") end
 	self:CreateThread(function()
 		if not self.hide_single_category then
@@ -216,7 +217,9 @@ function  ItemMenuBase:OpenItemsInterpolation(bFirst, set_focus)
 				autoremove = true,
 			}--]]
 		end
-		self:SetInitFocus(set_focus)	
+		if set_focus and set_focus:GetParent() then
+			self:SetInitFocus(set_focus)	
+		end
 	end)
 end
 
@@ -333,13 +336,13 @@ function ItemMenuBase:GamepadChangeCategory(dir)
 end
 
 function ItemMenuBase:OnXButtonDown(button, source)
-	button = LeftThumbToDirection[button] or button
+	button = XInput.LeftThumbToDirection[button] or button
 	--print(button)	
 	if button == "DPadLeft" or button == "DPadRight" then
 		local focus = self.desktop and self.desktop.keyboard_focus
 		local order = focus and focus:GetFocusOrder()
 		local new_focus = self:GetRelativeFocus(order, XShortcutToRelation[button])
-		if not new_focus then
+		if not new_focus and order then
 			local x = order:x()
 			local count = #self.items
 			if x == 1 and button == "DPadLeft" then
@@ -385,10 +388,10 @@ function ItemMenuBase:OnXButtonDown(button, source)
 		return "break"
 	end
 	
-	return Dialog.OnShortcut(self, button)
+	return XDialog.OnShortcut(self, button)
 end
 
-function ItemMenuBase:OnKbdKeyDown(char, virtual_key)
+function ItemMenuBase:OnKbdKeyDown(virtual_key)
 	if virtual_key == const.vkEsc then
 		self:SelectParentCategory()
 		return "break"
@@ -500,7 +503,7 @@ end
 function OnMsg.OnScreenHintChanged(hint)
 	local children = ClassDescendantsList("ItemMenuBase")
 	for i=1,#children do
-		local child = GetXDialog(children[i])
+		local child = GetDialog(children[i])
 		if child then
 			child:UpdateHintHighlight("force")
 		end
@@ -514,7 +517,7 @@ DefineClass.ItemMenu = {
 function ItemMenu:Init()
 	CloseInfopanelItems()
 	SelectObj(false)
-	local pins_dlg = GetXDialog("PinsDlg")
+	local pins_dlg = GetDialog("PinsDlg")
 	if pins_dlg then pins_dlg:SetVisible(false, "instant") end
 	PlayFX("BuildMenuIn", "start")
 end

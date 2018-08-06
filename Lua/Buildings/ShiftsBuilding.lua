@@ -93,15 +93,14 @@ function ShiftsBuilding:InitPersistShifts()
 end
 
 function OnMsg.SaveMap()
-	local buildings = GetObjects{class = "ShiftsBuilding"}
-	for i=1, #buildings do
-		local building = buildings[i]
+	local exec = function(building)
 		local persist_shifts = ""
 		for j=1, building.max_shifts do
 			persist_shifts = persist_shifts..(building:IsClosedShift(j) and "1" or "0")
 		end
 		building.closed_shifts_persist = persist_shifts
 	end
+	MapForEach("map","ShiftsBuilding", exec)
 end
 
 function ShiftsBuilding:SetWorkplaceWorking()
@@ -129,6 +128,13 @@ function ShiftsBuilding:GetWorkNotPermittedReason()
 	end
 	return Building.GetWorkNotPermittedReason(self)
 end		
+
+function ShiftsBuilding:OnSetUIWorking(work)
+	Building.OnSetUIWorking(self, work)
+	if work and self:AreAllShiftsClosed()then
+		self:OpenShift(2)
+	end
+end
 
 function ShiftsBuilding:IsClosedShift(shift)
 	return self.closed_shifts[shift]
@@ -162,14 +168,15 @@ function ShiftsBuilding:CloseShift(shift)
 end
 
 function ShiftsBuilding:OpenShift(shift)
+	local all_closed = self:AreAllShiftsClosed()
 	if self.active_shift > 0 then
-		self:CloseShift(self.active_shift)
+		self.closed_shifts[self.active_shift] = true
 		self.active_shift = shift
 	end
-	if self:AreAllShiftsClosed() then
+	self.closed_shifts[shift] = false
+	if all_closed then
 		self:SetUIWorking(true)
 	end
-	self.closed_shifts[shift] = false
 	if shift == self.current_shift then
 		self:UpdateWorking()
 		self:UpdateConsumption()
@@ -186,12 +193,6 @@ function ShiftsBuilding:ToggleShift(shift)
 	ObjModified(self)
 end
 
-function ShiftsBuilding:UpdateNotWorkingBuildingsNotification()
-	if not self.destroyed and self:IsWorkPermitted() and not self:IsWorkPossible() then
-		if self.priority > 1 and not self:IsClosedShift(self.current_shift) then
-			table.insert_unique(g_NotWorkingBuildings, self)
-		end
-	else
-		table.remove_entry(g_NotWorkingBuildings, self)
-	end
+function ShiftsBuilding:ShouldShowNotWorkingNotification()
+	return not self:IsClosedShift(self.current_shift) and Building.ShouldShowNotWorkingNotification(self)
 end

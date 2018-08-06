@@ -2,7 +2,7 @@
 
 local function folder_fn(obj)
 	return {
-		{ obj.mod.path, os_path = true },
+		{ obj.mod.content_path, os_path = true },
 		{ "UI", game_path = true },
 	}
 end
@@ -17,18 +17,8 @@ DefineModItemPreset("MissionLogoPreset", {
 function ReloadMissionLogos()
 	local logos = Presets.MissionLogoPreset and Presets.MissionLogoPreset.Default
 	if logos then
-		table.sort(logos, function (a, b)
-			local k1, k2 = a.SortKey, b.SortKey
-			if not k1 and k2 then
-				return false --items with no SortKey go last
-			elseif k1 and not k2 then
-				return true --items with no SortKey go last
-			elseif k1 ~= k2 then
-				return k1 < k2
-			end
-			return a.id < b.id
-		end)
-		MissionParams.idMissionLogo.items = logos
+		MissionParams.idMissionLogo.items = {}
+		ForEachPreset("MissionLogoPreset", function(preset, group, items) items[#items + 1] = preset end, MissionParams.idMissionLogo.items)
 	end
 end
 
@@ -56,9 +46,6 @@ function ModItemMissionLogoPreset:TestModItem(ged)
 	ViewObjectRTS(obj)
 end
 
-OnMsg.DataLoaded = ReloadMissionLogos
-OnMsg.ModsLoaded = ReloadMissionLogos
-
 DefineClass.Logo = {
 	__parents = { "Object", "UIAttach" },
 	class_flags = { cfDecal = true, cfConstructible = false, cfAudible = false },
@@ -73,6 +60,13 @@ function Logo:Init()
 	end
 end
 
+function GetDefaultMissionSponsorLogo(sponsor_id)
+	local sponsor_preset = Presets.MissionSponsorPreset and Presets.MissionSponsorPreset.Default[sponsor_id]
+	if sponsor_preset and Presets.MissionLogoPreset and Presets.MissionLogoPreset.Default[sponsor_preset.default_logo] then
+		return sponsor_preset.default_logo
+	end
+end
+
 ------------------------------------------------------------
 
 DefineClass.ModItemMissionLogo = { --Kept for backwards compatibility (mods with DataInstances, instead of Presets)
@@ -84,7 +78,7 @@ DefineClass.ModItemMissionLogo = { --Kept for backwards compatibility (mods with
 		{ category = "General", id = "filter", name = T{1000108, "Filter"}, editor = "expression", parameters = "self", default = function() return true end },
 		{ category = "General", id = "image", name = T{3794, "Image"}, editor = "browse", default = "", folder = folder_fn, os_path = true, filter = "Image files|*.tga" },
 	},
-	EditorName = "",
+	EditorMenubarName = "",
 }
 
 function ModItemMissionLogo:OnModLoad()

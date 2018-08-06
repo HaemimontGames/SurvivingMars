@@ -154,6 +154,11 @@ end,
 					'item_in_context', "shift",
 					'run_after', function (child, context, item, i, n)
 child:SetRelativeFocusOrder("next-in-line")
+child.idBackground:SetMargins(box(0,0,0,0))
+child.idActive:SetMargins(box(0,0,0,0))
+child.idRollover2:SetMargins(box(0,37,0,-8))
+child.idIcon:SetMargins(box(-28,0,0,0))
+child.idContent:SetMargins(box(2, 3, 20, 0))
 CreateRealTimeThread(function(child)
 	if child.window_state == "destroying" then return end
 	for _, win in ipairs(child.idWorkers) do

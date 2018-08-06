@@ -26,7 +26,6 @@ DefineClass.AttackRover = {
 	dust_devil_malfunction_chance = 0,
 	
 	collision_radius = 540,
-	direction_arrow_scale = 260,
 	
 	roam_target_radius = 750*guim,
 	attack_range = 750*guim,
@@ -59,6 +58,9 @@ DefineClass.AttackRover = {
 
 	palettes = { "AttackRoverBlue" },
 	land_decal_name = "DecRocketSplatter",
+	
+	pin_summary1 = "",
+	pin_summary2 = "",
 }
 
 function AttackRover:Init()
@@ -496,6 +498,13 @@ function AttackRover:Getui_command()
 	return BaseRover.Getui_command(self)
 end
 
+function AttackRover:GetUIWarning()
+	if not self.reclaimed then
+		return false
+	end
+	return BaseRover.GetUIWarning(self)
+end
+
 function AttackRover:GetHpProgress()
 	return MulDivRound(self.current_health, 100, self.max_health)
 end
@@ -543,23 +552,18 @@ function AttackRover:ToggleRepair()
 end
 
 function AttackRover:ToggleRepair_Update(button)
-	local count = CountObjects{
-		class = "DroneControl", 
-		area = self, 
-		hexradius = const.CommandCenterMaxRadius,
-		filter = function(obj)
-			return obj.accept_requester_connects and obj.work_radius >= HexAxialDistance(self, obj) and #(obj.drones or empty_table) > 0
-		end
-	}
-
+	local count = MapCount(self, "hex", const.CommandCenterMaxRadius, "DroneControl", 
+								function(obj) 
+									return obj.accept_requester_connects and obj.work_radius >= HexAxialDistance(self, obj) and #(obj.drones or empty_table) > 0 
+								end)
 	
 	if count > 0 then
 		local repair = not self.is_repair_request_initialized
-		button:SetIcon(repair and "UI/Icons/IPButtons/recharge.tga" or "UI/Icons/IPButtons/cancel.tga")
+		button:SetIcon(repair and "UI/Icons/IPButtons/rebuild.tga" or "UI/Icons/IPButtons/cancel.tga")
 		button:SetRolloverTitle(repair and T{6924, "Repair"} or T{6720, "Cancel"})
 		button:SetRolloverText(repair and T{6925, "Send Drones to this vehicle."} or T{6926, "Cancel repairs."})
 	else
-		button:SetIcon("UI/Icons/IPButtons/recharge.tga")
+		button:SetIcon("UI/Icons/IPButtons/rebuild.tga")
 		button:SetRolloverTitle(T{6924, "Repair"})
 		button:SetRolloverText(T{632, "Outside Drone commander range."})
 	end
@@ -681,7 +685,7 @@ end
 if Platform.developer then
 
 function TestAttackRover()
-	ForEach{classes = "AttackRover", action = "delete"}
+	MapDelete("map", "AttackRover")
 	PlaceObject("AttackRover", {spawn_pos = GetTerrainCursor()}) 
 end
 

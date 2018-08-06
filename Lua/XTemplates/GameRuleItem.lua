@@ -78,7 +78,7 @@ end,
 				'name', "CalcTextColor",
 				'func', function (self, ...)
 return self.enabled and 
-			((self.parent.rollover or self.parent.parent:ResolveId("idList").focused_item == self.context.number)
+			((self.parent.rollover or GetDialog(self).idList.focused_item == self.context.number)
 				and self.RolloverTextColor or self.TextColor)
 				or self.DisabledTextColor
 end,

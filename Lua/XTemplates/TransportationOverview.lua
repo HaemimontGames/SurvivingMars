@@ -87,7 +87,7 @@ PlaceObj('XTemplate', {
 		}, {
 			PlaceObj('XTemplateForEach', {
 				'comment', "transportation",
-				'array', function (parent, context) local transportation = GetCommandCenterTransportsList(); parent:ResolveId("idTitle"):SetTitle(T{9814, "<count> TRANSPORTATION", count = #transportation}) return transportation end,
+				'array', function (parent, context) local transportation = GetCommandCenterTransportsList(); parent:ResolveId("idTitle"):SetTitle(T{9814, "<color 255 248 233><count></color> TRANSPORTATION", count = #transportation}) return transportation end,
 				'__context', function (parent, context, item, i, n) return item end,
 				'run_before', function (parent, context, item, i, n)
 NewXVirtualContent(parent, context, "TransportationOverviewRow", 683, 46)
@@ -115,6 +115,7 @@ end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "Scrollbar",
+			'Id', "idScroll",
 			'Target', "idList",
 		}),
 		PlaceObj('XTemplateAction', {

@@ -7,7 +7,6 @@ DefineClass.ExplorerRover = {
 	display_icon = "UI/Icons/Buildings/rover_human.tga",
 	
 	collision_radius = 540,
-	direction_arrow_scale = 260,
 	
 	entrance_type = "rover_entrance",
 	work_spot_task = "Workrover",
@@ -125,6 +124,7 @@ function ExplorerRover:GetEstimatedDailyLoss()
 end
 
 function ExplorerRover:GetEstimatedDailyProduction()
+	if not self.working then return 0 end
 	return g_Consts.ExplorerRoverResearchPoints
 end
 

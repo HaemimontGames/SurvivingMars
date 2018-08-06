@@ -14,17 +14,44 @@ function SpireBase:Done()
 end
 
 function SpireBase:GameInit()
+	self:UpdateFrame()
+end
+
+function SpireBase:UpdateFrame()
+	if self.destroyed then
+		return
+	end
+	local frame_entity = self.spire_frame_entity
+	if frame_entity == "none" then
+		return
+	end
+	if not IsValidEntity(frame_entity) then
+		assert(false, "Specified Spire Frame Entity does not exist!")
+		return
+	end
 	local dome = IsObjInDome(self)
 	assert(dome)
-	if self.spire_frame_entity ~= "none" and IsValidEntity(self.spire_frame_entity) then
-		assert(_G[self.spire_frame_entity], "Specified Spire Frame Entity does not exist!")
-		local frame = PlaceObject("Shapeshifter")
-		frame:ChangeEntity(self.spire_frame_entity)
-		local spot = dome:GetNearestSpot("idle", "Spireframe", self)
-		local pos = dome:GetSpotPos(spot)
-		frame:SetAttachOffset( pos - self:GetPos() )
-		self:Attach(frame, self:GetSpotBeginIndex("Origin"))
+	if not dome then
+		return
 	end
+	local frame
+	local attaches = self:GetAttaches("Shapeshifter") or empty_table
+	for _, attach in ipairs(attaches) do
+		if attach:GetEntity() == frame_entity then
+			frame = attach
+			break
+		end
+	end
+	if not IsValid(frame) then
+		frame = PlaceObject("Shapeshifter")
+		frame:ChangeEntity(self.spire_frame_entity)
+		CopyColorizationMaterial(self, frame)
+		self:Attach(frame, self:GetSpotBeginIndex("Origin"))
+		self:NightLightDisableAttaches("all attaches")
+	end
+	local spot = dome:GetNearestSpot("idle", "Spireframe", self)
+	local pos = dome:GetSpotPos(spot)
+	frame:SetAttachOffset( pos - self:GetPos() )
 end
 
 function OnMsg.TechResearched(tech_id, city)

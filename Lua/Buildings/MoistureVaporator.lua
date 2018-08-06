@@ -7,14 +7,6 @@ DefineClass.MoistureVaporator =
 	overlap_penalty_modifier = false,
 }
 
-local vaporator_search = {
-	class = "MoistureVaporator",
-	hexradius = const.MoistureVaporatorRange,
-	filter = function(vaporator, this)
-		return vaporator ~= this and vaporator.working
-	end,
-}
-
 function MoistureVaporator:GameInit()
 	self.overlap_penalty_modifier = Modifier:new{
 		id = "VaporatorOverlapPenalty",
@@ -25,10 +17,11 @@ end
 
 function MoistureVaporator:OnSetWorking(working)
 	WaterProducer.OnSetWorking(self, working)
+	local vap_filter = function(vaporator, this)
+		return vaporator ~= this and vaporator.working
+	end
 	local delta = working and 1 or -1
-	vaporator_search.area = self
-	local vaporators = GetObjects(vaporator_search, self)
-	vaporator_search.area = false
+	local vaporators = MapGet(self, "hex", const.MoistureVaporatorRange, "MoistureVaporator", vap_filter , self)
 	for i=1,#vaporators do
 		local overlapped_vaporator = vaporators[i]
 		overlapped_vaporator:UpdateNearbyVaporatorsCount(delta)

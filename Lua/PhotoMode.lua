@@ -2,14 +2,21 @@ if FirstLoad then
 	g_PhotoMode = false
 	g_PhotoModeShotNum = false
 	g_PhotoModeShotThread = false
+	g_PhotoModeChallengeId = false
 	PhotoModeObj = false
 	g_PrePhotoModeStoredVisuals = false
 	g_PhotoFilter = false
 	g_PhotoFilterData = false
 end
 
-function OpenPhotoMode()
+function OpenPhotoMode(challenge_id)
 	g_PrePhotoModeStoredVisuals = {}
+	
+	if challenge_id then
+		GalleryMountMemFs()
+		g_PhotoModeChallengeId = challenge_id
+	end
+	
 	PhotoModeBegin()
 	local dlg = GetInGameInterface()
 	if dlg and dlg.mode == "overview" then
@@ -24,11 +31,20 @@ function OpenPhotoMode()
 	end)
 end
 
+local function ChallengeShotSaveCallback(folder)
+	return CopyFile("scratch/shot.png", folder .. "/shot.png")
+end
+
 function ClosePhotoMode()
 	if g_PhotoMode then
 		CreateMapRealTimeThread(function()
 			PhotoModeObj:Save()
 		end)
+	end
+	
+	if g_PhotoModeChallengeId then
+		CreateRealTimeThread(GalleryWriteLastScreenshot, g_PhotoModeChallengeId)
+		g_PhotoModeChallengeId = false
 	end
 end
 
@@ -37,11 +53,16 @@ function AbortPhotoMode()
 	CloseDialog("PhotoMode")
 end
 
+function OnMsg.PopupNotificationBegin()
+	AbortPhotoMode()
+end
+
 local function ActivateFreeCamera()
-	local dlg = GetXDialog("PhotoMode")
+	local dlg = GetDialog("PhotoMode")
 	if dlg then
 		dlg.idFreeCameraWarning:SetVisible(true)
 	end
+	table.change(hr, "FreeCamera", { FarZ = 1500000 })
 	cameraFly.Activate(1)
 	if g_MouseConnected then
 		SetMouseDeltaMode(true)
@@ -54,8 +75,9 @@ local function DeactivateFreeCamera()
 			SetMouseDeltaMode(false)
 		end
 		SetDefaultCameraRTS()
+		table.restore(hr, "FreeCamera")
 	end
-	local dlg = GetXDialog("PhotoMode")
+	local dlg = GetDialog("PhotoMode")
 	if dlg then
 		dlg.idFreeCameraWarning:SetVisible(false)
 	end
@@ -74,7 +96,7 @@ function PhotoModeBegin()
 	--store all initial values
 	g_PrePhotoModeStoredVisuals.SignsVisible = g_SignsVisible
 	g_PrePhotoModeStoredVisuals.ResourceIconsTurnedOff = g_ResourceIconsTurnedOff
-	g_PrePhotoModeStoredVisuals.lm_name = CurrentLightmodel[1].name
+	g_PrePhotoModeStoredVisuals.lm_name = CurrentLightmodel[1].id
 	g_PrePhotoModeStoredVisuals.dof_params = { GetDOFParams() }
 end
 
@@ -88,10 +110,11 @@ function PhotoModeEnd()
 	PhotoModeObj:Resume("final")
 	--restore from initial values
 	table.restore(hr, "photo_mode")
-	g_SignsVisible = not g_PrePhotoModeStoredVisuals.SignsVisible
-	ToggleSigns()
-	g_ResourceIconsTurnedOff = not g_PrePhotoModeStoredVisuals.ResourceIconsTurnedOff
-	ToggleResourceIcons()
+	SetSignsVisible(g_PrePhotoModeStoredVisuals.SignsVisible)
+	g_ResourceIconsTurnedOff = g_PrePhotoModeStoredVisuals.ResourceIconsTurnedOff
+	if g_PrePhotoModeStoredVisuals.ResourceIconsTurnedOff then
+		SetResourceIconsVisible(false)
+	end
 	--rebuild the postprocess
 	PP_Rebuild()
 	--restore time of day and lightmodel
@@ -106,14 +129,13 @@ end
 
 function PhotoModeApply(pm_object, prop_id)
 	if prop_id == "toggleSigns" then
-		g_SignsVisible = not pm_object.toggleSigns
-		ToggleSigns()
+		SetSignsVisible(pm_object.toggleSigns)
 	elseif prop_id == "timeOfDay" then
 		SetTimeOfDay(LocalToEarthTime(pm_object.timeOfDay*1000), const.HourDuration)
 		if GetTimeFactor() == 0 then
 			local lm = FindPrevLightmodel(GetCurrentLightmodelList(), pm_object.timeOfDay)
-			if lm.name ~= CurrentLightmodel[1].name then
-				SetLightmodel(1, lm.name, 0)
+			if lm.id ~= CurrentLightmodel[1].id then
+				SetLightmodel(1, lm.id, 0)
 			end
 		end
 		PhotoModeApply(pm_object, "fogDensity")
@@ -174,26 +196,30 @@ end
 
 function PhotoModeTake()
 	g_PhotoModeShotThread = IsValidThread(g_PhotoModeShotThread) and g_PhotoModeShotThread or CreateMapRealTimeThread(function()
-		g_PhotoModeShotNum = g_PhotoModeShotNum or 0
-		local folder = "AppPictures/"
-		local proposed_name = string.format("Screenshot%04d.png", g_PhotoModeShotNum)
-		if io.exists(folder .. proposed_name) then
-			local files = io.listfiles(folder, "Screenshot*.png")
-			for i = 1, #files do
-				g_PhotoModeShotNum = Max(g_PhotoModeShotNum, tonumber(string.match(files[i], "Screenshot(%d+)%.png") or 0))
+		if g_PhotoModeChallengeId then
+			GalleryTakeScreenshot()
+		else
+			g_PhotoModeShotNum = g_PhotoModeShotNum or 0
+			local folder = "AppPictures/"
+			local proposed_name = string.format("Screenshot%04d.png", g_PhotoModeShotNum)
+			if io.exists(folder .. proposed_name) then
+				local files = io.listfiles(folder, "Screenshot*.png")
+				for i = 1, #files do
+					g_PhotoModeShotNum = Max(g_PhotoModeShotNum, tonumber(string.match(files[i], "Screenshot(%d+)%.png") or 0))
+				end
+				g_PhotoModeShotNum = g_PhotoModeShotNum + 1
+				proposed_name = string.format("Screenshot%04d.png", g_PhotoModeShotNum)
 			end
+			local width, height = GetResolution()
+			WaitNextFrame(3)
+			LockCamera("Screenshot")
+			MovieWriteScreenshot(folder .. proposed_name, 0, 32, false, width, height)
+			UnlockCamera("Screenshot")
 			g_PhotoModeShotNum = g_PhotoModeShotNum + 1
-			proposed_name = string.format("Screenshot%04d.png", g_PhotoModeShotNum)
-		end
-		local width, height = GetResolution()
-		WaitNextFrame(3)
-		LockCamera("Screenshot")
-		MovieWriteScreenshot(folder .. proposed_name, 0, 32, false, width, height)
-		UnlockCamera("Screenshot")
-		g_PhotoModeShotNum = g_PhotoModeShotNum + 1
-		local dlg = GetXDialog("PhotoMode")
-		if dlg then
-			dlg:BlinkFilePath(ConvertToOSPath(folder .. proposed_name))
+			local dlg = GetDialog("PhotoMode")
+			if dlg then
+				dlg:BlinkFilePath(ConvertToOSPath(folder .. proposed_name))
+			end
 		end
 	end)
 end
@@ -222,7 +248,7 @@ end
 function OnMsg.AfterLightmodelChange()
 	if g_PhotoMode and GetTimeFactor() ~= 0 then
 		--in photo mode in resumed state
-		g_PrePhotoModeStoredVisuals.lm_name = CurrentLightmodel[1].name
+		g_PrePhotoModeStoredVisuals.lm_name = CurrentLightmodel[1].id
 		PhotoModeObj:SetProperty("timeOfDay", UICity.hour * const.MinutesPerHour + UICity.minute)
 	end
 end
@@ -277,7 +303,7 @@ function PhotoModeObject:Save()
 			storage_table[prop.id] = value
 		end
 	end
-	SaveAccountStorage()
+	SaveAccountStorage(5000)
 end
 
 function PhotoModeObject:Pause()
@@ -288,7 +314,48 @@ end
 function PhotoModeObject:Resume(force)
 	Resume(self)
 	SetTimeFactor((force or self.initial_time_factor ~= 0) and self.initial_time_factor or const.DefaultTimeFactor, "sync")
-	if CurrentLightmodel[1].name ~= g_PrePhotoModeStoredVisuals.lm_name then
+	if CurrentLightmodel[1].id ~= g_PrePhotoModeStoredVisuals.lm_name then
 		SetLightmodel(1, g_PrePhotoModeStoredVisuals.lm_name, 0)
 	end
+end
+
+-- gallery-related
+
+function GalleryMountMemFs()
+	if not io.exists("scratch") then
+		MountMemoryFS("scratch", 32*1024*1024)
+	end
+end
+
+function GalleryWriteLastScreenshot(id)
+	if io.exists("scratch/shot.png") then
+		Savegame.WithTag("gallery", id, ChallengeShotSaveCallback)
+	end
+	Msg("ChallengeScreenshotSaved", id)
+end
+
+function GalleryTakeScreenshot()
+	-- alternative path in gallery mode: write to the mounted memory fs with standard name
+	local width, height = GetResolution()
+	WaitNextFrame(3)
+	LockCamera("Screenshot")
+	MovieWriteScreenshot("scratch/shot.png", 0, 32, false, width, height)
+	UnlockCamera("Screenshot")
+end
+
+function GallerySaveDefaultScreenshot(id)
+	local err, list = Savegame.ListForTag("gallery")
+	if not err and not table.find(list, "displayname", id) then
+		local tf = GetTimeFactor()
+		Pause("GalleryDefaultScreenshot")
+		SetTimeFactor(0, "sync")
+		
+		GalleryMountMemFs()
+		GalleryTakeScreenshot()
+		GalleryWriteLastScreenshot(id)
+		
+		Resume("GalleryDefaultScreenshot")
+		SetTimeFactor(tf, "sync")
+	end
+	Msg("ChallengeDefaultScreenshotSaved")
 end

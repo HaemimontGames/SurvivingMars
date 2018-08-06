@@ -30,7 +30,7 @@ function CreateMarsRenameControl(actionbar_parent, title, initial_text, ok_func,
 	if Platform.console and not params.console_show then
 		Keyboard()
 	else
-		local dlg = OpenXDialog("MarsRenameControl", nil, context)
+		local dlg = OpenDialog("MarsRenameControl", nil, context)
 		if Platform.console and params.console_show then
 			local rename_action = table.find_value(dlg.actions, "ActionId", "rename")
 			if rename_action then
@@ -50,10 +50,9 @@ function CreateMarsRenameControl(actionbar_parent, title, initial_text, ok_func,
 		if not Platform.console then
 			dlg.idEdit:SetFocus()
 		end
-		dlg.idEdit:ScrollTo(0, 0)
 		local ok_idx = table.find(dlg.actions, "ActionId", "ok")
 		local cancel_idx = table.find(dlg.actions, "ActionId", "cancel")
-		dlg.actions[ok_idx].OnAction = function(self, host, source, toggled)
+		dlg.actions[ok_idx].OnAction = function(self, host, source)
 			local text = host.idEdit:GetText()
 			local keep_open = false
 			if text and text~="" then
@@ -73,7 +72,7 @@ function CreateMarsRenameControl(actionbar_parent, title, initial_text, ok_func,
 				host:Close()
 			end
 		end
-		dlg.actions[cancel_idx].OnAction = function(self, host, source, toggled)
+		dlg.actions[cancel_idx].OnAction = function(self, host, source)
 			local text = host.idEdit:GetText()
 			cancel_func(text)
 			if actionbar_parent then

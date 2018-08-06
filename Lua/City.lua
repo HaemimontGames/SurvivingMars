@@ -21,8 +21,16 @@ DefineClass.City = {
 	selected_dome_unit_tracking_thread = false,
 
 	queued_resupply = false,
+	
 	funding = false,
-	launch_elevator_mode = false,
+	funding_gain = false,
+	funding_gain_total = false,
+	funding_gain_last = false,
+	funding_gain_sol = false,
+	
+	launch_elevator_mode = false, -- todo: remove
+	launch_mode = false, -- (false, "rocket", "elevator", ...)
+	
 	cascade_cable_deletion_enabled = true, --use to disable chunk cable deletion (for building placement for example)		
 	cascade_cable_deletion_dsiable_reasons = false,
 	
@@ -47,7 +55,6 @@ DefineClass.City = {
 	maintenance_resources_consumed_today = false,
 	last_export = false, --last precious metals export info
 	total_export = 0,    --total exported precious metals, in resource units
-	total_export_funding = 0,    --total exported precious metals, funding received
 	fuel_for_rocket_refuel_today = 0,
 	fuel_for_rocket_refuel_yesterday = 0,
 	--
@@ -65,6 +72,7 @@ DefineClass.City = {
 	TechBoostPerField = false,
 	TechBoostPerTech = false,
 	OutsourceResearchPoints = false,
+	OutsourceResearchOrders = false,
 	
 	rand_state = false,
 	
@@ -86,6 +94,9 @@ DefineClass.City = {
 	ts_resources_stockpile = false,
 	ts_resources_grid = false,
 	constructions_completed_today = false,
+	challenge_thread = false,
+	challenge_timeout_thread = false,
+	
 }
 
 function City:Init()
@@ -118,7 +129,9 @@ function City:Init()
 	--funding and resupply
 	self.queued_resupply = {}
 	self.funding = 0
-	self:ChangeFunding(sponsor.funding*1000000 - g_CargoCost)
+	local init_funding = GetSponsorModifiedFunding(sponsor.funding, empty_table)
+	self:ChangeFunding(init_funding*1000000 - g_CargoCost, "Sponsor")
+	
 	if g_RocketCargo then
 		g_InitialRocketCargo = table.copy(g_RocketCargo, "deep")
 		g_InitialCargoCost = g_CargoCost
@@ -127,10 +140,6 @@ function City:Init()
 		ResetCargo()
 	else
 		ApplyResupplyPreset(self, "Start_medium")
-	end
-	
-	if sponsor.goal ~= "" then
-		self.mission_goal = PlaceObject(sponsor.goal)
 	end
 	
 	CreateGameTimeThread(function(self)
@@ -190,6 +199,11 @@ function City:Init()
 	self:InitGatheredResourcesTables()
 	self:InitEmptyLabel("Dome")
 	
+	if not g_Tutorial then
+		self:SetGoals()
+		self:StartChallenge()
+	end
+	
 	--lock mystery resource depot from the build menu
 	LockBuilding("StorageMysteryResource")
 	LockBuilding("MechanizedDepotMysteryResource")
@@ -245,13 +259,25 @@ function City:SetCableCascadeDeletion(val, reason)
 	end
 end
 
-function City:ModifyGlobalConstsFromProperties(source)
+function City:ChangeGlobalConsts()
+	-- directly modify global consts (from sponsor
+	local sponsor = GetMissionSponsor()
+	for _, mod_const in ipairs(directlyModifiableConsts) do
+		local mod_id = mod_const.local_id
+		local global_const = mod_const.global_id
+		if sponsor:HasMember(mod_id) then
+			SetGlobalConst(global_const, sponsor[mod_id])
+		end
+	end
+	
+	-- modify global consts with labels (from commander)
+	local commander = GetCommanderProfile()
 	for _, mod_const in ipairs(modifiableConsts) do
 		local mod_id = mod_const.local_id
 		local global_const = mod_const.global_id
 		local lower_bound = g_Consts[global_const] < g_Consts["base_"..global_const] and - g_Consts[global_const] or - g_Consts["base_"..global_const]
-		local mod_amount = source[mod_id] > lower_bound and source[mod_id] or lower_bound
-		if source:HasMember(mod_id) then
+		local mod_amount = commander[mod_id] > lower_bound and commander[mod_id] or lower_bound
+		if commander:HasMember(mod_id) then
 			local scale = ModifiablePropScale[global_const]
 			if not scale then
 				assert(false, print_format("Trying to modify a non-modifiable property", "Consts", "-", global_const))
@@ -262,10 +288,29 @@ function City:ModifyGlobalConstsFromProperties(source)
 				prop = global_const,
 				amount = mod_amount,
 				percent = 0,
-				id = source:HasMember("GetIdentifier") and source:GetIdentifier() or source.id,
+				id = commander:HasMember("GetIdentifier") and commander:GetIdentifier() or commander.id,
 			})
 		end
 	end
+end
+
+function City:SetGoals()
+	local sponsor = GetMissionSponsor()
+	if sponsor.goal ~= "" then
+		self.mission_goal = PlaceObject(sponsor.goal)
+	end
+end
+
+function City:StartChallenge()
+end
+
+function SetGlobalConst(global_const, amount)
+	local scale = ModifiablePropScale[global_const]
+	if not scale then
+		assert(false, print_format("Trying to modify a non-modifiable property", "Consts", "-", global_const))
+		return
+	end
+	g_Consts[global_const] = amount
 end
 
 function City:GrantTechFromProperties(source)
@@ -287,10 +332,7 @@ function City:InitMissionBonuses()
 	local sponsor = GetMissionSponsor()
 	--Initial cargo capacity (funding is set in City:Init)
 	g_Consts:SetBase("CargoCapacity", sponsor.cargo)
-	self:ModifyGlobalConstsFromProperties(sponsor)
-	
-	local commander = GetCommanderProfile()
-	self:ModifyGlobalConstsFromProperties(commander)
+	self:ChangeGlobalConsts()
 
 	CreateGameTimeThread( function()
 		while true do
@@ -298,7 +340,7 @@ function City:InitMissionBonuses()
 			local amount = g_Consts.SponsorFundingPerInterval * 1000000
 			Sleep(period)
 			if amount > 0 then
-				self:ChangeFunding( amount )
+				amount = self:ChangeFunding( amount, "Sponsor" )
 				AddOnScreenNotification( "PeriodicFunding", nil, { sponsor = sponsor.display_name or "", number = amount } )
 			end
 		end
@@ -337,6 +379,9 @@ function City:DailyUpdate(day)
 	end
 	local colonists = #(self.labels.Colonist or empty_table)
 	ColonistHeavyUpdateTime = Clamp(colonists / 300, 0, 12) * const.HourDuration
+	
+	self.funding_gain_sol = self.funding_gain
+	self.funding_gain = false
 end
 
 function City:ElectricityToResearch(amount, hours)
@@ -362,7 +407,7 @@ function City:ElectricityToResearch(amount, hours)
 	return rp, rem
 end
 
-function City:HourlyUpdate()
+function City:HourlyUpdate(hour)
 	local rp = 0 
 	-- calculate with accumulation for precision, as RPs aren't scaled up
 	if g_Consts.ElectricityForResearchPoint ~= 0 then
@@ -380,26 +425,39 @@ function City:HourlyUpdate()
 	local pts = self.OutsourceResearchPoints[1]
 	if pts then
 		table.remove(self.OutsourceResearchPoints, 1)
+		table.remove(self.OutsourceResearchOrders, 1)
 		rp = rp + pts
 	end
 	
 	self:AddResearchPoints(rp)
 
-	CreateGameTimeThread(function(colonists)
-		local update_interval = const.ColonistUpdateInterval or 50
-		local update_steps = const.HourDuration / update_interval
-		for i = 1, update_steps do
-			local t = GameTime()
-			local hour = self.hour
-			for j = #colonists * (i - 1) / update_steps + 1, #colonists * i / update_steps do
-				local colonist = colonists[j]
-				if IsValid(colonist) and not colonist:IsDying() then
-					colonist:HourlyUpdate(t, hour)
-				end
+	CreateGameTimeThread(self.UpdateColonistsProc, self)
+	
+	if g_DustStorm and hour % const.BreakIntervalHours == 0 then
+		self:RandomBreakSupplyGrid()
+	end
+end
+
+function City:UpdateColonistsProc()
+	local colonists = table.copy(self.labels.Colonist or empty_table)
+	local update_interval = const.ColonistUpdateInterval or 50
+	local update_steps = const.HourDuration / update_interval
+	for i = 1, update_steps do
+		local t = GameTime()
+		local hour = self.hour
+		for j = #colonists * (i - 1) / update_steps + 1, #colonists * i / update_steps do
+			local colonist = colonists[j]
+			if IsValid(colonist) and not colonist:IsDying() then
+				colonist:HourlyUpdate(t, hour)
 			end
-			Sleep(update_interval)
 		end
-	end, table.copy(self.labels.Colonist or empty_table))
+		Sleep(update_interval)
+	end
+end
+
+function City:RandomBreakSupplyGrid()
+	self.electricity:RandomBreakElements()
+	self.water:RandomBreakElements()
 end
 
 function City:CalcRenegades()
@@ -486,9 +544,7 @@ function City:MarkPreciousMetalsExport(amount)
 	if amount <= 0 then return end
 	self.last_export = {amount = amount, day = self.day, hour = self.hour, minute = self.minute}
 	self.total_export = self.total_export + amount
-	self.total_export_funding = self.total_export_funding + MulDivRound(amount, g_Consts.ExportPricePreciousMetals*1000000, const.ResourceScale)
-	
-	Msg("MarkPreciousMetalsExport", self, amount)
+	Msg("MarkPreciousMetalsExport", self, amount, self.total_export)
 end
 
 function City:FuelForRocketRefuelingDelivered(amount)
@@ -564,7 +620,7 @@ function City:GetConstructionCost(building, resource, modifier_obj)
 	local building_name = building
 	if type(building) == "table" then
 		if IsKindOf(building, "BuildingTemplate") then
-			building_name = building.name
+			building_name = building.id
 		elseif building:HasMember("class") then
 			building_name = building.class
 		end
@@ -574,6 +630,13 @@ function City:GetConstructionCost(building, resource, modifier_obj)
 	local cost_prop_prefix = "construction_cost_"
 	local prop_id = cost_prop_prefix..resource
 	local value = building[prop_id]
+	
+	if building:IsKindOf("Passage") then
+		local costs = building.elements and #building.elements > 0 and building.elements[#building.elements].construction_cost_at_completion
+		if costs and costs[resource] then
+			value = costs[resource]
+		end
+	end
 	
 	if modifier_obj then --apply lbl modifiers
 		value = modifier_obj:ModifyValue(value, prop_id)
@@ -601,7 +664,7 @@ function OnMsg.LoadGame() --patch to fix old saves (see bug:0122359)
 		for _,key in ipairs(modifier_keys) do
 			if type(key) == "table" then
 				if IsKindOf(key, "BuildingTemplate") then
-					modifiers[key.name] = modifiers[key]
+					modifiers[key.id] = modifiers[key]
 				elseif IsValid(key) then
 					modifiers[key.class] = modifiers[key]
 				end
@@ -627,7 +690,7 @@ function City:SelectDome(dome, trigger)
 	if self.selected_dome == dome then return end
 	if self.selected_dome then
 		if IsValid(self.selected_dome) then
-			local bm = GetXDialog("XBuildMenu")
+			local bm = GetDialog("XBuildMenu")
 			if not bm or bm.context.selected_dome ~= self.selected_dome then --handles special case when build menu is being opened, it will take care of the closing for us.
 				self.selected_dome:Close()
 			end
@@ -681,6 +744,7 @@ function City:CountDomeLabel(label)
 end
 
 -------------Resupply------------------
+
 function City:CreateSupplyShips()
 	local rockets = self.labels.SupplyRocket or empty_table
 	
@@ -691,7 +755,7 @@ function City:CreateSupplyShips()
 	end
 	
 	for i = #rockets+1, GetStartingRockets() do
-		PlaceBuilding("SupplyRocket", {city = self})
+		PlaceBuilding(GetRocketClass(), {city = self})
 	end
 end
 
@@ -701,8 +765,9 @@ function GetStartingRockets(sponsor, commander, ignore_bonus_rockets)
 	return (sponsor.initial_rockets or 0) + (not ignore_bonus_rockets and commander.bonus_rockets or 0)
 end
 
-function City:OrderLanding(cargo, cost, initial)
-	local rockets = self.labels.SupplyRocket or ""
+function City:OrderLanding(cargo, cost, initial, label)
+	label = label or "SupplyRocket"
+	local rockets = self.labels[label] or empty_table
 	for i = 1, #rockets do
 		local rocket = rockets[i]
 		if initial and rocket:IsValidPos() then
@@ -718,12 +783,38 @@ end
 function City:UseInventoryItem(obj,class, amount)
 end
 --------------------- funding & resupply ---------------------
-function City:ChangeFunding(amount)
+
+function City:CalcBaseExportFunding(amount)
+	return MulDivRound(amount or 0, g_Consts.ExportPricePreciousMetals*1000000, const.ResourceScale)
+end
+
+function City:CalcModifiedFunding(amount)
+	amount = amount or 0
 	if amount > 0 then
 		amount = MulDivRound(amount, g_Consts.FundingGainsModifier, 100)
 	end
+	return amount
+end
+
+function City:ChangeFunding(amount, source)
+	amount = self:CalcModifiedFunding(amount)
+	if amount == 0 then
+		return
+	end
+	if (source or "") == "" then
+		source = "Other"
+	end
+	if amount > 0 then
+		self.funding_gain_total = self.funding_gain_total or {}
+		self.funding_gain_last = self.funding_gain_last or {}
+		self.funding_gain = self.funding_gain or {}
+		
+		self.funding_gain_total[source] = (self.funding_gain_total[source] or 0) + amount
+		self.funding_gain[source] = (self.funding_gain[source] or 0) + amount
+		self.funding_gain_last[source] = amount
+	end
 	self.funding = self.funding + amount
-	Msg("FundingChanged", self, amount)
+	Msg("FundingChanged", self, amount, source)
 	return amount
 end
 
@@ -766,21 +857,25 @@ function OnMsg.TechResearched(tech_id, city, first_time)
 	end
 	local sponsor = GetMissionSponsor()
 	if not city:IsTechDiscoverable(tech_id) then
-		city:ChangeFunding( sponsor.funding_per_breakthrough*1000000 )
+		city:ChangeFunding( sponsor.funding_per_breakthrough*1000000, "Sponsor" )
 		local now = GameTime()
 		for i=1,sponsor.applicants_per_breakthrough do
 			GenerateApplicant(now, city)
 		end
 	else
-		city:ChangeFunding( sponsor.funding_per_tech*1000000 )
+		city:ChangeFunding( sponsor.funding_per_tech*1000000, "Sponsor"  )
 	end
 end
 
-function City:GetCargoCapacity()
-	if self.launch_elevator_mode and #(self.labels.SpaceElevator or empty_table) > 0 then
-		return self.labels.SpaceElevator[1].cargo_capacity
-	end
+CargoCapacityLabels = {}
 
+function City:GetCargoCapacity()
+	--if self.launch_elevator_mode and #(self.labels.SpaceElevator or empty_table) > 0 then
+	local label = CargoCapacityLabels[self.launch_mode]
+	if label then
+		local obj = (self.labels[label] or empty_table)[1]
+		return obj and obj.cargo_capacity or 0
+	end
 	return g_Consts.CargoCapacity
 end
 
@@ -801,9 +896,11 @@ function City:GetPrefabs(bld)
 	return self.available_prefabs[bld] or 0
 end
 
-function City:AddPrefabs(bld, count)
+function City:AddPrefabs(bld, count, refresh)
 	self.available_prefabs[bld] = (self.available_prefabs[bld] or 0) + count
-	RefreshXBuildMenu()
+	if refresh==nil or refresh==true then
+		RefreshXBuildMenu()
+	end
 end
 
 function City:RegisterBuildingCompleted(bld)
@@ -850,7 +947,7 @@ function SetNormalLightmodelList(list_name)
 	if list_name == NormalLightmodelList then return end
 	NormalLightmodelList = list_name
 	local lm = FindPrevLightmodel(list_name, NextHour*60)
-	SetLightmodel(1, lm.name, const.HourDuration)
+	SetLightmodel(1, lm.id, const.HourDuration)
 end
 
 GlobalVar("DisasterLightmodelList", false)
@@ -862,7 +959,7 @@ function SetDisasterLightmodelList(list_name, fade_time)
 	list_name = list_name or NormalLightmodelList
 	
 	local lm = FindPrevLightmodel(list_name, NextHour*60)
-	SetLightmodel(1, lm.name, fade_time or const.HourDuration)
+	SetLightmodel(1, lm.id, fade_time or const.HourDuration)
 end
 
 function GetCurrentLightmodelList()
@@ -881,13 +978,6 @@ OnMsg.ColdWaveEnded = DisasterEventLightmodelHandler
 GlobalVar("SunAboveHorizon", false)
 GlobalVar("CurrentWorkshift", 2)
 GlobalVar("DayStart", 0)
-
-function OnMsg.NewWorkshift(workshift)
-	for _, city in ipairs(Cities) do
-		city.electricity:RandomBreakElements()
-		city.water:RandomBreakElements()
-	end
-end
 
 function OnMsg.NewHour(hour)
 	local workshifts = const.DefaultWorkshifts
@@ -954,7 +1044,7 @@ GlobalGameTimeThread( "DateTimeThread", function()
 	
 	SetTimeOfDay(LocalToEarthTime(hour*60*1000), const.HourDuration)
 	local lm = FindNextLightmodel(GetCurrentLightmodelList(), hour*60)
-	SetLightmodel(1, lm.name, 0)
+	SetLightmodel(1, lm.id, 0)
 	InitNightLightState()
 	
 	Msg("NewDay", day)
@@ -1001,17 +1091,19 @@ function OnMsg.PostNewMapLoaded()
 	end
 end
 
-local function CalcInsufficientResourcesNotifParams(displayed_in_notif)
+function CalcInsufficientResourcesNotifParams(displayed_in_notif)
 	local params = {}
 	local resource_names = {}
 	for _, name in ipairs(displayed_in_notif) do
-		local idx = table.find(ResourceDescription, "name", name)
-		resource_names[#resource_names + 1] = ResourceDescription[idx].display_name
+		resource_names[#resource_names + 1] = TLookupTag("<icon_" .. name .. ">")
 	end
-	params.low_on_resource_text = #resource_names == 1 and T{839, "Low on resource:"} or T{840, "Low on resources:"}
-	params.resources = TList(resource_names)
+	params.low_on_resource_text = #resource_names == 1 and T{839, "Resource:"} or T{840, "Resources:"}
+	params.resources = table.concat(resource_names, " ")
+	params.rollover_title = T{5640, "Low Storage"}
+	params.rollover_text = T{10371, "Stored resources expected to last less than 3 Sols."}
 	return params
 end
+
 GlobalVar("g_InsufficientMaintenanceResources", {})
 GlobalGameTimeThread("InsufficientMaintenanceResourcesNotif", function()
 	HandleNewObjsNotif(g_InsufficientMaintenanceResources, "InsufficientMaintenanceResources", nil, CalcInsufficientResourcesNotifParams, false)
@@ -1029,7 +1121,6 @@ function OnMsg.NewHour(hour)
 		end
 	end
 	-- food
-	
 	local consumed = ResourceOverviewObj:GetFoodConsumedByConsumptionYesterday()
 	local data = next(ResourceOverviewObj.data) and ResourceOverviewObj.data 
 	if not data then
@@ -1042,9 +1133,48 @@ function OnMsg.NewHour(hour)
 	else
 		table.remove_entry(g_InsufficientMaintenanceResources,"Food")		
 	end
+	
+	-- water, power, oxygen
+	local data = next(ResourceOverviewObj.data) and ResourceOverviewObj.data 
+	if not data then
+		data = {}
+		GatherResourceOverviewData(data)	
+	end	
+
+	local water_stored = ResourceOverviewObj:GetTotalStoredWater()
+	local air_stored = ResourceOverviewObj:GetTotalStoredAir()
+	local el_stored = ResourceOverviewObj:GetTotalStoredPower()
+    
+	local ts_grid = UICity.ts_resources_grid
+	local ts_grid_air,ts_grid_el,ts_grid_water = ts_grid.air,ts_grid.electricity,ts_grid.water
+	local air_consumption   = ts_grid_air.consumption:GetLastValue()
+	local air_production    = ts_grid_air.production:GetLastValue()
+	local el_consumption    = ts_grid_el.consumption:GetLastValue()
+	local el_production     = ts_grid_el.production:GetLastValue()
+	local water_consumption = ts_grid_water.consumption:GetLastValue()
+	local water_production  = ts_grid_water.production:GetLastValue()
+	
+	--water
+	if const.MinHoursWaterResourceSupplyBeforeNotification*(water_consumption - water_production) > water_stored then
+		table.insert_unique(g_InsufficientMaintenanceResources, "Water")
+	else
+		table.remove_entry(g_InsufficientMaintenanceResources,"Water")		
+	end
+   -- air
+	if const.MinHoursAirResourceSupplyBeforeNotification*(air_consumption - air_production) > air_stored then
+		table.insert_unique(g_InsufficientMaintenanceResources, "Air")
+	else
+		table.remove_entry(g_InsufficientMaintenanceResources,"Air")		
+	end
+   -- power
+	if const.MinHoursPowerResourceSupplyBeforeNotification*(el_consumption - el_production) > el_stored then
+		table.insert_unique(g_InsufficientMaintenanceResources, "Power")
+	else
+		table.remove_entry(g_InsufficientMaintenanceResources,"Power")		
+	end
 end
 
-----
+-------------------------------
 
 DefineClass.CityObject = {
 	__parents = { "Object", "Modifiable" },
@@ -1143,6 +1273,14 @@ function TimeSeries:GetValue(n)
 	return self.data[ (self.next_index + n + ts_capacity) % ts_capacity + 1 ] or 0
 end
 
+function TimeSeries:GetLastValue(default_value)
+	local data = self.data
+	local index = self.next_index - 1
+	local min_value, max_value
+	local value = data[index % ts_capacity + 1] or default_value or 0
+	return value, min_value, max_value
+end
+
 function TimeSeries:GetLastValues(count, out_values, default_value)
 	out_values = out_values or {}
 	local data = self.data
@@ -1204,10 +1342,11 @@ function SavegameFixups.CityTimeSeries()
 	UICity:InitTimeSeries()
 end
 
-function City:CountBuildings()
+function City:CountBuildings(label)
+	label = label or "Building"
 	local all_buildings = 0
-	for _, building in ipairs(self.labels.Building or empty_table) do
-		if building.count_as_building and not IsKindOfClasses(building, "ConstructionSite", "ConstructionSiteWithHeightSurfaces") then
+	for _, building in ipairs(self.labels[label] or empty_table) do
+		if building.count_as_building and not building.destroyed and not IsKindOfClasses(building, "ConstructionSite", "ConstructionSiteWithHeightSurfaces") then
 			all_buildings = all_buildings + 1
 		end
 	end
@@ -1324,7 +1463,7 @@ function TimeSeries_GetGraphValueHeights(desc, day, n, height, axis_divisions)
 			}
 		end
 		for i = day, n do
-			values[i] = {0,0,0,0,0}
+			values[i] = {0,0,0,0,i}
 		end
 	end
 	return values, axis_step / scale

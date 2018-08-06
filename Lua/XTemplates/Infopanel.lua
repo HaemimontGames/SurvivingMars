@@ -2,6 +2,7 @@
 
 PlaceObj('XTemplate', {
 	__content = function (parent, context) return parent.idContent end,
+	__is_kind_of = "InfopanelDlg",
 	group = "Infopanel",
 	id = "Infopanel",
 	PlaceObj('XTemplateWindow', {
@@ -11,6 +12,7 @@ PlaceObj('XTemplate', {
 		'MinWidth', 410,
 		'MaxWidth', 410,
 		'LayoutMethod', "VList",
+		'ContextUpdateOnOpen', true,
 		'FocusOnOpen', "",
 	}, {
 		PlaceObj('XTemplateWindow', {
@@ -198,6 +200,20 @@ end,
 						'Rows', 2,
 					}),
 					PlaceObj('XTemplateTemplate', {
+						'comment', "camera",
+						'__context_of_kind', "CameraFollowObject",
+						'__condition', function (parent, context) return not context.camera_follow_disabled end,
+						'__template', "InfopanelAction",
+						'RolloverText', T{10116, --[[XTemplate Infopanel RolloverText]] "Activate a close-up camera that follows this unit."},
+						'RolloverTitle', T{10117, --[[XTemplate Infopanel RolloverTitle]] "Follow Camera"},
+						'RelativeFocusOrder', "next-in-line",
+						'OnPress', function (self, gamepad)
+Camera3pFollow(self.context)
+end,
+						'Image', "UI/Infopanel/camera_follow.tga",
+						'Rows', 2,
+					}),
+					PlaceObj('XTemplateTemplate', {
 						'comment', "pin",
 						'__context_of_kind', "PinnableObject",
 						'__condition', function (parent, context) return context.show_pin_toggle end,
@@ -223,7 +239,7 @@ end,
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'comment', "encyclopedia",
-						'__condition', function (parent, context) return (not context:HasMember("encyclopedia_exclude") or not context.encyclopedia_exclude) and context:HasMember("encyclopedia_id") and context.encyclopedia_id end,
+						'__condition', function (parent, context) return context:HasMember("encyclopedia_id") and (context.encyclopedia_id or "") ~= "" end,
 						'__template', "InfopanelAction",
 						'RolloverText', T{4032, --[[XTemplate Infopanel RolloverText]] "Open the corresponding Encyclopedia article."},
 						'RolloverTitle', T{7384, --[[XTemplate Infopanel RolloverTitle]] "Encyclopedia"},

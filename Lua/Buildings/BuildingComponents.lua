@@ -21,9 +21,8 @@ end
 
 function OnMsg.TechResearched(tech_id, city)
 	if tech_id == "NanoRefinement" then
-		ForEach{
-			class = "DepositExploiter",
-			exec = function(obj)
+		MapForEach("map", "DepositExploiter",
+			function(obj)
 				if IsKindOf(obj, "BaseBuilding") then
 					obj:UpdateConsumption()
 					if obj:HasMember("DepositChanged") then
@@ -31,8 +30,7 @@ function OnMsg.TechResearched(tech_id, city)
 					end
 					obj:UpdateWorking()
 				end
-			end
-		}		
+			end)	
 	end
 end
 
@@ -81,14 +79,17 @@ end
 function BuildingDepositExploiterComponent:OnDepositsLoaded()
 end
 
-function BuildingDepositExploiterComponent:SortNearbyDeposits(ref_obj) --override this if u want ur building to have different priorities.
+function BuildingDepositExploiterComponent:SortNearbyDeposits() --override this if u want ur building to have different priorities.
+	SortNearbyDeposits(self.nearby_deposits, self)
+end
+
+function SortNearbyDeposits(deposits, ref_obj)
 	local max_exploitable_layer = UICity:GetMaxSubsurfaceExploitationLayer()
 	ref_obj = ref_obj or self
-	local deposits = self.nearby_deposits
 	for i=1,#deposits do
 		deposits[i].quality_mul = deposits[i]:GetQualityMultiplier(ref_obj)
 	end
-	table.sort(self.nearby_deposits, 
+	table.sort(deposits,
 		function(a, b)
 			if a.depth_layer > max_exploitable_layer and b.depth_layer <= max_exploitable_layer then
 				return false --b is better
@@ -128,25 +129,13 @@ function BuildingDepositExploiterComponent:StartExploit(deposit)
 	end
 end
 
-local DepositQuery = {
-	classes = "SubsurfaceDeposit",
-	area = false,
-	arearadius = 0,
-	filter = function(o, self) return o:IsExploitableBy(self) end,
-}
-
 function BuildingDepositExploiterComponent:GatherNearbyDeposits(no_filter)
-	DepositQuery.area = self
-	DepositQuery.hexradius = self.exploitation_radius
-	local old_query_filter = DepositQuery.filter
+	local depo_hexaradius = self.exploitation_radius
+	local depo_filter = function(o, self) return o:IsExploitableBy(self) end
 	if no_filter then
-		DepositQuery.filter = nil
+		depo_filter = nil
 	end
-	local deposits = GetObjects(DepositQuery, self)
-	if no_filter then
-		DepositQuery.filter = old_query_filter
-	end
-	DepositQuery.area = false
+	local deposits = MapGet(self, "hex", depo_hexaradius, "SubsurfaceDeposit", depo_filter, self)
 	for i=1,#deposits do
 		deposits[deposits[i]] = true
 	end
@@ -276,7 +265,7 @@ function AvailableDeposits(bld, items)
 	if bld:IsKindOf("TerrainDepositExtractor") then
 		if bld.found_deposit then
 			deposit = bld.found_deposit
-			resource = bld:GetDepositResource()
+			resource = bld.exploitation_resource
 			amount = bld:GetAmount()
 		end
 	else
@@ -314,13 +303,6 @@ DefineClass.BuildingVisualDustComponent =
 	visual_dust = 0,
 	visual_max_dust = 50000,
 }
-
-function BuildingVisualDustComponent:AddVisualDust(dust)
-	if not IsObjInDome(self) then
-		self.visual_dust = Clamp(self.visual_dust + dust, 0, self.visual_max_dust)
-		self:SetDustVisuals(self.visual_dust)
-	end
-end
 
 function BuildingVisualDustComponent:ResetDust()
 	self.visual_dust = 0
@@ -445,7 +427,7 @@ function ResourceProducer:TestResourceAmountConsistency()
 end
 
 function dbg_TestStockpileControllers()
-	ForEach{class = "ResourceProducer", area = "realm", exec = ResourceProducer.TestResourceAmountConsistency}
+	MapForEach(true, "ResourceProducer", ResourceProducer.TestResourceAmountConsistency)
 end
 
 function ResourceProducer:AddProducer(i) --expects relevant props to be filled
@@ -699,9 +681,44 @@ function ResourceProducer:GetWasterockAmountStored()
 	end
 end
 
+function CalcWasteRockAmount(amount_produced, resource, deposit_grade)
+	return amount_produced * DepositGradeToWasteRockMultipliers[resource][deposit_grade] / const.ResourceScale
+end
+
+function PlaceWasteRockAround(obj, amount, pile)
+	local placed = 0
+	while amount > 0 do
+		if not IsValid(pile) or pile:GetEmptyStorage() == 0 then
+			pile = MapFindNearest(obj, obj, "hex", 4, "WasteRockStockpileBase", function(pile) return pile:GetEmptyStorage() > 0 and not pile:GetParent() end)
+		end
+		if not pile then
+			local q, r = WorldToHex(obj)
+			local p_shape = HexSurroundingsCheckShapeLarge
+			local success
+			success, q, r = TryFindStockpileDumpSpot(q, r, obj:GetAngle(), p_shape, HexGetAnyObj, true)
+			if not success then
+				break
+			end
+			pile = PlaceObject("WasteRockStockpileUngrided", {
+				has_demand_request = true,
+				apply_to_grids = true,
+				has_platform = false,
+				snap_to_grid = true,
+				additional_demand_flags = const.rfSpecialDemandPairing,
+			})
+			pile:SetPos(point(HexToWorld(q, r)))
+		end
+		local added = Min(pile:GetEmptyStorage(), amount)
+		pile:AddResourceAmount(added)
+		placed = placed + added
+		amount = amount - added
+	end
+	return placed, pile
+end
+
 function ResourceProducer:ProduceWasteRock(amount_produced, deposit_grade)
 	if self.wasterock_producer then
-		local wasterock_amount = amount_produced * DepositGradeToWasteRockMultipliers[self.exploitation_resource][deposit_grade] / const.ResourceScale
+		local wasterock_amount = CalcWasteRockAmount(amount_produced, self.exploitation_resource, deposit_grade)
 		self.wasterock_producer:Produce(wasterock_amount)
 		return self.wasterock_producer:IsStorageFull()
 	end
@@ -711,15 +728,25 @@ end
 
 function ResourceProducer:GetUISectionResourceProducerRollover()
 	if not self:GetResourceProduced() then end
-	
+	local deposit_grade = self:HasMember("GetDepositGrade") and self:GetDepositGrade() or "Average"
 	local t = {}
 	for i,producer in ipairs(self.producers) do
 		local resource = Resources[producer:GetResourceProduced()].name
+		if self.consumption_resource_type and self.consumption_resource_type ~= "no_consumption" then
+			local consumed_resource = Resources[self.consumption_resource_type].name
+			if self.wasterock_producer then
+				local wasterock_prod = DepositGradeToWasteRockMultipliers[resource][deposit_grade]
+				t[#t + 1] = T{10366, "<em>Produces <resource(1000,resource)> and <resource(wasterock_prod, waste_rock)> from <resource(number,consumed_resource)></em>",
+					resource = resource, consumed_resource = consumed_resource, number = self.consumption_amount, wasterock_prod = wasterock_prod, waste_rock = "WasteRock", self}
+			else
+				t[#t + 1] = T{10367, "<em>Produces <resource(1000,resource)> from <resource(number,consumed_resource)></em>",
+					resource = resource, consumed_resource = consumed_resource, number = self.consumption_amount, self}
+			end
+		end
 		t[#t + 1] = T{7619, "Daily production (predicted)<right><resource(PredictedDailyProduction,resource)>",
 			resource = resource, PredictedDailyProduction = producer:GetPredictedDailyProduction(), producer}
 		t[#t + 1] = T{476, "Lifetime production<right><resource(LifetimeProduction,resource)>",
 			resource = resource, LifetimeProduction = producer.lifetime_production, producer}
-		t[#t + 1] = T{316, "<newline>"}
 	end
 	
 	t[#t + 1] = T{469, "<newline><center><em>Storage</em>"}
@@ -852,6 +879,8 @@ function SingleResourceProducer:OnProduce(amount_to_produce) --use this to mod a
 	return amount_to_produce
 end
 
+GlobalVar("g_ResourceProducedTotal", {})
+
 function SingleResourceProducer:Produce(amount_to_produce) --produces amount_to_produce
 	local stored = self:GetAmountStored()
 	if stored + amount_to_produce > self.max_storage then
@@ -867,7 +896,11 @@ function SingleResourceProducer:Produce(amount_to_produce) --produces amount_to_
 		amount_to_produce = self.parent:Consume_Upgrades_Production(amount_to_produce, perc)
 	end
 	
-	amount_to_produce = self:OnProduce(amount_to_produce)	
+	amount_to_produce = self:OnProduce(amount_to_produce)
+	
+	local res = self.stockpiled_resource
+	g_ResourceProducedTotal[res] = (g_ResourceProducedTotal[res] or 0) + amount_to_produce
+	
 	self:UpdateStockpileAmounts(stored + amount_to_produce)
 	self.lifetime_production = self.lifetime_production + amount_to_produce
 	self.today_production = self.today_production + amount_to_produce

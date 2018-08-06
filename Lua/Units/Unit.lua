@@ -1,6 +1,6 @@
 DefineClass.Unit =
 {
-	__parents = { "Movable", "CommandObject", "UngridedObstacle", "DoesNotObstructConstruction", "SyncObject","Renamable" },
+	__parents = { "Movable", "CommandObject", "UngridedObstacle", "DoesNotObstructConstruction", "SyncObject", "Renamable", "CameraFollowObject" },
 	encyclopedia_id = false,
 	enum_flags = { efUnit = true, efWalkable = false, efCollision = false, efApplyToGrids = false, efSelectable = true, },
 	class_flags = { cfComponentSound = true },
@@ -10,6 +10,7 @@ DefineClass.Unit =
 	fx_actor = false,
 	fx_target = false,
 	goto_target = false,
+	last_spot_tried = false,
 	holder = false,
 	always_renderable = false,
 	current_dome = false, -- the dome the unit is physically inside, not "home dome"
@@ -28,6 +29,7 @@ DefineClass.Unit =
 	init_with_command = "Start",
 	
 	use_passages = false,
+	camera_follow_disabled = false,
 }
 
 function Unit:GameInit()
@@ -125,7 +127,7 @@ local pfFinished = const.pfFinished
 local pfFailed = const.pfFailed
 local pfDestLocked = const.pfDestLocked
 local pfTunnel = const.pfTunnel
-local pfTeleportDist = 50*guim
+local pfStranded = const.pfStranded
 function Unit:Goto(...)
 	local pfStep = self.Step
 	local status = pfStep(self, ...)
@@ -139,13 +141,12 @@ function Unit:Goto(...)
 		if status > 0 then
 			pfSleep(self, status)
 		elseif status == pfTunnel then
-			local end_point = pf.GetPathPoint(self, pf.GetPathPointCount(self))
-			local tunnel, param = pf.GetTunnel(self:GetPos(), end_point)
-			if not tunnel then
-				self:ClearPath()
-			elseif not tunnel:TraverseTunnel(self, self:GetPos(), end_point, param) then
-				self:ClearPath()
+			if not self:TraverseTunnel() then
 				status = pfFailed
+				break
+			end
+		elseif status == pfStranded then
+			if not self:OnStrandedFallback(...) then
 				break
 			end
 		else
@@ -155,10 +156,79 @@ function Unit:Goto(...)
 	end
 	self:StopMoving()
 	self.goto_target = false
+	self.last_spot_tried = false
 	return status == pfFinished
 end
 
+local developer = Platform.developer
+
+function Unit:OnStrandedFallback(dest, ...)
+	dest = dest or self.goto_target
+	dest = self:ResolveGotoDest(dest, ...)
+	if not dest then
+		return
+	end
+	self:ClearPath()
+	local status = self:Step(dest, "sl")
+	if status < 0 then
+		return
+	end
+	local dome1 = developer and GetDomeAtPoint(self:GetPos())
+	self:MoveSleep(status)
+	local dome2 = developer and GetDomeAtPoint(self:GetPos())
+	assert(dome1 == dome2)
+	return true
+end
+
+function Unit:ResolveGotoDest(dest, ...)
+	local param = ...
+	while type(dest) == "table" do
+		if IsValid(dest) then
+			if not param or param == "sl" or type(param) ~= "string" or not dest:HasSpot(param) then
+				dest = dest:GetPos()
+			else
+				local idx = dest:GetNearestSpot(param, self)
+				dest = dest:GetSpotPos(idx)
+			end
+		elseif dest[1] then
+			local j = 1
+			for i=2,#dest do
+				if IsCloser2D(self, dest[i], dest[j]) then
+					j = i
+				end
+			end
+			dest = dest[j]
+		else
+			return
+		end
+	end
+	if not IsPoint(dest) then
+		return
+	end
+	return dest:IsValidZ() and dest:SetInvalidZ() or dest
+end
+
+function Unit:TraverseTunnel()
+	local end_point = pf.GetPathPoint(self, pf.GetPathPointCount(self))
+	local tunnel, param = pf.GetTunnel(self:GetPos(), end_point)
+	if not tunnel then
+		self:ClearPath()
+	elseif not tunnel:TraverseTunnel(self, self:GetPos(), end_point, param) then
+		self:ClearPath()
+		return false
+	end
+	return true
+end
+
 function Unit:SetOutside(outside)
+	self:SetOutsideVisuals(outside)
+	self:SetOutsideEffects(outside)
+end
+
+function Unit:SetOutsideVisuals(outside)
+end
+
+function Unit:SetOutsideEffects(outside)
 end
 
 function Unit:OnEnterDome(dome)
@@ -216,9 +286,13 @@ function Unit:EnterBuilding(building, entrance_type, spot_name) -- works only if
 		--retest after goto.
 		return false
 	elseif IsKindOf(building, "Dome") then
-		local dome_entrance = FindNearestObject(building.dome_entrances, self)
-		local leadout_chain = dome_entrance and dome_entrance.leadout_chain[1]
-		if not self:Goto(leadout_chain[#leadout_chain]) then
+		if self.current_dome == building then
+			assert(GetDomeAtPoint(self:GetPos()) == self.current_dome)
+			return true
+		end
+		local entrance_points = building:GetEntrancePoints() -- inner exit points
+		self:Goto_NoDestlock(entrance_points or building:GetPos())
+		if self.current_dome ~= building then
 			self:OnEnterDomeFail(building)
 			return false
 		end
@@ -226,6 +300,18 @@ function Unit:EnterBuilding(building, entrance_type, spot_name) -- works only if
 	elseif not IsKindOf(building, "WaypointsObj") then
 		return false
 	end
+	-- approach one of the building entrances
+	local entrance_points = building:GetEntrancePoints(entrance_type or self.entrance_type, spot_name)
+	if entrance_points then
+		if self:IsValidPos() then
+			self:Goto_NoDestlock(entrance_points)
+			if not IsValid(building) then return false end
+		else
+			self:FixCurrentDome(building.parent_dome)
+			self:SetPos(type(entrance_points) == "table" and entrance_points[self:Random(1, #entrance_points)] or entrance_points)
+		end
+	end
+	-- enter closest entrance
 	local entrance, pos, entrance_spot = building:GetEntrance(self, entrance_type or self.entrance_type, spot_name)
 	if entrance_spot then
 		local force_place = not self:IsValidPos() or not self:Goto(building, entrance_spot)
@@ -288,7 +374,7 @@ function Unit:ValidateCurrentDomeOnExit(building)
 	end
 end
 
-function Unit:CalcCurrentDome()
+function Unit:UpdateCurrentDome()
 	if self.dome_version == g_DomeVersion then
 		return self.current_dome
 	end
@@ -300,9 +386,6 @@ function Unit:CalcCurrentDome()
 		pos = GetPassablePointNearby(GetTopmostParent(self):GetPos(), self.pfclass)
 	end
 	dome = dome or pos and GetDomeAtPoint(pos) or false
-	if self:TimeToPosInterpolationEnd() > 0 and pos and GetDomeAtPoint(self:GetVisualPos2D()) ~= dome then
-		self:SetPos(pos)
-	end
 	if self.current_dome ~= dome then
 		if self.current_dome then
 			self:OnExitDome(self.current_dome)
@@ -357,7 +440,7 @@ function Unit:GotoBuildingsSpot(buildings, spot)
 	return result
 end
 
-function Unit:GotoBuildingSpot(building, spot, force_teleport)
+function Unit:GotoBuildingSpot(building, spot, force_teleport, dest_tolerance)
 	if not self:ExitHolder(building) or not IsValid(building) then
 		return false
 	end
@@ -377,7 +460,7 @@ function Unit:GotoBuildingSpot(building, spot, force_teleport)
 	local idx = spot and building:GetNearestSpot("idle", spot, self)
 	if not result then
 		local spot_pos = (#goto_args == 2 or not idx) and building:GetSpotPos(idx or -1) or goto_args[1][idx - begin_idx + 1]
-		if self:GetDist(spot_pos) > 2*guim then
+		if self:GetDist(spot_pos) > (dest_tolerance or 2*guim) then
 			return false
 		end
 	end
@@ -574,7 +657,10 @@ function Unit:GotoFromUser(...) --goto and dome handling in one
 end
 
 function Unit:IsDead()
-	return IsValid(self)
+	return not IsValid(self)
+end
+
+function Unit:ResolveObjAt(pos, interaction_mode)
 end
 
 ----- Vehicle

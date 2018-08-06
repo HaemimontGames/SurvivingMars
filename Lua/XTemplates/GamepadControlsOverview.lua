@@ -29,7 +29,7 @@ PlaceObj('XTemplate', {
 				PlaceObj('XTemplateWindow', {
 					'__condition', function (parent, context) return not Platform.durango and g_TestUIPlatform ~= "durango" end,
 					'__class', "XImage",
-					'Image', "UI/Xbox/Controller.tga",
+					'Image', "UI/DesktopGamepad/Controller.tga",
 					'ImageScale', point(800, 800),
 				}),
 				PlaceObj('XTemplateWindow', {

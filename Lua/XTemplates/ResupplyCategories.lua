@@ -45,7 +45,7 @@ end,
 				'TextColor', RGBA(118, 163, 222, 255),
 				'RolloverTextColor', RGBA(118, 163, 222, 255),
 				'Translate', true,
-				'Text', T{198049262709, --[[XTemplate ResupplyCategories Text]] "Cargo Capacity <white><Capacity> kg</white><newline>Funding <white><funding(Funding)></white><newline>Available Rockets <white><AvailableRockets>/<TotalRockets></white>"},
+				'Text', T{198049262709, --[[XTemplate ResupplyCategories Text]] "Cargo Capacity <white><Capacity> kg</white>\nFunding <white><funding(Funding)></white>\nAvailable Rockets <white><AvailableRockets>/<TotalRockets></white>\n<AdditionalPassengerText>"},
 				'TextHAlign', "right",
 			}),
 			PlaceObj('XTemplateWindow', {
@@ -103,7 +103,14 @@ end,
 					'FXMouseIn', "RocketTypeItemHover",
 					'FXPress', "RocketTypeItemClick",
 					'OnPress', function (self, gamepad)
-local host = GetXDialog(self)
+if UICity then
+	UICity.launch_mode = "rocket"
+end
+if g_CargoMode ~= "rocket" then
+	ClearRocketCargo()
+	g_CargoMode = "rocket"
+end
+local host = GetDialog(self)
 host:SetMode("cargo")
 end,
 					'DisabledRolloverTextColor', RGBA(130, 130, 130, 255),
@@ -124,7 +131,10 @@ end,
 					'FXMouseIn', "RocketTypeItemHover",
 					'FXPress', "RocketTypeItemClick",
 					'OnPress', function (self, gamepad)
-local host = GetXDialog(self)
+if UICity then
+	UICity.launch_mode = "rocket"
+end
+local host = GetDialog(self)
 host:SetMode("passengers")
 end,
 					'DisabledRolloverTextColor', RGBA(130, 130, 130, 255),
@@ -134,27 +144,34 @@ end,
 					'__condition', function (parent, context) return UICity and #(UICity.labels.SpaceElevator or empty_table) > 0 and UICity.labels.SpaceElevator[1].working end,
 					'__template', "MenuEntrySmall",
 					'RolloverTemplate', "Rollover",
-					'RolloverDisabledText', T{855487073078, --[[XTemplate ResupplyCategories RolloverDisabledText]] "Space Elavator Unavailable."},
+					'RolloverDisabledText', T{10457, --[[XTemplate ResupplyCategories RolloverDisabledText]] "Space Elevator is unavailable"},
 					'Id', "idElevator",
 					'HAlign', "right",
 					'FXMouseIn', "RocketTypeItemHover",
 					'FXPress', "RocketTypeItemClick",
 					'OnPress', function (self, gamepad)
 if UICity then
-	UICity.launch_elevator_mode = true
+	UICity.launch_mode = "elevator"
 end
-local host = GetXDialog(self)
+if g_CargoMode ~= "elevator" then
+	ClearRocketCargo()
+	g_CargoMode = "elevator"
+end
+local host = GetDialog(self)
 host:SetMode("cargo")
 end,
 					'DisabledRolloverTextColor', RGBA(130, 130, 130, 255),
 					'Text', T{1120, --[[XTemplate ResupplyCategories Text]] "Space Elevator"},
+				}),
+				PlaceObj('XTemplateTemplate', {
+					'__template', "AddAdditionalSupplyCategories",
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "buyRocket",
 					'ActionName', T{5454, --[[XTemplate ResupplyCategories ActionName]] "BUY ROCKET"},
 					'ActionToolbar', "ActionBar",
 					'ActionGamepad', "ButtonY",
-					'OnAction', function (self, host, source, toggled)
+					'OnAction', function (self, host, source)
 BuyRocket(host)
 end,
 				}),
@@ -164,7 +181,7 @@ end,
 					'ActionToolbar', "ActionBar",
 					'ActionShortcut', "Escape",
 					'ActionGamepad', "ButtonB",
-					'OnAction', function (self, host, source, toggled)
+					'OnAction', function (self, host, source)
 host.parent.parent:Close()
 end,
 				}),

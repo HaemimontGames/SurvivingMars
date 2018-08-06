@@ -134,7 +134,7 @@ function HintDisable(id)
 end
 
 function HintsGetHighlightedID(dialog)
-	local hints_dlg = GetXDialog("OnScreenHintDlg")
+	local hints_dlg = GetDialog("OnScreenHintDlg")
 	if not hints_dlg or not hints_dlg.idHintPad:GetVisible() then return end
 	
 	local current_hint_id = hints_dlg:CurrentHintId()
@@ -209,7 +209,7 @@ function SetHintNotificationsEnabled(enabled)
 		end
 		HintsEnabled = enabled
 		AccountStorage.Options.HintsEnabled = enabled
-		SaveAccountStorage()
+		SaveAccountStorage(5000)
 	end
 end
 
@@ -650,7 +650,9 @@ function HintRefuelingTheRocket:TriggerLater()
 		self.trigger_thread = CreateGameTimeThread(
 		function(delay)
 			Sleep(delay)
-			HintTrigger("HintRefuelingTheRocket")
+			if HintsEnabled then
+				HintTrigger("HintRefuelingTheRocket")
+			end
 		end, time_to_trigger)
 	else
 		HintTrigger("HintRefuelingTheRocket")
@@ -685,7 +687,7 @@ DefineClass.HintExplorer = {
 	context_aware = true,
 }
 
-function TFormat.UnitMoveControl(gamepad_hint_key, interaction_mode)
+function TFormat.UnitMoveControl(context_obj, gamepad_hint_key, interaction_mode)
 	local  gamepad = GetUIStyleGamepad()
 	if interaction_mode~=nil and interaction_mode~=false and interaction_mode~="default" then
 		return gamepad and T{7518, "<ButtonA>"} or T{7519, "<left_click>"}

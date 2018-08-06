@@ -1,7 +1,6 @@
 local l_traits_rollover_for_domes = T{1143, "Colonists with <em>MORE</em> of the desired traits will prefer this Dome.<newline><newline>Colonists with <em>ANY</em> of the undesired traits will leave, provided there is <em>available living space</em> elsewhere.<newline><newline>Colonists can walk to closely positioned Domes but will need Shuttles to reach distant Domes."}
 local l_traits_rollover_for_rocket = T{1144, "Applicants with <em>MORE</em> of the desired traits will board the Rocket.<newline><newline>Applicants with <em>ANY</em> of the undesired traits will be rejected."}
 local function TraitCategoryItems(self, cat_id)
-	local traits = DataInstances.Trait
 	local items = {}
 	items[#items + 1] = {
 		cat_id = cat_id,
@@ -17,15 +16,15 @@ local function TraitCategoryItems(self, cat_id)
 		hint = T{7777, "<left_click><left_click> to select colonists"}
 	end
 	local dome_filter = self.dome or false
-	for i, trait in ipairs(traits) do
-		if cat_id == trait.category 
-			and not g_HiddenTraits[trait.name] 
+	ForEachPreset(TraitPreset, function(trait, group_list)
+		if cat_id == trait.group
+			and not g_HiddenTraits[trait.id] 
 			and IsTraitAvailable(trait, UICity, "unlocked") 
 			and (dome_filter or not trait.dome_filter_only)
 		then
 			items[#items + 1] = {
 				cat_id = cat_id,
-				value = trait.name,
+				value = trait.id,
 				name = trait.display_name,
 				add_count_in_name = true,
 				rollover = {
@@ -36,7 +35,7 @@ local function TraitCategoryItems(self, cat_id)
 				},
 			}
 		end
-	end
+	end)
 	return items
 end
 
@@ -124,20 +123,29 @@ function TraitsObject:GetApprovedColonists()
 	return count
 end
 
+function GetPassengerCapacity()
+	return g_Consts.MaxColonistsPerRocket
+end
+
 function TraitsObject:GetReviewSubtitle()
 	local approved = self:GetApprovedColonists()
 	local count, all = self:GetMatchingColonistsCount()
-	local capacity = g_Consts.MaxColonistsPerRocket
+	local capacity = GetPassengerCapacity()
 	local color =  approved==capacity and TLookupTag("<green>") or approved>capacity and TLookupTag("<red>") or TLookupTag("<white>")
 	return T{7643, "Matching Colonists <white><count>/<applicants></white><newline>Approved Colonists <col><approved>/<capacity></color><newline>Available Residences on Mars <white><residences></white>",
-	approved = approved, count = count, capacity = g_Consts.MaxColonistsPerRocket, residences =  GetAvailableResidences(UICity), applicants = all,
+	approved = approved, count = count, capacity = capacity, residences =  GetAvailableResidences(UICity), applicants = all,
 		col = color }
 end
 
 function TraitsObject:GetApplicantsSubtitle()
 	local count, all = self:GetMatchingColonistsCount()
+	local capacity = GetPassengerCapacity()
 	return T{7644, "Matching Colonists <white><count>/<all></white><newline>Rocket Capacity <white><applicants></white><newline>Available Residences on Mars <white><residences></white>",
-	count = count, all = #g_ApplicantPool, residences =  GetAvailableResidences(UICity), applicants = g_Consts.MaxColonistsPerRocket }
+		count = count, 
+		all = #g_ApplicantPool, 
+		residences =  GetAvailableResidences(UICity), 
+		applicants = capacity,
+	}
 end
 
 function TraitsObject:GetDomeSubtitle()
@@ -188,12 +196,11 @@ function TraitsObject:SetFilter(prop_meta, state, current_state)
 	local cat_id = prop_meta.cat_id or prop_meta.id
 	local all = prop_meta.value == "all" or prop_meta.submenu
 	if all then
-		local traits = DataInstances.Trait
-		for i = 1, #traits do
-			if traits[i].category == cat_id and (current_state == nil or filter[traits[i].name] == current_state) then
-				filter[traits[i].name] = state
+		ForEachPreset(TraitPreset, function(trait, group_list)
+			if trait.group == cat_id and (current_state == nil or filter[trait.id] == current_state) then
+				filter[trait.id] = state
 			end
-		end
+		end)
 	else
 		filter[prop_meta.value] = state
 	end
@@ -221,26 +228,23 @@ end
 function TraitsObject:CountTraitsPerCategory()
 	self.categories = {}
 	local filter = self.filter
-	local traits = DataInstances.Trait
-	for i = 1, #traits do
-		local cat_id = traits[i].category
-		local trait_id = traits[i].name
-		self.categories[cat_id] = self.categories[cat_id] or {}
-		local cat_t = self.categories[cat_id]
-		if filter[trait_id] then
+	ForEachPreset(TraitPreset, function(trait, group_list)
+		self.categories[trait.group] = self.categories[trait.group] or {}
+		local cat_t = self.categories[trait.group]
+		if filter[trait.id] then
 			cat_t.__true = (cat_t.__true or 0) + 1
-		elseif filter[trait_id] == false then
+		elseif filter[trait.id] == false then
 			cat_t.__false = (cat_t.__false or 0) + 1
 		end
 		cat_t.count = (cat_t.count or 0) + 1
-	end
+	end)
 end
 
 function TraitsObject:CountApprovedColonistsForCategory(category)
 	if category then
 		self.approved_per_trait = {}
 		local colonists = self.colonists
-		local traits_def = DataInstances.Trait
+		local traits_def = TraitPresets
 		local label = not not self.dome
 		for i = 1, #colonists do
 			local colonist = label and colonists[i] or colonists[i][1]
@@ -248,7 +252,7 @@ function TraitsObject:CountApprovedColonistsForCategory(category)
 			local cat_counted = false
 			local eval = TraitFilterColonist(self.filter, traits)
 			for k, v in sorted_pairs(traits) do
-				local cat = traits_def[k] and traits_def[k].category
+				local cat = traits_def[k] and traits_def[k].group
 				if cat == category then
 					if eval >= 0 then
 						if not cat_counted then
@@ -266,14 +270,14 @@ end
 function TraitsObject:CountColonists()
 	self.colonist_count = {}
 	local colonists = self.colonists
-	local traits_def = DataInstances.Trait
+	local traits_def = TraitPresets
 	local label = not not self.dome
 	for i = 1, #colonists do
 		local colonist = label and colonists[i] or colonists[i][1]
 		local traits = colonist.traits or {}
 		local cat_counted = {}
 		for k, v in sorted_pairs(traits) do
-			local cat = traits_def[k] and traits_def[k].category
+			local cat = traits_def[k] and traits_def[k].group
 			if cat then
 				if not cat_counted[cat] then
 					self.colonist_count[cat] = (self.colonist_count[cat] or 0) + 1
@@ -287,10 +291,10 @@ end
 
 function TraitsObject:ClearTraits(prop_meta)
 	local filter = self.filter
-	local traits = DataInstances.Trait
+	local traits = TraitPresets
 	if prop_meta then
 		for k, v in sorted_pairs(filter) do
-			if traits[k] and traits[k].category == prop_meta.id then
+			if traits[k] and traits[k].group == prop_meta.id then
 				filter[k] = nil
 			end
 		end
@@ -321,7 +325,7 @@ function TraitsObject:GetReviewColonists()
 						
 			local traits = {}
 			for trait_id in pairs(colonist.traits) do
-				local trait = DataInstances.Trait[trait_id]
+				local trait = TraitPresets[trait_id]
 				if trait and trait.show_in_traits_ui then
 					traits[#traits + 1] = T{7373, "<em><trait></em>: <descr>", trait = trait.display_name, descr = trait.description}
 				end
@@ -378,12 +382,13 @@ function TraitsObject:CanApplyFilter(category_id)
 	local filter = self.filter
 	local dome_filter = self.dome.traits_filter
 	if category_id then
-		local traits = DataInstances.Trait
-		for k, v in ipairs(traits) do
-			if v.category == category_id and filter[v.name] ~= dome_filter[v.name] then
-				return true
+		local found = false
+		ForEachPreset(TraitPreset, function(trait, group_list)
+			if trait.group == category_id and filter[trait.id] ~= dome_filter[trait.id] then
+				found = true
 			end
-		end
+		end)
+		return found
 	else
 		return (next(filter) or next(dome_filter)) and (not table.is_subset(filter, dome_filter) or not table.is_subset(dome_filter, filter))
 	end
@@ -391,13 +396,14 @@ end
 
 function TraitsObject:CanClearFilter(category_id)
 	if category_id then
-		local traits = DataInstances.Trait
 		local filter = self.filter
-		for k, v in ipairs(traits) do
-			if v.category == category_id and filter[v.name] ~= nil then
-				return true
+		local found = false
+		ForEachPreset(TraitPreset, function(trait, group_list)
+			if trait.group == category_id and filter[trait.id] ~= nil then
+				found = true
 			end
-		end
+		end)
+		return found
 	else
 		return next(self.filter) and true or false
 	end
@@ -407,13 +413,12 @@ function TraitsObject:ApplyDomeFilter(category_id)
 	if not category_id then
 		self.dome.traits_filter = table.copy(self.filter)
 	else
-		local traits = DataInstances.Trait
 		local dome_traits = self.dome.traits_filter
-		for k, v in ipairs(traits) do
-			if v.category == category_id then
-				dome_traits[v.name] = self.filter[v.name]
+		ForEachPreset(TraitPreset, function(trait, group_list)
+			if trait.group == category_id then
+				dome_traits[trait.id] = self.filter[trait.id]
 			end
-		end
+		end)
 	end
 	self.dome:ApplyTraitsFilter()
 	self.dialog:UpdateActionViews(self.dialog.idActionBar)
@@ -439,7 +444,9 @@ end
 
 function TraitsObject:CountApprovedCheck()
 	local count = self:GetApprovedColonists()
-	return count>0 and count<=g_Consts.MaxColonistsPerRocket
+	local capacity = GetPassengerCapacity()
+
+	return count > 0 and count <= capacity
 end
 
 function TraitsObject:CanLaunchPassengerRocket()
@@ -463,7 +470,7 @@ function BuyApplicants(host)
 		local count = const.BuyApplicantsCount
 		if UICity:GetFunding() >= price then
 			if WaitMarsQuestion(host, T{6882, "Warning"}, T{6883, "Are you sure you want to buy <count> applicants for <funding(price)>?", count = count, price = price}, T{1138, "Yes"}, T{1139, "No"}, "UI/Messages/death.tga") == "ok" then
-				UICity:ChangeFunding(-price)
+				UICity:ChangeFunding(-price, "Applicants")
 				local now = GameTime()
 				for i=1,count do
 					GenerateApplicant(now)
@@ -481,11 +488,16 @@ function BuyApplicants(host)
 end
 
 function LaunchPassengerRocket(host)
-	CreateRealTimeThread(function()
+	local mode = UICity.launch_mode
+	local label = SetupLaunchLabel(mode)
+
+	CreateRealTimeThread(function(mode, label)
 		local obj = ResolvePropObj(host.context)
 		g_ApplicantPoolFilter = obj.filter
-		local amount, data = PrepareApplicantsForTravel(UICity, host)
+		local capacity = GetPassengerCapacity(mode)
+		local amount, data = PrepareApplicantsForTravel(UICity, host, capacity)
 		if not amount then return end
+		Msg("PassengerRocketLaunched", label)
 		local cargo = {}
 		cargo.rocket_name = g_RenameRocketObj.rocket_name
 		MarkNameAsUsed("Rocket", g_RenameRocketObj.rocket_name_base)
@@ -498,178 +510,14 @@ function LaunchPassengerRocket(host)
 			g_ColonyNotViableUntil = -2
 		end
 		
-		CreateGameTimeThread(function() -- let the new rockets properly GameInit so they can actually be used by OrderLanding
+		CreateGameTimeThread(function(mode, label) -- let the new rockets properly GameInit so they can actually be used by OrderLanding
 			Sleep(1)
-			UICity:OrderLanding(cargo, 0)
-		end)
-	end)
+			UICity:OrderLanding(cargo, 0, false, label)
+		end, mode, label)
+	end, mode, label)
 end
 
-local function GetTraitCategoriesCombo()
-	local items = {}
-	for i, prop in ipairs(TraitsObject.properties) do
-		items[#items + 1] = {
-			text = prop.name,
-			value = prop.id,
-		}
-	end
-	return items
-end
 
-DefineClass.Trait =  {
-	__parents = { "DataInstance" },
-	properties ={
-		{ id = "name",        name = T{1000037, "Name"},         editor = "text" },
-		{ id = "display_name",name = T{1000067, "Display Name"}, editor = "text", translate = true, default = "" },		
-		{ id = "category",    name = T{1000097, "Category"},     editor = "combo" , items = GetTraitCategoriesCombo , default = "" },
-		{ id = "description", name = T{1000017, "Description"},  editor = "text", translate = true, default = "" },
-		{ id = "display_icon",name = T{94, "Icon"},         editor = "browse",folder = {"UI/", "CommonAssets/UI/"}, object_update = true,  default = "" },
-		{ id = "rare",        name = T{3940, "Rare"},         editor = "bool", default = false},
-		{ id = "weight",      name = T{3941, "Rarity weight"},editor = "number", default = 30},
-		{ id = "_incompatible",name = T{3942, "Incompatible"},editor = "text", default = "", help = "Comma separated traits this one is incompatible with (like Lazy and Workaholic)"},
-		{ id = "auto",        name = T{3943, "Used in base auto generated"},  editor = "bool", default = true},
-		{ id = "initial_filter", name = T{3944, "Initial filter"},  editor = "bool", default = false},-- checked in rocket initial fileter
-		{ id = "hidden_on_start", name = T{3945, "Hidden on start"},  editor = "bool", default = false},-- not shown/used before unlocked
-		{ id = "show_in_traits_ui", name = T{3946, "Show in traits UI"},  editor = "bool", default = true},-- colonist infopanel and counted traits for ProjectMorpheus
-		{ id = "dome_filter_only", name = T{6863, "Show in traits Dome filters UI but not in Applicants filters"},  editor = "bool", default = false},		
-		{ id = "add_interest",    name = T{3947, "Add interest"},editor = "combo", default = "", items = function() return ServiceInterestsList end, },
-		{ id = "remove_interest", name = T{3948, "Remove interest"},editor = "combo", default = "", items = function() return ServiceInterestsList end, },
-		{ id = "param", name = T{3949, "Parameter"}, editor = "number", default = 0 },
-		{ id = "daily_update_func", name = T{3950, "Update every sol func(colonist, trait)"}, editor = "func", params = "colonist, trait", default = false },
-		{ id = "apply_func", name = T{3951, "Apply func(colonist, trait, init)"}, editor = "func", params = "colonist, trait, init", default = false },
-		{ id = "unapply_func", name = T{3952, "Remove func(colonist, trait)"}, editor = "func", params = "colonist, trait", default = false },
-		{ id = "modify_target", name = T{930, "Modifier target"}, editor = "combo", items = { "", "self", "dome colonists" }, default = "" },
-		{ id = "modify_trait", name = T{3953, "Target only Colonists with trait"}, editor = "combo", items = DataInstanceCombo("Trait"), default = "" },
-		{ id = "modify_property", name = T{931, "Modified property"}, editor = "combo", items = function() return ClassModifiablePropsCombo(Colonist) end, default = "" },
-		{ id = "modify_amount", name = T{932, "Modification amount"}, editor = "number", default = 0,},
-		{ id = "modify_percent", name = T{933, "Modification percent"}, editor = "number", default = 0,},
-		{ id = "infopanel_effect_text", name = T{3954, "Infopanel effect text"}, editor = "text", translate = true, default = "" }
-	}, 
-	PropEditorCopy = true,
-	incompatible = false,
-}
-	
-DefineClass.TraitEditor =  {
-	__parents = { "DataInstanceEditor" },
-	EditClass = "Trait",
-	PropEditorPaste = { "Name" },
-
-	PropEditorViews = {
-		{
-			name = "Default",
-			height = 780,
-			caption = "Trait Editor",
-			{ title = "Traits",         type = "list", width = 300, items = '{name}', },
-			{ title = "Properties",     type = "props", width = 450, obj = 1},
-		},
-		PropEditorActions = table.copy(DataInstanceEditor.PropEditorActions, true),
-	},
-}
-function OnMsg.ClassesBuilt()
-	table.insert(TraitEditor.PropEditorActions,{ "New", "NewInstance", "Ctrl-N", "new", {"Trait"}})
-	table.insert(TraitEditor.PropEditorActions,{ "Delete", "DeleteInstance", "Shift-Delete", "delete!", {"Trait"}})
-end
-
-if Platform.developer then
-	DefineEditorUserAction("TraitEditor", "[203]Editors/[01]Mars/Trait Editor")
-end
-----------------
-function TraitEditor:NewInstance(obj, selected_index, selection, view_index)
-	if IsKindOf(obj, "TraitEditor") then
-		return DataInstanceEditor.NewInstance(self, obj, selected_index, selection, view_index)
-	end	
-	local new_obj
-	local idx = (selected_index or #obj) + 1
-	local redo_func = function()
-		table.insert(obj, idx, new_obj)
-		PropEditorObjChanged(self)
-		return idx
-	end
-	local undo_func = function()
-		local idx = table.remove_entry(obj, new_obj)
-		PropEditorObjChanged(self)
-		return idx and Max(1, idx - 1) or 1
-	end
-	redo_func()
-	return idx, undo_func, redo_func
-end
-
-function TraitEditor:DeleteInstance(obj,selected_index,selection,view_index)
-	obj = obj or self
-	local del_obj = obj[selected_index]
-	local redo_func = function()
-		local idx = table.remove_entry(obj, del_obj)
-		PropEditorObjChanged(self)
-		return idx and Max(1, idx - 1) or 1
-	end
-	local undo_func = function()
-		local idx = table.insert(obj, selected_index, del_obj)
-		PropEditorObjChanged(self)
-		return idx
-	end
-	local idx = redo_func()
-	return idx, undo_func, redo_func
-end
-
-function Trait:AddIncompatible()
-	local incompatible = self.incompatible or {}
-	self.incompatible = incompatible
-end
-
-function Trait:AddDomeColonistsModifier(unit, trait)
-	local dome = unit.dome
-	if dome then
-		local prop_meta = unit:GetPropertyMetadata(self.modify_property)
-		if not prop_meta then
-			print("once", "Modifying non-existent property", self.modify_property)
-			return
-		end
-		local scale = GetPropScale(prop_meta.scale)
-		local label = (trait ~= "") and trait or "Colonist"
-		dome:SetLabelModifier(label, unit, { 
-			prop = self.modify_property, 
-			amount = self.modify_amount*scale, 
-			percent = self.modify_percent, 
-			id = self.name, 
-		})
-	end
-end
-
-function Trait:RemoveDomeColonistsModifier(unit, trait)
-	local dome = unit.dome
-	if dome then
-		local label = (trait ~= "") and trait or "Colonist"
-		dome:SetLabelModifier(label, unit, nil)
-	end
-end
-
-function Trait:Apply(unit, init)
-	if self.apply_func then
-		self.apply_func(unit, self, init)
-	end
-	if self.modify_target == "self" then
-		local prop_meta = unit:GetPropertyMetadata(self.modify_property)
-		if not prop_meta then
-			print("once", "Modifying non-existent property", self.modify_property)
-			return
-		end
-		local scale = GetPropScale(prop_meta.scale)
-		unit:SetModifier(self.modify_property, self.name, self.modify_amount*scale, self.modify_percent)
-	elseif self.modify_target == "dome colonists" then
-		self:AddDomeColonistsModifier(unit, self.modify_trait)
-	end
-end
-
-function Trait:UnApply(unit)
-	if self.unapply_func then
-		self.unapply_func(unit, self)
-	end
-	if self.modify_target == "self" then
-		unit:SetModifier(self.modify_property, self.name, 0, 0)
-	elseif self.modify_target == "dome colonists" then
-		self:RemoveDomeColonistsModifier(unit, self.modify_trait)
-	end
-end
 
 
 if FirstLoad then
@@ -682,32 +530,36 @@ local function PostprocessTraits()
 	g_RareTraits = {}
 	g_NoneRareTraits = {}
 	g_HiddenTraitsDefault = {}
-	for i=1, #DataInstances.Trait do
-		local trait = DataInstances.Trait[i]
-		local name = trait.name
+	ForEachPreset(TraitPreset, function(trait, group_list)
 		trait:AddIncompatible()
 		trait._incompatible = string.gsub(trait._incompatible, " ", "")
 		local tbl = string.tokenize(trait._incompatible, ",", false, true)
 		for _, val in ipairs(tbl) do
-			local class = DataInstances.Trait[val]
+			local class = TraitPresets[val]
 			class:AddIncompatible()
 			assert(class, "Invalid trait:", val)
 			rawset(trait.incompatible, val, true)
-			rawset(class.incompatible, name, true)
+			rawset(class.incompatible, trait.id, true)
 		end
 		if trait.rare then 
-			g_RareTraits[name] = true
+			g_RareTraits[trait.id] = true
 		else
-			g_NoneRareTraits[name] = true
+			g_NoneRareTraits[trait.id] = true
 		end
 		if trait.hidden_on_start then
-			g_HiddenTraitsDefault[name] = true
+			g_HiddenTraitsDefault[trait.id] = true
 		end
-	end
+
+		-- save compatiblity
+		trait.name = trait.id
+		trait.category = trait.group
+	end)
 end
 
 function OnMsg.DataLoaded()
 	PostprocessTraits()
+	-- save compatibility
+	DataInstances.Trait = TraitPresets
 end
 
 function OnMsg.ModsLoaded()
@@ -724,23 +576,21 @@ local function GenerateBuildingTraitLists()
 	g_SchoolTraits = table.copy(const.SchoolTraits)
 	g_SanatoriumTraits = table.copy(const.SanatoriumTraits)
 	
-	for i,trait in ipairs(DataInstances.Trait) do
-		local name = trait.name
-		
-		if IsKindOf(trait, "ModItemTrait") then
+	ForEachPreset(TraitPreset, function(trait, category)
+		if IsKindOf(trait, "ModItemTraitPreset") then
 			if trait.school_trait then
-				table.insert(g_SchoolTraits, name)
+				table.insert(g_SchoolTraits, trait.id)
 			end
 			if trait.sanatorium_trait then
-				table.insert(g_SanatoriumTraits, name)
+				table.insert(g_SanatoriumTraits, trait.id)
 			end
 		end
 		
 		--Mark as 'hidden' trait
 		if trait.hidden_on_start then
-			g_HiddenTraits[name] = true
+			g_HiddenTraits[trait.id] = true
 		end
-	end
+	end)
 end
 
 function OnMsg.NewMapLoaded()
@@ -770,8 +620,8 @@ function GetCompatibleTraits(compatible, nonerare, rare, category)
 	for idx, tbl in pairs({nonerare, rare}) do
 		for i=#tbl, 1, -1 do 
 			local name = tbl[i]
-			local trait = DataInstances.Trait[name]		
-			if category~=nil and trait.category ~= category then
+			local trait = TraitPresets[name]		
+			if category~=nil and trait.group ~= category then
 				table.remove(tbl,i)
 			end
 			
@@ -800,14 +650,14 @@ function GetRandomTrait(compatible, nonerare, rare, category, base_only, rare_we
 	
 	local total_weights = 0
 	for _, trait_id in ipairs(nonerare) do
-		local trait  = DataInstances.Trait[trait_id]
+		local trait  = TraitPresets[trait_id]
 		if not g_HiddenTraits[trait_id] and (not base_only or trait.auto) and IsTraitAvailable(trait) then
 			total_weights = total_weights + trait.weight
 		end
 	end
 	
 	for _, trait_id in ipairs(rare) do
-		local trait  = DataInstances.Trait[trait_id]
+		local trait  = TraitPresets[trait_id]
 		if not g_HiddenTraits[trait_id] and (not base_only or trait.auto) and IsTraitAvailable(trait) then
 			total_weights = total_weights + MulDivRound(trait.weight, rare_weight_mod, 100)
 		end
@@ -816,7 +666,7 @@ function GetRandomTrait(compatible, nonerare, rare, category, base_only, rare_we
 	local rand = Random(0, total_weights-1, "Traits")
 	local w, found = 0, false
 	for _, trait_id in ipairs(nonerare) do
-		local trait  = DataInstances.Trait[trait_id]
+		local trait  = TraitPresets[trait_id]
 		if not g_HiddenTraits[trait_id] and (not base_only or trait.auto) and IsTraitAvailable(trait) then
 			if rand < w + trait.weight then
 				return trait_id
@@ -825,7 +675,7 @@ function GetRandomTrait(compatible, nonerare, rare, category, base_only, rare_we
 		end
 	end
 	for _, trait_id in ipairs(rare) do
-		local trait  = DataInstances.Trait[trait_id]
+		local trait  = TraitPresets[trait_id]
 		if not g_HiddenTraits[trait_id] and (not base_only or trait.auto) and IsTraitAvailable(trait) then
 			local weight = MulDivRound(trait.weight, rare_weight_mod, 100)
 			if rand < w + weight then
@@ -843,7 +693,7 @@ function FilterCompatibleTraitsWith(traits, compatible_with)
 	local compatible = {}
 	for i=1, #traits do
 		local trait_id =traits[i]
-		local trait = DataInstances.Trait[trait_id]
+		local trait = TraitPresets[trait_id]
 		local is_compatible = true
 		if trait then
 			for trait2,val in pairs(compatible_with) do
@@ -873,10 +723,10 @@ end
 TraitFilterUnit = TraitFilterColonist --old fn. name (for savegame compatibility)
 
 function GetTSortedTraits()
-	local t = table.icopy(DataInstances.Trait)
-	for i = #t, 1, -1 do
-		if g_HiddenTraits[t[i].name] then
-			table.remove(t, i)
+	local t = {}
+	for id, trait in pairs(TraitPresets) do
+		if not g_HiddenTraits[trait.id] then
+			table.insert(t, trait)
 		end
 	end
 	TSort(t, "display_name")
@@ -904,12 +754,12 @@ GuruTraitBlacklist = {
 function GuruDailyUpdate(guru)
 	if not guru.dome then return end
 	
-	local data_instances_trait = DataInstances.Trait
+	local trait_presets = TraitPresets
 	local guru_traits = {}
 	local guru_trait_categories, guru_trait_blacklist = GuruTraitCategories, GuruTraitBlacklist
 	for trait_id in pairs(guru.traits) do
-		local trait = data_instances_trait[trait_id]
-		if trait and guru_trait_categories[trait.category] and not guru_trait_blacklist[trait_id] then
+		local trait = trait_presets[trait_id]
+		if trait and guru_trait_categories[trait.group] and not guru_trait_blacklist[trait_id] then
 			guru_traits[#guru_traits+1] = trait_id
 		end
 	end
@@ -925,8 +775,8 @@ function GuruDailyUpdate(guru)
 		if not colonist_traits.Child then
 			local ntraits = 0
 			for trait_id in pairs(colonist_traits) do
-				local trait = data_instances_trait[trait_id]
-				if trait and guru_trait_categories[trait.category] then
+				local trait = trait_presets[trait_id]
+				if trait and guru_trait_categories[trait.group] then
 					ntraits = ntraits + 1
 				end
 			end
@@ -967,10 +817,10 @@ function OnMsg.Mystery8_BeginHealing()
 end
 
 function OnMsg.TechResearched(tech_id, city)
-	local morale = DataInstances.Trait.Nerd.param*const.Scale.Stat
-	local name = DataInstances.Trait.Nerd.name
+	local morale = TraitPresets.Nerd.param*const.Scale.Stat
+	local id = TraitPresets.Nerd.id
 	local def = TechDef[tech_id]
-	local mod_id = name..tech_id
+	local mod_id = id..tech_id
 	local display_text = T{3955, "<green><tech_name> researched! +<amount> (Nerd)</green>",tech_name = def.display_name}
 	local nerds = {}
 	for _, dome in ipairs(city.labels.Dome or empty_table) do
@@ -997,9 +847,9 @@ function OnMsg.TechResearched(tech_id, city)
 		for i = 1, #list do
 			local traits = list[i].traits
 			local num_traits = 0 -- only counts traits of certain categories
-			for name, _ in pairs(traits) do
-				local trait = DataInstances.Trait[name]
-				local category = trait and trait.category
+			for id, _ in pairs(traits) do
+				local trait = TraitPresets[id]
+				local category = trait and trait.group
 				if category == "Positive" or category == "Negative" or category == "other" then
 					num_traits = num_traits + 1
 				end
@@ -1067,13 +917,94 @@ end
 
 function IsTraitAvailable(trait, city)
 	city = city or UICity
-	local trait_id = type(trait) == "string" and trait or trait.name
+	local trait_id = type(trait) == "string" and trait or trait.id
 	return not TraitLocks[trait_id]
 end
 
-DefineModItemDataInstance("Trait", {
+DefineModItemPreset("TraitPreset", {
 	properties = {
 		{ id = "school_trait",     name = T{8627, "Is School Trait"},     editor = "bool", default = false, help = "If this trait will be added to the list of traits taught by the School." },
 		{ id = "sanatorium_trait", name = T{8628, "Is Sanatorium Trait"}, editor = "bool", default = false, help = "If this trait will be added to the list of traits cured by the Sanatorium." },
 	},
+	EditorName = "Trait",
 })
+
+------------------------------------------------------------
+
+local function GetTraitCategoriesCombo()
+	local items = {}
+	for i, prop in ipairs(TraitsObject.properties) do
+		items[#items + 1] = {
+			text = prop.name,
+			value = prop.id,
+		}
+	end
+	return items
+end
+
+DefineClass.ModItemTrait = { --Kept for backwards compatibility (mods with DataInstances, instead of Presets)
+	__parents = { "ModItem" },
+	properties = {
+		{ id = "name",        name = T{1000037, "Name"},         editor = "text" },
+		{ id = "display_name",name = T{1000067, "Display Name"}, editor = "text", translate = true, default = "" },		
+		{ id = "category",    name = T{1000097, "Category"},     editor = "combo" , items = GetTraitCategoriesCombo , default = "" },
+		{ id = "description", name = T{1000017, "Description"},  editor = "text", translate = true, default = "" },
+		{ id = "display_icon",name = T{94, "Icon"},         editor = "browse",folder = {"UI/", "CommonAssets/UI/"}, object_update = true,  default = "" },
+		{ id = "rare",        name = T{3940, "Rare"},         editor = "bool", default = false},
+		{ id = "weight",      name = T{3941, "Rarity weight"},editor = "number", default = 300},
+		{ id = "_incompatible",name = T{3942, "Incompatible"},editor = "text", default = "", help = "Comma separated traits this one is incompatible with (like Lazy and Workaholic)"},
+		{ id = "auto",        name = T{3943, "Used in base auto generated"},  editor = "bool", default = true},
+		{ id = "initial_filter", name = T{3944, "Initial Filter Down"},  editor = "bool", default = false},-- checked in rocket initial fileter down
+		{ id = "initial_filter_up", name = T{10378, "Initial Filter Up"},  editor = "bool", default = false},-- checked in rocket initial fileter up
+		{ id = "hidden_on_start", name = T{3945, "Hidden on start"},  editor = "bool", default = false},-- not shown/used before unlocked
+		{ id = "show_in_traits_ui", name = T{3946, "Show in traits UI"},  editor = "bool", default = true},-- colonist infopanel and counted traits for ProjectMorpheus
+		{ id = "dome_filter_only", name = T{6863, "Show in traits Dome filters UI but not in Applicants filters"},  editor = "bool", default = false},		
+		{ id = "add_interest",    name = T{3947, "Add interest"},editor = "combo", default = "", items = function() return ServiceInterestsList end, },
+		{ id = "remove_interest", name = T{3948, "Remove interest"},editor = "combo", default = "", items = function() return ServiceInterestsList end, },
+		{ id = "param", name = T{3949, "Parameter"}, editor = "number", default = 0 },
+		{ id = "daily_update_func", name = T{3950, "Update every sol func(colonist, trait)"}, editor = "func", params = "colonist, trait", default = false },
+		{ id = "apply_func", name = T{3951, "Apply func(colonist, trait, init)"}, editor = "func", params = "colonist, trait, init", default = false },
+		{ id = "unapply_func", name = T{3952, "Remove func(colonist, trait)"}, editor = "func", params = "colonist, trait", default = false },
+		{ id = "modify_target", name = T{930, "Modifier target"}, editor = "combo", items = { "", "self", "dome colonists" }, default = "" },
+		{ id = "modify_trait", name = T{3953, "Target only Colonists with trait"}, editor = "combo", items = DataInstanceCombo("Trait"), default = "" },
+		{ id = "modify_property", name = T{931, "Modified property"}, editor = "combo", items = function() return ClassModifiablePropsCombo(Colonist) end, default = "" },
+		{ id = "modify_amount", name = T{932, "Modification amount"}, editor = "number", default = 0,},
+		{ id = "modify_percent", name = T{933, "Modification percent"}, editor = "number", default = 0,},
+		{ id = "infopanel_effect_text", name = T{3954, "Infopanel effect text"}, editor = "text", translate = true, default = "" }
+	},
+	EditorMenubarName = "",
+}
+
+function ModItemTrait:OnModLoad()
+	local mod = self.mod
+	local new = ModItemTraitPreset:new{
+		id = self.name,
+		display_name = self.display_name,
+		group = self.category,
+		description = self.description,
+		display_icon = self.display_icon,
+		rare = self.rare,
+		weight = self.weight,
+		_incompatible = self._incompatible,
+		auto = self.auto,
+		initial_filter_up = self.initial_filter_up,
+		hidden_on_start = self.hidden_on_start,
+		show_in_traits_ui = self.show_in_traits_ui,
+		dome_filter_only = self.dome_filter_only,
+		add_interest = self.add_interest,
+		remove_interest = self.remove_interest,
+		param = self.param,
+		daily_update_func = self.daily_update_func,
+		apply_func = self.apply_func,
+		unapply_func = self.unapply_func,
+		modify_target = self.modify_target,
+		modify_trait = self.modify_trait,
+		modify_property = self.modify_property,
+		modify_percent = self.modify_percent,
+		infopanel_effect_text = self.infopanel_effect_text,
+		mod = mod,
+	}
+	local index = table.find(mod.items, self) or (#mod.items + 1)
+	mod.items[index] = new
+	new:OnModLoad()
+end

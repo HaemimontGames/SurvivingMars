@@ -27,7 +27,7 @@ PlaceObj('XTemplate', {
 			'SqueezeY', false,
 		}),
 		PlaceObj('XTemplateWindow', {
-			'__context', function (parent, context) return {rating = CalcChallengeRating()} end,
+			'__context', function (parent, context) return {rating = 100 + CalcChallengeRating()} end,
 			'__class', "XText",
 			'Dock', "top",
 			'HAlign', "right",
@@ -35,7 +35,7 @@ PlaceObj('XTemplate', {
 			'TextColor', RGBA(119, 198, 255, 255),
 			'RolloverTextColor', RGBA(119, 198, 255, 255),
 			'Translate', true,
-			'Text', T{700087753666, --[[XTemplate Milestones Text]] "DIFFICULTY BONUS <white><percent(rating)>"},
+			'Text', T{700087753666, --[[XTemplate Milestones Text]] "DIFFICULTY CHALLENGE <white><percent(rating)>"},
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__context', function (parent, context) return Presets.Milestone.Default end,
@@ -56,77 +56,78 @@ PlaceObj('XTemplate', {
 			'ActionGamepad', "ButtonB",
 			'OnActionEffect', "close",
 		}),
-		PlaceObj('XTemplateWindow', {
-			'__class', "XList",
-			'Id', "idList",
-			'Margins', box(0, 10, 0, 10),
-			'BorderWidth', 0,
-			'LayoutVSpacing', 12,
-			'Clip', false,
-			'Background', RGBA(0, 0, 0, 0),
-			'FocusedBackground', RGBA(0, 0, 0, 0),
-			'VScroll', "idScroll",
-			'ShowPartialItems', false,
-			'MouseScroll', false,
-		}, {
-			PlaceObj('XTemplateCode', {
-				'run', function (self, parent, context)
+		PlaceObj('XTemplateWindow', nil, {
+			PlaceObj('XTemplateWindow', {
+				'__class', "XList",
+				'Id', "idList",
+				'Margins', box(0, 10, 0, 10),
+				'BorderWidth', 0,
+				'LayoutVSpacing', 12,
+				'UniformRowHeight', true,
+				'Clip', false,
+				'Background', RGBA(0, 0, 0, 0),
+				'FocusedBackground', RGBA(0, 0, 0, 0),
+				'VScroll', "idScroll",
+				'ShowPartialItems', false,
+			}, {
+				PlaceObj('XTemplateCode', {
+					'run', function (self, parent, context)
 ForEachPreset("Milestone", function(preset, group, self, parent)
 	self:EvalChildren(parent, preset)
 end, self, parent)
 end,
-			}, {
-				PlaceObj('XTemplateWindow', {
-					'comment', "milestone item",
-					'IdNode', true,
-					'RolloverZoom', 1050,
 				}, {
 					PlaceObj('XTemplateWindow', {
-						'__class', "XImage",
-						'Dock', "left",
-						'Image', "UI/Common/mission_yes.tga",
+						'comment', "milestone item",
+						'IdNode', true,
+						'RolloverZoom', 1050,
 					}, {
-						PlaceObj('XTemplateCode', {
-							'run', function (self, parent, context)
+						PlaceObj('XTemplateWindow', {
+							'__class', "XImage",
+							'Dock', "left",
+							'Image', "UI/Common/mission_yes.tga",
+						}, {
+							PlaceObj('XTemplateCode', {
+								'run', function (self, parent, context)
 local sol = context:CompleteSol()
 if sol == false then
 	parent:SetImage("UI/Common/mission_no.tga")
 end
 parent:SetVisible(sol ~= nil)
 end,
-						}),
-						}),
-					PlaceObj('XTemplateWindow', {
-						'__class', "XLabel",
-						'Margins', box(6, 0, 0, 0),
-						'MinWidth', 200,
-						'TextFont', "PGModAuthorDate",
-						'TextColor', RGBA(221, 215, 170, 255),
-						'Translate', true,
-						'Text', T{611518845262, --[[XTemplate Milestones Text]] "<CompleteText>"},
-					}),
-					PlaceObj('XTemplateWindow', {
-						'Dock', "right",
-						'MinWidth', 120,
-					}, {
+							}),
+							}),
 						PlaceObj('XTemplateWindow', {
 							'__class', "XLabel",
-							'HAlign', "right",
+							'Margins', box(6, 0, 0, 0),
+							'MinWidth', 200,
 							'TextFont', "PGModAuthorDate",
-							'TextColor', RGBA(250, 236, 208, 255),
+							'TextColor', RGBA(221, 215, 170, 255),
 							'Translate', true,
-							'Text', T{940959765296, --[[XTemplate Milestones Text]] "<def(ChallengeScore,'')>"},
+							'Text', T{611518845262, --[[XTemplate Milestones Text]] "<CompleteText>"},
 						}),
+						PlaceObj('XTemplateWindow', {
+							'Dock', "right",
+							'MinWidth', 120,
+						}, {
+							PlaceObj('XTemplateWindow', {
+								'__class', "XLabel",
+								'HAlign', "right",
+								'TextFont', "PGModAuthorDate",
+								'TextColor', RGBA(250, 236, 208, 255),
+								'Translate', true,
+								'Text', T{940959765296, --[[XTemplate Milestones Text]] "<def(ChallengeScore,'')>"},
+							}),
+							}),
 						}),
 					}),
 				}),
+			PlaceObj('XTemplateTemplate', {
+				'__template', "Scrollbar",
+				'Id', "idScroll",
+				'Target', "idList",
 			}),
-		PlaceObj('XTemplateWindow', {
-			'__class', "XPageScroll",
-			'Id', "idScroll",
-			'Dock', "bottom",
-			'Target', "idList",
-		}),
+			}),
 		}),
 })
 

@@ -30,20 +30,19 @@ DefineClass.RCRover =
 	},
 	
 	work_radius = const.RCRoverDefaultRadius,
-
-	direction_arrow_scale = 260,
+	
 	--
 	resource_capacity = {},
 	resource_storage = {},
 	scanning_start = false,
 	scan_time = false,
 	
-	display_name = T{7678, "RC Rover"},
+	display_name = T{7678, "RC Commander"},
 	description = T{4477, "Remote-controlled vehicle that transports, commands and repairs Drones."},
 	display_icon = "UI/Icons/Buildings/rcrover.tga",
 	
 	-- pin section
-	pin_rollover = T{4478, "<description><newline><newline>Current status: <DronesStatusText><newline>Drones<right><drone(DronesCount)>"},
+	pin_rollover = T{10417, "<description><newline><newline>Current status: <ui_command><newline><DronesStatusText><newline><left>Drones<right><drone(DronesCount)>"},
 	pin_summary2 = T{4479, "<DronesCount><icon_Drone_small>"},
 		
 	work_speed_modifier = 100, --0->100, used for "body damage"
@@ -73,6 +72,9 @@ DefineClass.RCRover =
 	malfunction_start_state = "malfunction",
 	malfunction_idle_state = "malfunctionIdle",
 	malfunction_end_state = "malfunctionEnd",
+	
+	rover_enter_state = "roverEnter",
+	rover_exit_state = "roverExit",
 	
 	approaching_emergency_power_drones = false, --drones approaching us as a recharger.
 	encyclopedia_id = "RCRover",
@@ -130,7 +132,8 @@ function RCRover:SpawnDrone()
 	if #self.drones >= self:GetMaxDrones() then
 		return
 	end
-	local drone = Drone:new{ city = self.city, init_with_command = false }
+	local drone = self.city:CreateDrone()
+	drone.init_with_command = false
 	drone:SetCommandCenter(self)
 	self:DroneEnter(drone, true)
 	
@@ -146,7 +149,8 @@ function RCRover:LeadIn(drone)
 	self.drone_charged = drone
 	
 	drone:GotoUnitSpot(self, "Charge", true) --get in pos to charge
-	drone:SetAngle(self:GetSpotRotation(self:GetSpotBeginIndex("Charge")), 200)
+	local pos, angle = self:GetSpotLoc(self:GetSpotBeginIndex("Charge"))
+	drone:SetAngle(angle, 200)
 	
 	drone:StartFX("EmergencyRecharge")
 	drone:PlayState( "rechargeDroneStart" )
@@ -187,6 +191,7 @@ function RCRover:DroneEnter(drone, skip_visuals)
 	assert(drone.command == "DespawnAtHub" or table.find(self.drones, drone) ~= nil)
 	assert(skip_visuals or (self.guided_drone == false or self.guided_drone == drone))
 	assert(IsValid(self) and IsValid(drone))
+	assert(not table.find(self.attached_drones, drone))
 	
 	self.guided_drone = not skip_visuals and drone or self.guided_drone
 	
@@ -200,7 +205,7 @@ function RCRover:DroneEnter(drone, skip_visuals)
 	if not skip_visuals then
 		local p = self:GetSpotLoc(attach_spot_idx)
 		drone:Face(p, 100)
-		drone:SetPos(p:SetZ(drone:GetVisualPos():z()), GetAnimDuration(drone:GetEntity(), "roverEnter") - 1)
+		drone:SetPos(p:SetZ(drone:GetVisualPos():z()), GetAnimDuration(drone:GetEntity(), self.rover_enter_state) - 1)
 		table.insert(self.embarking_drones, drone)
 		local is_in_drone_command_thread = CurrentThread() == drone.command_thread
 		if is_in_drone_command_thread then
@@ -225,7 +230,7 @@ function RCRover:DroneEnter(drone, skip_visuals)
 			SelectionArrowRemove(drone)
 		end
 		
-		drone:PlayState("roverEnter", 1, const.eDontCrossfade)
+		drone:PlayState(self.rover_enter_state, 1, const.eDontCrossfade)
 		if not is_in_drone_command_thread and not IsValid(drone) then
 			if self.guided_drone == drone then self.guided_drone = false end
 			table.remove_entry(self.embarking_drones, drone)
@@ -278,11 +283,11 @@ function RCRover:DroneExit(drone, skip_visuals)
 	
 	self.guided_drone = not skip_visuals and drone or self.guided_drone
 	table.remove_entry(self.attached_drones, drone)
+	assert(not table.find(self.attached_drones, drone))
 	drone:Detach()
 	drone:PushDestructor(function(drone)
-		if self.guided_drone == drone then
-			self.guided_drone = false
-		end
+		assert(self.guided_drone == drone)
+		self.guided_drone = false
 		self:WakeFromWaitingOnDroneToEnterOrExit()
 	end)
 	
@@ -291,8 +296,8 @@ function RCRover:DroneExit(drone, skip_visuals)
 		local entry_spot_idx = self:GetSpotBeginIndex(self.drone_entry_spot)
 		local p = self:GetSpotLoc(entry_spot_idx)
 		drone:Face(p, 0)
-		drone:SetPos(p, GetAnimDuration(drone:GetEntity(), "roverExit") - 1)
-		drone:PlayState("roverExit", 1, const.eDontCrossfade + const.eDontCrossfadeNext) --since the anims are reversed, don't crossfade ever.
+		drone:SetPos(p, GetAnimDuration(drone:GetEntity(), self.rover_exit_state) - 1)
+		drone:PlayState(self.rover_exit_state, 1, const.eDontCrossfade + const.eDontCrossfadeNext) --since the anims are reversed, don't crossfade ever.
 		if not IsValid(drone) then
 			drone:PopAndCallDestructor()
 			return
@@ -344,7 +349,7 @@ function RCRover:RotateAwayFromDomes()
 	local function IsDomeOrDomeConstr(blds)
 		for i = 1, #blds do
 			local obj = blds[i]
-			if obj and (IsKindOf(obj, "Dome") or (IsKindOf(obj, "ConstructionSite") and IsKindOf(obj.building_class_proto, "Dome"))) 
+			if obj and (IsKindOf(obj, "Dome") or (IsKindOf(obj, "ConstructionSite") and IsKindOf(obj.building_class_proto, "Dome") and not terrain.IsPassable(p)))
 				or IsKindOf(obj, "DomeInterior") then
 				return true
 			end
@@ -399,6 +404,9 @@ function RCRover:SetWorking(...)
 	--ignore this, it comes from base bld and tries to fiddle with our working state
 end
 
+function RCRover:OnSiege(siege)
+end
+
 function RCRover:Siege(do_not_halt) --wip name
 	self.siege_state_name = "Siege"
 	self:ClearPath()
@@ -439,6 +447,7 @@ function RCRover:Siege(do_not_halt) --wip name
 		self.under_construction = false
 		self.working = false
 		self.accept_requester_connects = false
+		self:OnSiege(false)
 				
 		self:InterupIncomingDronesForRecharge()
 		
@@ -471,7 +480,7 @@ function RCRover:Siege(do_not_halt) --wip name
 		
 		--if a drone is currently exiting, wait up
 		if self.guided_drone or #self.embarking_drones > 0 then --wait for exiting drone to exit
-			while not WaitWakeup(10000) do end
+			WaitWakeup()
 		end
 		
 		if not self.siege_state_name and self:GetState() == GetStateIdx("deployIdle") then
@@ -484,6 +493,7 @@ function RCRover:Siege(do_not_halt) --wip name
 		end
 	end)
 	
+	self:OnSiege(true)
 	self:ExitAllDrones()
 	self:WakeControlCenterUpdateThread()
 	
@@ -511,15 +521,16 @@ function RCRover:ExitAllDrones()
 				--damage control, this should never happen
 				assert(false, "Rover has foreign drones attached")
 				drone:Detach()
-				assert(drone == table.remove(self.attached_drones))
+				table.remove(self.attached_drones)
 			else
 				while self.guided_drone or #self.embarking_drones > 0 do
 					Sleep(1000)
 				end
 				if IsValid(drone) then
+					assert(self.guided_drone == false)
 					self.guided_drone = drone
 					drone:SetCommand("ExitRover", self)
-					while not WaitWakeup(10000) do end
+					WaitWakeup()
 				end
 			end
 		end
@@ -835,76 +846,6 @@ function RCRover:Work(request, resource, amount)
 	self:PopAndCallDestructor()
 end
 
-function RCRover:ContinuousTask(request, amount, anim_start, anim_idle, anim_end, fx, fx_work_moment, work_time, add_res, reciprocal_request, total_amount)
-	local building = request:GetBuilding()
-	if not IsValid(building) then return end
-	if amount == 0 then return end
-	self:Face(building, 100)
-	if fx then
-		self:StartFX(fx, building)
-	end
-	self:PlayState(anim_start or "constructStart")
-	self:SetState(anim_idle or "idle")
-	
-	local is_demmand = request:IsAnyFlagSet(const.rfDemand)
-	local resource = request:GetResource()
-	if reciprocal_request then
-		resource = reciprocal_request:GetResource()
-	end
-	
-	local construction_resource = table.find(AllResourcesList, resource) or false
-	local is_supplying = construction_resource and ((is_demmand and amount > 0) or (not is_demmand and amount < 0)) or false --whether we are givin or taking resources.
-	local empty_storage = construction_resource and not is_supplying and self:GetEmptyStorage(resource) or building:GetEmptyStorage(resource) or 10000000
-	local amount_sign = abs(amount) / amount
-	local abs_amount = abs(amount)
-	local amount_transfered = 0
-	local add_r_functor
-	if building:HasMember("AddResource") then
-		add_r_functor = function(a)
-			building:AddResource(abs(a) * (is_supplying and 1 or -1), resource, true)
-		end
-	else
-		add_r_functor = function(a)
-			request:AddAmount(-a)
-			if reciprocal_request then
-				reciprocal_request:AddAmount(a)
-			end
-		end
-	end
-	
-	while IsValid(building) and amount_transfered < (total_amount or max_int) and (not construction_resource or empty_storage > 0) 
-			and ((is_supplying and self.resource_storage[resource] > 0 and (not request:IsAnyFlagSet(const.rfDemand) or request:GetActualAmount() > 0)) --if it aint a demand req we cant determine max amount.
-			or (not is_supplying and ((is_demmand and construction_resource) or request:GetActualAmount() > 0)))
-			--construction_resource is false when constructing/cleaning/repairing
-			--is_supplying - true when giving resource, false when taking resource
-			--is_demmand - req type
-			do
-			
-		if fx and fx_work_moment then
-			PlayFX(fx, fx_work_moment, self, building)
-		end
-		Sleep(work_time or 1000)
-		if IsValid(building) then
-			local max = abs_amount
-			max = Min(is_supplying and self.resource_storage[resource] or max, max) --we are giving out resources, we cannot give more then we have
-			max = Min(is_supplying and is_demmand and construction_resource and request:GetActualAmount() or max, max) --we are supplying construction resources, supply as much as the req requires.
-			max = Min(not is_supplying and not is_demmand and construction_resource and request:GetActualAmount() or max, max) --we are taking stuff, reqs amount is the amount of stuff there is.
-			local amount_clamped = amount_sign * Min(abs_amount, max, empty_storage)			
-			add_r_functor(amount_clamped)
-			
-			if add_res then
-				local a = amount_clamped * (is_demmand and -1 or 1) --negative amount for demmand reqs, positive amount for supply reqs..
-				self:AddResource(a, resource)
-				empty_storage = empty_storage - abs(a)
-			end
-			
-			amount_transfered = amount_transfered + abs_amount
-		end
-	end
-	self:StopFX()
-	self:PlayState(anim_end or "constructEnd")
-end
-
 function RCRover:SetCommand(command, ...)
 	if command == "Malfunction" and self.command == "Malfunction" then
 		return
@@ -1006,62 +947,6 @@ function RCRover:Idle()
 		end
 	end
 end
-
-function RCRover:Construct(construction, auto)
-	self:Gossip("Construct", construction:GossipName(), construction.handle)
-	assert(not construction.construction_group or IsValid(construction.construction_group[1]))
-	construction = construction.construction_group and construction.construction_group[1] or construction
-	if not construction:DroneApproach(self, "construct") then return end
-	
-	 -- unload resources from our storage	 
-	local no_resources
-	for resource, request in pairs(construction.construction_resources) do
-		local amount = Resources[resource].unit_amount
-		self:Gossip("unload", construction:GossipName(), construction.handle, resource, amount)
-		construction:RoverWork(self, request, resource, amount)
-	end
-	if no_resources and not auto then
-		--ShowNotification("Rover has no resources to construct")
-	end
-	
-	-- wait for construction materials to arrive
-	local time = 0
-	self:SetState("idle")
-	self:PushDestructor(function(self)
-		self.override_ui_status = false
-	end)
-	while IsValid(construction) and not construction:StartConstructionPhase() do
-		Sleep(1000)
-		self.override_ui_status = "WaitingResources"
-		time = time + 1
-		if time == 180 and not auto then
-			print("Rover is waiting for resources at construction", construction.building_class)
-			--ShowNotification("construction is delayed")
-		end
-	end
-	self:PopAndCallDestructor()
-	-- find another construction to help with
-	local new_construction = nil
-	Sleep(1000)
-	ForEach({
-		class = "ConstructionSite",
-		area = self,
-		arearadius = 100*guim,
-		exec = function (obj, rover)
-			if obj.city ~= rover.city or obj == construction or not IsValid(obj) then return end
-			if new_construction then
-				if not new_construction:IsWaitingResources() or not new_construction:IsConstructed() then return end
-				if new_construction.priority > obj.priority then return end
-				if new_construction.counter < obj.counter then return end
-			end
-			new_construction = obj
-		end
-	}, self)
-	if new_construction then
-		self:SetCommand("Construct", new_construction, true)
-	end
-end
-
 
 function RCRover:RepairDrone(drone, power)
 	if drone.repair_drone and drone.repair_drone ~= self then
@@ -1182,14 +1067,14 @@ function RCRover:ToggleSiegeMode_Update(button)
 		button:SetIcon("UI/Icons/IPButtons/open.tga")
 		button:SetRolloverTitle(T{4485, "Recall Drones"})
 		button:SetRolloverText(T{4487, "Recall all Drones commanded by this Rover."})
-		button:SetRolloverHint(T{8023, "<left_click> Recall <newline>Ctrl + <left_click>Recall for all Rovers",self})
-		button:SetRolloverHintGamepad(T{8024, "<ButtonA> Recall <newline><ButtonX> Recall for all Rovers"})
+		button:SetRolloverHint(T{8023, "<left_click> Recall <newline>Ctrl + <left_click>Recall for all Commanders",self})
+		button:SetRolloverHintGamepad(T{8024, "<ButtonA> Recall <newline><ButtonX> Recall for all Commanders"})
 	else
 		button:SetIcon("UI/Icons/IPButtons/close.tga")
 		button:SetRolloverTitle(T{4484, "Deploy Drones"})
 		button:SetRolloverText(T{4486, "Deploy Drones and remain on standby at this location."})
-		button:SetRolloverHint(T{8025, "<left_click> Deploy <newline>Ctrl + <left_click>Deploy for all Rovers",self})
-		button:SetRolloverHintGamepad(T{8026, "<ButtonA> Deploy <newline><ButtonX> Deploy for all Rovers"})
+		button:SetRolloverHint(T{8025, "<left_click> Deploy <newline>Ctrl + <left_click>Deploy for all Commanders",self})
+		button:SetRolloverHintGamepad(T{8026, "<ButtonA> Deploy <newline><ButtonX> Deploy for all Commanders"})
 	end
 end
 
@@ -1228,11 +1113,13 @@ end
 
 function RCRover:GetDronesStatusText()
 	if self.command == "Malfunction" then
-		return T{4480, "RC Rover has malfunctioned and is awaiting repairs."}
+		return T{4480, "RC Commander has malfunctioned and is awaiting repairs."}
 	elseif self.command == "NoBattery" then
-		return T{4481, "RC Rover is out of battery and cannot give new orders to controlled Drones."}
+		return T{4481, "RC Commander is out of battery and cannot give new orders to controlled Drones."}
+	elseif not self.sieged_state then
+		return T{10091, "Drones have been recalled in the RC Commander"}
 	elseif not self.working then
-		return T{4482, "RC Rover is moving and won’t give new orders to controlled Drones."}
+		return T{4482, "RC Commander is moving and won’t give new orders to controlled Drones."}
 	end
 	
 	return DroneControl.GetDronesStatusText(self)
@@ -1252,19 +1139,13 @@ function OnMsg.SelectedObjChange(obj, prev)
 end
 
 function DebugRoverConnectedTaskRequests(rover)
-	local q = {
-		class = "TaskRequester",
-		area = "realm",
-		filter = function(o)
-			if table.find(o.command_centers, rover) and HexAxialDistance(o, rover) > rover.work_radius then
-				return true
-			end
-			
-			return false
-		end,
-	}
-	
-	return GetObjects(q)
+	local query_filter = function(o)
+		if table.find(o.command_centers, rover) and HexAxialDistance(o, rover) > rover.work_radius then
+			return true
+		end
+		return false
+	end
+	return MapGet(true, "TaskRequester", query_filter)
 end
 
 function RCRover:GetCommand()

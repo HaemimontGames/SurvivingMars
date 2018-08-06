@@ -87,7 +87,7 @@ function RocketProjectile:Move()
 			local next_pos = pt + MulDivRound(dir, t, 1000)		
 			self:SetPos(next_pos, tick)
 			Sleep(tick)
-		elseif IsValid(target) then
+		elseif IsValid(target) and target:IsValidPos() then
 			local target_pos = target:GetVisualPos():SetStepZ()
 			local pos = self:GetVisualPos()
 			
@@ -145,7 +145,7 @@ function RocketProjectile:Move()
 			break
 		end
 	end
-	if IsValid(target) and self:GetVisualDist(target) <= HexGetHeight() / 2 then
+	if IsValid(target) and target:IsValidPos() and self:GetVisualDist(target) <= HexGetHeight() / 2 then
 		self:HitTarget(target)
 	end
 	PlayFX("MissileExplode", "start", self.shooter, nil, self:GetPos():SetStepZ())
@@ -155,9 +155,11 @@ function RocketProjectile:HitTarget(target)
 	if IsKindOf(target, "Dome") then
 		-- todo: use AddFracture similar to meteors, hook when having proper trajectory code so we can get impact pos/normal
 	elseif IsKindOf(target, "Building") then
-		PlayFX("MeteorDestruction", "start", target)
-		DestroyBuildingImmediate(target)
-		table.insert_unique(g_AIDestroyedBuildings, target)
+		local pos = target:GetPos()
+		if DestroyBuildingImmediate(target) then
+			PlayFX("MeteorDestruction", "start", target, nil, pos)
+			table.insert_unique(g_AIDestroyedBuildings, target)
+		end
 	elseif IsKindOf(target, "AttackRover") then
 		PlayFX("MeteorDestruction", "start", target)
 		target:RocketDamage(self.shooter)
@@ -323,8 +325,17 @@ function DefenceTower:Done()
 end
 
 function DefenceTower:Destroy()
+	if IsValid(self.platform) then
+		local offset = self.platform:GetVisualPos() - self:GetPos()
+		self:Attach(self.platform)
+		self.platform:SetAttachOffset(offset)
+	end
+	if IsValid(self.tube) then
+		local offset = self.tube:GetVisualPos() - self:GetPos()
+		self:Attach(self.tube)
+		self.tube:SetAttachOffset(offset)
+	end
 	Building.Destroy(self)
-	self.platform:SetColorModifier(self.demolish_color)
 end
 
 function DefenceTower:RebuildStart()
@@ -335,6 +346,20 @@ end
 function DefenceTower:RebuildCancel()
 	self:SetEnumFlags(const.efVisible)
 	self.platform:SetEnumFlags(const.efVisible)
+end
+
+function DefenceTower:SetDustVisualsPerc(perc)
+	if not self.show_dust_visuals then return end
+	BuildingVisualDustComponent.SetDustVisualsPerc(self, perc)
+	
+	local normalized_dust = MulDivRound(perc, 255, 100)
+
+	if IsValid(self.platform) then
+		ApplyToObjAndAttaches(self.platform, SetObjDust, normalized_dust)
+	end
+	if IsValid(self.tube) then
+		ApplyToObjAndAttaches(self.tube, SetObjDust, normalized_dust)
+	end
 end
 
 function DefenceTower:DefenceTick()
@@ -351,7 +376,7 @@ function DefenceTower:DefenceTick()
 		
 	for i = 1, #hostile do
 		local obj = hostile[i]
-		if self:GetVisualDist2D(obj) <= self.shoot_range then
+		if IsValid(obj) and self:GetVisualDist2D(obj) <= self.shoot_range then
 			self:OrientPlatform(obj:GetVisualPos(), 120*60)
 			-- todo: proper orientation
 			-- orient to target (mockup)

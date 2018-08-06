@@ -5,7 +5,6 @@ function GetConsumptionResourcesDropDownItems()
 	table.remove_entry(ret, "value", "Water")
 	table.remove_entry(ret, "value", "BlackCube")
 	table.remove_entry(ret, "value", "Colonist")
-	table.remove_entry(ret, "value", "WasteRock")
 	
 	--add maintanance specific stuff
 	table.insert(ret, 1, {text = T{89, "No consumption"}, value = "no_consumption"})
@@ -81,19 +80,44 @@ function GetEatPerVisit(unit)
 	return unit:GetEatPerVisit()
 end
 
-function HasConsumption.StockpileCanService(stock, unit)
-	local bld = stock:GetParent()
-	if bld.consumption_resource_type ~= "Food" then return false end
-	local eat_per_visit = unit:GetEatPerVisit()
-	return bld.consumption_stored_resources >= eat_per_visit
+DefineClass.ConsumptionResourceStockpile = {
+	__parents = { "ResourceStockpile" },
+	
+	consumption_reserved_by_colonists = 0
+}
+
+function ConsumptionResourceStockpile:Assign(unit)
+	local eat_amount = unit.assigned_to_service_with_amount
+	if not eat_amount then return end
+	self.consumption_reserved_by_colonists = self.consumption_reserved_by_colonists + eat_amount
 end
 
-function HasConsumption.StockpileService(stock, unit)
-	local bld = stock:GetParent()
-	bld:Consume_Visit(unit)
-	if not unit.traits.Rugged then
+function ConsumptionResourceStockpile:Unassign(unit, fulfilled)
+	local eat_amount = unit.assigned_to_service_with_amount
+	unit.assigned_to_service_with_amount = nil
+	if not eat_amount then return end
+	self.consumption_reserved_by_colonists = Max(self.consumption_reserved_by_colonists - eat_amount, 0)
+end
+
+function ConsumptionResourceStockpile:CanService(unit)
+	local bld = self:GetParent()
+	if bld.consumption_resource_type ~= "Food" then return false end
+	local eat_per_visit = unit:GetEatPerVisit()
+	local ret = bld.consumption_stored_resources - self.consumption_reserved_by_colonists >= eat_per_visit
+	if ret then
+		unit.assigned_to_service_with_amount = eat_per_visit
+	end
+	return ret
+end
+
+function ConsumptionResourceStockpile:Service(unit)
+	local bld = self:GetParent()
+	local amount = bld:Consume_Visit(unit)
+	local success = amount == unit.assigned_to_service_with_amount
+	if success and not unit.traits.Rugged then
 		unit:ChangeComfort(-g_Consts.OutsideFoodConsumptionComfort, "raw food")
 	end
+	unit:AssignToService(nil, nil, success)
 end
 
 function HasConsumption:CreateVisualStockpile()
@@ -109,17 +133,29 @@ function HasConsumption:CreateVisualStockpile()
 							has_demand_request = false,
 							has_supply_request = false,
 							count_in_resource_overview = false,}
-							
-	stock = PlaceObject("ResourceStockpile", stock)
-	stock.CanService = HasConsumption.StockpileCanService
-	stock.Service = HasConsumption.StockpileService
-	stock.Assign = empty_func
-	stock.Unassign = empty_func
+	
+	local stockpile_type = "ConsumptionResourceStockpile"
+	if self.consumption_resource_type == "WasteRock" then
+		stockpile_type = "WasteRockStockpile"
+		stock.has_platform = true
+	end
+	stock = PlaceObject(stockpile_type, stock)
 	
 	local attach_to = (self.is_upgrade and self.building or self)
 	local idx = attach_to:GetSpotBeginIndex(self.consumption_resource_stockpile_spot_name)
 	attach_to:Attach(stock, idx)
 	self.consumption_resource_stockpile = stock
+end
+
+function SavegameFixups.ConsumptionStockpileAddAssignAndUnassignFuncs()
+	MapForEach(true, "HasConsumption", function(o)
+					local stock = o.consumption_resource_stockpile
+					if stock then
+						DoneObject(stock)
+						o:CreateVisualStockpile()
+						o:UpdateVisualStockpile()
+					end
+				end)
 end
 
 function HasConsumption:ConsumptionOnDestroyed()
@@ -220,6 +256,9 @@ function HasConsumption:Consume_Production(for_amount_to_produce, delim) --pass 
 		self:AccumulateFracProduction(frac)
 		ret_amount = ret_amount + frac
 	end
+	if self.consumption_resource_type == "WasteRock" then
+		Msg("WasteRockConversion", amount_to_consume, self.producers)
+	end
 	return ret_amount, amount_to_consume
 end
 
@@ -227,11 +266,15 @@ end
 function HasConsumption:Consume_Visit(unit)
 	if self.consumption_resource_type == "Food" then
 		if (GameTime() - unit.last_meal) >= const.DayDuration then
-			local use = unit:Eat(self.consumption_stored_resources)
-			self:Consume_Internal(use)
+			local max = self.consumption_stored_resources
+			if unit.assigned_to_service_with_amount then
+				max = Min(max, unit.assigned_to_service_with_amount)
+			end
+			local use = unit:Eat(max)
+			return self:Consume_Internal(use)
 		end
 	else
-		self:Consume_Internal(self.consumption_amount)
+		return self:Consume_Internal(self.consumption_amount)
 	end
 end
 

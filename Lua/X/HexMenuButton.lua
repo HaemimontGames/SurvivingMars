@@ -134,7 +134,7 @@ function HexButtonItem:Init()
 	self.idButton:SetImage(self:GetIcon("", self))
 	self:SetEnabled(self.enabled)
 	self.idSelection:SetVisible(false, true)
-	local parent = GetXDialog(self)
+	local parent = GetDialog(self)
 	self.idButton.OnPress = function(this)
 		if not self.enabled then return end
 		if self.action then
@@ -160,16 +160,14 @@ end
 
 function HexButtonItem:FillRollover()
 	if self.description then
-		local parent = GetXDialog(self)
-		if parent then
-			parent.idContainer:SetRolloverText(self.description or "")
-			parent.idContainer:SetRolloverTitle(self.display_name or "")
-			local gamepad = GetUIStyleGamepad()
-			if gamepad then 
-				parent.idContainer:SetRolloverHint(T{3545, "<ButtonA> Select"})
-			end
-			XUpdateRolloverWindow(parent.idContainer)	
+		local parent = GetDialog(self)
+		parent.idContainer:SetRolloverText(self.description or "")
+		parent.idContainer:SetRolloverTitle(self.display_name or "")
+		local gamepad = GetUIStyleGamepad()
+		if gamepad then 
+			parent.idContainer:SetRolloverHint(T{3545, "<ButtonA> Select"})
 		end
+		XUpdateRolloverWindow(parent.idContainer)	
 	end	
 end
 
@@ -254,7 +252,7 @@ function HexButtonResource:Init()
 	local valign = self.ButtonAlign
 	self:SetMargins(box(0, top and -52 or 0, 0, not top and -54 or 0))	
 	
-	local parent = GetXDialog(self)
+	local parent = GetDialog(self)
 	self.idButton.OnPress = function(this, gamepad)
 		if not self:GetEnabled() then return end
 		local meta = parent.context.meta_key and (gamepad or Platform.desktop and terminal.IsKeyPressed(parent.context.meta_key))
@@ -284,18 +282,16 @@ end
 
 function HexButtonResource:FillRollover()
 	if self.description and self.description~="" then
-		local parent = GetXDialog(self)
-		if parent then
-			parent.idContainer:SetRolloverText(self.description)
-			parent.idContainer:SetRolloverTitle(self.display_name)
-			local gamepad = GetUIStyleGamepad()
-			if gamepad then 
-				parent.idContainer:SetRolloverHint(self.gamepad_hint or T{3545, "<ButtonA> Select"})
-			else
-				parent.idContainer:SetRolloverHint(self.hint or "")
-			end
-			XUpdateRolloverWindow(parent.idContainer)
+		local parent = GetDialog(self)
+		parent.idContainer:SetRolloverText(self.description)
+		parent.idContainer:SetRolloverTitle(self.display_name)
+		local gamepad = GetUIStyleGamepad()
+		if gamepad then 
+			parent.idContainer:SetRolloverHint(self.gamepad_hint or T{3545, "<ButtonA> Select"})
+		else
+			parent.idContainer:SetRolloverHint(self.hint or "")
 		end
+		XUpdateRolloverWindow(parent.idContainer)
 	end	
 end
 
@@ -312,7 +308,7 @@ function HexButtonInfopanel:Init()
 	self.idText:SetScaleModifier(point(1350, 1350))
 	self:SetMargins(box(0, top and -52 or 0, 0, not top and -54 or 0))	
 	
-	local parent = GetXDialog(self)
+	local parent = GetDialog(self)
 	self.idButton.Press = function(this, alt, gamepad)	
 		if alt and not gamepad then 
 			parent:Close() 
@@ -330,7 +326,7 @@ end
 
 function HexButtonInfopanel:FillRollover()
 	if self.description and self.description~="" then
-		local parent = GetXDialog(self)
+		local parent = GetDialog(self)
 		parent.idContainer:SetRolloverText(self.description)
 		parent.idContainer:SetRolloverTitle(self.display_name)
 		local gamepad = GetUIStyleGamepad()
@@ -385,6 +381,3 @@ function ItemMenuDef:GetCategory(context, item)
 	return 
 end
 
---[[
-local item = UIItemMenu(context, items, item_def, categories, category_def)
---]]

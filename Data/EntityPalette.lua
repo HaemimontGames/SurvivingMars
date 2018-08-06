@@ -10,8 +10,8 @@ PlaceObj('EntityPalette', {
 })
 
 PlaceObj('EntityPalette', {
-	Color1 = 5193782,
-	Color2 = 7211016,
+	Color1 = 9583108,
+	Color2 = 10496554,
 	group = "Default",
 	id = "ArtWorkshop",
 })
@@ -310,6 +310,77 @@ PlaceObj('EntityPalette', {
 	Color3 = 15350282,
 	group = "Default",
 	id = "NetworkNode",
+})
+
+PlaceObj('EntityPalette', {
+	Color1 = 11415086,
+	Color2 = 6689298,
+	Color3 = 0,
+	group = "Default",
+	id = "NewEntityPalette",
+})
+
+PlaceObj('EntityPalette', {
+	group = "Default",
+	id = "NewEntityPalette_1",
+})
+
+PlaceObj('EntityPalette', {
+	Color1 = 11569778,
+	Color2 = 7763060,
+	Color3 = 8161454,
+	group = "Default",
+	id = "NewEntityPalette_2",
+})
+
+PlaceObj('EntityPalette', {
+	group = "Default",
+	id = "NewEntityPalette_3",
+})
+
+PlaceObj('EntityPalette', {
+	group = "Default",
+	id = "NewEntityPalette_3",
+})
+
+PlaceObj('EntityPalette', {
+	group = "Default",
+	id = "NewEntityPalette_3",
+})
+
+PlaceObj('EntityPalette', {
+	group = "Default",
+	id = "NewEntityPalette_3",
+})
+
+PlaceObj('EntityPalette', {
+	group = "Default",
+	id = "NewEntityPalette_3",
+})
+
+PlaceObj('EntityPalette', {
+	group = "Default",
+	id = "NewEntityPalette_3",
+})
+
+PlaceObj('EntityPalette', {
+	group = "Default",
+	id = "NewEntityPalette_3",
+})
+
+PlaceObj('EntityPalette', {
+	group = "Default",
+	id = "NewEntityPalette_3",
+})
+
+PlaceObj('EntityPalette', {
+	group = "Default",
+	id = "NewEntityPalette_3",
+})
+
+PlaceObj('EntityPalette', {
+	group = "Default",
+	id = "NewEntityPalette_3",
 })
 
 PlaceObj('EntityPalette', {
@@ -708,4 +779,3 @@ PlaceObj('EntityPalette', {
 	group = "Default",
 	id = "WindTurbine",
 })
-

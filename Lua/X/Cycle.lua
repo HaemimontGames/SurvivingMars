@@ -101,7 +101,7 @@ function UnemployedCycle(obj)
 end
 
 function TraitCycle(trait, dome)
-	local trait_def = DataInstances.Trait[trait]
+	local trait_def = TraitPresets[trait]
 	if not trait_def then return end
 	return function(obj)
 		local objs = {}

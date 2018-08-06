@@ -21,10 +21,8 @@ end
 
 local function ModItemParentCombo(self)
 	local items = {}
-	local templates = DataInstances.BuildingTemplate
-	for i = 1, #templates do
-		local template = templates[i]
-		items[#items + 1] = template.name
+	for id, template in pairs(BuildingTemplates) do
+		items[#items + 1] = id
 	end
 	table.sort(items)
 	table.insert(items, 1, "")
@@ -238,7 +236,7 @@ function ModItemAttachment:ResolveSpotIndex()
 end
 
 function ModItemAttachment:ResolveParentEntity()
-	local template = DataInstances.BuildingTemplate[self.Parent]
+	local template = BuildingTemplates[self.Parent]
 	if template then
 		local entity = template.entity
 		if IsValidEntity(entity) then
@@ -405,7 +403,7 @@ function ModItemAttachment:Visualize(enable)
 				self:DoneParent()
 			end
 			if not IsValid(parent) then
-				local template = DataInstances.BuildingTemplate[self.Parent]
+				local template = BuildingTemplates[self.Parent]
 				local classdef = template and g_Classes[template.template_class]
 				parent = PlaceObject("ModItemAttachmentEditorObject", {
 					template_name = self.Parent,
@@ -470,7 +468,7 @@ function ModItemAttachment:Visualize(enable)
 				self:ApplyVisuals()
 			end
 		end
-		local dlg = OpenXDialog("ModItemAttachmentDialog")
+		local dlg = OpenDialog("ModItemAttachmentDialog")
 		local modes = {
 			X = {btn = dlg.idAxisX,  key = const.vkX,    status = T{1000084, "Anchor X-axis"}},
 			Y = {btn = dlg.idAxisY,  key = const.vkC,    status = T{1000085, "Anchor Y-axis"}},
@@ -526,7 +524,7 @@ function ModItemAttachment:Visualize(enable)
 		if IsValid(child) then
 			DoneObject(child)
 		end
-		CloseXDialog("ModItemAttachmentDialog")
+		CloseDialog("ModItemAttachmentDialog")
 		self:ClearSpotTexts()
 		self.camera_initialized = false
 	end

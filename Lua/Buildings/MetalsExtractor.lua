@@ -11,7 +11,7 @@ end
 
 
 DefineClass.BaseMetalsExtractor = {
-	__parents = {"Mine", "Workplace", "DustGenerator", "SubsurfaceDepositConstructionRevealer"},
+	__parents = {"Mine", "DustGenerator", "SubsurfaceDepositConstructionRevealer"},
 	subsurface_deposit_class = "SubsurfaceDepositMetals",
 	exploitation_resource = "Metals",
 	building_update_time = const.HourDuration/4,
@@ -25,14 +25,9 @@ DefineClass.BaseMetalsExtractor = {
 	},
 }
 
-function BaseMetalsExtractor:GatherConstructionStatuses(statuses)
-	Mine.GatherConstructionStatuses(self, statuses)
-	if g_ExtractorAIResearched then
-		--skip workplace nearby workers check
-		Building.GatherConstructionStatuses(self, statuses)
-	else
-		Workplace.GatherConstructionStatuses(self, statuses)
-	end
+function BaseMetalsExtractor:SetUIWorking(work)
+	ShiftsBuilding.SetUIWorking(self,work)
+	Mine.SetUIWorking(self, work)
 end
 
 function BaseMetalsExtractor.OnCalcProduction_Metals(producer, amount_to_produce)
@@ -67,15 +62,31 @@ BaseMetalsExtractor.OnProduce_PreciousMetals = BaseMetalsExtractor.OnProduce_Met
 BaseMetalsExtractor.GetPredictedProduction_PreciousMetals = BaseMetalsExtractor.GetPredictedProduction_Metals
 BaseMetalsExtractor.GetPredictedDailyProduction_PreciousMetals = BaseMetalsExtractor.GetPredictedDailyProduction_Metals
 
+DefineClass.MetalExtractorWorkplace =
+{
+	__parents = {"BaseMetalsExtractor", "Workplace"},
+	SetUIWorking = BaseMetalsExtractor.SetUIWorking,
+}
+
+function MetalExtractorWorkplace:GatherConstructionStatuses(statuses)
+	Mine.GatherConstructionStatuses(self, statuses)
+	if g_ExtractorAIResearched then
+		--skip workplace nearby workers check
+		Building.GatherConstructionStatuses(self, statuses)
+	else
+		Workplace.GatherConstructionStatuses(self, statuses)
+	end
+end
+
 DefineClass("MetalsExtractor", 
 	{
-		__parents = {"BaseMetalsExtractor"},
+		__parents = {"MetalExtractorWorkplace"},
 	}
 )
 
 DefineClass.PreciousMetalsExtractor =
 {
-	__parents = {"BaseMetalsExtractor"},
+	__parents = {"MetalExtractorWorkplace"},
 	track_multiple_hit_moments_in_work_state = {"hit-moment1", "hit-moment2", "hit-moment3"},
 	
 	subsurface_deposit_class = "SubsurfaceDepositPreciousMetals",

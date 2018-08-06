@@ -6,8 +6,8 @@ PlaceObj('XTemplate', {
 	id = "sectionWorkshiftsRow",
 	PlaceObj('XTemplateTemplate', {
 		'__template', "InfopanelActiveSection",
-		'RolloverHint', T{7415, --[[XTemplate sectionWorkshiftsRow RolloverHint]] "<left><left_click> Toggle workshift<newline><em>Ctrl + <left_click></em> Toggle workshift on all <display_name_pl>"},
-		'RolloverHintGamepad', T{7416, --[[XTemplate sectionWorkshiftsRow RolloverHintGamepad]] "<left><ButtonA> Toggle workshift<newline><ButtonX> Toggle workshift on all <display_name_pl>"},
+		'RolloverHint', T{7415, --[[XTemplate sectionWorkshiftsRow RolloverHint]] "<left_click> Toggle workshift\n<em>Ctrl + <left_click></em> Toggle workshift on all <display_name_pl>\n"},
+		'RolloverHintGamepad', T{7416, --[[XTemplate sectionWorkshiftsRow RolloverHintGamepad]] "<ButtonA> Toggle workshift\n<ButtonX> Toggle workshift on all <display_name_pl>\n"},
 		'OnContextUpdate', function (self, context, ...)
 UIWorkshiftUpdate(self, ResolvePropObj(context), context.shift)
 end,
@@ -36,6 +36,7 @@ local building = ResolvePropObj(self.context)
 local broadcast = not gamepad and IsMassUIModifierPressed()
 building:ToggleOvertime(self.context.shift, broadcast)
 ObjModified(building)
+XCreateRolloverWindow(self, gamepad, true)
 end,
 			'AltPress', true,
 			'OnAltPress', function (self, gamepad)
@@ -43,6 +44,7 @@ if gamepad then
 	local building = ResolvePropObj(self.context)
 	building:ToggleOvertime(self.context.shift, true)
 	ObjModified(building)
+	XCreateRolloverWindow(self, gamepad, true)
 end
 end,
 			'Image', "UI/Infopanel/infopanel_workshift_time.tga",

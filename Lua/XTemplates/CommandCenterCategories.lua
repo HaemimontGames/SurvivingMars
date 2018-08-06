@@ -45,7 +45,7 @@ end,
 			'ActionToolbar', "ActionBar",
 			'ActionShortcut', "Escape",
 			'ActionGamepad', "ButtonB",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 CloseCommandCenter()
 end,
 			'IgnoreRepeated', true,

@@ -997,6 +997,18 @@ PlaceObj('Scenario', {
 	PlaceObj('ScenarioSequence', {
 		'name', "Anomaly 2: First Tech Boosting",
 	}, {
+		PlaceObj('SA_CheckResearch', {
+			'sa_id', 7,
+			'end_block', 8,
+			'Field', "Mysteries",
+			'Research', "AlienDiggersDestruction",
+			'State', "Researched",
+		}),
+		PlaceObj('SA_ExitSequence', nil),
+		PlaceObj('SA_Block', {
+			'sa_id', 8,
+			'parent', 7,
+		}),
 		PlaceObj('SA_CheckExpression', {
 			'sa_id', 1,
 			'Form', "if-then-else",

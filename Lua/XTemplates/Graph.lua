@@ -173,7 +173,7 @@ end,
 					'func', function (self, shortcut, source)
 if XShortcutToRelation[shortcut] == "down" or XShortcutToRelation[shortcut] == "up" then
 	local dir = XShortcutToRelation[shortcut]
-	local dlg = GetXDialog(self)
+	local dlg = GetDialog(self)
 	local scroll_area = dlg.idContent.idScrollArea
 	local parent_graph = self.parent.parent
 	local idx = table.find(scroll_area, parent_graph)
@@ -307,6 +307,7 @@ end,
 				}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XText",
+				'Id', "idLegend",
 				'Margins', box(39, 0, 0, 0),
 				'Padding', box(0, 0, 0, 0),
 				'Dock', "bottom",

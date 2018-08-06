@@ -96,5 +96,5 @@ function WaitErrorMessage(err, context, ok_text, parent, obj)
 end
 
 function GetLoadingScreenDialog()
-	return GetXDialog("XMarsLoadingScreen")
+	return GetDialog("XMarsLoadingScreen")
 end

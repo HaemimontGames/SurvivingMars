@@ -1,44 +1,40 @@
 GlobalVar("g_ApplicantPool",{})
 GlobalVar("g_ApplicantPoolFilter",{})
-
-local generation_time = 7*const.HourDuration
-local drop_out_time = 500*const.HourDuration
-
-const.BuyApplicantsCount = 50
-
 GlobalVar("g_LastGeneratedApplicantTime", false)
 
+local drop_out_time = 1000*const.HourDuration
+const.BuyApplicantsCount = 50
+
+
 function GenerateApplicant(time, city)
-	local colonist = GenerateColonistData(city)
+	local colonist = GenerateColonistData(city, nil, nil, {no_specialization = IsGameRuleActive("Amateurs") or nil})
 	local rand = Random(1, 100)
 	if rand<=5 then
 		colonist.traits["Tourist"] = true
-	end
-	if IsGameRuleActive("Amateurs") then
-		for _, trait_id in ipairs(table.keys(const.ColonistSpecialization)) do
-			colonist.traits[trait_id] = nil
-		end
-		colonist.specialist = "none"
-		colonist.traits["none"] = true
-	end
+	end	
 	table.insert(g_ApplicantPool, 1, {colonist, time or GameTime()})
 	return colonist
 end
 
 function InitApplicantPool()
 	g_LastGeneratedApplicantTime = 0
-	for i=1,g_Consts.ApplicantsPoolStartingSize do
-		GenerateApplicant(g_LastGeneratedApplicantTime)
+	local pool_size = g_Consts.ApplicantsPoolStartingSize
+	if IsGameRuleActive("MoreApplicants") then
+		pool_size = pool_size + 500
+	end
+	for i=1,pool_size do
+		GenerateApplicant(-Random(0, drop_out_time/2))
 	end
 	
 	-- add initial trait filter
-	local traits = DataInstances.Trait
-	for i = 1, #traits do
-		local trait = traits[i]
+	ForEachPreset(TraitPreset, function(trait, group_list)
 		if trait.initial_filter then
-			g_ApplicantPoolFilter[trait.name] = false
+			g_ApplicantPoolFilter[trait.id] = false
 		end
-	end
+		if trait.initial_filter_up then
+			g_ApplicantPoolFilter[trait.id] = true
+		end	
+	end)
 end
 
 function ClearApplicantPool()
@@ -48,11 +44,17 @@ end
 function OnMsg.NewHour(hour)
 	if not g_LastGeneratedApplicantTime then return end
 	local now = GameTime()
-	-- drop old ones
-	for i=#g_ApplicantPool, 1, -1 do
-		local application_time = g_ApplicantPool[i][2]
-		if application_time and now - application_time >= drop_out_time then
-			table.remove(g_ApplicantPool,i)
+	if hour == 3 then
+		-- drop old applicants
+		local drop_threshold = now - drop_out_time
+		for i = #g_ApplicantPool, 1, -1 do
+			local applicant, application_time = unpack_params(g_ApplicantPool[i])
+			if application_time and application_time - drop_threshold < 0 then
+				table.remove(g_ApplicantPool, i)
+				if not applicant.traits.Tourist then
+					GenerateApplicant(now)
+				end
+			end
 		end
 	end
 	if (g_Consts.ApplicantSuspendGenerate or 0) > 0 then
@@ -60,8 +62,21 @@ function OnMsg.NewHour(hour)
 	end
 	-- generate new one
 	if now - g_LastGeneratedApplicantTime >= g_Consts.ApplicantGenerationInterval then
-		GenerateApplicant(now)
-		g_LastGeneratedApplicantTime = now
+		local non_tourists = 0
+		for _, data in ipairs(g_ApplicantPool) do
+			local applicant = data[1]
+			if not applicant.traits.Tourist then
+				non_tourists = non_tourists + 1
+			end
+		end
+		local pool_size = g_Consts.ApplicantsPoolStartingSize
+		if IsGameRuleActive("MoreApplicants") then
+			pool_size = pool_size + 500
+		end
+		if non_tourists < pool_size then
+			GenerateApplicant(now)
+			g_LastGeneratedApplicantTime = now
+		end
 	end
 end
 

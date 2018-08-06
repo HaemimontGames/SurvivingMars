@@ -1,4 +1,3 @@
-
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 PlaceObj('Cargo', {
@@ -8,7 +7,7 @@ PlaceObj('Cargo', {
 	icon = "UI/Icons/Payload/RCRover.tga",
 	id = "RCRover",
 	kg = 10000,
-	name = T{7678, --[[Cargo RCRover name]] "RC Rover"},
+	name = T{7678, --[[Cargo RCRover name]] "RC Commander"},
 	price = 300000000,
 })
 
@@ -36,7 +35,7 @@ PlaceObj('Cargo', {
 
 PlaceObj('Cargo', {
 	SortKey = 2009000,
-	description = T{4390, --[[Cargo Drone description]] "An automated unit controlled by a Drone Hub, Rocket or RC Rover. Gathers resources, constructs buildings and performs maintenance."},
+	description = T{4390, --[[Cargo Drone description]] "An automated unit controlled by a Drone Hub, Rocket or RC Commander. Gathers resources, constructs buildings and performs maintenance."},
 	group = "Rovers",
 	icon = "UI/Icons/Payload/Drone.tga",
 	id = "Drone",
@@ -111,7 +110,7 @@ PlaceObj('Cargo', {
 
 PlaceObj('Cargo', {
 	SortKey = 5001000,
-	description = T{3679, --[[Cargo OrbitalProbe description]] "Reveals underground deposits in the scanned area."},
+	description = T{10277, --[[Cargo OrbitalProbe description]] "Reveals underground deposits in the scanned area."},
 	group = "Probe",
 	id = "OrbitalProbe",
 	name = T{3525, --[[Cargo OrbitalProbe name]] "Orbital Probe"},
@@ -345,8 +344,8 @@ PlaceObj('Cargo', {
 	SortKey = 16006000,
 	description = T{5143, --[[Cargo MedicalCenter description]] "Visitors will recover Health and Sanity as long as they are not starving, dehydrated, freezing or suffocating. Larger capacity and more effective than the Infirmary. A Dome with a Medical Building has lower minimum Comfort requirement for births."},
 	group = "Locked",
-	id = "MedicalCenter",
 	icon = "UI/Icons/Payload/MedicalCenter.tga",
+	id = "MedicalCenter",
 	kg = 20000,
 	locked = true,
 	name = T{3539, --[[Cargo MedicalCenter name]] "Medical Center"},
@@ -357,8 +356,8 @@ PlaceObj('Cargo', {
 	SortKey = 16007000,
 	description = T{5246, --[[Cargo Sanatorium description]] "Treats Colonists for flaws through advanced and (mostly humane) medical practices."},
 	group = "Locked",
-	id = "Sanatorium",
 	icon = "UI/Icons/Payload/Sanatorium.tga",
+	id = "Sanatorium",
 	kg = 20000,
 	locked = true,
 	name = T{3540, --[[Cargo Sanatorium name]] "Sanatorium"},

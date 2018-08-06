@@ -15,14 +15,14 @@ function OnMsg.PreSaveMap()
 	if not mapdata.GameLogic then
 		return
 	end
-	local saved = GetObjects{class="SavedGlobalVars", area="detached"}[1] or SavedGlobalVars:new()
+	local saved = MapGet("detached", "SavedGlobalVars")[1] or SavedGlobalVars:new()
 	for _, prop_meta in ipairs(saved:GetProperties()) do
 		saved[prop_meta.id] = rawget(_G, prop_meta.id)
 	end
 end
 
 function OnMsg.NewMapLoaded()
-	local saved = GetObjects{class="SavedGlobalVars", area="detached"}[1]
+	local saved = MapGet("detached", "SavedGlobalVars")[1]
 	if saved then
 		for _, prop_meta in ipairs(saved:GetProperties()) do
 			local saved_value = rawget(saved, prop_meta.id) 
@@ -99,6 +99,7 @@ const.ColonyViableByDelay = 10*const.DayDuration
 
 function AreNewColonistsAccepted()
 	if g_Tutorial and not g_Tutorial.EnablePassengerRockets then return false end
+	if IsGameRuleActive("IronColonists") then return true end
 	return g_ColonyNotViableUntil == -3 or (g_ColonyNotViableUntil == -1 and not IsGameRuleActive("TheLastArk"))
 end
 
@@ -108,10 +109,15 @@ function OnMsg.RocketLanded(rocket)
 	local applicants  = rocket.cargo[passengers_idx].applicants_data
 	local is_founder = g_ColonyNotViableUntil == -2 
 	if is_founder then
-		CreateRealTimeThread(WaitPopupNotification, "FirstPassengerRocket")		
-		g_ColonyNotViableUntil = GameTime() + const.ColonyViableByDelay
-		CheckFirstColonistWithTrait()
-		AddOnScreenNotification("FounderStageDuration", nil, {start_time = GameTime(), expiration = const.ColonyViableByDelay})
+		if IsGameRuleActive("IronColonists") then
+			Msg("ColonyApprovalPassed")
+			g_ColonyNotViableUntil = -1	
+		else
+			CreateRealTimeThread(WaitPopupNotification, "FirstPassengerRocket")		
+			g_ColonyNotViableUntil = GameTime() + const.ColonyViableByDelay
+			CheckFirstColonistWithTrait()
+			AddOnScreenNotification("FounderStageDuration", nil, {start_time = GameTime(), expiration = const.ColonyViableByDelay})
+		end
 	end
 	local total_colonists = #(UICity.labels.Colonist or empty_table)
 	for _, applicant in ipairs(applicants) do
@@ -199,22 +205,54 @@ function OnMsg.ColonistLeavingMars(colonist, rocket)
 end
 
 GlobalVar("g_StatusEffectNotificationsShown", {})
+GlobalVar("g_StatusEffectGroupShownTime", {})
 
 function OnMsg.ColonistStatusEffect(colonist, effect, value, time)
-	local thread = g_StatusEffectNotificationsShown[effect]
+	local params = g_StatusEffectNotificationsShown[effect]
 	if value then
 		local class = _G[effect]
-		if class.popup_on_first and not thread then
-			g_StatusEffectNotificationsShown[effect] = CreateRealTimeThread(function()
+		if class.popup_on_first then
+			if params then
+				if type(params) == "table" then
+					table.insert_unique(params.colonists, colonist)
+				end
+				return
+			end
+			params = {}
+			g_StatusEffectNotificationsShown[effect] = params
+			params.colonists = {colonist}
+			params.thread = CreateGameTimeThread(function()
 				Sleep(class.popup_display_delay)
+				local popup_group = class.popup_group or ""
+				if popup_group ~= "" then
+					while true do
+						local elapsed = GameTime() - (g_StatusEffectGroupShownTime[popup_group] or 0)
+						if elapsed >= class.popup_group_delay then
+							break
+						end
+						Sleep(class.popup_group_delay - elapsed)
+					end
+					g_StatusEffectGroupShownTime[class.popup_group] = GameTime()
+				end
 				g_StatusEffectNotificationsShown[effect] = true
+				colonist = params.colonists[1] or colonist
 				local res = WaitPopupNotification(class.popup_on_first, { params = { colonist = colonist } })
 				if res==1 then ViewAndSelectObject(colonist) end
 			end)
 		end
-	elseif IsValidThread(thread) then
-		DeleteThread(thread)
-		g_StatusEffectNotificationsShown[effect] = false
+	else
+		local thread = params
+		if type(params) == "table" then
+			table.remove_value(params.colonists, colonist)
+			if #params.colonists > 0 then
+				return
+			end
+			thread = params.thread
+		end
+		if IsValidThread(thread) then
+			DeleteThread(thread)
+			g_StatusEffectNotificationsShown[effect] = false
+		end
 	end
 end
 
@@ -227,7 +265,7 @@ local FounderGainsTraitCategories = {
 function OnMsg.ColonistAddTrait(colonist, trait_id, init)
 	if not init and 
 		colonist.traits.Founder and 
-		DataInstances.Trait[trait_id] and FounderGainsTraitCategories[DataInstances.Trait[trait_id].category] then
+		TraitPresets[trait_id] and FounderGainsTraitCategories[TraitPresets[trait_id].group] then
 		AddOnScreenNotification("FounderGainsTrait", nil, { founder = colonist, trait = trait_id }, { colonist })
 	end
 end

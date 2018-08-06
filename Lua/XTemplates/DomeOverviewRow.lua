@@ -343,13 +343,16 @@ end,
 			'OnContextUpdate', function (self, context, ...)
 local dome = ResolvePropObj(context)
 	local accept = dome.accept_colonists
+	local overpopulated = dome.overpopulated
 	if accept then
-		self.idButtonIcon:SetImage("UI/Icons/Sections/accept_colonists_on.tga")
+		self.idButtonIcon:SetImage(overpopulated 
+						and "UI/Icons/Sections/Overpopulated.tga" 
+						or "UI/Icons/Sections/accept_colonists_on.tga")
 	else
 		self.idButtonIcon:SetImage("UI/Icons/Sections/accept_colonists_off.tga")
 	end
 	-- rollover
-	if dome.accept_colonists then
+	if accept then
 		self:SetRolloverText(T{7660, "Set the Immigration policy for this Dome. Colonists are not allowed to enter or leave quarantined Domes.<newline><newline>Current status: <em>Accepts new Colonists</em>"})
 		self:SetRolloverHint(T{7661, "<left_click> Quarantine this Dome<newline><em>Ctrl + <left_click></em> Quarantine all Domes"})
 		self:SetRolloverHintGamepad(T{7662, "<ButtonA> Quarantine this Dome<newline><ButtonX> Quarantine all Domes"})
@@ -357,6 +360,14 @@ local dome = ResolvePropObj(context)
 		self:SetRolloverText(T{365, "Set the Immigration policy for this Dome. Colonists are not allowed to enter or leave quarantined Domes.<newline><newline>Current status: <em>Quarantined</em>"})
 		self:SetRolloverHint(T{7663, "<left_click> Accept Colonists in this Dome<newline><em>Ctrl + <left_click></em> Accept Colonists in all Domes"})
 		self:SetRolloverHintGamepad(T{7664, "<ButtonA> Accept Colonists in this Dome<newline><ButtonX> Accept Colonists in all Domes"})
+	end
+	if overpopulated then
+		if accept then
+			self:SetRolloverText(T{10452, "Set the Immigration policy for this Dome. Colonists are not allowed to enter or leave quarantined Domes.<newline><newline>Current status: <em>Overpopulated dome</em>"})
+		else
+			self:SetRolloverHint(T{7663, "<left_click> Accept Colonists in this Dome<newline><em>Ctrl + <left_click></em> Accept Colonists in all Domes"})
+			self:SetRolloverHintGamepad(T{7664, "<ButtonA> Accept Colonists in this Dome<newline><ButtonX> Accept Colonists in all Domes"})
+		end
 	end
 end,
 			'FocusedBackground', RGBA(0, 0, 0, 0),

@@ -24,6 +24,7 @@ function OnMsg.ClassesPreprocess()
 	Dome.OnExitDome = function(self, unit)
 		unit:OnExitDome(self)
 	end
+	GetXDialog = GetDialog
 end
 
 g_TotalWorkingShuttleCount = 0
@@ -177,24 +178,20 @@ local function FixRocketUnload(label)
 end
 
 local function FixRockets(lua_revision)
-	ForEach{
-		class = "SupplyRocket",
-		area = "realm",
-		exec = function(rocket)
+	MapForEach(true, 
+		"SupplyRocket",
+		function(rocket)
 			rocket.city:AddToLabel("AllRockets", rocket)
-		end,
-	}
+		end)
 
 	if lua_revision < 226416 then
 		g_LandedRocketsInNeedOfFuel = g_LandedRocketsInNeedOfFuel or {}
 		local controls = UICity.labels.DroneControl
-		local rockets = GetObjects{ area = "realm", class = "SupplyRocket" }
 		for i = 1, #controls do
 			controls[i]:InitRocketRestrictors()
 		end
 		
-		for i = 1, #rockets do
-			local r = rockets[i]
+		local exec = function (r)
 			if r.refuel_request then
 				r.refuel_request:AddFlags(const.rfRestrictorRocket)
 			end
@@ -206,6 +203,7 @@ local function FixRockets(lua_revision)
 				end
 			end
 		end
+		MapForEach(true, "SupplyRocket", exec)
 	end
 
 	local list = UICity.labels.AllRockets or empty_table
@@ -290,22 +288,20 @@ function SavegameFixups.pre_fixup(metadata, lua_revision)
 	
 	FixRockets(lua_revision)
 		
-	ForEach{
-		class = "FarmConventional",
-		exec = function(o)
+	MapForEach("map",
+		"FarmConventional",
+		function(o)
 			if not o.anim_thread then
 				o:StartAnimThread()
 			end
-		end,
-	}
+		end)
 	
 	if lua_revision < 226255 then
-		ForEach{
-			class = "Building",
-			exec = function(b)
+		MapForEach("map", 
+			"Building",
+			function(b)
 				b:InitResourceSpots()
-			end,
-		}
+			end)
 	end
 	
 	if lua_revision < 226147 then
@@ -357,26 +353,18 @@ function SavegameFixups.pre_fixup(metadata, lua_revision)
 	end
 	
 	if lua_revision < 226859 then
-		ForEach{classes = "BaseDustDevil", exec = BaseDustDevil.StartWatchdog}
-	end
-	
-	if lua_revision < 226884 then
-		ForEach{classes = {"Diner", "Grocery"}, exec = function(o)
-			local stock = o.consumption_resource_stockpile
-			stock.CanService = HasConsumption.StockpileCanService
-			stock.Service = HasConsumption.StockpileService
-		end}
+		MapForEach("map", "BaseDustDevil", BaseDustDevil.StartWatchdog)
 	end
 	
 	if lua_revision < 226940 then
-		g_DomeVersion = CountObjects{classes = "Dome"}
+		g_DomeVersion = MapCount("map", "Dome")
 	end
 	
 	if lua_revision < 226966 and g_ConstructionNanitesResearched then
 		dbg_ResetAllNaniteThreads()
 	end
 	
-	ForEach{class = "TheExcavator", exec = function(excavator)
+	MapForEach("map", "TheExcavator", function(excavator)
 		if not excavator.belt then
 			excavator.belt = excavator:GetAttach("ExcavatorBelt")
 			excavator.belt:SetFrameAnimationSpeed(excavator.working and 1000 or 0)
@@ -387,14 +375,14 @@ function SavegameFixups.pre_fixup(metadata, lua_revision)
 			excavator.rope:SetAxis(axis_y)
 			excavator:UpdateRopeVisuals()
 		end
-	end}
+	end)
 	
 	if lua_revision < 227158 then
-		ForEach{class = "ResourcePile", exec = function(o) o.parent_dome = GetDomeAtPoint(o:GetPos()) end}
+		MapForEach("map", "ResourcePile", function(o) o.parent_dome = GetDomeAtPoint(o:GetPos()) end)
 	end
 
 	if lua_revision < 227241 then
-		ForEach{class = "Colonist", area = "realm", exec = function(c) 				
+		MapForEach(true, "Colonist", function(c) 				
 			if IsValid(c) and not c:IsDying() and not (c.holder or c:IsValidPos()) then				
 				local dome = c.current_dome or c.emigration_dome or c.dome
 				if dome then
@@ -404,30 +392,30 @@ function SavegameFixups.pre_fixup(metadata, lua_revision)
 					DoneObject(c)
 				end	
 			end			
-		end}
+		end)
 	end
 	
 	if lua_revision < 227219 then
 		--silent (non asserting) save compat with momchil's save specifically
 		--objs are in limbo, done finished only half way - Object's done has passed while CObject's done has not
-		ForEach{class = "ConstructionGroupLeader", exec = function(o) 
+		MapForEach("map", "ConstructionGroupLeader", function(o) 
 			if IsValid(o) and not HandleToObject[o] then
 				CObject.delete(o)
 			end
-		end}
+		end)
 	end
 	
 	if lua_revision < 227328 then
 		FixRequestQueues(LRManagerInstance)
-		ForEach{class = "DroneControl", exec = FixRequestQueues}
+		MapForEach("map", "DroneControl", FixRequestQueues)
 	end
 	
 	if lua_revision < 227234 then
-		ForEach{class = "ResourceStockpileBase", exec = function(o) o:RemoveFromDomeLabels(); o:AddToDomeLabels() end}
+		MapForEach("map", "ResourceStockpileBase", function(o) o:RemoveFromDomeLabels(); o:AddToDomeLabels() end)
 	end
 	
 	if lua_revision < 227258 then
-		ForEach{class = "GeoscapeDome", exec = UpdateDistToDomes}
+		MapForEach("map", "GeoscapeDome", UpdateDistToDomes)
 	end
 	
 	if lua_revision < 227288 then
@@ -437,28 +425,28 @@ function SavegameFixups.pre_fixup(metadata, lua_revision)
 	end
 	
 	if lua_revision < 227296 then
-		ForEach{class = "RCTransport", exec = RCTransport.SaveCompatNoStorageMatch}
+		MapForEach("map", "RCTransport", RCTransport.SaveCompatNoStorageMatch)
 	end
 	
 	if lua_revision < 227360 then
-		ForEach{class = "ConstructionSite", exec = function(o)
+		MapForEach("map", "ConstructionSite", function(o)
 			if o.construction_group and o ~= o.construction_group[1] and
 				not IsValid(o.construction_group[1]) then
 				DoneObject(o)
 			end
-		end}
+		end)
 	end
 	
 	if lua_revision < 227386 then
-		ForEach{class = "Drone", exec = Drone.SaveCompatDifferentiateDisablingFromBroken}
+		MapForEach("map", "Drone", Drone.SaveCompatDifferentiateDisablingFromBroken)
 	end
 	
 	if lua_revision >= 227488 and lua_revision < 227509 then
-		ForEach{class = "Dome", exec = Dome.InitLandingSpots}
+		MapForEach("map", "Dome", Dome.InitLandingSpots)
 	end
 	
 	if lua_revision < 228185 then
-		ForEach{class = "Dome", exec = function(dome)
+		MapForEach("map", "Dome", function(dome)
 			local piles = dome.labels.ResourceStockpile or empty_table
 			for i=#piles,1,-1 do
 				local pile = piles[i]
@@ -466,28 +454,18 @@ function SavegameFixups.pre_fixup(metadata, lua_revision)
 					table.remove(piles, i)
 				end
 			end
-		end}
+		end)
 	end
 	
 	if lua_revision < 228185 then
-		ForEach{class = "Dome", exec = function(dome)
+		MapForEach("map", "Dome", function(dome)
 			if not dome.destroyed then
 				local terrain_class = dome.class .. "TerrainGrass"
 				if rawget(g_Classes, terrain_class) and dome:CountAttaches(terrain_class) == 0 then
 					dome:Attach(PlaceObject(terrain_class))
 				end
 			end
-		end}
-	end
-	
-	if lua_revision < 228185 then
-		ForEach{class = "FlyingObject", exec = function(obj)
-			if obj.to_avoid then
-				table.iclear(obj.to_avoid)
-			else
-				obj.to_avoid = setmetatable({}, weak_keys_meta)
-			end
-		end}
+		end)
 	end
 	
 	if lua_revision < 228185 then
@@ -496,12 +474,12 @@ function SavegameFixups.pre_fixup(metadata, lua_revision)
 	end
 	
 	if lua_revision < 228111 then -- applied in day1 patch
-		ForEach{class = "ResourceStockpile",
-		exec = function(o)
+		MapForEach("map", "ResourceStockpile",
+		function(o)
 			if o.parent ~= false and not IsValid(o.parent) then
 				o.parent = nil
 			end
-		end,}
+		end)
 	end
 	
 	if lua_revision < 228185 then
@@ -511,9 +489,9 @@ function SavegameFixups.pre_fixup(metadata, lua_revision)
 	end
 	
 	if lua_revision < 228448 then
-		ForEach{class = "Dome", exec = function(o)
+		MapForEach("map", "Dome", function(o)
 			o:OnSkinChanged()
-		end}
+		end)
 	end
 	
 	if lua_revision < 228321 then
@@ -522,28 +500,27 @@ function SavegameFixups.pre_fixup(metadata, lua_revision)
 end
 
 function SavegameFixups.DomePassageTables(metadata, lua_revision)
-	ForEach{
-		class = "Dome",
-		exec = Dome.InitPassageTables
-	}
+	MapForEach("map",
+		"Dome",
+		Dome.InitPassageTables)
 end
 
 function SavegameFixups.DomePassageTables_ColonistWrongDome()
-	ForEach{class = "Colonist", area = "realm", exec = function(c) 
+	MapForEach(true, "Colonist", function(c) 
 		if c.current_dome and c.current_dome ~= c.dome then
 			c:SetDome(c.current_dome)
 		end
-	end}
+	end)
 end
 
 function SavegameFixups.DomeWorkplaces()
-	ForEach{class = "Dome", exec = function(dome)
+	MapForEach("map", "Dome", function(dome)
 		dome:AddOutskirtBuildings()
-	end}
+	end)
 end
 
 function SavegameFixups.DomeLabels(metadata, lua_revision)
-	ForEach{class = "Dome", exec = function(dome)
+	MapForEach("map", "Dome", function(dome)
 		local colonists = dome.labels.Colonist or empty_table
 		dome.labels.Homeless = {}
 		dome.labels.Unemployed = {}
@@ -557,7 +534,7 @@ function SavegameFixups.DomeLabels(metadata, lua_revision)
 			colonist:UpdateHomelessLabels()
 			colonist:UpdateEmploymentLabels()
 		end
-	end}
+	end)
 end
 
 function SavegameFixups.trade_rocket_fixup(metadata, lua_revision)
@@ -571,16 +548,13 @@ end
 
 function SavegameFixups.trade_rocket_deswarm(metadata, lua_revision)
 	if #(UICity.labels.TradeRocket or empty_table) > 50 then
-		ForEach{
-			class = "TradeRocket",
-			area = "realm",
-			exec = function(o)
+		MapForEach(true, "TradeRocket",
+			function(o)
 				if o.command == "OnEarth" or o.command == "FlyToMars" then
 					o.is_pinned = false
 					DoneObject(o)
 				end
-			end,
-		}
+			end)
 	end
 end
 
@@ -592,25 +566,17 @@ function SavegameFixups.SponsorCommanderPresetsFixup(metadata, lua_revision)
 end
 
 function SavegameFixups.ColonistSuitableWorkplace()
-	ForEach{class = "Colonist", area = "realm", exec = function(c) 				
+	MapForEach(true, "Colonist", function(c) 				
 		if c.workplace and not c.workplace:IsSuitable(c) then				
 			c:SetWorkplace(false)
 		end			
-	end}
-end
-
-function SavegameFixups.DemolishGameThread()
-	ForEach{class = "Demolishable", area = "realm", exec = function(c) 				
-		if c.demolishing and not IsValidThread(self.demolishing_thread) then			
-			self.demolishing_thread = CreateGameTimeThread(self.DoDemolish, self)
-		end			
-	end}
+	end)
 end
 
 function SavegameFixups.PFClasses()
-	ForEach{class = "Movable", area = "realm", exec = function(obj)
+	MapForEach(true, "Movable", function(obj)
 		obj:SetPfClass(obj.pfclass)
-	end}
+	end)
 end
 
 function SavegameFixups.MoholeExcavatorUpgrades()
@@ -623,38 +589,30 @@ function SavegameFixups.MoholeExcavatorUpgrades()
 end
 
 function SavegameFixups.MarsgateRoverBattery()
-	ForEach{
-		class = "AttackRover",
-		exec = function(o)
+	MapForEach("map", "AttackRover",
+		function(o)
 			if o.command == "Roam" then
 				o:SetCommand("Roam") -- force restart of the command to fix saved wrong battery thread state
 			end
-		end,
-	}
+		end)
 end
 
 function SavegameFixups.RemovedUserRequestMaintenanceButton()
 	local f = TaskRequester.GetPriorityForRequest
-	ForEach{
-		class = "RequiresMaintenance",
-		area = "realm",
-		exec = function(o)
+	MapForEach(true, "RequiresMaintenance",
+		function(o)
 			rawset(o, "GetPriorityForRequest", f)
-		end,
-	}
+		end)
 end
 
 function SavegameFixups.RemoveBlackCubeRFWaitToFill()
 	local f = const.rfWaitToFill
-	ForEach{
-		class = "BlackCubeStockpileBase",
-		area = "realm",
-		exec = function(o)
+	MapForEach(true, "BlackCubeStockpileBase",
+		function(o)
 			if o.has_supply_request and o.supply_request then
 				o.supply_request:ClearFlags(f)
 			end
-		end,
-	}
+		end)
 end
 
 function SavegameFixups.CleanDestroyedShiftsBuildingsFromCityLabels()
@@ -668,16 +626,12 @@ function SavegameFixups.CleanDestroyedShiftsBuildingsFromCityLabels()
 end
 
 function SavegameFixups.ShuttleHubReturResource()
-	ForEach{class = "ShuttleHub", exec = function(shub)
+	MapForEach("map", "ShuttleHub", function(shub)
 		shub:CreateResourceRequestsSupply()
-	end}
-	ForEach{class = "DroneFactory", exec = function(bld)
+	end)
+	MapForEach("map", "DroneFactory",function(bld)
 		bld:CreateResourceRequestsSupply()
-	end}
-end
-
-function SavegameFixups.ClearConstructionMarkers()
-	ForEach{class="GridTile", action="delete"} -- fix saves where construction marker tiles are already present
+	end)
 end
 
 function SavegameFixups.FixDomeLandingSpots()
@@ -722,5 +676,114 @@ function SavegameFixups.RegisterBorderlineDomeOutskirtBuildings()
 	local domes = UICity.labels.Dome or empty_table
 	for _, dome in ipairs(domes) do
 		dome:AddOutskirtBuildings()
+	end
+end
+
+function SavegameFixups.RenameFlyingMaxSpeed()
+	MapForEach("map", "FlyingObject", function(obj)
+		local max_speed = rawget(obj, "max_speed")
+		if max_speed then
+			obj.move_speed = max_speed
+		end
+	end)
+end
+
+function SavegameFixups.FixDomeWalkablePoints()
+	for _,dome in ipairs(UICity.labels.Dome or empty_table) do
+		dome:GenerateWalkablePoints()
+	end
+end
+
+function SavegameFixups.FixDomeClones()
+	g_TotalChildrenBornWithMating = 0
+	for _,dome in ipairs(UICity.labels.Dome or empty_table) do
+		if not dome.clones_created then
+			local clones = 0
+			for j,colonist in ipairs(dome.labels.Colonist) do
+				if colonist.traits.Clone then
+					clones = clones + 1
+				end
+			end
+			dome.clones_created = clones
+		end
+		g_TotalChildrenBornWithMating = g_TotalChildrenBornWithMating + dome.born_children
+	end
+end
+
+function SavegameFixups.FixOutsourcingOrdersCap()
+	UICity.OutsourceResearchOrders = {}
+end
+
+function SavegameFixups.ClearConstructionMarkers()
+	MapDelete("map", "GridTile")
+end
+
+function SavegameFixups.FixExportFundingHistory()
+	local total = UICity.funding_gain_total or {}
+	UICity.funding_gain_total = total
+	local last = UICity.funding_gain_last or {}
+	UICity.funding_gain_last = last
+	total.Export = UICity:CalcModifiedFunding(UICity:CalcBaseExportFunding(UICity.total_export))
+	last.Export = UICity:CalcModifiedFunding(UICity:CalcBaseExportFunding(UICity.last_export and UICity.last_export.amount))
+end
+
+function SavegameFixups.FixDemolsihCooldown()
+	MapForEach(true, "Demolishable", function(obj) 			
+		if not obj.demolishing then
+			return
+		end
+		obj.demolishing_countdown = Min(obj.demolishing_countdown or 0, const.DemolishCountdownMax)
+		obj:DestroyAttaches("RotatyThing")
+		PlayFX("Demolish", "end", obj)
+		DeleteThread(obj.demolishing_thread)
+		obj.demolishing_thread = CreateGameTimeThread(obj.DoDemolish, obj)	
+	end)
+end
+
+function SavegameFixups.DomeOnScreenNotifications()
+	DeleteThread("DomesWithNoOxygenNotif")
+	DeleteThread("DomesWithNoWaterNotif")
+	DeleteThread("DomesWithNoPowerNotif")
+	
+	for i=1,#g_DomesWithNoOxygen do	
+		table.insert_unique(g_DomesWithNoLifeSupport, g_DomesWithNoOxygen[i])
+	end	
+	for i=1,#g_DomesWithNoWater do	
+		table.insert_unique(g_DomesWithNoLifeSupport, g_DomesWithNoWater[i])
+	end	
+	for i=1,#g_DomesWithNoPower do	
+		table.insert_unique(g_DomesWithNoLifeSupport, g_DomesWithNoPower[i])
+	end	
+	g_DomesWithNoOxygen = {}
+	g_DomesWithNoWater = {}
+	g_DomesWithNoPower = {}	
+	RestartGlobalGameTimeThread("InsufficientMaintenanceResourcesNotif")
+end
+
+function SavegameFixups.NotWorkingBuildingsNotifications()
+	RestartGlobalGameTimeThread("NotWorkingBuildingsNotif")
+end
+
+-- Need to restart the thread to prevent FindNearest(...) function call.
+function SavegameFixups.AutoRemoveObjRestart()
+	RestartGlobalGameTimeThread("AutoRemoveObjs")
+end
+
+function SavegameFixups.DuplicatedSpecialization()
+	MapForEach("map", "Colonist", function(col) ValidateSpecialization(col) end)
+end
+
+function SavegameFixups.CameraScrollBorder()
+	cameraRTS.SetProperties(1, {ScrollBorder = const.DefaultCameraRTS.ScrollBorder})
+end
+
+function SavegameFixups.FixIrradiation()
+	MapForEach("map", "Colonist", function(col) col:Affect("StatusEffect_Irradiated", false) end)
+end
+
+function SavegameFixups.FixGameEventsThread()
+	if rawget(_G, "GameEventsTickThread") then
+		DeleteThread(GameEventsTickThread)
+		GameEventsTickThread = nil
 	end
 end

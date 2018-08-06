@@ -1,45 +1,3 @@
-DefineClass.PopupNotificationPreset = {
-	__parents = { "DataInstance" },
-
-	properties = {
-		{ category = "General", id = "title",  name = T{1000016, "Title"},     editor = "text", default = "", translate = true},
-		{ category = "General", id = "voiced_text",   name = T{6855, "Voiced Text"}, editor = "multi_line_text", default = "", translate = true, context = VoicedContextFromField("actor")},
-		{ category = "General", id = "text",   name = T{3793, "Body Text"}, editor = "multi_line_text", default = "", translate = true},
-		{ category = "General", id = "log_entry", name = T{6856, "Log Entry"}, editor = "bool", default = false },
-		{ category = "General", id = "actor",   name = T{6857, "Voice Actor"}, editor = "combo", items = VoiceActors, default = "narrator" },
-		{ category = "General", id = "image",  name = T{3794, "Image"},    editor = "browse", default = "", folder = "UI"},
-
-		{ category = "Choice", id = "choice1",     		      name = T{3785, "Choice 1"},         editor = "multi_line_text", default = "", translate = true, use_registers = true },
-		{ category = "Choice", id = "choice1_img", 		      name = T{3807, "Choice 1 Image"},   editor = "browse",          default = "", folder = "UI" },
-		{ category = "Choice", id = "choice1_rollover",      name = T{3808, "Rollover 1"},       editor = "multi_line_text", default = "", translate = true, use_registers = true },
-		{ category = "Choice", id = "choice1_rollover_title",name = T{3809, "Rollover Title 1"}, editor = "text", default = "", translate = true, use_registers = true },
-		{ category = "Choice", id = "choice1_hint1",   name = T{3810, "Rollover 1 Hint 1"},           editor = "text", default = "", translate = true, use_registers = true },
-		{ category = "Choice", id = "choice1_hint2",   name = T{3811, "Rollover 1 Hint 2"},           editor = "text", default = "", translate = true, use_registers = true },
-		
-		{ category = "Choice", id = "choice2",     		      name = T{3786, "Choice 2"},         editor = "multi_line_text", default = "", translate = true, use_registers = true },
-		{ category = "Choice", id = "choice2_img", 		      name = T{3812, "Choice 2 Image"},   editor = "browse",          default = "", folder = "UI" },
-		{ category = "Choice", id = "choice2_rollover",      name = T{3813, "Rollover 2"},       editor = "multi_line_text", default = "", translate = true, use_registers = true },
-		{ category = "Choice", id = "choice2_rollover_title",name = T{3814, "Rollover Title 2"}, editor = "text", default = "", translate = true, use_registers = true },
-		{ category = "Choice", id = "choice2_hint1",   name = T{3815, "Rollover 2 Hint 1"},      editor = "text", default = "", translate = true, use_registers = true },
-		{ category = "Choice", id = "choice2_hint2",   name = T{3816, "Rollover 2 Hint 2"},      editor = "text", default = "", translate = true, use_registers = true },
-	
-		{ category = "Choice", id = "choice3",     		name = T{3787, "Choice 3"},       	editor = "multi_line_text", default = "", translate = true, use_registers = true },
-		{ category = "Choice", id = "choice3_img", 		name = T{3817, "Choice 3 Image"}, 	editor = "browse",          default = "", folder = "UI" },
-		{ category = "Choice", id = "choice3_rollover",      name = T{3818, "Rollover 3"},       editor = "multi_line_text", default = "", translate = true, use_registers = true },
-		{ category = "Choice", id = "choice3_rollover_title",name = T{3819, "Rollover Title 3"}, editor = "text", default = "", translate = true, use_registers = true },
-		{ category = "Choice", id = "choice3_hint1",   name = T{3820, "Rollover 3 Hint 1"},      editor = "text", default = "", translate = true, use_registers = true },
-		{ category = "Choice", id = "choice3_hint2",   name = T{3821, "Rollover 3 Hint 2"},      editor = "text", default = "", translate = true, use_registers = true },
-		
-		{ category = "Choice", id = "choice4",     		      name = T{3788, "Choice 4"},         editor = "multi_line_text", default = "", translate = true, use_registers = true },
-		{ category = "Choice", id = "choice4_img", 		      name = T{3822, "Choice 4 Image"},   editor = "browse",          default = "", folder = "UI" },
-		{ category = "Choice", id = "choice4_rollover",      name = T{3823, "Rollover 4"},       editor = "multi_line_text", default = "", translate = true, use_registers = true },
-		{ category = "Choice", id = "choice4_rollover_title",name = T{3824, "Rollover Title 4"}, editor = "text", default = "", translate = true, use_registers = true },
-		{ category = "Choice", id = "choice4_hint1",   name = T{3825, "Rollover 4 Hint 1"},      editor = "text", default = "", translate = true, use_registers = true },
-		{ category = "Choice", id = "choice4_hint2",   name = T{3826, "Rollover 4 Hint 2"},      editor = "text", default = "", translate = true, use_registers = true },
-	},	
-	
-	PropEditorCopy = true,
-}
 
 DefineClass.PopupNotification = {
 	__parents = {"XMarsMessageBox"},
@@ -62,7 +20,7 @@ end
 function _GetPopupNotificationContext(preset_name, params, bPersistable)
 	local context = params -- not a deep copy because it brеаks concat Ts
 	if preset_name then
-		local preset = DataInstances.PopupNotificationPreset[preset_name]
+		local preset = PopupNotificationPresets[preset_name]
 		if preset then
 			table.set_defaults(context, preset)
 		else
@@ -86,10 +44,7 @@ function PopupNotificationBegin(self)
 	else
 		GetInGameInterface().mode_dialog:SelectSector()
 	end
-	--close photo mode if it is open
-	AbortPhotoMode()
-	--close colony command center if it is open
-	CloseCommandCenter()
+	Msg("PopupNotificationBegin")
 	HideGamepadCursor("Popup")
 	--call this in a thread to handle the case when photo mode or 
 	--command center have just been closed and we have lost focus
@@ -153,12 +108,13 @@ local function OpenPopupNotification(parent, context)
 		local prop_name = "choice" .. i .. "_img"
 		local image = context[prop_name] and context[prop_name] ~= "" and context[prop_name] or (choice_count == 1 and "UI/Icons/message_ok.tga") or "UI/Icons/message_" .. i .. ".tga"
 		actions[#actions + 1] = XAction:new({
+			ActionId = "idChoice" .. i,
 			ActionName = choice,
 			ActionShortcut = tostring(i),
 			ActionShortcut2 = choice_count == i and "Escape" or "",
 			ActionGamepad = choice_count == i and "ButtonB" or "",
 			ActionIcon = image,
-			OnAction = function(self, host, source, toggled)
+			OnAction = function(self, host, source)
 				host:Close(i)
 			end,
 			ActionState = function(host)
@@ -173,10 +129,6 @@ local function OpenPopupNotification(parent, context)
 	
 	local dlg = PopupNotification:new({actions = actions}, parent, context)
 	dlg.OnShortcut = function(self, shortcut, source)
-		if shortcut == "ButtonB" and choice_count == 1 then
-			self:Close(1)
-			return "break"
-		end
 		local res = XDialog.OnShortcut(self, shortcut, source)
 		return not PopupPropagateShortcuts[shortcut] and not shortcut:starts_with("+") and "break" or res
 	end
@@ -189,10 +141,10 @@ local function OpenPopupNotification(parent, context)
 		return "break" --prevent going in and out of overview while a popup is shown
 	end
 	
-	-- register in XDialogs manually
+	-- register in Dialogs manually
 	local id = "PopupNotification"
-	XDialogs[id] = dlg
-	XDialogs[dlg] = id
+	Dialogs[id] = dlg
+	Dialogs[dlg] = id
 	dlg:Open()
 	dlg:AddOpenReason()
 	return dlg
@@ -208,23 +160,11 @@ function SetPopupNotificationText(self, context)
 	local voiced_text = context.voiced_text
 	local body_text = context.params and context.params.override_popup_text or context.text
 	body_text = T{body_text, context.params, context}
-	if GetUIStyleGamepad() then
-		if context.x_voiced_text and context.x_voiced_text ~= "" then
-			voiced_text = context.x_voiced_text
-		end
-		if context.x_text and context.x_text ~= "" then
-			body_text = T{ context.x_text, context.params, context}
-		end
-	end
 	local text
-	if not voiced_text then
+	if (voiced_text or "") == "" then
 		text = T{body_text, img_tags, context.params, context}
 	else
 		g_Voice:Play(voiced_text, not "actor", "Voiceover", not "subtitles")
-		if Platform.developer then
-			local vtext = TDevModeGetEnglishText(voiced_text)
-			assert(not vtext:istagged(), "Voiced text can not containg tags! '" .. vtext .. "'")
-		end
 		if not body_text then
 			text = voiced_text
 		else
@@ -241,7 +181,7 @@ function PopPopupNotification(parent)
 	local context = g_PopupQueue[1]
 	parent = parent or (context and context.parent)
 	parent = parent and parent.window_state ~= "destroying" and parent or GetInGameInterface()
-	if parent and not GetXDialog("PopupNotification") and context and ArePopupsEnabled() then
+	if parent and not GetDialog("PopupNotification") and context and ArePopupsEnabled() then
 		OpenPopupNotification(parent, context)
 	end
 end
@@ -300,7 +240,7 @@ end
 
 function PopupNotificationSuspend(reason)
 	g_PopupsSuspended[reason] = true
-	local dlg = GetXDialog("PopupNotification")
+	local dlg = GetDialog("PopupNotification")
 	if dlg then
 		dlg:Close("suspend")
 	end
@@ -333,34 +273,9 @@ function OnMsg.PersistLoad(data)
 end
 
 function OnMsg.ChangeMap()
-	CloseXDialog("PopupNotification")
+	CloseDialog("PopupNotification")
 end
 
 function OnMsg.NewMap()
 	g_PopupQueue = {}
-end
-
--- usually called when desktop is resized, so call in thread, in order to prevent accessing children which are being deleted
-function PlaceWatermarkLines(parent, container, pad, org_watermark, id)
-	id = id or "idDescrWatermark"
-	for i = #container, 1, -1 do
-		container[i]:delete()
-		table.remove(container, i)
-	end
-	local num = pad:GetHeight() / org_watermark:GetHeight() + 1
-	local pos = pad:GetPos()
-	local step = point(0, org_watermark:GetHeight())
-	for i = 1, num do
-		local ctrl = Image:new(parent)
-		ctrl:SetId(id .. i)
-		ctrl:SetSize(org_watermark:GetSize())
-		ctrl:SetImage(org_watermark:GetImage())
-		ctrl.ZOrder = org_watermark.ZOrder
-		ctrl:SetPos(pos)
-		ctrl.ParentListAutoresize = false
-		ctrl.HandleMouse = false
-		ctrl.clip_ctrl = pad
-		pos = pos + step
-		container[i] = ctrl
-	end
 end

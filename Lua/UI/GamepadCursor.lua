@@ -10,7 +10,7 @@ function ShowGamepadCursor(reason)
 	if GetUIStyleGamepad() and not ChangingMap and GetInGameInterface() and
 	   (not HideGamepadCursorReasons or not next(HideGamepadCursorReasons))
 	then
-		OpenXDialog("GamepadCursorDlg", GetInGameInterface())
+		OpenDialog("GamepadCursorDlg", GetInGameInterface())
 	end
 end
 
@@ -19,7 +19,7 @@ function HideGamepadCursor(reason)
 		HideGamepadCursorReasons = HideGamepadCursorReasons or {}
 		HideGamepadCursorReasons[reason] = true
 	end
-	CloseXDialog("GamepadCursorDlg")
+	CloseDialog("GamepadCursorDlg")
 end
 
 function LockHRXboxLeftThumb(reason)
@@ -52,7 +52,7 @@ function CalculateGamepadCursorSize(img)
 end
 
 function GetGamepadCursor()
-	return GetXDialog("GamepadCursorDlg")
+	return GetDialog("GamepadCursorDlg")
 end
 
 function OnMsg.GameEnterEditor()

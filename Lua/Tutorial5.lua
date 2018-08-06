@@ -10,6 +10,7 @@ DefineClass.Tutorial_5_NewDome =               { __parents = { "BaseHint" }, }
 DefineClass.Tutorial_5_NewDomeFarms =          { __parents = { "BaseHint" }, }
 DefineClass.Tutorial_5_Passages =              { __parents = { "BaseHint" }, }
 DefineClass.Tutorial_5_ResearchUpgrade =       { __parents = { "BaseHint" }, }
+DefineClass.Tutorial_5_ResearchUpgrade_1 =       { __parents = { "BaseHint" }, }
 DefineClass.Tutorial_5_UpgradeExtractor =      { __parents = { "BaseHint" }, }
 DefineClass.Tutorial_5_UpgradeExtractor_2=     { __parents = { "BaseHint" }, }
 DefineClass.Tutorial_5_CommandCenterUI =       { __parents = { "BaseHint" }, }
@@ -65,7 +66,7 @@ g_TutorialScenarios.Tutorial5 = function()
 	local working = false
 	while not working do
 		for _, hub in ipairs(shuttlehubs) do
-			if hub:HasPower() then
+			if not hub.destroyed and hub:HasPower() then
 				working = true
 				break
 			end
@@ -94,7 +95,7 @@ g_TutorialScenarios.Tutorial5 = function()
 	local supplyed = false
 	while not supplyed do
 		for _, extractor in ipairs(extractors) do
-			if extractor.electricity.grid.current_production>0 then
+			if not extractor.destroyed and extractor.electricity.grid.current_production>0 then
 				supplyed = true
 				break
 			end
@@ -129,14 +130,14 @@ g_TutorialScenarios.Tutorial5 = function()
 				if GetInGameInterfaceMode() == "construction" then
 					return false
 				end	
-				if not XDialogs.XBuildMenu then 
-					local dlg = GetXDialog("HUD")
+				if not Dialogs.XBuildMenu then 
+					local dlg = GetDialog("HUD")
 					return dlg and dlg.idBuild or false
 				end			
-				if XDialogs.XBuildMenu:HasMember(item) then
-					return XDialogs.XBuildMenu[item].enabled and XDialogs.XBuildMenu[item] or false
+				if Dialogs.XBuildMenu:HasMember(item) then
+					return Dialogs.XBuildMenu[item].enabled and Dialogs.XBuildMenu[item] or false
 				end
-				return XDialogs.XBuildMenu.idCategoryList["Habitats"]
+				return Dialogs.XBuildMenu.idCategoryList["Habitats"]
 			end,
 		}, terminal.desktop)
 		
@@ -193,7 +194,7 @@ g_TutorialScenarios.Tutorial5 = function()
 		end
 	end
 	while true do
-		if not GetXDialog("DomeTraits") and research_dome.traits_filter["scientist"] and research_dome.traits_filter["geologist"]==false 
+		if not GetDialog("DomeTraits") and research_dome.traits_filter["scientist"] and research_dome.traits_filter["geologist"]==false 
 		   and mining_dome.traits_filter["geologist"] and mining_dome.traits_filter["scientist"]==false
 		   then
 		  -- end of filter tutorial
@@ -205,9 +206,9 @@ g_TutorialScenarios.Tutorial5 = function()
 		end
 
 		--Then show arrow on Filters Button
-		if not GetXDialog("DomeTraits") then
+		if not GetDialog("DomeTraits") then
 			WaitInfopanelAction("Dome", "OpenFilterTraits", function(arrow)
-				return arrow.button_pressed or GetXDialog("DomeTraits")
+				return arrow.button_pressed or GetDialog("DomeTraits")
 			end)
 			Sleep(200)
 		end
@@ -238,7 +239,7 @@ g_TutorialScenarios.Tutorial5 = function()
 			local filterui_arrow = TutorialUIArrow:new({
 				AnchorType = "left-center",
 				FindTarget = function()
-					local dlg = GetXDialog("DomeTraits")
+					local dlg = GetDialog("DomeTraits")
 					if not dlg then return false end
 					local specialization = table.find_value(dlg.idList, "Id", "Specialization")
 					if dlg.Mode == "traitCategories" then
@@ -255,7 +256,7 @@ g_TutorialScenarios.Tutorial5 = function()
 				}, terminal.desktop)
 				
 			while true do 
-				local dlg = GetXDialog("DomeTraits")
+				local dlg = GetDialog("DomeTraits")
 				if not dlg then break end
 				
 				if dlg.Mode ~= "traitCategories" then
@@ -270,7 +271,7 @@ g_TutorialScenarios.Tutorial5 = function()
 			filterui_arrow:delete()
 
 			local function SpecializationArrowFindTarget(spec)
-				local dlg = GetXDialog("DomeTraits")
+				local dlg = GetDialog("DomeTraits")
 				if not dlg then return false end
 				local prop_meta = GetDialogModeParam(dlg)
 				local category = prop_meta and prop_meta.id
@@ -280,7 +281,7 @@ g_TutorialScenarios.Tutorial5 = function()
 				return ctrl and (spec=="add" and ctrl.idPositive) or (spec=="remove" and ctrl.idNegative) or false
 			end
 			
-			local dlg = GetXDialog("DomeTraits")
+			local dlg = GetDialog("DomeTraits")
 			if dlg then
 				local prop_meta = GetDialogModeParam(dlg)
 				local category = prop_meta and prop_meta.id 
@@ -297,7 +298,7 @@ g_TutorialScenarios.Tutorial5 = function()
 					
 					local clicked = false
 					while true do
-						local dlg = GetXDialog("DomeTraits")
+						local dlg = GetDialog("DomeTraits")
 						if not dlg then break end
 						if dlg.Mode ~= "items" or category ~= "Specialization" then break end
 						SelectColonistFilter()
@@ -314,7 +315,7 @@ g_TutorialScenarios.Tutorial5 = function()
 						local filterui_arrow = TutorialUIArrow:new({
 							AnchorType = "center-top",
 							FindTarget = function()
-								local dlg = GetXDialog("DomeTraits")
+								local dlg = GetDialog("DomeTraits")
 								if not dlg then return false end
 								local bFiltersSet = research_dome.traits_filter["scientist"] and research_dome.traits_filter["geologist"]==false 
 										   and mining_dome.traits_filter["geologist"] and mining_dome.traits_filter["scientist"]==false
@@ -340,7 +341,7 @@ g_TutorialScenarios.Tutorial5 = function()
 							}, terminal.desktop)
 						
 						while true do
-							dlg = GetXDialog("DomeTraits")
+							dlg = GetDialog("DomeTraits")
 							if not dlg then 
 								break
 							end	
@@ -458,6 +459,7 @@ g_TutorialScenarios.Tutorial5 = function()
 	
 	WaitHUDButtonPressed("idResearch")
 	WaitResearchQueued("ExtractorAmplification", "close")
+	TutorialNextHint("Tutorial_5_ResearchUpgrade_1")
 	while not UICity:IsTechResearched("ExtractorAmplification") do
 		WaitMsg("TechResearched")
 	end
@@ -475,7 +477,7 @@ g_TutorialScenarios.Tutorial5 = function()
 		AnchorType = "center-bottom",
 		FindTarget = function(self)
 			if self.button_pressed then return false end
-			local dlg = GetXDialog("Infopanel")
+			local dlg = GetDialog("Infopanel")
 			return dlg and dlg.idUpgrades[1] or false
 		end,
 		OnAttachToTarget = function(self, target)

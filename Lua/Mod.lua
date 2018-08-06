@@ -11,7 +11,6 @@ PredefinedModTags = {
 	{ id = "TagRadio",             display_name = "Radio" },
 	{ id = "TagLightmodels",       display_name = "Lightmodels" },
 	{ id = "TagTranslations",      display_name = "Translations" },
-	{ id = "TagPhotoFilters",      display_name = "Photo Filters" },	
 	{ id = "TagCosmetics",         display_name = "Cosmetics" },
 	{ id = "TagInterface",         display_name = "Interface" },
 	{ id = "TagTools",             display_name = "Tools" },

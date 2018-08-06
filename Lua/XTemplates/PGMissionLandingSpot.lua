@@ -120,9 +120,9 @@ self.context:MousePos(pos)
 end,
 		}),
 		PlaceObj('XTemplateFunc', {
-			'name', "OnKbdKeyDown(self, char, virtual_key, repeated)",
-			'func', function (self, char, virtual_key, repeated)
-self.context:KbdKeyDown(char, virtual_key, repeated)
+			'name', "OnKbdKeyDown(self, virtual_key, repeated)",
+			'func', function (self, virtual_key, repeated)
+self.context:KbdKeyDown(virtual_key, repeated)
 end,
 		}),
 		PlaceObj('XTemplateFunc', {
@@ -160,7 +160,7 @@ end,
 			'ActionName', T{5462, --[[XTemplate PGMissionLandingSpot ActionName]] "CUSTOM"},
 			'ActionToolbar', "ActionBar",
 			'ActionGamepad', "LeftTrigger",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host.context:Custom()
 end,
 		}),
@@ -169,7 +169,7 @@ end,
 			'ActionName', T{5461, --[[XTemplate PGMissionLandingSpot ActionName]] "RANDOM"},
 			'ActionToolbar', "ActionBar",
 			'ActionGamepad', "ButtonY",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host.context:Random()
 end,
 		}),
@@ -193,7 +193,7 @@ if not g_CurrentMapParams.latitude
 	return "disabled"
 end
 end,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 MarkNameAsUsed("Rocket", g_CurrentMapParams.rocket_name_base)
 GenerateCurrentRandomMap()
 end,
@@ -204,26 +204,19 @@ end,
 			'MinWidth', 550,
 		}),
 		PlaceObj('XTemplateWindow', {
-			'Margins', box(0, 0, 0, 50),
-			'Dock', "bottom",
+			'Margins', box(0, 0, 0, 20),
+			'Dock', "box",
 			'HAlign', "right",
+			'VAlign', "center",
 			'MinWidth', 350,
+			'MaxHeight', 670,
 			'LayoutMethod', "VList",
 		}, {
 			PlaceObj('XTemplateWindow', {
-				'__class', "XText",
-				'HAlign', "right",
-				'TextFont', "PGLandingPosDetails",
-				'TextColor', RGBA(118, 163, 222, 255),
-				'RolloverTextColor', RGBA(118, 163, 222, 255),
-				'Translate', true,
-				'Text', T{482503373345, --[[XTemplate PGMissionLandingSpot Text]] "<white><Coord></white>"},
-				'TextHAlign', "right",
-			}),
-			PlaceObj('XTemplateWindow', {
-				'Id', "idContent",
+				'__class', "XFitContent",
+				'IdNode', false,
 				'LayoutMethod', "VList",
-				'Visible', false,
+				'Fit', "height",
 			}, {
 				PlaceObj('XTemplateWindow', {
 					'__class', "XText",
@@ -232,93 +225,109 @@ end,
 					'TextColor', RGBA(118, 163, 222, 255),
 					'RolloverTextColor', RGBA(118, 163, 222, 255),
 					'Translate', true,
-					'Text', T{609979737076, --[[XTemplate PGMissionLandingSpot Text]] "Average Altitude <white><Altitude> m</white><newline>Mean Temperature <white><Temperature>°C</white><newline>Topography <white><MapDifficulty></white>"},
+					'Text', T{482503373345, --[[XTemplate PGMissionLandingSpot Text]] "<white><Coord></white>"},
 					'TextHAlign', "right",
 				}),
 				PlaceObj('XTemplateWindow', {
-					'__class', "XFrame",
-					'Margins', box(-340, 20, -40, -130),
-					'Image', "UI/Common/pm_pad_large.tga",
-					'FrameBox', box(320, 0, 40, 0),
-					'SqueezeY', false,
-					'FlipY', true,
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XLabel",
-					'Margins', box(0, 0, 0, 20),
-					'HAlign', "right",
-					'TextFont', "PGMissionDescrTitle",
-					'TextColor', RGBA(96, 135, 185, 255),
-					'Translate', true,
-					'Text', T{4270, --[[XTemplate PGMissionLandingSpot Text]] "RESOURCES"},
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XContentTemplateList",
-					'BorderWidth', 0,
-					'LayoutVSpacing', 10,
-					'Clip', false,
-					'Background', RGBA(0, 0, 0, 0),
-					'FocusedBackground', RGBA(0, 0, 0, 0),
-					'VScroll', "idScroll",
-					'ShowPartialItems', false,
+					'Id', "idContent",
+					'LayoutMethod', "VList",
+					'Visible', false,
 				}, {
-					PlaceObj('XTemplateForEach', {
-						'comment', "item",
-						'array', function (parent, context) return context:GetProperties() end,
-						'condition', function (parent, context, item, i) return (not item.filter or item.filter()) and item.category == "Resources" end,
-						'item_in_context', "prop_meta",
-						'run_after', function (child, context, item, i, n)
-child:SetRolloverTitle(item.rollover.title)
-child:SetRolloverText(item.rollover.descr)
-end,
-					}, {
-						PlaceObj('XTemplateTemplate', {
-							'__template', "PropLandingParam",
-							'RolloverTemplate', "Rollover",
-						}),
-						}),
+					PlaceObj('XTemplateWindow', {
+						'__class', "XText",
+						'HAlign', "right",
+						'TextFont', "PGLandingPosDetails",
+						'TextColor', RGBA(118, 163, 222, 255),
+						'RolloverTextColor', RGBA(118, 163, 222, 255),
+						'Translate', true,
+						'Text', T{609979737076, --[[XTemplate PGMissionLandingSpot Text]] "Average Altitude <white><Altitude> m</white><newline>Mean Temperature <white><Temperature>°C</white><newline>Topography <white><MapDifficulty></white>"},
+						'TextHAlign', "right",
 					}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XFrame",
-					'Margins', box(-340, 20, -40, -130),
-					'Image', "UI/Common/pm_pad_large.tga",
-					'FrameBox', box(320, 0, 40, 0),
-					'SqueezeY', false,
-					'FlipY', true,
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XLabel",
-					'Margins', box(0, 0, 0, 20),
-					'HAlign', "right",
-					'TextFont', "PGMissionDescrTitle",
-					'TextColor', RGBA(96, 135, 185, 255),
-					'Translate', true,
-					'Text', T{4271, --[[XTemplate PGMissionLandingSpot Text]] "THREATS"},
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XContentTemplateList",
-					'BorderWidth', 0,
-					'LayoutVSpacing', 10,
-					'Clip', false,
-					'Background', RGBA(0, 0, 0, 0),
-					'FocusedBackground', RGBA(0, 0, 0, 0),
-					'VScroll', "idScroll",
-					'ShowPartialItems', false,
-				}, {
-					PlaceObj('XTemplateForEach', {
-						'comment', "item",
-						'array', function (parent, context) return context:GetProperties() end,
-						'condition', function (parent, context, item, i) return (not item.filter or item.filter()) and item.category == "Threats" end,
-						'item_in_context', "prop_meta",
-						'run_after', function (child, context, item, i, n)
+					PlaceObj('XTemplateWindow', {
+						'__class', "XFrame",
+						'Margins', box(-340, 20, -40, -130),
+						'Image', "UI/Common/pm_pad_large.tga",
+						'FrameBox', box(320, 0, 40, 0),
+						'SqueezeY', false,
+						'FlipY', true,
+					}),
+					PlaceObj('XTemplateWindow', {
+						'__class', "XLabel",
+						'Margins', box(0, 0, 0, 20),
+						'HAlign', "right",
+						'TextFont', "PGMissionDescrTitle",
+						'TextColor', RGBA(96, 135, 185, 255),
+						'Translate', true,
+						'Text', T{4270, --[[XTemplate PGMissionLandingSpot Text]] "RESOURCES"},
+					}),
+					PlaceObj('XTemplateWindow', {
+						'__class', "XContentTemplateList",
+						'BorderWidth', 0,
+						'LayoutVSpacing', 10,
+						'Clip', false,
+						'Background', RGBA(0, 0, 0, 0),
+						'FocusedBackground', RGBA(0, 0, 0, 0),
+						'VScroll', "idScroll",
+						'ShowPartialItems', false,
+					}, {
+						PlaceObj('XTemplateForEach', {
+							'comment', "item",
+							'array', function (parent, context) return context:GetProperties() end,
+							'condition', function (parent, context, item, i) return (not item.filter or item.filter()) and item.category == "Resources" end,
+							'item_in_context', "prop_meta",
+							'run_after', function (child, context, item, i, n)
 child:SetRolloverTitle(item.rollover.title)
 child:SetRolloverText(item.rollover.descr)
 end,
-					}, {
-						PlaceObj('XTemplateTemplate', {
-							'__template', "PropLandingParam",
-							'RolloverTemplate', "Rollover",
+						}, {
+							PlaceObj('XTemplateTemplate', {
+								'__template', "PropLandingParam",
+								'RolloverTemplate', "Rollover",
+							}),
+							}),
 						}),
+					PlaceObj('XTemplateWindow', {
+						'__class', "XFrame",
+						'Margins', box(-340, 20, -40, -130),
+						'Image', "UI/Common/pm_pad_large.tga",
+						'FrameBox', box(320, 0, 40, 0),
+						'SqueezeY', false,
+						'FlipY', true,
+					}),
+					PlaceObj('XTemplateWindow', {
+						'__class', "XLabel",
+						'Margins', box(0, 0, 0, 20),
+						'HAlign', "right",
+						'TextFont', "PGMissionDescrTitle",
+						'TextColor', RGBA(96, 135, 185, 255),
+						'Translate', true,
+						'Text', T{4271, --[[XTemplate PGMissionLandingSpot Text]] "THREATS"},
+					}),
+					PlaceObj('XTemplateWindow', {
+						'__class', "XContentTemplateList",
+						'BorderWidth', 0,
+						'LayoutVSpacing', 10,
+						'Clip', false,
+						'Background', RGBA(0, 0, 0, 0),
+						'FocusedBackground', RGBA(0, 0, 0, 0),
+						'VScroll', "idScroll",
+						'ShowPartialItems', false,
+					}, {
+						PlaceObj('XTemplateForEach', {
+							'comment', "item",
+							'array', function (parent, context) return context:GetProperties() end,
+							'condition', function (parent, context, item, i) return (not item.filter or item.filter()) and item.category == "Threats" end,
+							'item_in_context', "prop_meta",
+							'run_after', function (child, context, item, i, n)
+child:SetRolloverTitle(item.rollover.title)
+child:SetRolloverText(item.rollover.descr)
+end,
+						}, {
+							PlaceObj('XTemplateTemplate', {
+								'__template', "PropLandingParam",
+								'RolloverTemplate', "Rollover",
+							}),
+							}),
 						}),
 					}),
 				}),

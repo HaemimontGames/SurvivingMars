@@ -42,6 +42,7 @@ OptionsData.VideoPresetsData = {
 		Vignette = "On",
 		ObjectDetail = "Low",
 		MaxFps = "240",
+		SSAO = "Off",
 	},
 	Medium = {
 		Textures = "Medium",
@@ -59,6 +60,7 @@ OptionsData.VideoPresetsData = {
 		Vignette = "On",
 		ObjectDetail = "High",
 		MaxFps = "240",
+		SSAO = "Off",
 	},
 	High = {
 		Textures = "High",
@@ -76,6 +78,7 @@ OptionsData.VideoPresetsData = {
 		Vignette = "On",
 		ObjectDetail = "High",
 		MaxFps = "240",
+		SSAO = "On",
 	},
 	Ultra = {
 		Textures = "Ultra",
@@ -93,6 +96,7 @@ OptionsData.VideoPresetsData = {
 		Vignette = "On",
 		ObjectDetail = "High",
 		MaxFps = "240",
+		SSAO = "On",
 	},
 	Durango = {
 		Textures = "High",
@@ -111,6 +115,7 @@ OptionsData.VideoPresetsData = {
 		Vsync = true,
 		FPSCounter = "Off",
 		MaxFps = "Unlimited",
+		SSAO = "Off",
 	},
 	Scorpio = {
 		Textures = "Ultra",
@@ -129,6 +134,7 @@ OptionsData.VideoPresetsData = {
 		Vsync = true,
 		FPSCounter = "Off",
 		MaxFps = "Unlimited",
+		SSAO = "Off",
 	},
 	Ps4 = {
 		Textures = "High",
@@ -147,6 +153,7 @@ OptionsData.VideoPresetsData = {
 		Vsync = true,
 		FPSCounter = "Off",
 		MaxFps = "Unlimited",
+		SSAO = "Off",
 	},
 	Neo = {
 		Textures = "High",
@@ -165,6 +172,7 @@ OptionsData.VideoPresetsData = {
 		Vsync = true,
 		FPSCounter = "Off",
 		MaxFps = "Unlimited",
+		SSAO = "Off",
 	},
 }
 
@@ -220,10 +228,10 @@ OptionsData.Options.ViewDistance = {
 
 OptionsData.Options.Shadows = {
 	{ value = "Off", text = T{6844, "Off"}, hr = { Shadowmap = 0, } },
-	{ value = "Low", text = T{644, "Low"}, hr = { Shadowmap = 1, ShadowmapSize = 1536, ShadowCSMUpdateFrequency = "0,0,40,40" } },
-	{ value = "Medium", text = T{645, "Medium"}, hr = { Shadowmap = 1, ShadowmapSize = 2048, ShadowCSMUpdateFrequency = "0,0,0,40" } },
-	{ value = "High", text = T{7380, "High"}, hr = { Shadowmap = 1, ShadowmapSize = 4096, ShadowCSMUpdateFrequency = "0" } },
-	{ value = "High (Consoles)", text = T{""}, hr = { Shadowmap = 1, ShadowmapSize = 4096, ShadowCSMUpdateFrequency = "0,0,0,40" }, not_selectable = true },
+	{ value = "Low", text = T{644, "Low"}, hr = { Shadowmap = 1, ShadowmapSize = 1536, ShadowPCFSize = 3, ShadowCSMUpdateFrequency = "0,0,40,40" } },
+	{ value = "Medium", text = T{645, "Medium"}, hr = { Shadowmap = 1, ShadowmapSize = 2048, ShadowPCFSize = 5, ShadowCSMUpdateFrequency = "0,0,0,40" } },
+	{ value = "High", text = T{7380, "High"}, hr = { Shadowmap = 1, ShadowmapSize = 4096, ShadowPCFSize = 7, ShadowCSMUpdateFrequency = "0" } },
+	{ value = "High (Consoles)", text = T{""}, hr = { Shadowmap = 1, ShadowmapSize = 4096, ShadowPCFSize = 7, ShadowCSMUpdateFrequency = "0,0,0,40" }, not_selectable = true },
 }
 
 OptionsData.Options.Antialiasing = {
@@ -295,11 +303,36 @@ OptionsData.Options.MaxFps = {
 	{ value = "Unlimited", text = T{9718, --[[options: frame limit]] "Unlimited"}, hr = { MaxFps = 0 } },
 }
 
+OptionsData.Options.SSAO = {
+	{ value = "Off", text = T{6844, "Off"}, hr = { EnableScreenSpaceAmbientObscurance = 0 } },
+	{ value = "On", text = T{6847, "On"}, hr = { EnableScreenSpaceAmbientObscurance = 1 } },
+}
+
+OptionsData.Options.AutosaveInterval = {
+	{ value = 1,  text = T{4111, "1 Sol"} },
+	{ value = 2,  text = T{10072, "<number> Sols", number = 2} },
+	{ value = 3,  text = T{10072, "<number> Sols", number = 3} },
+	{ value = 5,  text = T{10072, "<number> Sols", number = 5} },
+	{ value = 10, text = T{10072, "<number> Sols", number = 10} },
+}
+
+OptionsData.Options.AutosaveCount = {
+	{ value = 1,  text = T{10073, "1 Autosave"} },
+	{ value = 2,  text = T{10074, "<number> Autosaves", number = 2} },
+	{ value = 3,  text = T{10074, "<number> Autosaves", number = 3} },
+	{ value = 5,  text = T{10074, "<number> Autosaves", number = 5} },
+	{ value = 10, text = T{10074, "<number> Autosaves", number = 10} },
+}
+
 -- storage is "local", "account", "session"
 -- items is Options.OptionsData[id], if not specified
 
-local function FilterConsoles()
+local function FilterNonConsole()
 	return not Platform.console
+end
+
+local function FilterConsole()
+	return Platform.console
 end
 
 local function FilterHide()
@@ -320,6 +353,7 @@ function OnMsg.ClassesGenerate(classdefs)
 		{ name = T{3574, "Bloom"}, id = "Bloom", category = "Video", storage = "local", editor = "dropdown", display_as_bool = true, default = "On" },
 		{ name = T{8034, "Eye Adaptation"}, id = "EyeAdaptation", category = "Video", storage = "local", editor = "dropdown", display_as_bool = true, default = "On" },
 		{ name = T{3455, "Vignette"}, id = "Vignette", category = "Video", storage = "local", editor = "dropdown", display_as_bool = true, default = "On" },
+		{ name = T{10075, "SSAO"}, id = "SSAO", category = "Video", storage = "local", editor = "dropdown", display_as_bool = true, default = "On" },
 		{ name = T{3575, "Antialiasing"}, id = "Antialiasing", category = "Video", storage = "local", editor = "dropdown", default = "FXAA" },
 		{ name = T{3576, "View Distance"}, id = "ViewDistance", category = "Video", storage = "local", editor = "dropdown", default = "High" },
 		{ name = T{7772, "Object Detail"}, id = "ObjectDetail", category = "Video", storage = "local", editor = "dropdown", default = "High" },
@@ -331,29 +365,30 @@ function OnMsg.ClassesGenerate(classdefs)
 		{ name = T{3580, "Music"}, id = "Music", category = "Audio", storage = "local", editor = "number", min = 0, max = 1000, slider = true, default = 1000, step = 50 },
 		{ name = T{3581, "Sounds"}, id = "Sound", category = "Audio", storage = "local", editor = "number", min = 0, max = 1000, slider = true, default = 1000, step = 50 },
 		{ name = T{7811, "Voice"}, id = "Voice", category = "Audio", storage = "local", editor = "number", min = 0, max = 1000, slider = true, default = 1000, step = 50 },
-		{ name = T{3582, "Mute when Minimized"}, id = "MuteWhenMinimized", category = "Audio", storage = "local", editor = "bool", default = true, filter = FilterConsoles, },
+		{ name = T{3582, "Mute when Minimized"}, id = "MuteWhenMinimized", category = "Audio", storage = "local", editor = "bool", default = true, filter = FilterNonConsole, },
 		{ name = T{3583, "Radio Station"}, id = "RadioStation", category = "Audio", editor = "bool", no_edit = true, default = "SurvivingMars" },
 		
 		-- Account
-		{ name = T{3584, "Invert Mouse Wheel"}, id = "InvertMouseWheel", category = "Controls", storage = "account", editor = "bool", default = false, filter = FilterConsoles,},
+		{ name = T{3584, "Invert Mouse Wheel"}, id = "InvertMouseWheel", category = "Controls", storage = "account", editor = "bool", default = false, filter = FilterNonConsole,},
 		{ name = T{3585, "Invert Look"}, id = "InvertLook", category = "Controls", storage = "account", editor = "bool", default = false},
 		{ name = T{3586, "Invert Rotation"}, id = "InvertRotation", category = "Controls", storage = "account", editor = "bool", default = false},
-		{ name = T{3587, "Scroll Outside Window"}, id = "MouseScrollOutsideWindow", category = "Controls", storage = "account", editor = "bool", default = true, filter = FilterConsoles,},
-		{ name = T{3588, "Right-click Action"}, id = "RightClickAction", category = "Controls", storage = "account", editor = "dropdown", default = "Both", filter = FilterConsoles,},
-		{ name = T{3589, "Controller"}, id = "Gamepad", category = "Controls", storage = "account", editor = "bool", default = Platform.console and true or false, filter = FilterConsoles,},
-		{ name = T{8713, "Hide crosshair"}, id = "HideCrosshair", category = "Controls", storage = "account", editor = "bool", default = false, filter = function() return Platform.console and g_MouseConnected end, },
+		{ name = T{3587, "Scroll Outside Window"}, id = "MouseScrollOutsideWindow", category = "Controls", storage = "account", editor = "bool", default = true, filter = FilterNonConsole,},
+		{ name = T{3588, "Right-click Action"}, id = "RightClickAction", category = "Controls", storage = "account", editor = "dropdown", default = "Both", filter = FilterNonConsole,},
+		{ name = T{3589, "Controller"}, id = "Gamepad", category = "Controls", storage = "account", editor = "bool", default = Platform.console and true or false, filter = FilterNonConsole,},
 		{ name = T{3590, "Camera Movement Speed"}, id = "CameraMoveSpeed", category = "Controls", storage = "account", editor = "number", min = 5, max = 20, slider = true, default = const.DefaultCameraRTS.MoveSpeedNormal},
 		
 		--Gameplay
 		--{ name = T{"Subtitles"}, id = "Subtitles", category = "Gameplay", storage = "account", editor = "bool", default = true},
 		{ name = T{3591, "Autosave"}, id = "Autosave", category = "Gameplay", storage = "account", editor = "bool", default = true},
+		{ name = T{10077, "Autosave Count"}, id = "AutosaveCount", category = "Gameplay", storage = "account", editor = "dropdown", default = const.DefaultAutosaveCount, filter = FilterNonConsole,},
+		{ name = T{10078, "Autosave Interval"}, id = "AutosaveInterval", category = "Gameplay", storage = "account", editor = "dropdown", default = const.DefaultAutosaveInterval},
 		{ name = T{3592, "Hint Notifications"}, id = "HintsEnabled", category = "Gameplay", storage = "account", editor = "bool", default = true},
 		{ name = T{9764, "Infobar"}, id = "InfobarEnabled", category = "Gameplay", storage = "account", editor = "bool", default = true},
 		{ name = T{7544, "Display Area Margin"}, id = "DisplayAreaMargin", category = "Gameplay", storage = "local", editor = "number", min = 0, max = 10, slider = true, default = 0, filter = function() return Platform.developer or Platform.durango end },
 		--{ name = T{"Colorblind Mode"}, id = "Colorblind", category = "Gameplay", storage = "account", editor = "bool", default = false},
 		{ name = T{8529, "Save to Cloud"}, id = "AutosaveToCloud", category = "Gameplay", storage = "account", editor = "bool", default = false, filter = function() return IsParadoxPlatform() end },
 		
-		{ name = T{1000102, "Language"}, id = "Language", category = "Gameplay", storage = "account", editor = "dropdown", default = "English", filter = FilterConsoles, },
+		{ name = T{1000102, "Language"}, id = "Language", category = "Gameplay", storage = "account", editor = "dropdown", default = "English", filter = FilterNonConsole, },
 		
 		-- Display
 		{ name = T{3562, "Fullscreen Mode"}, id = "FullscreenMode", category = "Display", storage = "local", editor = "dropdown", default = 0, refresh_all = true },
@@ -475,17 +510,6 @@ local function UpdateUIStyleGamepad(gamepad)
 	ChangeGamepadUIStyle({ gamepad })
 end
 
-function UpdateCrosshairVisibility()
-	if Platform.console then
-		local hide_crosshair = AccountStorage and AccountStorage.Options.HideCrosshair and g_MouseConnected and true or false
-		if hide_crosshair then
-			HideGamepadCursor("crosshair_hidden")
-		else
-			ShowGamepadCursor("crosshair_hidden")
-		end
-	end
-end
-
 local function UpdateHintsOption(hints_enabled)
 	hints_enabled = not g_Tutorial and hints_enabled or false
 	if HintsEnabled ~= hints_enabled then
@@ -504,7 +528,6 @@ function ApplyProjectAccountOptions()
 		const.CameraControlInvertLook = options.InvertLook
 		const.CameraControlInvertRotation = options.InvertRotation
 		UpdateUIStyleGamepad(options.Gamepad)
-		UpdateCrosshairVisibility()
 		UpdateHintsOption(options.HintsEnabled)
 		UpdateInfobarVisibility()
 		
@@ -512,21 +535,33 @@ function ApplyProjectAccountOptions()
 	end
 end
 
+local function RecursiveUpdateTTexts(root)
+	if IsKindOf(root, "XTranslateText") and root.Translate and IsT(root:GetText()) then
+		root:SetText(root:GetText())
+		root:SetTextFont(root:GetTextFont())
+	end
+	for i=1,#root do
+		RecursiveUpdateTTexts(root[i])
+	end
+end
+
 function ApplyLanguageOption()
-	if not Platform.console and AccountStorage then
+	--cannot change language on consoles
+	if Platform.console then
+		return
+	end
+
+	if AccountStorage then
 		local options = AccountStorage.Options
-		local lang = options.Language
-		if lang then
-			local current = GetLanguage()
-			if current ~= lang then
-				RegistryWrite("Language", lang)
-				if current ~= "" or lang ~= "English" then
-					local parent = GetXDialog("PGMainMenu") or GetXDialog("IGMainMenu")
-					if WaitMarsQuestion(parent, T{6884, "Warning"}, T{7579, "Restart the game to display the selected language"}, T{8080, "Restart"}, T{3687, "Cancel"}) == "ok" then
-						quit("restart")
-					end
-				end
-			end
+		local new_lang = options.Language
+		local old_lang = GetLanguage()
+		if new_lang and new_lang ~= old_lang then
+			RegistryWrite("Language", new_lang) --save permanently
+			SetLanguage(new_lang) --set global variable
+			Unmount("CurrentLanguage") --remount 'CurrentPath'
+			MountLanguage()
+			LoadTranslationTables() --reload loc table
+			RecursiveUpdateTTexts(terminal.desktop) --update all translated texts
 		end
 	end
 end
@@ -546,7 +581,9 @@ end
 
 --reload account options when we get new account storage, something that happens on the durango
 function OnMsg.AccountStorageChanged()
-	ApplyProjectAccountOptions()
+	if Platform.console and AccountStorage then
+		ApplyPreset(EngineOptions.VideoPreset)
+	end
 	if AccountStorage and next(AccountStorage.Shortcuts) then
 		ReloadShortcuts()
 	end
@@ -562,7 +599,7 @@ end
 function OnMsg.EngineOptionsSaved()
 	if terminal.desktop then
 		--this will resize dialogs to fit the DisplayAreaMargin option
-		terminal.desktop:OnDesktopSize()
+		terminal.desktop:InvalidateLayout()
 		Msg("SafeAreaMarginsChanged") -- TODO - temporary until all of the InGameInterface children have been redone with X
 	end
 end
@@ -604,6 +641,12 @@ function OnMsg.ShortcutsReloaded()
 	hr.CameraRTSKeyRotateRightAlt = GetCameraVKCodeFromShortcut(rot_right and rot_right[2])
 	hr.CameraFlyKeyMoveDown = hr.CameraRTSKeyRotateRight
 	hr.CameraFlyKeyMoveDownAlt = hr.CameraRTSKeyRotateRightAlt
+	local rot_up = GetShortcuts("actionRotUp")
+	hr.CameraRTSKeyRotateUp = GetCameraVKCodeFromShortcut(rot_up and rot_up[1])
+	hr.CameraRTSKeyRotateUpAlt = GetCameraVKCodeFromShortcut(rot_up and rot_up[2])
+	local rot_down = GetShortcuts("actionRotDown")
+	hr.CameraRTSKeyRotateDown = GetCameraVKCodeFromShortcut(rot_down and rot_down[1])
+	hr.CameraRTSKeyRotateDownAlt = GetCameraVKCodeFromShortcut(rot_down and rot_down[2])
 	-- zoom keys
 	local zoom_in = GetShortcuts("actionZoomIn")
 	hr.CameraRTSKeyZoomIn = GetCameraVKCodeFromShortcut(zoom_in and zoom_in[1])
@@ -642,15 +685,12 @@ function OnMsg.OnXInputControllerDisconnected(nCtrlId)
 	end
 end
 
-if Platform.console then
-	OnMsg.MouseConnected = UpdateCrosshairVisibility
-	OnMsg.MouseDisconnected = UpdateCrosshairVisibility
-end
-
 if FirstLoad then
 	if DefaultAccountStorage and DefaultAccountStorage.Options then
 		DefaultAccountStorage.Options.Autosave = true
 		DefaultAccountStorage.Options.HintsEnabled = true
 		DefaultAccountStorage.Options.InfobarEnabled = true
+		DefaultAccountStorage.Options.AutosaveCount = const.DefaultAutosaveCount
+		DefaultAccountStorage.Options.AutosaveInterval = const.DefaultAutosaveInterval
 	end
 end

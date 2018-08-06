@@ -1,14 +1,16 @@
 local function folder_fn(obj)
-	return obj.mod.path
+	return obj.mod.content_path
 end
 
+-- Note: PhotoFilter mods are now deprecated.
 DefineModItemPreset("PhotoFilterPreset", {
 	properties = {
 		{ category = "General", id = "filename",  name = T{3439, "Shader Filename"}, editor = "browse", os_path = true, filter = "FX files|*.fx",     default = "", folder = folder_fn },
 		{ category = "General", id = "texture1", name = T{3441, "Texture1"},         editor = "browse", os_path = true, filter = "Image files|*.tga", default = "", folder = folder_fn },
 		{ category = "General", id = "texture2", name = T{3443, "Texture2"},         editor = "browse", os_path = true, filter = "Image files|*.tga", default = "", folder = folder_fn },
 	},
-	EditorName = "Photo Filter",
+	EditorMenubarName = "",
+	EditorName = "",
 })
 
 function ModItemPhotoFilterPreset:TestModItem(ged)
@@ -16,7 +18,7 @@ function ModItemPhotoFilterPreset:TestModItem(ged)
 	
 	if not g_PhotoFilter or g_PhotoFilter.shader ~= desc.shader_name or g_PhotoFilter.pass ~= desc.shader_pass then
 		self:OnModLoad()
-		g_PhotoFilter = descriptor
+		g_PhotoFilter = desc
 	else
 		g_PhotoFilter = false
 	end
@@ -36,6 +38,7 @@ DefineClass.ModItemPhotoFilter = { --Kept for backwards compatibility (mods with
 		{ category = "General", id = "activate",     name = T{8074, "Run on activation"},   editor = "func", params = "filter, data", default = function() end },
 		{ category = "General", id = "deactivate",   name = T{8075, "Run on deactivation"}, editor = "func", params = "filter, data", default = function() end },
 	},
+	EditorMenubarName = "",
 	EditorName = "",
 }
 
@@ -55,4 +58,9 @@ function ModItemPhotoFilter:OnModLoad()
 	local index = table.find(mod.items, self) or (#mod.items + 1)
 	mod.items[index] = new
 	new:OnModLoad()
+end
+
+function ModItemPhotoFilterPreset:OnModLoad()
+	ModLog(T{10401, "Warning: photofilter mods are deprecated."})
+	ModItemPreset.OnModLoad(self)
 end

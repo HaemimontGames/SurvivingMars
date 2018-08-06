@@ -51,3 +51,21 @@ PlaceObj('PhotoFilterPreset', {
 	group = "Default",
 	id = "OrtonEffect",
 })
+
+PlaceObj('PhotoFilterPreset', {
+	SortKey = 7000,
+	activate = function (self)
+CoverArtStyle_Activate()
+end,
+	deactivate = function (self)
+CoverArtStyle_Deactivate()
+end,
+	desc = T{204340117651, --[[PhotoFilterPreset CoverArt desc]] "Cover Art-style"},
+	displayName = T{276606203553, --[[PhotoFilterPreset CoverArt displayName]] "Cover Art"},
+	filename = "PhotoFilter.fx|COVER_ART",
+	group = "Default",
+	id = "CoverArt",
+	texture1 = "Textures/Misc/coverart_palette.tga",
+	texture2 = "Textures/Misc/coverart_terrain_palette.tga",
+})
+

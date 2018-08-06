@@ -67,7 +67,7 @@ function DroneBase:UpdateMoving()
 	end
 end
 
-function DroneBase:SetOutside(outside)
+function DroneBase:SetOutsideVisuals(outside)
 	local fx_moving_target = self.fx_moving_target
 	if fx_moving_target then
 		self.fx_moving_target = false
@@ -276,6 +276,16 @@ function DroneBase:CanBeControlled()
 end
 
 function DroneBase:OnUnitControlActiveChanged(new_val)
+end
+
+function DroneBase:SetInteractionMode(mode)
+	if self.interaction_mode == mode then
+		SetUnitControlInteractionMode(self, false)
+	else
+		SetUnitControlInteractionMode(self, mode)
+		local unit_ctrl_dlg = GetInGameInterfaceModeDlg()
+		unit_ctrl_dlg:SetFocus(true)
+	end
 end
 
 --ui hyperlinks use this to center on obj

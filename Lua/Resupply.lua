@@ -87,6 +87,7 @@ end
 function GetResupplyClassesCombo()
 	local items = {}
 	items[#items+1] = {value = "OrbitalProbe", text = g_Classes.OrbitalProbe.display_name}
+	items[#items+1] = {value = "AdvancedOrbitalProbe", text = g_Classes.AdvancedOrbitalProbe.display_name}
 	for _,res in ipairs(AllResourcesList) do
 		items[#items+1] = {value = res, text = Resources[res].display_name}
 	end
@@ -118,6 +119,7 @@ end
 
 function SA_ResuppyInventory:Exec(sequence_player, ip, seq, registers)
 	local items = {}
+	local refreshBM = false
 	for i = 1, self.max_classes do
 		if self["item"..i] and self["item"..i]~="" then
 			local class = self["item"..i]
@@ -129,10 +131,14 @@ function SA_ResuppyInventory:Exec(sequence_player, ip, seq, registers)
 					PlaceObject(class, {city = UICity})
 				end
 			else
-				UICity:AddPrefabs(class, amount)
+				refreshBM = true
+				UICity:AddPrefabs(class, amount, false)
 			end
 		end
 	end	
+	if refreshBM then
+		RefreshXBuildMenu()
+	end
 end
 
 function SA_ResuppyInventory:ShortDescription()
@@ -151,6 +157,7 @@ DefineClass.SA_ChangeFunding = {
 	
 	properties = {
 		{category = "General", id = "funding",   name = "Funding",  default = "0", editor = "text"},
+		{category = "General", id = "reason",   name = "Reason",  default = "", editor = "combo", items = function() return FundingSourceCombo() end},
 	},
 
 	Menu = "Gameplay",
@@ -164,7 +171,7 @@ DefineClass.SA_ChangeFunding = {
 
 function SA_ChangeFunding:Exec(sequence_player, ip, seq, registers)
 	local funding = sequence_player:Eval("return " .. self.funding, registers)
-	UICity:ChangeFunding(funding)
+	UICity:ChangeFunding(funding, self.reason)
 end
 
 function SA_ChangeFunding:ShortDescription()
@@ -177,7 +184,7 @@ DefineClass.OrbitalProbe = {
 	properties = {
 		{ id = "display_name", default = T{3525, "Orbital Probe"} },
 		{ id = "display_icon", default = "UI/Icons/Buildings/orbital_probe.tga" },
-		{ id = "description", default = T{3679, "Reveals underground deposits in the scanned area." }},
+		{ id = "description", default = T{10086, "Reveals underground deposits in the scanned area." }},
 	},
 	entity = "InvisibleObject",
 	range = 160*guim,
@@ -192,6 +199,7 @@ DefineClass.OrbitalProbe = {
 	pin_progress_value = "",
 	pin_progress_max = "",
 	pin_summary1 = T{3683, "<NumProbes>"},
+	scan_pattern = { point(0, 0) },
 }
 
 function OrbitalProbe:GetPinRolloverGamepadHint()
@@ -235,14 +243,35 @@ function OrbitalProbe:GetDeepScanWarning()
 	return T{3684, "<newline><em>Deep scanning of the Sector is not possible with the current technology</em>"}
 end
 
+function OrbitalProbe:GetAffectedSectors(sector)
+	local list = {}
+	
+	for _, offset in ipairs(self.scan_pattern) do
+		local x, y = offset:xy()
+		local col = sector.col + x
+		local row = sector.row + y
+		local s = g_MapSectors[col] and g_MapSectors[col][row]
+		if s then
+			list[#list + 1] = s
+		end
+	end
+	return list
+end
+
 function OrbitalProbe:ScanSector(sector)
-	if g_Tutorial and not g_Tutorial.EnableOrbitalProbes then
+	assert(not sector:HasBlockers())
+	if g_Tutorial and not g_Tutorial.EnableOrbitalProbes or sector:HasBlockers() then
 		return
 	end
 
 	local deep = UICity:IsTechResearched("AdaptedProbes")
 	
-	sector:Scan(deep and "deep scanned" or "scanned", "probe")
+	local list = self:GetAffectedSectors(sector)
+	local mode = deep and "deep scanned" or "scanned"
+	for _, s in ipairs(list) do
+		s:Scan(mode, "probe")
+	end
+	
 	local label = self.city.labels.OrbitalProbe
 	DoneObject(label[#label])
 	ObjModified(self)
@@ -266,7 +295,7 @@ function OrbitalProbe:OnPinClicked(gamepad)
 	--if a pin is selected (it must be this object) -> deselect it (fix:0129807)
 	local focus = terminal.desktop:GetKeyboardFocus()
 	if focus and IsKindOf(focus.parent, "PinsDlg") then
-		GetXDialog("PinsDlg"):SetFocus(false, true)
+		GetDialog("PinsDlg"):SetFocus(false, true)
 	end
 	
 	if HintsEnabled then
@@ -279,3 +308,19 @@ end
 function OrbitalProbe:GetDisplayName()
 	return self.display_name
 end
+
+DefineClass.AdvancedOrbitalProbe = {
+	__parents = { "OrbitalProbe" },
+
+	properties = {
+		{ id = "display_name", default = T{10087, "Advanced Orbital Probe"} },
+		{ id = "display_icon", default = "UI/Icons/Buildings/orbital_probe.tga" },
+	},
+	scan_pattern = {
+		point(0, 0),
+		point(-1, 0),
+		point(1, 0),
+		point(0, 1),
+		point(0, -1),
+	},
+}

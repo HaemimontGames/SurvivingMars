@@ -93,7 +93,7 @@ g_TutorialScenarios.Tutorial2 = function()
 	local arrow = TutorialUIArrow:new({
 		AnchorType = "left-center",
 		FindTarget = function(self)
-			local infopanel = XDialogs.Infopanel
+			local infopanel = Dialogs.Infopanel
 			if not infopanel then return false end
 			if infopanel.context ~= transport then return false end
 			return infopanel.idBattery or false
@@ -140,8 +140,8 @@ g_TutorialScenarios.Tutorial2 = function()
 		AnchorType = "left-center",
 		FindTarget = function(self)
 			if not IsKindOf(SelectedObj, "RCTransport") then return false end
-			if not XDialogs.Infopanel then return false end
-			for i,button in ipairs(XDialogs.Infopanel.idMainButtons) do
+			if not Dialogs.Infopanel then return false end
+			for i,button in ipairs(Dialogs.Infopanel.idMainButtons) do
 				if button.OnPressParam == "UnloadResource" then
 					return button
 				end
@@ -160,7 +160,7 @@ g_TutorialScenarios.Tutorial2 = function()
 	local arrow = TutorialUIArrow:new({
 		AnchorType = "center-top",
 		FindTarget = function(self)
-			local pins_dlg = XDialogs.PinsDlg
+			local pins_dlg = Dialogs.PinsDlg
 			if not pins_dlg then return false end
 			for _,win in ipairs(pins_dlg) do
 				if not win.Dock and win.context == refueling_rocket and SelectedObj ~= refueling_rocket then
@@ -258,7 +258,7 @@ g_TutorialScenarios.Tutorial2 = function()
 	RemoveAllTutorialArrows()
 	
 	
-	--7. RC Rover
+	--7. RC Commander
 	--show messages
 	WaitTutorialPopup("Tutorial2_Popup6_RCRover")
 	TutorialNextHint("Tutorial_2_MoveRCRover")
@@ -283,7 +283,6 @@ g_TutorialScenarios.Tutorial2 = function()
 	UnlockBuilding("SensorTower")
 	g_Tutorial.BuildMenuWhitelist.SensorTower = true
 	WaitBuildMenuItemSelected("Infrastructure", "SensorTower")
-	g_Tutorial.BuildMenuWhitelist.SensorTower = nil
 	--set construction constraints
 	local sensor_tower_target = GetMarkerPosition("TransportRoute"):AddY(55*guim)
 	sensor_tower_target = HexGetNearestCenter(sensor_tower_target)
@@ -295,15 +294,15 @@ g_TutorialScenarios.Tutorial2 = function()
 	--cleanup construction target
 	DoneObject(ghost)
 	g_Tutorial.ConstructionTarget = nil
+	g_Tutorial.BuildMenuWhitelist.SensorTower = nil
 	--unlock stirling generator and wait for the player to place it
 	UnlockBuilding("StirlingGenerator")
 	g_Tutorial.BuildMenuWhitelist.StirlingGenerator = true
-	WaitBuildMenuItemSelected("Power", "StirlingGenerator", "place")
+	WaitConstructionSite("StirlingGenerator")
 	g_Tutorial.BuildMenuWhitelist.StirlingGenerator = nil
 	--unlock power cables
 	UnlockBuilding("PowerCables")
 	g_Tutorial.BuildMenuWhitelist.PowerCables = true
-	WaitBuildMenuItemSelected("Power", "PowerCables","electricity_grid")
 	--wait for the sensor tower to be built & working
 	TutorialNextHint("Tutorial_2_SensorTowerPlaced")
 	local new_sensor_tower
@@ -345,7 +344,7 @@ g_TutorialScenarios.Tutorial2 = function()
 		AnchorType = "center-top",
 		FindTarget = function(self)
 			if GetUIStyleGamepad() then return false end
-			local pins_dlg = XDialogs.PinsDlg
+			local pins_dlg = Dialogs.PinsDlg
 			if not pins_dlg then return false end
 			for _,win in ipairs(pins_dlg) do
 				if not win.Dock and IsKindOf(win.context, "OrbitalProbe") then
@@ -416,38 +415,36 @@ g_TutorialScenarios.Tutorial2 = function()
 	UICity.discover_idx = 0
 	local first_techs = { }
 	for i,field in ipairs(Presets.TechFieldPreset.Default) do
-		if IsDlcAvailable(field.dlc) then
-			if field.discoverable then
-				local tech = UICity:DiscoverTechInField(field.id)
-				table.insert(first_techs, tech)
-			end
+		if field.discoverable then
+			local tech = UICity:DiscoverTechInField(field.id)
+			table.insert(first_techs, tech)
 		end
 	end
 	--unlock research UI & wait for click
 	g_Tutorial.EnableResearch = true
 	g_Tutorial.EnableResearchWarning = true
 	WaitHUDButtonPressed("idResearch", function(arrow)
-		return arrow.button_pressed or XDialogs.ResearchDlg
+		return arrow.button_pressed or Dialogs.ResearchDlg
 	end)
 	
 	
 	--14. Research
 	--show messages
-	WaitTutorialPopupImmediate("Tutorial2_Popup13_Research", nil, nil, XDialogs.ResearchDlg)
+	WaitTutorialPopupImmediate("Tutorial2_Popup13_Research", nil, nil, Dialogs.ResearchDlg)
 	TutorialNextHint("Tutorial_2_ResearchScreen")
 	--wait for any tech to be queued
 	local target_tech = first_techs[3]
 	WaitResearchQueued(target_tech, false, "wait_any_tech")
 	--show popup and wait for the player to exit research screen
-	WaitTutorialPopupImmediate("Tutorial2_Popup13_1_Research2", nil, nil, XDialogs.ResearchDlg)
+	WaitTutorialPopupImmediate("Tutorial2_Popup13_1_Research2", nil, nil, Dialogs.ResearchDlg)
 	local arrow = TutorialUIArrow:new({
 		AnchorType = "center-top",
 		FindTarget = function(self)
-			local dlg = XDialogs.ResearchDlg
+			local dlg = Dialogs.ResearchDlg
 			return dlg and dlg.idOverlayDlg.idToolbar.idclose or false
 		end,
 	}, terminal.desktop)
-	while XDialogs.ResearchDlg do
+	while Dialogs.ResearchDlg do
 		Sleep(1000)
 	end
 	

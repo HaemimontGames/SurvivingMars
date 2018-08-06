@@ -25,6 +25,7 @@ function City:InitResearch()
 	self.TechBoostPerField = {}
 	self.TechBoostPerTech = {}
 	self.OutsourceResearchPoints = {}
+	self.OutsourceResearchOrders = {}
 	
 	local initial_unlocked = GetMissionSponsor().initial_techs_unlocked
 	local defs = TechDef
@@ -33,71 +34,72 @@ function City:InitResearch()
 	local fields = Presets.TechFieldPreset.Default
 	for i=1,#fields do
 		local field = fields[i]
-		if IsDlcAvailable(field.dlc) then
-			local field_id = field.id
-			local list = self.tech_field[field_id] or {}
-			self.tech_field[field_id] = list
-			for _, tech in ipairs(Presets.TechPreset[field_id]) do
-				if IsDlcAvailable(tech.dlc) and (tech.mystery or current_mystery) == current_mystery and tech.condition() then
-					if not table.find(list, tech.id) then
-						list[#list + 1] = tech.id
-					end
+		local field_id = field.id
+		local list = self.tech_field[field_id] or {}
+		self.tech_field[field_id] = list
+		for _, tech in ipairs(Presets.TechPreset[field_id]) do
+			if (tech.mystery or current_mystery) == current_mystery and tech.condition() then
+				if not table.find(list, tech.id) then
+					list[#list + 1] = tech.id
 				end
 			end
-			local discoverable = field.discoverable
+		end
+		local discoverable = field.discoverable
+		if discoverable then
+			table.shuffle(list, rand)
+			local retries = 0
+			while true do
+				local changed
+				for j=1,#list do
+					local tech_id = list[j]
+					local tech = defs[tech_id]
+					local min, max
+					if IsGameRuleActive("ChaosTheory") then
+						min, max = 1, 100
+					else
+						min, max = Max(tech.position.from, 1), Min(tech.position.to, #list)
+					end
+					if j < min or j > max then
+						table.insert(list, (min + max) / 2, table.remove(list, j))
+						changed = true
+					end
+				end
+				if not changed then
+					break
+				end
+				retries = retries + 1
+				if retries >= 10 then
+					print("Failed to find correct places for all techs in", field.id)
+					break
+				end
+			end
+		end
+		local costs = field.costs or empty_table
+		for j = 1, #list do
+			local cost
 			if discoverable then
-				table.shuffle(list, rand)
-				local retries = 0
-				while true do
-					local changed
-					for j=1,#list do
-						local tech_id = list[j]
-						local tech = defs[tech_id]
-						local min, max
-						if IsGameRuleActive("ChaosTheory") then
-							min, max = 1, 100
-						else
-							min, max = Max(tech.position.from, 1), Min(tech.position.to, #list)
-						end
-						if j < min or j > max then
-							table.insert(list, (min + max) / 2, table.remove(list, j))
-							changed = true
-						end
-					end
-					if not changed then
-						break
-					end
-					retries = retries + 1
-					if retries >= 10 then
-						print("Failed to find correct places for all techs in", field.id)
-						break
-					end
+				cost = costs[j]
+				if not cost then
+					assert(j > #costs)
+					local last_cost = costs[#costs] or 0
+					local last_diff = last_cost - (costs[#costs - 1] or 0)
+					cost = last_cost + (j - #costs) * last_diff
 				end
 			end
-			local costs = field.costs or empty_table
-			for j = 1, #list do
-				local cost
-				if discoverable then
-					cost = costs[j]
-					if not cost then
-						assert(j > #costs)
-						local last_cost = costs[#costs] or 0
-						local last_diff = last_cost - (costs[#costs - 1] or 0)
-						cost = last_cost + (j - #costs) * last_diff
-					end
-				end
-				local tech_id = list[j]
-				local tech = defs[tech_id]
-				self.tech_status[tech_id] = {
-					cost = cost,
-					points = 0,
-					field = field_id,
-				}
+			local tech_id = list[j]
+			local tech = defs[tech_id]
+			self.tech_status[tech_id] = {
+				cost = cost,
+				points = 0,
+				field = field_id,
+			}
+			if IsGameRuleActive("EasyResearch") and discoverable then
+				self:SetTechDiscovered(list[j])
 			end
-			if discoverable then
-				for i=1,initial_unlocked do
-					self:DiscoverTechInField(field_id)
-				end
+		end
+		if discoverable then
+			for i=1,initial_unlocked do
+				self:DiscoverTechInField(field_id)
 			end
 		end
 	end
@@ -538,13 +540,15 @@ function City:CalcOutsourceRP(time)
 	return pts
 end
 
-function City:OutsourceResearch(points, time)
+function City:OutsourceResearch(points, time, orders)
 	points = points or 500
 	time = time or 5*const.DayDuration
 	local list = self.OutsourceResearchPoints
+	local uses = self.OutsourceResearchOrders
 	local hours = time / const.HourDuration
 	for i = 1, hours do
 		list[i] = (list[i] or 0) + points * i / hours - points * (i - 1) / hours
+		uses[i] = (uses[i] or 0) + (orders or 1)
 	end
 	ObjModified(self)
 end
@@ -578,13 +582,20 @@ end
 
 function City:GetEstimatedRP_Genius()
 	local count = 0
-	for _, dome in ipairs(UICity.labels.Dome or empty_table) do
-		count = count + #(dome.labels.Genius or empty_table)
+	for _, dome in ipairs(UICity.labels.Dome or empty_table) do		
+		for __, col in ipairs(dome.labels.Genius or empty_table) do
+			if col.stat_sanity >= g_Consts.HighStatLevel then
+				count = count + 1
+			end
+		end
 	end
-	return count * DataInstances.Trait.Genius.param
+	return count * TraitPresets.Genius.param
 end
 
 function City:GetEstimatedRP_Sponsor()
+	if IsGameRuleActive("EasyResearch") then
+		return g_Consts.SponsorResearch + 3000
+	end
 	return g_Consts.SponsorResearch
 end
 
@@ -637,7 +648,11 @@ function City:GetEstimatedRP_Explorer()
 end
 
 function City:CalcSponsorResearchPoints(delta)
-	return MulDivRound(delta, g_Consts.SponsorResearch, const.DayDuration)
+	local research_per_sol = g_Consts.SponsorResearch
+	if IsGameRuleActive("EasyResearch") then
+		research_per_sol = research_per_sol + 3000
+	end
+	return MulDivRound(delta, research_per_sol, const.DayDuration)
 end
 
 function City:GetUIResearchProject()
@@ -670,7 +685,7 @@ function OnMsg.SaveMap()
 end
 
 function City:LoadMapStoredTechs_old()	
-	local map_stored_techs = GetObjects{ class = "MapStoredTech", area = "detached" }
+	local map_stored_techs = MapGet("detached", "MapStoredTech")
 	for _, tech in ipairs(map_stored_techs) do
 		local id = tech.tech_id
 		if TechDef[id] then

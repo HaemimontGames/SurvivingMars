@@ -249,7 +249,7 @@ function TheExcavator:DigAnimTick(dt)
 	--after the final swipe there is no need to dig again, as the shovel arm will not go any lower
 	if self.swipe_counter < self.swipe_max then
 		if self.swipe_counter > 1 then
-			--after the second swipe there's no need to repaint the floor. It should be fully repainted alraedy.
+			--after the second swipe there's no need to repaint the floor. It should be fully repainted already.
 			self:ForEachDigPoint(self.DoDigOnly)
 		else
 			self:ForEachDigPoint(self.DoDigAndPaint)

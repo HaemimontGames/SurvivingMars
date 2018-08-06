@@ -36,6 +36,7 @@ DefineClass.UnitDirectionModeDialog = {
 	unit = false,
 	last_mouse_pos = false,
 	interaction_obj = false,
+	interaction_pos = false,
 	interaction_hint = false,
 	block_goto = false,
 	active_interaction = false,
@@ -203,6 +204,7 @@ local interaction_mode_cursor_text = {
 	["load"] = T{7974, "Load Resource"},
 	["unload"] = T{7975, "Unload Resource"},
 	["assign_to_bld"] = T{7972, "Select Target"},
+	["build"] = T{9800, "Build"},
 }
 
 function UnitDirectionModeDialog:HideMouseCursorText(pos)
@@ -243,7 +245,6 @@ function UnitDirectionModeDialog:UpdateCursorText()
 	if txt and txt~= "" then		
 		ctrl:SetText(txt)
 		ctrl:SetMargins(box(40,40,0,0))
-		ctrl.clip_ctrl = false
 		ctrl:AddDynamicPosModifier({ id = "unit_direction", target = gamepad and "gamepad" or "mouse" })
 	end
 end
@@ -359,7 +360,7 @@ function UnitDirectionModeDialog:Interact(pos, keep_control)
 	if self.interaction_obj then
 		--we have an interactable building underneath
 		if self.interaction_obj ~= self.active_interaction then
-			CityUnitController[UICity]:InteractWithObject(self.interaction_obj, self.interaction_mode)
+			CityUnitController[UICity]:InteractWithObject(self.interaction_obj, self.interaction_mode, self.interaction_pos)
 			self.active_interaction = self.interaction_obj
 		end
 		if self.fx_start_args then
@@ -387,6 +388,10 @@ function UnitDirectionModeDialog:Interact(pos, keep_control)
 end
 
 function UnitDirectionModeDialog:UpdateInteractionObj(obj, pos)
+	local gamepad = GetUIStyleGamepad()
+	obj = gamepad and IsKindOf(obj, "SurfaceDepositGroup") and obj.group[1] or obj
+	local ctrl = CityUnitController[UICity]
+	obj = obj or ctrl:ResolveObjAt(pos, self.interaction_mode)
 	local stockpiles = IsValid(obj) and obj:GetAttaches("ResourceStockpileBase") or false
 	local other_obj = not IsKindOfClasses(obj, "SharedStorageBaseVisualOnly", "StorageDepot") and stockpiles and FindNearestObject(stockpiles, pos) or false
 		
@@ -395,18 +400,19 @@ function UnitDirectionModeDialog:UpdateInteractionObj(obj, pos)
 	
 	local h1, h2
 	if IsValid(obj) then
-		interaction_obj, h1, block_goto = CityUnitController[UICity]:CanInteractWithObject(obj, self.interaction_mode)
+		interaction_obj, h1, block_goto = ctrl:CanInteractWithObject(obj, self.interaction_mode)
 		interaction_obj = interaction_obj and obj
 	else
 		interaction_obj = interaction_obj or false
-		h1 = GetUIStyleGamepad() and self.unit and self.unit:CanBeControlled() and T{4339, "<UnitMoveControl('ButtonA',interaction_mode)>: Move", self.unit} or false
+		h1 = gamepad and self.unit and self.unit:CanBeControlled() and T{4339, "<UnitMoveControl('ButtonA',interaction_mode)>: Move", self.unit} or false
 	end
 	
 	if not interaction_obj and other_obj and other_obj ~= obj then
-		interaction_obj, h2, block_goto = CityUnitController[UICity]:CanInteractWithObject(other_obj, self.interaction_mode)
+		interaction_obj, h2, block_goto = ctrl:CanInteractWithObject(other_obj, self.interaction_mode)
 		interaction_obj = interaction_obj and other_obj
 	end
 	
+	self.interaction_pos = pos
 	self.interaction_obj = interaction_obj or false
 	self.interaction_hint = (h2 or h1)
 	
@@ -429,7 +435,7 @@ function UnitDirectionModeDialog:OnMousePos(pt)
 	return "break"
 end
 
-function UnitDirectionModeDialog:OnKbdKeyDown(char, virtual_key)
+function UnitDirectionModeDialog:OnKbdKeyDown(virtual_key)
 	if self.unit then
 		if virtual_key == const.vkEsc then
 			if self.interaction_mode then
@@ -473,6 +479,11 @@ end
 ------------------------------------------------------------------------------
 --rctrransport create route
 function UnitDirectionModeDialog:SetTransportRoutePoint(type, pt)
+	assert(self.created_route)
+	if not self.created_route then
+		return
+	end
+	
 	self.created_route[type] = pt:SetTerrainZ(1*guim)	
 
 	if self.created_route.from and self.created_route.to then
@@ -552,7 +563,13 @@ function UnitController:OnUnitControlActiveChanged(new_val)
 	end
 end
 
+function UnitController:ResolveObjAt(pos, interaction_mode)
+	return self.unit:ResolveObjAt(pos, interaction_mode)
+end
+
 function UnitController:CanInteractWithObject(o, m)
+	if not self.unit then return end
+	
 	local gamepad = GetUIStyleGamepad()
 	if not gamepad then
 		local mousetarget = terminal.desktop:GetMouseTarget(terminal.GetMousePos())
@@ -564,10 +581,10 @@ function UnitController:CanInteractWithObject(o, m)
 	return self.unit:CanInteractWithObject(o, m)
 end
 
-function UnitController:InteractWithObject(o, m)
+function UnitController:InteractWithObject(o, m, p)
 	if not self.unit:CanBeControlled(m) then return false end
 	RebuildInfopanel(self.unit)
-	return self.unit:InteractWithObject(o, m)
+	return self.unit:InteractWithObject(o, m, p)
 end
 
 function UnitController:SetTransportRoute(r)
@@ -582,7 +599,7 @@ function UnitController:GoToPos(pos)
 	local u = self.unit
 	if IsValid(u) and u:CanBeControlled("move") then --unit can be salvaged.
 		local new_pos = GetPassablePointNearby(pos, u.pfclass)
-		if new_pos ~= self.position then
+		if new_pos and new_pos ~= self.position then
 			self.position = new_pos
 			if self.position:x() ~= -1 and self.position:y() ~= -1 then
 				PlayFX("ClickMove", "end", u)

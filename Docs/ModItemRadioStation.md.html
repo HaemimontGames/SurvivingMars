@@ -10,7 +10,7 @@ Properties
 ----------
 
 Name
-: This is the internal name of the radio station, by which the Lua code will see identify it. Use something unique that won't clash with other mods' radio stations.
+: This is the internal name of the radio station, by which the Lua code will identify it. Use something unique that won't clash with other mods' radio stations.
 
 Comment
 : Not used by the game - feel free to add anything for your reference.
@@ -22,25 +22,21 @@ Folder
 : This is the name of the folder containing the audio tracks, relative to the mod folder.
 
 Silence between tracks
-: This is the pause made between tracks by the default play logic.
+: This is the pause made between tracks (in seconds) by the default play logic.
 
 function Play(self)
-: This function performs the track selection and playback of the tracks in the radio station - leave blank for the default behaviour that plays the tracks randomly. It is started in its own [Lua thread](LuaThreads.md.html) and should run an infinite loop, choosing and playing tracks forever. It will be killed externally when the user selects another radio station.
+: This function performs the track selection and playback of the tracks in the radio station - leave blank for the default behaviour that plays the tracks randomly. It is started in its own [Lua thread](LuaThreads.md.html) and should run an infinite loop, choosing and playing tracks forever. It will be killed externally when the user selects another radio station. The list of tracks can be accessed using *self.track*.
 
-:The default play function distinguishes between three types of files - Blurb, Talks and Commercials. Everything else found in the tracks folder is percieved as a song. For a track to be perceived as a commercial, the name has to contain "_ Commercials_ ". Simularly, for Blurb and Talks the name has to include "_ Blurb_ " or "_ Talks_ " respectively, as well as indeces in the form of "_ [index1]_ [index2]". For example, a file containing a talk might be named like that - "NewWaveRadio_Talk_8_2.opus". The order of playing the tracks is generelly speaking as follows: a small random number of songs, followed by a blurb and a commercial, then again a small number of songs, followed by a talk. 
+:The default *play* function distinguishes between three types of files - Blurb, Talks and Commercials. Everything else found in the tracks folder is percieved as a song. For a track to be perceived as a commercial, the name has to contain "_ Commercials_ ". Similarly, for Blurb and Talks the name has to include "_ Blurb_ " or "_ Talks_ " respectively, as well as indeces in the form of "_ [index1]_ [index2]". For example, a file containing a talk might be named like that - "NewWaveRadio_Talk_8_2.opus". The order of playing the tracks is, generelly speaking, as follows: a small random number of songs followed by a blurb and a commercial, then again a small number of songs, followed by a talk. Note: you are not required to have any Commercials, Talks or Blurbs to use the default *play* function.
 
 
-Here's an example play function that lists all files in the tracks folder, shuffles them randomly and plays them one by one:
+Here's an example *play* function that shuffles all tracks randomly and plays them one by one (using the default *play* function without any Commercials, Talks or Blurbs will result in a similar behaviour).
 
 ~~~~~~~~~ Lua
-local err, files = AsyncListFiles(self:GetTracksFolder(), "*.opus") -- find all files in the folder with opus extension
-if err or not next(files) then return end	-- skip if enumeration fails or folder is empty
-for i = 1, #files do
-	files[i] = string.sub(files[i], 1, -6) -- strip the opus extension
-end
+if not next(self.tracks) then return end	-- skip if there are no tracks
 while true do
-	table.permute(files, AsyncRand())           -- shuffle files list, with random seed
-	for _, file in ipairs(files) do
+	table.permute(self.tracks, AsyncRand())           -- shuffle files list, with random seed
+	for _, file in ipairs(self.tracks) do
 		Music:PlayTrack({ path = file })        -- start playing one track via the music subsystem
 		WaitMsg("MusicTrackEnded", 30*60*1000)  -- wait till it ends, or at most 30 minutes
 		Sleep(self.silence * 1000)              -- pause for silence
@@ -49,19 +45,17 @@ end
 ~~~~~~~~~
 
 
-Here's another example play function, which finds files containing "music" and "dj" in the tracks folder, shuffles them and plays them alternatingly
+Here's another example *play* function, which finds files containing "music" and "dj" in the tracks folder, shuffles them and plays them alternatingly
 
 ~~~~~~~~~ Lua
-local err, files = AsyncListFiles(self:GetTracksFolder(), "*.opus") -- find all files in the folder with opus extension
-if err or not next(files) then return end	-- skip if enumeration fails or folder is empty
+if not next(self.tracks) then return end	-- skip if there are no tracks
 local dj = {}
 local music = {}
-for i = 1, #files do
-	files[i] = string.sub(files[i], 1, -6) -- strip the opus extension
-	if files[i]:find("music",1,true) then	-- check if the file name contains "music"
-		music[#music+1] = files[i]	-- if so, add it to the music files list
-	elseif files[i]:find("dj",1,true)then	--check if the file name contains "dj"
-		dj[#dj +1] = files[i]	-- if so, add it to the DJ announcement files list
+for i = 1, #self.tracks do
+	if self.tracks[i]:find("music",1,true) then	-- check if the file name contains "music"
+		music[#music+1] = self.tracks[i]	-- if so, add it to the music files list
+	elseif self.tracks[i]:find("dj",1,true)then	--check if the file name contains "dj"
+		dj[#dj +1] = self.tracks[i]	-- if so, add it to the DJ announcement files list
 	end
 end
 local music_index = #music +1

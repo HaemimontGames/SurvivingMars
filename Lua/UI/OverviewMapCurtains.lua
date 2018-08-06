@@ -5,6 +5,7 @@ DefineClass.OverviewMapCurtains = {
 	ZOrder = -1000,
 	FadeInTime = const.InterfaceAnimDuration,
 	FadeOutTime = const.InterfaceAnimDuration,
+	pending_update = false,
 }
 
 function OverviewMapCurtains:Open()
@@ -16,6 +17,18 @@ function OverviewMapCurtains:Close()
 	XWindow.Close(self)
 end
 
+function OverviewMapCurtains:SetVisible(visible, instant)
+	if self.pending_update and not self:GetVisible() and visible then
+		self:DeleteThread("OverviewCurtains")
+		self:CreateThread("OverviewCurtains", function(self)
+			WaitNextFrame(5)
+			self:SetOverviewCurtains()
+		end, self)
+		self.pending_update = false
+	end
+	XDialog.SetVisible(self, visible, instant)
+end
+
 function OverviewMapCurtains:ForceDelete()
 	--delete the dialog during fade out interpolation
 	local modifier = self:FindModifier("fade")
@@ -25,15 +38,21 @@ function OverviewMapCurtains:ForceDelete()
 	self:delete()
 end
 
-function OverviewMapCurtains:OnDesktopSize()
-	XDialog.OnDesktopSize(self)
+function OverviewMapCurtains:UpdateLayout()
+	if not self.layout_update then return end
+	
+	XDialog.UpdateLayout(self)
+	if not self:GetVisible() then
+		self.pending_update = true
+		return
+	end
 	local pos, lookat = CalcOverviewCameraPos()
 	local width, height = CalcOverviewCurtainsSize(pos, lookat, self.parent.box:sizex(), self.parent.box:sizey())
 	self:SetOverviewCurtains(Max(width, self.curtains_width), Max(height, self.curtains_height))
 	self:DeleteThread("OverviewCurtains")
 	if width < self.curtains_width or height < self.curtains_height then
 		self:CreateThread("OverviewCurtains", function(self)
-			WaitNextFrame(2)
+			WaitNextFrame(3)
 			self:SetOverviewCurtains()
 		end, self)
 	end
@@ -73,24 +92,24 @@ function OverviewMapCurtains:SetOverviewCurtains(width, height)
 end
 
 function ShowOverviewMapCurtains(bShow, forceClose)
-	local dlg = GetXDialog("OverviewMapCurtains")
+	local dlg = GetDialog("OverviewMapCurtains")
 	if bShow then
 		if not dlg or dlg and dlg.window_state == "closing" then
 			if dlg then
 				dlg:ForceDelete()
 			end
-			OpenXDialog("OverviewMapCurtains")
+			OpenDialog("OverviewMapCurtains")
 		end
 	elseif dlg then
 		if forceClose then
 			dlg:SetFadeOutTime(0)
 		end
-		CloseXDialog("OverviewMapCurtains")
+		CloseDialog("OverviewMapCurtains")
 	end
 end
 
 function HideOverviewMapCurtains(bHide)
-	local dlg = GetXDialog("OverviewMapCurtains")
+	local dlg = GetDialog("OverviewMapCurtains")
 	if dlg then
 		dlg:SetVisible(not bHide, "instant")
 	end

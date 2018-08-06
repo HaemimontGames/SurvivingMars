@@ -10,14 +10,14 @@ PlaceObj('XTemplate', {
 		'RolloverText', T{323140771762, --[[XTemplate customStirlingGenerator RolloverText]] "Opening the generator increases Power produced but leaves it vulnerable to dust contamination.<newline><newline>Current status: <em><UIOpenStatus></em>"},
 		'RolloverTitle', T{962425882475, --[[XTemplate customStirlingGenerator RolloverTitle]] "Open/Close"},
 		'OnContextUpdate', function (self, context, ...)
-self:SetEnabled(not context:RepairNeeded())
+self:SetEnabled(not context:RepairNeeded() and (context:IsOpened() or context:CanBeOpened()))
 if context:IsOpened() then
 	self:SetIcon("UI/Icons/IPButtons/open.tga")
 	self:SetRolloverHint(T{7648, "<left_click> Close <newline><em>Ctrl + <left_click></em> Close all <display_name_pl>"})
 	self:SetRolloverHintGamepad(T{7649, "<ButtonA> Close <newline><ButtonX> Close all <display_name_pl>"})
 else
 	self:SetIcon("UI/Icons/IPButtons/close.tga")
-	self:SetRolloverHint(T{7650, "<left_click> Open <newline><em>Ctrl + <left_click></em> Open all <display_name_pl>"})
+	self:SetRolloverHint(T{10879, "<left_click> Open <newline><em>Ctrl + <left_click></em> Open all <display_name_pl>"})
 	self:SetRolloverHintGamepad(T{7651, "<ButtonA> Open <newline><ButtonX> Open all <display_name_pl>"})	
 end
 end,
@@ -36,9 +36,9 @@ end,
 	PlaceObj('XTemplateTemplate', {
 		'__context_of_kind', "StirlingGenerator",
 		'__template', "InfopanelSection",
-		'RolloverText', T{441, --[[XTemplate customStirlingGenerator RolloverText]] "Producing less Power than optimal"},
+		'RolloverText', T{441, --[[XTemplate customStirlingGenerator RolloverText]] "Stirling Generators produce more Power when opened."},
 		'OnContextUpdate', function (self, context, ...)
-self:SetVisible(not context:RepairNeeded() and not context:IsOpened())
+self:SetVisible(not context:RepairNeeded() and not context:IsOpened() and context:CanBeOpened())
 end,
 		'Title', T{277, --[[XTemplate customStirlingGenerator Title]] "Attention"},
 		'Icon', "UI/Icons/Sections/attention.tga",
@@ -47,6 +47,22 @@ end,
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelText",
 			'Text', T{447, --[[XTemplate customStirlingGenerator Text]] "Will produce <power(AdditionalProduction)> more Power if opened"},
+		}),
+		}),
+	PlaceObj('XTemplateTemplate', {
+		'__context_of_kind', "StirlingGenerator",
+		'__template', "InfopanelSection",
+		'RolloverText', T{10450, --[[XTemplate customStirlingGenerator RolloverText]] "Stirling Generators outside Domes cannot be opened during Dust Storms."},
+		'OnContextUpdate', function (self, context, ...)
+self:SetVisible(not context:IsOpened() and not context:CanBeOpened())
+end,
+		'Title', T{277, --[[XTemplate customStirlingGenerator Title]] "Attention"},
+		'Icon', "UI/Icons/Sections/attention.tga",
+		'TitleHAlign', "stretch",
+	}, {
+		PlaceObj('XTemplateTemplate', {
+			'__template', "InfopanelText",
+			'Text', T{10451, --[[XTemplate customStirlingGenerator Text]] "Cannot be opened during Dust Storms if placed outside."},
 		}),
 		}),
 })

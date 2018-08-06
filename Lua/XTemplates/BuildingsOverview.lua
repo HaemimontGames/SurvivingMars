@@ -12,7 +12,7 @@ PlaceObj('XTemplate', {
 	}, {
 		PlaceObj('XTemplateCode', {
 			'run', function (self, parent, context)
-local dlg = GetXDialog(parent)
+local dlg = GetDialog(parent)
 if dlg then
 	dlg.OnShortcut = function(dlg, shortcut, source)
 		if shortcut == "RightShoulder" and rawget(dlg, "idList") then
@@ -68,23 +68,7 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "OnShortcut(self, shortcut, source)",
 							'func', function (self, shortcut, source)
-local rel = XShortcutToRelation[shortcut]
-if rel == "up" or rel == "down" then
-	return "break"
-elseif rel == "left" or rel == "right" then
-	local focus = self.desktop:GetKeyboardFocus()
-	local idx = table.find(self, focus)
-	if idx then
-		if rel == "left" and idx == 1 then
-			self[#self]:SetFocus()
-			return "break"
-		elseif rel == "right" and idx == #self then
-			self[1]:SetFocus()
-			return "break"
-		end
-	end
-end
-return XContextWindow.OnShortcut(self, shortcut, source)
+return CCC_ButtonListOnShortcut(self, shortcut, source)
 end,
 						}),
 						PlaceObj('XTemplateTemplate', {
@@ -107,7 +91,7 @@ end,
 							'MouseCursor', "UI/Cursors/Rollover.tga",
 							'RelativeFocusOrder', "next-in-line",
 							'OnContextUpdate', function (self, context, ...)
-local dlg = GetXDialog(self)
+local dlg = GetDialog(self)
 local inside = dlg.context.inside_buildings
 self:SetIcon(inside == false and "UI/Icons/ColonyControlCenter/inside_buildings_off.tga" or "UI/Icons/ColonyControlCenter/inside_buildings_on.tga")
 self:SetRolloverText(GetBuildingsFilterRollover(context, T{642090198735, "Toggle filtering of inside buildings."}))
@@ -147,7 +131,7 @@ end,
 							'RolloverAnchor', "left",
 							'RolloverAnchorId', "idButtons",
 							'RolloverTitle', T{885971788025, --[[XTemplate BuildingsOverview RolloverTitle]] "Outside Buildings"},
-							'Margins', box(0, 0, 40, 0),
+							'Margins', box(0, 0, 80, 0),
 							'VAlign', "center",
 							'ScaleModifier', point(700, 700),
 							'LayoutMethod', "Box",
@@ -157,7 +141,7 @@ end,
 							'MouseCursor', "UI/Cursors/Rollover.tga",
 							'RelativeFocusOrder', "next-in-line",
 							'OnContextUpdate', function (self, context, ...)
-local dlg = GetXDialog(self)
+local dlg = GetDialog(self)
 local outside = dlg.context.outside_buildings
 self:SetIcon(outside == false and "UI/Icons/ColonyControlCenter/outside_buildings_off.tga" or "UI/Icons/ColonyControlCenter/outside_buildings_on.tga")
 self:SetRolloverText(GetBuildingsFilterRollover(context, T{658497084041, "Toggle filtering of outside buildings."}))
@@ -206,7 +190,7 @@ end,
 							'MouseCursor', "UI/Cursors/Rollover.tga",
 							'RelativeFocusOrder', "next-in-line",
 							'OnContextUpdate', function (self, context, ...)
-local dlg = GetXDialog(self)
+local dlg = GetDialog(self)
 local decorations = dlg.context.decorations
 self:SetIcon(not decorations and "UI/Icons/ColonyControlCenter/decorations_off.tga" or "UI/Icons/ColonyControlCenter/decorations_on.tga")
 self:SetRolloverText(GetBuildingsFilterRollover(context, T{405185817379, "Toggle filtering of Decorations."}))
@@ -255,7 +239,7 @@ end,
 							'MouseCursor', "UI/Cursors/Rollover.tga",
 							'RelativeFocusOrder', "next-in-line",
 							'OnContextUpdate', function (self, context, ...)
-local dlg = GetXDialog(self)
+local dlg = GetDialog(self)
 local power_producers = dlg.context.power_producers
 self:SetIcon(power_producers == false and "UI/Icons/ColonyControlCenter/power_producers_off.tga" or "UI/Icons/ColonyControlCenter/power_producers_on.tga")
 self:SetRolloverText(GetBuildingsFilterRollover(context, T{430474379281, "Toggle filtering of Power producers."}))
@@ -304,7 +288,7 @@ end,
 							'MouseCursor', "UI/Cursors/Rollover.tga",
 							'RelativeFocusOrder', "next-in-line",
 							'OnContextUpdate', function (self, context, ...)
-local dlg = GetXDialog(self)
+local dlg = GetDialog(self)
 local production_buildings = dlg.context.production_buildings
 self:SetIcon(production_buildings == false and "UI/Icons/ColonyControlCenter/production_buildings_off.tga" or "UI/Icons/ColonyControlCenter/production_buildings_on.tga")
 self:SetRolloverText(GetBuildingsFilterRollover(context, T{250629220868, "Toggle filtering of Production buildings."}))
@@ -353,7 +337,7 @@ end,
 							'MouseCursor', "UI/Cursors/Rollover.tga",
 							'RelativeFocusOrder', "next-in-line",
 							'OnContextUpdate', function (self, context, ...)
-local dlg = GetXDialog(self)
+local dlg = GetDialog(self)
 local services = dlg.context.services
 self:SetIcon(services == false and "UI/Icons/ColonyControlCenter/services_off.tga" or "UI/Icons/ColonyControlCenter/services_on.tga")
 self:SetRolloverText(GetBuildingsFilterRollover(context, T{869705792928, "Toggle filtering of Services."}))
@@ -402,7 +386,7 @@ end,
 							'MouseCursor', "UI/Cursors/Rollover.tga",
 							'RelativeFocusOrder', "next-in-line",
 							'OnContextUpdate', function (self, context, ...)
-local dlg = GetXDialog(self)
+local dlg = GetDialog(self)
 local residential = dlg.context.residential
 self:SetIcon(not residential and "UI/Icons/ColonyControlCenter/residential_off.tga" or "UI/Icons/ColonyControlCenter/residential_on.tga")
 self:SetRolloverText(GetBuildingsFilterRollover(context, T{954444172223, "Toggle filtering of residential buildings."}))
@@ -451,7 +435,7 @@ end,
 							'MouseCursor', "UI/Cursors/Rollover.tga",
 							'RelativeFocusOrder', "next-in-line",
 							'OnContextUpdate', function (self, context, ...)
-local dlg = GetXDialog(self)
+local dlg = GetDialog(self)
 local other = dlg.context.other
 self:SetIcon(not other and "UI/Icons/ColonyControlCenter/other_off.tga" or "UI/Icons/ColonyControlCenter/other_on.tga")
 self:SetRolloverText(GetBuildingsFilterRollover(context, T{707674085585, "Toggle filtering of Other buildings, not fitting the criteria of the rest of the filters in this group."}))
@@ -493,18 +477,9 @@ end,
 						}),
 						}),
 					PlaceObj('XTemplateWindow', {
-						'__class', "XFrame",
-						'Margins', box(0, 0, 0, -85),
-						'VAlign', "top",
-						'Image', "UI/Common/pm_pad_small.tga",
-						'FrameBox', box(205, 0, 30, 0),
-						'SqueezeY', false,
-						'FlipX', true,
-					}),
-					PlaceObj('XTemplateWindow', {
 						'__class', "XContextWindow",
 						'Id', "idEffectsTitles",
-						'Padding', box(63, 0, 0, 0),
+						'Padding', box(63, 7, 0, 0),
 						'LayoutMethod', "HList",
 						'FoldWhenHidden', true,
 						'ContextUpdateOnOpen', true,
@@ -513,6 +488,16 @@ self:SetVisible(not context.shifts)
 XContextWindow.OnContextUpdate(self, context, ...)
 end,
 					}, {
+						PlaceObj('XTemplateWindow', {
+							'__class', "XFrame",
+							'Margins', box(-63, -7, 0, -70),
+							'Dock', "box",
+							'VAlign', "top",
+							'Image', "UI/Common/pm_pad_small.tga",
+							'FrameBox', box(205, 0, 30, 0),
+							'SqueezeY', false,
+							'FlipX', true,
+						}),
 						PlaceObj('XTemplateWindow', {
 							'__class', "XText",
 							'Padding', box(0, 0, 0, 0),
@@ -581,7 +566,7 @@ end,
 					PlaceObj('XTemplateWindow', {
 						'__class', "XContextWindow",
 						'Id', "idShiftsTitles",
-						'Padding', box(63, 0, 0, 0),
+						'Padding', box(63, 7, 0, 0),
 						'LayoutMethod', "HList",
 						'FoldWhenHidden', true,
 						'ContextUpdateOnOpen', true,
@@ -590,6 +575,16 @@ self:SetVisible(context.shifts)
 XContextWindow.OnContextUpdate(self, context, ...)
 end,
 					}, {
+						PlaceObj('XTemplateWindow', {
+							'__class', "XFrame",
+							'Margins', box(-63, -7, -60, -80),
+							'Dock', "box",
+							'VAlign', "top",
+							'Image', "UI/Common/pm_pad_small.tga",
+							'FrameBox', box(205, 0, 30, 0),
+							'SqueezeY', false,
+							'FlipX', true,
+						}),
 						PlaceObj('XTemplateWindow', {
 							'__class', "XText",
 							'Padding', box(0, 0, 0, 0),
@@ -634,6 +629,7 @@ end,
 				}),
 			PlaceObj('XTemplateTemplate', {
 				'__template', "Scrollbar",
+				'Id', "idScroll",
 				'Margins', box(10, 0, 0, 0),
 				'Target', "idList",
 			}),
@@ -645,7 +641,7 @@ end,
 					'ActionName', T{5446, --[[XTemplate BuildingsOverview ActionName]] "PREVIOUS DOME"},
 					'ActionToolbar', "ActionBar",
 					'ActionGamepad', "LeftTrigger",
-					'OnAction', function (self, host, source, toggled)
+					'OnAction', function (self, host, source)
 SelectCommandCenterNextDome(host, -1)
 end,
 					'__condition', function (parent, context) return #(GetCommandCenterDomesList()) > 1 end,
@@ -655,7 +651,7 @@ end,
 					'ActionName', T{5445, --[[XTemplate BuildingsOverview ActionName]] "NEXT DOME"},
 					'ActionToolbar', "ActionBar",
 					'ActionGamepad', "RightTrigger",
-					'OnAction', function (self, host, source, toggled)
+					'OnAction', function (self, host, source)
 SelectCommandCenterNextDome(host, 1)
 end,
 					'__condition', function (parent, context) return #(GetCommandCenterDomesList()) > 1 end,
@@ -668,7 +664,7 @@ end,
 					'ActionState', function (self, host)
 return host.context.shifts and "hidden"
 end,
-					'OnAction', function (self, host, source, toggled)
+					'OnAction', function (self, host, source)
 ToggleBuildingsShiftsEffects(host)
 host:UpdateActionViews(host.idActionBar)
 end,
@@ -681,7 +677,7 @@ end,
 					'ActionState', function (self, host)
 return not host.context.shifts and "hidden"
 end,
-					'OnAction', function (self, host, source, toggled)
+					'OnAction', function (self, host, source)
 ToggleBuildingsShiftsEffects(host)
 host:UpdateActionViews(host.idActionBar)
 end,
@@ -720,7 +716,7 @@ end,
 					}, {
 						PlaceObj('XTemplateForEach', {
 							'comment', "buildings",
-							'array', function (parent, context) local buildings = GetCommandCenterBuildings(context); parent:ResolveId("idTitle"):SetTitle(T{9810, "<count> BUILDINGS", count = #buildings}) return buildings end,
+							'array', function (parent, context) local buildings = GetCommandCenterBuildings(context); parent:ResolveId("idTitle"):SetTitle(T{9810, "<color 255 248 233><count></color> BUILDINGS", count = #buildings}) return buildings end,
 							'__context', function (parent, context, item, i, n) return item end,
 							'run_before', function (parent, context, item, i, n)
 NewXVirtualContent(parent, context, "BuildingOverviewRow", 1169, 46)

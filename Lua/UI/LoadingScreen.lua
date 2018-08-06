@@ -11,7 +11,7 @@ DefineClass.MarsLoadingScreen = {
 }
 
 function MarsLoadingScreen:Init()
-	local dlg = GetXDialog("OnScreenIndication")
+	local dlg = GetDialog("OnScreenIndication")
 	if dlg then dlg:SetVisible(false) end
 end
 

@@ -62,7 +62,7 @@ function PinnableObject:GetPinSummary()
 end
 
 function PinnableObject:TogglePin()
-	local pins_dlg = OpenXDialog("PinsDlg", GetInGameInterface())
+	local pins_dlg = OpenDialog("PinsDlg", GetInGameInterface())
 	if self:IsPinned() then
 		self.is_pinned = false
 		table.remove_entry(g_PinnedObjs, self)
@@ -91,7 +91,7 @@ function OnMsg.LoadGame()
 end
 
 function UnpinAll()
-	local pins_dlg = OpenXDialog("PinsDlg", GetInGameInterface())
+	local pins_dlg = OpenDialog("PinsDlg", GetInGameInterface())
 	for i=#g_PinnedObjs,1,-1 do
 		local obj = g_PinnedObjs[i]
 		obj.is_pinned = false

@@ -39,7 +39,7 @@ end,
 						'__class', "XContentTemplate",
 					}, {
 						PlaceObj('XTemplateWindow', {
-							'__parent', function (parent, context) return GetXDialog(parent) end,
+							'__parent', function (parent, context) return GetDialog(parent) end,
 							'__class', "XCreditsWindow",
 							'Id', "idCreditsWindow",
 							'ZOrder', 0,
@@ -52,7 +52,7 @@ end,
 							'ActionShortcut', "Escape",
 							'ActionGamepad', "ButtonB",
 							'OnActionEffect', "close",
-							'OnAction', function (self, host, source, toggled)
+							'OnAction', function (self, host, source)
 if host then 
 SetBackDialogMode(host.context.dlg)
 host:Close()

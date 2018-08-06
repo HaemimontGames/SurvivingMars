@@ -12,9 +12,7 @@ PlaceObj('XTemplate', {
 self:SetIcon(self.context.overview == "ResourceOverview" and "UI/Icons/IPButtons/resources_section_active.tga" or "UI/Icons/IPButtons/resources_section.tga" )
 end,
 		'OnPress', function (self, gamepad)
-InfopanelSlideIn = false
-self.context.overview = "ResourceOverview"
-OpenXInfopanel(nil, self.context, 'ipResourceOverview')
+SetResourceOverviewDlgMode("ResourceOverview")
 end,
 		'Icon', "UI/Icons/IPButtons/resources_section.tga",
 	}),
@@ -28,9 +26,7 @@ end,
 self:SetIcon(self.context.overview == "ColonistOverview" and "UI/Icons/IPButtons/colonist_section_active.tga" or "UI/Icons/IPButtons/colonist_section.tga" )
 end,
 		'OnPress', function (self, gamepad)
-InfopanelSlideIn = false
-self.context.overview = "ColonistOverview"
-OpenXInfopanel(nil, self.context, 'ipColonistOverview')
+SetResourceOverviewDlgMode("ColonistOverview")
 end,
 		'Icon', "UI/Icons/IPButtons/colonist_section.tga",
 	}),
@@ -44,9 +40,7 @@ end,
 self:SetIcon(self.context.overview == "TraitsOverview" and "UI/Icons/IPButtons/traits_section_active.tga" or "UI/Icons/IPButtons/traits_section.tga" )
 end,
 		'OnPress', function (self, gamepad)
-InfopanelSlideIn = false
-self.context.overview = "TraitsOverview"
-OpenXInfopanel(nil, self.context, 'ipTraitsOverview')
+SetResourceOverviewDlgMode("TraitsOverview")
 end,
 		'Icon', "UI/Icons/IPButtons/traits_section.tga",
 	}),

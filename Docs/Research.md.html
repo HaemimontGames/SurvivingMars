@@ -22,7 +22,7 @@ There are no required precursors for research - players can skip techs they don'
 To research a tech the player needs to generate a certain number of research points (RP). This resource is generated via buildings (Research Lab, Science Institute), anomalies or provided by the Mission Sponsor. Certain techs may add additional sources of RP (for example a Breakthrough turns excess power into RP). The player may also choose to give money in return for RP from the outsourcing option in the research screen.
 The RP cost of a tech is determined by its position within its field. The positions of techs change and are shuffled on every new game. Each field has a table of defined research costs. Breakthrough techs are in general twice as expensive as base techs in terms of RP.
 
-Here is an example of how to redefine the research cost of all trees with a Code Effect 
+Here is an example of how to redefine the research cost of all fields with a Code Effect 
 
 ~~~~~~~~~ Lua
 function OnApplyEffect(self, city, parent)
@@ -52,6 +52,61 @@ Anomalies are objects that the player finds by exploring the map. They can be an
  - Unlock from 1 to several new base techs for research;
  - Unlock Breakthrough techs for research;
  - Grant 1000, 1500 or 2000 RP when analysed.
+
+ Here is an example of how to define an anomaly and place it on one of the explored sectors on the map on game start
+ 
+~~~~~~~~~ Lua
+ function OnMsg.MapSectorsReady()
+	local UnbuildableZ = buildUnbuildableZ()
+	
+	local marker = PlaceObject("SubsurfaceAnomalyMarker")
+	marker.sequence = "Static Dust Charge" --in the "Anomalies" file a wide variety of sequences can be found
+	marker.sequence_list = "Anomalies"
+	marker.tech_action = "complete"
+
+	local city = UICity
+	local sector_x = city:Random(1, 10)
+	local sector_y = city:Random(1, 10)
+	local scanned_sector = g_MapSectors[sector_x][sector_y]
+	
+	--get a scanned sector
+	local sectors = g_MapSectors
+	for x = 1, const.SectorCount do
+		local sectors = sectors[x]
+		for y = 1, const.SectorCount do
+			local sector = sectors[y]
+			if sector.status == "scanned" then
+				scanned_sector = g_MapSectors[sector.col][sector.row]
+			end
+		end
+	end
+	
+	--find an available position within the scanned sector 
+	for i = 1, 50 do
+		local minx, miny = scanned_sector.area:minxyz()		
+		local maxx, maxy = scanned_sector.area:maxxyz()
+		
+		local x = city:Random(minx, maxx)
+		local y = city:Random(miny, maxy)
+		
+		local q, r = WorldToHex(x, y)
+		local pt = point(x, y)
+		if GetBuildableZ(q, r) ~= UnbuildableZ and terrain.IsPassable(pt) then
+			marker:SetPos(pt)
+			break
+		end
+	end
+	
+	--put the anomaly on the map
+	if marker:IsValidPos() then
+		marker.revealed = true
+		marker:PlaceDeposit()
+	else
+		printf("couldn't find position to place %s deposit", resource)
+		DoneObject(marker)
+	end
+end
+~~~~~~~~~
 
  ## Repeatable Techs
 Techs have a "repeatable" property (false by default). If set to true this tech can be researched over and over. Each time the tech is researched, it applies its effects.

@@ -16,11 +16,11 @@ g_TutorialScenarios.Tutorial1 = function()
 	-- add arrow pointing toward hint's close btn
 	local arrow = TutorialUIArrow:new({
 		AnchorType = "right-center",
-		FindTarget = function() return XDialogs.OnScreenHintDlg and XDialogs.OnScreenHintDlg.idClose end,
+		FindTarget = function() return Dialogs.OnScreenHintDlg and Dialogs.OnScreenHintDlg.idClose end,
 	}, terminal.desktop)
 	--[[local xarrow = TutorialUIArrow:new({
 		AnchorType = "center-bottom",
-		FindTarget = function() return GetUIStyleGamepad() and XDialogs.OnScreenHintDlg end,
+		FindTarget = function() return GetUIStyleGamepad() and Dialogs.OnScreenHintDlg end,
 	}, terminal.desktop)--]]
 		
 	-- wait for the hint to get closed
@@ -73,8 +73,8 @@ g_TutorialScenarios.Tutorial1 = function()
 	arrow = TutorialUIArrow:new({
 		AnchorType = "center-top",
 		FindTarget = function() 
-			if XDialogs.PinsDlg then 
-				for _, win in ipairs(XDialogs.PinsDlg.children) do
+			if Dialogs.PinsDlg then 
+				for _, win in ipairs(Dialogs.PinsDlg) do
 					if IsKindOf(win, "XBlinkingButton") and IsKindOf(win.context, "SupplyRocket") then
 						return win
 					end
@@ -157,7 +157,7 @@ g_TutorialScenarios.Tutorial1 = function()
 	arrow = TutorialUIArrow:new({
 		AnchorType = "center-top",
 		FindTarget = function(self) 
-			return XDialogs.HUD and XDialogs.HUD.idMedium
+			return Dialogs.HUD and Dialogs.HUD.idMedium
 		end,
 	}, terminal.desktop)
 	
@@ -199,10 +199,24 @@ g_TutorialScenarios.Tutorial1 = function()
 	arrow = TutorialUIArrow:new({
 		AnchorType = "left-center",
 		FindTarget = function(self) 
-			return XDialogs.Infopanel and IsKindOf(XDialogs.Infopanel.context, "ConstructionController") and XDialogs.Infopanel.idControlHints
+			return Dialogs.Infopanel and IsKindOf(Dialogs.Infopanel.context, "ConstructionController") and Dialogs.Infopanel.idControlHints
 		end,
 	}, terminal.desktop)	
 	ghost = PlaceGhost("RegolithExtractor", g_Tutorial.MapMarkers.ConcreteExtractor:GetPos(), g_Tutorial.MapMarkers.ConcreteExtractor:GetAngle(), "align")
+	
+		-- attach tiles
+	local shape = GetEntityOutlineShape("RegolithExtractor")
+	for i = 1, #shape do
+		local q, r = shape[i]:xy()
+		local x, y = HexToWorld(q, r)
+		local offset = point(x, y, 30)
+		local tile = PlaceObject("GridTile", nil, const.cfComponentAttach)
+		ghost:Attach(tile)
+		tile:SetAttachOffset(offset)
+		tile:SetColorModifier(ShadingConst.ConstructionStage2Color)
+		tile:SetOpacity(20)
+	end
+	
 	g_Tutorial.ConstructionTarget = { class = "RegolithExtractor", loc = g_Tutorial.MapMarkers.ConcreteExtractor, radius = 5 }
 	ViewObjectMars(g_Tutorial.MapMarkers.ConcreteExtractor)
 	WaitConstructionSite("RegolithExtractor")
@@ -222,17 +236,23 @@ g_TutorialScenarios.Tutorial1 = function()
 	
 	g_Tutorial.BuildMenuWhitelist.StirlingGenerator = true
 	WaitBuildMenuItemSelected("Power", "StirlingGenerator", "place")
-	TutorialNextHint("Tutorial_1_Power_2")
+	WaitConstruction("StirlingGenerator")
 	g_Tutorial.BuildMenuWhitelist.PowerCables = true
-	WaitBuildMenuItemSelected("Power", "PowerCables", "electricity_grid")
+
+	local mines = UICity.labels.RegolithExtractor or empty_table
+	local gens = UICity.labels.StirlingGenerator or empty_table
+	if not (#mines > 0 and #gens > 0 and mines[1].electricity.grid == gens[1].electricity.grid) then
+		TutorialNextHint("Tutorial_1_Power_2")
+		WaitBuildMenuItemSelected("Power", "PowerCables", "electricity_grid")
 	
-	while true do
-		local mines = UICity.labels.RegolithExtractor or empty_table
-		local gens = UICity.labels.StirlingGenerator or empty_table
-		if #mines > 0 and #gens > 0 and mines[1].electricity.grid == gens[1].electricity.grid then
-			break
+		while true do
+			local mines = UICity.labels.RegolithExtractor or empty_table
+			local gens = UICity.labels.StirlingGenerator or empty_table
+			if #mines > 0 and #gens > 0 and mines[1].electricity.grid == gens[1].electricity.grid then
+				break
+			end
+			Sleep(100)
 		end
-		Sleep(100)
 	end
 	-- Boyan: test
 	
@@ -351,8 +371,8 @@ g_TutorialScenarios.Tutorial1 = function()
 	arrow = TutorialUIArrow:new({
 		AnchorType = "left-center",
 		FindTarget = function() 
-			if XDialogs.Infopanel and XDialogs.Infopanel:HasMember("idLaunch") then
-				return XDialogs.Infopanel.idLaunch
+			if Dialogs.Infopanel and Dialogs.Infopanel:HasMember("idLaunch") then
+				return Dialogs.Infopanel.idLaunch
 			end
 		end,
 	}, terminal.desktop)

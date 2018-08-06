@@ -65,7 +65,7 @@ function PinsDlg:RecalculateMargins()
 end
 
 function OnMsg.SafeAreaMarginsChanged()
-	local pins_dlg = GetXDialog("PinsDlg")
+	local pins_dlg = GetDialog("PinsDlg")
 	if pins_dlg then
 		pins_dlg:RecalculateMargins()
 	end
@@ -191,10 +191,13 @@ function PinsDlg:GetPinConditionImage(obj)
 	elseif obj:IsKindOf("LifeSupportConsumer") and obj:ShouldShowNoWaterSign() then
 		img = "UI/Icons/pin_water.tga"
 	elseif obj:IsKindOf("BaseRover") then
+		if obj:IsStorageFull() then
+			img = "UI/Icons/pin_full.tga"
+		elseif	obj.command == "Idle" or obj.command == "LoadingComplete" then
+			img = "UI/Icons/pin_idle.tga"
+		end
 		if obj.goto_target then
 			img = "UI/Icons/pin_moving.tga"
-		elseif obj.command == "Idle" or obj.command == "LoadingComplete" then
-			img = "UI/Icons/pin_idle.tga"
 		elseif obj:IsLowBattery() then
 			img = "UI/Icons/pin_power.tga"
 		elseif obj.command == "Analyze" then
@@ -385,7 +388,7 @@ function SortPinnedObjs()
 	g_PinnedObjs = new_order
 
 	--update order of ctrls in the pins dialog
-	local pins_dlg = GetXDialog("PinsDlg")
+	local pins_dlg = GetDialog("PinsDlg")
 	if pins_dlg then
 		local obj_to_ctrl = {}
 		--the first ctrl in PinsDlg is the gamepad hint icon
@@ -407,7 +410,7 @@ function OnMsg.LoadGame()
 end
 
 function OnMsg.GamepadUIStyleChanged()
-	local pins_dlg = GetXDialog("PinsDlg")
+	local pins_dlg = GetDialog("PinsDlg")
 	if pins_dlg then
 		local gamepad = GetUIStyleGamepad()
 		pins_dlg.idGamepadImage:SetVisible(gamepad)
@@ -416,14 +419,14 @@ function OnMsg.GamepadUIStyleChanged()
 end
 
 function OnMsg.OnControllerTypeChanged(controller_type)
-	local pins_dlg = GetXDialog("PinsDlg")
+	local pins_dlg = GetDialog("PinsDlg")
 	if pins_dlg then
 		pins_dlg.idGamepadImage:SetImage(GetPlatformSpecificImagePath("RB"))
 	end
 end
 
 function OnMsg.SelectedObjChange(obj, prev)
-	local pins_dlg = GetXDialog("PinsDlg")
+	local pins_dlg = GetDialog("PinsDlg")
 	if not pins_dlg then
 		return
 	end

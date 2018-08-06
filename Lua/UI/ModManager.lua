@@ -83,9 +83,7 @@ function GetModTags()
 end
 
 function ToggleLoadMod(id)
-	local idx = table.find(AccountStorage.LoadMods, id)
-	if idx then
-		table.remove(AccountStorage.LoadMods, idx)
+	if table.remove_entry(AccountStorage.LoadMods, id) then
 		return false
 	else
 		TurnModOn(id)
@@ -119,7 +117,7 @@ end
 function ShowModDescription(item, dialog)
 	dialog.idModInfo:SetVisible(false)
 	dialog.idModTitle:SetText(item.title)
-	local mod_image = item.image ~= "" and item.image or "UI/Mods/Placeholder.tga"
+	local mod_image = item.image ~= "" and item.image or "UI/Common/Placeholder.tga"
 	dialog.idImage:SetImage(mod_image)
 	dialog.idAuthor:SetText(item.author)
 	dialog.idLastUpdate:SetText(item.last_update)
@@ -135,56 +133,47 @@ function UpdateModsList(dialog)
 	end
 end
 
-local mods_loaded
-local initial_mods
+if FirstLoad then
+	g_InitialMods = false
+end
+
 function ModManagerStart(dialog)
 	AccountStorage.LoadMods = AccountStorage.LoadMods or {}
-	local load_mods = AccountStorage.LoadMods
+	local initial_mods = AccountStorage.LoadMods
 	--remove from account storage mods that have been removed from the machine
-	for i = #load_mods, 1, -1 do
-		if not Mods[load_mods[i]] then
-			table.remove(load_mods, i)
+	for i = #initial_mods, 1, -1 do
+		if not Mods[initial_mods[i]] then
+			table.remove(initial_mods, i)
 		end
 	end
-	initial_mods = table.copy(load_mods)
-	mods_loaded = not not ModsLoaded
+	g_InitialMods = table.copy(initial_mods)
 end
 
 local function ModManagerClose(dialog)
 	dialog:SetMode("")
-	SaveAccountStorage()
-	mods_loaded = nil
-	initial_mods = nil
+	SaveAccountStorage(5000)
+	g_InitialMods = false
 end
 
 function ModManagerEnd(dialog)
-	local load_mods = AccountStorage.LoadMods
-	local mods_changed = (#(load_mods or "") > 0 or #(initial_mods or "") > 0) and (not table.is_isubset(load_mods, initial_mods) or not table.is_isubset(initial_mods, load_mods))
-	local mod_count = #load_mods
-	if (mods_loaded and mods_changed) or mod_count > 0 then
+	local new_mods = AccountStorage.LoadMods or empty_table
+	if not table.is_iequal(new_mods, g_InitialMods or empty_table) then
 		dialog:DeleteThread("warning")
 		dialog:CreateThread("warning", function()
-			local res = true
-			if mod_count > 0 then
-				res = WaitMarsQuestion(dialog, 
+			local exit_choice = true
+			if #new_mods > 0 then
+				local choice = WaitMarsQuestion(dialog, 
 							T{6899, "Warning"}, 
 							T{4164, "Mods are player created software packages that modify your game experience. USE THEM AT YOUR OWN RISK! We do not examine, monitor, support or guarantee this user created content. You should take all precautions you normally take regarding downloading files from the Internet before using mods."}, 
 							T{6900, "OK"}, 
 							T{4165, "Back"}
-						) == "ok"
+				)
+				exit_choice = (choice == "ok")
 			end
-			if res then
-				if mods_loaded and mods_changed then
-					if WaitMarsQuestion(dialog, T{6899, "Warning"}, T{8496, "Activating or deactivating mods requires a restart."}, T{8080, "Restart"}, T{3687, "Cancel"}) == "ok" then
-						WaitSaveAccountStorage()
-						quit("restart")
-					else
-						AccountStorage.LoadMods = table.copy(initial_mods)
-						UpdateModsList(dialog)
-					end
-				else
-					ModManagerClose(dialog)
-				end
+			if exit_choice then
+				SaveAccountStorage(5000)
+				ModsReloadItems()
+				ModManagerClose(dialog)
 			end
 		end)
 	else

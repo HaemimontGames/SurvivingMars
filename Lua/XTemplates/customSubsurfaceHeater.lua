@@ -7,7 +7,7 @@ PlaceObj('XTemplate', {
 		'__context_of_kind', "SubsurfaceHeater",
 		'__template', "InfopanelSection",
 		'RolloverText', T{428, --[[XTemplate customSubsurfaceHeater RolloverText]] "Increasing the area of effect will greatly increase the Water consumption of the building.<newline><newline>Service range<right><SelectionRadiusScale> hexes"},
-		'RolloverHintGamepad', T{253409130526, --[[XTemplate customSubsurfaceHeater RolloverHintGamepad]] "<LB> / <RB>    decrease / increase service radius"},
+		'RolloverHintGamepad', T{253409130526, --[[XTemplate customSubsurfaceHeater RolloverHintGamepad]] "<LB> / <RB>    change service radius"},
 		'Title', T{994862568830, --[[XTemplate customSubsurfaceHeater Title]] "Service area"},
 		'Icon', "UI/Icons/Sections/facility.tga",
 	}, {

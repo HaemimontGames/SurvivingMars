@@ -26,8 +26,8 @@ end,
 CreateRealTimeThread(function(self, mode, mode_param)
 	local loading_screen_opened = false
 	if not self.context.initialized then
-		local savegame_count = WaitCountSaveGames()
-		if savegame_count > 15 then
+		local open_screen = Platform.console or WaitCountSaveGames() > 15
+		if open_screen then
 			loading_screen_opened = true
 			LoadingScreenOpen("idLoadingScreen", "save load")
 		end
@@ -56,13 +56,6 @@ end,
 		PlaceObj('XTemplateFunc', {
 			'name', "OnShortcut(self, shortcut, source)",
 			'func', function (self, shortcut, source)
-if shortcut == "MouseWheelFwd" or shortcut == "Pageup" then
-	self.idScroll:PreviousPage()
-	return "break"
-elseif shortcut == "MouseWheelBack" or shortcut == "Pagedown" then
-	self.idScroll:NextPage()
-	return "break"
-end
 return XDialog.OnShortcut(self, shortcut, source)
 end,
 		}),
@@ -72,6 +65,13 @@ end,
 			'Dock', "box",
 			'Image', "UI/Menu Background 01.tga",
 			'ImageFit', "largest",
+		}),
+		PlaceObj('XTemplateWindow', {
+			'__condition', function (parent, context) return not GameState.gameplay end,
+			'Dock', "box",
+			'Background', RGBA(8, 17, 39, 130),
+			'FadeInTime', 500,
+			'FadeOutTime', 500,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__condition', function (parent, context) return not GameState.gameplay end,

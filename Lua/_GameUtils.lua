@@ -78,9 +78,8 @@ function FormatNone(value)
 	return value
 end
 
-function FormatPercent(value, max, context_obj)
-	if not context_obj then
-		context_obj = max
+function FormatPercent(context_obj, value, max)
+	if not max then
 		return T{4834, "<percentage>%", percentage = value, context_obj}
 	else
 		local percent = MulDivRound(value, 100, max)
@@ -134,11 +133,11 @@ local ForcedIntegerResources = {
 	["Research"] = true,
 }
 
--- FormatResourceValueMaxResource(value, context_obj) -> value/const.ResourceScale
--- FormatResourceValueMaxResource(value, resource, context_obj) -> value/const.ResourceScale .. [resource icon]
--- FormatResourceValueMaxResource(value, max, resource, context_obj) -> value/const.ResourceScale .. "/" .. max/const.ResourceScale .. [resource icon]
+-- FormatResourceValueMaxResource(context_obj, value ) -> value/const.ResourceScale
+-- FormatResourceValueMaxResource(context_obj, value, resource) -> value/const.ResourceScale .. [resource icon]
+-- FormatResourceValueMaxResource(context_obj, value, max, resource ) -> value/const.ResourceScale .. "/" .. max/const.ResourceScale .. [resource icon]
 
-function FormatResourceValueMaxResource(value, max, resource, context_obj)
+function FormatResourceValueMaxResource(context_obj, value, max, resource)
 	if not value then return "" end
 	
 	local value_sign = value ~= 0 and abs(value)/value or 1
@@ -146,20 +145,10 @@ function FormatResourceValueMaxResource(value, max, resource, context_obj)
 	local value_frac = MulDivRound(value, 10, rs) % 10
 	local value_int = MulDivRound(value, 10, rs)/10
 	
-	if not context_obj then
+	if not resource then
 		-- three arguments or less
-		if resource then
-			-- value, resource, context_object, nil
-			context_obj = resource
+		if max then
 			resource = max
-		else	
-			if type(max) == "string" then
-				-- value, resource, nil, nil
-				resource = max
-			else
-				-- value, context_object, nil, nil
-				context_obj = max
-			end
 		end
 		max = false
 	end
@@ -191,21 +180,32 @@ function FormatResourceValueMaxResource(value, max, resource, context_obj)
 end
 
 FormatResource = FormatResourceValueMaxResource
-FormatResourceIcon = FormatResourceValueMaxResource
 
-function FormatInt(value, precision)
+function FormatInt(value, precision, size)
 	if value < 1000 then
+		if size then
+			return T{10465, "<value>B", value = value}
+		end
 		return Untranslated(value)
 	end
 	
 	if value<1000000 then
 		local dev = 1000
 		if not precision or precision == 0 then
+			if size then
+				return T{10466, "<value>kB", value = value / dev}
+			end
 			return T{4847, "<value>k", value = value / dev}
 		elseif precision == 1 then
+			if size then
+				return T{10467, "<value>.<rem>kB", value = value / dev, rem = (value%dev)/(dev/10)}
+			end
 			return T{4848, "<value>.<rem>k", value = value / dev, rem = (value%dev)/(dev/10)}
 		elseif precision == 2 then
 			local rem = (value%dev)/(dev/100)
+			if size then
+				return T{10467, "<value>.<rem>kB", value = value / dev, rem = rem>0 and rem or Untranslated("00")}
+			end
 			return T{4849, "<value>.<rem>K", value = value / dev, rem = rem>0 and rem or Untranslated("00")}
 		else
 			assert(false, "FormatInt: precision not supported")
@@ -213,11 +213,20 @@ function FormatInt(value, precision)
 	elseif value<1000000000 then
 		local dev = 1000000
 		if not precision or precision == 0 then
+			if size then
+				return T{10468, "<value>MB", value = value / dev}
+			end
 			return T{4850, "<value>M", value = value / dev}
 		elseif precision == 1 then
+			if size then
+				return T{10469, "<value>.<rem>MB", value = value / dev, rem = (value%dev)/(dev/10)}
+			end
 			return T{4851, "<value>.<rem>M", value = value / dev, rem = (value%dev)/(dev/10)}
 		elseif precision == 2 then
 			local rem = (value%dev)/(dev/100)
+			if size then
+				return T{10469, "<value>.<rem>MB", value = value / dev, rem = rem>0 and rem or Untranslated("00")}
+			end
 			return T{4851, "<value>.<rem>M", value = value / dev, rem = rem>0 and rem or Untranslated("00")}
 		else
 			assert(false, "FormatInt: precision not supported")
@@ -225,17 +234,29 @@ function FormatInt(value, precision)
 	else
 		local dev = 1000000000
 		if not precision or precision == 0 then
+			if size then
+				return T{10470, "<value>GB", value = value / dev}
+			end
 			return T{4852, "<value>G", value = value / dev}
 		elseif precision == 1 then
+			if size then
+				return T{10471, "<value>.<rem>GB", value = value / dev, rem = (value%dev)/(dev/10)}
+			end
 			return T{4853, "<value>.<rem>G", value = value / dev, rem = (value%dev)/(dev/10)}
 		elseif precision == 2 then
 			local rem = (value%dev)/(dev/100)
+			if size then
+				return T{10471, "<value>.<rem>GB", value = value / dev, rem = rem>0 and rem or Untranslated("00")}
+			end
 			return T{4853, "<value>.<rem>G", value = value / dev, rem = rem>0 and rem or Untranslated("00")}
 		else
 			assert(false, "FormatInt: precision not supported")
 		end		
 	end
-	
+end
+
+function FormatSize(value, precision)
+	return FormatInt(value, precision, true)
 end
 
 function FormatSignInt(value, precision)
@@ -256,25 +277,20 @@ end
 
 local function FormatResourceFn(format_id,resource)
  TFormat[format_id] = 
-	function(value, max, context_obj) 
-		if context_obj then
-			return FormatResourceValueMaxResource(value, max, resource, context_obj) 
-		else
-			return FormatResourceValueMaxResource(value, resource, max) 			
-		end
+	function(context_obj, value, max) 
+		return FormatResourceValueMaxResource(context_obj, value, max, resource) 
 	end
 end
 
-TFormat.FormatPercent =  function(...)
+TFormat.FormatPercent = function(...)
 	assert(false, "Obsolete format function. Use 'percent' function instead.")
 	return FormatPercent(...)
 end	
-TFormat.FormatResource = function(...)
+TFormat.FormatResource = function( ...)
 	assert(false, "Obsolete format function. Use specific resource function instead.")
 	return FormatResourceValueMaxResource(...)
 end	
-TFormat.FormatResourceIcon = 
- function(...)
+TFormat.FormatResourceIcon = function(...)
 	assert(false, "Obsolete format function. Use specific resource function instead.")
 	return FormatResourceValueMaxResource(...)
 end
@@ -287,13 +303,13 @@ function FormatResourceName(resource)
 	return invalid_resource
 end
 
-TFormat.FormatDuration = FormatDuration
-TFormat.percent = FormatPercent
-TFormat.resource = function(param1,...)
+TFormat.FormatDuration = function(context_obj, ...) return FormatDuration(...) end
+TFormat.percent = function(...) return FormatPercent(...) end
+TFormat.resource = function(context_obj, param1,...)
 	if type(param1)=="string" then
 		return FormatResourceName(param1)
 	else
-		return FormatResourceValueMaxResource(param1,...)
+		return FormatResourceValueMaxResource(context_obj, param1,...)
 	end
 end
 FormatResourceFn("water", "Water")
@@ -324,52 +340,35 @@ TFormat.FormatResourceName = function(...)
 	return TFormat.resource(...)
 end	
 
-function ChangeFormat()
-	local files = io.listfiles("Lua/", "*.lua", "recursive") 
-	for _, fn in pairs(files) do
-		local f, err = io.open(fn,"r")
-		if f then
-			
-			io.close(f)
-		end
-	end
-end
 
-	
-TFormat.FormatIndex = FormatIndex
---TFormat.FormatResourceIconSmall= FormatResourceIconSmallDecimal
-
---TFormat.FormatResourceDecimal= FormatResourceDecimal
---TFormat.FormatResourceIconDecimal= FormatResourceIconDecimal
---TFormat.FormatResourceIconDecimal= FormatResourceIconDecimal
-TFormat.FormatAsFloat = FormatAsFloat
-TFormat.FormatInt     = FormatInt
-TFormat.FormatSignInt = FormatSignInt
-TFormat.FormatScale   = FormatScale
+TFormat.FormatIndex   = function(context_obj,...) return FormatIndex(...)   end
+TFormat.FormatAsFloat = function(context_obj,...) return FormatAsFloat(...) end
+TFormat.FormatInt     = function(context_obj,...) return FormatInt(...)     end
+TFormat.FormatSize    = function(context_obj,...) return FormatSize(...)    end
+TFormat.FormatSignInt = function(context_obj,...) return FormatSignInt(...) end
+TFormat.FormatScale   = function(context_obj,...) return FormatScale(...)   end
 TFormat.Sol = function() return UICity and UICity.day or 0 end
-TFormat.ColonistName = function(x) 
+TFormat.ColonistName = function(context_obj, x) 
 	if not x or not IsKindOf(x, "Colonist") then
 		printf("Invalid argument supplied to ColonistName(): %s", tostring(x))
 		return ""
 	end
 	return x:GetDisplayName()
 end
-TFormat.ResearchPoints = function(points, context_obj)
+TFormat.ResearchPoints = function(context_obj, points)
 	return T{4856, "<em><points><image UI/Icons/res_experimental_research.tga></em>", points = points}
-	--return T{"<points><imagescale 650><image UI/Icons/Research/research_2.tga>", points = points}
 end
-TFormat.time = function(time, context_obj)
+TFormat.time = function(context_obj, time)
 	return FormatDuration((time or 0) / const.HourDuration)
-	--return T{"<points><imagescale 650><image UI/Icons/Research/research_2.tga>", points = points}
 end
-TFormat.TraitName = function(x)
+TFormat.TraitName = function(context_obj,x)
 	if not x then return "" end
-	local trait = DataInstances.Trait[x]
+	local trait = TraitPresets[x]
 	if not trait then return "" end
 	return trait.display_name
 end
 
-TFormat.funding = function(x)
+TFormat.funding = function(context_obj,x)
 	local div, suffix
 	if not x then return end
 	if x < 1000 then
@@ -395,21 +394,11 @@ TFormat.FormatFunding = function(...)
 	return TFormat.funding(...)
 end
 
-function TFormat.sum(sum, prop, obj)
-	sum = tonumber(sum) or 0
-	assert(prop and prop:sub(1, 1) ~= '"') -- prop includes "" - use single quotes for literal function parameters
-	for _, item in ipairs(obj or empty_table) do
-		sum = sum + (GetProperty(item, prop) or 0)
-	end
-	return sum
-end
-
-function TFormat.def(value, default)
-	return value or default
-end
-
-function TFormat.count(value)
-	return type(value) == "table" and #value or 0
+TFormat.display_name = function(context_obj, presets_table, value, field)
+	value = value and _InternalTranslate(value or "", context_obj, false)
+	presets_table = Presets[presets_table] and Presets[presets_table].Default or rawget(_G, presets_table)
+	local preset = presets_table[value]
+	return preset and preset[field or "display_name"] or value
 end
 
 ------------------------------------------------------------------------------------------
@@ -446,24 +435,10 @@ function BuildCategoriesCombo()
 	return list
 end
 
-function NotificationPresetsCombo()
-	local items = {}
-	local templates = DataInstances.OnScreenNotificationPreset or ""
-	for i = 1, #templates do
-		local template = templates[i]
-		items[#items + 1] = template.name
-	end
-	table.sort(items)
-	table.insert(items, 1, "")
-	return items
-end
-
 function BuildingsCombo()
 	local items = {}
-	local templates = DataInstances.BuildingTemplate or ""
-	for i = 1, #templates do
-		local template = templates[i]
-		items[#items + 1] = {value = template.name, text = template.display_name}
+	for id, template in pairs(BuildingTemplates or "") do
+		items[#items + 1] = {value = id, text = template.display_name}
 	end
 	TSort(items, "text")
 	table.insert(items, 1, "")
@@ -474,18 +449,6 @@ function TechCombo()
 	local items = {}
 	for id, tech in pairs(TechDef) do
 		items[#items + 1] = {value = id, text = tech.display_name}
-	end
-	TSort(items, "text")
-	table.insert(items, 1, {value = "", text = ""})
-	return items
-end
-
-function CropsCombo()
-	local items = {}
-	local crops = DataInstances.Crop
-	for i = 1, #crops do
-		local crop = crops[i]
-		items[#items + 1] = {value = crop.name, text = crop.DisplayName}
 	end
 	TSort(items, "text")
 	table.insert(items, 1, {value = "", text = ""})
@@ -516,7 +479,7 @@ function TraitsCombo(category, city, traitsonly)
 	local nonerare, rare = GetCompatibleTraits({}, {}, {}, category)
 	local traits = {{value = "", text = ""}}
 	for i=1,#nonerare do
-		local trait = DataInstances.Trait[nonerare[i]]
+		local trait = TraitPresets[nonerare[i]]
 		local name = trait.name
 		if not traitsonly or not const.ColonistSpecialization[name] then
 			if not city or IsTraitAvailable(trait, city) then
@@ -525,7 +488,7 @@ function TraitsCombo(category, city, traitsonly)
 		end
 	end
 	for i=1,#rare do
-		local trait = DataInstances.Trait[rare[i]]
+		local trait = TraitPresets[rare[i]]
 		if not city or IsTraitAvailable(trait, city) then
 			traits[#traits+1] = { value = trait.name, text = trait.display_name }
 		end
@@ -538,13 +501,13 @@ function PositiveTraitsCombo(city)
 end
 
 function BuildingTraitsCombo(object, TraitsList)
-	local data_instances = DataInstances.Trait
+	local trait_presets = TraitPresets
 	local traits = {}
 	local city = object and object:HasMember("city") and object.city -- don't filter locked traits if there's no object given
 	for _, trait_id in ipairs(TraitsList) do
-		if data_instances[trait_id] then
+		if trait_presets[trait_id] then
 			if not city or IsTraitAvailable(trait_id, city) then
-				traits[#traits + 1 ]={value = trait_id, text = data_instances[trait_id].display_name}
+				traits[#traits + 1 ]={value = trait_id, text = trait_presets[trait_id].display_name}
 			end
 		else
 			print("once", "Invalid trait  in ",object.class .." - ".. trait_id)
@@ -570,7 +533,7 @@ function BaseTraitsCombo(city, add_empty)
 	table.append(traits, TraitsCombo("Negative", city))
 	table.append(traits, TraitsCombo("other", city))
 	traits = table.ifilter(traits, function(idx, t) 
-		local trait = DataInstances.Trait[t.value] 
+		local trait = TraitPresets[t.value] 
 		return trait and t.value ~= "" and trait.auto and not g_HiddenTraitsDefault[t.value] 
 	end)
 	
@@ -579,6 +542,14 @@ function BaseTraitsCombo(city, add_empty)
 	end
 	
 	return traits
+end
+
+function SponsorGoalsCombo()
+	return table.keys2(SponsorGoalsMap, true, "")
+end
+
+function RewardsCombo()
+	return table.keys2(RewardsMap, true, "")
 end
 
 function ModifiablePropsCombo()
@@ -730,14 +701,14 @@ function RomanNumeral(number)
     if number >= 1 then return "I" .. RomanNumeral(number - 1) end
 end
 
-function TFormat.roman(number)
+function TFormat.roman(context_obj, number)
 	if number then
 		return Untranslated(RomanNumeral(number))
 	end
 	return ""
 end
 
-function TFormat.abs(number)
+function TFormat.abs(context_obj, number)
 	if type(number) == "number" then
 		return abs(number)
 	else
@@ -746,21 +717,21 @@ function TFormat.abs(number)
 	end
 end
 
-function TFormat.cut_if_platform(platform)
+function TFormat.cut_if_platform(context_obj, platform)
 	if Platform[platform] then
 		return false
 	end
 	return ""
 end
 
-function TFormat.cut_if_not_platform(platform)
+function TFormat.cut_if_not_platform(context_obj, platform)
 	if not Platform[platform] then
 		return false
 	end
 	return ""
 end		
 
-function TFormat.opt_amount(amount)
+function TFormat.opt_amount(context_obj, amount)
 	amount = tonumber(amount)
 	if type(amount) ~= "number" or amount == 0 then return "" end
 	if amount < 0 then
@@ -770,14 +741,39 @@ function TFormat.opt_amount(amount)
 	end
 end
 
-function TFormat.opt_percent(percent)
+function TFormat.opt_percent(context_obj, percent)
 	percent = tonumber(percent)
 	if type(percent) ~= "number" or percent == 0 then return "" end
 	local pattern = percent < 0 and "%d%%" or "+%d%%"
 	return Untranslated(string.format(pattern, percent))
 end
 
-function EdgeAnimation(bReverce, ctrl, offsetx, offsety, time)
+-- "<on_off(IsResourceAvailable(res))>"
+TFormat.on_off = function (context_obj, var)
+	return (var and var ~= "") and T{6772, "<green>ON</green>"} or T{6771, "<red>OFF</red>"}
+end
+
+TFormat.has_dlc = function (context_obj, dlc)
+	return IsDlcAvailable(dlc)
+end
+
+TFormat.is_sponsor = function (context_obj, sponsor_name)
+	return GetMissionSponsor().id == sponsor_name
+end
+
+TFormat.is_commander = function (context_obj, commander_profile)
+	return GetCommanderProfile().id == commander_profile
+end
+
+TFormat.rule = function (context_obj, rule)
+	return IsGameRuleActive(rule)
+end
+
+TFormat.EasyMaintenanceText = function (context_obj, add)
+	return T{10557, "<if(rule('EasyMaintenance'))><add><newline><em>Easy Maintenance</em> - malfunctions are suppressed.</if>", add = add and Untranslated("<newline>") or ""}
+end
+
+function EdgeAnimation(bReverse, ctrl, offsetx, offsety, time)
 	local endrect = sizebox(point(ctrl.box:minx() + (offsetx or 0), ctrl.box:miny() + (offsety or 0)), ctrl.box:size())
 	if ctrl.box:IsValid() then
 		ctrl:AddInterpolation{
@@ -786,9 +782,9 @@ function EdgeAnimation(bReverce, ctrl, offsetx, offsety, time)
 			duration = time or const.InterfaceAnimDuration,
 			startRect = ctrl.box,
 			endRect = endrect,
-			flags = bReverce and const.intfInverse or nil,
+			flags = bReverse and const.intfInverse or nil,
 			autoremove = true,
-			easing = bReverce and const.Easing.SinOut or const.Easing.SinIn,
-		}		
+			easing = bReverse and const.Easing.SinOut or const.Easing.SinIn,
+		}
 	end
 end

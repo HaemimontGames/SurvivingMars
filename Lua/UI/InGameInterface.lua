@@ -195,8 +195,8 @@ function InGameInterface:Open(...)
 	self:SetFocus()
 	self:SetMode("selection")
 	ShowMouseCursor("InGameInterface")
-	OpenXDialog("HUD", self, UICity)
-	OpenXDialog("OnScreenIndication", self)
+	OpenDialog("HUD", self, UICity)
+	OpenDialog("OnScreenIndication", self)
 	
 	HideGamepadCursorReasons = false
 	if GetUIStyleGamepad() then 
@@ -206,13 +206,13 @@ function InGameInterface:Open(...)
 			dlg:SetParent(self)
 		end
 	end
-	local popup = GetXDialog("PopupNotification")
+	local popup = GetDialog("PopupNotification")
 	if popup and popup.parent ~= self then
 		popup:SetParent(self)
 		popup:SetFocus()
 		popup:SetModal()
 	end
-	local infopanel = GetXDialog("Infopanel")
+	local infopanel = GetDialog("Infopanel")
 	if infopanel and infopanel.parent ~= self then
 		infopanel:SetParent(self)
 	end
@@ -226,6 +226,10 @@ end
 function InGameInterface:Close(...)
 	XDialog.Close(self, ...)
 	HideMouseCursor("InGameInterface")
+	InGameInterfaceMode = false
+end
+
+function OnMsg.ChangeMap()
 	InGameInterfaceMode = false
 end
 
@@ -297,7 +301,7 @@ function InGameInterface:OnXButtonDown(button, controller_id)
 		if self.mode_dialog:OnXButtonDown(button, controller_id)=="break" then
 			return "break"
 		end
-		local dlg = GetXDialog("Infopanel")
+		local dlg = GetDialog("Infopanel")
 		if dlg and IsKindOf(dlg.context,"ResourceOverview") then
 			return ResourceOverviewObj:OnShortcut(button)
 		end
@@ -320,20 +324,13 @@ function InGameInterface:OnShortcut(shortcut, source)
 			return "break"
 		end	
 	end
-	local dlg = GetXDialog("Infopanel")
+	local dlg = GetDialog("Infopanel")
 	if dlg and IsKindOf(dlg.context,"ResourceOverview") then
 		return ResourceOverviewObj:OnShortcut(shortcut, source)
 	end
 end
 
-function InGameInterface:OnDesktopSize()
-	local children = self.children
-	for i, child in ipairs(children) do
-		if child:IsKindOf("Window") then
-			child:SetWindowScale(GetUIScale())
-			Window.OnDesktopSize(child)
-		end
-	end
+function OnMsg.SystemSize()
 	if GetUIStyleGamepad() then
 		HideGamepadCursor()
 		ShowGamepadCursor()
@@ -359,7 +356,7 @@ function InGameInterface:SetMode(mode, params)
 	local class_name = IGIModeClasses[mode]
 	local class = class_name and g_Classes[class_name]
 	assert(class and class:IsKindOf("InterfaceModeDialog"))
-	self.mode_dialog = OpenXDialog(class_name, self, params)
+	self.mode_dialog = OpenDialog(class_name, self, params)
 	self.mode = mode
 	InGameInterfaceMode = mode
 	if IsKindOfClasses(SelectedObj, "DroneBase", "Colonist") and self.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
@@ -391,21 +388,20 @@ function InGameInterface:SetVisible(bShow, instant)
 	else
 		HideGamepadCursor("ingame_interface_hidden")
 	end
-	UpdateCrosshairVisibility()
 end
 
 function InGameInterface:OnSetFocus()
-	local pins = GetXDialog("PinsDlg")
+	local pins = GetDialog("PinsDlg")
 	if pins then pins:UpdateGamepadHint() end
 end
 
 function InGameInterface:OnKillFocus()
-	local pins = GetXDialog("PinsDlg")
+	local pins = GetDialog("PinsDlg")
 	if pins then pins:UpdateGamepadHint() end
 end
 
 function GetInGameInterface()
-	return GetXDialog("InGameInterface")
+	return GetDialog("InGameInterface")
 end
 
 function GetInGameInterfaceMode()
@@ -424,15 +420,15 @@ function ShowInGameInterface(bShow, instant)
 	if not bShow and not GetInGameInterface() then 
 		return
 	end
-	local dlg = OpenXDialog("InGameInterface")
+	local dlg = OpenDialog("InGameInterface")
 	dlg:SetVisible(bShow, instant)
 	dlg.desktop:RestoreFocus()
 end
 
 -- deactivate mode dialog and set it to select
-function CloseModeDialog()
+function CloseModeDialog(mode)
 	local igi = GetInGameInterface()
-	if igi then
+	if igi and (not mode or igi.mode == mode) then
 		local dlg = GetHUD()
 		if dlg then dlg.idtxtConstructionStatus:SetVisible(false) end
 		igi:SetMode("selection")
@@ -499,7 +495,7 @@ function OnGameEnterEditor()
 		if dlg and IsValid(dlg.sector_obj) then
 			dlg.sector_obj:ClearEnumFlags(const.efVisible)
 		end
-		local dlgOverviewMapCurtains = GetXDialog("OverviewMapCurtains")
+		local dlgOverviewMapCurtains = GetDialog("OverviewMapCurtains")
 		if dlgOverviewMapCurtains then
 			dlgOverviewMapCurtains:SetVisible(false)
 		end
@@ -516,11 +512,11 @@ function OnGameExitEditor()
 		local dlg = GetInGameInterfaceModeDlg()
 		LockCamera("overview")
 		ShowExploration()
-		if IsValid(dlg.sector_obj) then
+		if dlg and IsValid(dlg.sector_obj) then
 			dlg.sector_obj:SetEnumFlags(const.efVisible)
 			dlg:OnMousePos()
 		end
-		local dlgOverviewMapCurtains = GetXDialog("OverviewMapCurtains")
+		local dlgOverviewMapCurtains = GetDialog("OverviewMapCurtains")
 		if dlgOverviewMapCurtains then
 			dlgOverviewMapCurtains:SetVisible(true)
 		end
@@ -605,7 +601,7 @@ function RestoreInGameInterfaceOnLoadGame()
 	SelectObj()
 	
 	ShowNotifications()
-	OpenXDialog("PinsDlg", GetInGameInterface())
+	OpenDialog("PinsDlg", GetInGameInterface())
 	local time_factor = GetTimeFactor()
 	SetTimeFactor(time_factor)
 	GetOnScreenHintDlg()
@@ -618,15 +614,15 @@ function RestoreInGameInterfaceOnLoadGame()
 end
 
 function CloseMenuDialogs()
-	local menu = GetXDialog("IGMainMenu") or GetXDialog("PGMainMenu")
+	local menu = GetDialog("IGMainMenu") or GetDialog("PGMainMenu")
 	if menu and menu.window_state ~= "destroying" then
-		CloseXDialog(menu)
+		CloseDialog(menu)
 	end
 end
 
 function ToggleOverviewMode()
 	local dlg = GetInGameInterface()
-	if dlg and not CameraTransitionThread and not Dialogs.EarthPlanetDlg then
+	if dlg and not CameraTransitionThread then
 		dlg:SetMode(dlg.mode == "overview" and "selection" or "overview")
 	end
 end

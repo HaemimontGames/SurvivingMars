@@ -36,7 +36,6 @@ DefineClass.RequiresMaintenance = {
 	accumulate_maintenance_points = true, --whether we are currently accumulating pnts. always true in current design
 	accumulate_dust = true, --generally, adding dust translates to AccumulateMaintenancePoints, but some special cases (solar, stirling) bld should accum maintenance pnts, but ignore dust accum
 	
-	last_maintenance_points_accumulation_ts = false, --when we generated maintenance pnts for the last time
 	last_enter_maintenance_mode_ts = false, --when last maintenance request began (could be user/auto)
 	last_maintenance_points_full_ts = false, --when maintenance pnts reached threshold
 	last_maintenance_serviced_ts = false, --when mainenance cycle was completed for the last time.
@@ -44,6 +43,7 @@ DefineClass.RequiresMaintenance = {
 	maintenance_phase = false, --false, "demand", "work"
 	
 	is_malfunctioned = false, --no work possible
+	is_need_maintenance = false, -- for game rule "Easy Maintenatce"
 	
 	maintenance_request_lookup = false,
 	maintenance_work_request = false,
@@ -64,18 +64,6 @@ function RequiresMaintenance.AddResourceRepairWorkReqOverride(req, add)
 	end
 end
 ]]
-function GetMaintenancePntsAccumulation(maintenance_accumulation_per_hour, current, max, now, last_update_ts)
-	local t_delta = now - last_update_ts
-	if t_delta > const.HourDuration then --just don't update when less to avoid rounding down to 0 for vry fast updates
-		local accum = MulDivRound(maintenance_accumulation_per_hour, t_delta, const.HourDuration)
-		if accum > 0 then
-			accum = Min(accum, max - current)
-		elseif accum < 0 then
-			accum = Max(accum, -current)
-		end
-		return accum
-	end
-end
 
 function RequiresMaintenance:OnModifiableValueChanged(prop)
 	if prop == "disable_maintenance" then
@@ -125,80 +113,65 @@ function RequiresMaintenance:DoesRequireMaintenance()
 end
 
 function RequiresMaintenance:BuildingUpdate(delta, day, hour)
-	if not self:IsMalfunctioned() then
-		if not self.last_maintenance_points_full_ts then --not in maintenance mode
-			self:AccumulateMaintenancePoints()
-		elseif GameTime() - self.last_maintenance_points_full_ts >= const.DayDuration then
-			--should malf within 1 sol
+	if self:IsMalfunctioned() then
+		return
+	end
+	if not self.last_maintenance_points_full_ts then --not in maintenance mode
+		if self.accumulate_maintenance_points then
+			local accum = MulDivRound(self.maintenance_build_up_per_hr, delta * g_Consts.BuildingMaintenancePointsModifier, const.HourDuration * 100)
+			self:AccumulateMaintenancePoints(accum)
+		end
+	elseif (GameTime() - self.last_maintenance_points_full_ts >= const.DayDuration) then --should malf within 1 sol
+		if IsGameRuleActive("EasyMaintenance") then -- Buildings don't malfunction from maintenance
+			self:SetNeedsMaintenanceState()
+		else
 			self:SetMalfunction()
 		end
 	end
 end
 
 function RequiresMaintenance:AddDust(amount)
-	--generally, adding dust translates to AccumulateMaintenancePoints, 
-	--but some special cases (solar, stirling) bld should accum maintenance pnts, but ignore dust accum.
-	--hence the separate method.
+	if not self.accumulate_dust or not self.accumulate_maintenance_points then
+		return
+	end
 	if self:IsKindOf("Building") then
-		amount = MulDivRound(amount, g_Consts.BuildingDustModifier, 100)
+		amount = MulDivRound(amount, g_Consts.BuildingDustModifier * g_Consts.BuildingMaintenancePointsModifier, 100 * 100)
 	end
-	if self.accumulate_dust then
-		self:AccumulateMaintenancePoints(amount)
-	end
-end
-
-function RequiresMaintenance:SetAccumulateMaintenancePoints(val)
-	if val == self.accumulate_maintenance_points then return end
-	--when playing around with this toggle, update the ts as well so that next update doesn't accum the entire missing amount.
-	self.accumulate_maintenance_points = val
-	if val then
-		self.last_maintenance_points_accumulation_ts = GameTime()
-	else
-		assert(self.maintenance_request_lookup ~= false, "Early accumulate_maintenance_points toggle will prevent maintenance request initialization")
-		self.last_maintenance_points_accumulation_ts = false
-	end
+	self:AccumulateMaintenancePoints(amount)
 end
 
 function RequiresMaintenance:DeduceAndReapplyDustVisualsFromState()
 	self:SetDustVisualsPerc(self:GetDustPerc())
 end
 
-function RequiresMaintenance:AccumulateMaintenancePoints(amount)
-	if self.accumulate_maintenance_points then
-		--accumulate maintenance pnts.
-		local now = GameTime()
-		local accum = amount or GetMaintenancePntsAccumulation(self.maintenance_build_up_per_hr, 
-																self.accumulated_maintenance_points, self.maintenance_threshold_current,
-																now, (self.last_maintenance_points_accumulation_ts or now))
-		if accum and accum ~= 0 then
-			if not amount then --auto accum, mark it.
-				self.last_maintenance_points_accumulation_ts = now
-			end
-			
-			accum = MulDivRound(accum, g_Consts.BuildingMaintenancePointsModifier, 100)
-			
-			self.accumulated_maintenance_points = Clamp(self.accumulated_maintenance_points + accum, 0, self.maintenance_threshold_current)
-			self:SetDustVisualsPerc(self:GetDustPerc())
-			
-			if self.maintenance_phase and self.maintenance_phase == "work" then --if we are in maintenance phase keep the req in sync
-				self.maintenance_work_request:AddAmount(accum)
-				if self.maintenance_work_request:GetActualAmount() <= 0 then
-					--we got repaired by a scrubber.
-					self:Repair()
-				end
-			end
-			
-			if self.accumulated_maintenance_points >= self.maintenance_threshold_current then
-				self:OnMaintenanceThresholdReached()
+function SavegameFixups.RepairMaintenanceState()
+	MapForEach(true, "RequiresMaintenance", function(o)
+					if o.is_malfunctioned and not o.maintenance_phase then
+						o:AccumulateMaintenancePoints(o.maintenance_threshold_current)
+					end
+				end)
+end
+
+function RequiresMaintenance:AccumulateMaintenancePoints(new_points)
+	new_points = new_points or 0
+	local prev_accum = self.accumulated_maintenance_points
+	self.accumulated_maintenance_points = Clamp(prev_accum + new_points, 0, self.maintenance_threshold_current)
+	local delta_accum = self.accumulated_maintenance_points - prev_accum
+	if delta_accum ~= 0 then
+		self:SetDustVisualsPerc(self:GetDustPerc())
+		if self.maintenance_phase and self.maintenance_phase == "work" then --if we are in maintenance phase keep the req in sync
+			self.maintenance_work_request:AddAmount(delta_accum)
+			if self.maintenance_work_request:GetActualAmount() <= 0 then
+				--we got repaired by a scrubber.
+				self:Repair()
 			end
 		end
 	end
-end
-
-function RequiresMaintenance:OnMaintenanceThresholdReached()
-	self.last_maintenance_points_full_ts = self.last_maintenance_points_full_ts or GameTime()
-	if not self.maintenance_phase then --if we havn't requested..
-		self:RequestMaintenance()
+	if self.accumulated_maintenance_points >= self.maintenance_threshold_current then
+		self.last_maintenance_points_full_ts = self.last_maintenance_points_full_ts or GameTime()
+		if not self.maintenance_phase then --if we havn't requested..
+			self:RequestMaintenance()
+		end
 	end
 end
 
@@ -248,23 +221,42 @@ function RequiresMaintenance:GetDustPerc()
 	return self.is_malfunctioned and 100 or self.maintenance_threshold_current ~= 0 and MulDivRound(self.accumulated_maintenance_points, 70, self.maintenance_threshold_current) or 0
 end
 
+local function MaintenanceNeededParamFunc(displayed_in_notif)
+	local rollover_text = GetBuildingsParamInNotification(displayed_in_notif) or empty_table
+	return {count = #displayed_in_notif, rollover_title = T{10878, "Maintenance needed"}, rollover_text = rollover_text}
+end
+
+GlobalVar("g_MaintenanceNeededBuildings", {})
+GlobalGameTimeThread("MaintenanceNeededNotif", function()
+	HandleNewObjsNotif(g_MaintenanceNeededBuildings, "MaintenanceNeeded", nil, MaintenanceNeededParamFunc)
+end)
+
+-- 'needs maintenance state' replaces the malfunctin state for buildings that needs resources for maintenance and "Easy Maintenace" gamerule is active
+function RequiresMaintenance:SetNeedsMaintenanceState()
+	if not self:DoesRequireMaintenance() then return end
+	if not (self:IsMalfunctioned() or self.is_need_maintenance) then
+		self.is_need_maintenance = true	
+		table.insert_unique(g_MaintenanceNeededBuildings, self)
+		
+		self:AttachSign(true, "SignMalfunction")
+		self:AccumulateMaintenancePoints(self.maintenance_threshold_current)
+		
+		RebuildInfopanel(self)
+	end
+end
+
 function RequiresMaintenance:SetMalfunction()
+	self.is_need_maintenance= false -- when malfunction by other reason than resources make real malfunction and reset that state
 	if not self:DoesRequireMaintenance() then return end --blds that do not require maintenance cannot malfunction.
 	--we can get called outside of normal flow, (prototypes for example), in which case we need to boot up requests.
 	if not self.is_malfunctioned then
-		self.is_malfunctioned = true
+		self.is_malfunctioned = true		
+		
 		self:AttachSign(true, "SignMalfunction")
-		self:SetDustVisualsPerc(self:GetDustPerc())
+		self:AccumulateMaintenancePoints(self.maintenance_threshold_current)
 
 		self:UpdateWorking(false)
 		self:UpdateConsumption()
-		
-		if self.maintenance_phase == false then 
-			--We haven't requested maintenance. Hence this is a direct call to break this bld
-			self.accumulated_maintenance_points = self.maintenance_threshold_current --max out maint pnts so there is something to repair
-			self.last_maintenance_points_full_ts = self.last_maintenance_points_full_ts or GameTime() --mark max out
-			self:RequestMaintenance()
-		end
 		
 		RebuildInfopanel(self)
 	end
@@ -276,8 +268,11 @@ function RequiresMaintenance:Repair()
 		self:ResetMaintenanceState()
 	end
 	
-	if self:IsMalfunctioned() then
+	if self:IsMalfunctioned() or self.is_need_maintenance then
 		self.is_malfunctioned = false
+		self.is_need_maintenance = false
+		table.remove_entry(g_MaintenanceNeededBuildings, self)
+		
 		self:AttachSign(false, "SignMalfunction")
 		self:UpdateWorking() --canwork blockers on our part have been cleared
 		self:UpdateConsumption()
@@ -331,7 +326,7 @@ function RequiresMaintenance:DisableMaintenance()
 end
 
 function RequiresMaintenance:ResetMaintenanceState()
-	assert(self.maintenance_phase ~= false) --what r u resetting?
+	assert(self.maintenance_phase ~= false) --what are you resetting?
 	
 	self:ResetMaintenanceRequests()
 	
@@ -423,6 +418,10 @@ function RequiresMaintenance:GetMaintenanceText()
 			(self.maintenance_work_request:GetTargetAmount() ~= self.maintenance_work_request:GetActualAmount() or
 			self.maintenance_resource_request:GetTargetAmount() ~= self.maintenance_resource_request:GetActualAmount())
 	return has_assigned_drones and Untranslated("\n")..T{7878, --[[XTemplate sectionMaintenance Text]] "A drone is on the way to repair this building."} or ""
+end
+
+function RequiresMaintenance:GetMaintenanceRolloverText()
+	return T{241499798174, --[[XTemplate sectionMaintenance RolloverText]] "The condition of buildings deteriorates over time. Martian dust and disasters contribute to deterioration of outside buildings. Deteriorated buildings will need to be serviced by a Drone and supplied with their required maintenance resource or they will malfunction.<EasyMaintenanceText(true)><newline><newline>Current deterioration<right><percent(MaintenanceProgress)><newline><left>Last serviced<right><LastMaintenance>\n<MaintenanceText>"}
 end
 
 function RequiresMaintenance:OnSetUIWorking(working)

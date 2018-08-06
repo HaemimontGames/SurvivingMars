@@ -279,22 +279,12 @@ function AlienDigger:Idle()
 	DoneObject(self)
 end
 
-local dep_query = 
-{
-	class = "SubsurfaceDeposit",
-	area = false,
-	arearadius = const.HexHeight * 5, --about 4 hexes around the digger
-	filter = function(dep)
-		return not IsKindOf(dep, "SubsurfaceAnomaly")
-	end,
-	
-}
 function AlienDigger:FindDeposit()
 	--look for subsurface
-	dep_query.area = self
-	local dep = FindNearest(dep_query, self)
-	dep_query.area = false
-	return dep
+	return MapFindNearest(self, self, const.HexHeight * 5, "SubsurfaceDeposit", function(dep)
+		return not IsKindOf(dep, "SubsurfaceAnomaly")
+	end)
+	
 end
 
 local digger_rewards_on_dismantle = {

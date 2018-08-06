@@ -78,6 +78,8 @@ function City:SelectMystery()
 	if not mapdata.GameLogic
 		or not mapdata.StartMystery
 		or mapdata.MapType == "system"
+		or g_Tutorial
+		or g_CurrentMissionParams.challenge_id
 	then
 		return
 	end
@@ -100,7 +102,7 @@ function City:SelectMystery()
 			mystery = self:TableRand(mysteries)
 		end
 	end
-	if mystery ~= "none" and not g_Tutorial then
+	if mystery ~= "none" then
 		self.mystery_id = mystery
 	end
 end
@@ -136,7 +138,7 @@ function OnMsg.MysteryBegin()
 	if current_mystery and not played_mysteries[current_mystery.class] then
 		played_mysteries[current_mystery.class] = true
 		AccountStorage.PlayedMysteries = played_mysteries
-		SaveAccountStorage()
+		SaveAccountStorage(5000)
 	end
 end
 
@@ -146,7 +148,7 @@ function OnMsg.MysteryEnd(outcome)
 	if current_mystery and not finished_mysteries[current_mystery.class] then
 		finished_mysteries[current_mystery.class] = true
 		AccountStorage.FinishedMysteries = finished_mysteries
-		SaveAccountStorage()
+		SaveAccountStorage(5000)
 	end
 end
 
@@ -183,22 +185,6 @@ function CheatStartMystery(mystery_id)
 	print("started", mystery_id)
 end
 
-function OnMsg.ClassesBuilt()
-	local actions = {}
-	ClassDescendantsList("MysteryBase", function (name, class)
-		local scenario = class.scenario_name and (" - " .. class.scenario_name) or ""
-		actions["StartMystery" .. name] = {
-			description = T{8066, "Start mystery <mystery> (<scenario>)", mystery = class.display_name, },
-			mode = "Game",
-			menu = "Cheats/[05]Start Mystery/" .. _InternalTranslate(class.display_name) .. scenario,
-			action = function() 
-				CheatStartMystery(name)		
-			end,
-		}
-	end)
-	UserActions.AddActions(actions)
-end
-
 function CheatFinishMystery(mystery_id)
 	local finished_mysteries = AccountStorage.FinishedMysteries or {}
 	local all_mysteries = ClassDescendantsList("MysteryBase")
@@ -206,11 +192,11 @@ function CheatFinishMystery(mystery_id)
 	if not finished_mysteries[mystery_id] and exists then
 		finished_mysteries[mystery_id] = true
 		AccountStorage.FinishedMysteries = finished_mysteries
-		SaveAccountStorage()
+		SaveAccountStorage(5000)
 	end
 end
 
 function CheatClearAllFinishedMysteries()
 	AccountStorage.FinishedMysteries = {}
-	SaveAccountStorage()
+	SaveAccountStorage(5000)
 end

@@ -15,8 +15,8 @@ DefineClass.MapSettings_DustStorm =
 		{ id = "strike_interval",	name = "Strikes Interval"		,		editor = "number",	default = 3 * 1000, scale = 1000, category = "Electrostatic Storm", help = "In Seconds"},
 		{ id = "strike_random",		name = "Strikes Randomize",			editor = "number",	default = 5 * 1000, scale = 1000, category = "Electrostatic Storm", help = "In Seconds" },
 		{ id = "strike_radius",		name = "Strikes Radius",				editor = "number",	default = 20 * guim, scale = guim, category = "Electrostatic Storm", help = "In Meters" },
-		{ id = "strike_discharge",	name = "Strikes Discharge",			editor = "number",	default = 100, category = "Electrostatic Storm" },
-		{ id = "strike_suspend",	name = "Strikes Suspend",				editor = "number",	default = 240 * 1000, scale = 1000, category = "Electrostatic Storm", help = "In Seconds" },
+		{ id = "strike_discharge",	name = "Strikes Discharge",			editor = "number",	default = 100 * 1000, category = "Electrostatic Storm" },
+		{ id = "strike_suspend",	name = "Strikes Suspend",				editor = "number",	default = 24 * const.HourDuration, scale = const.HourDuration, category = "Electrostatic Storm", help = "In Seconds" },
 	},
 
 	noon = "DustStormNoon",
@@ -45,11 +45,17 @@ local function GetDustStormDescr()
 	return dust_storm and not dust_storm.forbidden and dust_storm
 end
 
-local function apply_dust(label, dust)
-	if not label then
+local function apply_dust(label, dust, batch, batches)
+	local IsObjInDome = IsObjInDome
+	local count = #(label or "")
+	local start_i, end_i = 1, count
+	if count > batches then
+		start_i = 1 + count * (batch - 1) / batches
+		end_i = count * batch / batches
+	elseif batch > 1 then
 		return
 	end
-	for i = 1, #label do
+	for i = start_i, end_i do
 		local obj = label[i]
 		if not IsObjInDome(obj) then
 			obj:AddDust(dust)
@@ -57,57 +63,63 @@ local function apply_dust(label, dust)
 	end
 end
 
-local function apply_dust_elements(grids, dust)
-	for i = 1, #grids do
-		local grid = grids[i]
-		for _, element in ipairs(grid.elements) do
-			local obj = element.building
-			if obj:IsKindOf("DustGridElement") then
+local function apply_dust_elements(grid, dust, batch, batches)
+	local IsKindOf = IsKindOf
+	for i = 1, #(grid or "") do
+		local elements = grid[i].elements
+		local count = #elements
+		local start_i, end_i = 1, count
+		if count > batches then
+			start_i = 1 + count * (batch - 1) / batches
+			end_i = count * batch / batches
+		elseif batch > 1 then
+			end_i = 0 -- continue
+		end
+		for i = start_i, end_i do
+			local obj = elements[i].building
+			if IsKindOf(obj, "DustGridElement") then
 				obj:AddDust(dust)
 			end
 		end
 	end
 end
 
-local suspend_reason = "SuspendedDustStorm"
+local suspend_reason = const.DustStormSuspendReason
 local suspend_labels = const.DustStormSuspendBuildings
 if FirstLoad then
 	g_SuspendLabels = false
 end
 function OnMsg.DataLoaded()
 	g_SuspendLabels = {}
-	for _, bld in ipairs(DataInstances.BuildingTemplate) do
+	for id, bld in pairs(BuildingTemplates) do
 		if bld.suspend_on_dust_storm then
-			g_SuspendLabels[#g_SuspendLabels + 1] = bld.name
+			g_SuspendLabels[#g_SuspendLabels + 1] = id
 		end
 	end
 end
 
-local IsKindOf = IsKindOf
-
 function FuelExplosion(obj)
 	PlayFX("FuelExplosion", "start", obj)
 	AddOnScreenNotification("FuelDestroyed", nil, {}, {obj})
+	local IsObjInDome = IsObjInDome
 	local in_dome = IsObjInDome(obj)
-	ForEach{
-		classes = "Colonist",
-		area = obj,
-		arearadius = 30*guim,
-		exec = function(colonist)
+	MapForEach(obj, 30*guim,
+		"Colonist",
+		function(colonist)
 			if not colonist:IsDying() and in_dome == IsObjInDome(colonist) then
 				colonist:SetCommand("Die", "fuel explosion")
 			end
-		end,
-	}
+		end)
 end
 
 function StartDustStorm(storm_type, dust_storm)
-	g_DustStorm = { type = storm_type, descr = dust_storm }
+	g_DustStorm = { type = storm_type, descr = dust_storm, start_time = GameTime() }
 	local duration = UICity:Random(dust_storm.min_duration, dust_storm.max_duration)
 	Msg("DustStorm", duration)
 	RemoveDisasterNotifications()
 	local preset = storm_type .. "DustStormDuration"
 	AddDisasterNotification(preset, {start_time = GameTime(), expiration = duration})
+	ShowDisasterDescription("DustStorm")
 	local target_dust = g_DustStorm.type == "great" and 2 * dust_storm.target_dust or dust_storm.target_dust
 	local time = 0
 	local next_strike = GameTime() + dust_storm.strike_interval + UICity:Random(dust_storm.strike_random)
@@ -119,17 +131,29 @@ function StartDustStorm(storm_type, dust_storm)
 		PlayFX("DustStorm", "start")
 	end
 	g_DustStormStopped = false
-	while not g_DustStormStopped and duration > 0 do
-		local buildings = UICity.labels.Building or {}
-		apply_dust(buildings, target_dust)
-		apply_dust(UICity.labels.Drone, target_dust)
-		apply_dust(UICity.labels.Rover, target_dust)
-		apply_dust(UICity.labels.Dome, target_dust)
-		if UICity.water then
-			apply_dust_elements(UICity.water, target_dust)
+	-- dust is applied to objects in batches
+	local interval = 100
+	local dust_labels = { "Building", "Drone", "Rover", "Dome" }
+	local dust_grids = { "water", "electricity" }
+	local max_count = 0
+	for _, label_name in ipairs(dust_labels) do
+		max_count = Max(#(UICity.labels[label_name] or ""), max_count)
+	end
+	for _, grid_name in ipairs(dust_grids) do
+		for _, grid in ipairs(UICity[grid_name] or empty_table) do
+			max_count = Max(#grid.elements, max_count)
 		end
-		if UICity.electricity then
-			apply_dust_elements(UICity.electricity, target_dust)
+	end
+	local period = Max(max_count / 2, 1000)
+	local period_dust = target_dust * period / 1000
+	local batches = period / interval
+	local batch = 1
+	while not g_DustStormStopped and duration > 0 do
+		for _, label_name in ipairs(dust_labels) do
+			apply_dust(UICity.labels[label_name], period_dust, batch, batches)
+		end
+		for _, grid_name in ipairs(dust_grids) do
+			apply_dust_elements(UICity[grid_name], period_dust, batch, batches)
 		end
 		if g_DustStorm.type == "electrostatic" and GameTime() > next_strike then
 			next_strike = GameTime() + dust_storm.strike_interval + UICity:Random(dust_storm.strike_random)
@@ -138,12 +162,14 @@ function StartDustStorm(storm_type, dust_storm)
 			PlayFX("ElectrostaticStormArea", "start", nil, nil, strike_pos)
 			PlayFX("ElectrostaticStorm", "hit-moment" .. tostring(1 + UICity:Random(4)), nil, nil, strike_pos)
 			local fuel_explosions
-			ForEach{
-				classes = "Colonist,Building,Drone,RCRover,ResourceStockpileBase",
-				area = strike_pos,
-				arearadius = strike_radius + GetEntityMaxSurfacesRadius(),
-				exec = function(obj)
-					if not obj:IsCloser2D(strike_pos, strike_radius) or IsObjInDome(obj) then
+			local IsObjInDome = IsObjInDome
+			local IsKindOf = IsKindOf
+			local IsCloser2D = IsCloser2D
+			local FuelExplosion = FuelExplosion
+			MapForEach(strike_pos, strike_radius + GetEntityMaxSurfacesRadius(), 
+				"Colonist", "Building", "Drone", "RCRover", "ResourceStockpileBase",
+				function(obj)
+					if not IsCloser2D(obj, strike_pos, strike_radius) or IsObjInDome(obj) then
 						return
 					end
 					PlayFX("ElectrostaticStormObject", "start", nil, obj, strike_pos)
@@ -164,41 +190,37 @@ function StartDustStorm(storm_type, dust_storm)
 							fuel_explosions = fuel_explosions or {}
 							fuel_explosions[#fuel_explosions + 1] = obj
 						end
-					elseif IsKindOf(obj, "Dome") then
-						for i = 1, #obj.labels.Buildings do
-							local bld = obj.labels.Buildings[i]
-							if IsKindOf(bld, "ElectricityStorage") then
-								bld.electricity.current_storage = Max(0, bld.electricity.current_storage - dust_storm.strike_discharge)
-							end
-						end
 					elseif IsKindOf(obj, "Building") then
 						obj:SetSuspended(true, "Suspended", dust_storm.strike_suspend)
+						if IsKindOf(obj, "ElectricityStorage") then
+							obj.electricity.current_storage = Max(0, obj.electricity.current_storage - dust_storm.strike_discharge)
+						end
 					elseif IsKindOf(obj, "Citizen") then
 						if not self:IsDying() then
 							obj:SetCommand("Die", "lighting strike")
 						end
 					end
-				end,
-			}
+				end)
 			for _, obj in ipairs(fuel_explosions or empty_table) do
 				if IsValid(obj) then
 					FuelExplosion(obj)
 				end
 			end
 		end
-		if time > hour_duration then
+		if batch == 1 and time > hour_duration then
 			for _, label in ipairs(g_SuspendLabels or suspend_labels) do
 				for _, bld in ipairs(UICity.labels[label] or empty_table) do
-					if not bld.suspended then
+					if not bld.suspended and not IsObjInDome(bld) then
 						bld:SetSuspended(true, suspend_reason)
 					end
 				end
 			end
 		end
-		local delta = Min(duration, 1000)
+		local delta = Min(duration, interval)
 		Sleep(delta)
 		time = time + delta
 		duration = duration - delta
+		batch = batch < batches and (batch + 1) or 1
 	end
 	if g_DustStorm.type == "electrostatic" then
 		PlayFX("ElectrostaticStorm", "end")
@@ -264,6 +286,7 @@ GlobalGameTimeThread("DustStorm", function()
 				local warn_time = GetDisasterWarningTime(dust_storm)
 				if GameTime() - start_time > wait_time - warn_time then
 					AddDisasterNotification(g_DustStormType .. "DustStorm", {start_time = GameTime(), expiration = warn_time})
+					ShowDisasterDescription("DustStorm")
 					WaitMsg("TriggerDustStorm", wait_time - (GameTime() - start_time))
 					while IsDisasterActive() do
 						WaitMsg("TriggerDustStorm", 5000)
@@ -284,17 +307,16 @@ GlobalGameTimeThread("DustStorm", function()
 	end
 end)
 
-function CheatDustStorm(storm_type)
-	if IsDisasterActive() then
-		return
-	end
-	if GetDustStormDescr() then
+function CheatDustStorm(storm_type, setting)
+	CheatStopDisaster()
+	if not setting and GetDustStormDescr() then
 		g_DustStormType = storm_type
 		Msg("TriggerDustStorm")
 	else
 		CreateGameTimeThread(function()
+			setting = setting or mapdata.MapSettings_DustStorm
 			local data = DataInstances.MapSettings_DustStorm
-			StartDustStorm(storm_type, data[mapdata.MapSettings_DustStorm] or data["DustStorm_VeryLow"])
+			StartDustStorm(storm_type, data[setting] or data["DustStorm_VeryLow"])
 		end)
 	end
 end

@@ -121,6 +121,13 @@ DefineConst{
 }
 DefineConst{
 	group = "Colonist",
+	help = T{237836219339, --[[ConstDef Colonist FundingFromTourist help]] "Funding received from each tourist when landing on Mars (in M)"},
+	id = "FundingFromTourist",
+	name = T{884220740845, --[[ConstDef Colonist FundingFromTourist name]] "FundingFromTourist"},
+	value = 10,
+}
+DefineConst{
+	group = "Colonist",
 	help = T{8805, --[[ConstDef Colonist NonHomeDomePerformancePenalty help]] "Performance penalty for colonists working in another connected dome"},
 	id = "NonHomeDomePerformancePenalty",
 	name = T{8806, --[[ConstDef Colonist NonHomeDomePerformancePenalty name]] "Connected dome performance penalty"},
@@ -153,6 +160,13 @@ DefineConst{
 	name = T{4760, --[[ConstDef Colonist TimeBeforeStarving name]] "Time before starting to starve"},
 	scale = "hours",
 	value = 1080000,
+}
+DefineConst{
+	group = "Colonist",
+	help = T{850859674012, --[[ConstDef Colonist TouristSolsOnMars help]] "The number of sols that tourists stay on Mars."},
+	id = "TouristSolsOnMars",
+	name = T{432745681792, --[[ConstDef Colonist TouristSolsOnMars name]] "TouristSolsOnMars"},
+	value = 5,
 }
 DefineConst{
 	group = "Colonist",
@@ -445,13 +459,6 @@ DefineConst{
 }
 DefineConst{
 	group = "Drone",
-	help = T{4648, --[[ConstDef Drone DroneMeteorMalfunctionChance help]] "Drones may malfunction (with this chance) when close to a meteor impact site"},
-	id = "DroneMeteorMalfunctionChance",
-	name = T{4649, --[[ConstDef Drone DroneMeteorMalfunctionChance name]] "Drone meteor malfunction chance"},
-	value = 50,
-}
-DefineConst{
-	group = "Drone",
 	help = T{4680, --[[ConstDef Drone DroneMoveBatteryUse help]] "Battery usage when Drone is moving (without carrying resources) (per second)"},
 	id = "DroneMoveBatteryUse",
 	name = T{4681, --[[ConstDef Drone DroneMoveBatteryUse name]] "Drone move battery usage"},
@@ -477,7 +484,7 @@ DefineConst{
 	help = T{960116597482, --[[ConstDef Drone DroneRepairSupplyLeak help]] "The amount of time in seconds it takes a Drone to fix a supply leak"},
 	id = "DroneRepairSupplyLeak",
 	name = T{197593111647, --[[ConstDef Drone DroneRepairSupplyLeak name]] "Drone supply leak repair time"},
-	value = 180,
+	value = 60,
 }
 DefineConst{
 	group = "Drone",
@@ -508,9 +515,9 @@ DefineConst{
 }
 DefineConst{
 	group = "Gameplay",
-	help = T{4595, --[[ConstDef Gameplay ApplicantGenerationInterval help]] "How long it takes to generate a new Applicant in the Applicant Pool"},
+	help = T{10139, --[[ConstDef Gameplay ApplicantGenerationInterval help]] "How long it takes to generate a new Applicant in the Applicant Pool"},
 	id = "ApplicantGenerationInterval",
-	name = T{4596, --[[ConstDef Gameplay ApplicantGenerationInterval name]] "Applicant Generation Period"},
+	name = T{10140, --[[ConstDef Gameplay ApplicantGenerationInterval name]] "Applicant Generation Period"},
 	scale = "hours",
 	value = 210000,
 }
@@ -587,6 +594,13 @@ DefineConst{
 }
 DefineConst{
 	group = "Gameplay",
+	help = T{10464, --[[ConstDef Gameplay InstantPassages help]] "Passages are built instantly and cost nothing when this is not 0"},
+	id = "InstantPassages",
+	name = T{10141, --[[ConstDef Gameplay InstantPassages name]] "Instant Passages"},
+	value = 0,
+}
+DefineConst{
+	group = "Gameplay",
 	help = T{4607, --[[ConstDef Gameplay InstantPipes help]] "Pipes are built instantly when this is not 0"},
 	id = "InstantPipes",
 	name = T{4608, --[[ConstDef Gameplay InstantPipes name]] "Instant Pipes"},
@@ -635,6 +649,12 @@ DefineConst{
 }
 DefineConst{
 	group = "Gameplay",
+	id = "OutsourceMaxOrderCount",
+	name = T{970197122036, --[[ConstDef Gameplay OutsourceMaxOrderCount name]] "Maximum Outsource Orders"},
+	value = 5,
+}
+DefineConst{
+	group = "Gameplay",
 	id = "OutsourceResearch",
 	name = T{593431521691, --[[ConstDef Gameplay OutsourceResearch name]] "Outsource Research Points"},
 	value = 1000,
@@ -652,6 +672,13 @@ DefineConst{
 	name = T{940974210714, --[[ConstDef Gameplay OutsourceResearchTime name]] "Outsource Research Duration"},
 	scale = "sols",
 	value = 3600000,
+}
+DefineConst{
+	group = "Gameplay",
+	help = T{136058990142, --[[ConstDef Gameplay OverpopulatedDome help]] "The number of Homless colonists that Overpopulated the dome."},
+	id = "OverpopulatedDome",
+	name = T{290519601836, --[[ConstDef Gameplay OverpopulatedDome name]] "OverpopulatedDome"},
+	value = 20,
 }
 DefineConst{
 	group = "Gameplay",
@@ -729,7 +756,7 @@ DefineConst{
 DefineConst{
 	group = "Research",
 	id = "ExplorerRoverResearchPoints",
-	name = T{4631, --[[ConstDef Research ExplorerRoverResearchPoints name]] "Research points generated per RC Rover"},
+	name = T{4631, --[[ConstDef Research ExplorerRoverResearchPoints name]] "Research points generated per RC Commander"},
 	value = 0,
 }
 DefineConst{
@@ -743,36 +770,36 @@ DefineConst{
 	group = "Rover",
 	help = T{4634, --[[ConstDef Rover RCRoverDistanceToProvokeAutomaticUnsiege help]] "Go To command will automatically cause unsiege if target is further than this distance"},
 	id = "RCRoverDistanceToProvokeAutomaticUnsiege",
-	name = T{4635, --[[ConstDef Rover RCRoverDistanceToProvokeAutomaticUnsiege name]] "RC Rover distance to provoke automatic unsiege"},
+	name = T{4635, --[[ConstDef Rover RCRoverDistanceToProvokeAutomaticUnsiege name]] "RC Commander distance to provoke automatic unsiege"},
 	value = 15000,
 }
 DefineConst{
 	group = "Rover",
-	help = T{4642, --[[ConstDef Rover RCRoverDroneRechargeCost help]] "The amount of battery drained from RC Rover when recharging a Drone."},
+	help = T{4642, --[[ConstDef Rover RCRoverDroneRechargeCost help]] "The amount of battery drained from RC Commander when recharging a Drone."},
 	id = "RCRoverDroneRechargeCost",
-	name = T{4643, --[[ConstDef Rover RCRoverDroneRechargeCost name]] "RC Rover Drone battery recharge cost"},
+	name = T{4643, --[[ConstDef Rover RCRoverDroneRechargeCost name]] "RC Commander Drone battery recharge cost"},
 	value = 15000,
 }
 DefineConst{
 	group = "Rover",
-	help = T{4632, --[[ConstDef Rover RCRoverMaxDrones help]] "Maximum Drones an RC Rover can control"},
+	help = T{4632, --[[ConstDef Rover RCRoverMaxDrones help]] "Maximum Drones an RC Commander can control"},
 	id = "RCRoverMaxDrones",
-	name = T{4633, --[[ConstDef Rover RCRoverMaxDrones name]] "RC Rover max Drones"},
+	name = T{4633, --[[ConstDef Rover RCRoverMaxDrones name]] "RC Commander max Drones"},
 	value = 8,
 }
 DefineConst{
 	group = "Rover",
-	help = T{4636, --[[ConstDef Rover RCRoverScanAnomalyTime help]] "RC Rover Anomaly scanning time (for each layer of depth)"},
+	help = T{4636, --[[ConstDef Rover RCRoverScanAnomalyTime help]] "RC Commander Anomaly scanning time (for each layer of depth)"},
 	id = "RCRoverScanAnomalyTime",
-	name = T{4637, --[[ConstDef Rover RCRoverScanAnomalyTime name]] "RC Rover Anomaly scan time"},
+	name = T{4637, --[[ConstDef Rover RCRoverScanAnomalyTime name]] "RC Commander Anomaly scan time"},
 	scale = "hours",
 	value = 180000,
 }
 DefineConst{
 	group = "Rover",
-	help = T{4638, --[[ConstDef Rover RCRoverTransferResourceWorkTime help]] "The time it takes for an RC Rover to transfer 1 resource to a Depot."},
+	help = T{4638, --[[ConstDef Rover RCRoverTransferResourceWorkTime help]] "The time it takes for an RC Commander to transfer 1 resource to a Depot."},
 	id = "RCRoverTransferResourceWorkTime",
-	name = T{4639, --[[ConstDef Rover RCRoverTransferResourceWorkTime name]] "RC Rover resource gather time"},
+	name = T{4639, --[[ConstDef Rover RCRoverTransferResourceWorkTime name]] "RC Commander resource gather time"},
 	value = 1000,
 }
 DefineConst{
@@ -833,6 +860,13 @@ DefineConst{
 	name = T{438538796803, --[[ConstDef Stat DustStormSanityDamage name]] "Sanity damage from Dust Storms (per hour)"},
 	scale = "Stat",
 	value = 300,
+}
+DefineConst{
+	group = "Stat",
+	id = "GameRuleRebelYellRenegadeCreation",
+	name = T{8879, --[[ConstDef Stat GameRuleRebelYellRenegadeCreation name]] "Renegade creation point when game rule Rebel Yell is activated"},
+	scale = "Stat",
+	value = 23100,
 }
 DefineConst{
 	group = "Stat",
@@ -987,13 +1021,6 @@ DefineConst{
 }
 DefineConst{
 	group = "Stat",
-	id = "GameRuleRebelYellRenegadeCreation",
-	name = T{8879, --[[ConstDef Stat GameRuleRebelYellRenegadeCreation name]] "Renegade creation point when game rule Rebel Yell is activated"},
-	scale = "Stat",
-	value = 23100,
-}
-DefineConst{
-	group = "Stat",
 	help = T{4560, --[[ConstDef Stat SeeDeadSanity help]] "Colonist Sanity decreases when a Colonist from the same Residence dies from non-natural causes"},
 	id = "SeeDeadSanity",
 	name = T{4561, --[[ConstDef Stat SeeDeadSanity name]] "Seeing Death"},
@@ -1083,3 +1110,5 @@ DefineConst{
 	name = T{4693, --[[ConstDef Workplace WorkingHours name]] "Working hours"},
 	value = 8,
 }
+
+LoadDlcConsts()

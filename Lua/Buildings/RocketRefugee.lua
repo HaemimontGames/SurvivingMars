@@ -7,7 +7,6 @@ DefineClass.RefugeeRocket = {
 	show_service_area = false,
 	allow_export = false,
 	
-	custom_travel_time_earth = 0, -- done after launch
 	launch_fuel = 0,
 	launch_after_unload = true,
 

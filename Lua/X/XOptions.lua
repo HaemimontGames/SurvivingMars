@@ -51,7 +51,8 @@ function RebindKeys(idx, prop_ctrl)
 							)
 							if res == "ok" then
 								-- clear binding
-								bindings[1] = i ~= 1 and bindings[1]or bindings[2]
+								bindings = table.copy(bindings) --don't overwrite the default values
+								bindings[1] = i ~= 1 and bindings[1] or bindings[2]
 								bindings[2] = nil
 								obj:SetProperty(ctrl_meta.id, bindings)
 								ctrl:OnPropUpdate(ctrl.context, ctrl_meta, bindings)
@@ -63,7 +64,8 @@ function RebindKeys(idx, prop_ctrl)
 					end
 				end
 			end
-			local bindings = obj[prop_meta.id] or {}
+			local bindings = obj[prop_meta.id]
+			bindings = bindings and table.copy(bindings) or {} --don't overwrite the default values
 			idx = bindings[1] and idx or 1
 			bindings[idx] = shortcut
 			if #bindings > 1 and bindings[1] == bindings[2] then
@@ -89,7 +91,7 @@ function ApplyOptions(host)
 			local old_save_to_cloud = original_obj.AutosaveToCloud
 			obj:CopyCategoryTo(original_obj, category)
 			SaveEngineOptions()
-			SaveAccountStorage()
+			SaveAccountStorage(5000)
 			if category == "Keybindings" then
 				ReloadShortcuts()
 			end
@@ -102,6 +104,7 @@ function ApplyOptions(host)
 					terminal.desktop:OnSystemSize(UIL.GetScreenSize()) --force refresh, UIScale might be changed
 				end
 			end
+			Msg("GameOptionsChanged", category)
 		end
 		SetBackDialogMode(host)
 	end, host)
@@ -133,7 +136,7 @@ function ApplyDisplayOptions(host)
 		else
 			-- user doesn't like it, restore
 			original_obj:ApplyVideoMode()
-			original_obj:SetBrightness(original_obj.Brightness)
+			original_obj:CopyCategoryTo(obj, "Display")
 		end
 		SetBackDialogMode(host)
 	end, host)

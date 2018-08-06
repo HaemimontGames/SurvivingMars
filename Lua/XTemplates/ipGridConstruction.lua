@@ -15,6 +15,10 @@ PlaceObj('XTemplate', {
 		}, {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
+				'Text', T{10554, --[[XTemplate ipGridConstruction Text]] "<construction_costs_property>"},
+			}),
+			PlaceObj('XTemplateTemplate', {
+				'__template', "InfopanelText",
 				'Text', T{969016274382, --[[XTemplate ipGridConstruction Text]] "<construction_statuses_property>"},
 			}),
 			}),
@@ -36,6 +40,19 @@ PlaceObj('XTemplate', {
 					'__template', "InfopanelText",
 					'Text', T{909, --[[XTemplate ipGridConstruction Text]] "<right_click> Cancel"},
 				}),
+				PlaceObj('XTemplateGroup', {
+					'__condition', function (parent, context) return not IsKindOf(context, "GridSwitchConstructionController") end,
+				}, {
+					PlaceObj('XTemplateTemplate', {
+						'__template', "InfopanelText",
+						'Text', T{532866078027, --[[XTemplate ipGridConstruction Text]] "<middle_click> <em>(press)</em> / <em><ShortcutName('actionRotBuildingLeft')>, <ShortcutName('actionRotBuildingRight')></em> Change placement angle"},
+					}),
+					PlaceObj('XTemplateTemplate', {
+						'__condition', function (parent, context) return context.mode == "passage_grid" end,
+						'__template', "InfopanelText",
+						'Text', T{10542, --[[XTemplate ipGridConstruction Text]] "<left_click> outside of Domes to create turns in the Passage"},
+					}),
+					}),
 				}),
 			PlaceObj('XTemplateGroup', {
 				'__condition', function (parent, context) return GetUIStyleGamepad() end,
@@ -48,6 +65,19 @@ PlaceObj('XTemplate', {
 					'__template', "InfopanelText",
 					'Text', T{915, --[[XTemplate ipGridConstruction Text]] "<ButtonB> Cancel"},
 				}),
+				PlaceObj('XTemplateGroup', {
+					'__condition', function (parent, context) return not IsKindOf(context, "GridSwitchConstructionController") end,
+				}, {
+					PlaceObj('XTemplateTemplate', {
+						'__template', "InfopanelText",
+						'Text', T{10543, --[[XTemplate ipGridConstruction Text]] "<LB> Change placement angle <RB>"},
+					}),
+					PlaceObj('XTemplateTemplate', {
+						'__condition', function (parent, context) return context.mode == "passage_grid" end,
+						'__template', "InfopanelText",
+						'Text', T{10544, --[[XTemplate ipGridConstruction Text]] "<ButtonA> outside of Domes to create turns in the Passage"},
+					}),
+					}),
 				}),
 			}),
 		}),

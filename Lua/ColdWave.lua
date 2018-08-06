@@ -22,6 +22,7 @@ DefineClass.MapSettings_ColdWave =
 }
 
 GlobalVar("g_ColdWave", false)
+GlobalVar("g_ColdWaves", 0)
 
 local hour_duration = const.HourDuration
 local day_duration = const.DayDuration
@@ -54,6 +55,7 @@ function StartColdWave(settings, endless)
 	RemoveDisasterNotifications()
 	local preset = duration and "ColdWaveDuration" or "ColdWaveEndless"
 	AddDisasterNotification(preset, {start_time = GameTime(), expiration = duration})
+	ShowDisasterDescription("ColdWave")
 	for i = #g_DustDevils, 1, -1 do
 		g_DustDevils[i]:delete()
 	end
@@ -103,6 +105,7 @@ GlobalGameTimeThread("ColdWave", function()
 				local warn_time = GetDisasterWarningTime(cold_wave)
 				if GameTime() - start_time > wait_time - warn_time then
 					AddDisasterNotification("ColdWave", {start_time = GameTime(), expiration = warn_time})
+					ShowDisasterDescription("ColdWave")
 					WaitMsg("TriggerColdWave", wait_time - (GameTime() - start_time))
 					while IsDisasterActive() do
 						WaitMsg("TriggerColdWave", 5000)
@@ -221,16 +224,15 @@ function ColdArea:EditorExit()
 	EditorMarker.EditorExit(self)
 end
 
-function CheatColdWave()
-	if IsDisasterActive() then
-		return
-	end
-	if GetColdWaveDescr() then
+function CheatColdWave(setting)
+	CheatStopDisaster()
+	if not setting and GetColdWaveDescr() then
 		Msg("TriggerColdWave")
 	else
 		CreateGameTimeThread(function()
+			setting = setting or mapdata.MapSettings_ColdWave
 			local data = DataInstances.MapSettings_ColdWave
-			StartColdWave(data[mapdata.MapSettings_ColdWave] or data["ColdWave_VeryLow"])
+			StartColdWave(data[setting] or data["ColdWave_VeryLow"])
 		end)
 	end
 end

@@ -19,7 +19,7 @@ DefineDataInstance("OnScreenHint",
 		{ category = "General", id = "tutorial",     name = T{8982, "Tutorial"},                 editor = "combo",           default = "none", items = TutorialsCombo },
 		{ category = "Misc", id = "encyclopedia_image",     name = T{161, "Encyclopedia Image"},         editor = "browse",           default = "", folder = "UI" },
 	},
-	"[203]Editors/[01]Mars/OnScreenHint Editor"
+	"Editors.GameUI", "On-Screen Hints"
 )
 
 GlobalVar("g_ShownOnScreenHints", {})
@@ -156,7 +156,7 @@ function OnScreenHintDlg:Init()
 		Translate = true,
 		Dock = "box",
 		TextFont = "RolloverTitle",
-		TextColor = RGBA(255,188,59,255),
+		TextColor = RGBA(244, 228, 117, 255),
 		TextHAlign = "center",
 		TextVAlign = "center",
 		HandleMouse = false,
@@ -175,7 +175,7 @@ function OnScreenHintDlg:Init()
 		ColumnsUse = "abaa",
 		MouseCursor = "UI/Cursors/Rollover.tga",
 		Press = function(this)
-			CloseXDialog("Resupply")
+			CloseDialog("Resupply")
 			OpenEncyclopedia("HintGameStart")
 		end,
 	}, button_window)
@@ -204,17 +204,34 @@ function OnScreenHintDlg:Init()
 		TextVAlign = "center",
 		HandleMouse = false,
 	}, maximized_win)
+	local transparent = RGBA(0, 0, 0, 0)
+	local gamepad_close_btn = XButton:new({
+		Id = "idGamepadDismissButton",
+		IdNode = false,
+		Margins = box(0,0,0,35),
+		Padding = box(0, 0, 0, 0),
+		HAlign = "center",
+		MouseCursor = "UI/Cursors/Rollover.tga",
+		OnPress = function(this)
+			HintDisable(self:CurrentHintId())
+		end,
+		Background = transparent,
+		BorderColor = transparent,
+		DisabledBorderColor = transparent,
+		FocusedBackground = transparent,
+		FocusedBorderColor = transparent,
+		PressedBackground = transparent,
+		RolloverBackground = transparent,
+	}, maximized_win)
 	XText:new({
 		Id = "idGamepadHint",
-		Margins = box(0,0,0,35),
 		Translate = true,
 		TextFont = "RolloverHint",
 		TextColor = RGBA(181,182,192,255),
-		HAlign = "center",
 		TextHAlign = "center",
 		TextVAlign = "center",
 		HandleMouse = false,
-	}, maximized_win)
+	}, gamepad_close_btn)
 	self.idGamepadHint:SetText(T{7586, --[[hint]] "<center><Back> Dismiss hint"})
 	
 	self.current_page = self.current_page or #g_ShownOnScreenHints
@@ -228,7 +245,7 @@ end
 function OnScreenHintDlg:RecalculateMargins()
 	--This is temporarily and should be removed when implementing InGameInterface with new UI
 	local margins = OnScreenHintDlg.Margins + GetSafeMargins()
-	local infobar = GetXDialog("Infobar")
+	local infobar = GetDialog("Infobar")
 	if infobar then
 		local left, top, right, bottom = margins:xyxy()
 		local infobar_offset = infobar.PadHeight
@@ -238,7 +255,7 @@ function OnScreenHintDlg:RecalculateMargins()
 end
 
 function OnMsg.SafeAreaMarginsChanged()
-	local dlg = GetXDialog("OnScreenHintDlg")
+	local dlg = GetDialog("OnScreenHintDlg")
 	if dlg then
 		dlg:RecalculateMargins()
 	end
@@ -373,11 +390,11 @@ end
 ------------------------------------------------------------------------------------
 
 function GetOnScreenHintDlg()
-	local dlg = GetXDialog("OnScreenHintDlg")
+	local dlg = GetDialog("OnScreenHintDlg")
 	if not dlg and (HintsEnabled or g_Tutorial) and GameState.gameplay then
-		dlg = OpenXDialog("OnScreenHintDlg", GetInGameInterface())
+		dlg = OpenDialog("OnScreenHintDlg", GetInGameInterface())
 	elseif not HintsEnabled and not g_Tutorial then
-		CloseXDialog("OnScreenHintDlg")
+		CloseDialog("OnScreenHintDlg")
 		return
 	end
 	
@@ -420,7 +437,7 @@ function UpdateHintHighlight(dialog_id)
 	local dialog_id = type(dialog_id)=="table" and dialog_id or {dialog_id} 
 	
 	for i=1, #dialog_id do
-		local highlight_dialog = GetXDialog(dialog_id[i])
+		local highlight_dialog = GetDialog(dialog_id[i])
 		if highlight_dialog and highlight_dialog:HasMember("UpdateHintHighlight") then
 			highlight_dialog:UpdateHintHighlight()
 		end
@@ -499,14 +516,14 @@ function OnScreenHintDlg:IsMinimizedVisible()
 end
 
 function OnMsg.GamepadUIStyleChanged()
-	local hintdlg = GetXDialog("OnScreenHintDlg")
+	local hintdlg = GetDialog("OnScreenHintDlg")
 	if hintdlg then
 		hintdlg:UpdateVisuals()
 	end
 end
 
 function OnMsg.OnControllerTypeChanged(controller_type)
-	local hintdlg = GetXDialog("OnScreenHintDlg")
+	local hintdlg = GetDialog("OnScreenHintDlg")
 	if hintdlg then
 		hintdlg:UpdateVisuals()
 	end

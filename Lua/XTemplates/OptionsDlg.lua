@@ -24,7 +24,6 @@ end,
 			'func', function (self, ...)
 local mode = ...
 self.idTitle:SetVisible(mode ~= "controller" and mode ~= "credits")
-self.idScroll:SetVisible(mode ~= "controller" and mode ~= "credits")
 self.idActionBar:SetVisible(mode ~= "credits")
 end,
 		}),
@@ -77,7 +76,7 @@ end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
-			'parent', function (parent, context) return GetXDialog(parent) end,
+			'parent', function (parent, context) return GetDialog(parent) end,
 			'func', function (self, ...)
 XDialog.Open(self, ...)
 local pad = self.idFrame:GetPadding()

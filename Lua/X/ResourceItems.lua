@@ -123,21 +123,33 @@ function ResourceItems:OnXButtonDown(button, source)
 	return ItemMenuBase.OnXButtonDown(self, button, source)
 end
 
+function ResourceItems:OnMouseButtonDown(pt, button)
+	if button=="R" then
+		self:SelectParentCategory()
+		local obj = self.context and self.context.object
+		if obj then 
+			obj:SetInteractionMode(obj.interaction_mode)
+		end	
+		return "break"
+	end
+	return ItemMenuBase:OnMouseButtonDown(pt, button)
+end
+
 function OpenResourceSelector(object, context)
-	local dlg = GetXDialog("ResourceItems")
+	local dlg = GetDialog("ResourceItems")
 	if dlg then
-		if dlg.context.object~=object then
-			CloseXDialog("ResourceItems")
+		if not dlg.context or dlg.context.object~=object then
+			CloseDialog("ResourceItems")
 		else
 			return
 		end
 	end
 	context.object = object
-	return OpenXDialog("ResourceItems", GetInGameInterface(), context)
+	return OpenDialog("ResourceItems", GetInGameInterface(), context)
 end
 
 function CloseResourceSelector()
-	CloseXDialog("ResourceItems")
+	CloseDialog("ResourceItems")
 end
 
 function OnMsg.UIModeChange(mode)

@@ -6,6 +6,7 @@ local max_objects_per_tick = 100 --max objects to iterate before yielding to avo
 local max_cubes_to_consider = 100
 local radius_of_effect = 100 * guim
 local member_perc_for_ui = "black_cube_interaction_perc_for_ui"
+local mystery_finished = false
 
 local function GetModifier(perc)
 	if not solar_panel_bc_modifiers[perc] then
@@ -43,14 +44,14 @@ local function black_cube_counter_filter(o)
 	return total_cubes_for_obj >= max_cubes_to_consider and "break" or true
 end
 
-local black_cube_counter_query = {classes = {"BlackCubeStockpileBase", "Building"}, 
-											area = false, 
-											arearadius = radius_of_effect,
-											filter = black_cube_counter_filter,}
-
 --this will get called every hour
 function BlackCubeBuildingInteractionsModHourlyUpdate()
 	assert(not IsValidThread(work_thread)) --op took more then an hour!
+	if mystery_finished then 
+		DeleteThread(CurrentThread()) --intentional assert
+		return
+	end
+	
 	if not g_BlackCubesActive then
 		--proc every 1 hour, do work
 		work_thread = CreateGameTimeThread(function()
@@ -63,8 +64,7 @@ function BlackCubeBuildingInteractionsModHourlyUpdate()
 			solar_panel_bc_modifiers = {}
 			
 			--now iterate all panels on map and set modifiers
-			local panels = GetObjects{class = "SolarPanel", area = "realm",}
-			
+			local panels = MapGet(true, "SolarPanel")
 			for i = 1, #panels do
 				--for each panel, check the number of cubes in 100m radius
 				local panel = panels[i]
@@ -73,10 +73,7 @@ function BlackCubeBuildingInteractionsModHourlyUpdate()
 				if IsValid(panel) then --since we yield in this thread, there is no guarantee the panel will be alive
 					--count cubes in stockpiles, completed buildings and construction sites
 					total_cubes_for_obj = 0
-					black_cube_counter_query.area = panel
-					GetObjects(black_cube_counter_query)
-					black_cube_counter_query.area = false
-											
+					MapForEach(panel, radius_of_effect, "BlackCubeStockpileBase", "Building", black_cube_counter_filter)
 					if total_cubes_for_obj > 0 then
 						total_cubes_for_obj = Clamp(total_cubes_for_obj, 0, max_cubes_to_consider)
 						local perc = total_cubes_for_obj / 2 --this is the formula.
@@ -108,18 +105,14 @@ function BlackCubeBuildingInteractionsModHourlyUpdate()
 		
 		work_thread = CreateGameTimeThread(function()
 			--all panels done, now iterate rovers/dronehubs and break them
-			local control_centers = GetObjects{class = "DroneControl", area = "realm", filter = function(o) return not o:IsMalfunctioned() end}
-			
+			local control_centers = MapGet(true, "DroneControl", function(o) return not o:IsMalfunctioned() end)
 			for i = 1, #control_centers do
 				local cc = control_centers[i]
 				rawset(cc, member_perc_for_ui, nil) --cleanup ui
 				
 				if IsValid(cc) then
 					total_cubes_for_obj = 0
-					black_cube_counter_query.area = cc
-					GetObjects(black_cube_counter_query)
-					black_cube_counter_query.area = false
-					
+					MapForEach(cc, radius_of_effect, "BlackCubeStockpileBase", "Building", black_cube_counter_filter)
 					if total_cubes_for_obj > 0 then
 						total_cubes_for_obj = Clamp(total_cubes_for_obj, 0, max_cubes_to_consider)
 						local malf_chance = total_cubes_for_obj / 20 --5% per 100 cubes,
@@ -144,14 +137,33 @@ function BlackCubeBuildingInteractionsModHourlyUpdate()
 	end
 end
 
+function CleanUIAfterBlackCubeEnd()
+	MapForEach(true, "DroneControl", function (cc) rawset(cc, member_perc_for_ui, nil) end )
+	MapForEach(true, "SolarPanel", function (panel) rawset(panel, member_perc_for_ui, nil) end )
+end
+
+local cube_thread = false
+
 function OnMsg.MysteryChosen()
 	if UICity.mystery_id ~= "BlackCubeMystery" then return end --black cubes only exist in this mystery
 	--init
 	solar_panel_bc_modifiers = {}
-	CreateGameTimeThread(function()
+	cube_thread = CreateGameTimeThread(function()
 		while true do
 			Sleep(const.HourDuration)
 			BlackCubeBuildingInteractionsModHourlyUpdate()
 		end
 	end)
+end
+
+function OnMsg.MysteryEnd(hint)
+	if UICity.mystery_id ~= "BlackCubeMystery" then return end --black cubes only exist in this mystery
+	
+	if hint == "neutral aliens" then
+		if IsValidThread(cube_thread) then
+			DeleteThread(cube_thread)
+		end
+		mystery_finished = true
+	end
+	CleanUIAfterBlackCubeEnd()
 end

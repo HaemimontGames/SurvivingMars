@@ -281,16 +281,10 @@ function BlackCubesSetActive(value)
 	if value == g_BlackCubesActive then return end
 	g_BlackCubesActive = value
 	local moment = g_BlackCubesActive and "start" or "end"
-	ForEach(
-		{
-			class = "BlackCubeStockpileBase",
-			exec = function(pile, moment)
-				pile:SetCountFromRequest()
-				PlayFX("ActivateBlackCubes", moment, pile)
-			end,
-		},
-		moment
-	)
+	MapForEach("map", "BlackCubeStockpileBase", function(pile, moment)
+															pile:SetCountFromRequest()
+															PlayFX("ActivateBlackCubes", moment, pile)
+														end, moment )
 end
 
 DefineClass.BlackCubeStockpile = {

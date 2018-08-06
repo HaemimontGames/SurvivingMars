@@ -166,15 +166,13 @@ GlobalGameTimeThread("DustDevils", function()
 		return
 	end
 	
-	ForEach{
-		classes = "PrefabFeatureMarker",
-		area = "realm",
-		exec = function(marker)
+	MapForEach(true,
+		"PrefabFeatureMarker",
+		function(marker)
 			if marker.FeatureType == "Dust Devils" then
 				marker.thread = CreateDustDevilMarkerThread(descr, marker)
 			end
-		end,
-	}
+		end)
 	
 	while true do
 		local spawn_time = UICity:Random(descr.spawntime, descr.spawntime + descr.spawntime_random)
@@ -298,9 +296,15 @@ function BaseDustDevil:Follow()
 	while IsValid(follow) do
 		local t = UICity:Random(2000, 5000)
 		if follow.trajectory_idx then
+			local dist = self:GetDist2D(follow)
+			local speed = self.speed
+			if dist < follow.minions_radius then
+				speed = MulDivRound(speed, dist, follow.minions_radius)
+			end
 			local pos = self:GetPos()
 			local dest = follow.trajectory[follow.trajectory_idx]
-			local dir = SetLen(dest - pos, self.speed * t / 1000)
+			local step = MulDivRound(speed, t, 1000)
+			local dir = SetLen(dest - pos, step)
 			dir = Rotate(dir, UICity:Random(-30 * 60, 30 * 60))
 			dest = pos + dir
 			self:SetPos(dest, t)
@@ -313,20 +317,11 @@ function BaseDustDevil:Follow()
 	end
 end
 
-local dust_devil_query =
-{
-	area = false,
-	arearadius = false,
-	classes = { "Building", "DroneBase", "Colonist", "DustGridElement" },
-}
-
 function BaseDustDevil:ApplyDust(delta)
 	local dust = MulDivRound(delta, self.dust_amount, 1000)
 	local battery = self.drone_battery and MulDivRound(delta, self.drone_battery, 1000)
-	dust_devil_query.area = self
-	dust_devil_query.arearadius = self.dust_radius + GetEntityMaxSurfacesRadius()
-	local objs = GetObjects(dust_devil_query)
-	dust_devil_query.area = false
+	local dust_radius = self.dust_radius + GetEntityMaxSurfacesRadius()
+	local objs = MapGet(self, dust_radius, "Building", "DroneBase", "Colonist", "DustGridElement" )
 	local new_drones = {}
 	
 	local function process_drones(self, new_drones)
@@ -339,6 +334,8 @@ function BaseDustDevil:ApplyDust(delta)
 		end
 		self.drones = new_drones
 	end
+	
+	--DbgAddCircle(self:GetVisualPos(), self.malfunction_radius)
 	
 	local affected_dges, already_broken_dge = false, false
 	for _,obj in ipairs(objs) do

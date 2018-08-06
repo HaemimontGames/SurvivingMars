@@ -13,10 +13,32 @@ DefineClass.ArtificialSun = {
 	heat = 2*const.MaxHeat,
 }
 
+function TestSunPanelRange(sun, panel)
+	local effect_range = sun.effect_range
+	local o_p = sun:GetPos()
+	local o_q, o_r = WorldToHex(o_p)
+	local p_p = panel:GetPos()
+	local p_q, p_r = WorldToHex(p_p)
+	local shape = panel:GetShapePoints()
+	local dir = HexAngleToDirection(panel:GetAngle())
+	
+	for i = 1, #shape do
+		local sp = shape[i]
+		local x, y = HexRotate(sp:x(), sp:y(), dir)
+		if HexAxialDistance(o_q, o_r, p_q + x, p_r + y) <= effect_range then
+			return true
+		end
+	end
+	
+	return false
+end
+
 function ArtificialSun:GameInit()
 	self.power_production = self.electricity_production
-
-	local panels = GetObjects{class = "SolarPanel", area = self, hexradius = self.effect_range}
+	
+	local sun_radius = (self.effect_range + 10) * const.GridSpacing --large radius extension so it can catch large panels
+	local panel_query_testing_against = self
+	local panels = MapGet(self,sun_radius,"SolarPanelBase",function(o) return TestSunPanelRange(panel_query_testing_against, o) end )
 	for i = 1, #panels do
 		panels[i]:SetArtificialSun(self)
 	end		

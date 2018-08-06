@@ -8,7 +8,6 @@ PlaceObj('XTemplate', {
 		'__condition', function (parent, context) return IsKindOf(context, "DroneHub") end,
 		'__template', "InfopanelButton",
 		'RolloverText', T{8460, --[[XTemplate customDroneHub RolloverText]] "Unpack an existing Drone Prefab to build a new Drone. Drone Prefabs can be created from existing Drones or in a Drone Assembler (requires research). This action can be used to quickly reassign Drones between controllers.<newline><newline>Available Drone Prefabs: <drone(available_drone_prefabs)>"},
-		'RolloverDisabledText', T{994737607038, --[[XTemplate customDroneHub RolloverDisabledText]] "Unpack an existing Drone Prefab to build a new Drone. Drone Prefabs can be created from existing Drones or in a Drone Assembler (requires research). This action can be used to quickly reassign Drones between controllers.<newline><newline>Available Drone Prefabs: <drone(available_drone_prefabs)>"},
 		'RolloverTitle', T{349, --[[XTemplate customDroneHub RolloverTitle]] "Unpack Drone"},
 		'RolloverHint', T{8461, --[[XTemplate customDroneHub RolloverHint]] "<left_click> Unpack Drone <em>Ctrl + <left_click></em> Unpack five Drones"},
 		'RolloverHintGamepad', T{8462, --[[XTemplate customDroneHub RolloverHintGamepad]] "<ButtonA> Unpack Drone <ButtonX> Unpack five Drones"},

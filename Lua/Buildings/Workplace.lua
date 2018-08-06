@@ -165,7 +165,7 @@ function Workplace:GetWorkshiftPerformance(shift)
 	local overtimed = self.overtime[shift] 
 	
 	if self.automation > 0 and (#workers == 0 or self.max_workers == 0) then
-		return self.working and self.auto_performance or 0
+		return self.auto_performance
 	end
 	
 	local part_per_worker = 100/self.max_workers
@@ -306,7 +306,7 @@ function Workplace:RemoveWorker(worker)
 end
 
 function Workplace:OnSetUIWorking(work)
-	Building.OnSetUIWorking(self, work) --might wna call super
+	ShiftsBuilding.OnSetUIWorking(self, work) --might wna call super
 	if not work then
 		self:KickAllWorkers()
 		self:InterruptUnitsInHolder()
@@ -482,7 +482,7 @@ function Workplace:ColonistInteract(col)
 	
 	local col_dome = col.dome
 	local best_dome = self:CheckServicedDome(col_dome)
-	if best_dome == col_dome then
+	if AreDomesConnectedWithPassage(best_dome, col_dome) then
 		col:UpdateWorkplace()
 	else
 		col:SetForcedDome(best_dome)
@@ -679,39 +679,35 @@ function Workplace:StopWorkCycle(unit)
 	self:UpdatePerformance()
 end
 
-local domes_query = { 
-	classes = {"ConstructionSite", "Dome"}, 
-	area = false,
-	hexradius = 0,
-	exec = function(obj, workplace, shape)
-		local dome_class
-		if IsKindOf(obj, "ConstructionSite") then
-			if IsKindOf(obj.building_class_proto, "Dome") then
-				dome_class = obj.building_class_proto
-			else
-				return
-			end
-		end
-		local outside = true
-		if dome_class then
-			local r = dome_class:GetOutsideWorkplacesDist()
-			for i = 1, #shape do
-				if HexAxialDistance(obj, shape[i]) <= r then
-					outside = false
-					break
-				end
-			end
-		elseif obj:IsBuildingInDomeRange(workplace, shape) then 
-			outside = false
-		end
-		if outside then
+
+local domes_query_func = function(obj, workplace, shape)
+	local dome_class
+	if IsKindOf(obj, "ConstructionSite") then
+		if IsKindOf(obj.building_class_proto, "Dome") then
+			dome_class = obj.building_class_proto
+		else
 			return
 		end
-		workplace.domes_query_res = true
-		return "break"
-	end,
-}
-
+	end
+	local outside = true
+	if dome_class then
+		local r = dome_class:GetOutsideWorkplacesDist()
+		for i = 1, #shape do
+			if HexAxialDistance(obj, shape[i]) <= r then
+				outside = false
+				break
+			end
+		end
+	elseif obj:IsBuildingInDomeRange(workplace, shape) then 
+		outside = false
+	end
+	if outside then
+		return
+	end
+	workplace.domes_query_res = true
+	return "break"
+end
+	
 -- for UI warning
 function Workplace:HasNearByWorkers() 
 	if self.automation > 0 or IsObjInDome(self) then
@@ -722,11 +718,8 @@ function Workplace:HasNearByWorkers()
 	end
 	self.domes_query_version = g_DomeVersion
 	self.domes_query_res = false
-	domes_query.area = self
-	domes_query.hexradius = g_Consts.DefaultOutsideWorkplacesRadius + 50
 	local shape = GetShapePointsToWorldPos(self)
-	ForEach(domes_query, self, shape)
-	domes_query.area = nil
+	MapForEach(self, "hex", g_Consts.DefaultOutsideWorkplacesRadius + 50, "ConstructionSite", "Dome", domes_query_func, self, shape  )
 	return self.domes_query_res
 end
 
@@ -1164,7 +1157,7 @@ function UIWorkshiftUpdate(self, building, shift)
 		items[#items + 1] = ""
 		items[#items + 1] = T{7363, "Working hours<right><number1>-<number2>h", number1 = const.DefaultWorkshifts[shift][1], number2 = const.DefaultWorkshifts[shift][2]}
 		items[#items + 1] = T{7364, "Status: <status>", status = building:IsClosedShift(shift) and T{6771, "<red>OFF</red>"} or T{6772, "<green>ON</green>"}}
-		if is_workplace then
+		if is_workplace and not building:IsClosedShift(shift) then
 			items[#items + 1] = Untranslated("\n")
 			items[#items + 1] = shift==building.current_shift and T{7634, "Building performance<right><performance>"} or T{7635, "Building performance"}
 			local texts = building:GetPerformanceReasons(shift)

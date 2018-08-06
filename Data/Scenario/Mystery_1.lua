@@ -71,7 +71,7 @@ PlaceObj('Scenario', {
 		}),
 		PlaceObj('SA_AppendToLog', {
 			'register', "_BlackCubeMysteryLog",
-			'text', T{7185, --[[Scenario Mystery 1 text]] "We should research the Dark Spectrometry technology to learn more about the Black Cubes"},
+			'text', T{7185, --[[Scenario Mystery 1 text]] "We should research the Dark Spectrometry technology to learn more about the Black Cubes."},
 		}),
 		PlaceObj('SA_RunSequence', {
 			'sequence_list', "Mystery 1",
@@ -678,7 +678,7 @@ PlaceObj('Scenario', {
 		}),
 		PlaceObj('SA_AppendToLog', {
 			'register', "_BlackCubeMysteryLog",
-			'text', T{5903, --[[Scenario Mystery 1 text]] "S.H.E.P.I.D. research completed. Buildings within range of our Sensor Towers will be protected from the cubes"},
+			'text', T{5903, --[[Scenario Mystery 1 text]] "S.H.E.P.I.D. research completed. Buildings within range of our Sensor Towers will be protected from the cubes."},
 		}),
 		PlaceObj('SA_RunSequence', {
 			'sequence_list', "Mystery 1",
@@ -708,7 +708,7 @@ PlaceObj('Scenario', {
 		}),
 		PlaceObj('SA_AppendToLog', {
 			'register', "_BlackCubeMysteryLog",
-			'text', T{5884, --[[Scenario Mystery 1 text]] "We should research the S.H.E.P.I.D. technology to protect the Colony structures from the Black Cubes"},
+			'text', T{5884, --[[Scenario Mystery 1 text]] "We should research the S.H.E.P.I.D. technology to protect the Colony structures from the Black Cubes."},
 		}),
 		PlaceObj('SA_RunSequence', {
 			'sequence_list', "Mystery 1",
@@ -854,7 +854,7 @@ PlaceObj('Scenario', {
 		}),
 		PlaceObj('SA_AppendToLog', {
 			'register', "_BlackCubeMysteryLog",
-			'text', T{5916, --[[Scenario Mystery 1 text]] "Drones influenced by the cubes have started the construction of a Mega Monolith"},
+			'text', T{5916, --[[Scenario Mystery 1 text]] "Drones influenced by the cubes have started the construction of a Mega Monolith."},
 		}),
 		PlaceObj('SA_RunSequence', {
 			'sequence_list', "Mystery 1",
@@ -990,6 +990,11 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_AppendToLog', {
 			'register', "_BlackCubeMysteryLog",
 			'text', T{5926, --[[Scenario Mystery 1 text]] "We communed with the Ancients in a collective dream. They were impressed by our creativity."},
+		}),
+		PlaceObj('SA_DestroyObjects', {
+			'obj_label', "BlackCubeDump",
+			'obj_count', 0,
+			'destroy_all', true,
 		}),
 		PlaceObj('SA_DestroyObjects', {
 			'obj_class', "BlackCubeStockpileBase",

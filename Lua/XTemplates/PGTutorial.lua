@@ -24,12 +24,13 @@ PlaceObj('XTemplate', {
 		'__template', "OverlayDlg",
 		'Id', "idOverlay",
 		'HandleMouse', true,
+		'HostInParent', true,
 		'InitialMode', "tutorial",
 		'InternalModes', "tutorial",
 	}, {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
-			'parent', function (parent, context) return GetXDialog(parent) end,
+			'parent', function (parent, context) return GetDialog(parent) end,
 			'func', function (self, ...)
 XDialog.Open(self, ...)
 local pad = self.idFrame:GetPadding()

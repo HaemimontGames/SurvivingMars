@@ -83,7 +83,7 @@ function XPageScroll:Init()
 	XAction:new({
 		ActionId = "actionNextPage",
 		ActionGamepad = "RightShoulder",
-		OnAction = function(action, host, win, toggled)
+		OnAction = function(action, host, win)
 			if self:GetVisible() then
 				self:NextPage()
 				return "break"
@@ -93,7 +93,7 @@ function XPageScroll:Init()
 	XAction:new({
 		ActionId = "actionPrevPage",
 		ActionGamepad = "LeftShoulder",
-		OnAction = function(action, host, win, toggled)
+		OnAction = function(action, host, win)
 			if self:GetVisible() then
 				self:PreviousPage()
 				return "break"

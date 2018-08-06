@@ -13,7 +13,7 @@ PlaceObj('XTemplate', {
 			'ActionId', "ScanAllSectors",
 			'ActionTranslate', false,
 			'ActionName', "Scan All Sectors",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatMapExplore", "scanned")
 end,
 		}),
@@ -21,7 +21,7 @@ end,
 			'ActionId', "DeepScanAllSectors",
 			'ActionTranslate', false,
 			'ActionName', "Deep Scan All Sectors",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatMapExplore", "deep scanned")
 end,
 		}),
@@ -36,7 +36,7 @@ end,
 			'ActionId', "DustDevil",
 			'ActionTranslate', false,
 			'ActionName', "Dust Devil",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatDustDevil")
 end,
 		}),
@@ -44,7 +44,7 @@ end,
 			'ActionId', "DustDevilMajor",
 			'ActionTranslate', false,
 			'ActionName', "Dust Devil (Major)",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatDustDevil", "major")
 end,
 		}),
@@ -52,7 +52,7 @@ end,
 			'ActionId', "DustStorm",
 			'ActionTranslate', false,
 			'ActionName', "Dust Storm",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatDustStorm", "normal")
 end,
 		}),
@@ -60,7 +60,7 @@ end,
 			'ActionId', "DustStormGreat",
 			'ActionTranslate', false,
 			'ActionName', "Dust Storm (Great)",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatDustStorm", "great")
 end,
 		}),
@@ -68,7 +68,7 @@ end,
 			'ActionId', "DustStormElectrostatic",
 			'ActionTranslate', false,
 			'ActionName', "Dust Storm (Electrostatic)",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatDustStorm", "electrostatic")
 end,
 		}),
@@ -76,7 +76,7 @@ end,
 			'ActionId', "ColdWave",
 			'ActionTranslate', false,
 			'ActionName', "Cold Wave",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatColdWave")
 end,
 		}),
@@ -84,7 +84,7 @@ end,
 			'ActionId', "MeteorsSingle",
 			'ActionTranslate', false,
 			'ActionName', "Meteors (Single)",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatMeteors", "single")
 end,
 		}),
@@ -92,7 +92,7 @@ end,
 			'ActionId', "MeteorsMulti",
 			'ActionTranslate', false,
 			'ActionName', "Meteors (Multi)",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatMeteors", "multispawn")
 end,
 		}),
@@ -100,7 +100,7 @@ end,
 			'ActionId', "MeteorsStorm",
 			'ActionTranslate', false,
 			'ActionName', "Meteors (Storm)",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatMeteors", "storm")
 end,
 		}),
@@ -108,7 +108,7 @@ end,
 			'ActionId', "StopDisaster",
 			'ActionTranslate', false,
 			'ActionName', "Stop Disaster",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatStopDisaster")
 end,
 		}),
@@ -123,7 +123,7 @@ end,
 			'ActionId', "ResearchCurrentTech",
 			'ActionTranslate', false,
 			'ActionName', "Research Current Tech",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatResearchCurrent")
 end,
 		}),
@@ -131,7 +131,7 @@ end,
 			'ActionId', "ResearchAllTech",
 			'ActionTranslate', false,
 			'ActionName', "Research All Tech",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatResearchAll")
 end,
 		}),
@@ -139,7 +139,7 @@ end,
 			'ActionId', "UnlockAllTech",
 			'ActionTranslate', false,
 			'ActionName', "Unlock All Tech",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatUnlockAllTech")
 end,
 		}),
@@ -147,7 +147,7 @@ end,
 			'ActionId', "UnlockBreakthroughs",
 			'ActionTranslate', false,
 			'ActionName', "Unlock Breakthroughs",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatUnlockBreakthroughs")
 end,
 		}),
@@ -162,7 +162,7 @@ end,
 			'ActionId', "SpawnColonists1",
 			'ActionTranslate', false,
 			'ActionName', "+1 Colonist",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatSpawnNColonists", 1)
 end,
 		}),
@@ -170,7 +170,7 @@ end,
 			'ActionId', "SpawnColonists10",
 			'ActionTranslate', false,
 			'ActionName', "+10 Colonists",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatSpawnNColonists", 10)
 end,
 		}),
@@ -178,24 +178,24 @@ end,
 			'ActionId', "SpawnColonists100",
 			'ActionTranslate', false,
 			'ActionName', "+100 Colonists",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatSpawnNColonists", 100)
 end,
 		}),
 		}),
 	PlaceObj('XTemplateAction', {
-		'ActionId', "ToggleInfopanelCheats",
+		'ActionId', "CheatToggleInfopanelCheats",
 		'ActionTranslate', false,
 		'ActionName', "Toggle Infopanel Cheats",
-		'OnAction', function (self, host, source, toggled)
-host:Op("GedOpTriggerCheat", "root", "ToggleInfopanelCheats")
+		'OnAction', function (self, host, source)
+host:Op("GedOpTriggerCheat", "root", "CheatToggleInfopanelCheats")
 end,
 	}),
 	PlaceObj('XTemplateAction', {
 		'ActionId', "UnlockBuildings",
 		'ActionTranslate', false,
 		'ActionName', "Unlock All Buildings",
-		'OnAction', function (self, host, source, toggled)
+		'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatUnlockAllBuildings")
 end,
 	}),
@@ -203,7 +203,7 @@ end,
 		'ActionId', "CompleteWiresPipes",
 		'ActionTranslate', false,
 		'ActionName', "Complete All Wires/Pipes",
-		'OnAction', function (self, host, source, toggled)
+		'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatCompleteAllWiresAndPipes")
 end,
 	}),
@@ -211,7 +211,7 @@ end,
 		'ActionId', "CompleteConstructions",
 		'ActionTranslate', false,
 		'ActionName', "Complete All Constructions",
-		'OnAction', function (self, host, source, toggled)
+		'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatCompleteAllConstructions")
 end,
 	}),
@@ -219,7 +219,7 @@ end,
 		'ActionId', "AddFunding500000000",
 		'ActionTranslate', false,
 		'ActionName', "Add Funding ($500,000,000)",
-		'OnAction', function (self, host, source, toggled)
+		'OnAction', function (self, host, source)
 host:Op("GedOpTriggerCheat", "root", "CheatAddFunding", 500000000)
 end,
 	}),

@@ -4,7 +4,6 @@ PlaceObj('XTemplate', {
 	group = "Infopanel Sections",
 	id = "sectionPowerProduction",
 	PlaceObj('XTemplateTemplate', {
-		'__context_of_kind', "ElectricityProducer",
 		'__condition', function (parent, context) return context and context:ShowUISectionElectricityProduction() end,
 		'__template', "InfopanelSection",
 		'RolloverText', T{508800248152, --[[XTemplate sectionPowerProduction RolloverText]] "Production per Sol<right><power(UIPowerProductionToday)><newline><left>Lifetime production<right><power(UIPowerProductionLifetime)>"},
@@ -35,7 +34,7 @@ PlaceObj('XTemplate', {
 		}),
 		}),
 	PlaceObj('XTemplateTemplate', {
-		'__context_of_kind', "SolarPanel",
+		'__context_of_kind', "SolarPanelBuilding",
 		'__template', "InfopanelSection",
 		'OnContextUpdate', function (self, context, ...)
 self:SetVisible(context:GetEletricityUnderproduction() ~= 0)
@@ -48,17 +47,7 @@ end,
 			'FoldWhenHidden', true,
 			'ContextUpdateOnOpen', true,
 			'OnContextUpdate', function (self, context, ...)
-self:SetVisible(g_DustStorm and context:GetUIPowerProduction() ~= 0)
-XText.OnContextUpdate(self, context, ...)				
-end,
-			'Text', T{442, --[[XTemplate sectionPowerProduction Text]] "Producing <em><power(EletricityUnderproduction)></em> less than optimal output due to Dust Storm"},
-		}),
-		PlaceObj('XTemplateTemplate', {
-			'__template', "InfopanelText",
-			'FoldWhenHidden', true,
-			'ContextUpdateOnOpen', true,
-			'OnContextUpdate', function (self, context, ...)
-self:SetVisible(context:GetUIPowerProduction() == 0)
+self:SetVisible(not g_DustStorm and context:GetUIPowerProduction() == 0)
 end,
 			'Text', T{443, --[[XTemplate sectionPowerProduction Text]] "Not producing Power during the night"},
 		}),

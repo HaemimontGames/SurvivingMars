@@ -1,79 +1,76 @@
-DefineClass.BaseResearchLab =
-{	__parents = { "ElectricityConsumer", "Workplace", "InteriorAmbientLife" },
+DefineClass.ResearchBuilding =
+{	
+	__parents = { "ElectricityConsumer", "Workplace" },
 
 	properties = {
 		{ template = true, modifiable = true, id = "ResearchPointsPerDay", name = T{686, "RP/Day"}, editor = "number", category = "Research", default = 1000, help = "Research Points Generated Per Day", scale = 1000 },
 	},
-
-	interior = {"ResearchLabInterior"},
-	spots = {"Terminal"},
-	anims = {{anim = "terminal",all = true}},
 	
 	research_points_day = 0,
 	research_points_lifetime = 0,
 }
 
-function BaseResearchLab:GameInit()
+function ResearchBuilding:GameInit()
 	if HintsEnabled then
 		HintTrigger("HintResearchAvailable")
 	end
 end
 
-function BaseResearchLab:SetDome(dome)
-	if self.parent_dome then
-		self.parent_dome:RemoveFromLabel("BaseResearchLab", self)
-	end
-	
-	Building.SetDome(self, dome)
-	
-	if dome then
-		self.parent_dome:AddToLabel("BaseResearchLab", self)
-	end	
-end
-
-function BaseResearchLab:BuildingUpdate(dt, ...)
+function ResearchBuilding:BuildingUpdate(dt, ...)
 	if self.working then
 		self:AddResearchPoints(dt)
 	end
 end
 
-function BaseResearchLab:BuildingDailyUpdate(...)
+function ResearchBuilding:BuildingDailyUpdate(...)
 	self.research_points_day = 0
 end
 
-function BaseResearchLab:TechId()
+function ResearchBuilding:TechId()
 	local tech_id = self.city:GetResearchInfo()
 	return tech_id
 end
 
-function BaseResearchLab:GetWorkNotPossibleReason()
+function ResearchBuilding:GetWorkNotPossibleReason()
 	if not self:TechId() then
 		return "NoResearch"
 	end
-	return Building.GetWorkNotPossibleReason(self)
+	return ElectricityConsumer.GetWorkNotPossibleReason(self)
 end
 
-function BaseResearchLab:GetResearchProgress()
+function ResearchBuilding:GetResearchProgress()
 	return self.city:GetResearchProgress()
 end
 
-function BaseResearchLab:GetEstimatedDailyProduction()
+function ResearchBuilding:GetEstimatedDailyProduction()
 	local total = 0
 	local durations = const.DefaultWorkshiftDurations
 	for i=1,#durations do
 		total = total + self:ModifyValue(self:GetWorkshiftPerformance(i), "performance") * durations[i] * self.ResearchPointsPerDay
 	end
 	local pts = total / (100 * const.HoursPerDay)
-	local res = MulDivRound(pts, 100 - self:GetCollaborationLoss(), 100)
-	return res, pts - res
+	local res = 0
+	local collaboration_loss = 0
+	-- res is not 0 only if the building is working or the only reason for it to not work is that there is no technology selected for research
+	if self.working or (not self:TechId() and not ElectricityConsumer.GetWorkNotPossibleReason(self)) then 
+		res = MulDivRound(pts, 100 - self:GetCollaborationLoss(), 100)
+		collaboration_loss = pts - res
+	end
+	return res, collaboration_loss, pts
 end
 
-function BaseResearchLab:GetEstimatedDailyLoss()
-	local pts, loss = self:GetEstimatedDailyProduction()
+function ResearchBuilding:GetEstimatedDailyLoss()
+	local pts, loss, total = self:GetEstimatedDailyProduction()
 	return loss
 end
 
-function BaseResearchLab:GetCollaborationLoss()
+function ResearchBuilding:GetEstimatedDailyTotal()
+	local pts, loss, total = self:GetEstimatedDailyProduction()
+	return total
+end
+
+
+function ResearchBuilding:GetCollaborationLoss()
 	local blds = self.city.labels[self.template_name]
 	local count = 1
 	for i=1,#blds do
@@ -85,7 +82,7 @@ function BaseResearchLab:GetCollaborationLoss()
 	return Min(g_Consts.MaxResearchCollaborationLoss, (count - 1) * 10)
 end
 
-function BaseResearchLab:AddResearchPoints(dt)
+function ResearchBuilding:AddResearchPoints(dt)
 	if not self.working then return 0 end
 	
 	local points_to_add = MulDivRound(self.performance * self.ResearchPointsPerDay, dt, const.DayDuration * 100)
@@ -105,7 +102,7 @@ function BaseResearchLab:AddResearchPoints(dt)
 	end
 end
 
-function BaseResearchLab:OnSetWorking(working)
+function ResearchBuilding:OnSetWorking(working)
 	ElectricityConsumer.OnSetWorking(self, working)
 	Workplace.OnSetWorking(self, working)
 	
@@ -122,11 +119,11 @@ function BaseResearchLab:OnSetWorking(working)
 	end
 end
 
-function BaseResearchLab:UIResearchTech()
+function ResearchBuilding:UIResearchTech()
 	OpenResearchDialog()
 end
 --fx------------------------------------------------------------
-function BaseResearchLab:SetSupply(resource, amount)	
+function ResearchBuilding:SetSupply(resource, amount)	
 	ElectricityConsumer.SetSupply(self, resource, amount)
 	if not self:TechId() and self.ui_working then --else Research start/end should fire
 		if amount <= 0 then --no electricity
@@ -137,7 +134,7 @@ function BaseResearchLab:SetSupply(resource, amount)
 	end
 end
 
-function BaseResearchLab:SetUIWorking(work)
+function ResearchBuilding:SetUIWorking(work)
 	ElectricityConsumer.SetUIWorking(self, work)
 	if not self:TechId() and self:HasPower() then --else Research start/end should fire
 		if work then
@@ -148,19 +145,37 @@ function BaseResearchLab:SetUIWorking(work)
 	end
 end
 
-function BaseResearchLab:GetUIResearchProject()
+function ResearchBuilding:GetUIResearchProject()
 	return self.city:GetUIResearchProject()
 end
 
 function ResearchLabUpdateAll()
-	ForEach{
-		class = "BaseResearchLab",
-		exec = function(lab)
+	MapForEach("map", "ResearchBuilding",
+		function(lab)
 			lab:UpdateWorking()
-		end
-	}
+		end)
 end
 
 function OnMsg.ResearchQueueChange()
 	DelayedCall(0, ResearchLabUpdateAll)
+end
+
+DefineClass.BaseResearchLab =
+{	__parents = { "ResearchBuilding", "InteriorAmbientLife" },
+
+	interior = {"ResearchLabInterior"},
+	spots = {"Terminal"},
+	anims = {{anim = "terminal",all = true}},
+}
+
+function BaseResearchLab:SetDome(dome)
+	if self.parent_dome then
+		self.parent_dome:RemoveFromLabel("BaseResearchLab", self)
+	end
+	
+	Building.SetDome(self, dome)
+	
+	if dome then
+		self.parent_dome:AddToLabel("BaseResearchLab", self)
+	end	
 end

@@ -4,8 +4,8 @@ DefineClass.CasinoComplex = {
 function CasinoComplex:Service(unit, duration)
 	if unit.traits.Gambler then
 		if self:Random(100) < 50 then
-			local trait = DataInstances.Trait.Gambler
-			unit:ChangeSanity(-trait.param * const.Scale.Stat, trait.name)
+			local trait = TraitPresets.Gambler
+			unit:ChangeSanity(-trait.param * const.Scale.Stat, trait.id)
 		end
 	end
 	ServiceWorkplace.Service(self, unit, duration)

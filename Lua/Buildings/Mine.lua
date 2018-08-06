@@ -65,7 +65,7 @@ function Mine:GatherConstructionStatuses(statuses)
 		end
 		grade = DepositGradesTable[grade] -- index to name
 		grade = DepositGradeToDisplayName[grade] -- name to display name
-		status.text = T{status.text, {resource = FormatResource(amount, self.exploitation_resource, empty_table), grade = grade, col = ConstructionStatusColors.info.color_tag}}
+		status.text = T{status.text, {resource = FormatResource(empty_table, amount, self.exploitation_resource), grade = grade, col = ConstructionStatusColors.info.color_tag}}
 		statuses[#statuses + 1] = status
 	end
 end
@@ -151,6 +151,13 @@ function RegolithExtractor:GameInit()
 	end
 end
 
+function RegolithExtractor:SetPalette(palette)
+	Building.SetPalette(self, palette)
+	if self.anim_obj and self.anim_obj.ring then
+		Building.SetPalette(self.anim_obj.ring, palette)
+	end
+end
+
 function RegolithExtractor:Done()
 	self:DeleteAnimObj()
 end
@@ -163,6 +170,11 @@ function RegolithExtractor:OnDestroyed()
 	local ring = PlaceObject("RegolithExtractorRing", nil, const.cfComponentAttach)
 	ring:SetAttachAngle(angle)
 	self:Attach(ring, self:GetSpotBeginIndex("Origin"))
+end
+
+function RegolithExtractor:SetUIWorking(work)
+	OutsideBuildingWithShifts.SetUIWorking(self,work)
+	Mine.SetUIWorking(self, work)
 end
 
 function RegolithExtractor:DeleteAnimObj()
@@ -243,10 +255,6 @@ function RegolithExtractor:GetSupplyGridConnectionShapePoints(supply_resource)
 	return self:GetShapePoints(supply_resource)
 end
 
-function RegolithExtractor:GetDepositResource()
-	return self.exploitation_resource
-end
-
 function RegolithExtractor:GatherNearbyDeposits()
 end
 
@@ -278,7 +286,7 @@ function RegolithExtractor:GatherConstructionStatuses(statuses)
 		statuses[#statuses + 1] = ConstructionStatus.ResourceRequired
 	else
 		local status = table.copy(ConstructionStatus.DepositInfo)
-		status.text = T{status.text, {resource = FormatResource(amount, self.exploitation_resource, empty_table), grade = self:Getgrade_name(closest_deposit), col = ConstructionStatusColors.info.color_tag}}
+		status.text = T{status.text, {resource = FormatResource(empty_table, amount, self.exploitation_resource), grade = self:Getgrade_name(closest_deposit), col = ConstructionStatusColors.info.color_tag}}
 		statuses[#statuses + 1] = status
 	end
 	ElectricityConsumer.GatherConstructionStatuses(self, statuses)
@@ -336,7 +344,12 @@ function OnMsg.CityStart()
 end
 
 function OnMsg.ConstructionSitePlaced(site)
-	if IsKindOf(site.building_class_proto, "RegolithExtractor") and IsValidThread(RegolithExtractorHintPopupThread) then
+	if not IsValidThread(RegolithExtractorHintPopupThread) then
+		return
+	end
+	
+	local building_class = site.building_class_proto
+	if IsKindOfClasses(building_class, "RegolithExtractor", "TheExcavator") then
 		DeleteThread(RegolithExtractorHintPopupThread)
 	end
 end
@@ -482,6 +495,10 @@ function RegolithMineVisual:InitMineVisuals()
 	self.current_depth = base_height - self.dig_height
 	self.current_strip = 1
 	self.base_height = base_height
+	
+	if self.mine and self.mine.palette then
+		Building.SetPalette(ring, self.mine.palette)
+	end
 end
 
 function RegolithMineVisual:Done()

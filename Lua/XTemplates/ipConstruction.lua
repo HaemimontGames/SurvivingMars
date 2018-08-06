@@ -8,7 +8,7 @@ PlaceObj('XTemplate', {
 		'Description', T{10, --[[XTemplate ipConstruction Description]] "<Description>"},
 	}, {
 		PlaceObj('XTemplateTemplate', {
-			'__condition', function (parent, context) return context:HasConstructionCost() end,
+			'__condition', function (parent, context) return context:HasConstructionCost() and not IsGameRuleActive("FreeConstruction") end,
 			'__template', "InfopanelSection",
 			'RolloverText', T{900, --[[XTemplate ipConstruction RolloverText]] "All resources have to be delivered to the site by Drones."},
 			'Title', T{899, --[[XTemplate ipConstruction Title]] "Construction cost"},

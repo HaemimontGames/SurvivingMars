@@ -93,7 +93,8 @@ function Demolishable:DoDemolish()
 			local start_time = RealTime()
 			Sleep(fx_sleep)
 			if GetTimeFactor() > 0 and not IsPaused() then
-				local dt = Min(fx_sleep, RealTime() - start_time)
+				local real_sleep = fx_sleep * 1000 / GetTimeFactor()
+				local dt = Min(fx_sleep, real_sleep)
 				fx_cooldown = fx_cooldown - dt
 				if fx_cooldown < 0 then
 					fx_cooldown = fx_cooldown + fx_sleep

@@ -177,7 +177,7 @@ end
 local function GetBaseClasses()
 	-- Populate with important base classes
 	local base_classes = {"Unit", "DroneBase", "Building", "ElectricityConsumer"}
-	return ListToComboItems(base_classes, true)
+	return ListToCombo(base_classes, true)
 end
 
 local function GetChildClasses(obj)

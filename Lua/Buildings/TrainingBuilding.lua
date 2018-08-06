@@ -69,7 +69,9 @@ end
 function TrainingBuilding:AddWorker(unit, shift)
 	self.visitors[shift] = self.visitors[shift] or {}
 	table.insert(self.visitors[shift],unit)	
-
+	if shift == CurrentWorkshift then
+		self:UpdateOccupation(#self.visitors[shift], self.max_visitors)
+	end
 	self:UpdateConsumption()
 end
 
@@ -80,7 +82,7 @@ function TrainingBuilding:RemoveWorker(unit)
 	self:StopWorkCycle(unit)
 	
 	self:UpdateConsumption()
-	
+	self:UpdateOccupation(#self.visitors[CurrentWorkshift], self.max_visitors)
 	if unit:IsInWorkCommand() then
 		unit:InterruptCommand()
 	end
@@ -292,10 +294,15 @@ end
 
 function TrainingBuilding:OnChangeWorkshift(old, new)
 	if old then
+		local dark_penalty = IsDarkHour(self.city.hour - 4) and -g_Consts.WorkDarkHoursSanityDecrease
 		for _, visitor in ipairs(self.visitors[old]) do
+			if dark_penalty then
+				visitor:ChangeSanity(dark_penalty, "work in dark hours")
+			end
 			visitor:InterruptVisit()	
 		end
 	end
+	self:UpdateOccupation(#self.visitors[new], self.max_visitors)
 	RebuildInfopanel(self)
 end
 

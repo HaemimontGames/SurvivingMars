@@ -23,7 +23,7 @@ PlaceObj('XTemplate', {
 			'Padding', box(0, 0, 0, 0),
 			'HAlign', "right",
 			'OnPress', function (self, gamepad)
-local dlg = GetXDialog(self)
+local dlg = GetDialog(self)
 dlg.context.dome = nil
 SetBackDialogMode(self)
 end,
@@ -39,7 +39,7 @@ end,
 				'Padding', box(0, 0, 0, 0),
 				'HAlign', "right",
 				'OnPress', function (self, gamepad)
-local dlg = GetXDialog(self)
+local dlg = GetDialog(self)
 dlg.context.dome = self.context
 SetBackDialogMode(self)
 end,

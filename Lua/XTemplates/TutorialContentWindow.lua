@@ -16,11 +16,13 @@ PlaceObj('XTemplate', {
 			'BorderWidth', 0,
 			'Dock', "top",
 			'LayoutVSpacing', 16,
+			'UniformRowHeight', true,
 			'Clip', false,
 			'Background', RGBA(0, 0, 0, 0),
 			'FocusedBackground', RGBA(0, 0, 0, 0),
 			'VScroll', "idScroll",
 			'ShowPartialItems', false,
+			'MouseScroll', true,
 			'RespawnOnContext', false,
 		}, {
 			PlaceObj('XTemplateAction', {
@@ -73,12 +75,11 @@ end,
 					}),
 				}),
 			}),
+		PlaceObj('XTemplateTemplate', {
+			'__template', "Scrollbar",
+			'Id', "idScroll",
+			'Target', "idList",
 		}),
-	PlaceObj('XTemplateWindow', {
-		'__class', "XPageScroll",
-		'Id', "idScroll",
-		'Dock', "bottom",
-		'Target', "idList",
-	}),
+		}),
 })
 

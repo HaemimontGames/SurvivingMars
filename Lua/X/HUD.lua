@@ -20,7 +20,7 @@ HUD.button_definitions = {
 	},
 	idBuild = {
 		callback = function(this)
-			if GetXDialog("XBuildMenu") then
+			if GetDialog("XBuildMenu") then
 				CloseXBuildMenu()
 			else
 				OpenXBuildMenu()
@@ -56,6 +56,7 @@ HUD.button_definitions = {
 		shine = "UI/HUD/research_shine.tga",
 		FXPress = "ResearchButtonClick",
 	},
+	
 	idResupply = {
 		rollover = {title = T{3997, "Resupply"},
 			descr = T{4006, "Request a new cargo or passenger Rocket from Earth."},
@@ -77,7 +78,9 @@ HUD.button_definitions = {
 		selection = true,
 		enabled = IsHUDResupplyEnabled,
 		callback = function(this)
-			OpenDialog("Resupply")
+			if not IsValidThread(CameraTransitionThread) then
+				OpenDialog("Resupply")
+			end
 		end,
 		image = "UI/HUD/resupply.tga",
 		shine = "UI/HUD/resupply_shine.tga",
@@ -98,10 +101,10 @@ HUD.button_definitions = {
 			return not g_Tutorial
 		end,
 		callback = function(this)
-			if GetXDialog("Milestones") then
-				GetXDialog("Milestones"):Close()
+			if GetDialog("Milestones") then
+				GetDialog("Milestones"):Close()
 			else
-				OpenXDialog("Milestones")
+				OpenDialog("Milestones")
 			end
 		end,
 		image = "UI/HUD/missions.tga",
@@ -160,7 +163,7 @@ HUD.button_definitions = {
 	},
 	
 	idPause = {
-		rollover = {title = T{6869, "Pause"}, descr = T{4017, "Pause the game."}, id = "Pause", hint_gamepad = T{4018, "<em><ShortcutName('actionPauseGame')>/<DPadUp>:</em> Pause/unpause"}, hint = T{9826, "<em><ShortcutName('actionPauseGame')>:</em> Pause/unpause"}},
+		rollover = {title = T{6869, "Pause"}, descr = T{4017, "Pause the game."}, id = "Pause", hint_gamepad = T{4018, "<em><ShortcutName('actionPauseGame')>/<DPadUp>:</em> Pause/unpause"}, hint = T{10094, "<em><ShortcutName('actionPauseGame')>:</em> Pause/unpause"}},
 		image = "UI/HUD/pause.tga",
 		shine = "UI/HUD/double_speed_shine.tga",
 	},
@@ -188,10 +191,10 @@ HUD.button_definitions = {
 	},
 	
 	idDrones = {
-		rollover = {title = T{517, "Drones"}, descr = T{4029, "Represents the total number of Drones in your colony. The Drones are automated units controlled by Drone Hubs, Rovers and Rockets."}, id = "Drones"},
+		rollover = {title = T{517, "Drones"}, descr = T{4029, "Represents the total number of Drones in your colony. The Drones are automated units controlled by Drone Hubs, Commanders and Rockets."}, id = "Drones"},
 	},
 	idDronesImg = {
-		rollover = {title = T{517, "Drones"}, descr = T{4029, "Represents the total number of Drones in your colony. The Drones are automated units controlled by Drone Hubs, Rovers and Rockets."}, id = "Drones"},
+		rollover = {title = T{517, "Drones"}, descr = T{4029, "Represents the total number of Drones in your colony. The Drones are automated units controlled by Drone Hubs, Commanders and Rockets."}, id = "Drones"},
 	},
 	idHumans = {
 		rollover = {title = T{547, "Colonists"}, descr = T{4030, "Represents the total number of Colonists in your Colony. Colonists live within Domes and require Air, Water and Food to survive."}, id = "Colonists"},
@@ -203,8 +206,8 @@ HUD.button_definitions = {
 
 HUD.button_list = table.keys2(HUD.button_definitions, true)
 
-local LeftHUDButtons = {"idBuild", "idOverview", "idResupply", "idResearch"}
-local RightHUDButtons = {"idColonyControlCenter", "idColonyOverview", "idMarkers", "idRadio", "idMenu"}
+LeftHUDButtons = {"idBuild", "idOverview", "idResupply", "idResearch"}
+RightHUDButtons = {"idColonyControlCenter", "idColonyOverview", "idMarkers", "idRadio", "idMenu"}
 local SpeedControlButtons = {"idPause", "idPlay", "idMedium", "idFast"}
 
 function HUD:Init()
@@ -497,7 +500,7 @@ function HUD:SetDayProgress(value)
 end
 
 function HUD:UpdateGamepadControls()
-	local visible = not GetUIStyleGamepad() or (Platform.console and g_MouseConnected)
+	local visible = not GetUIStyleGamepad()
 	self.idWatermarkLeft:SetVisible(visible)
 	self.idPadLeft:SetVisible(visible)
 	self.idWatermarkRight:SetVisible(visible)
@@ -615,7 +618,11 @@ function HUD:SetCtrlRollover(ctrl, descr_t)
 		local rollover = descr_t.rollover
 		ctrl:SetRolloverTitle(T{rollover.title, UICity})
 		ctrl:SetRolloverText(T{rollover.descr, UICity})
-		ctrl:SetRolloverHint(GetUIStyleGamepad() and rollover.hint_gamepad and T{rollover.hint_gamepad, UICity} or rollover.hint and T{rollover.hint, UICity} or "")
+		if GetUIStyleGamepad() then
+			ctrl:SetRolloverHint(rollover.hint_gamepad and T{rollover.hint_gamepad, UICity} or "")
+		else
+			ctrl:SetRolloverHint(rollover.hint and T{rollover.hint, UICity} or "")
+		end
 		local disabled_rollover = descr_t.rollover_disabled
 		if disabled_rollover then
 			local descr = disabled_rollover.descr
@@ -726,5 +733,5 @@ DefineClass.HUDSpeedControlButton =
 }
 
 function GetHUD()
-	return GetXDialog("HUD")
+	return GetDialog("HUD")
 end

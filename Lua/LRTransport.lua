@@ -55,18 +55,18 @@ function BuildStorableResourcesArray()
 	--deduce the kind of resources storage depots can store
 	StorableResources = {}
 	local descendants = ClassDescendantsList("StorageDepot")
-	local template_depots = table.ifilter(DataInstances.BuildingTemplate, function(i, o)			
-			local c = ClassTemplates.Building[o.name]
+	local template_depots = table.filter(BuildingTemplates, function(id, o)
+			local c = ClassTemplates.Building[id]
 			if c and IsKindOf(c, "StorageDepot") and not c.exclude_from_lr_transportation then 
-				return o 
+				return o
 			end
 		end)
-	for _, t in ipairs(template_depots) do
-		table.insert(descendants, t.name)
+	for _, t in pairs(template_depots) do
+		table.insert(descendants, t.id)
 	end
 	local resources = {}
 	for i = 1, #descendants do
-		local class_def = DataInstances.BuildingTemplate[descendants[i]] or g_Classes[descendants[i]]
+		local class_def = BuildingTemplates[descendants[i]] or g_Classes[descendants[i]]
 		if not class_def.exclude_from_lr_transportation then
 			if class_def:HasMember("storable_resources") then --shared storage
 				for i = 1, #(class_def.storable_resources or empty_table) do
@@ -139,8 +139,8 @@ function CreateColonistTransportTask(colo, source_dome, dest_dome)
 	if ref_pos == InvalidPos() then
 		return --cant create transport req, we don't know where colo is
 	end
-	local landing_pos, landing_idx = source_dome:GetNearestLandingSpot(ref_pos)
-	if not landing_pos then
+	local landing_slot, landing_idx = source_dome:GetNearestLandingSlot(ref_pos)
+	if not landing_slot then
 		assert(false, "No landing spot found!")
 		return
 	end
@@ -148,7 +148,7 @@ function CreateColonistTransportTask(colo, source_dome, dest_dome)
 		colonist = colo,
 		source_dome = source_dome,
 		dest_dome = dest_dome,
-		source_landing_site = table.pack(landing_pos, landing_idx),
+		source_landing_site = table.pack(landing_slot.pos, landing_idx),
 	}
 	colo.transport_task = req
 	LRManagerInstance:AddColonistTransportRequest(req)
@@ -230,7 +230,8 @@ function LRManager:RemoveBuilding(building)
 		end
 	end	
 	
-	assert(table.remove_entry(self.registered_storages, building))
+	local element_was_removed = table.remove_entry(self.registered_storages, building)
+	assert(element_was_removed)
 	self.registered_storages[building] = nil
 end
 
@@ -298,7 +299,7 @@ local function CheckMinDist(bld1, bld2)
 end
 
 local hystory_time = 3*const.HourDuration
-function LRManager:FindTransportTask(requestor, demand_only, force_resource)
+function LRManager:FindTransportTask(requestor, demand_only, force_resource, capacity)
 	local colonist_task
 	local colonist_tasks = self.colonist_transport_tasks or ""
 	if not demand_only and not force_resource then
@@ -353,8 +354,7 @@ function LRManager:FindTransportTask(requestor, demand_only, force_resource)
 		end
 	end
 	--]]
-	
-	local res_s_req, res_d_req, res_prio, res_resource, req_count = Request_FindShuttleTask(requestor, resources, demand_queues, supply_queues, demand_only)
+	local res_s_req, res_d_req, res_prio, res_resource, req_count = Request_FindShuttleTask(requestor, resources, demand_queues, supply_queues, demand_only, capacity)
 	
 	local hystory = self.req_hystory or {}
 	self.req_hystory = hystory

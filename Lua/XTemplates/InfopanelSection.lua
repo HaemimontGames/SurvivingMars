@@ -110,6 +110,16 @@ end,
 				'FoldWhenHidden', true,
 			}),
 			}),
+		PlaceObj('XTemplateFunc', {
+			'name', "Open",
+			'func', function (self, ...)
+	local gamepad = GetUIStyleGamepad()
+	if gamepad and self.idSectionTitle:GetText()=="" then
+		self.idHighlight2:SetMargins(box(0,32,0,-8))
+	end
+	XSection.Open(self, ...)
+end,
+		}),
 		}),
 	PlaceObj('XTemplateProperty', {
 		'category', "General",

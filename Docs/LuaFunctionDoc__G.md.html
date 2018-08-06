@@ -32,6 +32,62 @@ Additional parameters are supplied to the translatable texts, but can also be us
 - _'game_time'_ decides if the expiration countdown is done in _RealTime_ or _GameTime_ (default=_false_).<br>
 - _'display_countdown'_ must be _true_ if the _expiration_ countdown will be displayed in the notification texts (will be formatted and supplied to the translatable texts as _'countdown'_ parameter; this requires _'game_time'_ to be _true_).<br>
 
+## AsyncCompress
+
+Compresses a string using LZ4 or ZSTD compression.<br>
+Use [AsyncDecompress](#AsyncDecompress) to get back the original vlaue.<br>
+
+string compressed_data **AsyncCompress**(original_data, pstr, compression_algo)
+original_data
+: string to be compressed.
+
+pstr
+: if the result should be returned as a *pstr* string.
+
+compression_algo
+: the compression algorithm to be used - either *"lz4"* or *"zstd"*.
+
+_returns_ compressed_data
+: the compressed data as a string.
+
+
+## AsyncDecompress
+
+Decompresses a string generated using [AsyncCompress](#AsyncCompress) and returns the original value.<br>
+
+string original_data **AsyncDecompress**(compressed_data)
+compressed_data
+: string to be decompressed.
+
+_returns_ original_data
+: the descompressed data as a string.
+
+
+## Compress
+
+Compresses a string using LZ4 compression.<br>
+Use [Decompress](#Decompress) to get back the original vlaue.<br>
+
+string compressed_data **Compress**(original_data)
+original_data
+: string to be compressed.
+
+_returns_ compressed_data
+: the compressed data as a string.
+
+
+## Decompress
+
+Decompresses a string generated using [Compress](#Compress) and returns the original value.<br>
+
+string original_data **Decompress**(compressed_data)
+compressed_data
+: string to be decompressed.
+
+_returns_ original_data
+: the descompressed data as a string.
+
+
 ## DivRound
 
 DivRound - short for Divide, Round.<br>
@@ -61,7 +117,7 @@ _returns_ point
 
 ## LuaCodeToTuple
 
-Evaluates a string generated using _'TupleToLuaCode()'_ and returns the original values.<br>
+Evaluates a string generated using [TupleToLuaCode](#TupleToLuaCode) and returns the original values.<br>
 
 error, values **LuaCodeToTuple**(string code, table env)
 string code
@@ -182,6 +238,20 @@ _returns_ int
 : RGB color represented by an integer
 
 
+## ReadModPersistentData
+
+Reads data from a persistent storage, that can be accessed between different game sessions.<br>
+This storage is not shared, but is per mod. Anything read here has been previously stored only by the same mod using [WriteModPersistentData](#WriteModPersistentData).<br>
+
+err, data **ReadModPersistentData**()
+_returns_ err
+: error message or nil, if successful.
+
+_returns_ data
+: data previously stored or nil.
+
+See also: [LuaCodeToTuple](#LuaCodeToTuple), [Decompress](#Decompress), [AsyncDecompress](#AsyncDecompress);<br>
+
 ## StateIdx
 
 Gets the index of a state (animation) by its name.<br>
@@ -203,7 +273,7 @@ _returns_ string
 ## TupleToLuaCode
 
 Converts a tuple of values to an executable Lua expression.<br>
-Use _'LuaCodeToTuple()'_ for evaluating the Lua expression.<br>
+Use [LuaCodeToTuple](#LuaCodeToTuple) for evaluating the Lua expression.<br>
 
 string code **TupleToLuaCode**(values...)
 values...
@@ -250,6 +320,21 @@ window parent
 _returns_ int choice
 : The users choice.
 
+
+## WriteModPersistentData
+
+Writes data into a persistent storage, that can be accessed between different game sessions.<br>
+The data must be a string, no longer than *const.MaxModDataSize* - make sure to always check if you're exceeding this size.<br>
+This storage is not shared, but is per mod. Anything stored here can only be read by the same mod using [ReadModPersistentData](#ReadModPersistentData).<br>
+
+err **WriteModPersistentData**(data)
+data
+: the data to be stored (as a string).
+
+_returns_ err
+: error message or nil, if successful.
+
+See also: [TupleToLuaCode](#TupleToLuaCode), [Compress](#Compress), [AsyncCompress](#AsyncCompress);<br>
 
 ## xxhash
 

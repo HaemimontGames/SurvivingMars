@@ -33,6 +33,7 @@ DefineClass.MapSettings_Meteor =
 }
 
 GlobalVar("g_MeteorStorm", false)
+GlobalVar("g_MeteorStormStop", false)
 
 local function GenerateDir(dir, angle)
 	local min, max = 10 * 60, 90 * 60
@@ -115,6 +116,7 @@ function MeteorsDisaster(meteors, meteors_type, pos)
 		--pos = point(283405, 244259, 8006)
 		local duration = UICity:Random(meteors.storm_duration_min, meteors.storm_duration_max)
 		AddOnScreenNotification("MeteorStormDuration", nil, {start_time = GameTime(), expiration = duration})
+		ShowDisasterDescription("MeteorStorm")
 		local time = 0
 		while time <= duration do
 			local meteor = SpawnMeteor(meteors, dir, angle, pos)	-- share same direction and pos, deviate angle
@@ -147,9 +149,14 @@ function MeteorsDisaster(meteors, meteors_type, pos)
 	local descr = spawned[current_idx]
 	local current_time, delta = 0, 3000
 	while current_idx <= #spawned do
-		while predict_idx < #spawned and spawned[predict_idx + 1].time < current_time + meteors.prediction_time do
+		while predict_idx < #spawned and spawned[predict_idx + 1].time < current_time + meteors.prediction_time and not g_MeteorStormStop do
 			predict_idx = predict_idx + 1
 			spawned[predict_idx].meteor:Predict()
+		end
+		if g_MeteorStormStop and not table.find(g_MeteorsPredicted, descr.meteor) then
+			RemoveOnScreenNotification("MeteorStormDuration")
+			g_MeteorStormStop = false
+			break
 		end
 		if current_time >= descr.time then
 			descr.meteor:Fall(descr.start)
@@ -217,6 +224,7 @@ GlobalGameTimeThread("MeteorStorm", function()
 			local warning_time = GetDisasterWarningTime(meteors)
 			if GameTime() - start_time > wait_time - warning_time then
 				AddOnScreenNotification("MeteorStorm", nil, {start_time = GameTime(), expiration = warning_time})
+				ShowDisasterDescription("MeteorStorm")
 				break
 			end
 			Sleep(5000)
@@ -239,13 +247,6 @@ local function filter(obj)
 	and not IsObjInDome(obj)
 	and (IsKindOf(obj, "ResourceStockpileBase") or not obj:GetParent())
 end
-local meteor_query =
-{
-	area = false,
-	arearadius = false,
-	classes = false,
-	filter = filter,
-}
 
 GlobalVar("g_MeteorsPredicted", {})
 GlobalVar("g_MeteorImpactIdx", 0)		-- currently shown meteor impact through the On-Screen Notification
@@ -280,8 +281,6 @@ DefineClass.BaseMeteor =
 	prefabs = false,
 	marked = false,
 	notification = false,
-	
-	targets = empty_table, -- list of classes that can be targeted
 }
 
 function BaseMeteor:Done()
@@ -300,13 +299,10 @@ function BaseMeteor:Done()
 	end
 end
 
-function BaseMeteor:CreateQuery(pos)
-	meteor_pos = pos or self.dest or self:GetVisualPos()
+function BaseMeteor:GetQuery()
+	meteor_pos = self.dest or self:GetVisualPos()
 	meteor_range = self.range
-	meteor_query.area = pos
-	meteor_query.arearadius = self.range + GetEntityMaxSurfacesRadius()
-	meteor_query.classes = self.targets
-	return meteor_query
+	return meteor_pos, meteor_range + GetEntityMaxSurfacesRadius() , "Drone", "Colonist", "Building", "BaseRover", "ResourceStockpileBase", "ElectricityGridElement", "LifeSupportGridElement", "PassageGridElement" , filter
 end
 
 function BaseMeteor:Predict()
@@ -316,15 +312,13 @@ function BaseMeteor:Predict()
 	end
 	g_MeteorsPredicted[#g_MeteorsPredicted + 1] = self
 	PlayFX("SensorTowerMeteorPos", "start", self, nil, self.dest)
-	if CountObjects(self:CreateQuery()) > 0 then
+	if MapCount(self:GetQuery()) > 0 then
 		self.notification = true
 		if not IsOnScreenNotificationShown("MeteorImpact") then
 			AddOnScreenNotification("MeteorImpact", CycleMeteorImpacts)
 		end
 	end
-	meteor_query.area = false
 end
-
 
 function BaseMeteor:GetTimeToImpact(dest)
 	dest = dest or self.dest
@@ -409,7 +403,7 @@ function BaseMeteor:SpawnPrefab()
 	end
 	local name = table.rand(list)
 	local err, bbox, objs = PlacePrefab(name, self:GetPos(), UICity:Random(360 * 60), "+")
-	if err or CountObjects{class = "Building", area = bbox} > 0 then
+	if err or MapCount(bbox, "Building") > 0 then
 		return
 	end
 
@@ -442,7 +436,7 @@ function BaseMeteor:SpawnDeposit(building)
 		return
 	end
 	local pos = GetRandomPassableAround(building.pos, building.radius)
-	if not pos or CountObjects{ class = "Building", area = pos, arearadius = 10 * guim } ~= 0 then
+	if not pos or MapCount(pos, 10 * guim, "Building") ~= 0 then
 		return
 	end
 	
@@ -464,13 +458,12 @@ DefineClass.BaseMeteorSmall =
 		["Polymers"] = { "Any.Gameplay.MeteorImpPolyS_01", "Any.Gameplay.MeteorImpPolyS_03" },
 		["Anomaly"] = { "Any.Gameplay.MeteorImpAnomalyS_01", "Any.Gameplay.MeteorImpAnomalyS_03" },
 	},
-	targets = { "Drone", "Building", "BaseRover", "ResourceStockpileBase", "ElectricityGridElement", "LifeSupportGridElement", "Colonist", "PassageGridElement"},
 }
 
 function BaseMeteorSmall:Explode()
+	SuspendPassEdits("MeteorSmallExplode")
 	UICity:SetCableCascadeDeletion(false, "meteor")
-	local objects = GetObjects(self:CreateQuery())
-	meteor_query.area = false
+	local objects = MapGet(self:GetQuery())
 	local passages_fractured = {}
 	local buildings_hit = {}
 	local chain_id_counter = 1
@@ -482,7 +475,7 @@ function BaseMeteorSmall:Explode()
 		if IsKindOf(obj, "Drone") then
 			if not obj:IsDead() then
 				PlayFX("MeteorMalfunction", "start", obj)
-				obj:SetCommand(self:Random(100) < g_Consts.DroneMeteorMalfunctionChance and "Malfunction" or "Dead")
+				obj:SetCommand("Dead", false, true)
 			end
 		elseif IsKindOf(obj, "Colonist") then
 			PlayFX("MeteorDestruction", "start", obj)
@@ -492,7 +485,7 @@ function BaseMeteorSmall:Explode()
 				PlayFX("MeteorMalfunction", "start", obj)
 				obj:SetCommand("Malfunction")
 			end
-		elseif IsKindOfClasses(obj, "UniversalStorageDepot", "MechanizedDepot") then
+		elseif IsKindOf(obj, "UniversalStorageDepot") then
 			if not IsKindOf(obj, "SupplyRocket") and obj:GetStoredAmount("Fuel") > 0 then
 				PlayFX("FuelExplosion", "start", obj)
 				obj:CheatEmpty()
@@ -578,6 +571,7 @@ function BaseMeteorSmall:Explode()
 	
 	
 	UICity:SetCableCascadeDeletion(true, "meteor")
+	ResumePassEdits("MeteorSmallExplode")
 end
 
 DefineClass.BaseMeteorLarge =
@@ -591,7 +585,6 @@ DefineClass.BaseMeteorLarge =
 		["Anomaly"] = { "Any.Gameplay.MeteorImpAnomalyB_01", "Any.Gameplay.MeteorImpAnomalyB_03" },
 	},
 	crack_type = "Large",
-	targets = { "Drone", "Colonist", "Building", "BaseRover", "ResourceStockpileBase", "ElectricityGridElement", "LifeSupportGridElement", "PassageGridElement"  },
 }
 
 function BaseMeteorLarge:Init()
@@ -599,9 +592,9 @@ function BaseMeteorLarge:Init()
 end
 
 function BaseMeteorLarge:Explode()
+	SuspendPassEdits("MeteorLargeExplode")
 	UICity:SetCableCascadeDeletion(false, "meteor")
-	local objects = GetObjects(self:CreateQuery())
-	meteor_query.area = false
+	local objects = MapGet(self:GetQuery())
 	local chain_id_counter = 1
 	local passages_fractured = {}
 	local destroyed_pipes = {}
@@ -613,7 +606,7 @@ function BaseMeteorLarge:Explode()
 		if IsKindOfClasses(obj, "Drone", "BaseRover") then
 			if not obj:IsDead() then
 				PlayFX("MeteorDestruction", "start", obj)
-				obj:SetCommand("Dead")
+				obj:SetCommand("Dead", false, true)
 			end
 		elseif IsKindOf(obj, "Colonist") then
 			PlayFX("MeteorDestruction", "start", obj)
@@ -637,9 +630,11 @@ function BaseMeteorLarge:Explode()
 			end
 		elseif IsKindOf(obj, "Building") then
 			if not IsKindOfClasses(obj, "Dome", "ConstructionSite") then
-				PlayFX("MeteorDestruction", "start", obj)
-				table.insert(buildings_hit, { pos = obj:GetPos(), radius = obj:GetRadius() * 150 / 100 })
-				DestroyBuildingImmediate(obj)
+				local pos, radius = obj:GetPos(), obj:GetRadius() * 150 / 100
+				if DestroyBuildingImmediate(obj) then
+					PlayFX("MeteorDestruction", "start", obj, nil, pos)
+					table.insert(buildings_hit, { pos = pos, radius = radius})
+				end
 			end
 		elseif IsKindOfClasses(obj, "ElectricityGridElement", "LifeSupportGridElement") then
 			--destroy if origin in range, break if otherwise
@@ -700,6 +695,7 @@ function BaseMeteorLarge:Explode()
 	end
 	
 	UICity:SetCableCascadeDeletion(true, "meteor")
+	ResumePassEdits("MeteorLargeExplode")
 end
 
 DefineClass("MeteorSmall1", { __parents = {"BaseMeteorSmall"}, entity = "Asteroid" })
@@ -888,6 +884,10 @@ function RebuildSupplyGridObjects(arr, class)
 			grp[1].drop_offs[2] = translate_to_next_pillar(grp[1].drop_offs[2]) or grp[1].drop_offs[2]
 		end
 	end
+end
+
+function StopMeteorStorm()
+	g_MeteorStormStop = true
 end
 
 if Platform.developer then

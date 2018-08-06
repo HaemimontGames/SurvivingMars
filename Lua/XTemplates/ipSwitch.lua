@@ -13,6 +13,7 @@ PlaceObj('XTemplate', {
 			'comment', "on/off",
 			'__template', "InfopanelButton",
 			'RolloverText', T{607170415280, --[[XTemplate ipSwitch RolloverText]] "A switch or a valve can be used to split the grid into two sections."},
+			'RolloverHint', T{7650, --[[XTemplate ipSwitch RolloverHint]] "<left_click> Activate/Deactivate <newline><em>Ctrl + <left_click></em> Activate/Deactivate all"},
 			'OnContextUpdate', function (self, context, ...)
 if context.switched_state then
 	self:SetRolloverTitle(T{598, "Connect"})
@@ -23,6 +24,9 @@ else
 end
 end,
 			'OnPressParam', "Switch",
+			'OnPress', function (self, gamepad)
+self.context:Switch(not gamepad and IsMassUIModifierPressed())
+end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'comment', "salvage",

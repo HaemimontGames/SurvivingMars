@@ -112,7 +112,7 @@ function InfopanelDlg:RecalculateMargins()
 end
 
 function OnMsg.SafeAreaMarginsChanged()
-	local dlg = GetXDialog("Infopanel")
+	local dlg = GetDialog("Infopanel")
 	if dlg then
 		dlg:RecalculateMargins()
 	end
@@ -170,7 +170,7 @@ end
 function InfopanelDlg:OnShortcut(button, source)
 	local obj = self.context
 	if button == "LeftShoulder" then
-		local prop_meta = obj:GetPropertyMetadata("UIWorkRadius") or obj:GetPropertyMetadata("UIRange")
+		local prop_meta = obj:GetPropertyMetadata("UIWorkRadius") or obj:GetPropertyMetadata("UIRange") or obj:GetPropertyMetadata("DesiredAmountSlider")
 		if prop_meta then
 			local radius = obj:GetProperty(prop_meta.id)
 			radius = Max(prop_meta.min, radius - 1)
@@ -182,10 +182,11 @@ function InfopanelDlg:OnShortcut(button, source)
 		end
 		return "break"
 	elseif button == "RightShoulder" then
-		local prop_meta = obj:GetPropertyMetadata("UIWorkRadius") or obj:GetPropertyMetadata("UIRange")
+		local prop_meta = obj:GetPropertyMetadata("UIWorkRadius") or obj:GetPropertyMetadata("UIRange") or obj:GetPropertyMetadata("DesiredAmountSlider")
 		if prop_meta then
 			local radius = obj:GetProperty(prop_meta.id)
-			radius = Min(prop_meta.max, radius + 1)
+			local max = type(prop_meta.max) == "function" and prop_meta.max(obj) or prop_meta.max
+			radius = Min(max, radius + 1)
 			obj:SetProperty(prop_meta.id, radius)
 			ObjModified(obj)
 		end
@@ -291,28 +292,32 @@ function OpenXInfopanel(parent, context, template)
 	if not XTemplates[template] then return end
 	parent = parent or GetInGameInterface()
 	CloseXInfopanel()
-	return OpenXDialog(template, parent, context, nil, "Infopanel")
+	return OpenDialog(template, parent, context, nil, "Infopanel")
 end
 
 function CloseXInfopanel()
-	CloseXDialog("Infopanel")
+	CloseDialog("Infopanel")
 end
 
 function ReopenSelectionXInfopanel(obj, slide_in)
-	local tab
+	local mode, template
 	if obj == nil then
 		obj = SelectedObj
 		if (not obj and ShowResourceOverview) then
 			obj = ResourceOverviewObj	
-			tab = ResourceOverviewObj:GetIPTab()
+			mode = ResourceOverviewObj:GetIPMode()
+			template = "ipResourceOverview"
 		end
 	end
 	if IsValid(obj) then
 		if not slide_in then InfopanelSlideIn = false end
-		OpenXInfopanel(nil, obj, tab)
+		local infopanel = OpenXInfopanel(nil, obj, template)
+		if mode and mode ~= infopanel.Mode then
+			infopanel:SetMode(mode)
+		end
 		return
 	end
-	if not GetXDialog("XBuildMenu") then
+	if not GetDialog("XBuildMenu") then
 		CloseXInfopanel()
 	end
 end
@@ -356,5 +361,5 @@ function ActivateControlModeDlgAction()
 end
 
 function IsMassUIModifierPressed()
-	return terminal.IsKeyPressed(const.vkControl)
+	return Platform.desktop and terminal.IsKeyPressed(const.vkControl)
 end

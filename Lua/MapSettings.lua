@@ -4,7 +4,7 @@ DefineClass.MapSettings =
 	properties =
 	{
 		{ id = "name",				name = "Name",					editor = "text",    default = "", category = "Common" },
-		{ id = "strength",				name = "Strength",					editor = "number",  default = 1, min = 1, max = 4, slider = true, category = "Common", help = "Used to identify the trait level" },
+		{ id = "strength",			name = "Strength",					editor = "number",  default = 1, min = 1, max = 4, slider = true, category = "Common", help = "Used to identify the trait level" },
 		{ id = "forbidden",			name = "Forbidden",				editor = "bool",    default = false, category = "Common" },
 		{ id = "spawntime",			name = "Spawn Time (h)",			editor = "number",  default = 500 * const.HourDuration, scale = const.HourDuration, category = "Common" },
 		{ id = "spawntime_random",	name = "Spawn Time Random (h)",	editor = "number",  default = 750 * const.HourDuration, scale = const.HourDuration, category = "Common" },
@@ -12,12 +12,12 @@ DefineClass.MapSettings =
 		{ id = "birth_hour",		name = "Birth Hour (h)",			editor = "number",	default = 125 * const.HourDuration, scale = const.HourDuration, category = "Common", help = "This many hours without disaster" },
 		{ id = "use_in_gen",		name = "Use in random selection",	editor = "bool",    default = true, category = "Common" },
 		-- Disaster Lightmodel
-		{ id = "noon",				name = "Noon",		category = "Lightmodel", editor = "dropdownlist", default = "", items = LightmodelsCombo },
-		{ id = "evening",			name = "Evening",	category = "Lightmodel", editor = "dropdownlist", default = "", items = LightmodelsCombo },
-		{ id = "dusk",				name = "Dusk",		category = "Lightmodel", editor = "dropdownlist", default = "", items = LightmodelsCombo },
-		{ id = "night",				name = "Night",		category = "Lightmodel", editor = "dropdownlist", default = "", items = LightmodelsCombo },
-		{ id = "dawn",				name = "Dawn",		category = "Lightmodel", editor = "dropdownlist", default = "", items = LightmodelsCombo },
-		{ id = "morning",			name = "Morning",	category = "Lightmodel", editor = "dropdownlist", default = "", items = LightmodelsCombo },
+		{ id = "noon",				name = "Noon",		category = "Lightmodel", editor = "dropdownlist", default = "", items = PresetsCombo("Lightmodel") },
+		{ id = "evening",			name = "Evening",	category = "Lightmodel", editor = "dropdownlist", default = "", items = PresetsCombo("Lightmodel") },
+		{ id = "dusk",				name = "Dusk",		category = "Lightmodel", editor = "dropdownlist", default = "", items = PresetsCombo("Lightmodel") },
+		{ id = "night",				name = "Night",		category = "Lightmodel", editor = "dropdownlist", default = "", items = PresetsCombo("Lightmodel") },
+		{ id = "dawn",				name = "Dawn",		category = "Lightmodel", editor = "dropdownlist", default = "", items = PresetsCombo("Lightmodel") },
+		{ id = "morning",			name = "Morning",	category = "Lightmodel", editor = "dropdownlist", default = "", items = PresetsCombo("Lightmodel") },
 	},
 }
 
@@ -123,158 +123,6 @@ function MapSettingsEditor:ActionSave()
 	end
 end
 
-if Platform.developer then
-UserActions.AddActions {
-	["MapSettingsEditor"] = {
-		menu = "[203]Editors/[01]Mars/Map Settings Editor",
-		key = "Ctrl-Alt-M",
-		action = function() 
-			local _, window_id = PropEditor_GetFirstWindow("MapSettingsEditor")
-			if not window_id then
-				local class_names = ClassDescendantsList("MapSettings")
-				local classes = {}
-				for i = 1, #class_names do
-					local class = g_Classes[class_names[i]]
-					local data = DataInstances[class.class]
-					local obj = table.icopy(data)
-					obj.name = class.class
-					classes[i] = obj
-				end
-				PropEditorOpen(MapSettingsEditor:new(classes)) 
-			else
-				PropEditorActivateWindow(window_id)
-			end
-		end,
-	}
-}
-end
-
-DefineClass.MapSettingsDialog =
-{
-	__parents = { "FrameWindow", "PauseGameDialog" },
-	
-	map_settings = false,
-}
-
-function MapSettingsDialog:Init()
-	DataInstances.UIDesignerData.MapSettingsDialog:InitDialogFromView(self, "default")
-	self.idOK.OnButtonPressed = function(this)
-		local idx = self.idList:GetSelectionIdx()[1]
-		self:delete(idx)
-	end
-	self.idList.OnDoubleClick = self.idOK.OnButtonPressed
-	self:Center()
-	self.map_settings = {}
-end
-
-function MapSettingsDialog:OnKbdKeyDown(char, virtual_key)
-	if virtual_key == const.vkEsc then
-		self.idCancel:Press()
-		return "break"
-	elseif virtual_key == const.vkEnter then
-		self.idOK:Press()
-		return "break"
-	end
-	return "continue"
-end
-
-function CreateMapSettingsDialog(items, caption, parent, map_settings)
-	local dlg = OpenDialog("MapSettingsDialog", nil, parent or terminal.desktop, _InternalTranslate(caption))
-	dlg.idCaption:SetText(caption)
-	dlg.idList:SetContent(items)
-	dlg.idList:SetFocus()
-	dlg.idList:SetSelection(1, true)
-	
-	local function SetMapSettings(combo_id, class)
-		local data = DataInstances[class]
-		local items = { { text = Untranslated("disabled"), value = "disabled" } }
-		for i = 1, #data do
-			table.insert(items, { text = Untranslated(data[i].name), value = data[i].name })
-		end
-		local combo = dlg[combo_id].combo
-		combo:SetContent(items)
-		combo.OnValueChanged = function(this, value, selected_idx)
-			dlg.map_settings[class] = value
-		end
-		if map_settings then
-			combo:SetSelectedValue(map_settings[class])
-		end
-		dlg.map_settings[class] = combo:GetValue()
-	end
-	
-	local class_names = ClassDescendantsList("MapSettings")
-	for i = 1, #class_names do
-		local class = class_names[i]
-		local combo_id = "id" .. string.match(class, "MapSettings_(%w+)$")
-		SetMapSettings(combo_id, class)
-	end
-	
-	return dlg
-end
-
-function WaitMapSettingsDialog(items, caption, parent, start_selection, map_settings) 
-	local dlg = CreateMapSettingsDialog(items, caption, parent, map_settings)
-	if start_selection then
-		dlg.idList:SetSelection(start_selection, true)
-	end
-	local idx = dlg:Wait()
-	
-	return idx, dlg.map_settings
-end
-
-if Platform.developer and not config.UseDevChangeMapDialog then
-local s_OldChangeMapAction = DeveloperUA_Global["DE_ChangeMap"].action
-
-local DeveloperUA_Custom =
-{
-["DE_ChangeMap"] =
-{
-	key = "F5",
-	description = "Change Map",
-	toolbar = "01_File/01_ChangeMap",
-	icon = "load_city.tga",
-	menu = "[103]Map/[01]Change Map",
-	action = function()
-		local ineditor = Platform.editor and IsEditorActive()
-		if ineditor then
-			s_OldChangeMapAction()
-		else
-			CreateRealTimeThread(function()
-				local caption = Untranslated("Choose map with settings presets:")
-				local maps = ListMaps()
-				local items = {}
-				for i = 1, #maps do
-					if not (string.find(string.lower(maps[i]), "^prefab") or string.find(maps[i], "^__")) then
-						table.insert(items, {text = Untranslated(maps[i]), map = maps[i]})
-					end
-				end
-				local default_selection = table.find(maps, GetMapName())
-				local map_settings = {}
-				local class_names = ClassDescendantsList("MapSettings")
-				for i = 1, #class_names do
-					local class = class_names[i]
-					map_settings[class] = mapdata[class]
-				end
-				local sel_idx, map_settings = WaitMapSettingsDialog(items, caption, nil, default_selection, map_settings)
-				if sel_idx ~= "idCancel" then
-					local map = sel_idx and items[sel_idx].map
-					if not map or map == "" then
-						return
-					end
-					CloseMenuDialogs()
-					StartGame(map, map_settings)
-					LocalStorage.last_map = map
-					SaveLocalStorage()
-				end
-			end)
-		end
-	end,
-}
-}
-
-UserActions.AddActions ( DeveloperUA_Custom )
-end  -- Platform.developer
-
 g_DisastersSettings = false
 
 function StartGame(map, map_settings)
@@ -308,8 +156,20 @@ function IsDisasterActive()
 end
 
 GlobalVar("g_DisastersPredicted", {})
+GlobalVar("g_DisasterDscrShown", {})
 
-function AddDisasterNotification(id, params)
+function ShowDisasterDescription(disaster_type)
+	if g_DisasterDscrShown[disaster_type] then
+		return
+	end
+	local preset_name = "Disaster_" .. disaster_type
+	if PopupNotificationPresets[preset_name] then
+		ShowPopupNotification(preset_name)
+	end
+	g_DisasterDscrShown[disaster_type] = true
+end
+
+function AddDisasterNotification(id, params, disaster_type)
 	assert(not IsDisasterPredicted())
 	g_DisastersPredicted[id] = true
 	AddOnScreenNotification(id, nil, params)

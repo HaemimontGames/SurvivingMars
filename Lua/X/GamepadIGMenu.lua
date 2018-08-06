@@ -12,7 +12,7 @@ function IsHUDResearchEnabled()
 	return (not g_Tutorial or g_Tutorial.EnableResearch) and true or false
 end
 
-local fnaction = function(content_data,item)
+local fnaction = function(content_data, item)
 	local hud = GetHUD()
 	if hud then
 		local ctrl = hud[item.name]
@@ -24,7 +24,7 @@ local fnaction = function(content_data,item)
 	end
 end
 
-local game_items = {
+GamepadIGMenu_game_items = {
 	{ --build menu
 		name = "idBuild",
 		display_name = T{4237, "Build Menu"},
@@ -57,6 +57,7 @@ local game_items = {
 		action = fnaction,
 		description = "",
 	},
+	
 	{ --command center
 		name = "idColonyControlCenter",
 		display_name = T{137542936955, "Command Center"},
@@ -115,8 +116,8 @@ end
 
 function GamepadIGMenu:GetItems(category_id)
 	local buttons = {}
-	for i=1, #game_items do
-		local item = game_items[i]
+	for i=1, #GamepadIGMenu_game_items do
+		local item = GamepadIGMenu_game_items[i]
 		item.ButtonAlign = i%2==1 and "top" or "bottom"
 		local enabled_fn = rawget(item, "enabled_fn")
 		if enabled_fn then
@@ -145,7 +146,7 @@ function GamepadIGMenu:RecalculateMargins()
 end
 
 function OnMsg.SafeAreaMarginsChanged()
-	local dlg = GetXDialog("GamepadIGMenu")
+	local dlg = GetDialog("GamepadIGMenu")
 	if dlg then
 		dlg:RecalculateMargins()
 	end
@@ -160,16 +161,16 @@ function OpenXGamepadMainMenu()
 	if not GameState.gameplay then return end
 	
 	--Don't open this one while the build menu is opened
-	if GetXDialog("XBuildMenu") then
+	if GetDialog("XBuildMenu") then
 		return 
 	end
 	
-	return GetXDialog("GamepadIGMenu") or 
-			 OpenXDialog("GamepadIGMenu", GetInGameInterface(), empty_table)
+	return GetDialog("GamepadIGMenu") or 
+			 OpenDialog("GamepadIGMenu", GetInGameInterface(), empty_table)
 end
 
 function CloseXGamepadMainMenu()
-	CloseXDialog("GamepadIGMenu")
+	CloseDialog("GamepadIGMenu")
 end
 
 function OnMsg.SelectionChange()

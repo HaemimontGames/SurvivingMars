@@ -8,12 +8,16 @@ function City:GetColonyStatsButtons()
 			off_icon = "UI/Icons/ColonyControlCenter/colonist_off.tga",
 			{
 				caption = T{547, "Colonists"},
-				legend = T{8959, "<graph_right>Colonists</graph_right> <colonists>", colonists = #(self.labels.Colonist or "")},
+				legend = function()
+					return T{8959, "<graph_right>Colonists</graph_right> <colonists>", colonists = #(self.labels.Colonist or "")}
+				end,
 				data = { self.ts_colonists, }
 			},
 			{
 				caption = T{8960, "Unemployed and Homeless"},
-				legend = T{8961, "<graph_left>Unemployed</graph_left> <unemployed>      <graph_right>Homeless</graph_right> <homeless>", unemployed = #(self.labels.Unemployed or ""), homeless = #(self.labels.Homeless or "")},
+				legend = function()
+					return T{8961, "<graph_left>Unemployed</graph_left> <unemployed>      <graph_right>Homeless</graph_right> <homeless>", unemployed = #(self.labels.Unemployed or ""), homeless = #(self.labels.Homeless or "")}
+				end,
 				data = { self.ts_colonists_unemployed, self.ts_colonists_homeless, },
 			},
 			id = "colonists",
@@ -25,12 +29,16 @@ function City:GetColonyStatsButtons()
 			off_icon = "UI/Icons/ColonyControlCenter/drones_off.tga",
 			{
 				caption = T{517, "Drones"},
-				legend = T{8962, "<graph_right>Drones</graph_right> <drones>", drones = #(self.labels.Drone or "")},
+				legend = function()
+					return T{8962, "<graph_right>Drones</graph_right> <drones>", drones = #(self.labels.Drone or "")}
+				end,
 				data = { self.ts_drones, }
 			},
 			{
 				caption = T{745, "Shuttles"},
-				legend = T{8963, "<graph_right>Shuttles</graph_right> <shuttles>", shuttles = self:CountShuttles() },
+				legend = function()
+					return T{8963, "<graph_right>Shuttles</graph_right> <shuttles>", shuttles = self:CountShuttles() }
+				end,
 				data = { self.ts_shuttles, },
 			},
 			id = "transportation",
@@ -42,12 +50,16 @@ function City:GetColonyStatsButtons()
 			off_icon = "UI/Icons/ColonyControlCenter/buildings_off.tga",
 			{
 				caption = T{3980, "Buildings"},
-				legend = T{8964, "<graph_right>Buildings</graph_right> <buildings>", buildings = self:CountBuildings()},
+				legend = function()
+					return T{8964, "<graph_right>Buildings</graph_right> <buildings>", buildings = self:CountBuildings()}
+				end,
 				data = { self.ts_buildings, }
 			},
 			{
 				caption = T{8965, "Completed Constructions per Sol"},
-				legend = T{8966, "<graph_right>Completed Constructions Today</graph_right> <constructions>", constructions = (self.constructions_completed_today or 0)},
+				legend = function()
+					return T{8966, "<graph_right>Completed Constructions Today</graph_right> <constructions>", constructions = (self.constructions_completed_today or 0)}
+				end,
 				data = { self.ts_constructions_completed, },
 			},
 			margin_right = 40,
@@ -60,12 +72,16 @@ function City:GetColonyStatsButtons()
 			off_icon = "UI/Icons/ColonyControlCenter/power_off.tga",
 			{
 				caption = T{945, "Stored Power"},
-				legend = T{8967, "<graph_right>Power</graph_right> <power>", power = FormatResourceValueMaxResource(resource_overview_obj:GetTotalStoredPower())},
+				legend = function()
+					return T{8967, "<graph_right>Power</graph_right> <power>", power = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalStoredPower())}
+				end,
 				data = { self.ts_resources_grid.electricity.stored, scale = const.ResourceScale, }
 			},
 			{
 				caption = T{8968, "Produced and Demanded Power (average per hour)"},
-				legend = T{8969, "<graph_left>Production</graph_left> <produced>      <graph_right>Demand</graph_right> <demand>", produced = FormatResourceValueMaxResource(resource_overview_obj:GetTotalProducedPower()), demand = FormatResourceValueMaxResource(resource_overview_obj:GetTotalRequiredPower())},
+				legend = function()
+					return T{8969, "<graph_left>Production</graph_left> <produced>      <graph_right>Demand</graph_right> <demand>", produced = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalProducedPower()), demand = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalRequiredPower())}
+				end,
 				data = { self.ts_resources_grid.electricity.production, self.ts_resources_grid.electricity.consumption, scale = const.ResourceScale}
 			},
 			id = "power",
@@ -77,12 +93,16 @@ function City:GetColonyStatsButtons()
 			off_icon = "UI/Icons/ColonyControlCenter/oxygen_off.tga",
 			{
 				caption = T{8970, "Stored Oxygen"},
-				legend = T{8971, "<graph_right>Oxygen</graph_right> <air>", air = FormatResourceValueMaxResource(resource_overview_obj:GetTotalStoredAir())},
+				legend = function()
+					return T{8971, "<graph_right>Oxygen</graph_right> <air>", air = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalStoredAir())}
+				end,
 				data = { self.ts_resources_grid.air.stored, scale = const.ResourceScale, }
 			},
 			{
 				caption = T{8972, "Produced and Demanded Oxygen (average per hour)"},
-				legend = T{8969, "<graph_left>Production</graph_left> <produced>      <graph_right>Demand</graph_right> <demand>", produced = FormatResourceValueMaxResource(resource_overview_obj:GetTotalProducedAir()), demand = FormatResourceValueMaxResource(resource_overview_obj:GetTotalRequiredAir())},
+				legend = function()
+					return T{8969, "<graph_left>Production</graph_left> <produced>      <graph_right>Demand</graph_right> <demand>", produced = FormatResourceValueMaxResource(resource_overview_obj,resource_overview_obj:GetTotalProducedAir()), demand = FormatResourceValueMaxResource(resource_overview_obj,resource_overview_obj:GetTotalRequiredAir())}
+				end,
 				data = { self.ts_resources_grid.air.production, self.ts_resources_grid.air.consumption, scale = const.ResourceScale}
 			},
 			id = "oxygen",
@@ -94,12 +114,16 @@ function City:GetColonyStatsButtons()
 			off_icon = "UI/Icons/ColonyControlCenter/water_off.tga",
 			{
 				caption = T{33, "Stored Water"},
-				legend = T{8973, "<graph_right>Water</graph_right> <water>", water = FormatResourceValueMaxResource(resource_overview_obj:GetTotalStoredWater())},
+				legend = function()
+					return T{8973, "<graph_right>Water</graph_right> <water>", water = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalStoredWater())}
+				end,
 				data = { self.ts_resources_grid.water.stored, scale = const.ResourceScale, }
 			},
 			{
 				caption = T{8974, "Produced and Demanded Water (average per hour)"},
-				legend = T{8969, "<graph_left>Production</graph_left> <produced>      <graph_right>Demand</graph_right> <demand>", produced = FormatResourceValueMaxResource(resource_overview_obj:GetTotalProducedWater()), demand = FormatResourceValueMaxResource(resource_overview_obj:GetTotalRequiredWater())},
+				legend = function()
+					return T{8969, "<graph_left>Production</graph_left> <produced>      <graph_right>Demand</graph_right> <demand>", produced = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalProducedWater()), demand = FormatResourceValueMaxResource(resource_overview_obj:GetTotalRequiredWater())}
+				end,
 				data = { self.ts_resources_grid.water.production, self.ts_resources_grid.water.consumption, scale = const.ResourceScale}
 			},
 			margin_right = 40,
@@ -115,12 +139,16 @@ function City:GetColonyStatsButtons()
 			off_icon = "UI/Icons/ColonyControlCenter/" .. id:lower() .. "_off.tga",
 			{
 				caption = T{8976, "Stockpiled <resource>", resource = resource_name},
-				legend = T{8977, "<graph_right><resource></graph_right> <amount>", resource = resource_name, amount = resource_overview_obj["GetAvailable" .. id](resource_overview_obj) / const.ResourceScale},
+				legend = function()
+					return T{8977, "<graph_right><resource></graph_right> <amount>", resource = resource_name, amount = resource_overview_obj["GetAvailable" .. id](resource_overview_obj) / const.ResourceScale}
+				end,
 				data = { self.ts_resources[id].stockpile, scale = const.ResourceScale}
 			},
 			{
 				caption = T{8978, "Produced and Consumed (per Sol)", resource = resource_name},
-				legend = T{8979, "<graph_left>Production</graph_left> <produced>      <graph_right>Consumption</graph_right> <consumed>", produced = resource_overview_obj["Get" .. id .. "ProducedYesterday"](resource_overview_obj) / const.ResourceScale, consumed = resource_overview_obj["Get" .. id .. "ConsumedByConsumptionYesterday"](resource_overview_obj) / const.ResourceScale},
+				legend = function()
+					return T{8979, "<graph_left>Production</graph_left> <produced>      <graph_right>Consumption</graph_right> <consumed>", produced = resource_overview_obj["Get" .. id .. "ProducedYesterday"](resource_overview_obj) / const.ResourceScale, consumed = resource_overview_obj["Get" .. id .. "ConsumedByConsumptionYesterday"](resource_overview_obj) / const.ResourceScale}
+				end,
 				data = { self.ts_resources[id].produced, self.ts_resources[id].consumed, scale = const.ResourceScale}
 			},
 			margin_right = (i % 4 == 0 and i ~= #StockpileResourceList ) and 40 or nil,
@@ -192,14 +220,20 @@ function GetCommandCenterColonists(context)
 end
 
 function Colonist:UICommandCenterStatUpdate(win, stat)
-	local low = g_Consts.LowStatLevel / const.Scale.Stat
-	local high = g_Consts.HighStatLevel / const.Scale.Stat
 	local id = 3
 	local v = self:GetProperty(stat)
-	if v < low then
+	if stat == "Morale" and self.traits.Renegade then
 		id = 1
-	elseif v < high then
-		id = 2
+		win.idLabel:SetVisible(false)
+		win.idNoStat:SetVisible(true)
+	else
+		local low = g_Consts.LowStatLevel / const.Scale.Stat
+		local high = g_Consts.HighStatLevel / const.Scale.Stat
+		if v < low then
+			id = 1
+		elseif v < high then
+			id = 2
+		end
 	end
 	win.idImage:SetImage("UI/Icons/ColonyControlCenter/conditions_" .. stat:lower() .. id .. ".tga")
 	win.idLabel:SetText(tostring(v))
@@ -234,16 +268,13 @@ function GetCommandCenterBuildings(context)
 	local dome = context.dome
 	if dome then
 		--get nearby buildings
-		local objs = GetObjects({
-			class = "DomeOutskirtBld", 
-			area = dome, 
-			hexradius = dome:GetOutsideWorkplacesDist() + 7, --a little wider radius to catch borderline buildings
-			filter = function(obj, self)
+		local query_hexrad = dome:GetOutsideWorkplacesDist() + 7
+		local query_filter = function(obj, self)
 				if not obj:IsKindOf("Building") then return false end
 				local dome = IsObjInDome(obj)
 				return (not dome or dome == self) and self:IsBuildingInDomeRange(obj) and obj.dome_label and true or false
-			end
-		}, dome)
+		end
+		local objs = MapGet(dome, "hex", query_hexrad, "DomeOutskirtBld", query_filter, dome)
 		buildings = table.icopy(dome.labels.Buildings)
 		for _, obj in ipairs(objs) do
 			table.insert_unique(buildings, obj)
@@ -255,8 +286,8 @@ function GetCommandCenterBuildings(context)
 		local building = buildings[i]
 		if (not building.count_as_building and not IsKindOfClasses(building, "UniversalStorageDepot", "WasteRockDumpSite")) or
 			IsKindOfClasses(building, "PassageRamp", "PassageGridElement", "Passage", "ConstructionSite") or
-			context.inside_buildings == false and building.dome_required or
-			context.outside_buildings == false and not building.dome_required or
+			context.inside_buildings == false and building.parent_dome or
+			context.outside_buildings == false and not building.parent_dome or
 			not context.decorations and building.build_category == "Decorations" or
 			context.power_producers == false and IsKindOf(building, "ElectricityProducer") or
 			context.production_buildings == false and IsKindOfClasses(building, "ResourceProducer", "WaterProducer", "AirProducer", "DroneFactory") or
@@ -584,7 +615,7 @@ function Building:GetUIEffectsRow()
 				end
 			end
 		end
-		return T{9740, "<stored>/<max>", stored = FormatResourceValueMaxResource(stored), max = FormatResourceValueMaxResource(max), empty_table}
+		return T{9740, "<stored>/<max>", stored = FormatResourceValueMaxResource(empty_table,stored), max = FormatResourceValueMaxResource(empty_table, max), empty_table}
 	elseif self:IsKindOf("ElectricityStorage") then
 		return  T{9741, "<power(StoredPower, capacity)>"}
 	elseif self:IsKindOf("AirStorage") then
@@ -841,7 +872,7 @@ function ToggleBuildingsShiftsEffects(dialog)
 end
 
 function ToggleCommandCenterFilter(button, name, valid_nil)
-	local dlg = GetXDialog(button)
+	local dlg = GetDialog(button)
 	local context = dlg.context
 	local value = valid_nil and context[name] ~= false or context[name]
 	--colonists group
@@ -1016,13 +1047,13 @@ function OnMsg.ChangeMap()
 end
 
 function GetCommandCenterDialog()
-	return GetXDialog("ColonyControlCenter")
+	return GetDialog("ColonyControlCenter")
 end
 
 function OpenCommandCenter(context, mode)
 	g_CommandCenterOpen = true
 	GetInGameInterface():SetMode("selection") --make sure there is no other dialog mode open
-	local dlg = OpenXDialog("ColonyControlCenter", nil, context or g_CommandCenterSavedContext or {})
+	local dlg = OpenDialog("ColonyControlCenter", nil, context or g_CommandCenterSavedContext or {})
 	mode = mode or g_CommandCenterSavedMode
 	if mode and mode ~= "" then
 		dlg:SetMode(mode)
@@ -1032,7 +1063,11 @@ function OpenCommandCenter(context, mode)
 end
 
 function CloseCommandCenter()
-	CloseXDialog("ColonyControlCenter")
+	CloseDialog("ColonyControlCenter")
+end
+
+function OnMsg.PopupNotificationBegin()
+	CloseCommandCenter()
 end
 
 function OnMsg.SelectedObjChange()
@@ -1053,7 +1088,7 @@ end
 
 function UpdateUICommandCenterRow(self, context, row_type)
 	if row_type == "building" then
-		local shifts = GetXDialog(self).context.shifts
+		local shifts = GetDialog(self).context.shifts
 		self.idEffects:SetVisible(not shifts)
 		self.idShifts:SetVisible(shifts)
 		local consumption = context:GetUIConsumptionRow()
@@ -1073,7 +1108,7 @@ function UpdateUICommandCenterRow(self, context, row_type)
 		self.idNoBuildingEffects:SetVisible(not has_effects)
 	elseif row_type == "colonist" then
 		self.idSpecialization:SetImage(context.pin_specialization_icon)
-		local interests = GetXDialog(self).context.interests
+		local interests = GetDialog(self).context.interests
 		self.idTraits:SetVisible(not interests)
 		self.idInterests:SetVisible(interests)
 	elseif row_type == "dome" then
@@ -1119,4 +1154,24 @@ function UpdateUICommandCenterRow(self, context, row_type)
 	end
 	self.idButtonIcon:SetImage(context:GetPinIcon())
 	UpdateUICommandCenterWarning(self)
+end
+
+function CCC_ButtonListOnShortcut(self, shortcut, source)
+	local rel = XShortcutToRelation[shortcut]
+	if rel == "up" or rel == "down" then
+		return "break"
+	elseif rel == "left" or rel == "right" then
+		local focus = self.desktop:GetKeyboardFocus()
+		local idx = table.find(self, focus)
+		if idx then
+			if rel == "left" and idx == 1 then
+				self[#self]:SetFocus()
+				return "break"
+			elseif rel == "right" and idx == #self then
+				self[1]:SetFocus()
+				return "break"
+			end
+		end
+	end
+	return XContextWindow.OnShortcut(self, shortcut, source)
 end

@@ -14,9 +14,9 @@ PlaceObj('XTemplate', {
 			'Id', "idTitle",
 			'HAlign', "right",
 			'VAlign', "bottom",
+			'HandleMouse', false,
 			'TextFont', "PGTags",
 			'TextColor', RGBA(119, 198, 255, 255),
-			'RolloverTextColor', RGBA(119, 198, 255, 255),
 			'Translate', true,
 			'Text', T{431862968979, --[[XTemplate CommandCenterTitle Text]] "COMMAND CENTER"},
 		}),
@@ -38,7 +38,7 @@ end,
 	}),
 	PlaceObj('XTemplateCode', {
 		'run', function (self, parent, context)
-local dlg = GetXDialog(parent)
+local dlg = GetDialog(parent)
 local old_open = dlg.Open
 dlg.Open = function (self, ...)
 	local p = self.idFrame:GetPadding()

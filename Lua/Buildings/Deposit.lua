@@ -68,7 +68,7 @@ function Deposit:GetResourceName()
 end
 
 function Deposit:GetDepositMarker()
-	return self.marker or GetObjects{classes = "DepositMarker", filter = function(marker, deposit) return marker.placed_obj == deposit end, self}[1]
+	return self.marker or MapGet("map", "DepositMarker", function(marker, deposit) return marker.placed_obj == deposit end, self)[1]
 end
 
 function Deposit:IsExplorationBlocked()
@@ -94,6 +94,15 @@ end
 function Deposit:GetDepth()
 	return 0
 end
+
+function Deposit:GetAmount()
+	return 0
+end
+
+function Deposit:DoesHaveSupplyRequestForResource(resource)
+	return self.resource == resource
+end
+
 
 ----
 
@@ -214,18 +223,20 @@ end
 
 ----
 
-if FirstLoad then
-	g_ResourceIconsTurnedOff = false
-	g_ResourceIconsVisible = true
-	ShowResourceIconReasons = {}
-end
 
-local function SetResourceIconsVisible(visible)
+GlobalVar("g_ResourceIconsTurnedOff", false)
+GlobalVar("g_ResourceIconsVisible", true)
+GlobalVar("ShowResourceIconReasons",  {})
+
+function SetResourceIconsVisible(visible)
 	if visible and not g_SignsVisible then return end
 	if not visible and not g_ResourceIconsTurnedOff then return end
 	local action = visible and "SetEnumFlags" or "ClearEnumFlags"
-	GetObjects { class = "TerrainDeposit", action = action, action_data = const.efVisible }
-	GetObjects { class = "SubsurfaceDeposit", action = action, action_data = const.efVisible }
+	if visible then
+		MapSetEnumFlags(const.efVisible, "map","TerrainDeposit","SubsurfaceDeposit" )
+	else
+		MapClearEnumFlags(const.efVisible, "map","TerrainDeposit","SubsurfaceDeposit" )
+	end
 	g_ResourceIconsVisible = visible
 end
 

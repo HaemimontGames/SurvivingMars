@@ -37,7 +37,6 @@ end,
 			'__context_of_kind', "RCRover",
 			'__template', "InfopanelButton",
 			'RolloverText', T{8460, --[[XTemplate ipRover RolloverText]] "Unpack an existing Drone Prefab to build a new Drone. Drone Prefabs can be created from existing Drones or in a Drone Assembler (requires research). This action can be used to quickly reassign Drones between controllers.<newline><newline>Available Drone Prefabs: <drone(available_drone_prefabs)>"},
-			'RolloverDisabledText', T{994737607038, --[[XTemplate ipRover RolloverDisabledText]] "Unpack an existing Drone Prefab to build a new Drone. Drone Prefabs can be created from existing Drones or in a Drone Assembler (requires research). This action can be used to quickly reassign Drones between controllers.<newline><newline>Available Drone Prefabs: <drone(available_drone_prefabs)>"},
 			'RolloverTitle', T{349, --[[XTemplate ipRover RolloverTitle]] "Unpack Drone"},
 			'RolloverHint', T{8461, --[[XTemplate ipRover RolloverHint]] "<left_click> Unpack Drone <em>Ctrl + <left_click></em> Unpack five Drones"},
 			'RolloverHintGamepad', T{8462, --[[XTemplate ipRover RolloverHintGamepad]] "<ButtonA> Unpack Drone <ButtonX> Unpack five Drones"},
@@ -97,12 +96,14 @@ end,
 		PlaceObj('XTemplateTemplate', {
 			'comment', "route",
 			'__context_of_kind', "RCTransport",
+			'__condition', function (parent, context) return context:ShouldShowRouteButton() end,
 			'__template', "InfopanelButton",
 			'RolloverDisabledText', T{266581508662, --[[XTemplate ipRover RolloverDisabledText]] "Vehicle inactive."},
 			'OnPressParam', "ToggleCreateRouteMode",
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'comment', "recharge",
+			'__condition', function (parent, context) return context:NeedBattery() end,
 			'__template', "InfopanelButton",
 			'RolloverDisabledText', T{221351751895, --[[XTemplate ipRover RolloverDisabledText]] "Vehicle inactive."},
 			'OnPressParam', "ToggleRechargeMode",
@@ -198,8 +199,8 @@ end,
 		PlaceObj('XTemplateTemplate', {
 			'__context_of_kind', "ExplorerRover",
 			'__template', "InfopanelSection",
-			'RolloverText', T{765045268446, --[[XTemplate ipRover RolloverText]] "Contributes to the currently selected research project.<newline><newline>Lifetime research<right><research(research_points_lifetime)>"},
-			'RolloverTitle', T{308, --[[XTemplate ipRover RolloverTitle]] "Research Project <percent(ResearchProgress)>"},
+			'RolloverText', T{10118, --[[XTemplate ipRover RolloverText]] "Contributes to the currently selected research project.<newline><newline>Lifetime research<right><research(research_points_lifetime)>"},
+			'RolloverTitle', T{10119, --[[XTemplate ipRover RolloverTitle]] "Research Project <percent(ResearchProgress)>"},
 			'OnContextUpdate', function (self, context, ...)
 self:SetVisible(UICity:IsTechResearched("ExplorerAI"))
 XSection.OnContextUpdate(self, context, ...)
@@ -220,7 +221,7 @@ end,
 			'__context_of_kind', "RCRover",
 			'__condition', function (parent, context) return (rawget(context, "black_cube_interaction_perc_for_ui") or 0) > 0 end,
 			'__template', "InfopanelSection",
-			'RolloverText', T{4489, --[[XTemplate ipRover RolloverText]] "Proximity to a high number of Black Cubes may cause malfunctions"},
+			'RolloverText', T{4489, --[[XTemplate ipRover RolloverText]] "Proximity to a high number of Black Cubes may cause malfunctions."},
 			'Title', T{405, --[[XTemplate ipRover Title]] "Proximity to Black Cubes"},
 			'Icon', "UI/Icons/Sections/attention.tga",
 		}, {
@@ -240,13 +241,13 @@ end,
 		}, {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
-				'Text', T{4490, --[[XTemplate ipRover Text]] "All Drones were recalled and will remain in the Rover until deployed"},
+				'Text', T{4490, --[[XTemplate ipRover Text]] "All Drones were recalled and will remain in the Commander until deployed"},
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
 			'__context_of_kind', "RCRover",
 			'__template', "InfopanelSection",
-			'RolloverText', T{4492, --[[XTemplate ipRover RolloverText]] "Total number of Drones in the RC Rover."},
+			'RolloverText', T{4492, --[[XTemplate ipRover RolloverText]] "Total number of Drones in the RC Commander."},
 			'RolloverTitle', T{517, --[[XTemplate ipRover RolloverTitle]] "Drones"},
 			'OnContextUpdate', function (self, context, ...)
 				self:SetVisible(context.command ~= "Dead")
@@ -274,7 +275,7 @@ end,
 		PlaceObj('XTemplateTemplate', {
 			'__context_of_kind', "RCTransport",
 			'__template', "InfopanelSection",
-			'RolloverText', T{917384214249, --[[XTemplate ipRover RolloverText]] "Basic and Advanced resources available from this vehicle"},
+			'RolloverText', T{917384214249, --[[XTemplate ipRover RolloverText]] "Basic and Advanced resources available from this vehicle."},
 			'Title', T{704943662903, --[[XTemplate ipRover Title]] "Resources carried"},
 			'Icon', "UI/Icons/Sections/storage.tga",
 		}, {
@@ -329,7 +330,7 @@ end,
 			'TitleHAlign', "stretch",
 		}),
 		PlaceObj('XTemplateTemplate', {
-			'__condition', function (parent, context) return not g_RoverCommandResearched end,
+			'__condition', function (parent, context) return context:NeedBattery() end,
 			'__template', "InfopanelSection",
 			'RolloverText', T{39, --[[XTemplate ipRover RolloverText]] "Vehicles can recharge their batteries from active Power grids. Vehicles are also able to recharge each other, equalizing the Power in their batteries.<newline><newline><left><battery_ui_str>"},
 			'RolloverTitle', T{38, --[[XTemplate ipRover RolloverTitle]] "Battery  <percent(BatteryPerc)>"},
@@ -359,6 +360,12 @@ end,
 				'ProgressFrameBox', box(4, 0, 4, 0),
 			}),
 			}),
+		PlaceObj('XTemplateTemplate', {
+			'__template', "sectionPowerProduction",
+		}),
+		PlaceObj('XTemplateTemplate', {
+			'__template', "sectionPowerGrid",
+		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "sectionWarning",
 		}),

@@ -237,6 +237,36 @@ function WaypointsObj:GetEntrance(target, entrance_type, spot_name)
 	return self:GetEntranceFallback()
 end
 
+function WaypointsObj:GetEntrancePoints(entrance_type, spot_name)
+	if not self:IsValidPos() then
+		return
+	end
+	if self:HasSpot("Yard") then
+		return
+	end
+	local waypoint_chains = self.waypoint_chains
+	waypoint_chains = waypoint_chains and waypoint_chains[entrance_type or "entrance"]
+	if waypoint_chains then
+		local count = 0
+		local points
+		for i = 1, #waypoint_chains do
+			local chain = waypoint_chains[i]
+			if not spot_name or chain.name == spot_name then
+				local pt = chain[#chain]
+				count = count + 1
+				if count == 1 then
+					points = pt
+				elseif count == 2 then
+					points = { points, pt }
+				else
+					points[count] = pt
+				end
+			end
+		end
+		return points
+	end
+end
+
 function GetBestWaypointsChain(target, eval, waypoint_chains, chain_type, spot_name, eval_idx, range_dist, target_in_range, idx_in_range)
 	local best
 	chain_type = chain_type or spot_name and ChainTypes[spot_name]
@@ -350,7 +380,6 @@ function WaypointsObj:LeadIn(unit, entrance)
 	self:OnEnterUnit(unit)
 	unit:PushDestructor(function(unit)
 		unit.lead_in_out = false
-		unit:SetOutside(false)
 		if unit.lead_interrupted then
 			unit.lead_interrupted = nil
 			unit:InterruptCommand()
@@ -364,7 +393,6 @@ function WaypointsObj:LeadOut(unit, entrance)
 	assert(type(entrance) == "table")
 	if not entrance then return end
 	unit.lead_in_out = self
-	unit:SetOutside(not unit.current_dome)
 	unit:PushDestructor(function(unit)
 		if not unit:IsValidPos() then
 			unit:SetPos(entrance[#entrance])
@@ -385,6 +413,7 @@ function WaypointsObj:OnEnterUnit(unit)
 	assert(unit.current_dome == self.parent_dome)
 	unit:SetHolder(self)
 	unit:ShowAttachedSigns(false)
+	unit:SetOutsideEffects(false)
 end
 
 function WaypointsObj:OnExitUnit(unit)
@@ -393,6 +422,7 @@ function WaypointsObj:OnExitUnit(unit)
 	end
 	unit:ValidateCurrentDomeOnExit(self)
 	unit:ShowAttachedSigns(true)
+	unit:SetOutside(not self.parent_dome)
 end
 
 function AttachDoors(obj, entity)

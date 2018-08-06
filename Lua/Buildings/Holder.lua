@@ -34,4 +34,7 @@ end
 
 function Holder:OnExitHolder(unit)
 	table.remove_entry(self.units, unit)
+	if unit == CameraFollowObjWaiting then
+		Camera3pFollow(unit)
+	end
 end

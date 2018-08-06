@@ -160,7 +160,7 @@ function ModItemAttachmentDialog:RecalculateMargins()
 end
 
 function OnMsg.SafeAreaMarginsChanged()
-	local dlg = GetXDialog("ModItemAttachmentDialog")
+	local dlg = GetDialog("ModItemAttachmentDialog")
 	if dlg then
 		dlg:RecalculateMargins()
 	end

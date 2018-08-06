@@ -58,17 +58,15 @@ DefineClass.ConstructionSite = {
 	last_nanite_tick = false, --for setworking spam
 	
 	dome_skin = false,
-}
-
-local nanite_query = {
-	class = "ResourceStockpileBase",
-	area = false,
-	hexradius = 30,
-	exec = false,
+	SetSuspended = __empty_function__,
 }
 
 local function nanite_class_filter(o)
 	return not IsKindOfClasses(o, "SharedStorageBaseVisualOnly", "Unit", "SpaceElevator")
+end
+
+function ConstructionSite:CanWorkInTurnedOffDome()
+	return true
 end
 
 function ConstructionSite:RestartNaniteThread()
@@ -79,7 +77,7 @@ function ConstructionSite:RestartNaniteThread()
 end
 
 function dbg_ResetAllNaniteThreads()
-	ForEach{class = "ConstructionSite", area = "realm", exec = ConstructionSite.RestartNaniteThread}
+	MapForEach(true, "ConstructionSite", ConstructionSite.RestartNaniteThread)
 end
 
 function ConstructionSite:StopNaniteThread()
@@ -112,8 +110,7 @@ function ConstructionSite:StartNaniteThread()
 				end
 				if #required_resources <= 0 then return end
 				local request = false
-				nanite_query.area = self
-				nanite_query.exec = function(o)
+				local nanite_func = function(o)
 					if class_f(o) then
 						for i = 1, #required_resources do
 							local r = required_resources[i]
@@ -134,9 +131,7 @@ function ConstructionSite:StartNaniteThread()
 					end
 					return false
 				end
-				ForEach(nanite_query)
-				nanite_query.area = false
-				
+				MapForEach(self, "hex", 30, "ResourceStockpileBase", nanite_func)
 				if request then
 					local resource = request:GetResource()
 					local my_req = self.construction_resources[resource]
@@ -172,10 +167,6 @@ end
 
 --suffix added to bld labels so that construction sites end up in separate containers from constructed blds
 g_ConstructionSiteLabelSuffix = "_Construction"
-
-function ConstructionSite:SetSuspended(...)
-	--do nothing
-end
 
 function ConstructionSite:SetCustomLabels(obj, add)
 	--apply bld's custom labels, with the construction suffix
@@ -234,17 +225,17 @@ end
 
 function GetCityLabelsForClassAndTemplate(template, class)
 	--returns a map with all city labels that this building will add itself to in its lifetime
-	--note, that the construction site will be in some of theese and the building itself will be in others
+	--note, that the construction site will be in some of these and the building itself will be in others
 	class = class or template.template_class ~= "" and ClassTemplates.Building[template.template_class] or g_Classes.Building
 	local ret = {}
 	if class.default_label then
 		ret[class.default_label] = true
 	end
-	if template.name then
-		ret[template.name] = true
-		ret[template.name .. g_ConstructionSiteLabelSuffix] = true
+	if template.id then
+		ret[template.id] = true
+		ret[template.id .. g_ConstructionSiteLabelSuffix] = true
 	end
-	if class.class ~= template.name then
+	if class.class ~= template.id then
 		ret[class.class] = true
 		ret[class.class .. g_ConstructionSiteLabelSuffix] = true
 	end
@@ -275,7 +266,7 @@ function GetModifierObject(template)
 	--returns a fake modifier object that holds all modifiers of the template's potential labels
 	--and can be used to modify costs appropriately
 	--note, this gets all potential labels, hence it will get both construction site labels and bld labels, which means that any duplicate mods in those groups will get doubled.
-	if type(template) == "string" then template = DataInstances.BuildingTemplate[template] end
+	if type(template) == "string" then template = BuildingTemplates[template] end
 	if not template then return end --some buildings don't have templates - such as cables and pipes
 	local predicted_labels = GetCityLabelsForClassAndTemplate(template)
 	local modifications = {}
@@ -300,9 +291,9 @@ function GetModifierObject(template)
 end
 
 function ConstructionSite:GetBroadcastLabel()
-	local t = DataInstances.BuildingTemplate[self.building_class]
+	local t = BuildingTemplates[self.building_class]
 	if t then
-		return t.name .. g_ConstructionSiteLabelSuffix
+		return t.id .. g_ConstructionSiteLabelSuffix
 	end
 	return Building.GetBroadcastLabel(self)
 end
@@ -325,6 +316,11 @@ function ConstructionSite:OnSetWorking(working)
 			self:StopNaniteThread()
 		end
 	end
+end
+
+function ConstructionSite:ToggleWorking_Update(button)
+	button:SetRolloverText(T{619, "Construction sites that are turned off are not serviced.<newline><newline>Current status: <em><UIWorkingStatus></em>"})
+	Building.ToggleWorking_Update(self, button)
 end
 
 function ConstructionSite:GetBuildingClass()
@@ -636,7 +632,8 @@ function ConstructionSite:GatherConstructionResources()
 	
 	self.construction_resources = {}
 	self.construction_costs_at_start = {}
-	if not self.supplied then
+	if not self.supplied
+	and not IsGameRuleActive("FreeConstruction") then -- Buildings don't require resources to be constructed with Free Construction rule
 		for _, resource in ipairs(ConstructionResourceList) do
 			local amount = self:GetConstructionCost(resource, mod_o)
 			if amount > 0 then
@@ -732,35 +729,32 @@ function ConstructionSite:QueueConstructionVisualizationRecalc()
 	DelayedCall(0, RecalcConstructionVisualisation)
 end
 
+local UnbuildableZ = buildUnbuildableZ()
 function ConstructionSite:ComputeConstructionBBox()
-	local function PerItemBBox(constr)
-		local construction_bbox = constr:GetEntityBBox()
-		local attaches = constr:GetAttaches()
-		local i = 1
-		while i <= #(attaches or "") do
-			local attach = attaches[i]
-			if attach:GetClassFlags(const.cfConstructible) ~= 0 and attach:GetEnumFlags(const.efVisible) ~= 0 then
-				construction_bbox = Extend(construction_bbox, attach:GetEntityBBox())
-				attach:AddCustomData()
-				attach:SetAnimSpeed(1, 0)
-				table.append(attaches, attach:GetAttaches())
-			end
-			i = i + 1
-		end
-		return construction_bbox
+	local function GetTerrainHeight(pos)
+		local q, r = WorldToHex(pos)
+		local buildable_z = GetBuildableZ(q, r)
+		return buildable_z ~= UnbuildableZ and buildable_z or terrain.GetHeight(pos)
 	end
-	local function Globalize(constr, bbox)
-		local x, y = constr:GetPos():xy()
-		local z = terrain.GetHeight(x, y, true)
-		local min_x, min_y, min_z = bbox:min():xyz()
-		local max_x, max_y, max_z = bbox:max():xyz()
-		if IsKindOf(constr, "ElectricityGridElement") or IsKindOf(constr.building_class_proto, "SupplyGridSwitchBuilding") then --cable/switch z padding
-			max_z = (max_z or 0) + max_z_delta_for_cable_placement
-			z = z - max_z_delta_for_cable_placement
+	local function ClampToBuildableZ(bbox, pos, pad_z)
+		local x1,y1,z1 = bbox:minxyz()
+		local x2,y2,z2 = bbox:maxxyz()
+		if pad_z then
+			--cables dont flatten so buildable z is irrelevant
+			z1 = z1 - pad_z
+			z2 = z2 + pad_z
+		else
+			z1 = Max(GetTerrainHeight(pos), z1)
 		end
-		max_x = Max(max_x, max_y) --extend to catch all possible rotations
-		max_y = Max(max_x, max_y)
-		return box(x - max_x, y - max_y, z, x + max_x, y + max_y, z + (max_z or 0))
+		assert(z2 > z1)
+		return box(x1, y1, z1, x2, y2, z2)
+	end
+	local function PrepareAttachForConstruction(o)
+		if o:GetClassFlags(const.cfConstructible) ~= 0 and o:GetEnumFlags(const.efVisible) ~= 0 then
+			o:AddCustomData()
+			o:SetAnimSpeed(1, 0)
+			o:ForEachAttach(PrepareAttachForConstruction)
+		end
 	end
 	local grp = self.construction_group
 	if grp then
@@ -769,18 +763,45 @@ function ConstructionSite:ComputeConstructionBBox()
 			self.construction_bbox = bbox
 			for i = 2, #grp do
 				local o = grp[i]
-				bbox[i] = Globalize(o, PerItemBBox(o))
+				bbox[i] = ObjectHierarchyBBox(o, const.efVisible, const.cfConstructible)
+				bbox[i] = ClampToBuildableZ(bbox[i], o:GetPos())
+				o:ForEachAttach(PrepareAttachForConstruction)
 			end
 		else
 			local bbox
+			local p
 			for i = 2, #grp do
 				local o = grp[i]
-				bbox = Extend(bbox or box(), Globalize(o, PerItemBBox(o)))
+				if not o.entity or o.entity == "InvisibleObject" then
+					self.construction_bbox = box()
+					return 
+				end
+				local b = ObjectHierarchyBBox(o, const.efVisible, const.cfConstructible)
+				o:ForEachAttach(PrepareAttachForConstruction)
+				bbox = Extend(bbox or box(), b)
+				local his_p = o:GetPos()
+				p = not p and his_p or GetTerrainHeight(p) < GetTerrainHeight(his_p) and p or his_p
 			end
-			self.construction_bbox = bbox
+			
+			if not bbox:IsValid() or bbox:sizex() == 0 then
+				self.construction_bbox = box()
+				return
+			end
+			
+			if self.building_class == "LifeSupportGridElement" and grp[2].chain then
+				local d = grp[2].chain.delta
+				local p = d < 0 and bbox:min() or bbox:max()
+				p = p:SetZ(p:z() + d)
+				bbox = Extend(bbox, p)
+			end
+			
+			self.construction_bbox = ClampToBuildableZ(bbox, p, self.building_class == "ElectricityGridElement" and max_z_delta_for_cable_placement)
 		end
 	else
-		self.construction_bbox = Globalize(self, PerItemBBox(self))
+		local surfaces = band(-1, bnot(1)) --no collision
+		local bbox = ObjectHierarchyBBox(self, const.efVisible, const.cfConstructible, false, surfaces)
+		self.construction_bbox = ClampToBuildableZ(bbox, self:GetPos())
+		self:ForEachAttach(PrepareAttachForConstruction)
 	end
 end
 
@@ -874,12 +895,14 @@ end
 
 function ConstructionSite:BootVisualStockpileAmounts()
 	local stock = self.resource_stockpile
-	local costs_at_start = self.construction_costs_at_start
-	local supplied = self.supplied
-	for resource, request in pairs(self.construction_resources) do
-		local amount = costs_at_start[resource]
-		local amount_to_stock = amount - (supplied and 0 or request:GetActualAmount())
-		stock:AddResource(amount_to_stock, resource)
+	if stock then
+		local costs_at_start = self.construction_costs_at_start
+		local supplied = self.supplied
+		for resource, request in pairs(self.construction_resources) do
+			local amount = costs_at_start[resource]
+			local amount_to_stock = amount - (supplied and 0 or request:GetActualAmount())
+			stock:AddResource(amount_to_stock, resource)
+		end
 	end
 end
 
@@ -1075,6 +1098,11 @@ function ConstructionSite:IsWaitingResources()
 	end
 end
 
+function ConstructionSite:GetEmptyStorage(resource)
+	local request = resource == "construct" and self.construct_request or (self.construction_resources or empty_table)[resource]
+	return request and request:GetActualAmount() or 0
+end
+
 function ConstructionSite:IsConstructed()
 	if self.construction_group and self ~= self.construction_group[1] then
 		return self.construction_group[1]:IsConstructed()
@@ -1151,6 +1179,18 @@ function ConstructionSite:DroneUnloadResource(drone, request, resource, amount)
 	end
 end
 
+function ConstructionSite:AddResource(amount, resource)
+	if resource == "construct" then
+		self.construct_request:AddAmount(amount)
+		self:UpdateConstructionVisualization()
+		return
+	end
+	if self.resource_stockpile then
+		self.resource_stockpile:AddResource(amount, resource)
+	end
+	self.construction_resources[resource]:AddAmount(-amount)
+end
+
 function ConstructionSite:RoverWork(rover, request, resource, amount)
 	if resource == "construct" then
 		rover:PushDestructor(function(rover)
@@ -1161,8 +1201,7 @@ function ConstructionSite:RoverWork(rover, request, resource, amount)
 		rover:ContinuousTask(request, amount, "constructStart", "constructIdle", "constructEnd", "Construct")
 		rover:PopAndCallDestructor()
 	else
-		rover:ContinuousTask(request, amount, "gatherStart", "gatherIdle", "gatherEnd",
-		"Gather",	"step", g_Consts.RCRoverTransferResourceWorkTime, "remove resources")
+		rover:ContinuousTask(request, amount, "gatherStart", "gatherIdle", "gatherEnd", "Unload",	"step", g_Consts.RCRoverTransferResourceWorkTime, "add resource")
 	end
 end
 --
@@ -1546,34 +1585,48 @@ function RemoveUnderConstruction(obj)
 		-- enum all removable objects in a large enough radius, use the farthest point of the bounding box including surfaces
 		local bb = obj:GetEntitySurfacesBBox()
 		local pts = { bb:min(), point(bb:maxx(), bb:miny()), point(bb:minx(), bb:maxy()), bb:max() }
-		
+
 		local dist = 0
-		for i = 1, 4 do
+		for i = 1, #pts do
 			dist = Max(dist, pts[i]:Len2D())
 		end
-		
-		ForEach{
-			area = obj, arearadius = dist, enum_flags_all = const.efRemoveUnderConstruction,
-			exec = function(o)
-				-- test if the object is on one of the building's hexes
-				local q, r = WorldToHex(o)
+		MapForEach(
+			obj,
+			dist + GetEntityMaxSurfacesRadius(),
+			const.efRemoveUnderConstruction,
+			function(o)
+				local o_pos = o:GetPos()
+				local q, r = WorldToHex(o_pos)
+				local rad = o:GetRadius()
 				local remove
-				HexGridGetObjects(ObjectGrid, q, r, nil, nil, function(o2) 
-					if o2 == obj then
-						remove = true
-						return "break"
-					end
-					return false
-				end)
+				if not IsCloser2D(o, obj, dist + rad) then
+					return
+				end
+				-- check if the object and the building share at least one hex
+				local hexes = {}
+				if rad < const.HexSize then
+					hexes[1] = point(0, 0)
+				else
+					hexes = GetEntityPeripheralHexShape(o:GetEntity())
+				end
+				for i = 1, #hexes do
+					HexGridGetObjects(ObjectGrid, q + hexes[i]:x(), r + hexes[i]:y(), nil, nil, function(o2) 
+						if o2 == obj then
+							remove = true
+							return "break"
+						end
+						return false
+					end)
+					if remove then break end
+				end
 				if remove then
 					DoneObject(o)
 				end
-			end,
-		}
+			end)
 	else
 		local rad = obj:GetRadius()
 		rad = rad == 0 and const.HexSize or rad
-		ForEach{ area = obj, arearadius = rad, enum_flags_all = const.efRemoveUnderConstruction, action = "delete" }
+		MapDelete( obj, rad, const.efRemoveUnderConstruction)
 	end
 end
 
@@ -1604,6 +1657,16 @@ function PlaceConstructionSite(city, class_name, pos, angle, params, no_block_pa
 	if dome then
 		DeleteUnattachedRoads(site, dome)
 		UpdateCoveredGrass(site, dome, "build")
+		
+		if building_proto_class:IsKindOf("SpireBase") and building_proto_class.spire_frame_entity ~= "none" and IsValidEntity(building_proto_class.spire_frame_entity) then
+			assert(_G[building_proto_class.spire_frame_entity], "Specified Spire Frame Entity does not exist!")
+			local frame = PlaceObject("Shapeshifter")
+			frame:ChangeEntity(building_proto_class.spire_frame_entity)
+			local spot = dome:GetNearestSpot("idle", "Spireframe", site)
+			local pos = dome:GetSpotPos(spot)
+			frame:SetAttachOffset( pos - site:GetPos() )
+			site:Attach(frame, site:GetSpotBeginIndex("Origin"))
+		end
 	elseif not no_flatten then
 		FlattenTerrainInBuildShape(building_proto_class:GetFlattenShape(), site)
 	end
@@ -1976,21 +2039,19 @@ function ConstructionGroupLeader:TestBlockerClearenceProgress()
 end
 
 function dbg_CleanLeaders()
-	ForEach({class = "ConstructionGroupLeader", area = "realm", 
-	exec = function(o) 
+	MapForEach(true, "ConstructionGroupLeader", function(o) 
 		if o:CanDelete() and IsValid(o) then 
 			DoneObject(o) 
 		end 
-	end})
+	end)
 	
-	ForEach({class = "DroneControl", area = "realm",
-	exec = function(o)
+	MapForEach(true, "DroneControl", function(o)
 		for i = #o.constructions, 1, -1 do
 			if not IsValid(o.constructions[i]) then
 				o:RemoveConstruction(o.constructions[i])
 			end
 		end
-	end})
+	end)
 end
 
 function ConstructionGroupLeader:Complete(quick_build)
@@ -2119,19 +2180,67 @@ DefineClass.GridSwitchConstructionSite = {
 	rename_allowed = false,
 }
 
+local function steal_attaches(self, o, supply_resource, update_visuals_func)
+	if update_visuals_func(o, supply_resource) then
+		self:DestroyAttaches()
+		
+		o:ForEachAttach(function(attach)
+			local a = attach:GetAttachAngle()
+			self:Attach(attach)
+			attach:SetAttachAngle(a)
+		end)
+		
+		self:UpdateConstructionVisualization()
+	end
+end
+
 function GridSwitchConstructionSite:GameInit()
 	if IsValid(self.obj_to_turn_into_switch) then
 		local o = self.obj_to_turn_into_switch
 		if IsKindOf(o, "ElectricityGridElement") then
 			self.sign_offset = point30
+		else
+			assert(o:CanMakePillar(self))
 		end
-		
 		o.switch_cs = self
+		o.force_hub = true
+		o:ClearEnumFlags(const.efVisible)
+		local func = g_Classes[o.class].UpdateVisuals
+		o.UpdateVisuals = function(o, supply_resource)
+			steal_attaches(self, o, supply_resource, func)
+		end
+		o.conn = nil --force update visuals to not early out
+		o:UpdateVisuals()
 	end
 end
 
+function GridSwitchConstructionSite:RestoreObjToTurnIntoSwitch()
+	if IsValid(self.obj_to_turn_into_switch) and self.obj_to_turn_into_switch.force_hub then
+		local o = self.obj_to_turn_into_switch
+		o.UpdateVisuals = g_Classes[o.class].UpdateVisuals
+		o.force_hub = nil
+		o.switch_cs = nil
+		o:SetEnumFlags(const.efVisible)
+		o.last_visual_pillar = min_int --force update visuals to not early out
+		o:DestroyAttaches()
+		if IsKindOf(o, "LifeSupportGridElement") and not o.is_switch and not o.pillar then
+			local count, first, second = o:GetNumberOfConnections()
+			o:SetAngle(first * 60 * 60)
+		end
+		o.conn = nil
+		o:UpdateVisuals()
+	end
+end
+
+function GridSwitchConstructionSite:Done()
+	self:RestoreObjToTurnIntoSwitch()
+end
+
 function GridSwitchConstructionSite:Complete(quick_build, current, total)
-	if not IsValid(self) then return end
+	if not IsValid(self) then 
+		self:RestoreObjToTurnIntoSwitch()
+		return 
+	end
 	if not IsValid(self.obj_to_turn_into_switch) then
 		--cable/pipe got destroyed
 		DoneObject(self)
@@ -2146,6 +2255,7 @@ function GridSwitchConstructionSite:Complete(quick_build, current, total)
 	self.is_construction_complete = true
 	self.obj_to_turn_into_switch:MakeSwitch(self)
 	self.obj_to_turn_into_switch.name = self.name or ""
+	self:RestoreObjToTurnIntoSwitch()
 	
 	if self:IsPinned() and not self.obj_to_turn_into_switch:IsPinned() then
 		self.obj_to_turn_into_switch:TogglePin()
@@ -2205,6 +2315,11 @@ function ConstructionSite:GetResourceProgress()
 	end
 	return table.concat(items, "\n")
 end		
+
+-- provide stub for all missing classes
+function UnpersistedMissingClass:GetDisplayName()
+	return T{77, "Unknown"}
+end
 
 function ConstructionSite:GetDisplayName()
 	local class = self.building_class_proto
@@ -2295,7 +2410,7 @@ end
 GlobalVar("g_ConstructionNanitesResearched", false)
 function OnNanitesResearched()
 	g_ConstructionNanitesResearched = true
-	ForEach({class = "ConstructionSite", area = "realm", exec = function(o) o:StartNaniteThread() end})
+	MapForEach(true, "ConstructionSite", function(o) o:StartNaniteThread() end)
 end
 function OnMsg.TechResearched(tech_id, city, first_time)
 	if tech_id == "ConstructionNanites" then

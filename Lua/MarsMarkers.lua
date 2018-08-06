@@ -7,12 +7,13 @@ DefineClass.RCRoverMarker = {
 }
 
 function OnMsg.ChangeMapDone(map)
-	ForEach{
-		class = "RCRoverMarker",
-		exec = function(marker)
+	MapForEach("map",
+		"RCRoverMarker",
+		function(marker)
 			local p = GetPassablePointNearby(marker:GetPos(), RCRover.pfclass)
-			local r = PlaceObject("RCRover")
-			r:SetPos(p)
-		end,
-	}
+			if p then
+				local r = PlaceObject("RCRover")
+				r:SetPos(p)
+			end
+		end)
 end

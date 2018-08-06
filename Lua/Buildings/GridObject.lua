@@ -90,7 +90,7 @@ function GridObject:ApplyToGrids()
 	end
 	--apply
 	HexGridShapeAddObject(ObjectGrid, self, self:GetShapePoints() or empty_table)
-	if not self.is_tall and not IsKindOf(self, "ElectricityGridElement") then -- we are a not tall bld, if there is a pipe above, demote its connection
+	if not self.is_tall and not IsKindOfClasses(self, "ElectricityGridElement", "GridSwitchConstructionSite") then -- we are a not tall bld, if there is a pipe above, demote its connection
 		HexGridShapeGetObjectList(ObjectGrid, self, self:GetShapePoints() or empty_table, "LifeSupportGridElement", nil, 
 			LifeSupportGridElement.DemoteConnectionMask) --pipe no longer marks potential in directions that require it to become pillar.
 	end
@@ -131,7 +131,8 @@ function UngridedObstacle:GetModifiedBSphereRadius(r)
 	return r
 end
 
-HexSurroundingsCheckShapeLarge = { point(0, -1), point(1, -1), point(-1, 0), point(0, 0), point(1, 0), point(-1, 1), point(0, 1),
+HexSurroundingsCheckShapeLarge = {	point(0, 0),
+											point(0, -1), point(1, -1), point(-1, 0), point(1, 0), point(-1, 1), point(0, 1),
 											point(0, -2), point(1, -2), point(2, -2), point(2, -1), point(2, 0), point(1, 1), point(0, 2), 
 											point(-1, 2), point(-2, 2), point(-2, 1), point(-2, 0), point(-1, -1), 
 											point(0, 3), point(1, -3), point(2, -3), point(3, -3), point(3, -2), point(3, -1), point(3, 0),
@@ -170,16 +171,25 @@ HexNeighbours = {
 	point(1, -1),
 }
 
+function SavegameFixups.ElectricityGridObjectsAsConnectors()
+	CableConnectionsCache = {}
+end
+
 -- returns an array with connection masks (not rotated):
 -- 	each entry is a mask corresponding to the point with the same index in the building shape array
 -- 	a mask has 6 bits and defines a relation with the 6 neghbouring hex cells
 -- 	lower 8 bits of an entry are a mask that define which of the surrounding cells are also part of the building (connections)
 -- 	higher 8 bits of an entry are a mask that define which of the surrounding cells can be connected for the specified resource
 -- can be called without having an instance
+local connector_flag = 128
 function GridObject:GetShapeConnections(supply_resource)
 	local cache = supply_resource == "electricity" and CableConnectionsCache or PipeShapeConnectionsCache
 	local connections = cache[self.template_name]
 	if not connections then
+		local additional_flags = 0
+		if IsKindOf(self, "ElectricityGridObject") then
+			additional_flags = bor(additional_flags, connector_flag)
+		end
 		connections = {}
 		cache[self.template_name] = connections
 		local shape = self:GetSupplyGridConnectionShapePoints(supply_resource)
@@ -204,7 +214,7 @@ function GridObject:GetShapeConnections(supply_resource)
 						v = bor(v, shift(1, dir + 8 - 1))
 					end
 				end
-				connections[i] = v
+				connections[i] = bor(v, additional_flags)
 			end
 		else
 			local pipes_list = self:GetPipeConnections()
@@ -268,6 +278,10 @@ TubeSkinsBuildingConnections = {
 		decor_entity = "TubeChromeBuildingConnectionDecor",
 	},
 }
+
+function SavegameFixups.SkinnedPipesFallbackToDefault()
+	PipeConnectionsCache = {}
+end
 -- returns a list of items { hex_point, direction (0..5), spot-index, entity-to-attach, decor_table or nil }
 -- decor table = { entity name,
 --						{spot, e},
@@ -281,12 +295,12 @@ function GridObject:GetGridSkinName()
 	return "Default"
 end
 
-function GridObject:GetPipeConnections()
+function GridObject:GetPipeConnections(force_default)
 	if not IsKindOf(self, "LifeSupportGridObject") then
 		return
 	end
 	
-	local gsn = self:GetGridSkinName()
+	local gsn = force_default and "Default" or self:GetGridSkinName()
 	local entity = self.entity
 	local cache_key = self:GetEntityNameForPipeConnections(gsn)
 	local list = PipeConnectionsCache[cache_key]
@@ -351,7 +365,28 @@ function GridObject:GetPipeConnections()
 				end
 			end
 		end
+		
+		if gsn ~= "Default" then
+			local default_list = self:GetPipeConnections(true)
+			local consistent = #list == #default_list
+			if consistent then
+				for i = 1, #list do
+					local pos1, dir1, spot1 = list[i][1], list[i][2], list[i][3]
+					local pos2, dir2, spot2 = default_list[i][1], default_list[i][2], default_list[i][3]
+					if pos1 ~= pos2 or dir1 ~= dir2 or spot1 ~= spot2 then
+						consistent = false
+						break
+					end
+				end
+			end
+			if not consistent then
+				printf("Inconsistent pipe skin %s for entity %s, using defaults!", gsn, entity)
+				list = default_list
+				PipeConnectionsCache[cache_key] = list
+			end
+		end
 	end
+	
 	return list
 end
 
@@ -433,8 +468,8 @@ end
 
 function RebuildBuildingConnections()
 	PipeConnectionsCache = {}
-	for _, template in ipairs(DataInstances.BuildingTemplate) do
-		local building = ClassTemplates["Building"][template.name]
+	for id, template in pairs(BuildingTemplates) do
+		local building = ClassTemplates["Building"][id]
 		if building then
 			building:GetShapePoints()
 			building:GetPipeConnections()
@@ -444,20 +479,13 @@ end
 
 OnMsg.EntitiesLoaded = RebuildBuildingConnections
 
-local unit_search = {
-	classes = "Unit",
-	area = false,
-}
-
 local LookupGrid = false
 
 --when constructing both template_obj and cursor_obj are used to gather the data
 function HexGetUnits(obj, entity, pos, angle, test, filter, classes, force_extend_bb_by)
 	local outline, interior = GetEntityHexShapes(entity)
-	classes = classes or "Unit"
-	unit_search.classes = classes
 	local dir = HexAngleToDirection(angle or obj:GetAngle())
-	local initial_hex_pos = point(WorldToHex(pos or obj))
+	local initial_q, initial_r = WorldToHex(pos or obj)
 	
 	local minq, maxq, minr, maxr = 0, 0, 0, 0
 	local function compare(max, current, is_max)
@@ -476,7 +504,7 @@ function HexGetUnits(obj, entity, pos, angle, test, filter, classes, force_exten
 	
 	local total_x, total_y = abs(minq) + abs(maxq) + 1, abs(minr) + abs(maxr) + 1
 	total_x = total_x + total_y / 2
-	local origin_tile_in_lookup = point(abs(minq), abs(minr))
+	local lookup_q, lookup_r = abs(minq), abs(minr)
 	
 	if LookupGrid then
 		local c_x, c_y = LookupGrid:size()
@@ -490,14 +518,14 @@ function HexGetUnits(obj, entity, pos, angle, test, filter, classes, force_exten
 	end
 	
 	if obj then
-		HexGridShapeSetValue(LookupGrid, obj, outline, 1, origin_tile_in_lookup:x(), origin_tile_in_lookup:y())
-		if interior then HexGridShapeSetValue(LookupGrid, obj, interior, 1, origin_tile_in_lookup:x(), origin_tile_in_lookup:y()) end
+		HexGridShapeSetValue(LookupGrid, obj, outline, 1, lookup_q, lookup_r)
+		if interior then HexGridShapeSetValue(LookupGrid, obj, interior, 1, lookup_q, lookup_r) end
 	else
-		HexGridSet(LookupGrid, origin_tile_in_lookup:x(), origin_tile_in_lookup:y(), 1)
+		HexGridSet(LookupGrid, lookup_q, lookup_r, 1)
 	end
 	
 	local grid_val = 0
-	local bbb = obj and GetObjectsBBox({obj}) or box(pos:x(), pos:y(), pos:z() or 0, pos:x(), pos:y(), pos:z() or 0)
+	local bbb = obj and GetObjectsBBox({obj}) or box(pos, pos)
 	
 	force_extend_bb_by = force_extend_bb_by or 0
 	if force_extend_bb_by ~= 0 then
@@ -507,8 +535,8 @@ function HexGetUnits(obj, entity, pos, angle, test, filter, classes, force_exten
 	
 	--extend, this fixes bb's that don't quite cover the entire shape + repair bay tiny bb.
 	local hex_size_pt = point(HexGetSize(), HexGetSize()) * 5
-	unit_search.area = Extend(bbb, bbb:min() - hex_size_pt, bbb:max() + hex_size_pt)
-	unit_search.filter = function(o)
+	local unit_area = Extend(bbb, bbb:min() - hex_size_pt, bbb:max() + hex_size_pt)
+	local unit_filter = function(o)
 		local ret
 		if filter then
 			ret = filter(o)
@@ -517,24 +545,28 @@ function HexGetUnits(obj, entity, pos, angle, test, filter, classes, force_exten
 		
 		ret = test and "break" or ret or true
 		
-		local my_grid_pos = point(WorldToHex(o)) - initial_hex_pos + origin_tile_in_lookup
+		local q, r = WorldToHex(o)
+		q = q - initial_q + lookup_q
+		r = r - initial_r + lookup_r
 		
 		if IsKindOf(o, "UngridedObstacle") then
 			local my_shape = o:GetRotatedShapePoints()
 			grid_val = 0
 			
 			for i = 1, #my_shape do
-				grid_val = HexGridGet(LookupGrid, my_grid_pos + my_shape[i])
+				local dq, dr = my_shape[i]:xy()
+				grid_val = HexGridGet(LookupGrid, q + dq, r + dr)
 				if grid_val ~= 0 then
 					break
 				end
 			end
 		else
-			grid_val = HexGridGet(LookupGrid, my_grid_pos)
+			grid_val = HexGridGet(LookupGrid, q, r)
 		end
 		
 		return grid_val ~= 0 and ret
 	end
 	
-	return (test and GetObjects(unit_search) and grid_val ~= 0) or (not test and GetObjects(unit_search))
+	local unit_classes = classes or "Unit"
+	return (test and MapGet(unit_area, unit_classes, unit_filter) and grid_val ~= 0) or (not test and MapGet(unit_area, unit_classes, unit_filter))
 end

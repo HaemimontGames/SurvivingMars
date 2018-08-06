@@ -11,7 +11,7 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateCode', {
 			'run', function (self, parent, context)
 parent:SetPadding(box(80,30,120,50))
-local toolbar = GetXDialog(parent).idToolbar
+local toolbar = GetDialog(parent).idToolbar
 toolbar:SetPadding(box(80, 0, 0, 0))
 toolbar:SetHAlign("center")
 end,
@@ -45,6 +45,7 @@ end,
 			'FocusedBackground', RGBA(0, 0, 0, 0),
 			'VScroll', "idScroll",
 			'ShowPartialItems', false,
+			'MouseScroll', true,
 		}, {
 			PlaceObj('XTemplateFunc', {
 				'name', "OnShortcut(self, shortcut, source)",
@@ -92,7 +93,7 @@ end,
 				'ActionId', "idPhotoMode",
 				'ActionName', T{1134, --[[XTemplate XIGMenu ActionName]] "PHOTO MODE"},
 				'ActionToolbar', "mainmenu",
-				'OnAction', function (self, host, source, toggled)
+				'OnAction', function (self, host, source)
 CloseIngameMainMenu()
 OpenPhotoMode()
 end,
@@ -116,7 +117,7 @@ end,
 				'ActionId', "idRestartMap",
 				'ActionName', T{1135, --[[XTemplate XIGMenu ActionName]] "RESTART MAP"},
 				'ActionToolbar', "mainmenu",
-				'OnAction', function (self, host, source, toggled)
+				'OnAction', function (self, host, source)
 CreateRealTimeThread(function()
 	if WaitMarsQuestion(nil, T{1136, "Restart Map"}, T{1137, "Are you sure you want to restart the map?"}, T{1138, "Yes"}, T{1139, "No"}, "UI/Messages/space.tga") == "ok" then
 		LoadingScreenOpen("idLoadingScreen", "restart map")
@@ -143,7 +144,7 @@ end,
 				'ActionId', "idMainMenu",
 				'ActionName', T{1140, --[[XTemplate XIGMenu ActionName]] "MAIN MENU"},
 				'ActionToolbar', "mainmenu",
-				'OnAction', function (self, host, source, toggled)
+				'OnAction', function (self, host, source)
 CreateRealTimeThread(function()
 	if WaitMarsQuestion(nil, T{6779, "Warning"}, T{1141, "Exit to the main menu?"}, T{1138, "Yes"}, T{1139, "No"}, "UI/Messages/space.tga") == "ok" then
 		LoadingScreenOpen("idLoadingScreen", "main menu")
@@ -158,7 +159,7 @@ end,
 				'ActionId', "idQuit",
 				'ActionName', T{1132, --[[XTemplate XIGMenu ActionName]] "QUIT"},
 				'ActionToolbar', "mainmenu",
-				'OnAction', function (self, host, source, toggled)
+				'OnAction', function (self, host, source)
 QuitGame()
 end,
 				'__condition', function (parent, context) return not Platform.console end,
@@ -175,12 +176,10 @@ end,
 				}),
 				}),
 			}),
-		PlaceObj('XTemplateWindow', {
-			'__class', "XPageScroll",
+		PlaceObj('XTemplateTemplate', {
+			'__template', "Scrollbar",
 			'Id', "idScroll",
-			'Margins', box(80, 0, 0, 0),
-			'Dock', "bottom",
-			'Visible', false,
+			'Margins', box(0, 25, 0, 0),
 			'Target', "idList",
 		}),
 		}),

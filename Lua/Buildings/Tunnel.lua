@@ -227,7 +227,7 @@ function Tunnel:TraverseTunnel(unit, start_point, end_point, param)
 end
 
 function OnMsg.LoadGame()
-	ForEach { class = "Tunnel", exec = Tunnel.AddPFTunnel }
+	MapForEach("map","Tunnel", Tunnel.AddPFTunnel )
 end
 
 function Tunnel:GetRefundResources()

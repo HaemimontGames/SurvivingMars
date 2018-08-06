@@ -1,10 +1,34 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 PlaceObj('CommanderProfilePreset', {
+	filter = function (self) return false end,
 	group = "Default",
 	id = "None",
-	filter = function (self) return false end,
 })
+
+PlaceObj('CommanderProfilePreset', {
+	SortKey = 500,
+	challenge_mod = -30,
+	display_name = T{213177200768, --[[CommanderProfilePreset Default citymayor display_name]] "City Mayor"},
+	effect = T{156992981942, --[[CommanderProfilePreset Default citymayor effect]] "- 2,000 M additional starting funding\n- Buildings require upkeep less often\n- Bonus Tech: <em>Mars Nouveau</em> (building costs in Metals & Concrete are reduced by 20%)"},
+	group = "Default",
+	id = "citymayor",
+	tech1 = "MarsNoveau",
+	PlaceObj('Effect_Funding', {
+		Funding = 2000,
+	}),
+	PlaceObj('Effect_ModifyLabel', {
+		Label = "OutsideBuildings",
+		Percent = 20,
+		Prop = "maintenance_threshold_base",
+	}),
+	PlaceObj('Effect_ModifyLabel', {
+		Label = "InsideBuildings",
+		Percent = 20,
+		Prop = "maintenance_threshold_base",
+	}),
+})
+
 PlaceObj('CommanderProfilePreset', {
 	SortKey = 1000,
 	challenge_mod = 10,
@@ -203,6 +227,7 @@ PlaceObj('CommanderProfilePreset', {
 	effect = T{5338, --[[CommanderProfilePreset Default rocketscientist effect]] "- Start with an extra Rocket\n- Bonus Tech: <em>CO2 Jet Propulsion</em> (unlocks Shuttle Hub and long-range transportation)"},
 	group = "Default",
 	id = "rocketscientist",
+	name = "rocketscientist",
 	PlaceObj('Effect_GrantTech', {
 		Field = "Robotics",
 		Research = "CO2JetPropulsion",

@@ -9,7 +9,7 @@ PlaceObj('XTemplate', {
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelSection",
-			'RolloverText', T{241499798174, --[[XTemplate sectionMaintenance RolloverText]] "The condition of buildings deteriorates over time. Martian dust and disasters contribute to deterioration of outside buildings. Deteriorated buildings will need to be serviced by a Drone and supplied with their required maintenance resource or they will malfunction.<newline><newline>Current deterioration<right><percent(MaintenanceProgress)><newline><left>Last serviced<right><LastMaintenance>\n<MaintenanceText>"},
+			'RolloverText', T{10556, --[[XTemplate sectionMaintenance RolloverText]] "<MaintenanceRolloverText>"},
 			'RolloverTitle', T{619281504128, --[[XTemplate sectionMaintenance RolloverTitle]] "Maintenance"},
 			'Id', "idSectionMaintenance",
 			'OnContextUpdate', function (self, context, ...)
@@ -47,6 +47,8 @@ end,
 				}),
 			}),
 		PlaceObj('XTemplateTemplate', {
+			'comment', "attention",
+			'__condition', function (parent, context) return not  IsGameRuleActive("EasyMaintenance") end,
 			'__template', "InfopanelSection",
 			'OnContextUpdate', function (self, context, ...)
 self:SetVisible(not context:IsMalfunctioned() and context.last_maintenance_points_full_ts and not (ResolveValue(context, "UIWarning") and true ))
@@ -56,7 +58,23 @@ end,
 		}, {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
-				'Text', T{581, --[[XTemplate sectionMaintenance Text]] "This building has deteriorated and will stop working soon unless it receives maintenance."},
+				'Text', T{581, --[[XTemplate sectionMaintenance Text]] "This building has deteriorated and will stop working soon unless it receives maintenance.<EasyMaintenanceText()>"},
+				'TextHAlign', "center",
+			}),
+			}),
+		PlaceObj('XTemplateTemplate', {
+			'comment', "attention  - easy maintenance game rule",
+			'__condition', function (parent, context) return IsGameRuleActive("EasyMaintenance") end,
+			'__template', "InfopanelSection",
+			'OnContextUpdate', function (self, context, ...)
+self:SetVisible(not context:IsMalfunctioned() and context.last_maintenance_points_full_ts and not (ResolveValue(context, "UIWarning") and true ))
+end,
+			'Title', T{277, --[[XTemplate sectionMaintenance Title]] "Attention"},
+			'Icon', "UI/Icons/Sections/attention.tga",
+		}, {
+			PlaceObj('XTemplateTemplate', {
+				'__template', "InfopanelText",
+				'Text', T{746855187624, --[[XTemplate sectionMaintenance Text]] "This building needs maintenance and is waiting for <resource(maintenance_resource_amount, maintenance_resource_type)>"},
 				'TextHAlign', "center",
 			}),
 			}),

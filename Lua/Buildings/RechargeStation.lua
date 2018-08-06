@@ -70,22 +70,11 @@ function RechargeStationBase:IsRechargerWorking()
 end
 
 local recharger_pulse_tick = 1000
-local recharger_aoe_query = {
-	area = false,
-	hexradius = 3, --its +1 for some reason
-	class = "Drone",
-	
-	filter = function(d) return d.battery < d.battery_max*3/4 end,
-}
 --can be in bldupdate, but then the update timer needs to be real low even when tech is not researched :/
 function RechargerAoePulse(self)
 	Sleep(AsyncRand(recharger_pulse_tick))
-	local range = TechDef.WirelessPower.param1
 	while IsValid(self) and self.working do
-		recharger_aoe_query.area = self
-		recharger_aoe_query.hexradius = range
-		local drones = GetObjects(recharger_aoe_query)
-		recharger_aoe_query.area = false
+		local drones = MapGet(self, "hex", TechDef.WirelessPower.param1, "Drone" , function(d) return d.battery < d.battery_max*3/4 end )
 		if #drones > 0 then
 			PlayFX("DroneRechargePulse", "start", self)
 		end
@@ -107,25 +96,18 @@ end
 
 local drone_notification_range = 60*guim
 local notifying_recharger = false
-local drone_notification_query = {
-	classes = "Drone",
-	arearadius = drone_notification_range,
-	area = false,
-	filter = function(drone)
-		return drone.command == "EmergencyPower" and 
-				(IsValid(drone.queued_at_recharger) and notifying_recharger ~= drone.queued_at_recharger or 
-				(IsValid(drone.going_to_recharger) and 
-				drone.going_to_recharger:GetDist2D(drone) > 2 * notifying_recharger:GetDist2D(drone)))
-	end
-}
 
 function RechargeStationBase:NotifyDronesOnRechargeStationFree()
 	if IsValid(self) and #self.drones_in_queue_to_charge <= 0 then 
 		--only notify if there are not drones currently in queue, and if we didnt just die.
 		notifying_recharger = self
-		drone_notification_query.area = self
-		local drone = FindNearest(drone_notification_query, self)
-		drone_notification_query.area = false
+		local filter = function(drone)
+				return drone.command == "EmergencyPower" and 
+					(IsValid(drone.queued_at_recharger) and notifying_recharger ~= drone.queued_at_recharger or 
+					(IsValid(drone.going_to_recharger) and 
+					drone.going_to_recharger:GetDist2D(drone) > 2 * notifying_recharger:GetDist2D(drone)))
+		end
+		local drone = MapFindNearest(self, self, drone_notification_range, "Drone", filter)
 		notifying_recharger = false
 		if drone then
 			drone:ResetEmergencyPowerCommand(self)

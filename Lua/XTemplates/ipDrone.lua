@@ -115,7 +115,7 @@ end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelSection",
-			'RolloverText', T{4445, --[[XTemplate ipDrone RolloverText]] "Drones will seek a recharge station on low battery. Powered down Drones can be recharged by maintenance Drones or RC Rovers."},
+			'RolloverText', T{4445, --[[XTemplate ipDrone RolloverText]] "Drones will seek a recharge station on low battery. Powered down Drones can be recharged by maintenance Drones or RC Commanders."},
 			'RolloverTitle', T{7608, --[[XTemplate ipDrone RolloverTitle]] "Battery  <percent(battery,battery_max)>"},
 			'Icon', "UI/Icons/Sections/batery.tga",
 		}, {

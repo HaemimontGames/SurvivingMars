@@ -15,6 +15,7 @@ DefineClass.MissionGoal = {
 	score = false,
 }
 
+--
 function MissionGoal:MsgNewDay(day)
 	local sponsor = GetMissionSponsor()
 	

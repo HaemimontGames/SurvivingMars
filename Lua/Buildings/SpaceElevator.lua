@@ -105,7 +105,7 @@ function SpaceElevator:OrderResupply(cargo, cost)
 	if not cargo or #cargo == 0 then return end
 	
 	-- charge the cost immediately, queue the cargo
-	self.city:ChangeFunding(-cost)
+	self.city:ChangeFunding(-cost, "Import")
 	self.import_queue[#self.import_queue + 1] = cargo
 	ResetCargo()
 	
@@ -121,7 +121,7 @@ function SpaceElevator:OnSetWorking(working)
 end
 
 function SpaceElevator:BuildingUpdate()
-	if not self.working or IsValidThread(self.pod_thread) then
+	if not self.working or IsValidThread(self.pod_thread) or g_Consts.SupplyMissionsEnabled ~= 1 then
 		return
 	end
 	
@@ -166,9 +166,9 @@ function SpaceElevator:ExportGoods()
 		
 		-- grant extra funding
 		self.city:MarkPreciousMetalsExport(self.current_export)
-		local export_funding = MulDivRound(self.current_export, g_Consts.ExportPricePreciousMetals*1000000, const.ResourceScale)
+		local export_funding = self.city:CalcBaseExportFunding(self.current_export)
 		if export_funding > 0 then
-			export_funding = self.city:ChangeFunding(export_funding)
+			export_funding = self.city:ChangeFunding(export_funding, "Export")
 			AddOnScreenNotification("RareMetalsExport", nil, { funding = export_funding })
 		end
 		self.current_export = nil
@@ -202,12 +202,13 @@ function SpaceElevator:ExportGoods()
 			self:UnloadCargo(self.current_imports)
 			self.current_imports = nil
 		end	
-	until #self.import_queue == 0 -- repeat immediately if there are queued import items
+	until #self.import_queue == 0 or g_Consts.SupplyMissionsEnabled ~= 1 -- repeat immediately if there are queued import items
 end
 
 function SpaceElevator:UnloadCargo(items)
 	-- add stored imports to the storage & fire notification
 	local unloaded
+	local refreshBM = false
 	for i = 1, #items do
 		local item = items[i]
 		local classdef = g_Classes[item.class]
@@ -215,8 +216,9 @@ function SpaceElevator:UnloadCargo(items)
 			if Resources[item.class] then
 				self:AddResource(item.amount*const.ResourceScale, item.class)
 				unloaded = true
-			elseif DataInstances.BuildingTemplate[item.class] then
-				self.city:AddPrefabs(item.class, item.amount)
+			elseif BuildingTemplates[item.class] then
+				refreshBM = true
+				self.city:AddPrefabs(item.class, item.amount, false)
 				unloaded = true
 			elseif IsKindOf(classdef, "OrbitalProbe") then
 				for j = 1, item.amount do
@@ -227,6 +229,9 @@ function SpaceElevator:UnloadCargo(items)
 				printf("[SpaceElevator] unexpected cargo type %s, ignored", item.class)
 			end
 		end
+	end
+	if refreshBM then
+		RefreshXBuildMenu()
 	end
 
 	if unloaded then
@@ -358,8 +363,8 @@ function SpaceElevator:GetCargoManifest()
 			local classdef = g_Classes[item.class]
 			if Resources[item.class] then
 				resources[#resources + 1] = T{722, "<resource(amount,res)>", amount = item.amount*const.ResourceScale, res = item.class}
-			elseif DataInstances.BuildingTemplate[item.class] then
-				local def = DataInstances.BuildingTemplate[item.class]
+			elseif BuildingTemplates[item.class] then
+				local def = BuildingTemplates[item.class]
 				local name = item.amount > 1 and def.display_name_pl or def.display_name
 				texts[#texts + 1] = T{723, "<number> <name>", number = item.amount, name = name}
 			elseif IsKindOf(classdef, "OrbitalProbe") then
@@ -397,7 +402,7 @@ function SpaceElevator:GetExportManifest()
 		texts[#texts + 1] = T{760, "<left>Exporting <right><preciousmetals(amount)>", amount = self.current_export}
 	end
 	local amount = self:GetStoredExportResourceAmount()
-	local rt = FormatResourceValueMaxResource(amount, self.max_export_storage, "PreciousMetals", self)
+	local rt = FormatResourceValueMaxResource(self, amount, self.max_export_storage, "PreciousMetals")
 	texts[#texts + 1] = T{761, "<left>Waiting to export <right><res>", res = rt}
 	
 	return table.concat(texts, "<newline>")
@@ -430,13 +435,17 @@ function SpaceElevator:DroneUnloadResource(drone, request, resource, amount)
 end
 
 function SpaceElevator:DroneLoadResource(drone, request, resource, amount)
-	drone:PushDestructor(function(drone)
-		drone:ExitBuilding(self)
-	end)
-	UniversalStorageDepot.DroneLoadResource(self, drone, request, resource, amount, true)
-	drone:SetCarriedResource(resource, amount)
-	RebuildInfopanel(self)
-	drone:PopAndCallDestructor()
+	UniversalStorageDepot.DroneLoadResource(self, drone, request, resource, amount, true) --no sleep with skip presentation == true
+	if drone then
+		drone:PushDestructor(function(drone)
+			drone:ExitBuilding(self)
+		end)
+		drone:SetCarriedResource(resource, amount)
+		RebuildInfopanel(self)
+		drone:PopAndCallDestructor()
+	else
+		RebuildInfopanel(self)
+	end
 end
 
 local drone_enter_cmd = {
@@ -464,3 +473,5 @@ end
 function OnMsg.GatherFXActions(list)
 	list[#list + 1] = "ElevatorMoving"
 end
+
+CargoCapacityLabels.elevator = "SpaceElevator"

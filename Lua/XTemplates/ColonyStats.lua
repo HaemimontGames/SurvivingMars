@@ -28,10 +28,13 @@ parent:CreateThread("DailyUpdate", function(dlg, day)
 			day = UICity.day
 			dlg:SetMode(dlg.Mode, dlg.mode_param)
 		end
+		for _, win in ipairs(dlg.idContent.idScrollArea) do
+			win.idLegend:SetText(win.idLegend:GetText())
+		end
 		Sleep(1000)
 	end
 end, parent, UICity.day)
-local dlg = GetXDialog(parent)
+local dlg = GetDialog(parent)
 if dlg then
 	dlg.OnShortcut = function(dlg, shortcut, source)
 		if shortcut == "RightShoulder" then
@@ -73,23 +76,7 @@ end,
 					PlaceObj('XTemplateFunc', {
 						'name', "OnShortcut(self, shortcut, source)",
 						'func', function (self, shortcut, source)
-local rel = XShortcutToRelation[shortcut]
-if rel == "up" or rel == "down" then
-	return "break"
-elseif rel == "left" or rel == "right" then
-	local focus = self.desktop:GetKeyboardFocus()
-	local idx = table.find(self, focus)
-	if idx then
-		if rel == "left" and idx == 1 then
-			self[#self]:SetFocus()
-			return "break"
-		elseif rel == "right" and idx == #self then
-			self[1]:SetFocus()
-			return "break"
-		end
-	end
-end
-return XContextWindow.OnShortcut(self, shortcut, source)
+return CCC_ButtonListOnShortcut(self, shortcut, source)
 end,
 					}),
 					PlaceObj('XTemplateForEach', {
@@ -105,7 +92,7 @@ if item.button_caption then
 	child:SetRolloverText(item.button_text)
 end
 child:SetIcon(item.off_icon)
-local parent_dlg = GetXDialog(GetXDialog(child).parent)
+local parent_dlg = GetDialog(GetDialog(child).parent)
 local parent_context = parent_dlg.context
 if (not parent_context.graph_id and i == 1) or parent_context.graph_id == item.id then
 	child:Press()
@@ -142,7 +129,7 @@ end,
 							'FXPressDisabled', "UIDisabledButtonPressed",
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-local dlg = GetXDialog(self)
+local dlg = GetDialog(self)
 local context = self.context
 dlg:SetContext(context)
 local mode_param = GetDialogModeParam(dlg)
@@ -152,7 +139,7 @@ if mode_param then
 end
 dlg:SetMode("graph", {pressed = self.Id})
 self:SetIcon(context.on_icon)
-local parent_dlg = GetXDialog(dlg.parent)
+local parent_dlg = GetDialog(dlg.parent)
 parent_dlg.context.graph_id = context.id
 end,
 							'RolloverBackground', RGBA(0, 0, 0, 0),
@@ -183,6 +170,7 @@ end,
 					}, {
 						PlaceObj('XTemplateTemplate', {
 							'__template', "Scrollbar",
+							'Id', "idScroll",
 							'Margins', box(10, 0, 0, 0),
 							'Target', "idScrollArea",
 						}),
@@ -196,7 +184,7 @@ end,
 							'VScroll', "idScroll",
 						}, {
 							PlaceObj('XTemplateForEach', {
-								'array', function (parent, context) return GetXDialog(parent).context end,
+								'array', function (parent, context) return GetDialog(parent).context end,
 								'__context', function (parent, context, item, i, n) local data, unit = TimeSeries_GetGraphValueHeights(item.data, UICity.day, 50, 270, 6); return SubContext(item, {data = data, unit = unit, columns = #(item.data)}) end,
 								'run_after', function (child, context, item, i, n)
 if i ~= 1 then

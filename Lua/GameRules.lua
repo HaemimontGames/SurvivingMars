@@ -1,17 +1,7 @@
 function ReloadGameRules()
 	local rules = Presets.GameRules and Presets.GameRules.Default
 	if rules then
-		table.sort(rules, function (a, b)
-			local k1, k2 = a.SortKey, b.SortKey
-			if not k1 and k2 then
-				return false --items with no SortKey go last
-			elseif k1 and not k2 then
-				return true --items with no SortKey go last
-			elseif k1 ~= k2 then
-				return k1 < k2
-			end
-			return a.id < b.id
-		end)
+		rules = table.copy(rules)
 		MissionParams.idGameRules.items = rules
 	end
 end
@@ -25,7 +15,7 @@ function ToggleGameRule(id, dialog)
 	else
 		rules[id] = true
 		for rule_id,_ in pairs(rules or empty_table) do
-			local exclusions = Presets.GameRules.Default[rule_id].exclusionlist or ""
+			local exclusions = GameRulesMap[rule_id].exclusionlist or ""
 			if rule_id ~= id then
 				if string.match(exclusions, "^.*" .. id .. ".*$") then
 					rules[rule_id] = nil
@@ -42,23 +32,25 @@ function ToggleGameRule(id, dialog)
 	end
 end
 
-OnMsg.DataLoaded = ReloadGameRules
-OnMsg.ModsLoaded = ReloadGameRules
-
 function UpdateGameRulesList(dialog)
 	for k,v in ipairs(dialog) do
-		v:UpdateImage()
+		if IsKindOf(v, "XTextButton") then
+			v:UpdateImage()
+		end
 	end
 end
 
-function CalcGameRulesChallengeMod()
+function CalcGameRulesChallengeMod(new_rule)
 	local mod = 0
-	local rule_presets = Presets.GameRules.Default
 	local rules = g_CurrentMissionParams.idGameRules or empty_table
 	for rule_id,_ in pairs(rules) do
-		mod = mod + rule_presets[rule_id].challenge_mod
+		mod = mod + (GameRulesMap[rule_id] and GameRulesMap[rule_id].challenge_mod or 0)
+		if new_rule and rule_id == new_rule then
+			new_rule = nil
+		end
 	end
-	return mod
+	local new_rule_mod = GameRulesMap[new_rule] and GameRulesMap[new_rule].challenge_mod or 0
+	return mod + new_rule_mod
 end
 
 function GetIncompatibleGameRulesNames(id)
@@ -88,12 +80,13 @@ function GetGameRulesNames()
 	local text = {}
 	local rules = g_CurrentMissionParams.idGameRules
 	for rule_id,_ in pairs(rules or empty_table) do
-		text[#text + 1] = Presets.GameRules.Default[rule_id].display_name
+		text[#text + 1] = GameRulesMap[rule_id].display_name
 	end
 	return table.concat(text, "\n")
 end
 
 function IsGameRuleActive(rule)
+	assert(GameRulesMap[rule])
 	return g_CurrentMissionParams.idGameRules and g_CurrentMissionParams.idGameRules[rule]
 end
 

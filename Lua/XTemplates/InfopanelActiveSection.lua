@@ -29,6 +29,7 @@ end,
 		}, {
 			PlaceObj('XTemplateWindow', {
 				'__class', "XImage",
+				'Id', "idBackground",
 				'Margins', box(0, -2, 0, 0),
 				'VAlign', "top",
 				'Image', "UI/Infopanel/section.tga",

@@ -20,35 +20,28 @@ function DontBuildHere:MarkGeyser(bbox)
 end
 
 GlobalVar("g_DontBuildHere", false)
-local l_GeyserQuery, l_QueryBuilding
 
-l_GeyserQuery = {
-	classes = {"Colonist", "Drone", "BaseRover"},
-	exec = function(victim, damage_sanity, target_dust, martianborn_strength)
-		if terrain.GetTerrainType(victim:GetVisualPos()) == g_DontBuildHere.terrain_idx then
-			if IsKindOf(victim, "Colonist") then
-				local traits = victim.traits
-				if not (martianborn_strength and traits.Martianborn) then
-					local coward_factor = traits.Coward and 2 or 1
-					victim:ChangeSanity(-damage_sanity*coward_factor, "geyser")
-				end
-			elseif not IsObjInDome(victim) then
-				victim:AddDust(target_dust)
+local GeyserQuery_func = function(victim, damage_sanity, target_dust, martianborn_strength)
+	if terrain.GetTerrainType(victim:GetVisualPos()) == g_DontBuildHere.terrain_idx then
+		if IsKindOf(victim, "Colonist") then
+			local traits = victim.traits
+			if not (martianborn_strength and traits.Martianborn) then
+				local coward_factor = traits.Coward and 2 or 1
+				victim:ChangeSanity(-damage_sanity*coward_factor, "geyser")
 			end
+		elseif not IsObjInDome(victim) then
+			victim:AddDust(target_dust)
 		end
-	end,
-}
+	end
+end
 
-l_QueryBuilding = {
-	classes = {"Building"},
-	exec = function(bld, target_dust)
-		if not bld:IsCloser2D(l_QueryBuilding.area, l_QueryBuilding.arearadius + bld:GetRadius()) then
-			return
-		elseif IsKindOfClasses(bld, "Dome", "LifeSupportGridElement", "ElectricityGridElement") or not IsObjInDome(bld) then
-			bld:AddDust(target_dust)
-		end
-	end,
-}
+local QueryBuilding_func = function(bld, target_dust, point, radius)
+	if not bld:IsCloser2D(point, radius + bld:GetRadius()) then
+		return
+	elseif IsKindOfClasses(bld, "Dome", "LifeSupportGridElement", "ElectricityGridElement") or not IsObjInDome(bld) then
+		bld:AddDust(target_dust)
+	end
+end
 
 function GeyserLogic(marker, descr)
 	local pos = marker:GetPos()
@@ -60,7 +53,7 @@ function GeyserLogic(marker, descr)
 	local warm_up, geysers, spiders, dust = {}, {}, {}, {}
 	local opacity_start = {}
 	
-	local objects = GetObjects{class = "GeyserObject", area = pos, arearadius = radius}
+	local objects = MapGet(pos, radius, "GeyserObject")
 	for _, obj in ipairs(objects) do
 		if obj:IsKindOf("GeyserWarmup") then
 			table.insert(warm_up, obj)
@@ -122,16 +115,8 @@ function GeyserLogic(marker, descr)
 		set_opacity(dust, descr.warm_opacity, descr.dust_op_time)
 		local time, dt = 0, 1000
 		while time < time_active do
-			l_GeyserQuery.area = pos
-			l_GeyserQuery.arearadius = radius
-			ForEach(l_GeyserQuery, descr.damage_sanity, descr.target_dust, UICity:IsTechResearched("MartianbornStrength"))
-			l_GeyserQuery.area = false
-			
-			l_QueryBuilding.area = pos
-			l_QueryBuilding.arearadius = radius
-			ForEach(l_QueryBuilding, descr.target_dust)
-			l_QueryBuilding.area = false
-			
+			MapForEach(pos, radius,"Colonist", "Drone", "BaseRover", GeyserQuery_func, descr.damage_sanity, descr.target_dust, UICity:IsTechResearched("MartianbornStrength"))
+			MapForEach(pos, radius, "Building", QueryBuilding_func, descr.target_dust, pos, radius )
 			local delta = Min(time_active - time, dt)
 			Sleep(delta)
 			time = time + delta
@@ -143,7 +128,7 @@ end
 function OnMsg.NewMapLoaded()
 	if not mapdata.GameLogic then return end
 	g_DontBuildHere = DontBuildHere:new{}
-	ForEach{class = "PrefabFeatureMarker", area = "realm", exec = function(marker)
+	MapForEach(true, "PrefabFeatureMarker",function(marker)
 		local features = PrefabFeatures[marker.FeatureType] or ""
 		for j = 1, #features do
 			local char = features[j]
@@ -151,7 +136,7 @@ function OnMsg.NewMapLoaded()
 				CreateGameTimeThread(GeyserLogic, marker, char)
 			end
 		end
-	end}
+	end)
 end
 
 DefineClass.GeyserObject = { __parents = { "Object" } }
@@ -180,16 +165,16 @@ function BaseGeyser:Done()
 end
 
 function BaseGeyser:GetMarker()
-	local geysers = GetObjects{class="PrefabFeatureMarker", area = "realm", filter = function(marker)
+	local geysers = MapGet(true, "PrefabFeatureMarker", function(marker)
 		return marker:GetDist2D(self) <= marker.FeatureRadius
-	end}
+	end)
 	assert(#geysers > 0, "No C02 Jets marker around")
 	
 	return geysers[1]
 end
 
 function BaseGeyser:GetMarkers(C02_marker, class)
-	return GetObjects{class = class, area = C02_marker:GetPos(), arearadius = C02_marker.FeatureRadius}
+	return MapGet(C02_marker:GetPos(), C02_marker.FeatureRadius, class )
 end
 
 function BaseGeyser:ActionBurstOutStart(obj)

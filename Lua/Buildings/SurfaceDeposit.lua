@@ -104,6 +104,7 @@ DefineClass.SurfaceDeposit = {
 	instant_build = true,
 	supply_dist_modifier = 1500, -- surface deposits are considered 50% further than storages
 	transport_request = false, 
+	priority = 0,
 	
 	entity = "Hex1_Placeholder",
 	

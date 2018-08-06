@@ -19,6 +19,9 @@ DefineClass.SupplyRocket = {
 		{ template = true, category = "Rocket", name = T{702, "Launch Fuel"},      	id = "launch_fuel",      	editor = "number", default = 10*const.ResourceScale, min = 1*const.ResourceScale, max = 1000*const.ResourceScale, scale = const.ResourceScale, modifiable = true, help = "The amount of fuel it takes to launch the rocket.",},	
 		{ template = true, category = "Rocket", name = T{758, "Max Export Storage"}, id = "max_export_storage", editor = "number", scale = const.ResourceScale, default = 100*const.ResourceScale, min = 0, modifiable = true },
 		{ template = true, category = "Rocket", name = T{8457, "Passenger Orbit Lifetime"}, id = "passenger_orbit_life",      	editor = "number", default = 120*const.HourDuration, min = 1*const.HourDuration, scale = const.HourDuration, modifiable = true, help = "Passengers on board will die if the rocket doesn't land this many hours after arriving in orbit.",},
+		{ template = true, category = "Rocket", name = T{9830, "Sponsor Selectable"}, id = "sponsor_selectable", editor = "bool", default = true },
+		{ template = true, category = "Rocket", name = T{9831, "Travel Time (to Mars)"}, id = "custom_travel_time_mars", editor = "number", default = 0, scale = const.HourDuration },
+		{ template = true, category = "Rocket", name = T{9832, "Travel Time (to Earth)"}, id = "custom_travel_time_earth", editor = "number", default = 0, scale = const.HourDuration },
 		
 		{ id = "landed",	editor = "bool", default = false, no_edit = true }, -- true if working on Mars (controlling drones)
 		{ id = "auto_export",	editor = "bool", default = false, no_edit = true },
@@ -27,7 +30,7 @@ DefineClass.SupplyRocket = {
 		{ id = "landing_site", editor = "object", default = false, no_edit = true },
 		{ id = "site_particle", editor = "object", default = false, no_edit = true },
 	},
-		
+			
 	display_icon = "UI/Icons/Buildings/orbital_probe.tga",
 	pin_rollover = T{8030, "Carries supplies or passengers  from Earth. Can travel back to Earth when refueled."},
 	pin_rollover_hint = T{7351, "<left_click> Place Rocket"},
@@ -57,6 +60,8 @@ DefineClass.SupplyRocket = {
 	fx_actor_class = "SupplyRocket",
 	show_logo = true,
 	rocket_palette = "RocketStandard",
+	landing_site_class = "RocketLandingSite",
+	disembark_anim = "disembarkRocket",
 	
 	show_service_area = true,
 	
@@ -91,7 +96,7 @@ DefineClass.SupplyRocket = {
 	--drone control
 	starting_drones = 0,
 	working = false,
-	drone_entry_spot = "Roverout", --where the drone should be to start the embark visuals.
+	drone_entry_spot = "Dronein", --where the drone should be to start the embark visuals.
 	drone_spawn_spot = "Roverdock2",
 	distance_to_provoke_go_home_cmd = 80 * guim,	
 	auto_connect = false,
@@ -106,8 +111,6 @@ DefineClass.SupplyRocket = {
 	unload_fuel_request = false,
 	exported_amount = false,
 	custom_id = false,
-	custom_travel_time_mars = false,
-	custom_travel_time_earth = false,
 	launch_after_unload = false,
 	
 	exclude_from_lr_transportation = true,
@@ -137,6 +140,8 @@ DefineClass.SupplyRocket = {
 	
 	compatibility_thread = false,
 	dome_label = false,
+	
+	affected_by_dust_storm = true,
 }
 
 -- commands
@@ -154,8 +159,13 @@ end
 
 function SupplyRocket:FlyToMars(cargo, cost, flight_time, initial, launch_time)
 	self:OffPlanet()
-	flight_time = initial and 0 or (flight_time or self.custom_travel_time_mars or g_Consts.TravelTimeEarthMars)
+	local tt = ((self.custom_travel_time_mars or 0) > 0) and self.custom_travel_time_mars or g_Consts.TravelTimeEarthMars
+	flight_time = initial and 0 or (flight_time or tt)
 	launch_time = launch_time or GameTime()
+
+	if IsGameRuleActive("FastRockets") then
+		flight_time = flight_time / 10 -- Rockets travel faster
+	end
 	
 	-- mark arrival time for ui
 	self.launch_time = launch_time
@@ -167,7 +177,7 @@ function SupplyRocket:FlyToMars(cargo, cost, flight_time, initial, launch_time)
 	-- cargo/naming
 	cargo = cargo or {}
 	self.cargo = cargo
-	if self.name == "" then
+	if cargo.rocket_name ~= "" then
 		self.name = cargo.rocket_name 
 	end
 	if not self.name or self.name=="" then
@@ -179,7 +189,7 @@ function SupplyRocket:FlyToMars(cargo, cost, flight_time, initial, launch_time)
 	end	
 	
 	if cost then
-		self.city:ChangeFunding(-cost)
+		self.city:ChangeFunding(-cost, "Import")
 	end
 	ResetCargo()
 	--@@@msg RocketLaunchFromEarth,rocket - fired when a rocket is launched toward Mars
@@ -212,7 +222,7 @@ function SupplyRocket:WaitInOrbit(arrive_time)
 	-- release probes immediately, mark orbit arrival time if carrying passengers
 	for i = #cargo, 1, -1 do
 		local item = cargo[i]
-		if IsKindOf(item, "OrbitalProbe") then
+		if IsKindOf(g_Classes[item.class], "OrbitalProbe") then
 			for j = 1, item.amount do
 				PlaceObject(item.class, {city = self.city})
 			end
@@ -339,7 +349,7 @@ function SupplyRocket:LandOnMars(site, from_ui)
 			HintTrigger("HintResupply")
 			HintTrigger("HintPriority")
 			HintTrigger("HintGameSpeed")
-			if g_Consts.SponsorResearch > 0 then
+			if UICity:GetEstimatedRP() > 0 then
 				HintTrigger("HintResearchAvailable")
 			end
 		end
@@ -391,11 +401,12 @@ function SupplyRocket:Unload()
 		if IsKindOf(rovers[1], "RCRover") then
 			rc_rovers[1] = rovers[1]
 		end
-		local dir = (out - self:GetPos()):SetZ(0)
-		local out_1 = self:PlaceAdjacent(rovers[1], GetPassablePointNearby(out + SetLen(dir, 25*guim)))	
-		out = GetPassablePointNearby(out, rovers[1].pfclass)
+		local def_out_1 = out + SetLen((out - self:GetPos()):SetZ(0), 25*guim)
+		local out_1 = GetPassablePointNearby(def_out_1, rovers[1].pfclass)
+		out_1 = self:PlaceAdjacent(rovers[1], out_1 or def_out_1)
+		out = GetPassablePointNearby(out, rovers[1].pfclass) or out
 		self:PlaceAdjacent(rovers[1], out) --block out so they don't park right @ the ramp exit.
-	
+
 		rovers[1]:Detach()
 		rovers[1]:SetGameFlags(const.gofSpecialOrientMode)
 		rovers[1]:SetAngle(angle)
@@ -428,7 +439,7 @@ function SupplyRocket:Unload()
 		end
 	end
 	
-	--re enable auto siege mode on rc rovers
+	--re enable auto siege mode on RC Commanders
 	for i = 1, #rc_rovers do
 		rc_rovers[i].sieged_state = true
 		if rc_rovers[i].command == "Idle" then --otherwise player is touching it.
@@ -454,7 +465,7 @@ function SupplyRocket:Unload()
 			end
 		end, self, i)
 	end
-
+	local refreshBM = false
 	for i = 1, #self.cargo do
 		local item = self.cargo[i]
 		local classdef = g_Classes[item.class]
@@ -469,13 +480,17 @@ function SupplyRocket:Unload()
 				local obj = PlaceObject(item.class, {city = self.city})
 				self:PlaceAdjacent(obj, out, true)
 			end
-		elseif DataInstances.BuildingTemplate[item.class] then
-			self.city:AddPrefabs(item.class, item.amount)
+		elseif BuildingTemplates[item.class] then
+			refreshBM  = true
+			self.city:AddPrefabs(item.class, item.amount, false)
 		else
 			printf("unexpected cargo type %s, ignored", item.class)
 		end
 	end
-		
+	if refreshBM then
+		RefreshXBuildMenu()
+	end
+	
 	self.cargo = nil
 	self.placement = nil
 	
@@ -487,7 +502,7 @@ function SupplyRocket:Refuel()
 		assert(false, "Missing landing site for Refuel")
 		self:SetCommand("OnEarth")
 	end
-
+	local sol_started = UICity.day
 	table.insert(g_LandedRocketsInNeedOfFuel, self)
 	self:ResetDemandRequests()
 	self:StartDroneControl()
@@ -496,7 +511,9 @@ function SupplyRocket:Refuel()
 	while not self:HasEnoughFuelToLaunch() do
 		WaitMsg("RocketRefueled")
 	end
-	
+	if sol_started == UICity.day then
+		Msg("RocketRefueledInADay")
+	end
 	self:SetCommand("WaitLaunchOrder")
 end
 
@@ -532,11 +549,22 @@ function SupplyRocket:DropBrokenDrones(t)
 	end
 end
 
+function SavegameFixups.RemoveRocketsFromDomeStockpileLabels()
+	MapForEach(true, "Dome", function(obj)
+		local cont = obj.labels.ResourceStockpile
+		for i = #(cont or ""), 1, -1 do
+			if IsKindOf(cont[i], "SupplyRocket") then
+				table.remove(cont, i)
+			end
+		end
+	end)
+end
+
 function SavegameFixups.DropBrokenDrones()
-	ForEach { class = "SupplyRocket", exec = function(obj)
+	MapForEach("map", "SupplyRocket", function(obj)
 		obj:DropBrokenDrones(obj.drones_exiting)
 		obj:DropBrokenDrones(obj.drones_entering)
-	end }
+	end )
 end
 
 SavegameFixups.DropBrokenDronesAgain = SavegameFixups.DropBrokenDrones
@@ -639,7 +667,13 @@ end
 GlobalVar("g_ExportsFunding", 0)
 
 function SupplyRocket:FlyToEarth(flight_time, launch_time)
-	flight_time = flight_time or self.custom_travel_time_earth or g_Consts.TravelTimeMarsEarth
+	local tt = ((self.custom_travel_time_earth or 0) > 0) and self.custom_travel_time_earth or g_Consts.TravelTimeMarsEarth
+	flight_time = flight_time or tt
+	
+	if IsGameRuleActive("FastRockets") then
+		flight_time = flight_time / 10 -- Rockets travel faster
+	end
+	
 	self.launch_time = launch_time or GameTime()
 	self.flight_time = flight_time
 
@@ -657,9 +691,9 @@ function SupplyRocket:FlyToEarth(flight_time, launch_time)
 	--@@@msg RocketReachedEarth,rocket - fired when a rocket finishes its travel from Mars to Earth
 	Msg("RocketReachedEarth", self)
 
-	if (self.exported_amount or 0) > 0 then
-		local export_funding = MulDivRound(self.exported_amount, g_Consts.ExportPricePreciousMetals*1000000, const.ResourceScale)
-		export_funding = self.city:ChangeFunding(export_funding)
+	local export_funding = self.city:CalcBaseExportFunding(self.exported_amount)
+	if export_funding > 0 then
+		export_funding = self.city:ChangeFunding(export_funding, "Export")
 		if not g_ExportsFunding or not IsOnScreenNotificationShown("RareMetalsExport") then
 			g_ExportsFunding = 0
 		end
@@ -824,15 +858,6 @@ function SupplyRocket:GetLogicalPos()
 	return self:GetVisualPos()
 end
 
-local dust_query =
-{
-	classes = { "Building", "DustGridElement", "DroneBase" },
-	area = false,
-	hexradius = false,
-	exec = function(o, amount)
-		o:AddDust(amount)
-	end,
-}
 
 function SupplyRocket:UpdateNotWorkingBuildingsNotification()
 end
@@ -853,10 +878,7 @@ function SupplyRocket:StartDustThread(total_dust_to_apply, delay)
 		local dust_to_apply_per_tick = (total_dust_to_apply / total_dust_time) * dust_tick
 		assert(dust_to_apply_per_tick > 0 and dust_to_apply_per_tick * (total_dust_time / dust_tick) == total_dust_to_apply, "Rounding error in rocket dust application")
 		while IsValid(self) and total_dust_applied < total_dust_to_apply do
-			dust_query.area = self
-			dust_query.hexradius = self.dust_radius
-			ForEach(dust_query, dust_to_apply_per_tick)
-			dust_query.area = false
+			MapForEach(self, "hex", self.dust_radius, "Building", "DustGridElement", "DroneBase", function(o, amount) o:AddDust(amount) end, dust_to_apply_per_tick )
 			total_dust_applied = total_dust_applied + dust_to_apply_per_tick
 			Sleep(self.dust_tick)
 		end
@@ -916,6 +938,36 @@ function SupplyRocket:OnDemolish()
 	end
 	
 	self:ReturnStockpiledResources()
+	-- check for loaded fuel/metals & return
+	if self.refuel_request then
+		local amount = self.launch_fuel - self.refuel_request:GetActualAmount()
+		if amount > 0 then
+			PlaceResourceStockpile_Delayed(self:GetVisualPos(), "Fuel", amount, self:GetAngle(), true)
+		end
+	end
+	
+	if self.unload_fuel_request then
+		local amount = self.unload_fuel_request:GetActualAmount()
+		if amount > 0 then
+			PlaceResourceStockpile_Delayed(self:GetVisualPos(), "Fuel", amount, self:GetAngle(), true)
+		end
+	end
+	
+	if self.export_requests then
+		assert(#self.export_requests == 1) -- trade rockets can't be salvaged
+		local amount = self.max_export_storage - self.export_requests[1]:GetActualAmount()
+		if amount > 0 then
+			PlaceResourceStockpile_Delayed(self:GetVisualPos(), "PreciousMetals", amount, self:GetAngle(), true)
+		end
+	end
+	
+	if self.unload_request then
+		local amount = self.unload_request:GetActualAmount()
+		if amount > 0 then
+			PlaceResourceStockpile_Delayed(self:GetVisualPos(), "PreciousMetals", amount, self:GetAngle(), true)
+		end
+	end
+	
 	Building.OnDemolish(self)
 end
 
@@ -947,7 +999,7 @@ function SupplyRocket:UpdateStatus(status)
 	
 	local could_change_skin = self.can_change_skin
 	
-	local template = DataInstances.BuildingTemplate[self.template_name]		
+	local template = BuildingTemplates[self.template_name]		
 	self.status = status
 	self:CompatConvertToCommand()
 	if status == "arriving" then
@@ -1034,7 +1086,7 @@ function SupplyRocket:UpdateStatus(status)
 		self.is_demolishable_state = true
 		self.can_change_skin = true
 	elseif status == "ready for launch" or status == "launch suspended" then
-		self.pin_blink = status == "ready for launch"
+		self.pin_blink = not self:IsLaunchAutomated() and status == "ready for launch"
 		if template then
 			self.pin_rollover = template.pin_rollover
 			self.pin_rollover_hint = PinnableObject.pin_rollover_hint
@@ -1098,7 +1150,8 @@ function SupplyRocket:UpdateStatus(status)
 	Msg("RocketStatusUpdate", self, status)
 end
 
-function PrepareApplicantsForTravel(city, host)
+function PrepareApplicantsForTravel(city, host, capacity)
+	capacity = capacity or g_Consts.MaxColonistsPerRocket
 	local free = GetAvailableResidences(city)
 	
 	local applicants = {}
@@ -1120,7 +1173,7 @@ function PrepareApplicantsForTravel(city, host)
 		table.sortby(applicants, eval_t)
 	end
 	
-	local filtered_applicants_count= Min(g_Consts.MaxColonistsPerRocket, #applicants)
+	local filtered_applicants_count = Min(capacity, #applicants)
 	local passengers_count = filtered_applicants_count
 	if free < filtered_applicants_count then
 		local params = {
@@ -1187,7 +1240,7 @@ function SupplyRocket:OnPinClicked(gamepad)
 		--mode_dlg.exit_to = sector and sector:GetPos()
 	end
 	igi:SetMode("construction", { 
-		template = "RocketLandingSite",
+		template = self.landing_site_class, --"RocketLandingSite",
 		instant_build = true,
 		params = {
 			amount = 0,
@@ -1211,13 +1264,7 @@ function SupplyRocket:PlaceEngineDecal(pos, delay)
 			return
 		end
 		
-		ForEach{
-			class = self.rocket_engine_decal_name,
-			area = pos,
-			arearadius = 20*guim,
-			action = "delete",
-		}
-		
+		MapDelete(pos, 20*guim, self.rocket_engine_decal_name)
 		local engine_decal = PlaceObject(self.rocket_engine_decal_name)
 		engine_decal:SetPos(pos)			
 		engine_decal:SetOpacity(100)
@@ -1274,6 +1321,7 @@ function SupplyRocket:StartDroneControl()
 	self.working = true
 	self.auto_connect = true
 	self.accept_requester_connects = true
+	self.under_construction = {} --init early or we get asserts in finddemandrequest till the update constructions thread boots up
 	self:ConnectTaskRequesters()
 	self:GatherOrphanedDrones()
 	self:ConnectToCommandCenters()
@@ -1306,6 +1354,10 @@ function SupplyRocket:OnWaypointStartGoto(drone, pos, next_pos)
 	end
 end
 
+function SupplyRocket:GetEntrancePoints(entrance_type, spot_name)
+	return WaypointsObj.GetEntrancePoints(entrance_type or "rocket_entrance", spot_name)
+end
+
 function SupplyRocket:GetEntrance(target, entrance_type, spot_name)
 	return WaypointsObj.GetEntrance(self, target, entrance_type or "rocket_entrance", spot_name)
 end
@@ -1333,25 +1385,33 @@ function SupplyRocket:LeadIn(unit)
 			local open = entrance.openOutside
 			local speed = unit:GetSpeed()
 			local count = #entrance
+			local first_pt = count
 			if unit:IsValidPos() then
-				if unit:GetPos() ~= entrance[count] then
-					unit:Goto(entrance[count]) --use goto to reach first pt
-					if IsValid(self) and IsValid(unit) and unit:IsValidPos() then
-						unit:Goto(entrance[count])
+				local p1 = entrance[count]
+				local p2 = entrance[count - 1]
+				local p = unit:GetPos()
+				if p ~= p1 and p ~= p2 then
+					local init_at = count
+					if IsCloser2D(p, p2, p1:Dist2D(p2)) then
+						init_at = init_at - 1
 					end
+					unit:Goto(entrance[init_at]) --use goto to reach first pt
 				end
 				if IsValid(self) and IsValid(unit) and unit:IsValidPos() then
 					if IsKindOf(unit, "Drone") then
 						for i = count - 1, 1, -1 do
 							local p1 = entrance[i + 1]
 							local p2 = entrance[i]
-							unit:Face(p2)
-							self:OnWaypointStartGoto(unit, p1, p2)
-							local t = p1:Dist(p2) * 1000 / speed
-							unit:SetPos(p2, t)
-							Sleep(t)
-							if not IsValid(self) or not IsValid(unit) or not unit:IsValidPos() then
-								break
+							local p3 = unit:GetPos()
+							if p2 ~= p3 then
+								unit:Face(p2)
+								self:OnWaypointStartGoto(unit, p1, p2)
+								local t = p3:Dist(p2) * 1000 / speed
+								unit:SetPos(p2, t)
+								Sleep(t)
+								if not IsValid(self) or not IsValid(unit) or not unit:IsValidPos() then
+									break
+								end
 							end
 						end
 					else
@@ -1427,6 +1487,8 @@ function SupplyRocket:LeadOut(unit)
 				unit:SetPos(p2, t)
 				Sleep(t)
 			end
+		else
+			unit:SetPos(self:GetPos())
 		end
 		if IsValid(unit) then
 			unit:SetHolder(false)
@@ -1499,7 +1561,7 @@ function SupplyRocket:CreateResourceRequests()
 	end
 	--remove storage flags
 	for k, v in pairs(self.supply) do
-		v:ClearFlags(const.rfStorageDepot + const.rfPairWithHigher)
+		v:ClearFlags(const.rfStorageDepot)
 		v:AddFlags(const.rfPostInQueue)
 	end
 	
@@ -1576,7 +1638,8 @@ function SupplyRocket:DroneApproach(drone, r)
 	if not IsValid(self) then return end
 	if special_cmd[drone.command] then
 		if IsKindOf(drone, "Drone") then
-			if drone:GotoBuildingSpot(self, self.drone_entry_spot) then
+			if drone:GotoBuildingSpot(self, self.drone_entry_spot, nil, 5*guim) 
+				or not self:HasSpot(self.drone_entry_spot) then
 				if self.working then --lead in only if working, no need for drones to climb up to figure out that they have to climb down
 					self:LeadIn(drone)
 				end
@@ -1766,7 +1829,7 @@ function SupplyRocket:SpawnDrone()
 		return
 	end
 	
-	local drone = Drone:new{ city = self.city }
+	local drone = self.city:CreateDrone()
 	drone:SetCommandCenter(self)
 	
 	local spawn_pos = self:GetSpotLoc(self:GetSpotBeginIndex(self.drone_spawn_spot))
@@ -1884,9 +1947,9 @@ function SupplyRocket:GenerateArrivals(amount, applicants)
 		
 		if city:IsTechResearched("SpaceRehabilitation") and city:Random(100) < TechDef.SpaceRehabilitation.param1 then
 			for trait in pairs(applicant.traits) do
-				local trait_def = DataInstances.Trait[trait]
+				local trait_def = TraitPresets[trait]
 				-- check trait_def: traits include nationality which doesn't have corresponding data instance
-				if trait_def and trait_def.category == "Negative" then
+				if trait_def and trait_def.group == "Negative" then
 					applicant.traits[trait] = nil
 					break
 				end
@@ -1906,6 +1969,10 @@ function SupplyRocket:GenerateArrivals(amount, applicants)
 		
 		local colonist = Colonist:new(applicant)
 		self.disembarking[#self.disembarking + 1] = colonist
+		local colonist_funding = GetMissionSponsor().colonist_funding_on_arrival or 0
+		if colonist_funding > 0 then
+			city:ChangeFunding(colonist_funding, "Sponsor")
+		end
 		-- sleep to avoid all colonists disembarking at once
 		Sleep(1000 + Random(0, 500))
 	end
@@ -1918,6 +1985,9 @@ function SupplyRocket:GenerateArrivals(amount, applicants)
 	AddOnScreenNotification("NewColonists", nil, {count = amount}, {self})
 	if self.disembarking_confused then
 		AddOnScreenNotification("ConfusedColonists", nil, {}, {self:GetPos()})
+	end
+	if amount > 0 then
+		Msg("ColonistsLanded")
 	end
 end
 
@@ -1934,7 +2004,7 @@ function SupplyRocket:GenerateDepartures()
 		local dome = domes[i]
 		local tested, suitable
 		for _, c in ipairs(IsValid(dome) and dome.labels.Colonist or empty_table) do
-			if c:CanChangeCommand() and (c.status_effects.StatusEffect_Earthsick or (c.traits.Tourist and c.sols > 10)) then
+			if c:CanChangeCommand() and (c.status_effects.StatusEffect_Earthsick or (c.traits.Tourist and c.sols > g_Consts.TouristSolsOnMars)) then
 				if not tested then
 					suitable = IsInWalkingDist(self, dome, const.ColonistMaxDepartureRocketDist)
 				end
@@ -1967,7 +2037,7 @@ function SupplyRocket:GetLaunchIssue()
 		return "missions suspended"
 	end
 
-	if g_DustStorm then
+	if g_DustStorm and self.affected_by_dust_storm then
 		return "dust storm"
 	end
 	
@@ -2045,7 +2115,7 @@ function SupplyRocket:IsCargoRampInUse()
 end
 
 function SupplyRocket:IsFlightPermitted()
-	return not g_DustStorm and g_Consts.SupplyMissionsEnabled == 1
+	return (not g_DustStorm or not self.affected_by_dust_storm) and g_Consts.SupplyMissionsEnabled == 1
 end
 
 function SupplyRocket:NeedsRefuel()
@@ -2060,7 +2130,7 @@ function SupplyRocket:GetSkins()
 		return empty_table
 	end
 	local trailblazer_entity = g_TrailblazerSkins[self.class]
-	local entity = DataInstances.BuildingTemplate[self.template_name].entity
+	local entity = BuildingTemplates[self.template_name].entity
 	if entity and trailblazer_entity then
 		return { entity, trailblazer_entity }
 	end
@@ -2094,8 +2164,8 @@ function SupplyRocket:GetCargoManifest()
 				texts[#texts + 1] = T{721, "<number> Passengers", number = item.amount}
 			elseif Resources[item.class] then
 				resources[#resources + 1] = T{722, "<resource(amount,res)>", amount = item.amount*const.ResourceScale, res = item.class}
-			elseif DataInstances.BuildingTemplate[item.class] then
-				local def = DataInstances.BuildingTemplate[item.class]
+			elseif BuildingTemplates[item.class] then
+				local def = BuildingTemplates[item.class]
 				local name = item.amount > 1 and def.display_name_pl or def.display_name
 				texts[#texts + 1] = T{723, "<number> <name>", number = item.amount, name = name}
 			else
@@ -2264,8 +2334,10 @@ function SupplyRocket:GetUIRocketStatus()
 	local extra = self.unload_fuel_request and self.unload_fuel_request:GetActualAmount() or 0	
 	local items = { 
 		T{285, "Refueling<right><current>/<fuel(launch_fuel)>", current = (self.launch_fuel - self.refuel_request:GetActualAmount() + extra) / const.ResourceScale},
-		self:GetUIExportStatus(),
 	}
+	if self.allow_export then
+		items[#items + 1] = self:GetUIExportStatus()
+	end
 	
 	if self.command == "Refuel" then
 		items[#items+1] = T{7901, "<green>Waiting to refuel</green>"}
@@ -2334,11 +2406,6 @@ DefineClass.RocketLandingSite = {
 }
 
 function RocketLandingSite:GameInit()
-	local attaches = self:GetAttaches() or ""
-	for i = 1, #attaches do
-		attaches[i]:ClearEnumFlags(const.efVisible)
-	end
-	
 	local pads = UICity.labels.LandingPad or empty_table
 	local on_pad = false
 	local site_pos = self:GetPos()
@@ -2371,8 +2438,7 @@ DefineClass.LandingPad = {
 }
 
 function LandingPad:GameInit()
-	self:DestroyAttaches("DecRocketLandingPlatformBuild")
-	local obj = AttachToObject(self, "DecRocketLandingPlatform", "Pad")
+	local obj = self:GetAttaches("DecRocketLandingPlatform")[1]
 	obj:SetAttachOffset(point(0, 0, 1000))
 end
 
@@ -2392,13 +2458,35 @@ function LandingPad:OnDemolish()
 	end
 end
 
-function LandingPad:CanDemolish()
+function LandingPad:HasRocket()
 	local rockets = UICity.labels.AllRockets or empty_table
 	for _, rocket in ipairs(rockets) do
 		if rocket.landing_site and rocket.landing_site.landing_pad == self and rocket_on_gnd_cmd[rocket.command] then
-			return false
+			return true
 		end
+	end
+	return false
+end
+
+function LandingPad:CanDemolish()
+	if self:HasRocket() then
+		return false
 	end
 	
 	return Building.CanDemolish(self)
+end
+
+function RocketsComboItems()
+	local items = {}
+	for id, item in pairs(BuildingTemplates) do
+		local class = g_Classes[item.template_class]
+		if IsKindOf(class, "SupplyRocket") and item.sponsor_selectable then
+			items[#items + 1] = { value = id, text = item.display_name }
+		end
+	end
+	return items
+end
+
+function GetRocketClass()
+	return "SupplyRocket"
 end

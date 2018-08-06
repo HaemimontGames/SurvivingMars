@@ -231,10 +231,12 @@ function SubsurfaceAnomaly:ScanCompleted(scanner)
 	local tech_action = self.tech_action
 	if tech_action == "breakthrough" then
 		local def = TechDef[self.breakthrough_tech]
-		if def and city:SetTechDiscovered(self.breakthrough_tech) then
+		if not def then
+			assert(false, "No such breakthrough tech: " .. self.breakthrough_tech)
+		elseif city:SetTechDiscovered(self.breakthrough_tech) then
 			AddOnScreenNotification("BreakthroughDiscovered", OpenResearchDialog, {name = def.display_name, context = def, rollover_title = def.display_name, rollover_text = def.description})
 		else
-			assert(false, print_format("Failed to discover", self.breakthrough_tech, "by subsurface anomaly!"))
+			-- already discovered
 			tech_action = "unlock"
 		end
 	end
@@ -262,13 +264,13 @@ function SubsurfaceAnomaly:ScanCompleted(scanner)
 	if tech_action == "complete" then
 		local points = self:GrantRP(scanner)
 		if points then
-			AddOnScreenNotification("GrantRP", nil, {points = points})
+			AddOnScreenNotification("GrantRP", nil, {points = points, resource = "Research"})
 		end
 	elseif tech_action == "resources" then
 		if self.granted_resource ~= "" and self.granted_amount > 0 then
 			PlaceResourceStockpile_Delayed(self:GetPos(), self.granted_resource, self.granted_amount, self:GetAngle(), true)
 		end
-		AddOnScreenNotification("AnomalyAnalyzed")
+		AddOnScreenNotification("GrantRP", nil, {points = self.granted_amount, resource = self.granted_resource})
 	elseif tech_action == "aliens" then
 		AddOnScreenNotification("AlienArtifactsAnomalyAnalyzed", nil, {})
 	elseif not tech_action then
@@ -405,7 +407,7 @@ function SA_SpawnDustDevilAtAnomaly:Exec(sequence_player, ip, seq, registers)
 	marker:SetPos( registers.anomaly_pos )
 	
 	local data = DataInstances.MapSettings_DustDevils
-	descr = data[self.preset] or data[1]
+	local descr = data[self.preset] or data[1]
 	assert(descr)
 	if descr then	
 		marker.thread = CreateDustDevilMarkerThread(descr, marker)
@@ -425,10 +427,7 @@ function OnMsg.GatherFXTargets(list)
 end
 
 function City:InitBreakThroughAnomalies()
-	local markers = GetObjects{
-		class = "SubsurfaceAnomalyMarker",
-		filter = function(a) return a.tech_action == "breakthrough" end
-	}
+	local markers = MapGet("map", "SubsurfaceAnomalyMarker", function(a) return a.tech_action == "breakthrough" end )
 	local rand, trand = self:CreateSessionRand("InitBreakThroughAnomalies")
 	markers = table.shuffle(markers)
 	local techs = Presets.TechPreset.Breakthroughs

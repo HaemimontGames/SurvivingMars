@@ -231,12 +231,10 @@ function DroneFactory:SpawnAndroid()
 	local colonist_table = GenerateColonistData(self.city, "Adult", "Martianborn", {no_specialization = true})
 	if IsValid(self.parent_dome) then
 		colonist_table.dome = self.parent_dome
-		colonist_table.current_dome = self.parent_dome
 	else
 		local domes, safety_dome = GetDomesInWalkableDistance(self.city, self:GetPos())
 		local dome = ChooseDome(colonist_table.traits, domes, safety_dome)
 		colonist_table.dome = dome
-		colonist_table.current_dome = false
 	end
 	colonist_table.traits["Android"] = true
 	colonist_table.specialist = "none"

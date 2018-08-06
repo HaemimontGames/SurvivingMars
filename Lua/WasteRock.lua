@@ -201,6 +201,7 @@ end
 
 function WasteRockObstructor:TransformToStockpile(drone)
 	local pos = self:GetPos() --cache
+	local teleported = false
 	local was_underneath_constr = self:IsUnderneathConstruction()
 	local parent_constructions = self.parent_construction
 	self.parent_construction = false --suppress destructor
@@ -224,7 +225,20 @@ function WasteRockObstructor:TransformToStockpile(drone)
 								apply_to_grids = snap_and_apply,
 								snap_to_grid = snap_and_apply,
 								additional_supply_flags = const.rfSpecialDemandPairing + (was_underneath_constr and const.rfCanExecuteAlone or 0)})
-								
+			
+			if drone then
+				local obj = parent_constructions[1]
+				local p_shape = GetEntityPeripheralHexShape(obj:GetEntity())
+				if #p_shape == 6 then p_shape = HexSurroundingsCheckShapeLarge end --1 hex buildings can get surrounded pretty quickly so extend the search.
+				local res
+				local q, r = WorldToHex(obj)
+				res, q, r = TryFindStockpileDumpSpot(q, r, obj:GetAngle(), p_shape, HexGetAnyObj, true)
+				if res then
+					teleported = true
+					local x, y = HexToWorld(q, r)
+					pos = point(x, y)
+				end
+			end	
 			stock:SetPos(pos:SetTerrainZ())
 		end
 		
@@ -232,7 +246,7 @@ function WasteRockObstructor:TransformToStockpile(drone)
 		local parents_to_give_to_stock = {}
 		for i = 1, #(parent_constructions or "") do
 			local send_stock = nil
-			if was_underneath_constr and was_underneath_constr == parent_constructions[i] then
+			if was_underneath_constr and was_underneath_constr == parent_constructions[i] and not teleported then
 				send_stock = stock
 				table.insert(parents_to_give_to_stock, parent_constructions[i])
 			end
@@ -411,7 +425,7 @@ function WasteRockStockpileBase:DisconnectFromParent()
 		--become a dump site, just like the ones drones create.
 		self:DisconnectFromCommandCenters()
 		self.has_supply_request = true
-		self.supply_request = self:AddSupplyRequest(self.resource, self.stockpiled_amount,  const.rfPairWithHigher) --waste rock can be carried out without demand req.
+		self.supply_request = self:AddSupplyRequest(self.resource, self.stockpiled_amount) --waste rock can be carried out without demand req.
 		
 		self.has_demand_request = true
 		self.demand_request = self:AddDemandRequest(self.resource, self:GetMax() * const.ResourceScale - self.stockpiled_amount, const.rfSpecialDemandPairing)
@@ -465,11 +479,18 @@ DefineClass.DumpSiteWithAttachedVisualPilesBase = {
 	dome_label = false,
 }
 
+DumpSiteWithAttachedVisualPilesBase.PairRequests = empty_func
+DumpSiteWithAttachedVisualPilesBase.SetDesiredAmount = empty_func
+
 function DumpSiteWithAttachedVisualPilesBase:Init()
 	--self.exploitation_resource = self.resource
 	self.stockpiled_resource = self.resource
 	self.parent = self
 	self.additional_stockpile_params = {priority = self.priority, max_x = self.max_x, max_y = self.max_y, apply_to_grids = false, has_platform = false, snap_to_grid = false,}
+end
+
+function DumpSiteWithAttachedVisualPilesBase:GameInit()
+	self.next_stockpile_idx = self:GetNextStockpileIndex(self.stockpiles, true)
 end
 
 function DumpSiteWithAttachedVisualPilesBase:SetCount(...)
@@ -484,6 +505,50 @@ function DumpSiteWithAttachedVisualPilesBase:GetStoredAmount(resource)
 	return StorageDepot.GetStoredAmount(self, resource)
 end
 
+function SavegameFixups.DestroyBuggedBlackCubeStorages()
+	MapForEach("map", "DumpSiteWithAttachedVisualPilesBase",
+		function(o)
+			if o.stockpiles and not IsValid(o.stockpiles[1]) then
+				rawset(o, "ReleaseStockpiles", empty_func)
+				DoneObject(o)
+			end
+		end)
+end
+
+function SavegameFixups.SetupSupplyToDumpingSites()
+	MapForEach("map", "WasteRockDumpSite",
+		function(o)
+			local amount = o:GetStored_WasteRock()
+			o:DisconnectFromCommandCenters()
+			o.supply["WasteRock"] = o:AddSupplyRequest("WasteRock", amount, const.rfStorageDepot)
+			o:ConnectToCommandCenters()
+		end)
+end
+
+function DumpSiteWithAttachedVisualPilesBase:GetNextStockpileIndex(stockpiles, adding_resource)
+	stockpiles = stockpiles or self.stockpiles
+	local p = self:GetPos()
+	local max = self:GetMaxStorage()
+	local max_per_pile = max / #self.stockpiles
+	local most = adding_resource and min_int or max_int
+	local idx = nil
+	
+	for i = 1, #stockpiles do
+		local stock = stockpiles[i]
+		local a = Max(stock:GetStoredAmount(), stock.init_with_amount)
+		
+		if (not adding_resource and a > 0) or (adding_resource and a < max_per_pile) then
+			local dist = adding_resource and p:Dist2D(stock:GetPos()) or 0
+			a = a - dist
+			if (adding_resource and a > most) or (not adding_resource and a < most) then
+				most = a
+				idx = i
+			end
+		end
+	end
+	
+	return idx or 1
+end
 --
 
 DefineClass.WasteRockDumpSite = {
@@ -492,8 +557,6 @@ DefineClass.WasteRockDumpSite = {
 	properties = {
 		{ template = true, name = T{4519, "Max Amount Waste Rock"},  category = "Storage Space", id = "max_amount_WasteRock",  editor = "number", default = 45000, scale = const.ResourceScale },
 	},
-	
-	min_threshold_amount = max_int,
 }
 
 function WasteRockDumpSite:GameInit()
@@ -530,12 +593,29 @@ function OnMsg.TechResearched(tech_id, city, first_time)
 		end
 	end
 end
-		
+
+--[[function SavegameFixups.TurnOffOldWasteRockLiquification()
+	if g_WasteRockLiquefaction then
+		g_WasteRockLiquefaction = false
+		local depos = UICity.labels.WasteRockDumpSite or empty_table
+		for i = 1, #depos do
+			local depo = depos[i]
+			local req = depo.supply["Concrete"]
+			depo:InterruptDrones(nil, function(drone) if drone.s_request == req then return drone end end)
+			depo:DisconnectFromCommandCenters()
+			table.remove_entry(depo.task_requests, req)
+			depo.supply["Concrete"] = nil
+			depo:ConnectToCommandCenters()
+		end
+	end
+end]]
+
 function WasteRockDumpSite:CreateResourceRequests()
 	Building.CreateResourceRequests(self)
 	self.demand = {}
 	self.supply = {}
 	self.demand["WasteRock"] = self:AddDemandRequest("WasteRock", self.max_amount_WasteRock, const.rfStorageDepot + const.rfRestrictorWasteRockDump)
+	self.supply["WasteRock"] = self:AddSupplyRequest("WasteRock", 0, const.rfStorageDepot)
 	if g_WasteRockLiquefaction then
 		self.supply["Concrete"] = self:AddSupplyRequest("Concrete", 0, const.rfWaitToFill)
 	end
@@ -544,6 +624,7 @@ end
 function WasteRockDumpSite:AddDepotResource(resource, amount)
 	assert(resource == "WasteRock")
 	self.demand["WasteRock"]:AddAmount(-amount)
+	self.supply["WasteRock"]:AddAmount(amount)
 	local count = self:GetStored_WasteRock()
 	if self.supply["Concrete"] then
 		local ratio = Max(1, g_Consts.WasteRockToConcreteRatio)
@@ -555,23 +636,26 @@ end
 WasteRockDumpSite.AddResource = WasteRockDumpSite.AddDepotResource
 
 function WasteRockDumpSite:DroneLoadResource(drone, request, resource, amount)
-	assert(resource == "Concrete")
 	if self.supply[resource] == request then
-	
-		drone:StartFX("Gather", self)
-		local start = GameTime()
-		local idle_time = g_Consts.DroneGatherResourceWorkTime - drone:GetAnimDuration("gatherStart") - drone:GetAnimDuration("gatherEnd")
-		drone:PlayState("gatherStart")
-		drone:SetState("gatherIdle")
-		while GameTime() - start < idle_time do
-			Sleep(1000)
+		if resource == "WasteRock" then 
+			self.demand["WasteRock"]:AddAmount(amount)
+			self:SetCount(self:GetStored_WasteRock())
+		else
+			drone:StartFX("Gather", self)
+			local start = GameTime()
+			local idle_time = g_Consts.DroneGatherResourceWorkTime - drone:GetAnimDuration("gatherStart") - drone:GetAnimDuration("gatherEnd")
+			drone:PlayState("gatherStart")
+			drone:SetState("gatherIdle")
+			while GameTime() - start < idle_time do
+				Sleep(1000)
+			end
+			drone:StopFX()
+			drone:PlayState("gatherEnd")
+			
+			local ratio = Max(1, g_Consts.WasteRockToConcreteRatio)
+			self.demand["WasteRock"]:AddAmount(amount * ratio)
+			self:SetCount(self:GetStored_WasteRock())
 		end
-		drone:StopFX()
-		drone:PlayState("gatherEnd")
-		
-		local ratio = Max(1, g_Consts.WasteRockToConcreteRatio)
-		self.demand["WasteRock"]:AddAmount(amount * ratio)
-		self:SetCount(self:GetStored_WasteRock())
 	end
 end
 
@@ -583,6 +667,7 @@ function WasteRockDumpSite:DroneUnloadResource(drone, request, resource, amount)
 			local ratio = Max(1, g_Consts.WasteRockToConcreteRatio)
 			self.supply["Concrete"]:AddAmount(amount / ratio)
 		end
+		self.supply["WasteRock"]:AddAmount(amount)
 		self:SetCount(count)
 		
 		if drone and drone.command_center then
@@ -593,6 +678,7 @@ end
 
 function WasteRockDumpSite:CheatFill() 
 	self.demand["WasteRock"]:SetAmount(0)
+	self.supply["WasteRock"]:SetAmount(self.max_amount_WasteRock)
 	if self.supply["Concrete"] then
 		self.supply["Concrete"]:SetAmount(self.max_amount_WasteRock / Max(1, g_Consts.WasteRockToConcreteRatio))
 	end

@@ -37,7 +37,7 @@ end,
 		PlaceObj('XTemplateAction', {
 			'ActionId', "Quick build",
 			'ActionToolbar', "cheats",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 local obj = host.context
 obj = obj:GetConstructionGroupLeader()
 if obj then

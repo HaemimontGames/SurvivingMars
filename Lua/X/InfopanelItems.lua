@@ -16,6 +16,11 @@ function InfopanelItems:Init()
 	UICity:Gossip("InfopanelItemSelector", "open")
 end
 
+function InfopanelItems:Open(...)
+	self.idButtonsList.Margins = box(0, 0,0,0)
+	ItemMenuBase.Open(self, ...)
+end
+
 function InfopanelItems:Close()
 	ItemMenuBase.Close(self)
 	UICity:Gossip("InfopanelItemSelector", "close")
@@ -107,19 +112,19 @@ end
 
 function OpenInfopanelItems(object, align_ctrl, idx)
 	idx = idx or 1
-	local dlg = GetXDialog("InfopanelItems")
+	local dlg = GetDialog("InfopanelItems")
 	if dlg then
 		if (dlg.context.idx~=idx or dlg.context.object~=object)then
-			CloseXDialog("InfopanelItems")
+			CloseDialog("InfopanelItems")
 		else
 			return
 		end
 	end
-	OpenXDialog("InfopanelItems", GetInGameInterface(), {object = object, idx = idx or 1, align_ctrl = align_ctrl})
+	OpenDialog("InfopanelItems", GetInGameInterface(), {object = object, idx = idx or 1, align_ctrl = align_ctrl})
 end
 
 function CloseInfopanelItems()
-	CloseXDialog("InfopanelItems")
+	CloseDialog("InfopanelItems")
 end
 
 function OnMsg.UIModeChange(mode)
@@ -133,13 +138,13 @@ end
 function FillTraitSelectorItems(object, items, traits, align, list)
 	local start = #items
 	for i = 1, #traits do
-		local trait = DataInstances.Trait[traits[i].value]
+		local trait = TraitPresets[traits[i].value]
 		if IsTraitAvailable(trait, object.city) then
 			local icon = "UI/Icons/Buildings/numbers_0"..start+i..".tga"
-			local enabled = trait.name~= object.trait1 and trait.name~= object.trait2 and trait.name~= object.trait3	
+			local enabled = trait.id~= object.trait1 and trait.id~= object.trait2 and trait.id~= object.trait3	
 			table.insert(items, HexButtonInfopanel:new({
 				ButtonAlign = align,
-				name = trait.name, 
+				name = trait.id, 
 				icon = icon,
 				display_name = trait.display_name,
 				description  = trait.description,
@@ -149,7 +154,7 @@ function FillTraitSelectorItems(object, items, traits, align, list)
 				action = function(dataset, delta, controller)
 					if not IsValid(dataset.object) then return end
 					local broadcast = (controller and delta < 0) or (not controller and IsMassUIModifierPressed())
-					dataset.object:SetTrait(dataset.idx, trait.name, broadcast)					
+					dataset.object:SetTrait(dataset.idx, trait.id, broadcast)					
 				end
 			},list))
 			align = align == "top" and "bottom" or "top"
@@ -168,10 +173,10 @@ function GetInfopanelSelectorItems(dataset, list)
 	if object:IsKindOf("Farm") then
 		local crops = object.crops_available or empty_table
 		for i = 1, #crops do
-			local crop = DataInstances.Crop[crops[i]]
+			local crop = CropPresets[crops[i]]
 			if crop and IsCropAvailable(crop) then
 				local max = crop and crop.FoodOutput or 0
-				local growth_time = object:GetGrowthDuration(dataset.idx,crop.name)			
+				local growth_time = object:GetGrowthDuration(dataset.idx,crop.id)
 				local texts = {
 						T{3978, "<em><description></em><newline>", description = crop.Desc},
 						T{248, "Water consumption<right><water(number)>", number = object:GetCropWaterDemand(-1, object.crops_available[i])},
@@ -189,7 +194,7 @@ function GetInfopanelSelectorItems(dataset, list)
 				local description = table.concat(texts, "<newline><left>")
 				table.insert(items, HexButtonInfopanel:new({
 					ButtonAlign =  align,
-					name = crop.name, 
+					name = crop.id, 
 					icon = crop.icon,
 					display_name = crop.DisplayName,
 					description  = description,
@@ -199,7 +204,7 @@ function GetInfopanelSelectorItems(dataset, list)
 						local farm = dataset.object
 						if not IsValid(farm) then return end
 						local broadcast = (controller and delta < 0) or (not controller and IsMassUIModifierPressed())
-						farm:SetCrop(dataset.idx, crop.name, broadcast)
+						farm:SetCrop(dataset.idx, crop.id, broadcast)
 					end
 				}, list))
 				align = align == "top" and "bottom" or "top"
@@ -224,11 +229,11 @@ function GetInfopanelSelectorItems(dataset, list)
 			align = FillTraitSelectorItems(object, items, BuildingTraitsCombo(object, const.SchoolExtraTraits),align, list)
 		end
 		if object.city:IsTechResearched("DreamSimulation") then
-			align = FillTraitSelectorItems(object,items,{{value = "Dreamer", text = DataInstances.Trait["Dreamer"].display_name}},align, list)
+			align = FillTraitSelectorItems(object,items,{{value = "Dreamer", text = TraitPresets["Dreamer"].display_name}},align, list)
 		end
 	elseif object:IsKindOf("Sanatorium") then
 		if object.city:IsTechResearched("DreamSimulation") then
-			align = FillTraitSelectorItems(object,items,{{value = "Dreamer", text = DataInstances.Trait["Dreamer"].display_name}},align, list)
+			align = FillTraitSelectorItems(object,items,{{value = "Dreamer", text = TraitPresets["Dreamer"].display_name}},align, list)
 		end
 		align = FillTraitSelectorItems(object, items, SanatoriumTraitsCombo(object), align, list)
 	elseif object:IsKindOf("MartianUniversity") then
@@ -240,10 +245,11 @@ function GetInfopanelSelectorItems(dataset, list)
 			description  = T{670, "Automatically graduates to the Specialization that is most needed in your colony"},
 			hint =  T{7604, "<left_click> Select"},
 			gamepad_hint = T{3545, "<ButtonA> Select"},
-			action = function(dataset)
+			action = function(dataset, delta, controller)
 				local university = dataset.object
 				if not IsValid(university) then return end
-				university.specialization = "auto"
+				local broadcast = (controller and delta < 0) or (not controller and IsMassUIModifierPressed())
+				university:SetTrainedSpecialization("auto", broadcast)					
 			end
 		}, list))
 		align = "bottom"
@@ -257,39 +263,15 @@ function GetInfopanelSelectorItems(dataset, list)
 				description  = specialization.description,
 				hint =  T{703125928773, --[[XTemplate customMartianUniversity RolloverHint]] "<left_click> Select specialization<newline><em>Ctrl + <left_click> on specialization</em> Select in all Universities"},
 				gamepad_hint =  T{896744390747, --[[XTemplate customMartianUniversity RolloverHintGamepad]] "<ButtonA> Select specialization<newline><em><ButtonX> on specialization</em> Select in all Universities"},
-				action = function(dataset)
+				action = function(dataset, delta, controller)
 					local university = dataset.object
 					if not IsValid(university) then return end
-					university.specialization = val
+					local broadcast = (controller and delta < 0) or (not controller and IsMassUIModifierPressed())
+					university:SetTrainedSpecialization(val, broadcast)					
 				end
 			}, list))
 			align = align == "top" and "bottom" or "top"
-		end	
-	elseif object:IsKindOfClasses("UniversalStorageDepot", "MechanizedDepot") then
-		local storable_resources = object.storable_resources
-		local res_type = object.resources_type
-		for _, res_id in ipairs(storable_resources) do
-			if res_type=="base" and base_resources[res_id] or res_type=="advance" and advance_resources[res_id] then
-				local enabled = object:IsResourceEnabled(res_id)
-				local res = Resources[res_id]
-				table.insert(items, HexButtonInfopanel:new({
-					name = res.name, 
-					ButtonAlign = align,
-					icon = res.display_icon,
-					display_name = res.display_name,
-					description  = res.description,
-					hint = enabled and T{7949, "<left_click> Disable storage"} or T{7950, "<left_click> Enable storage"},
-					gamepad_hint = enabled and T{7951, "<ButtonA> Disable storage"} or T{7952, "<ButtonA> Enable storage"},
-					action = function(dataset)
-						local depot = dataset.object
-						if not IsValid(depot) then return end
-						depot:ToggleAcceptResource(res_id)
-						ObjModified(depot)
-					end
-				}, list))
-				align = align == "top" and "bottom" or "top"
-			end
-		end	
+		end
 	end
 	return items
 end

@@ -9,12 +9,12 @@ end
 
 function Arcology:GetHiveMindBonus()
 	local traits = {}
-	local trait_defs = DataInstances.Trait
+	local trait_defs = TraitPresets
 	for _, unit in ipairs(self.colonists) do
 		for trait_id in pairs(unit.traits) do
 			if trait_id ~= "none" then
 				local trait_def = trait_defs[trait_id]
-				local cat = trait_def and trait_def.category
+				local cat = trait_def and trait_def.group
 				if cat == "Positive" or cat == "Specialization" then
 					traits[trait_id] = true
 				end

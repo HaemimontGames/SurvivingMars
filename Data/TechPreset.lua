@@ -694,11 +694,11 @@ PlaceObj('TechPreset', {
 	group = "Breakthroughs",
 	icon = "UI/Icons/Research/advanced_drone_drive.tga",
 	id = "AdvancedDroneDrive",
-	param1 = 50,
+	param1 = 40,
 	param1comment = "Speed Buff",
 	PlaceObj('Effect_ModifyLabel', {
 		Label = "Drone",
-		Percent = 50,
+		Percent = 40,
 		Prop = "move_speed",
 	}),
 })
@@ -2089,27 +2089,27 @@ PlaceObj('TechPreset', {
 	group = "Robotics",
 	icon = "UI/Icons/Research/low-g_drive.tga",
 	id = "LowGDrive",
-	param1 = 25,
+	param1 = 20,
 	param1comment = "Speed Bonus",
 	position = range(1, 4),
 	PlaceObj('Effect_ModifyLabel', {
 		Label = "Drone",
-		Percent = 25,
+		Percent = 20,
 		Prop = "move_speed",
 	}),
 	PlaceObj('Effect_ModifyLabel', {
 		Label = "RCRover",
-		Percent = 25,
+		Percent = 20,
 		Prop = "move_speed",
 	}),
 	PlaceObj('Effect_ModifyLabel', {
 		Label = "RCTransport",
-		Percent = 25,
+		Percent = 20,
 		Prop = "move_speed",
 	}),
 	PlaceObj('Effect_ModifyLabel', {
 		Label = "ExplorerRover",
-		Percent = 25,
+		Percent = 20,
 		Prop = "move_speed",
 	}),
 })
@@ -2224,7 +2224,7 @@ PlaceObj('TechPreset', {
 
 PlaceObj('TechPreset', {
 	SortKey = 8,
-	description = T{8002, --[[TechPreset RoverCommandAI description]] "<em>Rovers</em> no longer need recharging. The <em>RC Rover</em> starts with <param1> additional Drones and command limit increased by <param2>. \n\n<grey>Developing a specialized AI with greater autonomy and advanced multitasking capabilities will allow our rovers to control more drones simultaneously.</grey>"},
+	description = T{8002, --[[TechPreset RoverCommandAI description]] "<em>Rovers</em> no longer need recharging. The <em>RC Commander</em> starts with <param1> additional Drones and command limit increased by <param2>. \n\n<grey>Developing a specialized AI with greater autonomy and advanced multitasking capabilities will allow our rovers to control more drones simultaneously.</grey>"},
 	display_name = T{8001, --[[TechPreset RoverCommandAI display_name]] "Rover Command AI"},
 	group = "Robotics",
 	icon = "UI/Icons/Research/rover_command_ai.tga",
@@ -2346,13 +2346,13 @@ PlaceObj('TechPreset', {
 	PlaceObj('Effect_ModifyLabel', {
 		Label = "CargoShuttle",
 		Percent = 33,
-		Prop = "max_speed",
+		Prop = "move_speed",
 	}),
 })
 
 PlaceObj('TechPreset', {
 	SortKey = 15,
-	description = T{6424, --[[TechPreset RoverPrinting description]] "Can construct <em>RC Rover</em> (<buildinginfo('RCRoverBuilding')>), <em>RC Transport</em> (<buildinginfo('RCTransportBuilding')>) and <em>RC Explorer</em> (<buildinginfo('RCExplorerBuilding')>).\n\n<grey>Machine-part printing devices have reached a fidelity high enough to print the intricate parts necessary to assemble state of the art Rovers. </grey>"},
+	description = T{6424, --[[TechPreset RoverPrinting description]] "Can construct <em>RC Commander</em> (<buildinginfo('RCRoverBuilding')>), <em>RC Transport</em> (<buildinginfo('RCTransportBuilding')>) and <em>RC Explorer</em> (<buildinginfo('RCExplorerBuilding')>).\n\n<grey>Machine-part printing devices have reached a fidelity high enough to print the intricate parts necessary to assemble state of the art Rovers. </grey>"},
 	display_name = T{6423, --[[TechPreset RoverPrinting display_name]] "Rover Printing"},
 	group = "Robotics",
 	icon = "UI/Icons/Research/rover_printing.tga",
@@ -2379,11 +2379,11 @@ PlaceObj('TechPreset', {
 	group = "Robotics",
 	icon = "UI/Icons/Research/compact_hangars.tga",
 	id = "CompactHangars",
-	param1 = 4,
+	param1 = 6,
 	param1comment = "Max Shuttles",
 	position = range(16, 18),
 	PlaceObj('Effect_ModifyLabel', {
-		Amount = 4,
+		Amount = 6,
 		Label = "ShuttleHub",
 		Prop = "max_shuttles",
 	}),
@@ -2535,6 +2535,7 @@ PlaceObj('TechPreset', {
 	position = range(1, 5),
 	PlaceObj('Effect_Funding', {
 		Funding = 1000,
+		Reason = "Research",
 	}),
 })
 
@@ -2564,6 +2565,7 @@ PlaceObj('TechPreset', {
 	repeatable = true,
 	PlaceObj('Effect_Funding', {
 		Funding = 500,
+		Reason = "Research",
 	}),
 })
 
@@ -2729,6 +2731,7 @@ PlaceObj('TechPreset', {
 	repeatable = true,
 	PlaceObj('Effect_Funding', {
 		Funding = 2000,
+		Reason = "Research",
 	}),
 })
 

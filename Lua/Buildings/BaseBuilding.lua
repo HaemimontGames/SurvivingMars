@@ -56,16 +56,47 @@ function BaseBuilding:AddToCityLabels()
 	--overwrite me
 end
 
+function GetBuildingsParamInNotification(displayed_in_notif)
+	local building_counts = {}
+	for _, bld in pairs(displayed_in_notif) do
+		local name = bld.template_name
+		if name and name ~= "" then
+			local count = (building_counts[name] or 0) + 1
+			building_counts[name] = count
+		end
+	end
+	local keys = table.keys(building_counts)
+	table.stable_sort(keys, function(a,b)
+		return building_counts[a] > building_counts[b]
+	end)
+	local rollover_text = {}
+	for i = 1, #keys do
+		local item = keys[i]
+		local count = building_counts[item]
+		local name = count > 1 and BuildingTemplates[item].display_name_pl or  BuildingTemplates[item].display_name
+		rollover_text[#rollover_text + 1] = T{10365, "<count> <name>", count = count, name = name}
+	end
+	rollover_text = table.concat(rollover_text, "\n")
+	return rollover_text
+end
+
+local function NotWorkingBuildingsParamFunc(displayed_in_notif)
+	local rollover_text = GetBuildingsParamInNotification(displayed_in_notif) or empty_table
+	return {count = #displayed_in_notif, rollover_title = T{5648, "Buildings Not Working"}, rollover_text = rollover_text}
+end
+
 GlobalVar("g_NotWorkingBuildings", {})
 GlobalGameTimeThread("NotWorkingBuildingsNotif", function()
-	HandleNewObjsNotif(g_NotWorkingBuildings, "NotWorkingBuildings")
+	HandleNewObjsNotif(g_NotWorkingBuildings, "NotWorkingBuildings", nil, NotWorkingBuildingsParamFunc)
 end)
 
+function BaseBuilding:ShouldShowNotWorkingNotification()
+	return not self.destroyed and self:IsWorkPermitted() and not self:IsWorkPossible()
+end
+
 function BaseBuilding:UpdateNotWorkingBuildingsNotification()
-	if not self.destroyed and self:IsWorkPermitted() and not self:IsWorkPossible() then
-		if self.priority > 1 then
-			table.insert_unique(g_NotWorkingBuildings, self)
-		end
+	if self:ShouldShowNotWorkingNotification() then
+		table.insert_unique(g_NotWorkingBuildings, self)
 	else
 		table.remove_entry(g_NotWorkingBuildings, self)
 	end
@@ -115,8 +146,9 @@ function BaseBuilding:DoesHaveUpgradeConsumption()
 end
 
 function BaseBuilding:SetUIWorking(work)
-	if self.ui_working == work or false then return end
-	self:Gossip("UIWorking", work or false)
+	work = work or false
+	if self.ui_working == work then return end
+	self:Gossip("UIWorking", work )
 	self.ui_working = work
 	self.ui_working_changed = GameTime()
 	PlayFX("UIWorking", work and "start" or "end", self)
@@ -150,20 +182,15 @@ end
 function BaseBuilding:ToggleWorking(broadcast)
 	if not self.suspended then
 		RebuildInfopanel(self)
-		if not self:HasMember("AreAllShiftsClosed") or self:HasMember("AreAllShiftsClosed") and not self:AreAllShiftsClosed() then
-			self:SetUIWorking(not self.ui_working)
-			if broadcast then
-				BroadcastAction(self, "SetUIWorking", self.ui_working)
-			end
+		self:SetUIWorking(not self.ui_working)
+		if broadcast then
+			BroadcastAction(self, "SetUIWorking", self.ui_working)
 		end
 	end
 end
 
 function BaseBuilding:ToggleWorking_Update(button)
 	button:SetEnabled(not self.suspended)
-	if self:IsKindOf("ConstructionSite") then
-		button:SetRolloverText(T{619, "Construction sites that are turned off are not serviced.<newline><newline>Current status: <em><UIWorkingStatus></em>"})
-	end
 	if self.suspended then
 		button:SetIcon("UI/Icons/IPButtons/turn_off.tga")
 		button:SetRolloverHint(T{7611, "<left_click> Deactivate <newline><em>Ctrl + <left_click></em> Deactivate all <display_name_pl>"})

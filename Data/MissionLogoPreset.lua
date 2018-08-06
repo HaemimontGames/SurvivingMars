@@ -105,3 +105,12 @@ PlaceObj('MissionLogoPreset', {
 	image = "UI/Icons/Logos/logo_13.tga",
 })
 
+PlaceObj('MissionLogoPreset', {
+	SortKey = 14000,
+	display_name = T{124736405549, --[[MissionLogoPreset SpaceCommunism display_name]] "Space Communism"},
+	entity_name = "DecLogo_14",
+	group = "Default",
+	id = "SpaceCommunism",
+	image = "UI/Icons/Logos/logo_14.tga",
+})
+

@@ -71,7 +71,17 @@ end,
 			'Translate', true,
 			'Text', T{714247552511, --[[XTemplate MysteryItem Text]] "<text>"},
 			'Shorten', true,
-		}),
+		}, {
+			PlaceObj('XTemplateFunc', {
+				'name', "CalcTextColor",
+				'func', function (self, ...)
+return self.enabled and 
+			((self.parent.rollover or GetDialog(self).idList.focused_item == self.context.number)
+				and self.RolloverTextColor or self.TextColor)
+				or self.DisabledTextColor
+end,
+			}),
+			}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnXButtonDown",
 			'func', function (self, ...)

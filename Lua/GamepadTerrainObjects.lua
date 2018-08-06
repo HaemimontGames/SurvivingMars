@@ -253,14 +253,16 @@ function GamepadTerrainObjects:PointInside(pt, width)
 	end
 end
 
+local UnitClasses = {"Drone", "Colonist"}
 function GamepadTerrainObjects:GatherUnits()
-	return self:GatherObjectsOfTypes({"Drone", "Colonist"}, nil)
+	return self:GatherObjectsOfTypes(UnitClasses, nil)
 end
 
+local SelectionClasses = {"ResourceStockpileBase", "Deposit", "Unit", "AlienDigger"}
 function GamepadTerrainObjects:GatherObjects(...)
 	local buildings = self:GatherBuildings(...)
 	local flying = self:GatherObjectsUnderCursor("FlyingObject")
-	local others = self:GatherObjectsOfTypes({"ResourceStockpileBase", "Deposit", "Unit", "AlienDigger"}, {"Drone", "Colonist", "FlyingObject"})
+	local others = self:GatherObjectsOfTypes(SelectionClasses, "Drone", "Colonist", "FlyingObject")
 	return buildings:Union(others):Union(flying)
 end
 
@@ -310,20 +312,12 @@ function GamepadTerrainObjects:GatherBuildings(cables)
 	return new_buildings
 end
 
-local UnderCursorObjectsQuery = {
-	classes = false,
-	area = "line",
-	areapoint1 = false,
-	areapoint2 = false,
-	arearadius = 20*guim,
-}
-function GamepadTerrainObjects:GatherObjectsUnderCursor(classes)
+function GamepadTerrainObjects:GatherObjectsUnderCursor(...)
 	--precise, but slow - use only for low number of objects
-	UnderCursorObjectsQuery.classes = classes
-	UnderCursorObjectsQuery.areapoint1 = camera.GetEye()
-	UnderCursorObjectsQuery.areapoint2 = GetTerrainGamepadCursor()
-	
-	local candidates = GetObjects(UnderCursorObjectsQuery)
+	local cursor_point1  = camera.GetEye()
+	local cursor_point2  = GetTerrainGamepadCursor()
+	local cursor_radius = 20*guim
+	local candidates = MapGet(cursor_point1, cursor_point2, cursor_radius, ... )
 	
 	local xcursor_box = GetGamepadCursor().box
 	local center = xcursor_box:Center()
@@ -333,28 +327,18 @@ function GamepadTerrainObjects:GatherObjectsUnderCursor(classes)
 	return objlist:new({ obj })
 end
 
-local ObjectsOfTypesQuery = {
-	classes = false,
-	area = false,
-	arearadius = false,
-	enum_flags_all = const.efSelectable + const.efVisible,
-	filter = function(obj, gamepad_objs, width, ignore_classes)
+function GamepadTerrainObjects:GatherObjectsOfTypes(classes, ...)
+	--12 meters is the maximum step length that the pathfinder allows (bug:0132040)
+	local query_width = self.width + 12 * guim
+	local query_filter = function(obj, gamepad_objs, width, ...)
 		local pos = obj:GetVisualPos()
-		if not terrain.IsPointInBounds(pos) or IsKindOfClasses(obj, ignore_classes) then
+		if not terrain.IsPointInBounds(pos) or IsKindOfClasses(obj, ...) then
 			return false
 		end
 		return gamepad_objs:PointInside(pos, width)
-	end,
-}
-function GamepadTerrainObjects:GatherObjectsOfTypes(classes, ignore_classes)
-	--12 meters is the maximum step length that the pathfinder allows (bug:0132040)
-	local query_width = self.width + 12 * guim
-	
-	ObjectsOfTypesQuery.classes = classes
-	ObjectsOfTypesQuery.area = self.pos
-	ObjectsOfTypesQuery.arearadius = query_width
-	
-	return GetObjects(ObjectsOfTypesQuery, self, query_width, ignore_classes)
+	end
+	return MapGet(self.pos, query_width, classes, const.efSelectable + const.efVisible, 
+					 query_filter, self, query_width, ...)
 end
 
 local function GetNextObj(list, obj)

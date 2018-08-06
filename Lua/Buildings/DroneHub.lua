@@ -8,7 +8,6 @@ local rfDemandOrWork = rfDemand + rfWork
 local rfPostInQueueFlags = rfDemand + rfWork + rfCanExecuteAlone + const.rfPostInQueue
 local rfStorageDepot    = const.rfStorageDepot
 local rfConstruction = const.rfConstruction
-local rfPairWithHigher = const.rfPairWithHigher
 local rfSpecialDemandPairing = const.rfSpecialDemandPairing
 local rfSpecialSupplyPairing = const.rfSpecialSupplyPairing
 local MaxBuildingPriority     = const.MaxBuildingPriority
@@ -242,22 +241,16 @@ end
 	end
 end]]
 
-local resource_requester_search = {
-	class = "TaskRequester",
-	exec = function (building, center)
+function DroneControl:ConnectTaskRequesters()
+	if self.are_requesters_connected then return end
+	local resource_search = function (building, center)
 		--SetConstructionSiteSign(building, false, "SignNoPower")
 		if building.auto_connect and not GameInitThreads[building] then
 			building:AddCommandCenter(center)
 		end
-	end,
-}
+	end
+	MapForEach(self, "hex", self.work_radius , "TaskRequester", resource_search, self)
 
-function DroneControl:ConnectTaskRequesters()
-	if self.are_requesters_connected then return end
-	resource_requester_search.area = self
-	resource_requester_search.hexradius = self.work_radius
-	ForEach(resource_requester_search, self)
-	resource_requester_search.area = false
 	self.are_requesters_connected = true
 end
 
@@ -341,11 +334,11 @@ end
 ---------------------------------------------------------------------------
 ---------------------------------------------------------------------------
 function SavegameFixups.InitWasteRockDumpRestrictor()
-	ForEach { area = "realm", class = "DroneControl", exec = function(obj)
+	MapForEach(true, "DroneControl", function(obj)
 		obj:FillDumpTablesFromConnectedRequestors()
 		obj:KillRestrictorThread()
 		obj:InitDumpRestrictors()
-	end}
+	end)
 end
 
 function DroneControl:FillDumpTablesFromConnectedRequestors()
@@ -593,7 +586,7 @@ function DroneControl:FindDemandRequest(drone, resource, amount, min_priority, i
 	required_flags = required_flags or 0
 	ignore_flags = ignore_flags or 0
 	assert(self.under_construction)
-	return Request_FindDemand_C(self.demand_queues, self.under_construction or empty_table, self.restrictor_tables or empty_table, resource, amount,
+	return Request_FindDemand_C(drone, self.demand_queues, self.under_construction or empty_table, self.restrictor_tables or empty_table, resource, amount,
 		min_priority, ignore_flags, required_flags, requestor_prio, exclude_building, drone.unreachable_buildings)
 end
 
@@ -772,8 +765,10 @@ function DroneControl:GetSelectionRadiusScale()
 end
 
 function DroneControl:OnSelected()
+	local re1 = GetStateIdx("roverEnter")
+	local re2 = GetStateIdx("roverEnter2")
 	local drones = table.ifilter(self.drones, function(idx, drone)
-		return IsValid(drone) and drone.command ~= "Embark" and drone:GetState() ~= GetStateIdx("roverEnter")
+		return IsValid(drone) and drone.command ~= "Embark" and drone:GetState() ~= re1 and drone:GetState() ~= re2
 	end)
 	SelectionArrowAdd(drones)
 end
@@ -947,7 +942,7 @@ function DroneHub:SpawnDrone()
 	if #self.drones >= g_Consts.CommandCenterMaxDrones then
 		return false
 	end
-	local drone = Drone:new{ city = self.city }
+	local drone = self.city:CreateDrone()
 	drone:SetHolder(self)
 	drone:SetCommandCenter(self)
 	return true
@@ -978,7 +973,6 @@ end
 function DroneControl:GetDronesCount()          return #self.drones end
 function DroneControl:GetMaxDronesCount()          return g_Consts.CommandCenterMaxDrones end
 function DroneControl:GetMiningDronesCount()    return table.array_count(self.drones, "resource", "mine") end
-function DroneControl:GetTransportDronesCount() return table.array_count(self.drones, "command", "PickUp") + table.array_count(self.drones, "command", "Deliver") + table.array_count(self.drones, "command", "Work") end
 function DroneControl:GetBrokenDronesCount()    return table.array_count(self.drones, "command", "Malfunction") end
 
 function DroneControl:GetIdleDronesCount()
@@ -991,20 +985,6 @@ function DroneControl:GetIdleDronesCount()
 	end
 	return count
 end
-
-function DroneControl:GetMaintenanceDronesCount()
-	-- clean and repair and repair drones
-	local count = 0
-	for i=1, #self.drones do
-		local drone = self.drones[i]
-		local cmd =  drone.command
-		if cmd == "RepairDrone" or drone.resource == "repair" or drone.resource == "clean" then
-			count = count + 1
-		end
-	end
-	return count
-end
-
 
 function DroneControl:GetDischargedDronesCount()
 	local count = 0
@@ -1023,10 +1003,7 @@ end
 
 function DroneHub:GetUISectionDroneHubRollover()
 	return table.concat({
-		T{290, "Current allocation of Drones to different jobs.<newline>"},
-		T{291, "Maintenance<right><drone(MaintenanceDronesCount)>", self},
-		T{292, "Workers<right><drone(TransportDronesCount)>", self},
-		T{293, "Discharged<right><drone(DischargedDronesCount)>", self},
+		T{293, "Low Battery<right><drone(DischargedDronesCount)>", self},
 		T{294, "Broken<right><drone(BrokenDronesCount)>", self},
 		T{295, "Idle<right><drone(IdleDronesCount)>", self},
 	}, "<newline><left>")
@@ -1079,6 +1056,7 @@ end
 
 function DroneControl:GetDronesStatusText()
 	local ret
+	
 	if (self:IsKindOf("DroneHub") and not self.working) then
 		ret = T{647, "<red>Not working. Drones won't receive further instructions.</red>"}
 	else
@@ -1102,23 +1080,19 @@ function DroneControl:GetDronesStatusText()
 			end
 		end
 	end
-	
-	ret = ret .. "\n" .. T{9757, "Available Prefabs <right><drone(available_drone_prefabs)>"}
-	
-	return ret
+	if IsKindOf(self, "SupplyRocket") then
+		return ret 
+	else	
+		return ret .. "\n" .. T{9757, "Available Prefabs <right><drone(available_drone_prefabs)>"}
+	end	
 end
 
 DroneHub.GetConstructDroneCost = DroneFactory.GetConstructDroneCost
 DroneHub.GetConstructResource = DroneFactory.GetConstructResource
-local factory_query = {class = "DroneFactory", area = false, arearadius = false, filter = function(o) return o.destroyed == false end}
 
 function DroneHub:GetFactoryNearby()
 	if #(self.city.labels.DroneFactory or "") > 0 then
-		factory_query.arearadius = g_Consts.DroneHubOrderDroneRange
-		factory_query.area = self
-		local f = FindNearest(factory_query)
-		factory_query.area = false
-		
+		local f = MapFindNearest(self, self, g_Consts.DroneHubOrderDroneRange, "DroneFactory", function(o) return o.destroyed == false end)
 		return f
 	end
 	
@@ -1153,4 +1127,11 @@ function BulkObjModifiedInCityLabels(...)
 			ObjModified(obj)
 		end
 	end
+end
+
+function DoesAnyDroneControlServiceAtPoint(pt)
+	return MapCount(pt, "hex", const.CommandCenterMaxRadius, "DroneControl", 
+								function(center)
+									return (IsKindOf(center, "DroneHub") or center.working) and HexAxialDistance(center, pt) <= center.work_radius
+								end) > 0
 end

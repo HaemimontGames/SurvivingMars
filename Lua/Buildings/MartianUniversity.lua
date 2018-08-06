@@ -11,6 +11,14 @@ function MartianUniversity:Init()
 	self.trained_specialists = {}
 end
 
+function MartianUniversity:SetTrainedSpecialization(specialization, broadcast)
+	if broadcast then
+		BroadcastAction(self, "SetTrainedSpecialization", specialization)
+		return
+	end
+	self.specialization = specialization
+end
+
 function MartianUniversity:OnTrainingCompleted(unit)	
 	local specialization = self.specialization
 	if specialization == "auto" then
@@ -18,6 +26,7 @@ function MartianUniversity:OnTrainingCompleted(unit)
 		specialization = most or table.interaction_rand(ColonistSpecializationList, "specialization")
 	end
 	unit:SetSpecialization(specialization)
+	Msg("TrainingComplete", self, unit)
 	unit.training_points[self.training_type] = nil
 	if not self.trained_specialists then
 		self.trained_specialists = {}

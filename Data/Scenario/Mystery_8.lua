@@ -931,6 +931,11 @@ PlaceObj('Scenario', {
 	PlaceObj('ScenarioSequence', {
 		'name', "Trade Rockets Funding",
 	}, {
+		PlaceObj('SA_WaitResearch', {
+			'Field', "Mysteries",
+			'Research', "WildfireCure",
+			'State', "Researched",
+		}),
 		PlaceObj('SA_Repeat', {
 			'sa_id', 1,
 			'end_block', 2,

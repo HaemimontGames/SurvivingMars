@@ -10,6 +10,8 @@ DefineClass.Milestone = {
 	},
 	PropertyTranslation = true,
 	HasSortKey = true,
+	EditorName = "Milestones",
+	EditorMenubar = "Editors.Game",
 }
 
 function Milestone:Complete()
@@ -55,21 +57,35 @@ end
 
 function MilestoneRestartThreads()
 	if g_Tutorial then return end
+	local all_milestones = {}
+	local completed_milestones = {}
+	local score_sum = 0
 	for _, milestone in ipairs(Presets.Milestone.Default) do
 		local id = milestone.id
 		if MilestoneCompleted[id] == nil then
 			DeleteThread(MilestoneThreads[id])
+			completed_milestones[id] = true
 			MilestoneThreads[id] = CreateGameTimeThread(function(id)
 				local milestone = Presets.Milestone.Default[id]
 				local res = milestone:Complete(UICity)
 				MilestoneThreads[id] = nil
 				if milestone then -- some milestones might have disappeared (loadgame after patch)
+					all_milestones[id] = true
 					MilestoneCompleted[id] = res and GameTime() or false
 					if res then
-						AddOnScreenNotification("MilestoneComplete", function() OpenXDialog("Milestones") end, {
+						AddOnScreenNotification("MilestoneComplete", function() OpenDialog("Milestones") end, {
 							display_name = milestone.display_name,
 							score = milestone:GetScore()
 						})
+						score_sum = score_sum + milestone:GetScore()
+						local sponsor = GetMissionSponsor()
+						local commander = GetCommanderProfile()
+						if id == "Evaluation" and sponsor.goal == "" then
+							WaitPopupNotification(sponsor.goal_completed_message, { params = { sponsor_name = sponsor.display_name, commander_profile = commander.display_name, score = milestone:GetScore() } })
+						end
+						if #completed_milestones > 0 and #completed_milestones == #all_milestones then
+							WaitPopupNotification("AllMilestonesCompleted", { params = { sponsor = sponsor.display_name, commander = commander.display_name, sol = UICity.day, score = score_sum } })
+						end
 					end
 					ObjModified(MilestoneCompleted)
 				end
@@ -122,7 +138,7 @@ end
 function Milestone_Wonder()
 	while true do
 		local ok, bld = WaitMsg("ConstructionComplete")
-		if ok and DataInstances.BuildingTemplate[bld.template_name] and DataInstances.BuildingTemplate[bld.template_name].wonder then
+		if ok and BuildingTemplates[bld.template_name] and BuildingTemplates[bld.template_name].wonder then
 			return true
 		end
 	end

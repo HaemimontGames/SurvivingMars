@@ -71,7 +71,7 @@ end
 ----- Message
 
 function GetMarsMessageBox()
-	return GetXDialog("MarsMessageBox")
+	return GetDialog("MarsMessageBox")
 end
 
 function CreateMarsMessageBox(caption, text, ok_text, parent, image, context)
@@ -135,7 +135,7 @@ function CreateMarsQuestionBox(caption, text, ok_text, cancel_text, parent, imag
 		ActionShortcut = "Enter",
 		ActionShortcut2 = "1",
 		ActionIcon = "UI/Icons/message_1.tga",
-		OnAction = function(self, host, source, toggled)
+		OnAction = function(self, host, source)
 			host:Close("ok")
 		end
 	})
@@ -146,7 +146,7 @@ function CreateMarsQuestionBox(caption, text, ok_text, cancel_text, parent, imag
 		ActionShortcut2 = "2",
 		ActionGamepad = "ButtonB",
 		ActionIcon = "UI/Icons/message_2.tga",
-		OnAction = function(self, host, source, toggled)
+		OnAction = function(self, host, source)
 			host:Close("cancel")
 		end
 	})
@@ -181,7 +181,7 @@ local function RollBackDialogs()
 		--close all dialogs and leave only InGameInterface
 		local igi = GetInGameInterface()
 		local dlgs_to_close = { }
-		for name,dlg in pairs(XDialogs) do
+		for name,dlg in pairs(Dialogs) do
 			if type(name) == "string" then
 				--hints dlg can change its parent
 				if not dlg:IsWithin(igi) and dlg ~= igi.mode_dialog and name ~= "OnScreenHintDlg" and name ~= "MarsPauseDlg" then
@@ -201,9 +201,9 @@ local function RollBackDialogs()
 			end
 		end
 	else --in pregame menu
-		local main_menu = GetXDialog("PGMainMenu")
+		local main_menu = GetDialog("PGMainMenu")
 		if main_menu then
-			CloseXDialog("Achievements")
+			CloseDialog("Achievements")
 			if main_menu:GetMode() == "Mission" then
 				main_menu:SetMode("Mission")
 			else
@@ -229,7 +229,7 @@ function ShowControlsSwitchQuestion(parent)
 		if WaitMarsQuestion(parent or terminal.desktop, SwitchToControllerTitle, SwitchToController, nil, nil, nil, { force_ui_style = "gamepad" }) == "ok" then
 			AccountStorage.Options.Gamepad = true
 			ChangeGamepadUIStyle({ true })
-			SaveAccountStorage()
+			SaveAccountStorage(5000)
 			RollBackDialogs()
 		end
 		if GameState.gameplay then

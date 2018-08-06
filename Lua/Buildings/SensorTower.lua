@@ -1,25 +1,32 @@
-DefineClass.SensorTower = {
-	__parents = { "ElectricityConsumer", "OutsideBuildingWithShifts" },
-		
+DefineClass.SensorTowerBase = {
+	__parents = { "Object" },
 	turn_off_time = 0,
 }
 
-function SensorTower:GameInit()
+function SensorTowerBase:GameInit()
 	self.turn_off_time = GameTime()
-	if self.disable_maintenance > 0 then
-		self.accumulate_dust = false
-		self.accumulate_maintenance_points = false
-	end
 end
 
-function SensorTower:OnSetWorking(working)
-	ElectricityConsumer.OnSetWorking(self, working)
+function SensorTowerBase:OnSetWorking(working)
 	if not working then
 		self.turn_off_time = GameTime()
 	elseif HintsEnabled then
 		HintTrigger("HintScanningSectors")
 	end
 end
+
+DefineClass.SensorTower = {
+	__parents = { "ElectricityConsumer", "OutsideBuildingWithShifts", "SensorTowerBase" },
+}
+
+function SensorTower:GameInit()
+	if self.disable_maintenance > 0 then
+		self.accumulate_dust = false
+		self.accumulate_maintenance_points = false
+	end
+end
+
+
 
 function SensorTower:OnModifiableValueChanged(prop)
 	if prop == "disable_maintenance" then

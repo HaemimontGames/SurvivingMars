@@ -1,6 +1,13 @@
-const.BreakChanceCable = 600
-const.BreakChancePipe = 600
-
+const.BreakIntervalHours = 2
+const.BreakDrainModifierPct = 200
+const.BreakDrainPowerMin = 10000
+const.BreakDrainPowerMax = 15000
+const.BreakDrainOxygenMin = 3000
+const.BreakDrainOxygenMax = 6000
+const.BreakDrainWaterMin = 4000
+const.BreakDrainWaterMax = 8000
+const.BreakChanceCable = 1000
+const.BreakChancePipe = 1000
 local random_break_chances = { --chances of pipes/cables breaking each workshift, AsyncRand(1000000000) > ((1000000-break_chance)/1000000.0)^number_of_elements*1000000000 
 	electricity = const.BreakChanceCable,
 	water = const.BreakChancePipe,
@@ -222,10 +229,23 @@ end
 -- for interface purposes
 function SupplyGridElement:GetProductionEstimate() if self.building.working then return Max(self.production_yesterday, self.production_today) else return 0 end end
 function SupplyGridElement:GetStoragePercent() return 100 * self.current_storage / self.storage_capacity end
+function SupplyGridElement:GetUISectionPowerGridRollover()
+	return self.grid and self.grid:GetUISectionPowerGridRollover()
+end
+function SupplyGridElement:GetUISectionWaterGridRollover()
+	return self.grid and self.grid:GetUISectionWaterGridRollover()
+end
 
+function SupplyGridElement:GetUISectionAirGridRollover()
+	local grid = self.grid
+	grid = grid:IsKindOf("WaterGrid") and grid.air_grid or grid
+	return grid and grid:GetUISectionAirGridRollover()
+end
+
+local dust_class_flags = const.cfConstructible + const.cfDecal
+local decal_enum_flags = const.efBakedTerrainDecal + const.efBakedTerrainDecalLarge
 function SetObjDust(obj, normalized_dust, in_dome)
-	if obj and obj:GetClassFlags(const.cfConstructible + const.cfDecal) ~= 0 and 
-	   obj:GetEnumFlags(const.efBakedTerrainDecal + const.efBakedTerrainDecalLarge) == 0 then
+	if obj and obj:GetClassFlags(dust_class_flags) ~= 0 and obj:GetEnumFlags(decal_enum_flags) == 0 then
 		obj:SetDust(normalized_dust, in_dome and const.DustMaterialInterior or const.DustMaterialExterior)
 	end
 end
@@ -264,6 +284,7 @@ DefineClass.SupplyGridFragment = {
 	consumption = 0,
 	charge = 0,
 	discharge = 0,
+	consumption_for_overview = 0,
 	-- current
 	current_storage_change = 0,
 	current_production = 0,
@@ -421,6 +442,7 @@ function SupplyGridFragment:UpdateGrid(update, update_consumer_state)
 	local change = production - self.consumption
 	local storage_change = Clamp(change, - self.discharge, self.charge)
 	local current_consumption
+	local consumption_for_overview = self.consumption
 	if not update_consumer_state and self.all_consumers_supplied and change > 0 then
 		current_consumption = self.consumption
 		self.current_throttled_production = Min(change - storage_change, self.throttled_production)
@@ -436,6 +458,9 @@ function SupplyGridFragment:UpdateGrid(update, update_consumer_state)
 					consumer.current_consumption = current_consumption
 					consumer.building:SetSupply(supply_resource, current_consumption)
 				end
+				if consumer.is_cable_or_pipe and current_consumption ~= consumption then
+					consumption_for_overview = consumption_for_overview - (consumption - current_consumption)
+				end
 			else
 				storage_change = storage_change + abs(consumption) --negative consumption goes to storages
 			end
@@ -448,6 +473,7 @@ function SupplyGridFragment:UpdateGrid(update, update_consumer_state)
 		self.current_throttled_production = Min(change - storage_change, self.throttled_production)
 		self.all_consumers_supplied = current_consumption == self.consumption
 	end
+	self.consumption_for_overview = consumption_for_overview
 	self.current_storage_change = storage_change
 	self.current_consumption = current_consumption
 	self.current_production = self.production - self.current_throttled_production
@@ -455,10 +481,7 @@ function SupplyGridFragment:UpdateGrid(update, update_consumer_state)
 	self.current_reserve = self.production + self.discharge - current_consumption
 	for _, producer in ipairs(self.producers) do
 		local building = producer.building
-		building:UpdateAttachedSigns()
-		if SelectedObj==building then
-			ReopenSelectionXInfopanel(building)
-		end
+		building:UpdateAttachedSigns()		
 	end
 	for _, consumer in ipairs(self.consumers) do
 		local building = consumer.building
@@ -466,16 +489,10 @@ function SupplyGridFragment:UpdateGrid(update, update_consumer_state)
 		if supply_resource == "electricity" then
 			building:RefreshNightLightsState()
 		end
-		if SelectedObj== building then
-			ReopenSelectionXInfopanel(building)
-		end
 	end
 	for _, storage in ipairs(self.storages) do
 		local building = storage.building
 		building:UpdateAttachedSigns()
-		if SelectedObj== building then
-			ReopenSelectionXInfopanel(building)
-		end
 	end
 end
 
@@ -501,7 +518,7 @@ function SupplyGridFragment:UpdateDust()
 	end
 end
 
-function SupplyGridFragment:RandomElementBreakageOnWorkshiftChange()
+function SupplyGridFragment:RandomBreakConnection()
 	if #self.consumers <= 0 or #self.producers <= 0 then return end --at least one producer and one consumer in order for something to break
 	if #self.connectors <= 10 then return end --nothing to break.
 	local break_chance = random_break_chances[self.supply_resource]
@@ -821,7 +838,7 @@ end
 
 function SupplyGrid:RandomBreakElements()
 	for i = 1, #self do
-		self[i]:RandomElementBreakageOnWorkshiftChange()
+		self[i]:RandomBreakConnection()
 	end
 end
 
@@ -1392,9 +1409,11 @@ end
 function SupplyGridSwitch:MakeSwitch(constr_site)
 	if self.is_switch then return end
 	if not self:CanMakeSwitch(constr_site) then return end
+	local is_cable = IsKindOf(self, "ElectricityGridElement")
 	self.is_switch = true
 	self.conn = 0
 	self.rename_allowed = true
+	self.fx_actor_class = is_cable and "CableSwitch" or "PipeValve"
 	self:UpdateVisuals()
 	if self.on_state and self:HasState(self.on_state) then
 		self:SetState(self.on_state)
@@ -1404,35 +1423,47 @@ function SupplyGridSwitch:MakeSwitch(constr_site)
 		self.switch_cs = false
 	end
 	
-	local is_cable = IsKindOf(self, "ElectricityGridElement")
-	local bld_template = DataInstances.BuildingTemplate[is_cable and "ElectricitySwitch" or "LifesupportSwitch"]
+	local bld_template = BuildingTemplates[is_cable and "ElectricitySwitch" or "LifesupportSwitch"]
 	self.display_name = bld_template.display_name
 	self.description = bld_template.description
-	self.encyclopedia_id = not bld_template.encyclopedia_exclude and bld_template.name or false
+	self.encyclopedia_id = bld_template.encyclopedia_id
 end
 
 function SupplyGridSwitch:GetDisplayName()
 	return self.is_switch and self.name~="" and Untranslated(self.name) or self.display_name
 end
 
-function SupplyGridSwitch:Switch()
+local BroadcastSwitchesFilter = function(obj, current_state) 
+	return obj.is_switch and obj.switched_state == current_state
+end
+
+function SupplyGridSwitch:Switch(broadcast)
 	if not self.is_switch then return end
-	local grid_class_def = g_Classes[supply_element_name_to_grid_name[self.supply_element]]
-	local skin_name = self:GetGridSkinName()
-	self.skin_before_switch = skin_name
-	self.construction_connections = HexGridGet(SupplyGridConnections[self.supply_element], self) --force same conns on reconnect
-	self:SupplyGridDisconnectElement(self[self.supply_element], grid_class_def, true)
-	self.switched_state = not self.switched_state
-	self:SupplyGridConnectElement(self[self.supply_element], grid_class_def, skin_name)
-	self.skin_before_switch = nil
-	
-	if self.supply_element == "electricity" then
-		PlayFX("CableSwitched", self.switched_state and "off" or "on", self)
-	elseif self.supply_element == "water" then
-		PlayFX("PipeSwitched", self.switched_state and "off" or "on", self)
+	local switches = {}
+	local current_state = self.switched_state
+	if broadcast then
+		switches = MapGet( "map", self.class, BroadcastSwitchesFilter, current_state )
+	else
+		switches[1] = self
 	end
-	
-	self:UpdateAnim()
+	for i = 1, #switches do		
+		local grid_class_def = g_Classes[supply_element_name_to_grid_name[switches[i].supply_element]]
+		local skin_name = switches[i]:GetGridSkinName()
+		switches[i].skin_before_switch = skin_name
+		switches[i].construction_connections = HexGridGet(SupplyGridConnections[switches[i].supply_element], switches[i]) --force same conns on reconnect
+		switches[i]:SupplyGridDisconnectElement(switches[i][switches[i].supply_element], grid_class_def, true)
+		switches[i].switched_state = not switches[i].switched_state
+		switches[i]:SupplyGridConnectElement(switches[i][switches[i].supply_element], grid_class_def, skin_name)
+		switches[i].skin_before_switch = nil
+		
+		if switches[i].supply_element == "electricity" then
+			PlayFX("CableSwitched", switches[i].switched_state and "off" or "on", switches[i])
+		elseif switches[i].supply_element == "water" then
+			PlayFX("PipeSwitched", switches[i].switched_state and "off" or "on", switches[i])
+		end
+		
+		switches[i]:UpdateAnim()
+	end
 end
 
 function SupplyGridSwitch:UpdateAnim()
@@ -1473,13 +1504,6 @@ DefineClass.SupplyGridSwitchBuilding = { --placeholder for build menu
 	__parents = {"Building"},
 	rename_allowed = true,
 }
-
-const.BreakDrainPowerMin = 3000
-const.BreakDrainPowerMax = 7000
-const.BreakDrainOxygenMin = 1000
-const.BreakDrainOxygenMax = 2000
-const.BreakDrainWaterMin = 2000
-const.BreakDrainWaterMax = 4000
 
 DefineClass.BreakableSupplyGridElement = {
 	__parents = { "TaskRequester", },
@@ -1535,6 +1559,10 @@ end
 
 GlobalVar("g_BrokenSupplyGridElements", function() return { electricity = {}, water = {} } end)
 
+function BreakableSupplyGridElement:IsBroken()
+	return self.auto_connect == true
+end
+
 function BreakableSupplyGridElement:CanBreak()
 	if self.auto_connect == true then return false end --broken
 	if self.is_switch then return false end --switch
@@ -1553,11 +1581,19 @@ function BreakableSupplyGridElement:Break()
 	
 	element.variable_consumption = true --consume as much as available
 	if self.supply_resource == "electricity" then
-		element.consumption = self:Random(const.BreakDrainPowerMax - const.BreakDrainPowerMin) + const.BreakDrainPowerMin
+		local consumption = self:Random(const.BreakDrainPowerMax - const.BreakDrainPowerMin) + const.BreakDrainPowerMin
+		consumption = MulDivRound(consumption, const.BreakDrainModifierPct, 100)
+		element.consumption = consumption
 	else
-		element.consumption = self:Random(const.BreakDrainWaterMax - const.BreakDrainWaterMin) + const.BreakDrainWaterMin
+		local consumption = self:Random(const.BreakDrainWaterMax - const.BreakDrainWaterMin) + const.BreakDrainWaterMin
+		consumption = MulDivRound(consumption, const.BreakDrainModifierPct, 100)
+		element.consumption = consumption
+		
 		self.air = NewSupplyGridConsumer(self, true)
-		self.air:SetConsumption(self:Random(const.BreakDrainOxygenMax - const.BreakDrainOxygenMin) + const.BreakDrainOxygenMin)
+		self.air.is_cable_or_pipe = true
+		local air_consumption = self:Random(const.BreakDrainOxygenMax - const.BreakDrainOxygenMin) + const.BreakDrainOxygenMin
+		air_consumption = MulDivRound(air_consumption, const.BreakDrainModifierPct, 100)
+		self.air:SetConsumption(air_consumption)
 	end
 	
 	grid:AddElement(element)

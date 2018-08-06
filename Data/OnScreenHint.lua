@@ -87,9 +87,9 @@ PlaceObj('OnScreenHint', {
 
 PlaceObj('OnScreenHint', {
 	'name', "HintRover",
-	'title', T{4828, --[[OnScreenHint HintRover title]] "Rover"},
-	'text', T{5527, --[[OnScreenHint HintRover text]] "<em>The RC Rover</em> serves as a mobile base for your Drones. It can be relocated by the <em>Move/Interact</em> button in its Infopanel or using <UnitMoveControl()>."},
-	'gamepad_text', T{5528, --[[OnScreenHint HintRover gamepad_text]] "<em>The RC Rover</em> serves as a mobile base for your Drones. Manage the vehicle with <RT>. Relocate it by holding <RT> and then pressing <ButtonA>."},
+	'title', T{4828, --[[OnScreenHint HintRover title]] "RC Commander"},
+	'text', T{5527, --[[OnScreenHint HintRover text]] "<em>The RC Commander</em> serves as a mobile base for your Drones. It can be relocated by the <em>Move/Interact</em> button in its Infopanel or using <UnitMoveControl()>."},
+	'gamepad_text', T{5528, --[[OnScreenHint HintRover gamepad_text]] "<em>The RC Commander</em> serves as a mobile base for your Drones. Manage the vehicle with <RT>. Relocate it by holding <RT> and then pressing <ButtonA>."},
 })
 
 PlaceObj('OnScreenHint', {
@@ -116,13 +116,13 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "HintDrones",
 	'title', T{517, --[[OnScreenHint HintDrones title]] "Drones"},
-	'text', T{7026, --[[OnScreenHint HintDrones text]] "Drones are automated workers that gather resources, construct structures and perform maintenance. They are controlled by a Drone Hub, Rocket or RC Rover and will automatically perform tasks in the <em>service area</em> of their controller."},
+	'text', T{7026, --[[OnScreenHint HintDrones text]] "Drones are automated workers that gather resources, construct structures and perform maintenance. They are controlled by a Drone Hub, Rocket or RC Commander and will automatically perform tasks in the <em>service area</em> of their controller."},
 })
 
 PlaceObj('OnScreenHint', {
 	'name', "HintPower",
 	'title', T{79, --[[OnScreenHint HintPower title]] "Power"},
-	'text', T{5537, --[[OnScreenHint HintPower text]] "One of your buildings needs electrical Power produced by <em>Solar Panels</em>, <em>Wind Turbines</em>, or another Power generator. Power consumers must be connected individually to producers with <em>Power Cables</em>.\nNote that Solar Panels work only during <em>daylight hours</em>, so you may want to store the excess energy in a <em>Power Accumulator</em>."},
+	'text', T{5537, --[[OnScreenHint HintPower text]] "One of your buildings needs electrical Power produced by <em>Solar Panels</em>, <em>Wind Turbines</em>, or another Power generator. Power consumers must be connected to producers by being adjacent to them or via <em>Power Cables</em>.\nNote that Solar Panels work only during <em>daylight hours</em>, so you may want to store the excess energy in a <em>Power Accumulator</em>."},
 })
 
 PlaceObj('OnScreenHint', {
@@ -140,7 +140,7 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "HintDroneBatteries",
 	'title', T{5541, --[[OnScreenHint HintDroneBatteries title]] "Drone Batteries"},
-	'text', T{5542, --[[OnScreenHint HintDroneBatteries text]] "The batteries of this Drone are depleted. It can be recharged by other Drones or rescued by an <em>RC Rover</em>.\n\nConsider constructing <em>Recharge Stations</em> where such problems occur to prevent this in the future."},
+	'text', T{5542, --[[OnScreenHint HintDroneBatteries text]] "The batteries of this Drone are depleted. It can be recharged by other Drones or rescued by an <em>RC Commander</em>.\n\nConsider constructing <em>Recharge Stations</em> where such problems occur to prevent this in the future."},
 })
 
 PlaceObj('OnScreenHint', {
@@ -159,13 +159,13 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "HintSuggestDroneHub",
 	'title', T{5548, --[[OnScreenHint HintSuggestDroneHub title]] "Suggested Building: Drone Hub"},
-	'text', T{5549, --[[OnScreenHint HintSuggestDroneHub text]] "The Drone Hub is a stationary command center that can control more Drones than the <em>RC Rover</em>. Consider constructing a Drone Hub in each of your major outposts."},
+	'text', T{5549, --[[OnScreenHint HintSuggestDroneHub text]] "The Drone Hub is a stationary command center that can control more Drones than the <em>RC Commander</em>. Consider constructing a Drone Hub in each of your major outposts."},
 })
 
 PlaceObj('OnScreenHint', {
 	'name', "HintDustStorm",
 	'title', T{4250, --[[OnScreenHint HintDustStorm title]] "Dust Storm"},
-	'text', T{5550, --[[OnScreenHint HintDustStorm text]] "A Dust Storm has started. It will contaminate all your buildings and Drones with dust, potentially causing malfunctions. <em>MOXIEs</em> and <em>Moisture Vaporators</em> will not work during Dust Storms, while <em>Wind Turbines</em> will generate more Power."},
+	'text', T{5550, --[[OnScreenHint HintDustStorm text]] "A Dust Storm has started. It will contaminate all your buildings and Drones with dust, potentially causing malfunctions. <em>Solar Panels</em>, <em>MOXIEs</em> and <em>Moisture Vaporators</em> will not work during Dust Storms, while <em>Wind Turbines</em> will generate more Power."},
 })
 
 PlaceObj('OnScreenHint', {
@@ -305,7 +305,7 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "HintRoverBatteries",
 	'title', T{7027, --[[OnScreenHint HintRoverBatteries title]] "Vehicle Batteries"},
-	'text', T{7028, --[[OnScreenHint HintRoverBatteries text]] "RC Transports are powered by batteries with limited capacity. To recharge them you have connect the vehicle to a Power grid or transfer Power from another vehicle with a charged battery."},
+	'text', T{7028, --[[OnScreenHint HintRoverBatteries text]] "RC Rovers are powered by batteries with limited capacity. To recharge them you have to connect the vehicle to a Power grid or transfer Power from another vehicle with a charged battery."},
 })
 
 PlaceObj('OnScreenHint', {
@@ -348,8 +348,8 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "Tutorial_1_LandRocket_1",
 	'title', T{9029, --[[OnScreenHint Tutorial_1_LandRocket_1 title]] "Select the Rocket "},
-	'text', T{9030, --[[OnScreenHint Tutorial_1_LandRocket_1 text]] "Select the the <em>pinned Rocket</em> icon marked with a green arrow."},
-	'gamepad_text', T{9031, --[[OnScreenHint Tutorial_1_LandRocket_1 gamepad_text]] "Select the the <em>pinned Rocket</em> icon marked with a green arrow by using <RB> followed by <ButtonA>."},
+	'text', T{9030, --[[OnScreenHint Tutorial_1_LandRocket_1 text]] "Select the <em>pinned Rocket</em> icon marked with a green arrow."},
+	'gamepad_text', T{9031, --[[OnScreenHint Tutorial_1_LandRocket_1 gamepad_text]] "Select the <em>pinned Rocket</em> icon marked with a green arrow by using <RB> followed by <ButtonA>."},
 	'tutorial', "Tutorial1",
 	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_LandRocket.tga",
 })
@@ -385,7 +385,7 @@ PlaceObj('OnScreenHint', {
 	'name', "Tutorial_1_SpeedControl",
 	'title', T{9040, --[[OnScreenHint Tutorial_1_SpeedControl title]] "Game Speed Controls"},
 	'text', T{9041, --[[OnScreenHint Tutorial_1_SpeedControl text]] "Use the controls on the HUD or the following shortcuts to control the game speed:\n\n<em><ShortcutName('actionPauseGame')></em> - pause/unpause\n<em><ShortcutName('actionSpeedUp')> key</em> - increase game speed\n<em><ShortcutName('actionSpeedDown')> key</em> - decrease game speed\n\nNow, accelerate the game speed so the Drones gather the required Metals faster."},
-	'gamepad_text', T{9827, --[[OnScreenHint Tutorial_1_SpeedControl gamepad_text]] "Use the following to control the game speed:\n\n<DPadDown>/<DPadUp> - pause/unpause\n<DPadRight> - increase game speed\n<DPadLeft> -  decrease game speed\n\nNow, accelerate the game speed so the Drones gather the required Metals faster."},
+	'gamepad_text', T{9826, --[[OnScreenHint Tutorial_1_SpeedControl gamepad_text]] "Use the following to control the game speed:\n\n<DPadDown>/<DPadUp> - pause/unpause\n<DPadRight> - increase game speed\n<DPadLeft> -  decrease game speed\n\nNow, accelerate the game speed so the Drones gather the required Metals faster."},
 	'tutorial', "Tutorial1",
 })
 
@@ -455,8 +455,8 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "Tutorial_1_DroneHub",
 	'title', T{3518, --[[OnScreenHint Tutorial_1_DroneHub title]] "Drone Hub"},
-	'text', T{9058, --[[OnScreenHint Tutorial_1_DroneHub text]] "Build a <em>Drone Hub</em> near your Rocket and connect it to the power grid using a <em>Power Cable</em>."},
-	'gamepad_text', T{9059, --[[OnScreenHint Tutorial_1_DroneHub gamepad_text]] "From the Build Menu <ButtonY> build a <em>Drone Hub</em> near your Rocket and connect it to the power grid using a <em>Power Cable</em>."},
+	'text', T{9058, --[[OnScreenHint Tutorial_1_DroneHub text]] "Build a <em>Drone Hub</em> near your Rocket and connect it to the power grid."},
+	'gamepad_text', T{9059, --[[OnScreenHint Tutorial_1_DroneHub gamepad_text]] "From the Build Menu <ButtonY> build a <em>Drone Hub</em> near your Rocket and connect it to the power grid."},
 	'tutorial', "Tutorial1",
 	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_DronesAndDroneHubs.tga",
 })
@@ -464,8 +464,8 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "Tutorial_1_RechargeStation",
 	'title', T{5229, --[[OnScreenHint Tutorial_1_RechargeStation title]] "Recharge Station"},
-	'text', T{9060, --[[OnScreenHint Tutorial_1_RechargeStation text]] "Build a <em>Recharge Station</em> near the Concrete Extractor and connect it to the power grid using a <em>Power Cable</em>."},
-	'gamepad_text', T{9061, --[[OnScreenHint Tutorial_1_RechargeStation gamepad_text]] "From the Build Menu <ButtonY> build a <em>Recharge Station</em> near the Concrete Extractor and connect it to the power grid using a <em>Power Cable</em>."},
+	'text', T{9060, --[[OnScreenHint Tutorial_1_RechargeStation text]] "Build a <em>Recharge Station</em> near the Concrete Extractor and connect it to the power grid."},
+	'gamepad_text', T{9061, --[[OnScreenHint Tutorial_1_RechargeStation gamepad_text]] "From the Build Menu <ButtonY> build a <em>Recharge Station</em> near the Concrete Extractor and connect it to the power grid. "},
 	'tutorial', "Tutorial1",
 	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_DronesRecharge.tga",
 })
@@ -473,8 +473,8 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "Tutorial_1_RefuelingRocket",
 	'title', T{9062, --[[OnScreenHint Tutorial_1_RefuelingRocket title]] "Fuel Manufacturing"},
-	'text', T{9063, --[[OnScreenHint Tutorial_1_RefuelingRocket text]] "Build a <em>Moisture Vaporator</em> and a <em>Fuel Refinery</em>. Connect both of them to the existing power grid using a Power Cable.\n\nRemember, each building needs to be individually connected with a Cable. Adjacent buildings do not transfer Power automatically."},
-	'gamepad_text', T{9064, --[[OnScreenHint Tutorial_1_RefuelingRocket gamepad_text]] "From the Build Menu <ButtonY>, build a <em>Moisture Vaporator</em>  and a <em>Fuel Refinery</em>. Connect both of them to the existing power grid using a Power Cable.\n\nRemember, each building needs to be individually connected with a Cable. Adjacent buildings do not transfer Power automatically."},
+	'text', T{9063, --[[OnScreenHint Tutorial_1_RefuelingRocket text]] "Build a <em>Moisture Vaporator</em> and a <em>Fuel Refinery</em>. Connect both of them to the existing power grid.\n\nAdjacent power producers and consumers transfer power automatically."},
+	'gamepad_text', T{9064, --[[OnScreenHint Tutorial_1_RefuelingRocket gamepad_text]] "From the Build Menu <ButtonY>, build a <em>Moisture Vaporator</em>  and a <em>Fuel Refinery</em>. Connect both of them to the existing power grid.\n\nAdjacent power producers and consumers transfer power automatically."},
 	'tutorial', "Tutorial1",
 	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_RefuelingRocket.tga",
 })
@@ -500,8 +500,8 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "Tutorial_1_Fuel",
 	'title', T{4765, --[[OnScreenHint Tutorial_1_Fuel title]] "Fuel"},
-	'text', T{9070, --[[OnScreenHint Tutorial_1_Fuel text]] "Wait for the Fuel Factory to produce <em>Fuel</em> and the Drones to load it to the Rocket.\n\nYou can select the Rocket and check out how much much Fuel has already been delivered in its Info Panel to the right."},
-	'gamepad_text', T{9071, --[[OnScreenHint Tutorial_1_Fuel gamepad_text]] "Wait for the Fuel Factory to produce <em>Fuel</em> and the Drones to load it to the Rocket\n\nYou may select the Rocket with <ButtonA> and check out how much much Fuel has already been delivered in its Info Panel to the right."},
+	'text', T{9070, --[[OnScreenHint Tutorial_1_Fuel text]] "Wait for the Fuel Factory to produce <em>Fuel</em> and the Drones to load it to the Rocket.\n\nYou can select the Rocket and check out how much Fuel has already been delivered in its Info Panel to the right."},
+	'gamepad_text', T{9071, --[[OnScreenHint Tutorial_1_Fuel gamepad_text]] "Wait for the Fuel Factory to produce <em>Fuel</em> and the Drones to load it to the Rocket\n\nYou may select the Rocket with <ButtonA> and check out how much Fuel has already been delivered in its Info Panel to the right."},
 	'tutorial', "Tutorial1",
 	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_Fuel.tga",
 })
@@ -607,9 +607,9 @@ PlaceObj('OnScreenHint', {
 
 PlaceObj('OnScreenHint', {
 	'name', "Tutorial_2_MoveRCRover",
-	'title', T{1682, --[[OnScreenHint Tutorial_2_MoveRCRover title]] "RC Rover"},
-	'text', T{9103, --[[OnScreenHint Tutorial_2_MoveRCRover text]] "Select the <em>RC Rover</em> and move it close to the designated area for the expand.\n\nMake sure that the RC Rover Drones can reach the resources you already transported there beforehand."},
-	'gamepad_text', T{9104, --[[OnScreenHint Tutorial_2_MoveRCRover gamepad_text]] "Select the <em>RC Rover</em> with <ButtonA> and move it close to the designated area for the expand.\n\nMake sure that the RC Rover Drones can reach the resources you already transported there beforehand."},
+	'title', T{1682, --[[OnScreenHint Tutorial_2_MoveRCRover title]] "RC Commander"},
+	'text', T{9103, --[[OnScreenHint Tutorial_2_MoveRCRover text]] "Select the <em>RC Commander</em> and move it close to the designated area for the expand.\n\nMake sure that the RC Commander Drones can reach the resources you already transported there beforehand."},
+	'gamepad_text', T{9104, --[[OnScreenHint Tutorial_2_MoveRCRover gamepad_text]] "Select the <em>RC Commander</em> with <ButtonA> and move it close to the designated area for the expand.\n\nMake sure that the RC Commander Drones can reach the resources you already transported there beforehand."},
 	'tutorial', "Tutorial2",
 	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_RCRover.tga",
 })
@@ -617,8 +617,8 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "Tutorial_2_SensorTower",
 	'title', T{5257, --[[OnScreenHint Tutorial_2_SensorTower title]] "Sensor Tower"},
-	'text', T{9105, --[[OnScreenHint Tutorial_2_SensorTower text]] "Construct a <em>Sensor Tower</em> and a <em>Stirling Generator</em> and make sure that they are connected with Power Cables."},
-	'gamepad_text', T{9106, --[[OnScreenHint Tutorial_2_SensorTower gamepad_text]] "From the Build Menu <ButtonY> construct a <em>Sensor Tower</em> and a <em>Stirling Generator</em> and make sure that they are connected with Power Cables."},
+	'text', T{9105, --[[OnScreenHint Tutorial_2_SensorTower text]] "Construct a <em>Sensor Tower</em> and a <em>Stirling Generator</em> and make sure that they are connected."},
+	'gamepad_text', T{9106, --[[OnScreenHint Tutorial_2_SensorTower gamepad_text]] "From the Build Menu <ButtonY> construct a <em>Sensor Tower</em> and a <em>Stirling Generator</em> and make sure that they are connected."},
 	'tutorial', "Tutorial2",
 	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_SensorTower.tga",
 })
@@ -671,6 +671,7 @@ PlaceObj('OnScreenHint', {
 
 PlaceObj('OnScreenHint', {
 	'name', "Tutorial_2_ExplorerOnTheWay",
+	'title', T{1684, --[[OnScreenHint Tutorial_2_ExplorerOnTheWay title]] "RC Explorer"},
 	'voiced_text', T{9752, --[[voice:narrator]] "Good Job!"},
 	'text', T{9754, --[[OnScreenHint Tutorial_2_ExplorerOnTheWay text]] "The <em>RC Explorer</em> is on its way to the anomaly. Wait for it to analyze the anomaly to continue."},
 	'tutorial', "Tutorial2",
@@ -916,7 +917,7 @@ PlaceObj('OnScreenHint', {
 	'name', "Tutorial_4_Shifts",
 	'title', T{217, --[[OnScreenHint Tutorial_4_Shifts title]] "Work Shifts"},
 	'text', T{9182, --[[OnScreenHint Tutorial_4_Shifts text]] "Activate the <em>Second Shift</em> for the Research Lab."},
-	'gamepad_text', T{9183, --[[OnScreenHint Tutorial_4_Shifts gamepad_text]] "Activate the <em>Second Shift</em> for the Research Lab.\n\nFocus the Info Panel first with <RT> first."},
+	'gamepad_text', T{9183, --[[OnScreenHint Tutorial_4_Shifts gamepad_text]] "Activate the <em>Second Shift</em> for the Research Lab.\n\nFocus the Info Panel with <RT> first."},
 	'tutorial', "Tutorial4",
 	'encyclopedia_image', "UI/Messages/emergency.tga",
 })
@@ -950,8 +951,8 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "Tutorial_5_ShuttleHub",
 	'title', T{3526, --[[OnScreenHint Tutorial_5_ShuttleHub title]] "Shuttle Hub"},
-	'text', T{9190, --[[OnScreenHint Tutorial_5_ShuttleHub text]] "Construct a <em>Shuttle Hub</em> and connect it to the Power grid with a Power Cable."},
-	'gamepad_text', T{9191, --[[OnScreenHint Tutorial_5_ShuttleHub gamepad_text]] "From the Build Menu <ButtonY>, construct a Shuttle Hub and connect it to the Power grid with a Power Cable."},
+	'text', T{9190, --[[OnScreenHint Tutorial_5_ShuttleHub text]] "Construct a <em>Shuttle Hub</em> and connect it to the Power grid."},
+	'gamepad_text', T{9191, --[[OnScreenHint Tutorial_5_ShuttleHub gamepad_text]] "From the Build Menu <ButtonY>, construct a Shuttle Hub and connect it to the Power grid."},
 	'tutorial', "Tutorial5",
 	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup2_Shuttles.tga",
 })
@@ -959,8 +960,8 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "Tutorial_5_RareMetalsExtractor",
 	'title', T{3530, --[[OnScreenHint Tutorial_5_RareMetalsExtractor title]] "Rare Metals Extractor"},
-	'text', T{9192, --[[OnScreenHint Tutorial_5_RareMetalsExtractor text]] "Construct a <em>Rare Metals Extractor</em> and connect it to the Power grid using a Power Cable."},
-	'gamepad_text', T{9193, --[[OnScreenHint Tutorial_5_RareMetalsExtractor gamepad_text]] "From the Build Menu <ButtonY>, construct a <em>Rare Metals Extractor</em> and connect it to the Power grid using a Power Cable."},
+	'text', T{9192, --[[OnScreenHint Tutorial_5_RareMetalsExtractor text]] "Construct a <em>Rare Metals Extractor</em> and connect it to the Power grid."},
+	'gamepad_text', T{9193, --[[OnScreenHint Tutorial_5_RareMetalsExtractor gamepad_text]] "From the Build Menu <ButtonY>, construct a <em>Rare Metals Extractor</em> and connect it to the Power grid."},
 	'tutorial', "Tutorial5",
 	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup3_Mining.tga",
 })
@@ -1046,8 +1047,16 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "Tutorial_5_ResearchUpgrade",
 	'title', T{9214, --[[OnScreenHint Tutorial_5_ResearchUpgrade title]] "Research Upgrade"},
-	'text', T{9215, --[[OnScreenHint Tutorial_5_ResearchUpgrade text]] "From the Research screen, select the <em>Extractor Amplification</em> research and wait until it completes."},
-	'gamepad_text', T{9216, --[[OnScreenHint Tutorial_5_ResearchUpgrade gamepad_text]] "Open the Research screen by using <LT>, then select the <em>Extractor Amplification</em> research and wait until it completes."},
+	'text', T{9215, --[[OnScreenHint Tutorial_5_ResearchUpgrade text]] "From the Research screen, select the <em>Extractor Amplification</em> research."},
+	'gamepad_text', T{9216, --[[OnScreenHint Tutorial_5_ResearchUpgrade gamepad_text]] "Open the Research screen by using <LT>, then select the <em>Extractor Amplification</em> research."},
+	'tutorial', "Tutorial5",
+	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup11_Upgrades.tga",
+})
+
+PlaceObj('OnScreenHint', {
+	'name', "Tutorial_5_ResearchUpgrade_1",
+	'title', T{9214, --[[OnScreenHint Tutorial_5_ResearchUpgrade_1 title]] "Research Upgrade"},
+	'text', T{10282, --[[OnScreenHint Tutorial_5_ResearchUpgrade_1 text]] "Wait for the Extractor Amplification research to complete."},
 	'tutorial', "Tutorial5",
 	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup11_Upgrades.tga",
 })

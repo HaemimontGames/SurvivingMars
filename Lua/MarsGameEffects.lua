@@ -51,13 +51,14 @@ DefineClass.Effect_Funding = {
 	__parents = { "Tech_Effect" },
 	properties = {
 		{ category = "General", id = "Funding", name = "Funding (M)", editor = "number", default = 0 },
+		{ category = "General", id = "Reason", name = "Reason", editor = "combo", default = "", items = function() return FundingSourceCombo() end },
 	},
 	EditorName = "Funding",
 	Description = T{8782, "<Funding>"},
 }
 
 function Effect_Funding:OnApplyEffect(city)
-	city:ChangeFunding(self.Funding * 1000000)
+	city:ChangeFunding(self.Funding * 1000000, self.Reason)
 end
 
 
@@ -257,7 +258,11 @@ DefineClass.Effect_UnlockResupplyItem = {
 function Effect_UnlockResupplyItem:OnApplyEffect(city, parent)
 	local def = RocketPayload_GetMeta(self.Item)
 	if def then
-		def.locked = false
+		if type(def.verifier) == "function" then
+			def.locked = not def.verifier(def, GetMissionSponsor().id)
+		else
+			def.locked = false
+		end
 	end
 end
 
@@ -328,11 +333,9 @@ function Effect_ModifyConstructionCost:OnApplyEffect(city, parent)
 	else
 		--if modifying a whole category, first gather all building inside it
 		local buildings = {}
-		local templates = DataInstances.BuildingTemplate or ""
-		for i = 1, #templates do
-			local template = templates[i]
+		for id, template in pairs(BuildingTemplates or "") do
 			if template.build_category == category then
-				buildings[#buildings + 1] = template.name
+				buildings[#buildings + 1] = id
 			end
 		end
 		

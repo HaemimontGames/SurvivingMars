@@ -48,7 +48,7 @@ function XVerticalScroller:Init()
 	XAction:new({
 		ActionId = "actionScrollAreaDown",
 		ActionGamepad = "RightThumbDown",
-		OnAction = function(action, host, win, toggled)
+		OnAction = function(action, host, win)
 			if self:GetVisible() then
 				local target = self:ResolveId(self.Target)
 				return target:OnMouseWheelBack()
@@ -58,7 +58,7 @@ function XVerticalScroller:Init()
 	XAction:new({
 		ActionId = "actionScrollAreaUp",
 		ActionGamepad = "RightThumbUp",
-		OnAction = function(action, host, win, toggled)
+		OnAction = function(action, host, win)
 			if self:GetVisible() then
 				local target = self:ResolveId(self.Target)
 				return target:OnMouseWheelForward()

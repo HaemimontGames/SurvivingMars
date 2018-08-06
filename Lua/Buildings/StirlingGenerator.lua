@@ -3,7 +3,6 @@ DefineClass.StirlingGenerator = {
 	properties = {
 		{ template = true, id = "production_factor_interacted",     name = Untranslated("Interacted Production Coef %"),     category = "Power Production", editor = "number", default = 100, modifiable = true },
 		{ template = true, id = "production_factor_not_interacted", name = Untranslated("Not Interacted Production Coef %"), category = "Power Production", editor = "number", default = 100, modifiable = true },
-		{ template = true, id = "daily_dust_accumulation",          name = Untranslated("Daily dust accumulation when opened"), category = "Power Production", editor = "number", default =  10000 },
 		{ template = true, id = "RedundantCoolantSysChance",        name = Untranslated("Redundant Coolant Sys Chance"),        category = "Gameplay",         editor = "number", default = 90, modifiable = true },
 	},
 	time_opened_start = false,
@@ -12,23 +11,23 @@ DefineClass.StirlingGenerator = {
 }
 
 function StirlingGenerator:GameInit()
-	self.accumulate_dust = self:IsOpened() and not IsObjInDome(self)
-	self:SetAccumulateMaintenancePoints(self:IsOpened())
+	self:OnChangeState(true)
 end
 
 function StirlingGenerator:BuildingUpdate(dt, day, hour)
-	self:AccumulateDust()
+	if self.opened and not self:CanBeOpened() then
+		self:SetOpenState(false)
+	end
 end
 
 function StirlingGenerator:OnChangeState(skip_anim)
 	if self:IsOpened() then
 		self:SetBase("electricity_production", self:GetClassValue("electricity_production") * self.production_factor_interacted / 100)
 	else
-		self:SetBase("electricity_production",self:GetClassValue("electricity_production")* self.production_factor_not_interacted / 100)
+		self:SetBase("electricity_production",self:GetClassValue("electricity_production") * self.production_factor_not_interacted / 100)
 	end
 	self.accumulate_dust = self:IsOpened() and not IsObjInDome(self)
-	self:SetAccumulateMaintenancePoints(self:IsOpened())
-	self:AccumulateDust()
+	self.accumulate_maintenance_points = self:IsOpened()
 	if not skip_anim then
 		self:UpdateAnim()
 	end
@@ -37,14 +36,6 @@ end
 
 function StirlingGenerator:OnUpgradeToggled(...)
 	self:OnChangeState(true)
-end
-
-function StirlingGenerator:AccumulateDust()
-	if self.time_opened_start then 
-		local delta = GameTime() - self.time_opened_start
-		self:AddDust(MulDivTrunc(self.daily_dust_accumulation, delta, const.DayDuration))
-	end
-	self.time_opened_start = self:IsOpened() and GameTime() or false
 end
 
 function StirlingGenerator:IsOpened()
@@ -71,6 +62,14 @@ function StirlingGenerator:UpdateAnim()
 		if opened then
 			self:SetIsNightLightPossible(true)
 		end
+		local t = self:TimeToMoment(1, "Hit")
+		if t == 0 then
+			t = self:TimeToMoment(1, "Hit", 2)
+		end
+		if t then
+			Sleep(t)
+		end
+		PlayFX("StirlingGenerator", "hit-moment", self)
 		Sleep(self:TimeToAnimEnd())
 		if opened then
 			self:SetAnim(1, "idleOpened")
@@ -84,21 +83,33 @@ function StirlingGenerator:UpdateAnim()
 	end)
 end
 
+function StirlingGenerator:CanBeOpened()
+	return true--not g_DustStorm or IsObjInDome(self)
+end
+
+function StirlingGenerator:SetOpenState(opened)
+	if self:RepairNeeded() then
+		return
+	end
+	if opened and not self:CanBeOpened() then
+		return
+	end
+	if self.opened == (opened or false) then
+		return
+	end
+	self.opened = opened
+	self:OnChangeState()
+end
+
 function StirlingGenerator:ToggleOpenedState(broadcast)
 	local opened = not self.opened
-	
 	if broadcast then
-		local list = self.city.labels.StirlingGenerator or empty_table
+		local list = self.city.labels[self.class] or empty_table
 		for i, obj in ipairs(list) do
-			if not obj:RepairNeeded() and obj.opened ~= opened then
-				obj.opened = opened
-				obj:OnChangeState()
-			end
+			obj:SetOpenState(opened)
 		end		
 	else
-		if self:RepairNeeded() then return end --eat the ev when building is broken
-		self.opened = opened
-		self:OnChangeState()
+		self:SetOpenState(opened)
 	end
 	RebuildInfopanel(self)
 end

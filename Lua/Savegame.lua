@@ -134,15 +134,27 @@ end
 function OnMsg.DoneMap()
 	l_LoadGameMeta = false
 end
+GlobalVar("SavegameBroken", false)
 
 local function LoadCallback(folder)
+	local broken = false
 	local err, metadata = LoadMetadata(folder)
 	if not err then
 		if metadata.dlcs then
 			for _, dlc in ipairs(metadata.dlcs) do
 				if not IsDlcAvailable(dlc.id) then
-					WaitMarsMessage(GetLoadingScreenDialog() or terminal.desktop, T{6851, "Warning"}, T{8081, "The game can not be loaded because some required downloadable content is not installed."}, T{1000136, "OK"})
-					return "missing dlc"
+					if Platform.developer then
+						if WaitMarsQuestion(GetLoadingScreenDialog() or terminal.desktop, 
+							T{6851, "Warning"}, T{8081, "The game can not be loaded because some required downloadable content is not installed."},
+							T{3686, "Load anyway"},
+							T{3687, "Cancel"}) == "cancel" then
+							return "user cancelled"
+						end
+						broken = true
+					else
+						WaitMarsMessage(GetLoadingScreenDialog() or terminal.desktop, T{6851, "Warning"}, T{8081, "The game can not be loaded because some required downloadable content is not installed."}, T{1000136, "OK"})
+						return "missing dlc"
+					end
 				end
 			end
 		end
@@ -153,6 +165,7 @@ local function LoadCallback(folder)
 				T{3687, "Cancel"}) == "cancel" then
 				return "user cancelled"
 			end
+			broken = true
 		end
 		local mods_list, more = GetMissingMods(metadata.active_mods, 3)
 		if #mods_list > 0 then
@@ -166,6 +179,7 @@ local function LoadCallback(folder)
 				T{3687, "Cancel"}) == "cancel" then
 				return "user cancelled"
 			end
+			broken = true
 		end
 		local sponsor = metadata.mission_sponsor_id and Presets.MissionSponsorPreset.Default[metadata.mission_sponsor_id]
 		if sponsor then
@@ -185,6 +199,10 @@ local function LoadCallback(folder)
 		CurrentMap = "loaded game"
 	end
 	l_LoadGameMeta = metadata
+	if not broken and SavegameBroken then
+		WaitMarsMessage(GetLoadingScreenDialog() or terminal.desktop, T{6851, "Warning"}, T{"This savegame was loaded in the past without required mods or with an incompatible game version. It may not function properly."}, T{1000136, "OK"})
+	end
+	SavegameBroken = SavegameBroken or broken
 end
 
 function OnMsg.BugReportStart(print_func)
@@ -235,11 +253,17 @@ function CanSaveGame()
 end
 
 local function SetNextAutosaveSol()
-	g_NextAutosaveSol = UICity.day + const.AutosavePeriod
+	g_NextAutosaveSol = UICity.day + AccountStorage.Options.AutosaveInterval
+end
+
+function OnMsg.GameOptionsChanged(category)
+	if GameState.gameplay and category == "Gameplay" and g_NextAutosaveSol > UICity.day + AccountStorage.Options.AutosaveInterval then
+		SetNextAutosaveSol()
+	end
 end
 
 function Autosave()
-	if Platform.demo or GameState.multiplayer or not AccountStorage.Options.Autosave or g_Tutorial then
+	if Platform.demo or GameState.multiplayer or not AccountStorage.Options.Autosave or g_Tutorial or Platform.pgo_train then
 		SetNextAutosaveSol()
 		return
 	end
@@ -289,7 +313,7 @@ function Autosave()
 	
 	-- 3. Leave only the last two savegames (i.e. only the last one in the list)
 	--		no error handler, since this is not a user-initiated action, and we've done our main job already
-	for i=2, #autosaves do
+	for i=AccountStorage.Options.AutosaveCount, #autosaves do
 		DeleteGame(autosaves[i])
 	end
 	

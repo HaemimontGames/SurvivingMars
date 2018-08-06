@@ -12,8 +12,8 @@ function GetLandingRocket(site)
 	end
 end
 
-function SelectionModeDialog:OnKbdKeyDown(char, virtual_key)
-	local result = UnitDirectionModeDialog.OnKbdKeyDown(self, char, virtual_key)
+function SelectionModeDialog:OnKbdKeyDown(virtual_key)
+	local result = UnitDirectionModeDialog.OnKbdKeyDown(self, virtual_key)
 	if result == "continue" then
 		if virtual_key == const.vkEsc and IsValid(SelectedObj) then
 			SelectObj()
@@ -73,7 +73,7 @@ function SelectionModeDialog:OnMouseButtonDown(pt, button)
 				HintTrigger("HintVehicleOrders")
 			end
 			if g_RightClickOpensBuildMenu then
-				local dlg = GetXDialog("XBuildMenu")
+				local dlg = GetDialog("XBuildMenu")
 				if dlg then
 					dlg:SelectParentCategory()
 				else

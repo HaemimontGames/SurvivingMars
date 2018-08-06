@@ -40,7 +40,6 @@ DefineClass.StorageDepot = {
 	landing_spot_name = "Workshuttle",
 	prio_button = false,
 	on_off_button = false,
-	min_threshold_amount = 0,
 	
 	OnCommandCenterWorkingChanged = Building.OnCommandCenterWorkingChanged,
 	OnAddedByControl = Building.OnAddedByControl,
@@ -68,8 +67,9 @@ function StorageDepot:CreateResourceRequests()
 	for _, resource_name in ipairs(AllResourcesList) do
 		local max_name = "max_amount_"..resource_name
 		if self:HasMember(max_name) then
-			local demand = self:AddDemandRequest(resource_name, self[max_name], const.rfStorageDepot)
-			local supply = self:AddSupplyRequest(resource_name, 0, const.rfStorageDepot + const.rfPairWithHigher)
+			local max = self[max_name]
+			local demand = self:AddDemandRequest(resource_name, max, const.rfStorageDepot, nil, max - self.desired_amount)
+			local supply = self:AddSupplyRequest(resource_name, 0, const.rfStorageDepot)
 			self.demand[resource_name] = demand
 			self.supply[resource_name] = supply
 		
@@ -79,6 +79,39 @@ function StorageDepot:CreateResourceRequests()
 			self["GetMaxAmount_"..resource_name]= function(self)
 				return self[max_name]
 			end
+		end
+	end
+end
+
+function StorageDepot:GetFillIndex(resource)
+	resource = resource or self.resource[1]
+	local r = self.supply[resource] or self.demand[resource]
+	if r then
+		return r:GetFillIndex()
+	end
+	return const.FillIndexMultiplier
+end
+
+function StorageDepot:SetDesiredAmount(amount)
+	if amount == self.desired_amount then return end
+	local max = self:GetMaxStorageForAnyOneResource()
+	amount = Clamp(amount, 0, max)
+	self.desired_amount = amount
+	local req_desire = max - amount
+	local supply = self.supply
+	for res, req in pairs(self.demand) do
+		req:SetDesiredAmount(req_desire)
+		if supply[res] then
+			supply[res]:SetDesiredAmount(amount)
+		end
+	end
+end
+
+function StorageDepot:PairRequests()
+	local supply = self.supply
+	for res, req in pairs(self.demand) do
+		if supply[res] then
+			req:SetReciprocalRequest(supply[res])
 		end
 	end
 end
@@ -186,6 +219,22 @@ function StorageDepot:GetTargetEmptyStorage(resource)
 	return request and request:GetTargetAmount() or 0
 end
 
+function StorageDepot:GetMaxStorageForAnyOneResource()
+	return self:GetMaxStorage(type(self.resource) == "table" and self.resource[1] or self.resource)
+end
+
+function StorageDepot:GetMaxStorage(resource)
+	if resource then
+		return self["GetMaxAmount_"..resource](self)
+	else
+		local t = 0
+		for res, req in pairs(self.demand) do
+			t = t + self["GetMaxAmount_"..res](self)
+		end
+		return t
+	end
+end
+
 function StorageDepot:Getui_Concrete() return T{766, "Concrete<right><concrete(Stored_Concrete,MaxAmount_Concrete)>", self} end
 function StorageDepot:Getui_Metals() return T{767, "Metals<right><metals(Stored_Metals,MaxAmount_Metals)>", self} end
 function StorageDepot:Getui_Polymers() return T{768, "Polymers<right><polymers(Stored_Polymers,MaxAmount_Polymers)>", self} end
@@ -208,6 +257,9 @@ DefineClass.UniversalStorageDepot = {
 		
 		{ id = "StoredAmount", editor = false },
 		{ id = "stockpiled_amount", editor = "number", default = false, no_edit = true },
+		--default vals are for 180 cap depots, 30 depot is in bld template
+		{ template = true, id = "desire_slider_max", name = T{10369, "Desire Slider Max"}, category = "Storage Space", default = 36, editor = "number"},
+		{ template = true, id = "desired_amount", name = T{10370, "Desire Amount"}, category = "Storage Space", default = 0*const.ResourceScale, editor = "number", scale = const.ResourceScale},
 	},
 	
 	visual_cubes = false, --helper, to distinguish cube resource types
@@ -223,6 +275,13 @@ DefineClass.UniversalStorageDepot = {
 	interest2 = false,
 	interest3 = false,
 	interest4 = false,
+	interest5 = false,
+	interest6 = false,
+	interest7 = false,
+	interest8 = false,
+	interest9 = false,
+	interest10 = false,
+	interest11 = false,
 	
 	placed_cubes = false,
 	counters = false,
@@ -289,15 +348,14 @@ function UniversalStorageDepot:CreateResourceRequests()
 		local resource_name = storable_resources[i]
 		
 		local amount = (self.stockpiled_amount[resource_name] or 0)
-		local supply = self:AddSupplyRequest(resource_name, amount, bor(self.supply_r_flags, self.additional_supply_flags))
-		local demand = self:AddDemandRequest(resource_name, self.max_storage_per_resource - amount, self.demand_r_flags + self.additional_demand_flags)
+		local supply = self:AddSupplyRequest(resource_name, amount, bor(self.supply_r_flags, self.additional_supply_flags), nil, self.desired_amount)
+		local demand = self:AddDemandRequest(resource_name, self.max_storage_per_resource - amount, self.demand_r_flags + self.additional_demand_flags, nil, self.max_storage_per_resource - self.desired_amount)
 		self.supply[resource_name] = supply
 		self.demand[resource_name] = demand
+		supply:SetReciprocalRequest(demand)
 		self.auto_transportation_states[resource_name] = ResourceStates[1]
 		self.visual_cubes[resource_name] = {} --use name as key, in case we need the arr part of the table for something clever
 		total_stored = total_stored + amount
-		
-		
 		self["GetStored_"..resource_name]=  function(self)
 			return self.supply[resource_name]:GetActualAmount()
 		end
@@ -387,22 +445,40 @@ function UniversalStorageDepot:IsResourceEnabled(res_id)
 	return table.find(self.task_requests, req)
 end
 
-function UniversalStorageDepot:ToggleAcceptResource(res_id)
-	if not IsValid(self) then return end
+function UniversalStorageDepot:ToggleAcceptResource(res_id, broadcast)
+	if broadcast then
+		local depos = MapGet("map", "UniversalStorageDepot", function(obj)	return table.iequals(obj.resource, self.resource)	end) 
+		local is_storing = self:IsStoring(res_id)
+		for _, storage in ipairs(depos or empty_table) do
+			storage:SetAcceptResource(res_id, false, not is_storing)
+		end
+	else
+		self:SetAcceptResource(res_id, true)
+	end
+end
+
+function UniversalStorageDepot:IsStoring(res_id)
+	local resource = self.resource
+	local req = self.demand[res_id]
+	return table.find(self.task_requests, req) and true or false
+end
+
+function UniversalStorageDepot:SetAcceptResource(res_id, toggle, to_store)
 	local req = self.demand[res_id]
 	local s_req = self.supply[res_id]
 	assert(req)
+	local is_storing = self:IsStoring(res_id)
 	local task_requests = self.task_requests
 	if not self.exclude_from_lr_transportation then
 		LRManagerInstance:RemoveBuilding(self)
 	end
-	if table.find(task_requests, req) then
+	if is_storing and (toggle or not to_store) then
 		self:InterruptDrones(nil,function(drone) return drone.d_request==req and drone end)
 		self:DisconnectFromCommandCenters()
 		table.remove_entry(self.task_requests, req)
 		s_req:AddFlags(const.rfPostInQueue)
 		s_req:ClearFlags(const.rfStorageDepot)
-	else
+	elseif not is_storing and (toggle or to_store) then
 		self:DisconnectFromCommandCenters()
 		table.insert(self.task_requests, req)
 		s_req:ClearFlags(const.rfPostInQueue)
@@ -412,20 +488,6 @@ function UniversalStorageDepot:ToggleAcceptResource(res_id)
 		LRManagerInstance:AddBuilding(self)
 	end	
 	self:ConnectToCommandCenters()
-end
-
-function UniversalStorageDepot:GetIPTextColor(res_id)
-	return self:IsResourceEnabled(res_id) and RGBA(233, 242, 255, 255) or RGBA(255, 69, 38, 255)
-end
-
-function OpenBaseResourcesSelector(context, idx, ctrl)
-	context.resources_type = "base"
-	OpenInfopanelItems(context, ctrl)
-end
-
-function OpenAdvancedResourcesSelector(context, idx, ctrl)
-	context.resources_type = "advance"
-	OpenInfopanelItems(context, ctrl)
 end
 
 function UniversalStorageDepot:CheatFill()
@@ -460,7 +522,7 @@ function UniversalStorageDepot:ClearAllResources()
 	for i = 1, resource_count do
 		local resource_name = storable_resources[i]
 		
-		if self.supply[resource_name] then
+		if self.supply and self.supply[resource_name] then
 			self.supply[resource_name]:SetAmount(0)
 			self.demand[resource_name]:SetAmount(self.max_storage_per_resource)
 			self.stockpiled_amount[resource_name] = 0
@@ -494,7 +556,7 @@ function UniversalStorageDepot:TestReqConsistency()
 end
 
 function dbg_TestMapDepots()
-	ForEach{class = "UniversalStorageDepot", area = "realm", exec = function(o) o:TestReqConsistency() end, }
+	MapForEach(true, "UniversalStorageDepot", function(o) o:TestReqConsistency() end)
 end
 
 DefineClass.MysteryDepot = {
@@ -537,6 +599,9 @@ DefineClass.MechanizedDepot = {
 	properties = {
 		{ template = true, name = T{776, "Storable Resources"}, category = "Storage Space", id = "storable_resources", editor = "table", default = {"Concrete",  "Food", "Metals", "PreciousMetals","Polymers","Electronics", "MachineParts", "Fuel"}, help = "The type of resources this depot can store."},
 		{ template = true, name = T{774, "Max Storage Per Resource"},  category = "Storage Space", id = "max_storage_per_resource",  editor = "number", default = 30000, scale = const.ResourceScale },
+		
+		{ template = true, id = "desire_slider_max", name = T{10369, "Desire Slider Max"}, category = "Storage Space", default = 40, editor = "number"},
+		{ template = true, id = "desired_amount", name = T{10370, "Desire Amount"}, category = "Storage Space", default = 0 * const.ResourceScale, editor = "number", scale = const.ResourceScale},
 	},
 	
 	stock_lanes = false,
@@ -557,7 +622,6 @@ DefineClass.MechanizedDepot = {
 		additional_demand_flags = const.rfStorageDepot + const.rfMechanizedStorage,
 		has_supply_request = true,
 		has_demand_request = true,
-		min_threshold_amount = 0,
 		max_x = 5, max_y = 2, max_z = 5,
 	},
 	
@@ -589,8 +653,40 @@ DefineClass.MechanizedDepot = {
 	func_after_anim_end = false,
 	
 	is_unloading = false,
-	GetIPTextColor = UniversalStorageDepot.GetIPTextColor,
 }
+
+function MechanizedDepot:GetFillIndex(resource)
+	local r = self.stockpiles[1].supply_request or self.stockpiles[1].demand_request
+	if r then
+		return r:GetFillIndex()
+	end
+	return const.FillIndexMultipler
+end
+
+function MechanizedDepot:SetDesiredAmount(amount)
+	--amount is 0 - 4k
+	if amount == self.desired_amount then return end
+	local max = self:GetMaxStorageForAnyOneResource()
+	amount = Clamp(amount, 0, max)
+	self.desired_amount = amount
+	self:UpdateStockpileDesire()
+end
+
+function MechanizedDepot:UpdateStockpileDesire()
+	local s = self.stockpiles[1]
+	local smax = s.supply_request:GetActualAmount() + s.demand_request:GetActualAmount()
+	local sd = self.desired_amount + s.supply_request:GetTargetAmount() - self:GetStoredAmount()
+	sd = Clamp(sd, 0, smax)
+	local req_desire = smax - sd
+	s.supply_request:SetDesiredAmount(sd)
+	s.demand_request:SetDesiredAmount(req_desire)
+end
+
+function MechanizedDepot:GetMaxStorageForAnyOneResource()
+	local s = self.stockpiles[1]
+	local smax = s.supply_request:GetActualAmount() + s.demand_request:GetActualAmount()
+	return self.max_storage_per_resource + smax
+end
 
 function MechanizedDepot:IsResourceEnabled(res_id)
 	return not self.is_unloading
@@ -611,6 +707,11 @@ function MechanizedDepot:GameInit()
 		ResourceStockpileBase.CreateResourceRequests(self, ...)
 		rawset(self, "supply", {[self.resource] = self.supply_request})
 		rawset(self, "demand", {[self.resource] = self.demand_request})
+		self.supply_request:SetReciprocalRequest(self.demand_request)
+		local p = self:GetParent()
+		local c = p.desired_amount
+		p.desired_amount = 0 --force set
+		p:SetDesiredAmount(c)
 	end
 	
 	rawset(self, "GetStored_"..resource, function(self)
@@ -705,6 +806,7 @@ end
 
 function MechanizedDepot:DroneLoadResource(drone, request, resource, amount)
 	self:TryStore()
+	self:UpdateStockpileDesire()
 	if self.demolishing then
 		self:WakupDemolishThread()
 	end
@@ -719,9 +821,11 @@ function MechanizedDepot:DroneUnloadResource(drone, request, resource, amount)
 		Building.DroneUnloadResource(self, drone, request, resource, amount)
 	end
 	self:TryStore()
+	self:UpdateStockpileDesire()
 end
 
 function MechanizedDepot:GetStoredAmount(resource)
+	resource = resource or self.resource
 	return self.resource == resource and self["GetStored_"..resource](self) or 0
 end
 
@@ -786,10 +890,11 @@ function MechanizedDepot:Store(amount)
 		if not IsValid(self) then return end
 		interact_with_stock(self, amount)
 	end
+	self.carrying = true
+	self:UpdateStockpileDesire()
 	
 	--take boxes
 	PlayFX("WarehouseCarryResource", "start", self.hoist)
-	self.carrying = true
 	self:SetHoistCubesVisible(true)
 	Sleep(take_leave_time)
 	if not IsValid(self) then return end
@@ -812,11 +917,12 @@ function MechanizedDepot:Store(amount)
 		if not IsValid(self) then return end
 		interact_with_io(self, -amount)
 	end
+	self.carrying = false
+	self:UpdateStockpileDesire()
 	
 	--leave boxes
 	PlayFX("WarehouseCarryResource", "end", self.hoist)
 	self:SetHoistCubesVisible(false)
-	self.carrying = false
 	Sleep(take_leave_time)
 	if not IsValid(self) then return end
 	--retract
@@ -839,11 +945,66 @@ function MechanizedDepot:Store(amount)
 	self:TryStore()
 end
 
+function CraneGotoOriginWrapper(self)
+	self:CraneGoToCubes(0, 0, 10)
+	self.is_storing = false
+end
+
+function MechanizedDepot:AddResourceAmount(amount_to_add, notify_parents)
+	local new_a = self.stockpiled_amount + amount_to_add
+	local remainder = 0
+	if new_a < 0 then
+		amount_to_add = -self.stockpiled_amount
+		remainder = new_a
+	elseif new_a > self.max_storage_per_resource then
+		amount_to_add = self.max_storage_per_resource - self.stockpiled_amount
+		remainder = new_a - self.max_storage_per_resource
+	end
+
+	self:SetCount(self.stockpiled_amount + amount_to_add)
+	
+	if remainder ~= 0 then
+		local stock = self.stockpiles[1]
+		new_a = stock:GetStoredAmount() + remainder
+		amount_to_add = remainder
+		local stock_max = stock:GetMax()*const.ResourceScale
+		
+		if new_a < 0 then
+			amount_to_add = -stock:GetStoredAmount()
+			remainder = new_a
+		elseif new_a > stock_max then
+			amount_to_add = stock_max - stock:GetStoredAmount()
+			remainder = new_a - stock_max
+		end
+		
+		self.stockpiles[1]:AddResourceAmount(amount_to_add)
+	end
+	
+	
+	if remainder < 0 then
+		local carried = self.carrying and 5*const.ResourceScale or 0
+		
+		if carried > 0 then
+			self:SetHoistCubesVisible(false)
+			remainder = remainder + carried
+			self.carrying = false
+		end
+	end
+	
+	if self:GetStoredAmount() <= 0 then
+		if IsValidThread(self.is_storing) then
+			DeleteThread(self.is_storing)
+		end
+		
+		self.is_storing = CreateGameTimeThread(CraneGotoOriginWrapper, self)
+	end
+end
+
 function MechanizedDepot:FindStockLaneToGiveTo()
 	--search for shortest lane
 	local target_lane = false
 	local least_available = self.max_storage_per_resource
-	for i,lane in ipairs(self. stock_lanes) do
+	for i,lane in ipairs(self.stock_lanes) do
 		local lane_max_count = lane.n * (lane.max_rows - lane.row_adjustment)
 		local available = lane:CalculateSearchOrder()
 		if available < lane_max_count and least_available > available then
@@ -882,6 +1043,7 @@ function MechanizedDepot:FindStockLaneToTakeFrom()
 end
 
 function MechanizedDepot:SetCount(new_count)
+	assert(new_count >= 0)
 	if new_count == self.stockpiled_amount then
 		return
 	end
@@ -1143,24 +1305,56 @@ function MechanizedDepot:GetUIWarning()
 	return Building.GetUIWarning(self)
 end
 
-function MechanizedDepot:ToggleAcceptResource(res_id)
+function MechanizedDepot:ToggleAcceptResource(res_id, broadcast)
+	if broadcast then
+		local storages = MapGet("map", "MechanizedDepot", function(obj) return obj.resource == self.resource end )
+		local is_storing = self:IsStoring()
+		for _, storage in ipairs(storages or empty_table) do
+			storage:SetAcceptResource(res_id, false, not is_storing)
+		end
+	else
+		self:SetAcceptResource(res_id, true)
+	end
+end
+
+function MechanizedDepot:IsStoring()
+	local resource = self.resource
+	local io_stockpile = self.stockpiles[1]
+	local s_req = io_stockpile.supply[resource]
+	local req = io_stockpile.demand[resource]
+	return table.find(self.task_requests, req) and true or false
+end
+
+function SavegameFixups.ClearMechDepotTaskRequests()
+	MapForEach("map", "MechanizedDepot", function(self)
+		local was_connected = #self.command_centers > 0
+		self:DisconnectFromCommandCenters()
+		local io_stockpile = self.stockpiles[1]
+		local my_reqs = self.task_requests
+		table.remove_entry(my_reqs, io_stockpile.demand[self.resource])
+		if was_connected then
+			self:ConnectToCommandCenters()
+		end
+	end)
+end
+
+function MechanizedDepot:SetAcceptResource(res_id, toggle, to_store)
 	if self.demolishing and self.is_unloading then return end
 	local resource = self.resource
 	local io_stockpile = self.stockpiles[1]
 	local s_req = io_stockpile.supply[resource]
 	local req = io_stockpile.demand[resource]
-	
-	assert(req)
 	local task_requests = io_stockpile.task_requests
+	local is_storing = table.find(task_requests, req)
 	LRManagerInstance:RemoveBuilding(io_stockpile)
-	if table.find(task_requests, req) then
+	if is_storing and (toggle or not to_store) then
 		io_stockpile:InterruptDrones(nil,function(drone) return drone.d_request==req and drone end)
 		io_stockpile:DisconnectFromCommandCenters()
 		table.remove_entry(task_requests, req)
 		s_req:AddFlags(const.rfPostInQueue)
 		s_req:ClearFlags(const.rfStorageDepot)
 		self.is_unloading = true
-	else
+	elseif not is_storing and (toggle or to_store) then
 		io_stockpile:DisconnectFromCommandCenters()
 		table.insert(task_requests, req)
 		s_req:ClearFlags(const.rfPostInQueue)
@@ -1169,6 +1363,10 @@ function MechanizedDepot:ToggleAcceptResource(res_id)
 	end
 	LRManagerInstance:AddBuilding(io_stockpile)
 	io_stockpile:ConnectToCommandCenters()
+end
+
+function MechanizedDepot:GetMaxStorage(res)
+	return self.resource == res and self:GetUIMaxStorageAmount() or 0
 end
 
 function MechanizedDepot:ClearAllResources()
@@ -1185,9 +1383,11 @@ function MechanizedDepot:ClearAllResources()
 	local io_actual_amount = io_supply_req:GetActualAmount()
 	io_stockpile:SetCount(io_actual_amount)
 	io_stockpile.stockpiled_amount = io_actual_amount
+	self.total_stockpiled = 0
 	
 	--handle own stock
 	self:SetCount(0)
+	self:UpdateStockpileDesire()
 end
 
 --cheats
@@ -1207,13 +1407,14 @@ function MechanizedDepot:CheatFill()
 		--handle io stockpile
 		io_supply_req:SetAmount(io_max)
 		io_demand_req:SetAmount(0)
-		io_stockpile:SetCount(io_max)
 		local io_actual_amount = io_supply_req:GetActualAmount()
 		io_stockpile:SetCount(io_actual_amount)
 		io_stockpile.stockpiled_amount = io_actual_amount
+		self.total_stockpiled = io_actual_amount
 		
 		--handle own stock
 		self:SetCount(stock_max)
+		self:UpdateStockpileDesire()
 	end
 end
 
@@ -1503,4 +1704,25 @@ end
 
 function MechanizedMysteryDepot:GetIPDescription()
 	return MechanizedMysteryDepot.Getdescription(self)
+end
+
+function MechanizedMysteryDepot:PairRequests()
+	local s = self.stockpiles[1]
+	s:PairRequests()
+end
+
+function SavegameFixups.PairStorageRequests()
+	MapForEach(true, "ResourceStockpileBase",
+		function(o)
+			local c = o.desired_amount
+			o.desired_amount = 0 --force setter
+			o:SetDesiredAmount(c)
+		end)
+end
+
+function OnMsg.LoadGame()
+	MapForEach(true, "ResourceStockpileBase",
+		function(o)
+			o:PairRequests()
+		end)
 end

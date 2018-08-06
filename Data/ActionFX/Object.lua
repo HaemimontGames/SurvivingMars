@@ -736,7 +736,7 @@ PlaceObj('ActionFXObject', {
 PlaceObj('ActionFXObject', {
 	'Action', "ShowWorkRadius",
 	'Moment', "start",
-	'Actor', "RCRover",
+	'Actor', "Rover",
 	'EndMoment1', "end",
 	'handle', 1654975265,
 	'Object', "RangeHexMovableRadius",

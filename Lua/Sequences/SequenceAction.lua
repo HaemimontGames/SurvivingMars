@@ -155,10 +155,10 @@ function SA_WaitChoiceCheck:ConditionText()
 end
 
 DefineClass.SA_WaitChoice = {
-	__parents = {"SequenceAction", "PropertyObjectUsingPresets"},
+	__parents = {"SequenceAction"},
 
 	properties =	{
-		{ category = "General", id = "preset", 			name = "Preset",              editor = "combo", default = "", preset_class = "PopupNotificationPreset" },
+		{ category = "General", id = "preset", 			name = "Preset",              editor = "combo", default = "", items =  PresetsCombo("PopupNotificationPreset") },
 		{ category = "General", id = "title",  			name = T{1000016, "Title"},            editor = "text", default = "", translate = true},
 		{ category = "General", id = "voiced_text",   name = T{6855, "Voiced Text"}, editor = "multi_line_text", default = "", translate = true, context = VoicedContextFromField("actor")},
 		{ category = "General", id = "text",   			name = T{3793, "Body Text"},        editor = "multi_line_text", default = "", translate = true, use_registers = true },
@@ -220,6 +220,22 @@ DefineClass.SA_WaitChoice = {
 	params = false,
 }
 
+function SA_WaitChoice:OnPropertyChanged(prop_id, old_value, main_obj, prop_meta)
+	if prop_id == "preset" then
+		local new_preset = PopupNotificationPresets[self.preset]
+		local own_properties = self:GetProperties()
+		for key, value in ipairs(new_preset:GetProperties()) do
+			if table.find(own_properties, 'id', value.id) then
+				local new_prop_value = new_preset:GetProperty(value.id)
+				if not new_prop_value and value.editor == "text" then 
+					new_prop_value = ""
+				end
+				self:SetProperty(value.id, new_prop_value)
+			end
+		end
+	end
+end
+
 function SA_WaitChoice:OnCreate(sequence, ip)
 	SequenceAction.OnCreate(self, sequence, ip)
 	local free_id = sequence:FindFreeId()
@@ -241,7 +257,7 @@ function SA_WaitChoice:ShortDescription()
 	return string.format("Wait choice '%s' of <b>'%s'</b>, <b>'%s'</b>, <b>'%s'</b>, <b>'%s'</b>",
 		_InternalTranslate(self.title),
 		_InternalTranslate(self.choice1),
-		_InternalTranslate(self.choice3),
+		_InternalTranslate(self.choice2),
 		_InternalTranslate(self.choice3),
 		_InternalTranslate(self.choice4))
 end
@@ -311,7 +327,7 @@ function SA_WaitMessage:SetProperty(id, value)
 	if id == "choice2" or id == "choice3" or id == "choice4" then
 		return
 	end
-	PropertyObjectUsingPresets.SetProperty(self, id, value)
+	SA_WaitChoice.SetProperty(self, id, value)
 end
 
 function SA_WaitMessage:ShortDescription()

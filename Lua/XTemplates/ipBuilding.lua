@@ -56,6 +56,9 @@ PlaceObj('XTemplate', {
 				'__template', "sectionPowerProduction",
 			}),
 			PlaceObj('XTemplateTemplate', {
+				'__template', "sectionWindTurbineBoost",
+			}),
+			PlaceObj('XTemplateTemplate', {
 				'__template', "sectionWaterProduction",
 			}),
 			PlaceObj('XTemplateTemplate', {
@@ -137,7 +140,7 @@ end,
 				'__condition', function (parent, context) return context.on_off_button and not (IsKindOf(context, "ConstructionSite") and context.building_class == "BlackCubeMonolith") end,
 				'__template', "InfopanelButton",
 				'RolloverText', T{382329017655, --[[XTemplate ipBuilding RolloverText]] "Buildings that are turned off do not function and never consume Power or resources.<newline><newline>Current status: <em><UIWorkingStatus></em>"},
-				'RolloverDisabledText', T{635932171778, --[[XTemplate ipBuilding RolloverDisabledText]] "This building doesn’t work during dust storms."},
+				'RolloverDisabledText', T{10553, --[[XTemplate ipBuilding RolloverDisabledText]] "This building is currently disabled."},
 				'RolloverTitle', T{627191661712, --[[XTemplate ipBuilding RolloverTitle]] "Turn On/Off"},
 				'RolloverHint', T{238148642034, --[[XTemplate ipBuilding RolloverHint]] "<left_click> Activate <newline><em>Ctrl + <left_click></em> Activate for all <display_name_pl>"},
 				'RolloverHintGamepad', T{919224409562, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> Activate <newline><ButtonX> Activate for all <display_name_pl>"},

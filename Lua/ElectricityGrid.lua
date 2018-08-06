@@ -23,10 +23,32 @@ local AllPossiblePlugs = {
 table.append(AllPossiblePlugs, ElectricGridHubPlugEntities)
 table.append(AllPossiblePlugs, ElectricGridElevatedPlugEntities)
 
+local custom_cable_connections = {
+	StirlingGenerator = "CableStirlingGenerator",
+	SensorTower = "CableSensorTower",
+}
+
+local all_cable_connection_classes = {
+	"CableConnection",
+}
+
+for k, v in pairs(custom_cable_connections) do
+	table.insert(all_cable_connection_classes, v)
+end
+
 DefineClass.ElectricityGrid = {
 	__parents = { "SupplyGridFragment" },
 	supply_resource = "electricity",
 }
+
+local function find_cable(attaches, a, offset)
+	for i = #(attaches or ""), 1, -1 do
+		if (not offset or attaches[i]:GetAttachOffset() == offset) and
+			attaches[i]:GetAttachAngle() == a then
+			return true
+		end
+	end
+end
 
 function ElectricityGrid:CreateConnection(pt1, pt2, building1, building2)
 	assert(building1 and building2)
@@ -46,16 +68,28 @@ function ElectricityGrid:CreateConnection(pt1, pt2, building1, building2)
 	pt2 = point(HexToWorld(pt2:xy()))
 	
 	if not is_cable1 then -- place a building-to-cable connection
-		local cable = PlaceObject("CableConnection")
-		building1:Attach(cable)
-		cable:SetAttachOffset(Rotate((pt1 - building1:GetPos()):SetZ(0), -building1:GetAngle()))
-		cable:SetAttachAngle(CalcOrientation(pt2, pt1) - building1:GetAngle())
+		local ao = Rotate((pt1 - building1:GetPos()):SetZ(0), -building1:GetAngle())
+		local aa = CalcOrientation(pt2, pt1) - building1:GetAngle()
+		local clsn = custom_cable_connections[building1.class] or "CableConnection"
+		local attaches = building1:GetAttaches(clsn)
+		if not find_cable(attaches, aa, ao) then
+			local cable = PlaceObject(clsn)
+			building1:Attach(cable)
+			cable:SetAttachOffset(ao)
+			cable:SetAttachAngle(aa)
+		end
 	end
 	if not is_cable2 then -- place a building-to-cable connection
-		local cable = PlaceObject("CableConnection")
-		building2:Attach(cable)
-		cable:SetAttachOffset(Rotate((pt2 - building2:GetPos()):SetZ(0), -building2:GetAngle()))
-		cable:SetAttachAngle(CalcOrientation(pt1, pt2) - building2:GetAngle())
+		local ao = Rotate((pt2 - building2:GetPos()):SetZ(0), -building2:GetAngle())
+		local aa = CalcOrientation(pt1, pt2) - building2:GetAngle()
+		local clsn = custom_cable_connections[building2.class] or "CableConnection"
+		local attaches = building2:GetAttaches(clsn)
+		if not find_cable(attaches, aa, ao) then
+			local cable = PlaceObject(clsn)
+			building2:Attach(cable)
+			cable:SetAttachOffset(ao)
+			cable:SetAttachAngle(aa)
+		end
 	end
 end
 
@@ -108,8 +142,8 @@ function ElectricityGrid:DestroyConnection(pt1, pt2, building1, building2, test)
 				update_vis(building1)
 			end
 		end
-	elseif is_hub2 and not test then -- destroy building-to-hub connection
-		local attaches = building1:GetAttaches("CableConnection")
+	elseif not test then -- destroy building-to-hub connection
+		local attaches = building1:GetAttaches(all_cable_connection_classes)
 		local a = CalcOrientation(pt2, pt1) - building1:GetAngle()
 		local offset = Rotate((pt1 - building1:GetPos()):SetZ(0), -building1:GetAngle())
 		iterate_and_destroy(attaches, a, offset)
@@ -122,8 +156,8 @@ function ElectricityGrid:DestroyConnection(pt1, pt2, building1, building2, test)
 				update_vis(building2)
 			end
 		end
-	elseif is_hub1 and not test then -- destroy building-to-hub connection
-		local attaches = building2:GetAttaches("CableConnection")
+	elseif not test then -- destroy building-to-hub connection
+		local attaches = building2:GetAttaches(all_cable_connection_classes)
 		local a = CalcOrientation(pt1, pt2) - building2:GetAngle()
 		local offset = Rotate((pt2 - building2:GetPos()):SetZ(0), -building2:GetAngle())
 		iterate_and_destroy(attaches, a, offset)
@@ -220,6 +254,7 @@ DefineClass.ElectricityGridElement = { -- cables
 	chain = false,
 	unbuildable_chunk_dir = false, --el pillars can only conn in one dir, this keeps that dir
 	sloped = false,
+	force_hub = false,
 	
 	--construction
 	construction_cost_Metals = 1 * const.ResourceScale,
@@ -236,7 +271,7 @@ DefineClass.ElectricityGridElement = { -- cables
 	on_state = "idle",
 	off_state = "off",
 	switch_anim = "switch",
-	rename_allowed = false,	
+	rename_allowed = false,
 }
 
 function ElectricityGridElement:GameInit()
@@ -277,16 +312,16 @@ function ElectricityGridElement:Done()
 	CablePiecesDelledThisCascade = (CablePiecesDelledThisCascade or 0) + (IsCascadeDeleting and 1 or 0)
 end
 
-function ElectricityGridElement:Switch()
+function ElectricityGridElement:Switch(broadcast)
 	if not self.is_switch then return end
 	UICity:SetCableCascadeDeletion(false, "switch") --so that grid disconnects do not provoke cascade cable deletion
-	SupplyGridSwitch.Switch(self)
+	SupplyGridSwitch.Switch(self, broadcast)
 	UICity:SetCableCascadeDeletion(true, "switch")
 end
 
 function ElectricityGridElement:UpdateVisuals()
 	local conn = HexGridGet(SupplyGridConnections["electricity"], self)
-	if self.conn == conn then return end
+	if self.conn == conn then return false end
 	self.conn = conn
 	local total_count, cable_count, first, second = 0, 0
 	local q, r = WorldToHex(self)
@@ -348,7 +383,7 @@ function ElectricityGridElement:UpdateVisuals()
 				end
 			end
 		end
-	elseif not self.is_switch and cable_count == 2 and (not is_turn or total_count == 2) then -- exactly two connections with cabels
+	elseif not self.force_hub and not self.is_switch and cable_count == 2 and (not is_turn or total_count == 2) then -- exactly two connections with cabels
 		if self.chain then
 			--chained segs should always be with 2 conns
 			self:ChangeEntity("CableHanging")
@@ -388,7 +423,7 @@ function ElectricityGridElement:UpdateVisuals()
 	end
 	self:AddDust(0) --refresh dust visuals
 	
-	self.fx_actor_class = self.is_switch and "CableSwitch" or "PowerCable"
+	return true
 end
 
 function ElectricityGridElement:CanMakePillar(direction)
@@ -496,9 +531,13 @@ function PlaceCableLine(city, start_q, start_r, dir, steps, test, elements_requi
 	local angle = dir * 60 * 60
 	
 	local construction_group = false
+	local cs_grp_counter_for_cost = 1
+	local cs_grp_elements_in_this_group = 0
 	if not test and elements_require_construction or input_constr_grp then
 		if input_constr_grp then
 			construction_group = input_constr_grp
+			cs_grp_counter_for_cost = cs_grp_counter_for_cost - 1
+			cs_grp_elements_in_this_group = #input_constr_grp - 1
 		else
 			construction_group = CreateConstructionGroup("ElectricityGridElement", point(HexToWorld(start_q, start_r)), 3, not elements_require_construction)
 		end
@@ -515,10 +554,21 @@ function PlaceCableLine(city, start_q, start_r, dir, steps, test, elements_requi
 	local last_status = false
 	local last_placed_data_cell = nil
 	local last_pass_idx = 0
+	
+	local has_group_with_no_hub = false
+	local current_group_has_hub = false
+	
 	if input_data and #input_data > 0 then
 		last_placed_data_cell = input_data[#input_data]
 		last_pass_idx = last_placed_data_cell.idx
 		last_status = last_placed_data_cell.status
+		cs_grp_counter_for_cost = input_data.cs_grp_counter_for_cost or cs_grp_counter_for_cost
+		cs_grp_elements_in_this_group = Max((input_data.cs_grp_elements_in_this_group or cs_grp_elements_in_this_group) - 1, 0)
+		has_group_with_no_hub = input_data.has_group_with_no_hub
+		current_group_has_hub = input_data.current_group_has_hub
+		if input_data.last_group_had_no_hub then
+			has_group_with_no_hub = false
+		end
 	end
 	
 	--preprocess
@@ -534,7 +584,10 @@ function PlaceCableLine(city, start_q, start_r, dir, steps, test, elements_requi
 	for i = 0, steps do
 		local q = start_q + i * dq
 		local r = start_r + i * dr
-		local bld = HexGetBuilding(q, r)
+		local bld = HexGridGetObject(ObjectGrid, q, r, nil, "LifeSupportGridElement", 
+						function (obj)
+							return not IsKindOfClasses(obj, "ElectricityGridElement", "GridSwitchConstructionSite")
+						end)
 		local cable = HexGetCable(q, r)
 		local pipe = HexGetPipe(q, r)
 		local world_pos = point(HexToWorld(q, r))
@@ -675,8 +728,38 @@ function PlaceCableLine(city, start_q, start_r, dir, steps, test, elements_requi
 			can_build_anything = true
 		end
 		
+		if cs_grp_elements_in_this_group >= const.ConstructiongGridElementsGroupSize then
+			cs_grp_counter_for_cost = cs_grp_counter_for_cost + 1
+			cs_grp_elements_in_this_group = 1
+			
+			if not current_group_has_hub then
+				has_group_with_no_hub = true
+			else
+				current_group_has_hub = false
+			end
+		else
+			cs_grp_elements_in_this_group = cs_grp_elements_in_this_group + 1
+		end
+		
+		if not current_group_has_hub and not has_group_with_no_hub then
+			if DoesAnyDroneControlServiceAtPoint(world_pos) then
+				current_group_has_hub = true
+			end
+		end
+		
 		last_status = data[i].status
 	end
+	
+	data.cs_grp_counter_for_cost = cs_grp_counter_for_cost
+	data.cs_grp_elements_in_this_group = cs_grp_elements_in_this_group
+	local total_cost = GetGridElementConstructionCost("ElectricityGridElement", false, cs_grp_counter_for_cost * 100)
+	
+	if not current_group_has_hub and not has_group_with_no_hub then
+		has_group_with_no_hub = true
+		data.last_group_had_no_hub = true
+	end
+	data.has_group_with_no_hub = has_group_with_no_hub
+	data.current_group_has_hub = current_group_has_hub
 	
 	--fix up chunk end
 	if chunk_idx > 0 then
@@ -690,7 +773,7 @@ function PlaceCableLine(city, start_q, start_r, dir, steps, test, elements_requi
 	if test or not can_build_anything then
 		--ret
 		construction_group = clean_group(construction_group)
-		return can_build_anything, construction_group, obstructors, data, unbuildable_chunks, all_rocks
+		return can_build_anything, construction_group, obstructors, data, unbuildable_chunks, all_rocks, total_cost
 	end
 	
 	--postprocess and place
@@ -865,7 +948,7 @@ function PlaceCableLine(city, start_q, start_r, dir, steps, test, elements_requi
 	
 	construction_group = clean_group(construction_group)
 	
-	return true, construction_group, obstructors, data, unbuildable_chunks, last_placed_obj
+	return true, construction_group, obstructors, data, unbuildable_chunks, last_placed_obj, total_cost
 end
 
 ----- ElectricityProducer
@@ -903,8 +986,25 @@ function ElectricityProducer:OnSetWorking(working)
 	self.electricity:SetProduction(working and self:GetPerformanceModifiedElectricityProduction() or 0)
 end
 
+function ElectricityProducer:GetOptimalElectricityProduction()
+	local prop = "electricity_production"
+	local optimal = self:GetClassValue(prop)
+	local prop_meta = self:GetPropertyMetadata(prop)
+	local mod = {amount = 0, percent = 100, min = prop_meta and prop_meta.min, max = prop_meta and prop_meta.max}
+	local my_mods = self.modifications and self.modifications[prop] or empty_table
+	for i = 1, #my_mods do
+		local m = my_mods[i]
+		if m.amount >= 0 and m.percent >= 0 then
+			mod.amount = mod.amount + m.amount
+			mod.percent = mod.percent + m.percent
+		end
+	end
+	
+	return self:ModifyValue(optimal, nil, mod)
+end
+
 function ElectricityProducer:GetEletricityUnderproduction()
-	return Max(0,self:GetClassValue("electricity_production") - self:GetPerformanceModifiedElectricityProduction())
+	return Max(0, self:GetOptimalElectricityProduction() - self:GetPerformanceModifiedElectricityProduction())
 end
 
 function ElectricityProducer:MoveInside(dome)
@@ -983,7 +1083,7 @@ function ElectricityConsumer:GetWorkNotPossibleReason()
 end
 
 function ElectricityConsumer:AreNightLightsAllowed()
-	return self:HasPower() and not self:IsSupplyGridDemandStoppedByGame()
+	return self.working and self:HasPower() and not self:IsSupplyGridDemandStoppedByGame()
 end
 
 function ElectricityConsumer:IsFreezing()

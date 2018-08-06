@@ -106,7 +106,7 @@ end,
 			PlaceObj('XTemplateAction', {
 				'ActionId', "Enable all",
 				'ActionToolbar', "cheats",
-				'OnAction', function (self, host, source, toggled)
+				'OnAction', function (self, host, source)
 host.context.dbg_enable_all = true
 RebuildInfopanel(host.context)
 end,
@@ -114,14 +114,14 @@ end,
 			PlaceObj('XTemplateAction', {
 				'ActionId', "Finish action",
 				'ActionToolbar', "cheats",
-				'OnAction', function (self, host, source, toggled)
+				'OnAction', function (self, host, source)
 Wakeup(host.context.action_thread)
 end,
 			}),
 			PlaceObj('XTemplateAction', {
 				'ActionId', "Escavate",
 				'ActionToolbar', "cheats",
-				'OnAction', function (self, host, source, toggled)
+				'OnAction', function (self, host, source)
 host.context:SetProgressPct(100)
 end,
 			}),
@@ -132,7 +132,7 @@ end,
 		PlaceObj('XTemplateAction', {
 			'ActionId', "PlaceAnomaly",
 			'ActionToolbar', "cheats",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 host.context:PlaceAnomaly(true)
 end,
 			'__condition', function (parent, context) return not context.scanned end,

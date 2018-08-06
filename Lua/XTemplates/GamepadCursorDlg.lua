@@ -9,6 +9,8 @@ PlaceObj('XTemplate', {
 		'HAlign', "center",
 		'VAlign', "center",
 		'LayoutMethod', "VList",
+		'FadeInTime', 50,
+		'FadeOutTime', 500,
 		'HandleKeyboard', false,
 		'ChildrenHandleMouse', false,
 		'OnContextUpdate', function (self, context, ...)

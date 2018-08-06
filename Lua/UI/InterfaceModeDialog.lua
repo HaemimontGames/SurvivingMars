@@ -41,7 +41,7 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 			GamepadCheatsMenuThread = CreateRealTimeThread(function()
 				Sleep(1000)
 				GamepadCheatsMenuThread = false
-				OpenXDialog("GamepadCheatsDlg")
+				OpenDialog("GamepadCheatsDlg")
 			end)
 		end
 		if shortcut == "-LeftTrigger" or shortcut == "-RightTrigger" then
@@ -58,21 +58,21 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 	--Focusing the infopanel
 	if shortcut == "RightTrigger" then
 		FocusInfopanel = true
-		if FocusInfopanel and GetXDialog("Infopanel") then 
-			GetXDialog("Infopanel"):ShowIPRollover()
+		if FocusInfopanel and GetDialog("Infopanel") then 
+			GetDialog("Infopanel"):ShowIPRollover()
 		end
 	elseif shortcut == "-RightTrigger" then
-		if GetXDialog("Infopanel") then
+		if GetDialog("Infopanel") then
 			if FocusInfopanel then 
-				GetXDialog("Infopanel"):SetFocus()
-			elseif RolloverControl == GetXDialog("Infopanel") and GetXDialog("Infopanel") ~= self.desktop.keyboard_focus then
+				GetDialog("Infopanel"):SetFocus()
+			elseif RolloverControl == GetDialog("Infopanel") and GetDialog("Infopanel") ~= self.desktop.keyboard_focus then
 				XDestroyRolloverWindow()
 			end
 		end
 		FocusInfopanel = false
 	--right trigger + right thumbstick (tilt camera) disables focusing the infopanel (same as infopanel quick actions)
 	elseif infopanel_focus_cancelling_shortcuts[shortcut] then
-		local infopanel = GetXDialog("Infopanel")
+		local infopanel = GetDialog("Infopanel")
 		if infopanel then
 			FocusInfopanel = false
 			if RolloverControl == infopanel and IsKindOf(infopanel:GetContext(), "ResourceOverview") then
@@ -88,7 +88,7 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 			dlg:DismissCurrentHint()
 			return "break"
 		else
-			OpenEncyclopedia("HintGameStart")
+			OpenEncyclopedia(LastDisabledHint or "HintGameStart")
 			return "break"
 		end
 	end
@@ -111,7 +111,7 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 		end
 		return "break"
 	elseif shortcut == "ButtonY" and cursor then
-		if not GetXDialog("XBuildMenu") then
+		if not GetDialog("XBuildMenu") and GetInGameInterfaceMode() == "selection" then
 			OpenXBuildMenu()
 		end
 		return "break"
@@ -138,7 +138,7 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 		CancelAllNotificationsThread = CreateRealTimeThread(function ()
 			Sleep(800)
 			CancelAllNotificationsThread = false
-			local notifications = GetXDialog("OnScreenNotificationsDlg")
+			local notifications = GetDialog("OnScreenNotificationsDlg")
 			if notifications then
 				notifications:CancelAllNotifications()
 			end
@@ -146,7 +146,7 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 	elseif shortcut == "-LeftShoulder" and self == self.desktop:GetKeyboardFocus() then
 		if IsValidThread(CancelAllNotificationsThread) then
 			DeleteThread(CancelAllNotificationsThread)
-			local notifications = GetXDialog("OnScreenNotificationsDlg")
+			local notifications = GetDialog("OnScreenNotificationsDlg")
 			if notifications and #notifications.idNotifications > 0 then
 				notifications:SetFocus(true)
 			end
@@ -155,7 +155,7 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 		
 	--Focusing the pin dialog
 	elseif shortcut == "RightShoulder" then
-		local pins_dlg = GetXDialog("PinsDlg")
+		local pins_dlg = GetDialog("PinsDlg")
 		--pins_dlg[2] because the first element is the gamepad RB hint icon
 		if pins_dlg and #pins_dlg > 1 then pins_dlg[2]:SetFocus(true) end
 		return "break"
@@ -200,11 +200,11 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 end
 
 function InterfaceModeDialog:OnSetFocus()
-	local pins = GetXDialog("PinsDlg")
+	local pins = GetDialog("PinsDlg")
 	if pins then pins:UpdateGamepadHint() end
 end
 
 function InterfaceModeDialog:OnKillFocus()
-	local pins = GetXDialog("PinsDlg")
+	local pins = GetDialog("PinsDlg")
 	if pins then pins:UpdateGamepadHint() end
 end

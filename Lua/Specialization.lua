@@ -112,3 +112,19 @@ function GetOutsideEntity(gender, race, age_trait, traits)
 	end
 	return entity
 end
+
+function ValidateSpecialization(colonist)
+	local specialization = colonist.specialist
+	local traits = colonist.traits
+	if not traits[specialization] then 
+	--	sepcialization not added in traits
+		colonist:SetSpecialization(specialization)
+	end
+	traits = colonist.traits
+	for spec, _ in pairs(const.ColonistSpecialization) do
+		if spec~=specialization and traits[spec] then
+			--duplicated sepcialization added in traits
+			colonist:RemoveTrait(spec)
+		end
+	end
+end

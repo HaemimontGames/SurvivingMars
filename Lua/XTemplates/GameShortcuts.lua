@@ -1,8 +1,637 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 PlaceObj('XTemplate', {
-	group = "Default",
+	group = "Shortcuts",
 	id = "GameShortcuts",
+	PlaceObj('XTemplateAction', {
+		'__condition', function (parent, context) return Platform.developer end,
+	}, {
+		PlaceObj('XTemplateAction', {
+			'ActionId', "Editors",
+			'ActionTranslate', false,
+			'ActionName', "Editors",
+			'ActionMenubar', "DevMenu",
+			'OnActionEffect', "popup",
+			'replace_matching_id', true,
+		}, {
+			PlaceObj('XTemplateAction', {
+				'ActionId', "Editors.Random Map",
+				'ActionTranslate', false,
+				'ActionName', "Random Map ...",
+				'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+				'OnActionEffect', "popup",
+				'replace_matching_id', true,
+			}, {
+				PlaceObj('XTemplateAction', {
+					'ActionId', "Editors.Random Map.Debug",
+					'ActionTranslate', false,
+					'ActionName', "Debug ...",
+					'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+					'OnActionEffect', "popup",
+					'replace_matching_id', true,
+				}, {
+					PlaceObj('XTemplateAction', {
+						'ActionId', "PrefabDbgClear",
+						'ActionTranslate', false,
+						'ActionName', "Draw Clear",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'OnAction', function (self, host, source)
+	DbgClearVectors()
+	DbgClearTexts()
+	hr.TerrainDebugDraw = 0
+	dbg_grid = false
+end,
+						'replace_matching_id', true,
+					}),
+					PlaceObj('XTemplateAction', {
+						'comment', " (Ctrl-B)",
+						'RolloverText', " (Ctrl-B)",
+						'ActionId', "DbgToggleBuildableGrid",
+						'ActionTranslate', false,
+						'ActionName', "Toggle Buildable Grid",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'ActionShortcut', "Ctrl-B",
+						'OnAction', function (self, host, source)
+	if not g_BuildableZ or hr.TerrainDebugDraw == nil then
+		return
+	end
+	if not DbgLastBuildableColors or not DbgLastBuildableGrid or DbgLastShowBuildablePlanes ~= config.ShowBuildablePlanes  then
+		local src = g_BuildableZ
+		local UnbuildableZ = buildUnbuildableZ()
+		if config.ShowBuildablePlanes then
+			local value_to_level = {[UnbuildableZ] = 0}
+			local colors = {0}
+			local width, height = src:size()
+			local res = NewGrid(width, height, 8, 0)
+			for y = 0, height - 1 do
+				for x = 0, width - 1 do
+					local z = src:get(x, y)
+					local level = value_to_level[z]
+					if not level then
+						level = #colors % 256
+						if level == 0 then
+							level = level + 1
+						end
+						value_to_level[z] = level
+						colors[level + 1] = RGB(UIL.HSVtoRGB( 50 + xxhash(z) % 150, 255, 255))
+					end
+					res:set(x, y, level)
+				end
+			end
+			DbgLastBuildableGrid = res
+			DbgLastBuildableColors = colors
+		else
+			DbgLastBuildableGrid = HexGridMask(src, UnbuildableZ)
+			DbgLastBuildableGrid:set_default(1)
+			DbgLastBuildableColors = {green}
+		end
+		DbgLastShowBuildablePlanes = config.ShowBuildablePlanes 
+	end
+	DbgToggleTerrainGrid(DbgLastBuildableGrid, DbgLastBuildableColors)
+end,
+						'replace_matching_id', true,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "PrefabDbgDrawMinCircles",
+						'ActionTranslate', false,
+						'ActionName', "Draw Min Circles",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'OnAction', function (self, host, source)
+	PrefabDbgDrawCircle("RadiusMin")
+end,
+						'replace_matching_id', true,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "PrefabDbgDrawMaxCircles",
+						'ActionTranslate', false,
+						'ActionName', "Draw Max Circles",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'OnAction', function (self, host, source)
+	PrefabDbgDrawCircle("RadiusMax")
+end,
+						'replace_matching_id', true,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "PrefabDbgDrawDecorCircles",
+						'ActionTranslate', false,
+						'ActionName', "Draw Decor Circles",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'OnAction', function (self, host, source)
+	DbgSetVectorOffset(guim)
+	MapForEach("map",
+		"PrefabDecorMarker",
+		function(obj)
+			if obj:GetOpacity() > 0 then
+				--local clr_mod = SetA(obj:GetColorModifier(), 255)
+				--local color = clr_mod ~= clrNoModifier and clr_mod or white
+				local pos = obj:GetPos():SetInvalidZ()
+				DbgAddCircle(pos, obj.DecorRadius, white, 128)
+			end
+		end)
+end,
+						'replace_matching_id', true,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "PrefabDbgDrawPos",
+						'ActionTranslate', false,
+						'ActionName', "Draw Prefab Pos",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'OnAction', function (self, host, source)
+	DbgSetVectorOffset(guim)
+	local dbg_offset = point(0, 0, 200*guim)
+	MapForEach("map",
+		"PrefabMarker",
+		function(obj)
+			if obj.apply_pos and obj:GetOpacity() > 0 then
+				local clr_mod = SetA(obj:GetColorModifier(), 255)
+				local color = clr_mod ~= clrNoModifier and clr_mod or white
+				color = InterpolateRGB(color, white, 50, 100)
+				local pos = obj.apply_pos
+				DbgAddVector(pos, dbg_offset, color)
+				local name = obj:GetPrefabName()
+				if obj.place_mark ~= -1 then
+					name = name .. '(' .. obj.place_mark .. ')'
+				end
+				DbgAddText(name, pos + dbg_offset, color)
+			end
+		end)
+end,
+						'replace_matching_id', true,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "PrefabEditorDrawClusters",
+						'ActionTranslate', false,
+						'ActionName', "Draw Resource Clusters",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'OnAction', function (self, host, source)
+	DbgSetVectorOffset(guim)
+	local gen = GetRandomMapGenerator()
+	local stats = gen and gen.debug_info and gen.debug_info.ClusterStats or empty_table
+	for i=1,#stats do
+		local stat = stats[i]
+		DbgAddVector(stat.center, 100*guim, stat.color)
+		DbgAddText(stat.txt, ValidateZ(stat.center, 120*guim), stat.color)
+		if stat.radius > 0 then
+			DbgAddCircle(stat.center, stat.radius, stat.color, 90)
+		end
+	end
+end,
+						'replace_matching_id', true,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "PrefabDbgDrawFeatures",
+						'ActionTranslate', false,
+						'ActionName', "Draw Features",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'OnAction', function (self, host, source)
+	DbgSetVectorOffset(guim)
+	local dbg_offset = point(0, 0, 50*guim)
+	MapForEach("map",
+		"PrefabFeatureMarker",
+		function(obj)
+			local feature = obj:GetOpacity() > 0 and PrefabFeatures[obj.FeatureType]
+			if feature then
+				local pos = obj:GetVisualPos()
+				local color = feature.color
+				DbgAddVector(pos, dbg_offset, color)
+				DbgAddCircle(pos:SetInvalidZ(), obj.FeatureRadius, color, 128)
+				local name = obj.FeatureType
+				if obj.dbg_deposits > 0 then
+					name = name .. '(' .. obj.dbg_deposits .. ')'
+				end
+				DbgAddText(name, pos + dbg_offset, color)
+			end
+		end)
+end,
+						'replace_matching_id', true,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "PrefabEditorObjectsToggle",
+						'ActionTranslate', false,
+						'ActionName', "Editor Objects Toggle",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'OnAction', function (self, host, source)
+	if show == nil then
+		show = not PrefabEditorObjects
+	end
+	if PrefabEditorObjects == show then
+		return
+	end
+	PrefabEditorObjects = show
+	if not IsEditorActive() then
+		return
+	end
+	PauseInfiniteLoopDetection("PrefabEditorObjects")
+	MapForEach("map",
+		"PrefabMarker",
+		function(obj)
+			obj:EditorObjectsShow(true)
+		end)
+	ResumeInfiniteLoopDetection("PrefabEditorObjects")
+end,
+						'replace_matching_id', true,
+					}),
+					}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "CurrentPreset",
+					'ActionTranslate', false,
+					'ActionName', "Current Preset",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+			local gen = GetRandomMapGenerator() or GetRandomMapGeneratorHolder()
+			if gen then
+				PropEditorOpen(gen)
+			end
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "PrefabFeatures",
+					'ActionTranslate', false,
+					'ActionName', "Feature Editor",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+	local _, window_id = PropEditor_GetFirstWindow("PrefabFeatureEditor")
+	if not window_id then
+		PropEditorOpen(PrefabFeatureEditor:new(PrefabFeatures)) 
+	else
+		PropEditorActivateWindow(window_id)
+	end
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "ResaveAllBlankMaps",
+					'ActionTranslate', false,
+					'ActionName', "Resave All Blank Maps",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+	if IsValidThread(l_ResaveAllMapsThread) then
+		return
+	end
+	l_ResaveAllMapsThread = CreateRealTimeThread(function()
+		print("Resaving maps...")
+		local maps = {}
+		local valid_files = {"mapdata.lua", "height.grid", "type.grid"}
+		for map, data in pairs(MapData) do
+			if data.IsRandomMap then
+				maps[map] = true
+				local folder = "Maps/" .. map .. "/"
+				local err, files = AsyncListFiles(folder)
+				for i=1,#(files or "") do
+					local file = files[i]
+					local valid
+					for j=1,#valid_files do
+						if string.ends_with(file, valid_files[j]) then
+							valid = true
+							break
+						end
+					end
+					local filename = string.sub(files[i], #folder + 1)
+					if not valid then
+						AsyncFileDelete(file)
+					end
+				end
+				AsyncStringToFile(folder .. "objects.lua", "")
+			end
+		end
+		maps = table.keys(maps, true)
+		ForEachMap(maps, function() 
+			print("Resaving map ", GetMap())
+			EditorActivate()
+			SaveMap(false, true)
+		end)
+		l_ResaveAllMapsThread = false
+		print("Resaving all blank maps complete.")
+	end)
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "ResaveAllPrefabs",
+					'ActionTranslate', false,
+					'ActionName', "Resave All Prefabs",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+	if IsValidThread(l_ResaveAllMapsThread) then
+		return
+	end
+	l_ResaveAllMapsThread = CreateRealTimeThread(function()
+		if not version then
+			local err, files = AsyncListFiles("Prefabs", "*")
+			if #files > 0 then
+				print("Deleting all prefabs...")
+				for i=1,#files do
+					local success, err = os.remove(files[i])
+					if err then
+						print("Error", err, "deleting prefab file", files[i])
+					end
+				end
+			end
+			ExportedPrefabs = {}
+		end
+		print("Resaving maps...")
+		local maps = {}
+		for map, data in pairs(MapData) do
+			if data.IsPrefabMap then
+				maps[map] = true
+			end
+		end
+		
+		local markers = DataInstances.Marker
+		for i = 1,#markers do
+			local marker = markers[i]
+			if marker.type == "Prefab" and not maps[marker.map] then
+				print("map", marker.map, "should be defined as prefab map!")
+				maps[marker.map] = true
+			end
+		end
+		
+		if version then
+			for map in pairs(maps) do
+				if version ~= GetPrefabVersion(map) then
+					maps[map] = nil
+				end
+			end
+		end
+		maps = table.keys(maps, true)
+
+		ForEachMap(maps, function() 
+			print("Resaving map ", GetMap())
+			EditorActivate()
+			SaveMap(false, true)
+		end)
+		
+		l_ResaveAllMapsThread = false
+		PrefabUpdateMarkers()
+		
+		print("Resaving all prefabs complete.")
+	end)
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateForEach', {
+					'comment', "Resave Prefabs Versions",
+					'array', function (parent, context) return PrefabVersions() end,
+					'run_after', function (child, context, item, i, n)
+child.ActionId = "ResavePrefabsVersion" .. i
+child.ActionName = "Resave Prefabs Version " .. item
+child.OnAction = function() ResaveAllPrefabs(item) end
+end,
+				}, {
+					PlaceObj('XTemplateAction', {
+						'ActionTranslate', false,
+					}),
+					}),
+				}),
+			PlaceObj('XTemplateAction', {
+				'ActionId', "Editors.Game",
+				'ActionMode', "Game",
+				'ActionTranslate', false,
+				'ActionName', "Game Content ...",
+				'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+				'OnActionEffect', "popup",
+				'replace_matching_id', true,
+			}, {
+				PlaceObj('XTemplateAction', {
+					'comment', " (Ctrl-Alt-M)",
+					'RolloverText', " (Ctrl-Alt-M)",
+					'ActionId', "MapSettingsEditor",
+					'ActionTranslate', false,
+					'ActionName', "Map Settings",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'ActionShortcut', "Ctrl-Alt-M",
+					'OnAction', function (self, host, source)
+			local _, window_id = PropEditor_GetFirstWindow("MapSettingsEditor")
+			if not window_id then
+				local class_names = ClassDescendantsList("MapSettings")
+				local classes = {}
+				for i = 1, #class_names do
+					local class = g_Classes[class_names[i]]
+					local data = DataInstances[class.class]
+					local obj = table.icopy(data)
+					obj.name = class.class
+					classes[i] = obj
+				end
+				PropEditorOpen(MapSettingsEditor:new(classes)) 
+			else
+				PropEditorActivateWindow(window_id)
+			end
+end,
+					'replace_matching_id', true,
+				}),
+				}),
+			}),
+		}),
+	PlaceObj('XTemplateAction', {
+		'ActionId', "Debug",
+		'ActionTranslate', false,
+		'ActionName', "Debug",
+		'ActionMenubar', "DevMenu",
+		'OnActionEffect', "popup",
+		'__condition', function (parent, context) return Platform.developer end,
+		'replace_matching_id', true,
+	}, {
+		PlaceObj('XTemplateAction', {
+			'comment', "Toggle Hex Build Grid Visibility (Ctrl-F3)",
+			'RolloverText', "Toggle Hex Build Grid Visibility (Ctrl-F3)",
+			'ActionId', "DE_HexBuildGridToggle",
+			'ActionTranslate', false,
+			'ActionName', "Toggle Hex Build Grid Visibility",
+			'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+			'ActionShortcut', "Ctrl-F3",
+			'OnAction', function (self, host, source)
+				debug_build_grid()
+end,
+			'replace_matching_id', true,
+		}),
+		PlaceObj('XTemplateAction', {
+			'comment', "Toggle Terrain Deposit Grid (Ctrl-F4)",
+			'RolloverText', "Toggle Terrain Deposit Grid (Ctrl-F4)",
+			'ActionId', "DE_ToggleTerrainDepositGrid",
+			'ActionTranslate', false,
+			'ActionName', "Toggle Terrain Deposit Grid",
+			'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+			'ActionShortcut', "Ctrl-F4",
+			'OnAction', function (self, host, source) ToggleTerrainDepositGrid() end,
+			'replace_matching_id', true,
+		}),
+		PlaceObj('XTemplateAction', {
+			'comment', "Toggle Planet Mars Colors",
+			'ActionId', "DE_TogglePlanetMarsColors",
+			'ActionTranslate', false,
+			'ActionName', "Toggle Planet Mars Colors",
+			'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+			'OnActionEffect', "popup",
+			'replace_matching_id', true,
+		}, {
+			PlaceObj('XTemplateAction', {
+				'comment', "Clear",
+				'RolloverText', "Clear Planet Mars Colors",
+				'ActionId', "DE_TogglePlanetMarsColorsClear",
+				'ActionSortKey', "0",
+				'ActionTranslate', false,
+				'ActionName', "Clear",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'OnAction', function (self, host, source) DbgShowPlanetColors() end,
+				'replace_matching_id', true,
+			}),
+			PlaceObj('XTemplateAction', {
+				'comment', "Prefab",
+				'RolloverText', "Show Planet Mars Colors - Prefab",
+				'ActionId', "DE_TogglePlanetMarsColorsMapName",
+				'ActionSortKey', "1",
+				'ActionTranslate', false,
+				'ActionName', "Prefab Name",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'OnAction', function (self, host, source) DbgShowPlanetColors(DbgPlanetColorsCallbackName) end,
+				'replace_matching_id', true,
+			}),
+			PlaceObj('XTemplateAction', {
+				'comment', "Topography",
+				'RolloverText', "Show Planet Mars Colors - Topography",
+				'ActionId', "DE_TogglePlanetMarsColorsMapTopography",
+				'ActionSortKey', "2",
+				'ActionTranslate', false,
+				'ActionName', "Map Topography",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'OnAction', function (self, host, source) DbgShowPlanetColors(DbgPlanetColorsCallbackTopography) end,
+				'replace_matching_id', true,
+			}),
+			PlaceObj('XTemplateAction', {
+				'comment', "Difficulty",
+				'RolloverText', "Show Planet Mars Colors - Difficulty",
+				'ActionId', "DE_TogglePlanetMarsColorsMapDifficulty",
+				'ActionSortKey', "3",
+				'ActionTranslate', false,
+				'ActionName', "Game Difficulty",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'OnAction', function (self, host, source) DbgShowPlanetColors(DbgPlanetColorsCallbackDifficulty) end,
+				'replace_matching_id', true,
+			}),
+			PlaceObj('XTemplateAction', {
+				'comment', "Altitude",
+				'RolloverText', "Show Planet Mars Colors - Altitude",
+				'ActionId', "DE_TogglePlanetMarsColorsMapChallenge",
+				'ActionSortKey', "3",
+				'ActionTranslate', false,
+				'ActionName', "Overlay Altitude",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'OnAction', function (self, host, source) DbgShowPlanetColors(DbgPlanetColorsCallbackAltitude) end,
+				'replace_matching_id', true,
+			}),
+			PlaceObj('XTemplateAction', {
+				'comment', "Style",
+				'RolloverText', "Show Planet Mars Colors - Style",
+				'ActionId', "DE_TogglePlanetMarsColorsMapStyle",
+				'ActionSortKey', "4",
+				'ActionTranslate', false,
+				'ActionName', "Dominant Style",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'OnAction', function (self, host, source)
+DbgShowPlanetColors(DbgPlanetColorsCallbackStyle)
+end,
+				'replace_matching_id', true,
+			}),
+			}),
+		}),
+	PlaceObj('XTemplateAction', {
+		'comment', "Debug place buildings",
+		'ActionId', "Buildings",
+		'ActionTranslate', false,
+		'ActionName', "Buildings",
+		'ActionMenubar', "DevMenu",
+		'OnActionEffect', "popup",
+		'__condition', function (parent, context) return Platform.developer and Platform.editor end,
+		'replace_matching_id', true,
+	}, {
+		PlaceObj('XTemplateAction', {
+			'comment', "Demolish (Delete)",
+			'RolloverText', "Demolish (Delete)",
+			'ActionId', "Demolish",
+			'ActionMode', "Game",
+			'ActionTranslate', false,
+			'ActionName', "Demolish",
+			'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+			'ActionShortcut', "Delete",
+			'OnAction', function (self, host, source)
+				if GetInGameInterface() and not g_Tutorial then
+					GetInGameInterface():SetMode("demolish")
+				end
+end,
+			'replace_matching_id', true,
+		}),
+		PlaceObj('XTemplateAction', {
+			'comment', "Power Cables",
+			'RolloverText', "Power Cables",
+			'ActionId', "Electricity Grid",
+			'ActionMode', "Game",
+			'ActionTranslate', false,
+			'ActionName', "Electricity Grid",
+			'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+			'OnAction', function (self, host, source)
+				if GetInGameInterface() then
+					GetInGameInterface():SetMode("electricity_grid")
+				end
+end,
+			'replace_matching_id', true,
+		}),
+		PlaceObj('XTemplateAction', {
+			'comment', "Pipes",
+			'RolloverText', "Pipes",
+			'ActionId', "LifeSupport Grid",
+			'ActionMode', "Game",
+			'ActionTranslate', false,
+			'ActionName', "LifeSupport Grid",
+			'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+			'OnAction', function (self, host, source)
+				if GetInGameInterface() then
+					GetInGameInterface():SetMode("life_support_grid")
+				end
+end,
+			'replace_matching_id', true,
+		}),
+		PlaceObj('XTemplateForEach', {
+			'comment', "Folders",
+			'array', function (parent, context) return SortedBuildingTemplates end,
+			'condition', function (parent, context, item, i) return i % 20 == 1 end,
+			'run_before', function (parent, context, item, i, n)
+context.building_start_index = i
+end,
+			'run_after', function (child, context, item, i, n)
+child.ActionId = "BuildFolder" .. i
+child.ActionName = item .. ", ..."
+end,
+		}, {
+			PlaceObj('XTemplateAction', {
+				'ActionTranslate', false,
+				'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+				'OnActionEffect', "popup",
+			}, {
+				PlaceObj('XTemplateForEach', {
+					'comment', "Buildings in folder",
+					'array', function (parent, context) return SortedBuildingTemplates end,
+					'condition', function (parent, context, item, i) return i >= context.building_start_index and i < context.building_start_index + 20 end,
+					'run_after', function (child, context, item, i, n)
+child.ActionId = "Build" .. item
+child.ActionName = "Place ".. item
+child.ActionMenubar = "BuildFolder" .. context.building_start_index
+child.OnAction = function()
+	if IsEditorActive() then
+		g_EditorModeDlg = OpenDialog("ConstructionModeDialog", GetEditorInterface(), { template = item })
+	elseif GetInGameInterface() then
+		GetInGameInterface():SetMode("construction", { template = item })
+	end	
+end
+end,
+				}, {
+					PlaceObj('XTemplateAction', {
+						'ActionTranslate', false,
+					}),
+					}),
+				}),
+			}),
+		}),
 	PlaceObj('XTemplateAction', {
 		'ActionMode', "Game",
 	}, {
@@ -10,7 +639,7 @@ PlaceObj('XTemplate', {
 			'ActionId', "actionPOCMapAlt0",
 			'ActionName', T{727272233433, --[[XTemplate GameShortcuts ActionName]] "Open Empty Map"},
 			'ActionShortcut', "Alt-0",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 CheatChangeMap("POCMap_Alt_00")
 end,
 		}),
@@ -18,7 +647,7 @@ end,
 			'ActionId', "actionPOCMapAlt1",
 			'ActionName', T{4521, --[[XTemplate GameShortcuts ActionName]] "Open POC Map 1"},
 			'ActionShortcut', "Alt-1",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 CheatChangeMap("POCMap_Alt_01")
 end,
 		}),
@@ -26,7 +655,7 @@ end,
 			'ActionId', "actionPOCMapAlt2",
 			'ActionName', T{722962309661, --[[XTemplate GameShortcuts ActionName]] "Open POC Map 2"},
 			'ActionShortcut', "Alt-2",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 CheatChangeMap("POCMap_Alt_02")
 end,
 		}),
@@ -34,7 +663,7 @@ end,
 			'ActionId', "actionPOCMapAlt3",
 			'ActionName', T{753123816124, --[[XTemplate GameShortcuts ActionName]] "Open POC Map 3"},
 			'ActionShortcut', "Alt-3",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 CheatChangeMap("POCMap_Alt_03")
 end,
 		}),
@@ -42,7 +671,7 @@ end,
 			'ActionId', "actionPOCMapAlt4",
 			'ActionName', T{4522, --[[XTemplate GameShortcuts ActionName]] "Open POC Map 4"},
 			'ActionShortcut', "Alt-4",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 CheatChangeMap("POCMap_Alt_04")
 end,
 		}),
@@ -50,7 +679,7 @@ end,
 			'ActionId', "actionPOCMapAlt5",
 			'ActionName', T{6974, --[[XTemplate GameShortcuts ActionName]] "Open POC Map LateGame"},
 			'ActionShortcut', "Alt-5",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 CheatChangeMap("POCMap_LateGame")
 end,
 		}),
@@ -59,11 +688,11 @@ end,
 			'ActionName', T{152768500780, --[[XTemplate GameShortcuts ActionName]] "Toggle In Game Main Menu"},
 			'ActionShortcut', "Escape",
 			'ActionGamepad', "Start",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 local dlg = GetHUD()
 local modal = terminal.desktop:GetModalWindow()
-if igi and dlg and dlg.ctrl_state ~= "destroying" and igi:GetVisible() and (not modal or modal == terminal.desktop) then
+if igi and dlg and dlg.window_state ~= "destroying" and igi:GetVisible() and (not modal or modal == terminal.desktop) then
 	dlg.idMenu:Press()
 else
 	CloseIngameMainMenu()
@@ -130,6 +759,24 @@ end,
 			'ActionBindSingleKey', true,
 		}),
 		PlaceObj('XTemplateAction', {
+			'ActionId', "actionRotUp",
+			'ActionMode', "ForwardToC",
+			'ActionName', T{384814720970, --[[XTemplate GameShortcuts ActionName]] "Rotate Camera Up"},
+			'ActionShortcut', "F",
+			'ActionBindable', true,
+			'ActionMouseBindable', false,
+			'ActionBindSingleKey', true,
+		}),
+		PlaceObj('XTemplateAction', {
+			'ActionId', "actionRotDown",
+			'ActionMode', "ForwardToC",
+			'ActionName', T{240317934981, --[[XTemplate GameShortcuts ActionName]] "Rotate Camera Down"},
+			'ActionShortcut', "G",
+			'ActionBindable', true,
+			'ActionMouseBindable', false,
+			'ActionBindSingleKey', true,
+		}),
+		PlaceObj('XTemplateAction', {
 			'ActionId', "actionZoomIn",
 			'ActionMode', "ForwardToC",
 			'ActionName', T{279635353384, --[[XTemplate GameShortcuts ActionName]] "Zoom In"},
@@ -161,7 +808,7 @@ end,
 			'ActionShortcut2', "Pause",
 			'ActionGamepad', "DPadDown",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 if igi and igi:GetVisible() or GetCommandCenterDialog() then
 	if PauseReasons.Debug then Resume("Debug") else TogglePause() end
@@ -176,7 +823,7 @@ end,
 			'ActionShortcut2', "Numpad +",
 			'ActionGamepad', "DPadRight",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 if not igi or (not igi:GetVisible() and not GetCommandCenterDialog()) then return end
 if Platform.developer then
@@ -198,7 +845,7 @@ end,
 			'ActionShortcut2', "Numpad -",
 			'ActionGamepad', "DPadLeft",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 if not igi or (not igi:GetVisible() and not GetCommandCenterDialog()) then return end
 if Platform.developer then
@@ -223,7 +870,7 @@ end,
 			'ActionName', T{852738262115, --[[XTemplate GameShortcuts ActionName]] "Toggle High Speed"},
 			'ActionShortcut', "Numpad *",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 if not igi or (not igi:GetVisible() and not GetCommandCenterDialog()) then return end
 if UICity then
@@ -244,10 +891,18 @@ end,
 			'ActionGamepad', "LeftShoulder",
 			'ActionBindable', true,
 			'ActionMouseBindable', false,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 local m = GetInGameInterfaceMode()
-local obj = m == "tunnel_construction" and CityTunnelConstruction[UICity] or m == "construction" and CityConstruction[UICity]
-				or m == "passage_ramp" and CityGridSwitchConstruction[UICity]
+local obj
+if m == "tunnel_construction" then
+	obj = CityTunnelConstruction[UICity]
+elseif m == "construction" then
+	obj = CityConstruction[UICity]
+elseif m == "passage_ramp" then	
+	obj = CityGridSwitchConstruction[UICity]
+elseif m == "electricity_grid" or m == "life_support_grid" or m == "passage_grid" then
+	GetInGameInterfaceModeDlg():ToggleBuildDirection()
+end
 if obj then
 	obj:Rotate(-1)
 end
@@ -261,10 +916,18 @@ end,
 			'ActionGamepad', "RightShoulder",
 			'ActionBindable', true,
 			'ActionMouseBindable', false,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 local m = GetInGameInterfaceMode()
-local obj = m == "tunnel_construction" and CityTunnelConstruction[UICity] or m == "construction" and CityConstruction[UICity]
-					or m == "passage_ramp" and CityGridSwitchConstruction[UICity]
+local obj
+if m == "tunnel_construction" then
+	obj = CityTunnelConstruction[UICity]
+elseif m == "construction" then
+	obj = CityConstruction[UICity]
+elseif m == "passage_ramp" then	
+	obj = CityGridSwitchConstruction[UICity]
+elseif m == "electricity_grid" or m == "life_support_grid" or m == "passage_grid" then
+	GetInGameInterfaceModeDlg():ToggleBuildDirection()
+end
 if obj then
 	obj:Rotate(1)
 end
@@ -275,10 +938,10 @@ end,
 			'ActionName', T{383281603855, --[[XTemplate GameShortcuts ActionName]] "Build Menu"},
 			'ActionShortcut', "B",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 local dlg = GetHUD()
-if igi and dlg and dlg.ctrl_state ~= "destroying" and igi:GetVisible() and igi.mode == "selection" then
+if igi and dlg and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode == "selection" then
 	dlg.idBuild:Press()
 end
 end,
@@ -289,11 +952,11 @@ end,
 			'ActionName', T{786525376837, --[[XTemplate GameShortcuts ActionName]] "Map Overview"},
 			'ActionShortcut', "M",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 if not g_PhotoMode then
 	local igi = GetInGameInterface()
 	local dlg = GetHUD()
-	if igi and igi:GetVisible() and dlg and dlg.ctrl_state ~= "destroying" then
+	if igi and igi:GetVisible() and dlg and dlg.window_state ~= "destroying" then
 		dlg.idOverview:Press()
 	end
 	if Platform.developer and not igi then
@@ -308,7 +971,7 @@ end,
 			'ActionName', T{600243851394, --[[XTemplate GameShortcuts ActionName]] "Toggle Resource Icons"},
 			'ActionShortcut', "I",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 ToggleResourceIcons()
 end,
 		}),
@@ -318,7 +981,7 @@ end,
 			'ActionShortcut', "X",
 			'ActionGamepad', "ButtonX",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 DeployOrbitalProbe()
 end,
 			'IgnoreRepeated', true,
@@ -328,7 +991,7 @@ end,
 			'ActionName', T{864744602325, --[[XTemplate GameShortcuts ActionName]] "Reset Camera"},
 			'ActionShortcut', "Home",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 ResetRTSCamera()
 end,
 			'IgnoreRepeated', true,
@@ -338,10 +1001,10 @@ end,
 			'ActionName', T{796804896133, --[[XTemplate GameShortcuts ActionName]] "Radio"},
 			'ActionShortcut', "Y",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 local dlg = GetHUD()
-if igi and dlg and dlg.ctrl_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
+if igi and dlg and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
 	dlg.idRadio:Press()
 else
 	CloseDialog("RadioStationDlg")
@@ -354,10 +1017,10 @@ end,
 			'ActionName', T{970807214544, --[[XTemplate GameShortcuts ActionName]] "Resupply Screen"},
 			'ActionShortcut', "P",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 local dlg = GetHUD()
-if igi and dlg and dlg.ctrl_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
+if igi and dlg and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
 	dlg.idResupply:Press()
 else
 	CloseDialog("Resupply")
@@ -370,10 +1033,10 @@ end,
 			'ActionName', T{771055429123, --[[XTemplate GameShortcuts ActionName]] "Research Screen"},
 			'ActionShortcut', "H",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 local dlg = GetHUD()
-if igi and dlg and dlg.ctrl_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
+if igi and dlg and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
 	dlg.idResearch:Press()
 else
 	CloseResearchDialog()
@@ -386,10 +1049,10 @@ end,
 			'ActionName', T{7849, --[[XTemplate GameShortcuts ActionName]] "Colony Overview"},
 			'ActionShortcut', "O",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 local dlg = GetHUD()
-if igi and dlg and dlg.ctrl_state ~= "destroying" and igi:GetVisible() then
+if igi and dlg and dlg.window_state ~= "destroying" and igi:GetVisible() then
 	dlg.idColonyOverview:Press()
 end
 end,
@@ -400,10 +1063,10 @@ end,
 			'ActionName', T{137542936955, --[[XTemplate GameShortcuts ActionName]] "Command Center"},
 			'ActionShortcut', "Z",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 local dlg = GetHUD()
-if igi and dlg and dlg.ctrl_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
+if igi and dlg and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
 	dlg.idColonyControlCenter:Press()
 else
 	CloseCommandCenter()
@@ -416,13 +1079,13 @@ end,
 			'ActionName', T{973748367669, --[[XTemplate GameShortcuts ActionName]] "Milestones"},
 			'ActionShortcut', "L",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 local dlg = GetHUD()
-if igi and dlg and dlg.ctrl_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
+if igi and dlg and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
 	dlg.idMarkers:Press()
 else
-	 CloseXDialog("Milestones")
+	 CloseDialog("Milestones")
 end
 end,
 			'IgnoreRepeated', true,
@@ -432,14 +1095,14 @@ end,
 			'ActionName', T{697482021580, --[[XTemplate GameShortcuts ActionName]] "Achievements"},
 			'ActionShortcut', ";",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
-local dlg = GetXDialog("Achievements")
+local dlg = GetDialog("Achievements")
 if (GameState.gameplay and igi and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog")) or
 	(not GameState.gameplay and not dlg) then
-	OpenXDialog("Achievements")
+	OpenDialog("Achievements")
 else
-	CloseXDialog("Achievements")
+	CloseDialog("Achievements")
 end
 end,
 			'IgnoreRepeated', true,
@@ -450,7 +1113,7 @@ end,
 			'ActionName', T{7695, --[[XTemplate GameShortcuts ActionName]] "Next Dome"},
 			'ActionShortcut', "Pageup",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 NextDome()
 end,
 			'IgnoreRepeated', true,
@@ -460,7 +1123,7 @@ end,
 			'ActionName', T{411744294712, --[[XTemplate GameShortcuts ActionName]] "Previous Dome"},
 			'ActionShortcut', "Pagedown",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 PreviousDome()
 end,
 			'IgnoreRepeated', true,
@@ -469,7 +1132,7 @@ end,
 			'ActionId', "actionNextRover",
 			'ActionName', T{7696, --[[XTemplate GameShortcuts ActionName]] "Next Rover"},
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 NextRover()
 end,
 			'IgnoreRepeated', true,
@@ -478,10 +1141,28 @@ end,
 			'ActionId', "actionPreviousRover",
 			'ActionName', T{749913145697, --[[XTemplate GameShortcuts ActionName]] "Previous Rover"},
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 PreviousRover()
 end,
 			'IgnoreRepeated', true,
+		}),
+		PlaceObj('XTemplateAction', {
+			'ActionId', "actionNextBuilding",
+			'ActionName', T{447211684750, --[[XTemplate GameShortcuts ActionName]] "Next Building"},
+			'ActionShortcut', "\\",
+			'ActionBindable', true,
+			'OnAction', function (self, host, source)
+SelectNextBuildingOfSameType(1)
+end,
+		}),
+		PlaceObj('XTemplateAction', {
+			'ActionId', "actionPreviousBuilding",
+			'ActionName', T{961951175823, --[[XTemplate GameShortcuts ActionName]] "Previous Building"},
+			'ActionShortcut', "'",
+			'ActionBindable', true,
+			'OnAction', function (self, host, source)
+SelectNextBuildingOfSameType(-1)
+end,
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "actionToggleDemolish",
@@ -492,7 +1173,7 @@ end,
 			'ActionState', function (self, host)
 return SelectedObj and IsKindOf(SelectedObj, "Demolishable") or "disabled"
 end,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 FocusInfopanel = false
 if SelectedObj and IsKindOf(SelectedObj, "Demolishable") and not (g_Tutorial and IsKindOf(SelectedObj, "ConstructionSite")) then
 	SelectedObj:ToggleDemolish()
@@ -504,6 +1185,21 @@ end,
 			'IgnoreRepeated', true,
 		}),
 		PlaceObj('XTemplateAction', {
+			'ActionId', "actionFollowCamera",
+			'ActionName', T{10117, --[[XTemplate GameShortcuts ActionName]] "Follow Camera"},
+			'ActionToolbar', "SelectedObj",
+			'ActionBindable', true,
+			'OnAction', function (self, host, source)
+local igi = GetInGameInterface()
+if igi and igi:GetVisible() and igi.mode == "selection" then
+	local obj = SelectedObj
+	if obj and IsKindOf(obj, "CameraFollowObject") then
+		Camera3pFollow(obj)
+	end
+end
+end,
+		}),
+		PlaceObj('XTemplateAction', {
 			'ActionId', "actionTogglePin",
 			'ActionName', T{646525548286, --[[XTemplate GameShortcuts ActionName]] "Pin/Unpin Selected"},
 			'ActionToolbar', "SelectedObj",
@@ -511,7 +1207,7 @@ end,
 			'ActionState', function (self, host)
 return SelectedObj and IsKindOf(SelectedObj, "PinnableObject") or "disabled"
 end,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 FocusInfopanel = false
 if SelectedObj and IsKindOf(SelectedObj, "PinnableObject") then
 	SelectedObj:TogglePin()
@@ -528,7 +1224,7 @@ end,
 			'ActionState', function (self, host)
 return SelectedObj and IsKindOf(SelectedObj, "Renamable") or "disabled"
 end,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 FocusInfopanel = false
 if SelectedObj and IsKindOf(SelectedObj, "Renamable") then
 	SelectedObj:ShowRenameUI()
@@ -545,7 +1241,7 @@ end,
 			'ActionState', function (self, host)
 return SelectedObj and IsKindOf(SelectedObj, "DroneBase") or "disabled"
 end,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 FocusInfopanel = false
 if not SelectedObj or not IsKindOf(SelectedObj, "DroneBase") then return end
 local igi = GetInGameInterface()
@@ -566,7 +1262,7 @@ end,
 			'ActionState', function (self, host)
 return SelectedObj and IsKindOf(SelectedObj, "SupplyRocket") or "disabled"
 end,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 if SelectedObj and IsKindOf(SelectedObj, "SupplyRocket") then
 	SelectedObj:UILaunch()
 end
@@ -581,7 +1277,7 @@ end,
 			'ActionState', function (self, host)
 return SelectedObj and IsKindOf(SelectedObj, "RCTransport") or "disabled"
 end,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 FocusInfopanel = false
 if not SelectedObj or not IsKindOf(SelectedObj, "RCTransport") then return end
 local igi = GetInGameInterface()
@@ -603,7 +1299,7 @@ end,
 			'ActionState', function (self, host)
 return SelectedObj and IsKindOf(SelectedObj, "RCTransport") or "disabled"
 end,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 FocusInfopanel = false
 if not SelectedObj or not IsKindOf(SelectedObj, "RCTransport") then return end
 local igi = GetInGameInterface()
@@ -625,7 +1321,7 @@ end,
 			'ActionState', function (self, host)
 return SelectedObj and IsKindOf(SelectedObj, "Drone") or "disabled"
 end,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 FocusInfopanel = false
 if not SelectedObj or not IsKindOf(SelectedObj, "Drone") then return end
 local igi = GetInGameInterface()
@@ -647,7 +1343,7 @@ end,
 			'ActionState', function (self, host)
 return SelectedObj and IsKindOf(SelectedObj, "Drone") or "disabled"
 end,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 FocusInfopanel = false
 if not SelectedObj or not IsKindOf(SelectedObj, "Drone") then return end
 local igi = GetInGameInterface()
@@ -669,7 +1365,7 @@ end,
 			'ActionState', function (self, host)
 return IsKindOf(SelectedObj, "Colonist") or "disabled"
 end,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 FocusInfopanel = false
 if not IsKindOf(SelectedObj, "Colonist") then return end
 local igi = GetInGameInterface()
@@ -690,7 +1386,7 @@ end,
 			'ActionState', function (self, host)
 return SelectedObj and IsKindOf(SelectedObj, "BaseRover") or "disabled"
 end,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 FocusInfopanel = false
 if not SelectedObj or not IsKindOf(SelectedObj, "BaseRover") then return end
 local igi = GetInGameInterface()
@@ -712,7 +1408,7 @@ end,
 			'ActionState', function (self, host)
 return IsKindOf(SelectedObj, "Building") and SelectedObj.prio_button or "disabled"
 end,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 FocusInfopanel = false
 if not IsKindOf(SelectedObj, "Building") or not SelectedObj.prio_button then return end
 SelectedObj:TogglePriority(1)
@@ -733,7 +1429,7 @@ end,
 	end
 	return "disabled"
 end,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 FocusInfopanel = false
 if not IsKindOf(SelectedObj, "Building") or not SelectedObj.on_off_button or (IsKindOf(SelectedObj, "ConstructionSite") and SelectedObj.building_class== "BlackCubeMonolith") then return end
 SelectedObj:ToggleWorking()
@@ -750,7 +1446,7 @@ end,
 			'ActionState', function (self, host)
 return IsKindOf(SelectedObj, "Dome") or "disabled"
 end,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 FocusInfopanel = false
 if not IsKindOf(SelectedObj, "Dome") then return end
 SelectedObj:OpenFilterTraits()
@@ -762,10 +1458,10 @@ end,
 			'ActionName', T{748588275043, --[[XTemplate GameShortcuts ActionName]] "Last Notification"},
 			'ActionShortcut', "Backspace",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 if not igi or not igi:GetVisible() then return end
-local dlg = GetXDialog("OnScreenNotificationsDlg")
+local dlg = GetDialog("OnScreenNotificationsDlg")
 local notifications = dlg and dlg.idNotifications
 if dlg and #notifications > 0 then
 	notifications[#notifications].idButton:Press()
@@ -778,7 +1474,7 @@ end,
 			'ActionName', T{614477738289, --[[XTemplate GameShortcuts ActionName]] "Last Constructed Building"},
 			'ActionShortcut', "End",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 if not igi or not igi:GetVisible() then return end
 local bld = UICity and UICity.LastConstructedBuilding
@@ -795,7 +1491,7 @@ end,
 			'ActionName', T{881, --[[XTemplate GameShortcuts ActionName]] "Power Cables"},
 			'ActionShortcut', "C",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 if g_Tutorial and g_Tutorial.BuildMenuWhitelist and not g_Tutorial.BuildMenuWhitelist.PowerCables then return end
 local igi = GetInGameInterface()
 if not igi or not igi:GetVisible() then return end
@@ -809,7 +1505,7 @@ end,
 			'ActionName', T{882, --[[XTemplate GameShortcuts ActionName]] "Pipes"},
 			'ActionShortcut', "V",
 			'ActionBindable', true,
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 if g_Tutorial and g_Tutorial.BuildMenuWhitelist and not g_Tutorial.BuildMenuWhitelist.Pipes then return end
 local igi = GetInGameInterface()
 if not igi or not igi:GetVisible() then return end
@@ -821,18 +1517,57 @@ end,
 		PlaceObj('XTemplateAction', {
 			'ActionId', "actionToggleFullscreen",
 			'ActionShortcut', "Alt-Enter",
-			'OnAction', function (self, host, source, toggled)
+			'OnAction', function (self, host, source)
 ToggleFullscreen()
 end,
 		}),
+		PlaceObj('XTemplateAction', {
+			'comment', "Show Last Hint (F1)",
+			'ActionId', "ShowHints",
+			'ActionTranslate', false,
+			'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+			'ActionShortcut', "F1",
+			'OnAction', function (self, host, source)
+				ShowLastHint()
+end,
+			'replace_matching_id', true,
+		}),
+		PlaceObj('XTemplateAction', {
+			'comment', "Toggles selected rover control mode. (-Ctrl)",
+			'ActionId', "RoverControlModeStop",
+			'ActionTranslate', false,
+			'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+			'ActionShortcut', "-Ctrl",
+			'OnAction', function (self, host, source)
+				if IsValid(SelectedObj) and IsKindOfClasses(SelectedObj, "DroneBase") and not GetDialog("ResourceItems") then
+					SelectedObj:SetControlMode(false)
+					return "break"
+				end
+end,
+			'replace_matching_id', true,
+		}),
+		PlaceObj('XTemplateAction', {
+			'comment', "Toggles selected rover control mode. (Ctrl)",
+			'ActionId', "RoverControlMode",
+			'ActionTranslate', false,
+			'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+			'ActionShortcut', "Ctrl",
+			'OnAction', function (self, host, source)
+				if IsValid(SelectedObj) and IsKindOfClasses(SelectedObj, "DroneBase") and not GetDialog("ResourceItems") then
+					SelectedObj:SetControlMode(true)
+					return "break"
+				end
+end,
+			'replace_matching_id', true,
+		}),
 		PlaceObj('XTemplateForEach', {
 			'comment', "buildings",
-			'array', function (parent, context) local t = table.icopy(DataInstances.BuildingTemplate or empty_table) TSort(t, "display_name") return t end,
+			'array', function (parent, context) local t = table.values(BuildingTemplates or empty_table) TSort(t, "display_name") return t end,
 			'condition', function (parent, context, item, i) return item.build_category ~= "Hidden" end,
 			'run_after', function (child, context, item, i, n)
-child.OnActionParam = item.name
+child.OnActionParam = item.id
 child.ActionName = item.display_name
-child.ActionId = "actionBuild" .. item.name
+child.ActionId = "actionBuild" .. item.id
 child.ActionShortcut = item.build_shortcut1
 child.ActionShortcut2 = item.build_shortcut2
 child.ActionGamepad = item.build_shortcut_gamepad
@@ -841,25 +1576,1027 @@ end,
 		}, {
 			PlaceObj('XTemplateAction', {
 				'ActionBindable', true,
-				'OnAction', function (self, host, source, toggled)
+				'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 if not igi or not igi:GetVisible() then return end
-local bld_template = DataInstances.BuildingTemplate[self.OnActionParam]
+local bld_template = BuildingTemplates[self.OnActionParam]
 local show, prefabs, can_build, action = UIGetBuildingPrerequisites(bld_template.build_category, bld_template, true)
-local dlg = GetXDialog("XBuildMenu")
+local dlg = GetDialog("XBuildMenu")
 if show then
 	local items
 	local parent_categories = GetBuildMenuSubcategories()
 	if parent_categories and parent_categories[bld_template.build_category] ~= nil then
 		items = table.values(UIItemMenu(bld_template.build_category, true), false, "name")
 	end
-	action(nil, {enabled = can_build, name = bld_template.name, construction_mode = bld_template.construction_mode, template_variants = items})
+	action(nil, {enabled = can_build, name = bld_template.id, construction_mode = bld_template.construction_mode, template_variants = items})
 	CloseXBuildMenu()
 end
 end,
 				'IgnoreRepeated', true,
 			}),
 			}),
+		PlaceObj('XTemplateAction', {
+			'ActionId', "Cheats",
+			'ActionTranslate', false,
+			'ActionName', "Cheats",
+			'ActionMenubar', "DevMenu",
+			'OnActionEffect', "popup",
+			'__condition', function (parent, context) return Platform.editor end,
+			'replace_matching_id', true,
+		}, {
+			PlaceObj('XTemplateAction', {
+				'ActionId', "Cheats.Map Exploration",
+				'ActionTranslate', false,
+				'ActionName', "Map Exploration ...",
+				'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+				'OnActionEffect', "popup",
+				'replace_matching_id', true,
+			}, {
+				PlaceObj('XTemplateAction', {
+					'comment', "Reveal all Deposits (all)",
+					'RolloverText', "Reveal all Deposits (all)",
+					'ActionId', "MapExplorationScan",
+					'ActionTranslate', false,
+					'ActionName', "Scan",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatMapExplore("scanned")
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'comment', "Reveal all deposits level 1 and above",
+					'RolloverText', "Reveal all deposits level 1 and above",
+					'ActionId', "MapExplorationDeepScan",
+					'ActionTranslate', false,
+					'ActionName', "Deep Scan",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatMapExplore("deep scanned")
+end,
+					'replace_matching_id', true,
+				}),
+				}),
+			PlaceObj('XTemplateAction', {
+				'ActionId', "Cheats.Change Map",
+				'ActionTranslate', false,
+				'ActionName', "Change Map ...",
+				'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+				'OnActionEffect', "popup",
+				'replace_matching_id', true,
+			}, {
+				PlaceObj('XTemplateAction', {
+					'ActionId', "ChangeMapEmpty",
+					'ActionTranslate', false,
+					'ActionName', "Empty Map",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				CheatChangeMap("POCMap_Alt_00")
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "ChangeMapPocMapAlt1",
+					'ActionTranslate', false,
+					'ActionName', "Phase 1",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				CheatChangeMap("POCMap_Alt_01")
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "ChangeMapPocMapAlt2",
+					'ActionTranslate', false,
+					'ActionName', "Phase 2 (Early)",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				CheatChangeMap("POCMap_Alt_02")
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "ChangeMapPocMapAlt3",
+					'ActionTranslate', false,
+					'ActionName', "Phase 2 (Late)",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				CheatChangeMap("POCMap_Alt_03")
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "ChangeMapPocMapAlt4",
+					'ActionTranslate', false,
+					'ActionName', "Phase 3",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				CheatChangeMap("POCMap_Alt_04")
+end,
+					'replace_matching_id', true,
+				}),
+				}),
+			PlaceObj('XTemplateAction', {
+				'ActionId', "Cheats.Trigger Disaster",
+				'ActionTranslate', false,
+				'ActionName', "Trigger Disaster ...",
+				'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+				'OnActionEffect', "popup",
+				'replace_matching_id', true,
+			}, {
+				PlaceObj('XTemplateAction', {
+					'ActionId', "Cheats.Trigger Disaster Dust Devil",
+					'ActionSortKey', "1",
+					'ActionTranslate', false,
+					'ActionName', "Dust Devil...",
+					'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+					'OnActionEffect', "popup",
+					'replace_matching_id', true,
+				}, {
+					PlaceObj('XTemplateForEach', {
+						'comment', "dust devil",
+						'array', function (parent, context) return DataInstanceCombo("MapSettings_DustDevils")() end,
+						'run_after', function (child, context, item, i, n)
+child.ActionId = "TriggerDisaster" .. item
+child.ActionName = item
+child.ActionSortKey = tostring(i)
+child.OnAction = function()
+	if not CheatsEnabled() then return end
+	CheatDustDevil(false, item)
+end
+end,
+					}, {
+						PlaceObj('XTemplateAction', {
+							'ActionTranslate', false,
+							'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						}),
+						}),
+					PlaceObj('XTemplateAction', {
+						'comment', "Dust Devil",
+						'RolloverText', "Dust Devil",
+						'ActionId', "TriggerDisasterDustDevil",
+						'ActionSortKey', "0",
+						'ActionTranslate', false,
+						'ActionName', "Default Dust Devil",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'OnAction', function (self, host, source)
+if not CheatsEnabled() then return end
+CheatDustDevil()
+end,
+						'replace_matching_id', true,
+					}),
+					}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "Cheats.Trigger Disaster Dust Devil Major",
+					'ActionSortKey', "2",
+					'ActionTranslate', false,
+					'ActionName', "Dust Devil Major...",
+					'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+					'OnActionEffect', "popup",
+					'replace_matching_id', true,
+				}, {
+					PlaceObj('XTemplateForEach', {
+						'comment', "major dust devil",
+						'array', function (parent, context) return DataInstanceCombo("MapSettings_DustDevils")() end,
+						'run_after', function (child, context, item, i, n)
+child.ActionId = "TriggerDisaster" .. item .. "Major"
+child.ActionName = "Major " .. item
+child.ActionSortKey = tostring(i)
+child.OnAction = function()
+	if not CheatsEnabled() then return end
+	CheatDustDevil("major", item)
+end
+end,
+					}, {
+						PlaceObj('XTemplateAction', {
+							'ActionTranslate', false,
+							'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						}),
+						}),
+					PlaceObj('XTemplateAction', {
+						'comment', "Dust Devil",
+						'RolloverText', "Major Dust Devil",
+						'ActionId', "TriggerDisasterDustDevilMajor",
+						'ActionSortKey', "0",
+						'ActionTranslate', false,
+						'ActionName', "Default Major Dust Devil",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'OnAction', function (self, host, source)
+if not CheatsEnabled() then return end
+CheatDustDevil("major")
+end,
+						'replace_matching_id', true,
+					}),
+					}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "Cheats.Trigger Disaster Dust Storm",
+					'ActionSortKey', "3",
+					'ActionTranslate', false,
+					'ActionName', "Dust Storm...",
+					'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+					'OnActionEffect', "popup",
+					'replace_matching_id', true,
+				}, {
+					PlaceObj('XTemplateForEach', {
+						'comment', "dust storm",
+						'array', function (parent, context) return DataInstanceCombo("MapSettings_DustStorm")() end,
+						'run_after', function (child, context, item, i, n)
+child.ActionId = "TriggerDisaster" .. item
+child.ActionName = item
+child.ActionSortKey = tostring(i)
+child.OnAction = function()
+	if not CheatsEnabled() then return end
+	CheatDustStorm("normal", item)
+end
+end,
+					}, {
+						PlaceObj('XTemplateAction', {
+							'ActionTranslate', false,
+							'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						}),
+						}),
+					PlaceObj('XTemplateAction', {
+						'comment', "Dust Storm",
+						'RolloverText', "Dust Storm",
+						'ActionId', "TriggerDisasterDustStormNormal",
+						'ActionSortKey', "0",
+						'ActionTranslate', false,
+						'ActionName', "Default Dust Storm",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatDustStorm("normal")
+end,
+						'replace_matching_id', true,
+					}),
+					}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "Cheats.Trigger Disaster Dust Storm Great",
+					'ActionSortKey', "4",
+					'ActionTranslate', false,
+					'ActionName', "Dust Storm Great...",
+					'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+					'OnActionEffect', "popup",
+					'replace_matching_id', true,
+				}, {
+					PlaceObj('XTemplateForEach', {
+						'comment', "great dust storm",
+						'array', function (parent, context) return DataInstanceCombo("MapSettings_DustStorm")() end,
+						'run_after', function (child, context, item, i, n)
+child.ActionId = "TriggerDisaster" .. item .. "Great"
+child.ActionName = "Great " .. item
+child.ActionSortKey = tostring(i)
+child.OnAction = function()
+	if not CheatsEnabled() then return end
+	CheatDustStorm("great", item)
+end
+end,
+					}, {
+						PlaceObj('XTemplateAction', {
+							'ActionTranslate', false,
+							'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						}),
+						}),
+					PlaceObj('XTemplateAction', {
+						'comment', "Dust Storm",
+						'RolloverText', "Dust Storm",
+						'ActionId', "TriggerDisasterDustStormGreat",
+						'ActionSortKey', "0",
+						'ActionTranslate', false,
+						'ActionName', "Default Great Dust Storm",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatDustStorm("great")
+end,
+						'replace_matching_id', true,
+					}),
+					}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "Cheats.Trigger Disaster Dust Storm Electrostatic",
+					'ActionSortKey', "5",
+					'ActionTranslate', false,
+					'ActionName', "Dust Storm Electrostatic...",
+					'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+					'OnActionEffect', "popup",
+					'replace_matching_id', true,
+				}, {
+					PlaceObj('XTemplateForEach', {
+						'comment', "electrostatic dust storm",
+						'array', function (parent, context) return DataInstanceCombo("MapSettings_DustStorm")() end,
+						'run_after', function (child, context, item, i, n)
+child.ActionId = "TriggerDisaster" .. item .. "Electrostatic"
+child.ActionName = "Electrostatic " .. item
+child.ActionSortKey = tostring(i)
+child.OnAction = function()
+	if not CheatsEnabled() then return end
+	CheatDustStorm("electrostatic", item)
+end
+end,
+					}, {
+						PlaceObj('XTemplateAction', {
+							'ActionTranslate', false,
+							'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						}),
+						}),
+					PlaceObj('XTemplateAction', {
+						'comment', "Dust Storm",
+						'RolloverText', "Dust Storm",
+						'ActionId', "TriggerDisasterDustStormElectrostatic",
+						'ActionSortKey', "0",
+						'ActionTranslate', false,
+						'ActionName', "Default Electrostatic Dust Storm",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatDustStorm("electrostatic")
+end,
+						'replace_matching_id', true,
+					}),
+					}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "Cheats.Trigger Disaster Cold Wave",
+					'ActionSortKey', "6",
+					'ActionTranslate', false,
+					'ActionName', "Cold Wave...",
+					'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+					'OnActionEffect', "popup",
+					'replace_matching_id', true,
+				}, {
+					PlaceObj('XTemplateForEach', {
+						'comment', "cold wave",
+						'array', function (parent, context) return DataInstanceCombo("MapSettings_ColdWave")() end,
+						'run_after', function (child, context, item, i, n)
+child.ActionId = "TriggerDisaster" .. item
+child.ActionName = item
+child.ActionSortKey = tostring(i)
+child.OnAction = function()
+	if not CheatsEnabled() then return end
+	CheatColdWave(item)
+end
+end,
+					}, {
+						PlaceObj('XTemplateAction', {
+							'ActionTranslate', false,
+							'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						}),
+						}),
+					PlaceObj('XTemplateAction', {
+						'comment', "Cold Wave",
+						'RolloverText', "Cold Wave",
+						'ActionId', "TriggerDisasterColdWave",
+						'ActionSortKey', "0",
+						'ActionTranslate', false,
+						'ActionName', "Default Cold Wave",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'OnAction', function (self, host, source)
+if not CheatsEnabled() then return end
+CheatColdWave()
+end,
+						'replace_matching_id', true,
+					}),
+					}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "Cheats.Trigger Disaster Meteor",
+					'ActionSortKey', "7",
+					'ActionTranslate', false,
+					'ActionName', "Meteor...",
+					'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+					'OnActionEffect', "popup",
+					'replace_matching_id', true,
+				}, {
+					PlaceObj('XTemplateForEach', {
+						'comment', "meteor",
+						'array', function (parent, context) return DataInstanceCombo("MapSettings_Meteor")() end,
+						'run_after', function (child, context, item, i, n)
+child.ActionId = "TriggerDisaster" .. item
+child.ActionName = item
+child.ActionSortKey = tostring(i)
+child.OnAction = function()
+	if not CheatsEnabled() then return end
+	CheatMeteors("single", item)
+end
+end,
+					}, {
+						PlaceObj('XTemplateAction', {
+							'ActionTranslate', false,
+							'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						}),
+						}),
+					PlaceObj('XTemplateAction', {
+						'comment', "Meteors",
+						'RolloverText', "Meteors",
+						'ActionId', "TriggerDisasterMeteorsSingle",
+						'ActionSortKey', "0",
+						'ActionTranslate', false,
+						'ActionName', "Default Meteors Single",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'OnAction', function (self, host, source)
+if not CheatsEnabled() then return end
+CheatMeteors("single")
+end,
+						'replace_matching_id', true,
+					}),
+					}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "Cheats.Trigger Disaster Meteor Multi Spawn",
+					'ActionSortKey', "8",
+					'ActionTranslate', false,
+					'ActionName', "Meteor Multi Spawn...",
+					'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+					'OnActionEffect', "popup",
+					'replace_matching_id', true,
+				}, {
+					PlaceObj('XTemplateForEach', {
+						'comment', "multi spawn meteor",
+						'array', function (parent, context) return DataInstanceCombo("MapSettings_Meteor")() end,
+						'run_after', function (child, context, item, i, n)
+child.ActionId = "TriggerDisaster" .. item .. "MultiSpawn"
+child.ActionName = "Multi Spawn " .. item
+child.ActionSortKey = tostring(i)
+child.OnAction = function()
+	if not CheatsEnabled() then return end
+	CheatMeteors("multispawn", item)
+end
+end,
+					}, {
+						PlaceObj('XTemplateAction', {
+							'ActionTranslate', false,
+							'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						}),
+						}),
+					PlaceObj('XTemplateAction', {
+						'comment', "Meteors",
+						'RolloverText', "Meteors",
+						'ActionId', "TriggerDisasterMeteorsMultiSpawn",
+						'ActionSortKey', "0",
+						'ActionTranslate', false,
+						'ActionName', "Default Meteors Multi Spawn",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'OnAction', function (self, host, source)
+if not CheatsEnabled() then return end
+CheatMeteors("multispawn")
+end,
+						'replace_matching_id', true,
+					}),
+					}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "Cheats.Trigger Disaster Meteor Storm",
+					'ActionSortKey', "9",
+					'ActionTranslate', false,
+					'ActionName', "Meteor Storm...",
+					'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+					'OnActionEffect', "popup",
+					'replace_matching_id', true,
+				}, {
+					PlaceObj('XTemplateForEach', {
+						'comment', "meteor storm",
+						'array', function (parent, context) return DataInstanceCombo("MapSettings_Meteor")() end,
+						'run_after', function (child, context, item, i, n)
+child.ActionId = "TriggerDisaster" .. item .. "Storm"
+child.ActionName = "Storm " .. item
+child.ActionSortKey = tostring(i)
+child.OnAction = function()
+	if not CheatsEnabled() then return end
+	CheatMeteors("storm", item)
+end
+end,
+					}, {
+						PlaceObj('XTemplateAction', {
+							'ActionTranslate', false,
+							'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						}),
+						}),
+					PlaceObj('XTemplateAction', {
+						'comment', "Meteors",
+						'RolloverText', "Meteors",
+						'ActionId', "TriggerDisasterMeteorsStorm",
+						'ActionSortKey', "0",
+						'ActionTranslate', false,
+						'ActionName', "Default Meteors Storm",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'OnAction', function (self, host, source)
+if not CheatsEnabled() then return end
+CheatMeteors("storm")
+end,
+						'replace_matching_id', true,
+					}),
+					}),
+				PlaceObj('XTemplateAction', {
+					'comment', "Stop Disaster",
+					'RolloverText', "Stop Disaster",
+					'ActionId', "TriggerDisasterStop",
+					'ActionSortKey', "0",
+					'ActionTranslate', false,
+					'ActionName', "Stop Disaster",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatStopDisaster()
+end,
+					'replace_matching_id', true,
+				}),
+				}),
+			PlaceObj('XTemplateAction', {
+				'ActionId', "Cheats.Research",
+				'ActionTranslate', false,
+				'ActionName', "Research ...",
+				'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+				'OnActionEffect', "popup",
+				'replace_matching_id', true,
+			}, {
+				PlaceObj('XTemplateAction', {
+					'comment', "Finish current research instantly",
+					'RolloverText', "Finish current research instantly",
+					'ActionId', "G_ResearchCurrent",
+					'ActionTranslate', false,
+					'ActionName', "Research current tech",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatResearchCurrent()
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'comment', "Research all techs instantly",
+					'RolloverText', "Research all techs instantly",
+					'ActionId', "G_ResearchAll",
+					'ActionTranslate', false,
+					'ActionName', "Research all",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatResearchAll()
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'comment', "Unlock all techs instantly",
+					'RolloverText', "Unlock all techs instantly",
+					'ActionId', "G_UnlockАllТech",
+					'ActionTranslate', false,
+					'ActionName', "Unlock all Tech",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatUnlockAllTech()
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'comment', "Unlock all breakthroughs on this map",
+					'RolloverText', "Unlock all breakthroughs on this map",
+					'ActionId', "UnlockAllBreakthroughs",
+					'ActionTranslate', false,
+					'ActionName', "Unlock all Breakthroughs",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatUnlockBreakthroughs()
+end,
+					'replace_matching_id', true,
+				}),
+				}),
+			PlaceObj('XTemplateAction', {
+				'ActionId', "Cheats.Workplaces",
+				'ActionTranslate', false,
+				'ActionName', "Workplaces ...",
+				'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+				'OnActionEffect', "popup",
+				'replace_matching_id', true,
+			}, {
+				PlaceObj('XTemplateAction', {
+					'comment', "Clear Forced Workplaces",
+					'RolloverText', "Clear Forced Workplaces",
+					'ActionId', "G_CheatClearForcedWorkplaces",
+					'ActionTranslate', false,
+					'ActionName', "Clear Forced Workplaces",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatClearForcedWorkplaces()
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'comment', "Toggle All Shifts",
+					'RolloverText', "Toggle All Shifts",
+					'ActionId', "G_ToggleAllShifts",
+					'ActionTranslate', false,
+					'ActionName', "Toggle All Shifts",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatToggleAllShifts()
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'comment', "Update All Workplaces",
+					'RolloverText', "Update All Workplaces",
+					'ActionId', "G_CheatUpdateAllWorkplaces",
+					'ActionTranslate', false,
+					'ActionName', "Update All Workplaces",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatUpdateAllWorkplaces()
+end,
+					'replace_matching_id', true,
+				}),
+				}),
+			PlaceObj('XTemplateAction', {
+				'ActionId', "Cheats.Start Mystery",
+				'ActionTranslate', false,
+				'ActionName', "Start Mystery ...",
+				'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+				'OnActionEffect', "popup",
+				'replace_matching_id', true,
+			}, {
+				PlaceObj('XTemplateAction', {
+					'ActionId', "StartMysteryAIUprisingMystery",
+					'ActionTranslate', false,
+					'ActionName', "Artificial Intelligence (Normal) - Mystery 5",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				CheatStartMystery(self.ActionId:sub(#"StartMystery"+1))		
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "StartMysteryUnitedEarthMystery",
+					'ActionTranslate', false,
+					'ActionName', "Beyond Earth (Easy) - Mystery 9",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				CheatStartMystery(self.ActionId:sub(#"StartMystery"+1))		
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "StartMysteryDreamMystery",
+					'ActionTranslate', false,
+					'ActionName', "Inner Light (Easy) - Mystery 4",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				CheatStartMystery(self.ActionId:sub(#"StartMystery"+1))		
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "StartMysteryMarsgateMystery",
+					'ActionTranslate', false,
+					'ActionName', "Marsgate (Hard) - Mystery 6",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				CheatStartMystery(self.ActionId:sub(#"StartMystery"+1))		
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "StartMysteryMetatronMystery",
+					'ActionTranslate', false,
+					'ActionName', "Metatron (Hard) - Mystery 12",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				CheatStartMystery(self.ActionId:sub(#"StartMystery"+1))		
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "StartMysteryCrystalsMystery",
+					'ActionTranslate', false,
+					'ActionName', "Philosopher's Stone (Easy) - Mystery 10",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				CheatStartMystery(self.ActionId:sub(#"StartMystery"+1))		
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "StartMysteryMirrorSphereMystery",
+					'ActionTranslate', false,
+					'ActionName', "Spheres (Normal) - Mystery 3",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				CheatStartMystery(self.ActionId:sub(#"StartMystery"+1))		
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "StartMysteryLightsMystery",
+					'ActionTranslate', false,
+					'ActionName', "St. Elmo's Fire (Normal) - Mystery 11",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				CheatStartMystery(self.ActionId:sub(#"StartMystery"+1))		
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "StartMysteryDiggersMystery",
+					'ActionTranslate', false,
+					'ActionName', "The Dredgers (Normal) - Mystery 2",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				CheatStartMystery(self.ActionId:sub(#"StartMystery"+1))		
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "StartMysteryWorldWar3",
+					'ActionTranslate', false,
+					'ActionName', "The Last War (Hard) - Mystery 7",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				CheatStartMystery(self.ActionId:sub(#"StartMystery"+1))		
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "StartMysteryBlackCubeMystery",
+					'ActionTranslate', false,
+					'ActionName', "The Power of Three (Easy) - Mystery 1",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				CheatStartMystery(self.ActionId:sub(#"StartMystery"+1))		
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "StartMysteryTheMarsBug",
+					'ActionTranslate', false,
+					'ActionName', "Wildfire (Hard) - Mystery 8",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				CheatStartMystery(self.ActionId:sub(#"StartMystery"+1))		
+end,
+					'replace_matching_id', true,
+				}),
+				}),
+			PlaceObj('XTemplateAction', {
+				'ActionId', "Cheats.Spawn Colonist",
+				'ActionTranslate', false,
+				'ActionName', "Spawn Colonist ...",
+				'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+				'OnActionEffect', "popup",
+				'replace_matching_id', true,
+			}, {
+				PlaceObj('XTemplateAction', {
+					'comment', "Spawn 1 Colonist",
+					'RolloverText', "Spawn 1 Colonist",
+					'ActionId', "SpawnColonist1",
+					'ActionTranslate', false,
+					'ActionName', "Spawn 1 Colonist",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatSpawnNColonists(1)
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'comment', "Spawn 10 Colonist",
+					'RolloverText', "Spawn 10 Colonist",
+					'ActionId', "SpawnColonist10",
+					'ActionTranslate', false,
+					'ActionName', "Spawn 10 Colonist",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatSpawnNColonists(10)
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'comment', "Spawn 100 Colonist",
+					'RolloverText', "Spawn 100 Colonist",
+					'ActionId', "SpawnColonist100",
+					'ActionTranslate', false,
+					'ActionName', "Spawn 100 Colonist",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatSpawnNColonists(100)
+end,
+					'replace_matching_id', true,
+				}),
+				}),
+			PlaceObj('XTemplateAction', {
+				'comment', "Open Pregame Menu",
+				'RolloverText', "Open Pregame Menu",
+				'ActionId', "G_OpenPregameMenu",
+				'ActionTranslate', false,
+				'ActionName', "New Game",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'OnAction', function (self, host, source)
+				CreateRealTimeThread(OpenPreGameMainMenu)
+end,
+				'replace_matching_id', true,
+			}),
+			PlaceObj('XTemplateAction', {
+				'comment', "Enable/disable the cheats in the infopanels",
+				'RolloverText', "Enable/disable the cheats in the infopanels",
+				'ActionId', "G_ToggleInfopanelCheats",
+				'ActionTranslate', false,
+				'ActionName', "Toggle Infopanel Cheats",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'OnAction', function (self, host, source)
+				CheatToggleInfopanelCheats()
+end,
+				'replace_matching_id', true,
+			}),
+			PlaceObj('XTemplateAction', {
+				'comment', "Unlock all buildings for construction",
+				'RolloverText', "Unlock all buildings for construction",
+				'ActionId', "G_UnlockAllBuildings",
+				'ActionTranslate', false,
+				'ActionName', "Unlock all buildings",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatUnlockAllBuildings()
+end,
+				'replace_matching_id', true,
+			}),
+			PlaceObj('XTemplateTemplate', {
+				'__template', "UnlockAdditionalBuildings",
+			}),
+			PlaceObj('XTemplateAction', {
+				'comment', "Unpin All Pinned Objects",
+				'RolloverText', "Unpin All Pinned Objects",
+				'ActionId', "G_UnpinAll",
+				'ActionTranslate', false,
+				'ActionName', "Unpin All Pinned Objects",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				UnpinAll()
+end,
+				'replace_matching_id', true,
+			}),
+			PlaceObj('XTemplateAction', {
+				'comment', "Complete all wires and pipes instantly",
+				'RolloverText', "Complete all wires and pipes instantly",
+				'ActionId', "G_CompleteWiresPipes",
+				'ActionTranslate', false,
+				'ActionName', "Complete wires\\pipes",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatCompleteAllWiresAndPipes()
+end,
+				'replace_matching_id', true,
+			}),
+			PlaceObj('XTemplateAction', {
+				'comment', "Complete all constructions instantly (Alt-B)",
+				'RolloverText', "Complete all constructions instantly (Alt-B)",
+				'ActionId', "G_CompleteConstructions",
+				'ActionTranslate', false,
+				'ActionName', "Complete constructions",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'ActionShortcut', "Alt-B",
+				'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatCompleteAllConstructions()
+end,
+				'replace_matching_id', true,
+			}),
+			PlaceObj('XTemplateAction', {
+				'ActionId', "G_ModsEditor",
+				'ActionTranslate', false,
+				'ActionName', "Mod editor",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				ModEditorOpen()
+end,
+				'replace_matching_id', true,
+			}),
+			PlaceObj('XTemplateAction', {
+				'ActionId', "G_AddFunding",
+				'ActionTranslate', false,
+				'ActionName', "Add funding $500000000",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatAddFunding()
+end,
+				'replace_matching_id', true,
+			}),
+			PlaceObj('XTemplateAction', {
+				'ActionId', "G_ToggleOnScreenHints",
+				'ActionTranslate', false,
+				'ActionName', "Toggle on-screen hints",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				SetHintNotificationsEnabled(not HintsEnabled)
+				UpdateOnScreenHintDlg()
+end,
+				'replace_matching_id', true,
+			}),
+			PlaceObj('XTemplateAction', {
+				'ActionId', "G_ResetOnScreenHints",
+				'ActionTranslate', false,
+				'ActionName', "Reset on-screen hints",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				g_ShownOnScreenHints = {}
+				UpdateOnScreenHintDlg()
+end,
+				'replace_matching_id', true,
+			}),
+			PlaceObj('XTemplateAction', {
+				'comment', " (Ctrl-U)",
+				'RolloverText', " (Ctrl-U)",
+				'ActionId', "G_ToggleSigns",
+				'ActionTranslate', false,
+				'ActionName', "Toggle Signs",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'ActionShortcut', "Ctrl-U",
+				'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				ToggleSigns()
+end,
+				'replace_matching_id', true,
+			}),
+			PlaceObj('XTemplateAction', {
+				'comment', " (Ctrl-I)",
+				'RolloverText', " (Ctrl-I)",
+				'ActionId', "G_ToggleInGameInterface",
+				'ActionTranslate', false,
+				'ActionName', "Toggle InGame Interface",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'ActionShortcut', "Ctrl-I",
+				'OnAction', function (self, host, source)
+				hr.RenderUIL = hr.RenderUIL == 0 and 1 or 0
+end,
+				'replace_matching_id', true,
+			}),
+			PlaceObj('XTemplateAction', {
+				'comment', " (Shift-C)",
+				'RolloverText', " (Shift-C)",
+				'ActionId', "FreeCamera",
+				'ActionTranslate', false,
+				'ActionName', "Toggle Free Camera",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'ActionShortcut', "Shift-C",
+				'OnAction', function (self, host, source)
+			if not mapdata.GameLogic then return end
+			if cameraFly.IsActive() then
+				SetMouseDeltaMode(false)
+				cameraRTS.Activate(1)
+			else
+				print("Camera Fly")
+				cameraFly.Activate(1)
+				SetMouseDeltaMode(true)
+			end
+end,
+				'replace_matching_id', true,
+			}),
+			}),
 		}),
+	PlaceObj('XTemplateAction', {
+		'comment', "Write upsampled screenshot (-Ctrl-PrtScr)",
+		'ActionId', "DE_ToggleScreenshotInterface",
+		'ActionTranslate', false,
+		'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+		'ActionShortcut', "-Ctrl-PrtScr",
+		'OnAction', function (self, host, source)
+				CreateRealTimeThread(function()
+					hr.InterfaceInScreenshot = 0
+					WaitNextFrame(3)
+					LockCamera("Screenshot")
+					MovieWriteScreenshot(GenerateScreenshotFilename("aa", "AppData/"), 0, 32, false)
+					UnlockCamera("Screenshot")
+				end)
+end,
+		'replace_matching_id', true,
+	}),
+	PlaceObj('XTemplateAction', {
+		'comment', "Write upsampled screenshot (-PrtScr)",
+		'ActionId', "UpsampledScreenshot",
+		'ActionTranslate', false,
+		'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+		'ActionShortcut', "-PrtScr",
+		'OnAction', function (self, host, source)
+				CreateRealTimeThread(function()
+					table.change(hr, "print_screen", {
+						InterfaceInScreenshot = 1,
+					})
+					WaitNextFrame(3)
+					LockCamera("Screenshot")
+					MovieWriteScreenshot(GenerateScreenshotFilename("aa", "AppData/"), 0, 32, false)
+					UnlockCamera("Screenshot")
+					table.restore(hr, "print_screen")
+				end)
+end,
+		'replace_matching_id', true,
+	}),
 })
 

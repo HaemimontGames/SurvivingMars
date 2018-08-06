@@ -4,8 +4,8 @@ DefineClass.Farm = {
 	properties = {
 		--{ template = true, category = "Mine", name = T{"Drone Slots"},     id = "drone_slots", editor = "number", default = 10, min = 1, max = 900, help = "Maximum number of drones that can work @ this mine.",},
 		{ template = true, category = "Farm", name = T{655, "Hydroponic"}, id = "hydroponic", editor = "bool", default = false, min = 1, max = 9999999, scale = const.ResourceScale },
-		{ template = true, id = "water_consumption", name = T{656, "Water consumption"},  category = "Consumption", editor = "number", default = 0, scale = const.ResourceScale, read_only = true, modifiable = true },
-		{ template = true, id = "air_consumption",   name = T{657, "Oxygen Consumption"}, category = "Consumption", editor = "number", default = 0, scale = const.ResourceScale, read_only = true, modifiable = true },
+		{ template = true, id = "water_consumption", name = T{656, "Water consumption"},  category = "Consumption", editor = "number", default = 0, scale = const.ResourceScale, read_only = true, modifiable = true, min = 0, },
+		{ template = true, id = "air_consumption",   name = T{657, "Oxygen Consumption"}, category = "Consumption", editor = "number", default = 0, scale = const.ResourceScale, read_only = true, modifiable = true, min = 0, },
 		
 		{ template = true, id = "soil_demand_mod", name = T{658, "Soil Demand Modifier"}, category = "Farm", editor = "number", default = 100, read_only = true, modifiable = true },
 		{ template = true, id = "oxygen_production_efficiency", name = T{659, "Oxygen Production Efficiency"}, category = "Farm", editor = "number", default = 100, read_only = true, modifiable = true },
@@ -34,7 +34,6 @@ DefineClass.Farm = {
 	anims = {{anim = "terminal",all = true}},
 	
 	crops_available = false,
-	default_crop = false,
 	crop_production = 0,
 	crop_ticks = 0,
 	crop_effects = false,
@@ -60,31 +59,14 @@ GlobalVar("g_FarmId", 0)
 function Farm:Init()
 	self.selected_crop = {}
 	self.current_crop = 1
-	
-	local crops = DataInstances.Crop
 	self.crops_available = {}
 	
-	for i = 1, #crops do
-		if self.class == crops[i].FarmClass then
-			self.crops_available[#self.crops_available + 1] = crops[i].name
+	ForEachPreset(CropPreset, function(crop, group, self)
+		if self.class == crop.FarmClass then
+			self.crops_available[#self.crops_available + 1] = crop.id
 		end
-	end
+	end, self)
 	assert(#self.crops_available > 0, "can't find any crops for building " .. self.class)
-	table.sort(self.crops_available, function(a, b)
-		if crops[a].Priority > crops[b].Priority then
-			return true
-		elseif crops[a].Priority < crops[b].Priority then
-			return false
-		end
-		return CmpLower(a, b)
-	end)
-	for i = 1, #self.crops_available do
-		if IsCropAvailable(crops[self.crops_available[i]]) then
-			self.default_crop = self.crops_available[i]
-			break
-		end
-	end
-	assert(self.default_crop, "can't find an unlocked crop to assign as default for buliding " .. self.class)
 	
 	g_FarmId = g_FarmId + 1
 	self.farm_id = "Farm" .. g_FarmId
@@ -94,13 +76,20 @@ end
 function Farm:GameInit()
 	self.city:AddToLabel("BaseFarm", self)
 	
-	self:InitPersistCrops()
-
-
-	if self.default_crop then
-		self.selected_crop[1] = self.default_crop
+	local default_crop
+	for i, crop_id in ipairs(self.crops_available) do
+		if IsCropAvailable(crop_id) then
+			default_crop = crop_id
+			break
+		end
+	end
+	assert(default_crop, "can't find an unlocked crop to assign as default for buliding " .. self.class)
+	if default_crop then
+		self.selected_crop[1] = default_crop
 		self:PlantNextCrop()
 	end
+
+	self:InitPersistCrops()
 end
 
 function Farm:Done()
@@ -135,7 +124,7 @@ function Farm:GetGrowthTimes(crop_idx)
 		crop = self.selected_crop[crop_idx]
 	end	
 	local is_current = not crop_idx 
-	crop = crop and DataInstances.Crop[crop]
+	crop = crop and CropPresets[crop]
 	if not crop or not self.harvest_planted_time then
 		return 0, 0
 	end
@@ -146,7 +135,7 @@ function Farm:GetGrowthTimes(crop_idx)
 		duration = self.crop_first_growth and crop.InitialGrowthTime or crop.GrowthTime
 	else
 		local prev, prev_crop = self:GetPrevCrop(crop_idx or self.current_crop)	
-		local crop_first_growth = not prev or prev_crop~=crop.name
+		local crop_first_growth = not prev or prev_crop~=crop.id
 		duration = crop_first_growth and crop.InitialGrowthTime or crop.GrowthTime
 	end
 	
@@ -155,10 +144,10 @@ end
 
 --for rollovers in crop selector/ unplanted crops
 function Farm:GetGrowthDuration(crop_idx, crop)
-	crop = DataInstances.Crop[crop]
+	crop = CropPresets[crop]
 	if not crop then return 0 end 
 	local prev, prev_crop = self:GetPrevCrop(crop_idx or self.current_crop)	
-	local crop_first_growth = not prev or prev_crop~=crop.name
+	local crop_first_growth = not prev or prev_crop~=crop.id
 	return (crop_first_growth and crop.InitialGrowthTime or crop.GrowthTime)/const.DayDuration
 end
 
@@ -263,7 +252,7 @@ end
 
 function Farm:BuildingUpdate(dt, day, hour)
 	local crop = self.selected_crop[self.current_crop]
-	crop = crop and DataInstances.Crop[crop]
+	crop = crop and CropPresets[crop]
 	
 	if crop then		
 		self:LogCropEffects()
@@ -339,7 +328,7 @@ end
 
 function Farm:GetCurrentCrop()
 	local crop = self.selected_crop[self.current_crop]
-	crop = crop and DataInstances.Crop[crop]
+	crop = crop and CropPresets[crop]
 	return crop
 end
 
@@ -369,7 +358,7 @@ function Farm:UpdateVisualsFarm(prev)
 		self:CreateCropAttaches()
 	end
 
-	local sequences = CropGrowthSequences[crop.name] or CropGrowthSequences.__fallback
+	local sequences = CropGrowthSequences[crop.id] or CropGrowthSequences.__fallback
 	local sequence = self.crop_first_growth and sequences.initial or sequences.repeating
 
 	local grown, duration = self:GetGrowthTimes()
@@ -403,7 +392,7 @@ end
 function Farm:CalcExpectedProduction(idx)
 	idx = idx or self.current_crop
 	local crop = self.selected_crop[idx]
-	crop = crop and DataInstances.Crop[crop]
+	crop = crop and CropPresets[crop]
 	if not crop then
 		return 0
 	end
@@ -418,6 +407,7 @@ function Farm:CalcExpectedProduction(idx)
 	end
 	
 	local amount = MulDivRound(crop.FoodOutput, est_production, max_production)
+	amount = self:ModifyValue(amount, "production_per_day1")
 		
 	return amount
 end
@@ -447,7 +437,7 @@ function Farm:CanGrow(crop)
 		return true
 	end
 	
-	local cropdef = DataInstances.Crop[crop]
+	local cropdef = CropPresets[crop]
 	if cropdef then
 		local demand_qty = MulDivRound(cropdef.SoilDemand, self.soil_demand_mod, 100)
 		return self.soil_quality / const.SoilQualityScale >= demand_qty
@@ -490,7 +480,7 @@ function Farm:ApplyCropModifier(cropdef, op)
 		local mod_tbl = { id = self, prop = prop, amount = amount, percent = percent }
 		self.parent_dome:SetLabelModifier("Colonist", self, (op == "add") and mod_tbl or nil)
 	else
-		printf("invalid modifier target '%s' specified for crop %s", cropdef.modify_target, cropdef.name)
+		printf("invalid modifier target '%s' specified for crop %s", cropdef.modify_target, cropdef.id)
 	end	
 end
 	
@@ -522,7 +512,7 @@ function Farm:PlantNextCrop(forced, prev)
 	self.crop_ticks = 0	
 	self.crop_effects = {} -- list of simplified modifier texts
 
-	local cropdef_prev = prev and DataInstances.Crop[prev]
+	local cropdef_prev = prev and CropPresets[prev]
 	if cropdef_prev then
 		-- disable modifier from cropdef_pref, if any
 		if cropdef_prev.modify_target ~= "" and cropdef_prev.modify_property ~= "" then
@@ -535,7 +525,7 @@ function Farm:PlantNextCrop(forced, prev)
 		self:SetBase("water_consumption", 0)
 		self.harvest_planted_time = false
 	else	
-		local cropdef = DataInstances.Crop[crop]
+		local cropdef = CropPresets[crop]
 		if cropdef then
 			self.harvest_planted_time = GameTime()
 			self.crop_first_growth = forced or crop ~= last		
@@ -557,7 +547,7 @@ end
 
 function Farm:ApplyOxygenProductionMod(crop)
 	if not self.parent_dome then return end
-	local cropdef = crop and DataInstances.Crop[crop]
+	local cropdef = crop and CropPresets[crop]
 	if cropdef then
 		local amount = MulDivRound(cropdef.OxygenProduction, self.oxygen_production_efficiency, 100)
 		self.parent_dome:SetModifier("air_consumption", self.farm_id, -amount, 0, T{663, "<amount> from <crop_name>", crop_name = cropdef.DisplayName})
@@ -636,12 +626,12 @@ end
 
 function Farm:GetCropName(idx)
 	local crop = self.selected_crop[idx]
-	return crop and DataInstances.Crop[crop] and DataInstances.Crop[crop].DisplayName or T{6761, "None"}
+	return crop and CropPresets[crop] and CropPresets[crop].DisplayName or T{6761, "None"}
 end
 
 function Farm:GetCrop(idx)
 	local crop = self.selected_crop[idx]
-	 return crop and DataInstances.Crop[crop] or false
+	 return crop and CropPresets[crop] or false
 end
 
 function Farm:GetNextCrop()
@@ -652,7 +642,7 @@ function Farm:GetNextCrop()
 		end
 		local crop = self.selected_crop[next_idx] 
 		if crop then
-			return  DataInstances.Crop[crop] and DataInstances.Crop[crop].DisplayName
+			return  CropPresets[crop] and CropPresets[crop].DisplayName
 		end
 	end
 	return T{6762, "None"}
@@ -685,9 +675,9 @@ end
 function Farm:GetCropWaterDemand(crop_idx, crop)
 	crop_idx = crop_idx or self.current_crop
 	crop = crop or self.selected_crop[crop_idx]
-	local ret = crop and DataInstances.Crop[crop] and DataInstances.Crop[crop].WaterDemand or 0
+	local ret = crop and CropPresets[crop] and CropPresets[crop].WaterDemand or 0
 	
-	return Max(self:ModifyValue(ret, "water_consumption"), 0)
+	return self:ModifyValue(ret, "water_consumption")
 end
 
 function Farm:InitPersistCrops()
@@ -709,15 +699,14 @@ function Farm:GetUISoilQuality()
 end
 
 function OnMsg.SaveMap()
-	local farms = GetObjects{class = "Farm"}
-	for i=1, #farms do
-		local farm = farms[i]
+	local exec = function (farm)
 		local persist_crops = ""
 		for j=1, 3 do
 			persist_crops = persist_crops..tostring(farm.selected_crop[j])..","
 		end
 		farm.persist_crops = persist_crops
 	end
+	MapForEach("map", "Farm", exec)
 end
 
 
@@ -777,8 +766,7 @@ function FarmConventional:StartAnimThread()
 end
 
 function SavegameFixups.FarmSprinkerFix(metadata, lua_revision)
-	local farms = GetObjects{class = "FarmConventional"}
-	for i,farm in ipairs(farms) do
+	local exec = function (farm)
 		if IsValidThread(farm.anim_thread) then
 			DeleteThread(farm.anim_thread)
 		end
@@ -790,6 +778,7 @@ function SavegameFixups.FarmSprinkerFix(metadata, lua_revision)
 		
 		farm:StartAnimThread()
 	end
+	MapForEach("map","FarmConventional", exec )
 end
 
 DefineClass.FarmHydroponic = {
@@ -844,7 +833,7 @@ function UICropUpdate(self, farm, index)
 			elseif crop.SoilEffect < 0 then
 				texts[#texts+1] = T{252, "Soil quality decrease<right><red><number>%</red>", number = - crop.SoilEffect}
 			end
-			texts[#texts+1] = T{253, "Growth time<right><HarvestTotal> Sols", HarvestTotal = farm:GetGrowthDuration(index, crop and crop.name)}
+			texts[#texts+1] = T{253, "Growth time<right><HarvestTotal> Sols", HarvestTotal = farm:GetGrowthDuration(index, crop and crop.id)}
 		else
 			texts[#texts+1] = T{7349, "Crops have different harvest cycles, Water consumption, and Food yield."}
 		end

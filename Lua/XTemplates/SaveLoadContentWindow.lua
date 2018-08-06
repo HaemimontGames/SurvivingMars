@@ -55,7 +55,7 @@ end,
 							'Margins', box(0, 40, 0, 6),
 							'OnPress', function (self, gamepad)
 local obj = GetDialogContext(self)
-local dlg = GetXDialog(self)
+local dlg = GetDialog(self)
 obj:ShowNewSavegameNamePopup(dlg)
 end,
 						}, {
@@ -64,7 +64,7 @@ end,
 								'func', function (self, rollover)
 XTextButton.OnSetRollover(self, rollover)
 if rollover then
-	ShowSavegameDescription(self.context, GetXDialog(self))
+	ShowSavegameDescription(self.context, GetDialog(self))
 end
 end,
 							}),
@@ -81,67 +81,17 @@ end,
 return "break"
 end,
 							}),
-							PlaceObj('XTemplateFunc', {
-								'name', "OnShortcut(self, shortcut, source)",
-								'func', function (self, shortcut, source)
-if shortcut == "DPadUp" or shortcut == "LeftThumbUp" or shortcut == "Up"
-	or shortcut == "DPadDown" or shortcut == "LeftThumbDown" or shortcut == "Down" then
-	local dlg = GetXDialog(self)
-	local scroll = dlg.idScroll
-	local current_page = scroll.current_page
-	local page_info = scroll.page_info and scroll.page_info[current_page]
-	if page_info then
-		local list = dlg.idList
-		if shortcut == "DPadUp" or shortcut == "LeftThumbUp" or shortcut == "Up" then
-			if current_page > 1 then
-				scroll:PreviousPage()
-				list:SetFocus()
-				list:SetSelection(page_info:y() - 1)
-				dlg:UpdateActionViews(dlg.idActionBar)
-			end
-			return "break"
-		elseif shortcut == "DPadDown" or shortcut == "LeftThumbDown" or shortcut == "Down" then
-			local item_num = page_info:y()
-			if list[item_num] then
-				list:SetFocus()
-				list:SetSelection(item_num)
-				dlg:UpdateActionViews(dlg.idActionBar)
-				return "break"
-			end
-		end
-	end
-end
-end,
-							}),
 							}),
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-local dlg = GetXDialog(parent)
+local dlg = GetDialog(parent)
 dlg.idTitle:SetTitle(T{1133, "SAVE GAME"})
 parent.idNewSave.idValue:SetText(T{4182, "<<< New Savegame >>>"})
 parent.idNewSave:SetFocus()
 dlg.idList:SetSelection(false)
-dlg.idList:SetMargins(box(0,0,0,10))
+dlg.idListWrapper:SetMargins(box(0,0,0,10))
 dlg.idList:SetGamepadInitialSelection(false)
 dlg.idList:SetForceInitialSelection(false)
-local scroll = dlg.idScroll
-scroll:SetForceFocusFirstItem(false)
-scroll.NextPage = function()
-	XPageScroll.NextPage(scroll)
-	if dlg.Mode == "save" then
-		dlg.idList:SetSelection(false)
-		parent.idNewSave:SetFocus()
-		dlg:UpdateActionViews(dlg.idActionBar)
-	end
-end
-scroll.PreviousPage = function()
-	XPageScroll.PreviousPage(scroll)
-	if dlg.Mode == "save" then
-		dlg.idList:SetSelection(false)
-		parent.idNewSave:SetFocus()
-		dlg:UpdateActionViews(dlg.idActionBar)
-	end
-end
 end,
 						}),
 						PlaceObj('XTemplateAction', {
@@ -149,7 +99,7 @@ end,
 							'ActionName', T{5467, --[[XTemplate SaveLoadContentWindow ActionName]] "SAVE"},
 							'ActionToolbar', "ActionBar",
 							'ActionGamepad', "ButtonA",
-							'OnAction', function (self, host, source, toggled)
+							'OnAction', function (self, host, source)
 local focused_item = host.idList.focused_item
 if focused_item then
 	host.idList[focused_item]:Press()
@@ -197,7 +147,7 @@ end,
 local items = host.context.items
 return (not items or #items == 0) and "disabled"
 end,
-							'OnAction', function (self, host, source, toggled)
+							'OnAction', function (self, host, source)
 LoadSaveGame(host)
 end,
 							'__condition', function (parent, context) return GetUIStyleGamepad() end,
@@ -229,11 +179,10 @@ end,
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
 parent:ResolveId("idTitle"):SetTitle(T{5471, "DELETE GAME"})
-local dlg = GetXDialog(parent)
-dlg.idList:SetMargins(box(0,40,0,10))
+local dlg = GetDialog(parent)
+dlg.idListWrapper:SetMargins(box(0,40,0,10))
 dlg.idList:SetGamepadInitialSelection(true)
 dlg.idList:SetForceInitialSelection(true)
-dlg.idScroll:SetForceFocusFirstItem(true)
 end,
 						}),
 						PlaceObj('XTemplateAction', {
@@ -245,7 +194,7 @@ end,
 local items = host.context.items
 return (not items or #items == 0) and "disabled"
 end,
-							'OnAction', function (self, host, source, toggled)
+							'OnAction', function (self, host, source)
 DeleteSaveGame(host)
 end,
 							'__condition', function (parent, context) return GetUIStyleGamepad() end,
@@ -261,57 +210,39 @@ end,
 						}),
 					}),
 				PlaceObj('XTemplateWindow', {
-					'__class', "XContentTemplateList",
-					'Id', "idList",
+					'Id', "idListWrapper",
 					'Margins', box(0, 40, 0, 10),
-					'BorderWidth', 0,
 					'Dock', "top",
-					'LayoutVSpacing', 6,
-					'Clip', false,
-					'Background', RGBA(0, 0, 0, 0),
-					'FocusedBackground', RGBA(0, 0, 0, 0),
-					'VScroll', "idScroll",
-					'ShowPartialItems', false,
-					'ForceInitialSelection', true,
 				}, {
-					PlaceObj('XTemplateFunc', {
-						'name', "OnShortcut(self, shortcut, source)",
-						'func', function (self, shortcut, source)
-if shortcut == "Pageup" or shortcut == "MouseWheelFwd" then
-	self:ResolveId(self.VScroll):PreviousPage()
+					PlaceObj('XTemplateWindow', {
+						'__class', "XContentTemplateList",
+						'Id', "idList",
+						'BorderWidth', 0,
+						'LayoutVSpacing', 6,
+						'UniformRowHeight', true,
+						'Clip', false,
+						'Background', RGBA(0, 0, 0, 0),
+						'FocusedBackground', RGBA(0, 0, 0, 0),
+						'VScroll', "idScroll",
+						'ShowPartialItems', false,
+						'MouseScroll', true,
+						'ForceInitialSelection', true,
+					}, {
+						PlaceObj('XTemplateFunc', {
+							'name', "OnShortcut(self, shortcut, source)",
+							'func', function (self, shortcut, source)
+if shortcut == "Delete" or shortcut == "ButtonY" then
+	DeleteSaveGame(GetDialog(self))
 	return "break"
-elseif shortcut == "Pagedown" or shortcut == "MouseWheelBack" then
-	self:ResolveId(self.VScroll):NextPage()
-	return "break"
-elseif shortcut == "Delete" or shortcut == "ButtonY" then
-	DeleteSaveGame(GetXDialog(self))
-	return "break"
-elseif shortcut == "Up" or shortcut == "Down" then
-	local dlg = GetXDialog(self)
-	if dlg.Mode == "save" then
-		local scroll = self:ResolveId(self.VScroll)
-		local current_page = scroll.current_page
-		local page_info = scroll.page_info
-		local focus = self.focused_item
-		if shortcut == "Up" and focus == page_info[current_page]:y() then
-			self:SetSelection(false)
-			dlg.idTopContent.idNewSave:SetFocus()
-			dlg:UpdateActionViews(dlg.idActionBar)
-			return "break"
-		elseif shortcut == "Down" and page_info[current_page + 1] and focus == (page_info[current_page + 1]:y() - 1) then
-			scroll:NextPage()
-			return "break"
-		end
-	end
 end
 return XContentTemplateList.OnShortcut(self, shortcut, source)
 end,
-					}),
-					PlaceObj('XTemplateForEach', {
-						'comment', "item",
-						'array', function (parent, context) return context.items end,
-						'__context', function (parent, context, item, i, n) return item end,
-						'run_after', function (child, context, item, i, n)
+						}),
+						PlaceObj('XTemplateForEach', {
+							'comment', "item",
+							'array', function (parent, context) return context.items end,
+							'__context', function (parent, context, item, i, n) return item end,
+							'run_after', function (child, context, item, i, n)
 child.idValue:SetText(context.text)
 local metadata = context.metadata
 if metadata and (metadata.corrupt or metadata.incompatible) then
@@ -328,11 +259,11 @@ elseif PopsCloudSavesAllowed() then
 	end
 end
 end,
-					}, {
-						PlaceObj('XTemplateTemplate', {
-							'__template', "SaveItem",
-							'OnPress', function (self, gamepad)
-local dlg = GetXDialog(self)
+						}, {
+							PlaceObj('XTemplateTemplate', {
+								'__template', "SaveItem",
+								'OnPress', function (self, gamepad)
+local dlg = GetDialog(self)
 local mode = dlg.Mode
 if mode == "load" then
 	LoadSaveGame(dlg)
@@ -343,41 +274,41 @@ elseif mode == "delete" then
 	DeleteSaveGame(dlg)
 end
 end,
-						}, {
-							PlaceObj('XTemplateFunc', {
-								'name', "OnSetRollover(self, rollover)",
-								'func', function (self, rollover)
+							}, {
+								PlaceObj('XTemplateFunc', {
+									'name', "OnSetRollover(self, rollover)",
+									'func', function (self, rollover)
 XTextButton.OnSetRollover(self, rollover)
 if rollover then
-	ShowSavegameDescription(self.context, GetXDialog(self))
+	ShowSavegameDescription(self.context, GetDialog(self))
 end
 end,
-							}),
-							PlaceObj('XTemplateFunc', {
-								'name', "OnMouseEnter",
-								'func', function (self, ...)
+								}),
+								PlaceObj('XTemplateFunc', {
+									'name', "OnMouseEnter",
+									'func', function (self, ...)
 local id = self.context.id
 local list = self.parent
 if list.focused_item ~= id then
 	list:SetSelection(id)
-	local dlg = GetXDialog(self)
+	local dlg = GetDialog(self)
 	if dlg.Mode == "save" then
 		XTextButton.OnMouseLeft(dlg.idTopContent.idNewSave)
 	end
 end
 end,
-							}),
+								}),
+								}),
 							}),
 						}),
+					PlaceObj('XTemplateTemplate', {
+						'__template', "Scrollbar",
+						'Id', "idScroll",
+						'Margins', box(5, 5, 0, 5),
+						'Target', "idList",
+					}),
 					}),
 				}),
-			PlaceObj('XTemplateWindow', {
-				'__class', "XPageScroll",
-				'Id', "idScroll",
-				'Dock', "bottom",
-				'Target', "idList",
-				'ForceFocusFirstItem', true,
-			}),
 			}),
 		PlaceObj('XTemplateWindow', {
 			'Id', "idDescription",
@@ -390,6 +321,7 @@ end,
 				'__class', "XFrame",
 				'IdNode', false,
 				'Padding', box(20, 20, 20, 20),
+				'Dock', "top",
 				'HAlign', "center",
 				'VAlign', "top",
 				'MaxHeight', 370,
@@ -399,150 +331,164 @@ end,
 				PlaceObj('XTemplateWindow', {
 					'__class', "XImage",
 					'Id', "idImage",
-					'Image', "UI/Mods/Placeholder.tga",
+					'Image', "UI/Common/Placeholder.tga",
 					'ImageFit', "smallest",
 				}),
 				}),
 			PlaceObj('XTemplateWindow', {
-				'__class', "XText",
-				'Id', "idSavegameTitle",
-				'TextFont', "PGModTitle",
-				'TextColor', RGBA(255, 255, 255, 255),
-				'RolloverTextColor', RGBA(255, 255, 255, 255),
-				'ShadowType', "outline",
-				'ShadowSize', 1,
-				'ShadowColor', RGBA(32, 32, 32, 255),
-				'Translate', true,
-				'HideOnEmpty', true,
-				'TextHAlign', "center",
-			}),
-			PlaceObj('XTemplateWindow', {
-				'__class', "XText",
-				'Id', "idLastUpdate",
-				'TextFont', "PGPage",
-				'TextColor', RGBA(202, 202, 202, 255),
-				'RolloverTextColor', RGBA(202, 202, 202, 255),
-				'ShadowType', "outline",
-				'ShadowSize', 2,
-				'ShadowColor', RGBA(70, 70, 70, 255),
-				'Translate', true,
-				'HideOnEmpty', true,
-				'TextHAlign', "center",
-			}),
-			PlaceObj('XTemplateWindow', {
-				'__class', "XText",
-				'Id', "idPlaytime",
-				'TextFont', "PGPage",
-				'TextColor', RGBA(202, 202, 202, 255),
-				'RolloverTextColor', RGBA(202, 202, 202, 255),
-				'ShadowType', "outline",
-				'ShadowSize', 2,
-				'ShadowColor', RGBA(70, 70, 70, 255),
-				'Translate', true,
-				'HideOnEmpty', true,
-				'TextHAlign', "center",
-			}),
-			PlaceObj('XTemplateWindow', {
-				'Margins', box(170, 0, 150, 0),
+				'__class', "XScrollArea",
+				'Id', "idScrollArea",
+				'IdNode', false,
+				'Margins', box(100, 0, 150, 0),
 				'LayoutMethod', "VList",
+				'VScroll', "idVerticalScroller",
 			}, {
 				PlaceObj('XTemplateWindow', {
-					'__class', "XText",
-					'Id', "idProblem",
-					'TextFont', "PGPage",
-					'TextColor', RGBA(202, 202, 202, 255),
-					'RolloverTextColor', RGBA(202, 202, 202, 255),
-					'ShadowType', "outline",
-					'ShadowSize', 2,
-					'ShadowColor', RGBA(70, 70, 70, 255),
-					'Translate', true,
-					'HideOnEmpty', true,
+					'__class', "XVerticalScroller",
+					'Id', "idVerticalScroller",
+					'Dock', "left",
+					'Target', "idScrollArea",
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XText",
-					'Id', "idCoordinates",
-					'TextFont', "PGPage",
-					'TextColor', RGBA(202, 202, 202, 255),
-					'RolloverTextColor', RGBA(202, 202, 202, 255),
+					'Id', "idSavegameTitle",
+					'HandleMouse', false,
+					'TextFont', "PGModTitle",
+					'TextColor', RGBA(255, 255, 255, 255),
 					'ShadowType', "outline",
-					'ShadowSize', 2,
-					'ShadowColor', RGBA(70, 70, 70, 255),
+					'ShadowSize', 1,
+					'ShadowColor', RGBA(0, 0, 0, 255),
 					'Translate', true,
 					'HideOnEmpty', true,
+					'TextHAlign', "center",
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XText",
-					'Id', "idSols",
+					'Id', "idLastUpdate",
+					'HandleMouse', false,
 					'TextFont', "PGPage",
 					'TextColor', RGBA(202, 202, 202, 255),
-					'RolloverTextColor', RGBA(202, 202, 202, 255),
 					'ShadowType', "outline",
-					'ShadowSize', 2,
-					'ShadowColor', RGBA(70, 70, 70, 255),
+					'ShadowSize', 1,
+					'ShadowColor', RGBA(0, 0, 0, 255),
 					'Translate', true,
 					'HideOnEmpty', true,
+					'TextHAlign', "center",
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XText",
-					'Id', "idSponsor",
+					'Id', "idPlaytime",
+					'HandleMouse', false,
 					'TextFont', "PGPage",
 					'TextColor', RGBA(202, 202, 202, 255),
-					'RolloverTextColor', RGBA(202, 202, 202, 255),
 					'ShadowType', "outline",
-					'ShadowSize', 2,
-					'ShadowColor', RGBA(70, 70, 70, 255),
+					'ShadowSize', 1,
+					'ShadowColor', RGBA(0, 0, 0, 255),
 					'Translate', true,
 					'HideOnEmpty', true,
+					'TextHAlign', "center",
 				}),
 				PlaceObj('XTemplateWindow', {
-					'__class', "XText",
-					'Id', "idCommanderProfile",
-					'TextFont', "PGPage",
-					'TextColor', RGBA(202, 202, 202, 255),
-					'RolloverTextColor', RGBA(202, 202, 202, 255),
-					'ShadowType', "outline",
-					'ShadowSize', 2,
-					'ShadowColor', RGBA(70, 70, 70, 255),
-					'Translate', true,
-					'HideOnEmpty', true,
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XText",
-					'Id', "idActiveMods",
-					'TextFont', "PGPage",
-					'TextColor', RGBA(202, 202, 202, 255),
-					'RolloverTextColor', RGBA(202, 202, 202, 255),
-					'ShadowType', "outline",
-					'ShadowSize', 2,
-					'ShadowColor', RGBA(70, 70, 70, 255),
-					'Translate', true,
-					'HideOnEmpty', true,
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XText",
-					'Id', "idActiveGameRules",
-					'TextFont', "PGPage",
-					'TextColor', RGBA(202, 202, 202, 255),
-					'RolloverTextColor', RGBA(202, 202, 202, 255),
-					'ShadowType', "outline",
-					'ShadowSize', 2,
-					'ShadowColor', RGBA(70, 70, 70, 255),
-					'Translate', true,
-					'HideOnEmpty', true,
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XText",
-					'Id', "idDelInfo",
-					'Margins', box(0, 20, 0, 0),
-					'TextFont', "PGPage",
-					'TextColor', RGBA(202, 202, 202, 255),
-					'RolloverTextColor', RGBA(202, 202, 202, 255),
-					'ShadowType', "outline",
-					'ShadowSize', 2,
-					'ShadowColor', RGBA(70, 70, 70, 255),
-					'Translate', true,
-					'HideOnEmpty', true,
-				}),
+					'LayoutMethod', "VList",
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XText",
+						'Id', "idProblem",
+						'HandleMouse', false,
+						'TextFont', "PGPage",
+						'TextColor', RGBA(202, 202, 202, 255),
+						'ShadowType', "outline",
+						'ShadowSize', 1,
+						'ShadowColor', RGBA(0, 0, 0, 255),
+						'Translate', true,
+						'HideOnEmpty', true,
+					}),
+					PlaceObj('XTemplateWindow', {
+						'__class', "XText",
+						'Id', "idCoordinates",
+						'HandleMouse', false,
+						'TextFont', "PGPage",
+						'TextColor', RGBA(202, 202, 202, 255),
+						'ShadowType', "outline",
+						'ShadowSize', 1,
+						'ShadowColor', RGBA(0, 0, 0, 255),
+						'Translate', true,
+						'HideOnEmpty', true,
+					}),
+					PlaceObj('XTemplateWindow', {
+						'__class', "XText",
+						'Id', "idSols",
+						'HandleMouse', false,
+						'TextFont', "PGPage",
+						'TextColor', RGBA(202, 202, 202, 255),
+						'ShadowType', "outline",
+						'ShadowSize', 1,
+						'ShadowColor', RGBA(0, 0, 0, 255),
+						'Translate', true,
+						'HideOnEmpty', true,
+					}),
+					PlaceObj('XTemplateWindow', {
+						'__class', "XText",
+						'Id', "idSponsor",
+						'HandleMouse', false,
+						'TextFont', "PGPage",
+						'TextColor', RGBA(202, 202, 202, 255),
+						'ShadowType', "outline",
+						'ShadowSize', 1,
+						'ShadowColor', RGBA(0, 0, 0, 255),
+						'Translate', true,
+						'HideOnEmpty', true,
+					}),
+					PlaceObj('XTemplateWindow', {
+						'__class', "XText",
+						'Id', "idCommanderProfile",
+						'HandleMouse', false,
+						'TextFont', "PGPage",
+						'TextColor', RGBA(202, 202, 202, 255),
+						'ShadowType', "outline",
+						'ShadowSize', 1,
+						'ShadowColor', RGBA(0, 0, 0, 255),
+						'Translate', true,
+						'HideOnEmpty', true,
+					}),
+					PlaceObj('XTemplateWindow', {
+						'__class', "XText",
+						'Id', "idActiveMods",
+						'HandleMouse', false,
+						'TextFont', "PGPage",
+						'TextColor', RGBA(202, 202, 202, 255),
+						'ShadowType', "outline",
+						'ShadowSize', 1,
+						'ShadowColor', RGBA(0, 0, 0, 255),
+						'Translate', true,
+						'HideOnEmpty', true,
+					}),
+					PlaceObj('XTemplateWindow', {
+						'__class', "XText",
+						'Id', "idActiveGameRules",
+						'HandleMouse', false,
+						'TextFont', "PGPage",
+						'TextColor', RGBA(202, 202, 202, 255),
+						'ShadowType', "outline",
+						'ShadowSize', 1,
+						'ShadowColor', RGBA(0, 0, 0, 255),
+						'Translate', true,
+						'HideOnEmpty', true,
+					}),
+					PlaceObj('XTemplateWindow', {
+						'__class', "XText",
+						'Id', "idDelInfo",
+						'Margins', box(0, 20, 0, 0),
+						'HandleMouse', false,
+						'TextFont', "PGPage",
+						'TextColor', RGBA(202, 202, 202, 255),
+						'ShadowType', "outline",
+						'ShadowSize', 1,
+						'ShadowColor', RGBA(0, 0, 0, 255),
+						'Translate', true,
+						'HideOnEmpty', true,
+					}),
+					}),
 				}),
 			}),
 		}),

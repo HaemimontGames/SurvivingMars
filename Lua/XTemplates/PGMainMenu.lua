@@ -5,6 +5,8 @@ PlaceObj('XTemplate', {
 	id = "PGMainMenu",
 	PlaceObj('XTemplateWindow', {
 		'__class', "XDialog",
+		'InitialMode', "Main",
+		'InternalModes', "Main, NewGame",
 	}, {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
@@ -21,11 +23,13 @@ if Platform.durango and DurangoNewDlc then
 	end)
 end
 RemoveOutdatedMods(self)
+self:SetMode("Main")
 end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "SetMode(self, mode, mode_param)",
 			'func', function (self, mode, mode_param)
+if mode=="" then mode = "Main" end			
 if self.Mode == mode or mode ~= "" then
 	XDialog.SetMode(self, mode, mode_param)
 	return
@@ -46,7 +50,20 @@ end,
 			'__class', "XContentTemplate",
 			'Id', "idContent",
 		}, {
-			PlaceObj('XTemplateMode', nil, {
+			PlaceObj('XTemplateMode', {
+				'mode', "Main",
+			}, {
+				PlaceObj('XTemplateTemplate', {
+					'__template', "PGMenu",
+				}),
+				PlaceObj('XTemplateLayer', {
+					'__condition', function (parent, context) return Platform.durango and Durango.IsPlayerSigned(XPlayerActive) end,
+					'layer', "DurangoActivePlayer",
+				}),
+				}),
+			PlaceObj('XTemplateMode', {
+				'mode', "NewGame",
+			}, {
 				PlaceObj('XTemplateTemplate', {
 					'__template', "PGMenu",
 				}),
@@ -96,6 +113,7 @@ end,
 			}, {
 				PlaceObj('XTemplateTemplate', {
 					'__template', "PGTutorial",
+					'HostInParent', true,
 				}),
 				}),
 			}),

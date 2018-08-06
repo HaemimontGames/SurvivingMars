@@ -56,19 +56,6 @@ PlaceObj('DomeSkins', {
 })
 
 PlaceObj('DomeSkins', {
-	construction_entity = "DomeMediumStarConstruction",
-	cupola_entity = "DomeMediumStar_Glass",
-	cupola_entity_opt = "DomeMediumStar_Top",
-	dlc = "preorder",
-	dome_type = "DomeMedium",
-	entity = "DomeMediumStar",
-	entrance_entity = "DomeStar_Entrance",
-	id = "DomeMediumStar",
-	preset = "Star",
-	tube_entrance_entity = "DomeStar_EntranceTube",
-})
-
-PlaceObj('DomeSkins', {
 	construction_entity = "DomeMegaFacetConstruction",
 	cupola_entity = "DomeMegaFacet_Glass",
 	cupola_entity_opt = "DomeMegaFacet_Top",
@@ -79,19 +66,6 @@ PlaceObj('DomeSkins', {
 	preset = "Facet",
 	road_connection = "DomeRoadAsphaltConnection",
 	tube_entrance_entity = "DomeFacet_EntranceTube",
-})
-
-PlaceObj('DomeSkins', {
-	construction_entity = "DomeMegaStarConstruction",
-	cupola_entity = "DomeMegaStar_Glass",
-	cupola_entity_opt = "DomeMegaStar_Top",
-	dlc = "preorder",
-	dome_type = "DomeMega",
-	entity = "DomeMegaStar",
-	entrance_entity = "DomeStar_Entrance",
-	id = "DomeMegaStar",
-	preset = "Star",
-	tube_entrance_entity = "DomeStar_EntranceTube",
 })
 
 PlaceObj('DomeSkins', {
@@ -135,31 +109,6 @@ PlaceObj('DomeSkins', {
 	preset = "Facet",
 	road_connection = "DomeRoadAsphaltConnection",
 	tube_entrance_entity = "DomeFacet_EntranceTube",
-})
-
-PlaceObj('DomeSkins', {
-	construction_entity = "DomeOvalStarConstruction",
-	cupola_entity = "DomeOvalStar_Glass",
-	cupola_entity_opt = "DomeOvalStar_Top",
-	dlc = "preorder",
-	dome_type = "DomeOval",
-	entity = "DomeOvalStar",
-	entrance_entity = "DomeStar_Entrance",
-	id = "DomeOvalStar",
-	preset = "Star",
-	tube_entrance_entity = "DomeStar_EntranceTube",
-})
-
-PlaceObj('DomeSkins', {
-	construction_entity = "DomeStarConstruction",
-	cupola_entity = "DomeStar_Glass",
-	cupola_entity_opt = "DomeStar_Top",
-	dlc = "preorder",
-	entity = "DomeStar",
-	entrance_entity = "DomeStar_Entrance",
-	id = "DomeStar",
-	preset = "Star",
-	tube_entrance_entity = "DomeStar_EntranceTube",
 })
 
 PlaceObj('DomeSkins', {

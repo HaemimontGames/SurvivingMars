@@ -6,45 +6,6 @@ EncyclopediaCategoryNames = {
 	{value = "Anomalies", text = T{3984, "Anomalies"}},
 }
 
-DefineDataInstance("EncyclopediaArticle",
-	{
-		{ category = "General", id = "category_id", name = T{3985, "Category ID"}, editor = "combo", default = "" , items = EncyclopediaCategoryNames},
-		{ category = "General", id = "title_id", name = T{3986, "Title ID"}, editor = "text", default = "" },
-		{ category = "General", id = "title_text", name = T{1000016, "Title"}, editor = "text", default = "", translate = true},
-		{ category = "General", id = "title_text_upper", name = T{3987, "Title Uppercase"}, editor = "text", default = "", translate = true},
-		{ category = "General", id = "image", name = T{3794, "Image"}, editor = "browse", default = "", folder = "UI", object_update = true},
-		{ category = "General", id = "ImagePreview", name = T{3988, "Image Preview"}, editor = "image", default = "", dont_save = true},
-		{ category = "General", id = "text", name = T{1000145, "Text"},  editor = "multi_line_text", default = "", translate = true},
-		{ category = "General", id = "dlc",  name = T{3895, "Required DLC"}, editor = "combo", default = "", items = DlcCombo() },
-	},
-	"[203]Editors/[01]Mars/EncyclopediaArticle Editor"
-)
-
-function EncyclopediaArticle:GetImagePreview()
-	return self.image
-end
-
-if Platform.editor then
-
-function EncyclopediaArticleEditor:Save()
-	DataInstanceEditor.Save(self)
-	local cat_names, article_names = {}, {}
-	for k, v in ipairs(DataInstances.EncyclopediaArticle) do
-		local id = v.title_id
-		local table_to_fill = article_names
-		if v.title_id == "" then
-			id = v.category_id
-			table_to_fill = cat_names
-		end
-		if article_names[id] or cat_names[id] then
-			printf('The name "%s" is being used for more than one entry or category. A Title Id should not match any Category Id!', id)
-		else
-			table_to_fill[id] = true
-		end
-	end
-end
-
-end
 
 function OpenEncyclopedia(encyclopedia_id)
 	if GameState.gameplay then
@@ -53,7 +14,7 @@ function OpenEncyclopedia(encyclopedia_id)
 end
 
 function WaitEncyclopedia(encyclopedia_id, opened_from_menu)
-	WaitXDialog("Encyclopedia", nil, {encyclopedia_id = encyclopedia_id})
+	WaitDialog("Encyclopedia", nil, {encyclopedia_id = encyclopedia_id})
 end
 
 DefineClass.Encyclopedia = {
@@ -114,20 +75,43 @@ function Encyclopedia:Init(parent, context)
 		MaxWidth = 500,
 		LayoutVSpacing = 12,
 		Clip = false,
-		HandleMouse = false,
-		MouseScroll = false,
+		MouseScroll = true,
 		Background = RGBA(0,0,0,0),
 		FocusedBackground = RGBA(0,0,0,0),
 		ShowPartialItems = false,
-		ForceInitialSelection = true,
+		UniformRowHeight = true,
 		VScroll = "idScroll",
 	}, window_right)
-	XPageScroll:new({
+	local scroll = XScrollThumb:new({
 		Id = "idScroll",
-		Dock = "bottom",
+		ZOrder = 10,
+		Padding = box(5, 0, 5, 0),
+		Dock = "right",
+		MinWidth = 18,
+		MaxWidth = 18,
+		Visible = false,
+		FoldWhenHidden = false,
+		MouseCursor = "UI/Cursors/Rollover.tga",
+		FullPageAtEnd = true,
+		SnapToItems = true,
+		AutoHide = true,
+		MinThumbSize = 30,
+		FixedSizeThumb = false,
+		Margins = box(0,5,10,25),
 		Target = "idList",
-		ForceFocusFirstItem = true,
 	}, window_right)
+	XFrame:new({
+		Dock = "box",
+		Image = "UI/Common/scrollbar_line.tga",
+		FrameBox = box(0, 5, 0, 5),
+	}, scroll)
+	XFrame:new({
+		Id = "idThumb",
+		Image = "UI/Common/scrollbar.tga",
+		ImageScale = point(400, 400),
+		FrameBox = box(0, 10, 0, 10),
+		SqueezeX = false,
+	}, scroll)
 	--left upper line
 	local left_line = XImage:new({
 		Image = "UI/Common/bm_pad.tga",
@@ -202,12 +186,17 @@ function Encyclopedia:Init(parent, context)
 end
 
 function Encyclopedia:Open(...)
-	local enc_id = self.context.encyclopedia_id
+	local enc_id = self.context.encyclopedia_id or ""
 	local cat_id
-	if enc_id then
-		local article = table.find_value(DataInstances.EncyclopediaArticle, "title_id", enc_id)
-		cat_id = article and article.category_id
-		cat_id = cat_id or table.find(DataInstances.BuildingTemplate, "name", enc_id) and "Buildings"
+	if enc_id ~= "" then
+		local article
+		ForEachPreset(EncyclopediaArticle, function(preset, list)
+			if preset.title_id == enc_id then
+				article = preset
+			end
+		end)
+		cat_id = article and article.group
+		cat_id = cat_id or BuildingTemplates[enc_id] and "Buildings"
 		cat_id = cat_id or table.find(DataInstances.OnScreenHint, "name", enc_id) and "Hints"
 	end
 	XDialog.Open(self, ...)
@@ -293,6 +282,10 @@ function Encyclopedia:RespawnListContent()
 				self:SetDescription(v)
 			end
 		end
+		button.OnSetFocus = function(button, ...)
+			XCreateRolloverWindow(button, true)
+			XTextButton.OnSetFocus(button, ...)
+		end
 		if is_category then
 			button.OnSetRollover = function(button, rollover)
 				XTextButton.OnSetRollover(button, rollover)
@@ -306,8 +299,8 @@ function Encyclopedia:RespawnListContent()
 		end
 	end
 	local item, idx
-	local enc_id = self.context.encyclopedia_id
-	if enc_id then
+	local enc_id = self.context.encyclopedia_id or ""
+	if enc_id ~= "" then
 		item, idx = table.find_value(items, "id", enc_id)
 	end
 	if item then
@@ -378,24 +371,24 @@ function Encyclopedia:GetListItems()
 	if cat_id then
 		if cat_id == "Buildings" then
 			param.title_text_upper = T{1152, "BUILDINGS"}
-			local buildings = table.icopy(DataInstances.BuildingTemplate or empty_table)
+			local buildings = table.values(BuildingTemplates or empty_table)
 			TSort(buildings, "display_name")
-			for k, v in ipairs(buildings) do
-				if not v.encyclopedia_exclude then
-					local construction_cost = GetConstructionDescription(v, nil, true)
-					local class = g_Classes[v.template_class]
-					local description = class and class.GetIPDescription(v) or T{v.description, v}
+			for _, template in ipairs(buildings) do
+				if template.encyclopedia_id == template.id then
+					local construction_cost = GetConstructionDescription(template, nil, true)
+					local class = g_Classes[template.template_class]
+					local description = class and class.GetIPDescription(template) or T{template.description, template}
 					if construction_cost~="" then
 						description = description..Untranslated("\n\n")..construction_cost
 					end
-					local text = v.encyclopedia_text
+					local text = template.encyclopedia_text
 					if text ~= "" then
 						description = description .. Untranslated("\n\n") .. text
 					end
-					local image = v.encyclopedia_image ~= "" and v.encyclopedia_image or "UI/Mods/Placeholder.tga"
+					local image = template.encyclopedia_image ~= "" and template.encyclopedia_image or "UI/Common/Placeholder.tga"
 					items[#items + 1] = {
-						id = v.name,
-						title_text = v.display_name,
+						id = template.id,
+						title_text = template.display_name,
 						text = description,
 						image = image,
 						category_id = cat_id,
@@ -422,41 +415,39 @@ function Encyclopedia:GetListItems()
 						}
 					end
 				end
-			end	
+			end
 		else
-			local articles = DataInstances.EncyclopediaArticle
-			for k, v in ipairs(articles) do
-				if v.category_id == cat_id and IsDlcAvailable(v.dlc) then
-					if v.title_id ~= "" then
+			ForEachPreset(EncyclopediaArticle, function(article, list)
+				if article.group == cat_id then
+					if article.title_id and article.title_id ~= "" then
 						items[#items + 1] = {
-							id = v.title_id,
-							title_text = v.title_text,
-							text = v.text,
-							image = v.image,
+							id = article.title_id,
+							title_text = article.title_text,
+							text = article.text,
+							image = article.image,
 							category_id = cat_id,
 						}
 					else
-						param.title_text_upper = v.title_text_upper
+						param.title_text_upper = article.title_text_upper
 					end
 				end
-			end
+			end)
 		end
 	else
 		--categories
-		local articles = DataInstances.EncyclopediaArticle
-		for k,v in ipairs(articles) do
-			if v.title_id == "" and IsDlcAvailable(v.dlc) then
+		ForEachPreset(EncyclopediaArticle, function(article, list)
+			if article.title_id == "" or not article.title_id then
 				items[#items + 1] = {
-					id = v.category_id,
-					category_id = v.category_id,
-					title_id = v.title_id,
-					title_text = v.title_text,
-					title_text_upper = v.title_text_upper,
-					text = v.text,
-					image = v.image,
+					id = article.group,
+					category_id = article.group,
+					title_id = article.title_id or "",
+					title_text = article.title_text,
+					title_text_upper = article.title_text_upper,
+					text = article.text,
+					image = article.image,
 				}
 			end
-		end
+		end)
 	end
 	return items
 end

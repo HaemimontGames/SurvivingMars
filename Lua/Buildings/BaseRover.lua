@@ -4,7 +4,7 @@ const.BaseRoverBatteryHourlyDrainRate = 8000 --125 hours of operation with max 1
 const.BaseRoverBatteryHourlyRechargeRate = 100000 --5 hrs for full charge
 const.BaseRoverBatteryEqualizationRate = 100000 --2 hrs tops, this var is used for rover 2 rover power transfer
 const.RoverToGridElectricityScale = 20 --rovers will draw 1/const.RoverToGridElectricityScale to charge 1 from el grids
---container for common stuffs between rc rover and workshop rover.
+--container for common stuffs between RC Commander and workshop rover.
 DefineClass.BaseRover = {
 	__parents = { "DroneBase", "Demolishable", "TaskRequester", "SkinChangeable", "PinnableObject" },
 
@@ -23,6 +23,8 @@ DefineClass.BaseRover = {
 
 
 	fx_actor_base_class = "Rover",
+	direction_arrow_scale = 260,
+	
 	-- pin section
 	pin_summary1 = T{9613, "<percent(BatteryPerc)> <icon_Power_small>"},
 	pin_on_start = true,
@@ -37,6 +39,7 @@ DefineClass.BaseRover = {
 	battery_thread_data = false,
 	battery_ui_str = false,
 	battery_cable_used_for_recharge = false,
+	battery_auto_recharge_pct = 90,
 	electricity = false,
 	battery_thread_tick_time = 1000,
 	priority = 3, --we are an important electricity consumer
@@ -63,6 +66,7 @@ DefineClass.BaseRover = {
 	recharging_other_rover = false,
 	
 	on_demolish_resource_refund = { Metals = 5 * const.ResourceScale, Polymers = 5 * const.ResourceScale },
+	operation_interrupted_reason = false,
 }
 
 GlobalGameTimeThread("VehiclesLowBatteryNotif", function()
@@ -80,6 +84,17 @@ function BaseRover.RepairDroneCallback(drone)
 	end
 end
 
+function BaseRover:IsStorageFull()
+end
+
+function BaseRover:GetPinSummary()
+	if g_RoverCommandResearched then
+		return self.pin_summary2 ~= "" and self.pin_summary2 or ""
+	else
+		return PinnableObject.GetPinSummary(self)
+	end
+end
+
 function BaseRover:DroneWork(drone, request, resource, amount)
 	if request == self.repair_work_request then
 		amount = DroneResourceUnits.repair
@@ -91,11 +106,11 @@ function BaseRover:DroneWork(drone, request, resource, amount)
 	end
 end
 
-function BaseRover:Init()
-	SetPaletteFromClassMember(self)
+function BaseRover:ContinuousTask(request, amount, anim_start, anim_idle, anim_end, fx, fx_work_moment, work_time, add_res, reciprocal_request, total_amount)
 end
 
 function BaseRover:GameInit()
+	SetPaletteFromClassMember(self)
 	self.city:AddToLabel("Unit", self)
 	self.city:AddToLabel("Rover", self)
 	self.city:AddToLabel(self.class, self)
@@ -109,7 +124,7 @@ function BaseRover:GameInit()
 		self.name = GenerateMachineName(self.class)
 	end
 	
-	if self.affected_by_no_battery_tech and g_RoverCommandResearched then --noone to init this after research
+	if self:NeedBattery() then --noone to init this after research
 		self.battery_ui_str = T{37, "Battery is <em>on standby</em>"}
 	end
 end
@@ -134,6 +149,12 @@ function BaseRover:OnDemolish()
 			PlaceResourceStockpile_Delayed(pos, resource, amount, angle, true)
 		end
 	end
+end
+
+function BaseRover:ShowUISectionElectricityProduction()
+end
+
+function BaseRover:ShowUISectionElectricityGrid()
 end
 
 function BaseRover:GetRefundResources()
@@ -210,6 +231,10 @@ end
 function BaseRover:CheatMalfunction()
 	self.dust = self.dust_max + 10 
 	self:SetCommand("Malfunction")
+end
+
+function BaseRover:CheatFillBattery()
+	self:ApplyBatteryChange(self.battery_max)
 end
 
 function BaseRover:Repair()
@@ -341,9 +366,6 @@ function OnMsg.TechResearched(tech_id, city, first_time)
 					rover:SetCommand("Idle") --clear recharge commands
 				end
 				rover:ApplyBatteryChange(99999999999) --fill them up
-				if rover.command == "NoBattery" then
-					rover:SetCommand("Idle") --clear no battery command, should be when it has battery
-				end
 				rover.battery_ui_str = T{37, "Battery is <em>on standby</em>"}
 			end
 		end
@@ -356,7 +378,7 @@ function BaseRover:AddToRoversWithLowBattery()
 end
 
 function BaseRover:ApplyBatteryChange(chng)
-	if self.affected_by_no_battery_tech and g_RoverCommandResearched then return end
+	if not self:NeedBattery() then return end
 	
 	local was_lb = self:IsLowBattery()
 	local was_alb = self:ShouldAutoRecharge()
@@ -369,7 +391,7 @@ function BaseRover:ApplyBatteryChange(chng)
 		if self.command ~= "NoBattery" then
 			self:SetCommand("NoBattery")
 		end
-	elseif self.battery_current >= self.battery_max and self.command == "RechargeFromGrid" then
+	elseif self.battery_current >= self.battery_max and (self.command == "RechargeFromGrid" or self.command == "NoBattery") then
 		HintDisable("HintRoverBatteries")
 		self:SetCommand("Idle")
 	end
@@ -395,8 +417,12 @@ function BaseRover:OnBatteryChanged(chng)
 	--callback
 end
 
+function BaseRover:NeedBattery()
+	return not self.affected_by_no_battery_tech or not g_RoverCommandResearched
+end
+
 function BaseRover:StartBatteryThread(hourly_delta, target_val, on_target_val_reached)
-	if self.affected_by_no_battery_tech and g_RoverCommandResearched then return end
+	if not self:NeedBattery() then return end
 	self:StopBatteryThread()
 	
 	self.battery_thread_data = {start_ts = GameTime(), hourly_delta = hourly_delta, accumulate_on_stop = true, tick_time = self.battery_thread_tick_time}
@@ -473,7 +499,7 @@ function BaseRover:StopBatteryThread()
 	
 	self.battery_thread = false
 	self.battery_ui_str = T{37, "Battery is <em>on standby</em>"}
-	if self.affected_by_no_battery_tech and g_RoverCommandResearched then return end
+	if not self:NeedBattery() then return end
 	--handle fraction change
 	if self.battery_thread_data then
 		if self.battery_thread_data.accumulate_on_stop then
@@ -495,11 +521,12 @@ local BatteryNonDrainingCommands = {
 	Malfunction = true,
 	Dead = true,
 	LoadingComplete = true,
+	OperationInterrupted = true,
 }
 
 function BaseRover:OnCommandStart()
 	Unit.OnCommandStart(self)
-	if self.affected_by_no_battery_tech and g_RoverCommandResearched then return end
+	if not self:NeedBattery() then return end
 	--battery
 	local is_non_draining = BatteryNonDrainingCommands[self.command]
 	if is_non_draining and IsValidThread(self.battery_thread) then
@@ -514,7 +541,7 @@ function BaseRover:OnBatteryDrained()
 end
 
 function BaseRover:NoBattery()
-	assert(self.affected_by_no_battery_tech == false or g_RoverCommandResearched == false)
+	assert(self:NeedBattery())
 	self.battery_ui_str = T{8456, "Depleted Battery!"}
 	self:CancelUnitDirectionMode()
 	
@@ -548,9 +575,19 @@ function BaseRover:RechargeFromGrid(target_cable, dont_move, forever)
 	local target_grid = target_cable.electricity.grid
 	
 	if not dont_move then
+		if not self.override_ui_status then
+			self.override_ui_status = "Goto_RechargeFromGrid"
+		end
+		self:PushDestructor(function(self)
+			if self.override_ui_status == "Goto_RechargeFromGrid" then
+				self.override_ui_status = nil
+			end
+		end)
 		if (not self:Goto(pnt) and (not IsValid(target_cable) or HexAxialDistance(target_cable, self) > dest_tolerance)) or not IsValid(self) then --get there
+			self:PopAndCallDestructor()
 			return
 		end
+		self:PopAndCallDestructor()
 		if not IsValid(target_cable) then return end
 	end
 	
@@ -616,8 +653,8 @@ function BaseRover:RechargeFromGrid(target_cable, dont_move, forever)
 end
 
 function BaseRover:ShouldAutoRecharge()
-	if self.affected_by_no_battery_tech and g_RoverCommandResearched then return false end
-	return MulDivRound(self.battery_current, 100, self.battery_max) < 90
+	if not self:NeedBattery() then return false end
+	return MulDivRound(self.battery_current, 100, self.battery_max) < self.battery_auto_recharge_pct
 end
 
 function BaseRover:TryRechargeFromIdle()
@@ -641,20 +678,10 @@ function BaseRover:OnAutoRechargeThresholdReached()
 end
 
 local charge_range = 2
-local cable_query = 
-{
-	area = false,
-	hexradius = charge_range + 1,
-	class = "ElectricityGridElement", 
-	filter = function(o) return o:GetGameFlags(const.gofUnderConstruction) == 0 end
-}
-
 function BaseRover:GetCableNearby(rad) --within charge range
 	rad = (rad or charge_range)
-	cable_query.hexradius = rad + 1
-	cable_query.area = self
-	local lst = GetObjects(cable_query)
-	cable_query.area = false
+	
+	local lst = MapGet(self, "hex", rad + 1, "ElectricityGridElement", function(o) return o:GetGameFlags(const.gofUnderConstruction) == 0 end  )
 	local c = FindNearestObject(lst, self)
 	return c and HexAxialDistance(c, self) <= rad and c or false
 end
@@ -687,13 +714,15 @@ function BaseRover:EqualizePowerWithOtherRover(other_rover, target_val)
 	end
 	
 	local delta = target_battery > self.battery_current and self.battery_hourly_equalization_rate or -self.battery_hourly_equalization_rate
-	self:StartBatteryThread(delta, target_battery, function()
-												self:SetCommand("Idle") 
-											end)
+	target_battery = delta > 0 and not other_rover:NeedBattery() and self.battery_max or target_battery
 	
 	if delta > 0 and self:HasMember("Siege") and self.sieged_state then
 		self:Siege(true)
 	end
+	
+	self:StartBatteryThread(delta, target_battery, function()
+												self:SetCommand("Idle") 
+											end)
 
 	self:StartFX(delta > 0 and "Charging" or "Discharging", other_rover) --auto stop
 
@@ -766,9 +795,9 @@ end
 
 function BaseRover:CanInteractWithObject(obj, interaction_mode)
 	if not IsValid(obj) then return false end
-	if self.command=="Dead" then return false end
+	if self.command == "Dead" then return false end
 	if interaction_mode == false or interaction_mode == "recharge" then
-		if IsKindOf(obj, "ElectricityGridElement") and not IsKindOf(obj, "ConstructionSite") then
+		if IsKindOf(obj, "ElectricityGridElement") and not IsKindOf(obj, "ConstructionSite") and self:NeedBattery() then
 			return true, T{9614, "<UnitMoveControl('ButtonB',interaction_mode)>: Recharge", self}  --RechargeFromGrid
 		elseif obj ~= self and IsKindOf(obj, "BaseRover") and obj.command ~= "Dead" and obj.command ~= "Malfunction" and not IsKindOf(obj,"AttackRover") then
 			return true, T{9615, "<UnitMoveControl('ButtonA',interaction_mode)>: Transfer Power", self} --EqualizePowerWithOtherRover
@@ -789,7 +818,7 @@ function BaseRover:InteractWithObject(obj, interaction_mode)
 	if self.command=="Dead" then return false end
 	
 	if interaction_mode == false or interaction_mode == "recharge" then
-		if IsKindOf(obj, "ElectricityGridElement") and not IsKindOf(obj, "ConstructionSite") then
+		if IsKindOf(obj, "ElectricityGridElement") and not IsKindOf(obj, "ConstructionSite") and self:NeedBattery() then
 			self:SetCommand("RechargeFromGrid", obj)
 			SetUnitControlInteractionMode(self, false) --toggle button
 		elseif obj ~= self and IsKindOf(obj, "BaseRover") and obj.command ~= "Dead"  then
@@ -880,6 +909,18 @@ function BaseRover:GetUIWarning()
 			return T{7325, "Empty battery"}
 		end
 	end
+	return self.operation_interrupted_reason
+end
+
+function BaseRover:OperationInterrupted(reason)
+	self:SetState("idle")
+	self.operation_interrupted_reason = reason
+	RebuildInfopanel(self)
+	self:PushDestructor(function(self)
+		self.operation_interrupted_reason = false
+		RebuildInfopanel(self)
+	end)
+	Halt()
 end
 
 function RoverStatus()
@@ -949,6 +990,7 @@ RoverCommands = {
 	Work = T{76, "Performing maintenance"},
 	UseTunnel = T{6723, "Going through a tunnel"},
 	LoadingComplete = T{8490, "Loading complete"},
+	OperationInterrupted = T{9827, "Command interrupted"},
 	-- attack rover commands
 	Roam = T{6724, "Roaming"},
 	Attack = T{6725, "Attacking"},
@@ -1006,7 +1048,7 @@ end
 
 function ReapplyAllVehiclePalettes()
 	DelayedCall(100, function()
-		ForEach{ classes = { "BaseRover", "CargoShuttle" } , exec = SetPaletteFromClassMember}
+		MapForEach("map", "BaseRover", "CargoShuttle" , SetPaletteFromClassMember)
 	end)
 end
 
@@ -1032,4 +1074,14 @@ end
 
 function BaseRover:CanDemolish()
 	return not g_Tutorial and Demolishable.CanDemolish(self)
+end
+
+----
+
+if Platform.editor then
+
+function OnMsg.GatherFXActors(list)
+	list[#list + 1] = "Rover"
+end
+
 end

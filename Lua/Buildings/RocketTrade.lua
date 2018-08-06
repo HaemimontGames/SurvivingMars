@@ -94,7 +94,7 @@ function TradeRocket:GetUIExportStatus()
 	for i = 1, #self.export_goods do
 		local req = self.export_goods[i]
 		local stored = req.amount - self.export_requests[i]:GetActualAmount()
-		text = text .. FormatResourceValueMaxResource(stored, req.amount, req.resource, empty_table)
+		text = text .. FormatResourceValueMaxResource(empty_table, stored, req.amount, req.resource )
 		if i < #self.export_goods then
 			text = text .. "<newline>"
 		end

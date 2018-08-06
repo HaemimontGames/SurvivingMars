@@ -195,17 +195,29 @@ DefineClass.UnitArrowEarthsick = {
 	entity = "ArrowEarthsick",
 }
 
-if FirstLoad then
-	g_SignsVisible = true
-end
+GlobalVar("g_SignsVisible", true)
 
 function ToggleSigns()
-	local action = (not g_SignsVisible) and "SetEnumFlags" or "ClearEnumFlags"
-	GetObjects { class = "BuildingSign", action = action, action_data = const.efVisible }
-	GetObjects { class = "UnitSign", action = action, action_data = const.efVisible }
-	GetObjects { class = "TerrainDeposit", action = action, action_data = const.efVisible }
-	GetObjects { class = "SubsurfaceDeposit", action = action, action_data = const.efVisible }
-	GetObjects { class = "ArrowTutorialBase", action = action, action_data = const.efVisible }
-	g_SignsVisible = not g_SignsVisible
+	if not g_SignsVisible then
+		SetSignsVisible(true)
+	else
+		SetSignsVisible(false)
+	end
 	--g_SubsurfaceDepositsVisible = not g_SignsVisible
+end
+
+function SetSignsVisible(visible)
+	if visible and not g_SignsVisible then
+		MapSetEnumFlags( const.efVisible,"map","BuildingSign", "UnitSign", "ArrowTutorialBase")
+		if not g_ResourceIconsTurnedOff then
+			MapSetEnumFlags( const.efVisible,"map","TerrainDeposit","SubsurfaceDeposit")
+			g_ResourceIconsVisible = true
+		end
+		g_SignsVisible = true
+	end
+	if not visible and g_SignsVisible then
+		MapClearEnumFlags( const.efVisible,"map","BuildingSign", "UnitSign", "ArrowTutorialBase","TerrainDeposit","SubsurfaceDeposit")
+		g_ResourceIconsVisible = false
+		g_SignsVisible = false
+	end
 end

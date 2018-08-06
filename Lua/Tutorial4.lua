@@ -44,8 +44,8 @@ g_TutorialScenarios.Tutorial4 = function()
 	local resource_arrow = TutorialUIArrow:new({	
 		AnchorType = "left-center", 
 		FindTarget = function() 
-			if XDialogs.Resupply and XDialogs.Resupply.Mode == "categories" then
-				return XDialogs.Resupply.idTemplate.idCategories.idList.idPassenger
+			if Dialogs.Resupply and Dialogs.Resupply.Mode == "categories" then
+				return Dialogs.Resupply.idTemplate.idCategories.idList.idPassenger
 			end
 		end
 	}, terminal.desktop)
@@ -57,8 +57,8 @@ g_TutorialScenarios.Tutorial4 = function()
 	local rocket = UICity.labels.AllRockets[1]
 	local launch_arrow
 	while rocket.command ~= "FlyToMars" do
-		if XDialogs.Resupply and XDialogs.Resupply.Mode == "passengers" and not filterUI_popped then
-			WaitTutorialPopupImmediate("Tutorial4_PopUp4_FilterUI", {}, nil, XDialogs.Resupply)
+		if Dialogs.Resupply and Dialogs.Resupply.Mode == "passengers" and not filterUI_popped then
+			WaitTutorialPopupImmediate("Tutorial4_PopUp4_FilterUI", {}, nil, Dialogs.Resupply)
 			if g_Tutorial.LastHint ~= "Tutorial_4_PassengerRocket" then
 				TutorialNextHint("Tutorial_4_PassengerRocket")
 			end
@@ -66,17 +66,17 @@ g_TutorialScenarios.Tutorial4 = function()
 				launch_arrow = TutorialUIArrow:new({	
 					AnchorType = "center-top", 
 					FindTarget = function()
-						if not XDialogs.Resupply or XDialogs.Resupply.Mode ~= "passengers" then 
+						if not Dialogs.Resupply or Dialogs.Resupply.Mode ~= "passengers" then 
 							return false
 						end
-						return XDialogs.Resupply.idTemplate.idPassengers.idToolBar.idlaunch
+						return Dialogs.Resupply.idTemplate.idPassengers.idToolBar.idlaunch
 					end,
 				}, terminal.desktop)
 			end
 			filterUI_popped = true
 		end
-		if XDialogs.Resupply and XDialogs.Resupply.Mode == "passengers" and XDialogs.Resupply.idTemplate.idPassengers.Mode == "review" and not reviewUI_popped then
-			WaitTutorialPopupImmediate("Tutorial4_PopUp5_ReviewUI", {}, nil, XDialogs.Resupply)
+		if Dialogs.Resupply and Dialogs.Resupply.Mode == "passengers" and Dialogs.Resupply.idTemplate.idPassengers.Mode == "review" and not reviewUI_popped then
+			WaitTutorialPopupImmediate("Tutorial4_PopUp5_ReviewUI", {}, nil, Dialogs.Resupply)
 			reviewUI_popped = true
 		end
 		Sleep(50)
@@ -117,8 +117,8 @@ g_TutorialScenarios.Tutorial4 = function()
 		local rocket_arrow = TutorialUIArrow:new({
 			AnchorType = "center-top",
 			FindTarget = function() 
-				if XDialogs.PinsDlg then 
-					for _, win in ipairs(XDialogs.PinsDlg.children) do
+				if Dialogs.PinsDlg then 
+					for _, win in ipairs(Dialogs.PinsDlg) do
 						if IsKindOf(win, "XBlinkingButton") and IsKindOf(win.context, "SupplyRocket") and UICity.labels.AllRockets[1].command == "WaitInOrbit" then
 							return win
 						end
@@ -149,7 +149,7 @@ g_TutorialScenarios.Tutorial4 = function()
 		arrow = TutorialUIArrow:new({
 			AnchorType = "center-top",
 			FindTarget = function() 
-				local infopanel = XDialogs.Infopanel
+				local infopanel = Dialogs.Infopanel
 				if not infopanel or infopanel.context ~= spacebar or spacebar.closed_workplaces[i]==1 then 
 					return false 
 				end
@@ -189,7 +189,7 @@ g_TutorialScenarios.Tutorial4 = function()
 	
 	arrow = TutorialUIArrow:new({
 		AnchorType = "left-center",
-		FindTarget = function() return XDialogs.Infopanel and XDialogs.Infopanel.context == lab and XDialogs.Infopanel.idWorkshift2 end,
+		FindTarget = function() return Dialogs.Infopanel and Dialogs.Infopanel.context == lab and Dialogs.Infopanel.idWorkshift2 end,
 	}, terminal.desktop)
 
 	while IsValid(lab) and lab:IsClosedShift(2) do
@@ -210,7 +210,7 @@ g_TutorialScenarios.Tutorial4 = function()
 	
 	arrow = TutorialUIArrow:new({
 		AnchorType = "center-top",
-		FindTarget = function() return XDialogs.Infopanel and XDialogs.Infopanel.context == lab and XDialogs.Infopanel.idPriority end,
+		FindTarget = function() return Dialogs.Infopanel and Dialogs.Infopanel.context == lab and Dialogs.Infopanel.idPriority end,
 	}, terminal.desktop)	
 
 	obj_arrow = PlaceObject("ArrowTutorial")
@@ -239,7 +239,7 @@ g_TutorialScenarios.Tutorial4 = function()
 	
 	while #UICity.research_queue < 3 do
 		Sleep(50)
-		if not XDialogs.ResearchDlg then
+		if not Dialogs.ResearchDlg then
 			WaitUIButtonPressed("HUD", "idResearch")
 		end
 	end

@@ -7,6 +7,7 @@ DefineClass.WindTurbine = {
 		{ template = true, id = "great_dust_storm_bonus_percent", name = T{832, "Great Dust Storm bonus percent"}, category = "Power Production", editor = "number", default = 100, modifiable = true },
 	},
 	
+	dust_storm_boost = false,
 	wait_working_anims_to_finish = true,
 	building_update_time = const.HourDuration, --wind changes every hour
 	last_fx_moment_sent = false,
@@ -14,14 +15,17 @@ DefineClass.WindTurbine = {
 
 function WindTurbine:GetEletricityUnderproduction()
 	local elevation_bonus = self:GetElevationBonus()
-	return Max(0, (self:GetClassValue("electricity_production") + elevation_bonus) - self.electricity_production)
+	return Max(0, (self:GetOptimalElectricityProduction() + elevation_bonus) - self.electricity_production)
 end
 
 function WindTurbine:CalcProduction()
 	local elevation_bonus = self:GetElevationBonus()
 	local production_bonus = 100 + (elevation_bonus - 50)
 	if g_DustStorm then
+		self.dust_storm_boost = true
 		production_bonus = g_DustStorm.type == "great" and production_bonus + self.great_dust_storm_bonus_percent or production_bonus + self.dust_storm_bonus_percent
+	else
+		self.dust_storm_boost = false
 	end
 	self:SetAnimSpeedModifier( Min(300 + 3 * production_bonus, 1100) )
 	self:SetBase("electricity_production", MulDivRound(50 + production_bonus, self:GetClassValue("electricity_production"), 100))

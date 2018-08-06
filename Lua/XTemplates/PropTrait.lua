@@ -38,7 +38,7 @@ end,
 				'name', "Press",
 				'func', function (self, ...)
 local obj = ResolvePropObj(self.parent.context)
-local dlg = GetXDialog(self)
+local dlg = GetDialog(self)
 local prop_meta = self.parent.prop_meta
 obj:FilterTrait(prop_meta, false)
 end,
@@ -65,7 +65,7 @@ end,
 				'name', "Press",
 				'func', function (self, ...)
 local obj = ResolvePropObj(self.parent.context)
-local dlg = GetXDialog(self)
+local dlg = GetDialog(self)
 local prop_meta = self.parent.prop_meta
 obj:FilterTrait(prop_meta, true)
 end,
@@ -79,9 +79,6 @@ local obj = ResolvePropObj(context)
 if prop_meta.add_count_in_name then
 	local name = obj:GetPropTraitDisplayName(prop_meta)
 	self.idName:SetText(name)
-end
-if prop_meta.leave_space then
-	self:SetMargins(box(0,0,0,20))
 end
 obj:UpdateImages(self, prop_meta)
 end,
@@ -106,7 +103,7 @@ end,
 local obj = ResolvePropObj(self.context)
 if obj.dome and button == "L" then
 	XPropControl.OnMouseButtonDoubleClick(self, pos, button)
-	CloseXDialog("DomeTraits")
+	CloseDialog("DomeTraits")
 	CreateRealTimeThread(function()
 		OpenCommandCenter({dome = obj.dome, trait = {name = self.prop_meta.value, display_name = self.prop_meta.name}}, "Colonists")
 	end)
@@ -146,6 +143,17 @@ end,
 if GetUIStyleGamepad() then
 	self:SetFocus(selected)
 end
+end,
+		}),
+		}),
+	PlaceObj('XTemplateWindow', {
+		'__condition', function (parent, context) return context.prop_meta.leave_space end,
+		'__class', "XContextWindow",
+	}, {
+		PlaceObj('XTemplateFunc', {
+			'name', "IsSelectable",
+			'func', function (self, ...)
+return false
 end,
 		}),
 		}),

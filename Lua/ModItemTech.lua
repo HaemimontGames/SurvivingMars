@@ -1,6 +1,6 @@
 local function folder_fn(obj)
 	return {
-		{ obj.mod.path, os_path = true },
+		{ obj.mod.content_path, os_path = true },
 		{ "UI", game_path = true },
 	}
 end
@@ -11,7 +11,7 @@ DefineClass.ModItemTech = { --Kept for backwards compatibility (mods with DataIn
 		{ category = "Tech", id = "icon", name = T{94, "Icon"}, editor = "browse", help = "Tech Game Icon", default = "", folder = folder_fn, os_path = true, filter = "Image files|*.tga" },
 		{ category = "Tech", id = "field", name = T{3721, "Field"}, editor = "combo", default = "Breakthroughs", items = function() return ResearchFieldsCombo() end, },
 	},
-	EditorName = "",
+	EditorMenubarName = "",
 }
 
 function ModItemTech:OnModLoad()

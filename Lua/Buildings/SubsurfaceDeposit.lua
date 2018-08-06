@@ -273,6 +273,7 @@ function SubsurfaceDeposit:GetDepth()
 end
 
 function SubsurfaceDeposit:OnDepleted()
+	Msg("DepositDepleted", self)
 	if IsValid(self) then
 		DoneObject(self)
 	end
@@ -285,6 +286,7 @@ function SubsurfaceDeposit:TakeAmount(amount)
 	if self:IsDepleted() then
 		self:OnDepleted()
 	end
+	Msg("DeepDepositExtraction", amount, self.resource)
 	return amount
 end
 
@@ -353,22 +355,14 @@ end
 
 function SubsurfaceDeposit:Getgrade_name() return DepositGradeToDisplayName[self.grade] end
 
-local DepositExploitersQuery = {
-	class = "BuildingDepositExploiterComponent",
-	area = false,
-	hexradius = const.RangeToCheckForExploitersOnDepositReveal,
-	exec = function(o, self)
+function SubsurfaceDeposit:NotifyNearbyExploiters(fn)
+	local deposit_func = function(o, self)
 		o:StartExploit(self)
 	end
-}
-
-function SubsurfaceDeposit:NotifyNearbyExploiters(fn)
-	DepositExploitersQuery.area = self
 	if fn then 
-		DepositExploitersQuery.exec = fn
+		deposit_func = fn
 	end
-	ForEach(DepositExploitersQuery, self)
-	DepositExploitersQuery.area = false
+	MapForEach(self, "hex", const.RangeToCheckForExploitersOnDepositReveal,"BuildingDepositExploiterComponent", deposit_func, self )
 end
 
 function SubsurfaceDeposit:UpdateEntity()
@@ -427,12 +421,11 @@ function OnMsg.ConstValueChanged(prop, old_value, new_value)
 		old_value = old_value == 0 and 0 or 1
 		new_value = new_value == 0 and 0 or 1
 		if old_value ~= new_value then
-			ForEach{
-				class = "SubsurfaceDeposit",
-				exec = function(obj)
+			MapForEach("map",
+				"SubsurfaceDeposit",
+				function(obj)
 					obj:UpdateEntity()
-				end
-			}
+				end)
 		end
 	end
 end

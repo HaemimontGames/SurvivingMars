@@ -12,12 +12,13 @@ local planet_mars_longitude_offset = -90 * 60
 local planet_mars_rotation_speed = 50
 local planet_earth_rotation_speed = 300
 local planet_earth_close_rotation_speed = 700
-local spot_snap_range = 1
+local spot_snap_range = 4
 
 GlobalVar("PlanetScene", false)
 GlobalVar("PlanetCamera", false)
 GlobalVar("PlanetThread", false)
 GlobalVar("PlanetStack", false)
+GlobalVar("GalleryList", {})
 
 function SetPlanetCamera(planet, state)
 	state = state or "open"
@@ -51,7 +52,7 @@ function SetPlanetCamera(planet, state)
 		if old_planet then
 			WaitNextFrame(1)
 			table.restore(hr, "PlanetCamera")
-			WaitNextFrame(1)
+			WaitNextFrame(2)
 			RecreateRenderObjects()
 			if PlanetCamera then
 				SetCamera(unpack_params(PlanetCamera))
@@ -63,14 +64,18 @@ function SetPlanetCamera(planet, state)
 		if planet then
 			PlanetCamera = { GetCamera() }
 			WaitNextFrame(1)
+			SetPostProcPredicate("space_mist", true)
+			SetLightmodelOverride(1, planet)
+			WaitNextFrame(2)
 			table.change(hr, "PlanetCamera", { 
 				RenderTerrain = 0,
+				RenderBuildGrid = 0,
+				RenderMirage = 0,
+				RenderIce = 0,
 				RenderPlanetView = 1,
 				FarZ = 700000,
 				NearZ = 100,
 			})
-			SetPostProcPredicate("space_mist", true)
-			SetLightmodelOverride(1, planet)
 			cameraMax.Activate(1)
 			cameraMax.SetCamera(unpack_params(PlanetCameras[planet]))
 			camera.SetAutoFovX(1, 0, 70*60, 16, 9, 140*60, 7, 1)
@@ -121,7 +126,7 @@ function PlacePlanet(scene)
 		["PlanetEarthCloseup"] = "PlanetEarth",
 	}
 	local class = planets[scene]
-	GetObjects{classes= {"PlanetDummy", "Rocket"}}:Destroy()
+	MapDelete("map","PlanetDummy", "Rocket")
 	local rotation_obj = PlaceObject("PlanetDummy")
 	local planet_obj = PlaceObject(class)
 	local rocket_obj = false
@@ -135,10 +140,17 @@ function PlacePlanet(scene)
 		rotation_obj:SetAxis(point(-1361, 1113, 3700))
 		rotation_obj:SetAngle(5018)
 		if scene == "PlanetEarthCloseup" then
-			local rocket_entity = "Rocket"
-			rocket_entity = GetMissionSponsor():GetDefaultRocketSkin() or rocket_entity
+			local rocket_class = GetRocketClass()
+			local template = BuildingTemplates[rocket_class]
+			local rocket_entity = GetMissionSponsor():GetDefaultRocketSkin() or template.entity or "Rocket"
+			local clsdef = g_Classes[template.template_class]
+			local palette = clsdef and EntityPalettes[clsdef.rocket_palette]
 			assert(IsValidEntity(rocket_entity))
-			rocket_obj = PlaceObject(rocket_entity)
+			rocket_obj = PlaceObject("Rocket")
+			rocket_obj:ChangeEntity(rocket_entity)
+			if palette then
+				SetObjectPalette(rocket_obj, palette)
+			end
 			rocket_obj:SetState("inSpace")
 			rocket_obj:SetScale(1)
 			rocket_obj:SetGameFlags(const.gofAlwaysRenderable + const.gofRealTimeAnim)
@@ -179,7 +191,7 @@ function PlanetGetClickCoords(click_pos)
 		return false
 	end
 	-- planet_rot is 0..360, planet_offset is -90, 
-	-- long -> -70 .. +70 (dep on click and fov) as we rotate the planet
+	-- lat -> -70 .. +70 (dep on click and fov) as we rotate the planet
 	local lat = lat_org
 	local long = long_org
 	long = planet_angle + planet_mars_longitude_offset + long
@@ -208,14 +220,37 @@ function RoundCoordToFullDegrees(coord)
 	return coord - remainder
 end
 
-function PlanetFormatStringCoords(lat, long, spot_name, spot_color, hint)
+function PlanetFormatStringCoords(lat, long, spot_name, spot_color, hint, challenge)
 	local lat_dir = lat > 0 and T{6886, "S"} or T{6887, "N"}
 	local long_dir = long > 0 and T{6888, "E"} or T{6889, "W"}
+	local latd = 1 + 70 + lat / 60
+	local longd = 1 + 180 + long / 60
 	lat = abs(lat)
 	long = abs(long)
 	spot_name = spot_name or T{1103, "Colony Site"}
 	local color = spot_color or Untranslated("<color 203 120 30>")
 	local name = T{4128, "<clr><font PGLandingPosName><name></font></color><newline>", clr = color,  name = spot_name}
+	
+	if Platform.developer and DbgPlanetStats then
+		local stat = tostring(DbgPlanetStats[latd][longd])
+		local color = DbgPlanetColors[latd][longd]
+		if stat and color then
+			local r, g, b = GetRGB(color)
+			name = name .. Untranslated(string.format("Statistic <color %d %d %d>%s</color><newline>", r, g, b, stat))
+		end
+	end
+	
+	if challenge then
+		local record = type(challenge) == "table" and AccountStorage.CompletedChallenges and AccountStorage.CompletedChallenges[challenge.id]
+		if type(record) == "table" then
+			if record.time <= challenge.time_perfected then
+				return T{10412, "<pos_name>Perfected on Sol <sol>\nScore <score>", pos_name = name, sol = 1 + record.time / const.DayDuration, score = record.score}
+			else
+				return T{10413, "<pos_name>Completed on Sol <sol>\nScore <score>", pos_name = name, sol = 1 + record.time / const.DayDuration, score = record.score}
+			end
+		end
+		return name
+	end
 	if hint and GetUIStyleGamepad() then
 		return T{4129, "<pos_name><lat>°<lat_dir> <long>°<long_dir><newline><font PreGamePlanetCoordinatesHint><control_img> Move spot</font>", pos_name = name, lat = lat / 60, lat_dir = lat_dir, long = long / 60, long_dir = long_dir, control_img = TLookupTag("<LS>")}
 	elseif hint then
@@ -243,6 +278,8 @@ DefineClass.LandingSpot = {
 		{ id = "quickstart", name = T{6894, "Quickstart"}, editor = "bool", default = false, },
 	},
 	PropertyTranslation = true,
+	EditorMenubarName = "Landing Spots",
+	EditorMenubar = "Editors.Game",
 }
 
 local function MapChallengeRatingToDifficulty(rating)
@@ -283,6 +320,13 @@ DefineClass.LandingSiteObject = {
 	long_real = false, -- those are the real values, not the displayed ones
 	lat_real = false, -- the ones displayed could be snapped to a landing spot
 	snapped_id = false,
+	spot_id_to_challenge_id = false,
+	spot_id_to_marker_id = false,
+	marker_id_to_challenge_id = false,
+	challenge_mode = false,
+	challenge_summary = false,
+	challenge = false,
+	landing_preset_group = "Default",
 	displayed_pt = false,
 	mouse_ctrl_state = false,
 	prev_pt = false,
@@ -293,6 +337,10 @@ DefineClass.LandingSiteObject = {
 	selector_image = "UI/Common/pm_selector.tga",
 	spot_image = "UI/Common/pm_landing_zone.tga",
 	spot_image_selected = "UI/Common/pm_landing_zone_2.tga",
+	spot_challenge_selection = "UI/Common/pm_challenges_selection.tga",
+	spot_challenge_unfinished = "UI/Common/pm_challenges_1.tga",
+	spot_challenge_completed = "UI/Common/pm_challenges_2.tga",
+	spot_challenge_perfected = "UI/Common/pm_challenges_3.tga",
 	selector_image_size = false,
 	spot_image_size = false,
 }
@@ -329,12 +377,102 @@ function LandingSiteObject:GetTemperature()
 	return g_CurrentMapParams.Temperature or 0
 end
 
+function LandingSiteObject:GetChallengeDescr()
+	local challenge = self.challenge
+	return challenge and challenge.description or ""
+end
+
+function LandingSiteObject:GetMissionSponsor()
+	local challenge = self.challenge
+	local sponsor = challenge and Presets.MissionSponsorPreset.Default[challenge.sponsor]
+	return sponsor and sponsor.display_name or ""
+end
+
+function LandingSiteObject:GetCommanderProfile()
+	local challenge = self.challenge
+	local commander = challenge and Presets.CommanderProfilePreset.Default[challenge.commander]
+	return commander and commander.display_name or ""
+end
+
+function LandingSiteObject:GetGameRulesList()
+	local challenge = self.challenge
+	if challenge then
+		local ids = { challenge.gamerule1, challenge.gamerule2, challenge.gamerule3 }
+		local names = {}
+		for _, id in ipairs(ids) do
+			local rule = id and GameRulesMap[id]
+			if rule then
+				names[#names + 1] = rule.display_name
+			end
+		end
+		if #names > 0 then
+			return table.concat(names, ",")
+		end
+	end
+	
+	return T{6761, "None"}
+end
+
+function LandingSiteObject:GetDeadlinePerfected()
+	local challenge = self.challenge	
+	return challenge and challenge.time_perfected / const.DayDuration
+end
+
+function LandingSiteObject:GetDeadlineCompleted()
+	local challenge = self.challenge	
+	return challenge and challenge.time_completed / const.DayDuration
+end
+
+
 function LandingSiteObject:GetMapDifficulty()
 	local map_challenge_rating = GetMapChallengeRating()
 	if g_DiffBonusObj then
 		g_DiffBonusObj.map_challenge_rating = map_challenge_rating
 	end
 	return MapChallengeRatingToDifficulty(map_challenge_rating)
+end
+
+function LandingSiteObject:GetMissionSponsorEffect()
+	local item = table.find_value(MissionParams.idMissionSponsor.items, "id", g_CurrentMissionParams.idMissionSponsor)
+	if not item then
+		return ""
+	end
+	local context = GetModifiedConsts(item)
+	for _, prop in ipairs(item:GetProperties()) do
+		context[prop.id] = item:GetProperty(prop.id)
+	end
+
+	local start = T{10414, "Funding: $<funding> M<newline>", context}
+	local rockets = T{10062, "Starting Rockets: <initial_rockets><newline>", context}
+	--local applicants = T{"Starting Applicants: <applicants><newline><newline>", applicants = context.ApplicantsPoolStartingSize, context}
+
+	return start..rockets..T{item.effect, context}
+end
+
+function LandingSiteObject:GetCommanderEffect()
+	local item = table.find_value(MissionParams.idCommanderProfile.items, "id", g_CurrentMissionParams.idCommanderProfile)
+	if not item then
+		return ""
+	end
+	return T{item.effect, item}
+end
+
+function LandingSiteObject:GetGameRuleEffects()
+	local challenge = self.challenge
+	if challenge then
+		local ids = { challenge.gamerule1, challenge.gamerule2, challenge.gamerule3 }
+		local names = {}
+		for _, id in ipairs(ids) do
+			local rule = id and GameRulesMap[id]
+			if rule then
+				names[#names + 1] = T{10415, "- "} .. rule.description
+			end
+		end
+		if #names > 0 then
+			return table.concat(names, "<newline>")
+		end
+	end
+	return ""
 end
 
 function LandingSiteObject:Random()
@@ -361,9 +499,9 @@ end
 function LandingSiteObject:GetParamValue(prop_meta)
 	local value = CalcValueInQuarters(g_CurrentMapParams[prop_meta.id] or 0)
 	if MaxThreat(prop_meta.id) then
-			value = 5
+		value = 5
 	elseif NoThreats(prop_meta.id) then
-			value = -1
+		value = -1
 	end
 	if g_CurrentMapParams.latitude and g_CurrentMapParams.longitude then
 		g_SelectedSpotChallengeMods[prop_meta.id] = prop_meta.challenge_mod[value]
@@ -373,6 +511,20 @@ end
 
 function LandingSiteObject:GetSpotImage(win)
 	return win.Id == self.snapped_id and self.spot_image_selected or self.spot_image
+end
+
+function LandingSiteObject:GetChallengeSpotImage(win)
+	if not self.challenge_mode then
+		return
+	end
+	local challenge_id = self.marker_id_to_challenge_id[win.Id]
+	local challenge = Presets.Challenge.Default[challenge_id]
+	local completed = AccountStorage and AccountStorage.CompletedChallenges and AccountStorage.CompletedChallenges[challenge_id]
+	if type(completed) ~= "table" then
+		return self.spot_challenge_unfinished
+	end
+	local time = completed.time
+	return (time < challenge.time_perfected) and self.spot_challenge_perfected or self.spot_challenge_completed
 end
 
 function LandingSiteObject:DrawSelector(win)
@@ -394,7 +546,17 @@ function LandingSiteObject:DrawSpot(win)
 	local right = width - left
 	local up = height / 2
 	local down = height - up
-	UIL.DrawImage(self:GetSpotImage(win), box(-left, -up, right, down), box(0, 0, x, y), -1, 0, 0)
+	if self.challenge_mode then
+		local spot_img = self:GetChallengeSpotImage(win)
+		if spot_img then
+			UIL.DrawImage(spot_img, box(-left, -up, right, down), box(0, 0, x, y), -1, 0, 0)
+			if win.Id == self.snapped_id then
+				UIL.DrawImage(self.spot_challenge_selection, box(-left, -up, right, down), box(0, 0, x, y), -1, 0, 0)
+			end
+		end
+	else
+		UIL.DrawImage(self:GetSpotImage(win), box(-left, -up, right, down), box(0, 0, x, y), -1, 0, 0)
+	end
 end
 
 function LandingSiteObject:MouseButtonDown(pos, button)
@@ -409,14 +571,16 @@ function LandingSiteObject:MouseButtonDown(pos, button)
 		self.dialog.desktop:SetMouseCapture(self.dialog)
 		local new_lat, new_long = PlanetGetClickCoords(pos)
 		if new_lat then
-			PlayFX("SelectColonySite", "start")
-			PlayFX("SelectColonySiteDrag", "start")
 			self.mouse_ctrl_state = "dragging"
 			self:StopAnimation()
 			self:SetLatLong(new_lat, new_long)
-			local lat, long = self:CalcPlanetCoordsFromScreenCoords(self.lat, self.long)
-			local click_pos = self:CalcClickPosFromCoords(lat, long)
-			self:DisplayCoord(click_pos, self.lat, self.long, lat, long)
+			if self.lat then
+				PlayFX("SelectColonySite", "start")
+				PlayFX("SelectColonySiteDrag", "start")
+				local lat, long = self:CalcPlanetCoordsFromScreenCoords(self.lat, self.long)
+				local click_pos = self:CalcClickPosFromCoords(lat, long)
+				self:DisplayCoord(click_pos, self.lat, self.long, lat, long)
+			end
 		end
 	end
 end
@@ -462,16 +626,18 @@ function LandingSiteObject:MousePos(pos)
 			local new_lat, new_long = PlanetGetClickCoords(pos)
 			if new_lat then
 				self:SetLatLong(new_lat, new_long)
-				local lat, long = self:CalcPlanetCoordsFromScreenCoords(self.lat, self.long)
-				local click_pos = self:CalcClickPosFromCoords(lat, long)
-				self:DisplayCoord(click_pos, self.lat, self.long, lat, long)
+				if self.lat then
+					local lat, long = self:CalcPlanetCoordsFromScreenCoords(self.lat, self.long)
+					local click_pos = self:CalcClickPosFromCoords(lat, long)
+					self:DisplayCoord(click_pos, self.lat, self.long, lat, long)
+				end
 			end
 		end)
 		return "break"
 	end
 end
 
-function LandingSiteObject:KbdKeyDown(char, virtual_key, repeated)
+function LandingSiteObject:KbdKeyDown(virtual_key, repeated)
 	if (virtual_key == const.vkA or virtual_key == const.vkD
 		or virtual_key == const.vkW or virtual_key == const.vkS)
 		and not self.lat then
@@ -494,7 +660,7 @@ function LandingSiteObject:KbdKeyDown(char, virtual_key, repeated)
 	end
 end
 
-function LandingSiteObject:KbdKeyUp(char, virtual_key, repeated)
+function LandingSiteObject:KbdKeyUp(virtual_key, repeated)
 	--[[if virtual_key == const.vkA or virtual_key == const.vkD then
 		self:AddPosModifiers()
 		return "break"
@@ -558,38 +724,36 @@ function LandingSiteObject:HandleGamepad()
 	end
 end
 
-function LandingSiteObject:RepositionCursor(pt)
-	pt = pt or point20
-	--[[local size = self.dialog.idSelector:GetSize()
-	local pos = pt - self.dialog.idSelector:GetSize() / 2
-	self.dialog.idSelector:SetBox(pos:x(), pos:y(), pos:x() + size:x(), pos:y() + size:y())]]
-	--self.idtxtCoord:SetPos(pt - self.idtxtCoord:GetSize() / 2)
-	--self.idtxtCoord:SetY(self.idSelector:GetY()+self.idSelector:GetHeight())
-end
-
 function LandingSiteObject:AddPosModifiers()
-	--self:RepositionCursor()
 	self.dialog.idSelector:AddDynamicPosModifier({id = "planet_pos", target = self.pt_attach})
 	self.dialog.idtxtCoord:AddDynamicPosModifier({id = "planet_pos", target = self.pt_attach})
 end
 
 function LandingSiteObject:AttachPredefinedSpots()
-	if Presets.LandingSpot.Default then
+	if Presets.LandingSpot[self.landing_preset_group] then
 		local template = self.dialog.idSpotTemplate
 		template:SetId("")
 		template:SetVisible(true)
 		local idx = 1
-		for k, v in ipairs(Presets.LandingSpot.Default) do
+		if self.challenge_mode then
+			self.spot_id_to_challenge_id = {}
+			self.marker_id_to_challenge_id = {}
+			self.spot_id_to_marker_id = {}
+		end
+		for k, v in ipairs(Presets.LandingSpot[self.landing_preset_group]) do
 			local attach = PlaceObject("Shapeshifter")
 			local marker = template:Clone()
 			marker:SetParent(self.dialog)
-			marker:SetId("idMarker" .. idx)
+			local marker_id = "idMarker" .. idx
+			marker:SetId(marker_id)
 			marker.DrawContent = template.DrawContent
 			idx = idx + 1
-			--marker:SetSize(template:GetSize())
-			--marker:SetPos(template:GetPos())
 			PlanetRotationObj:Attach(attach, PlanetRotationObj:GetSpotBeginIndex("Planet"))
 			marker:AddDynamicPosModifier({id = "planet_pos", target = attach})
+			
+			if self.challenge_mode then
+				self.spot_id_to_marker_id[v.id] = marker_id
+			end
 			
 			local lat, long = self:CalcPlanetCoordsFromScreenCoords(v.latitude * 60, v.longitude * 60)
 			local _, world_pt = self:CalcClickPosFromCoords(lat, long)
@@ -601,6 +765,15 @@ function LandingSiteObject:AttachPredefinedSpots()
 		end
 		template:SetId("idSpotTemplate")
 		template:SetVisible(false)
+		
+		if self.challenge_mode then
+			ForEachPreset("Challenge", function(preset)
+				self.spot_id_to_challenge_id[preset.landing_spot] = preset.id
+				local marker_id = self.spot_id_to_marker_id[preset.landing_spot]
+				assert(marker_id)
+				self.marker_id_to_challenge_id[marker_id] = preset.id
+			end)	
+		end
 	end
 end
 
@@ -611,11 +784,11 @@ function LandingSiteObject:SetLatLong(new_lat, new_long, force_coords)
 	if self.lat_real ~= new_lat or self.long_real ~= new_long or force_coords then
 		self.lat_real = new_lat
 		self.long_real = new_long
-		if Presets.LandingSpot.Default then
-			for k,v in ipairs(Presets.LandingSpot.Default) do
+		if Presets.LandingSpot[self.landing_preset_group] then
+			for k,v in ipairs(Presets.LandingSpot[self.landing_preset_group]) do
 				local spot_lat = v.latitude * 60
 				local spot_long = v.longitude * 60
-				local snap_range = Max(v.latitude / 15, 1) * spot_snap_range
+				local snap_range = Max(abs(v.latitude) / 15, 1) * spot_snap_range
 				if (force_coords and self.lat_real == spot_lat and self.long_real == spot_long) or
 					(not force_coords and self.lat_real >= spot_lat - snap_range * 60 and self.lat_real <= spot_lat + snap_range * 60 
 					and self.long_real >= spot_long - snap_range * 60 and self.long_real <= spot_long + snap_range * 60)  then
@@ -623,10 +796,16 @@ function LandingSiteObject:SetLatLong(new_lat, new_long, force_coords)
 					self.long = spot_long
 					self.snapped_id = "idMarker" .. k
 					g_CurrentMapParams.landing_spot = v.id
+					if self.challenge_mode then
+						self:UpdateChallenge(v.id)
+					end
 					return
 				end
 			end
-		end
+			if self.challenge_mode then
+				return
+			end
+		end		
 		self.lat = new_lat
 		self.long = new_long
 		self.snapped_id = false
@@ -662,13 +841,7 @@ function LandingSiteObject:LeftRightMove(dir)
 		dist = dist * self.rotation_dir
 		local offset = (self.rotation_dir == 1 and 1 or 0) --compensate for wrong anim phase count
 		local phase = PlanetRotationObj:GetAnimPhase(1) - dist - offset
-		--remove modifiers to prevent jumping of cursor and text when rotating planet
-		--self.dialog.idSelector:RemoveModifier("planet_pos")
-		--self.dialog.idtxtCoord:RemoveModifier("planet_pos")
-		--self:RepositionCursor(self.displayed_pt)
 		self:SetupAnimation(phase)
-	else
-		--self:AddPosModifiers()
 	end
 	return visible
 end
@@ -678,7 +851,6 @@ function LandingSiteObject:UpDownMove(dir)
 	local new_lat = (dir == "up") and self.lat_real - 60 or self.lat_real + 60
 	new_lat = Clamp(new_lat, -70*60, 70*60)
 	self:SetLatLong(new_lat, self.long_real)
-	--self:AddPosModifiers()
 	return visible
 end
 
@@ -782,9 +954,9 @@ function LandingSiteObject:StartVisibilityThread()
 end
 
 function LandingSiteObject:CalcMarkersVisibility()
-	if PlanetRotationObj and Presets.LandingSpot.Default then
+	if PlanetRotationObj and Presets.LandingSpot[self.landing_preset_group] then
 		local cur_phase = PlanetRotationObj:GetAnimPhase()
-		for k, v in ipairs(Presets.LandingSpot.Default) do
+		for k, v in ipairs(Presets.LandingSpot[self.landing_preset_group]) do
 			local phase = self:CalcAnimPhaseUsingLongitude(v.longitude * 60)
 			local dist = Min((cur_phase-phase)%self.anim_duration, (phase-cur_phase)%self.anim_duration)
 			self.dialog["idMarker" .. k]:SetVisible(dist <= 2400)
@@ -857,8 +1029,8 @@ function LandingSiteObject:DisplayCoord(pt, lat, long, lat_org, long_org)
 		self.pt_attach:SetAttachOffset(offset)
 		
 		local spot_name = self:ResolveSpotName()
-		self.coord_text = PlanetFormatStringCoords(self.lat, self.long, spot_name)
-		self.dialog.idtxtCoord:SetText(PlanetFormatStringCoords(self.lat, self.long, spot_name, "<color 237 135 26>", "hint"))
+		self.coord_text = PlanetFormatStringCoords(self.lat, self.long, spot_name, nil, nil, self.challenge_mode)
+		self.dialog.idtxtCoord:SetText(PlanetFormatStringCoords(self.lat, self.long, spot_name, "<color 237 135 26>", "hint", self.challenge))
 		self.input_prompt = PlanetFormatCoordsToPrompt(self.lat, self.long)
 		ObjModified(self)
 		ObjModified(g_DiffBonusObj)
@@ -883,9 +1055,13 @@ function LandingSiteObject:ShowContent(bAddInterp)
 end
 
 function LandingSiteObject:ResolveSpotName()
-	if Presets.LandingSpot.Default then
-		for k, v in ipairs(Presets.LandingSpot.Default) do
+	if Presets.LandingSpot[self.landing_preset_group] then
+		for k, v in ipairs(Presets.LandingSpot[self.landing_preset_group]) do
 			if self.lat == v.latitude * 60 and self.long == v.longitude * 60 then
+				local ch_id = self.spot_id_to_challenge_id and self.spot_id_to_challenge_id[v.id]
+				if ch_id then
+					return Presets.Challenge.Default[ch_id].title
+				end
 				return v.display_name
 			end
 		end
@@ -897,8 +1073,50 @@ function LandingSiteObject:LoadOverlayGrids()
 	LoadOverlayGrids(self.overlay_grids)
 end
 
-function LandingSiteObjectCreateAndLoad()
-	local obj = LandingSiteObject:new()
+function LandingSiteObject:UpdateChallenge(id)
+	g_CurrentMissionParams.challenge_id = nil
+	g_CurrentMissionParams.challenge_id = self.spot_id_to_challenge_id[id]
+	if g_CurrentMissionParams.challenge_id then
+		self.challenge = Presets.Challenge.Default[g_CurrentMissionParams.challenge_id]
+		g_CurrentMissionParams.idMissionSponsor = self.challenge.sponsor
+		local logo = GetDefaultMissionSponsorLogo(g_CurrentMissionParams.idMissionSponsor)
+		g_CurrentMissionParams.idMissionLogo = logo or g_CurrentMissionParams.idMissionLogo
+		g_CurrentMissionParams.idCommanderProfile = self.challenge.commander
+		g_CurrentMissionParams.idGameRules = {}
+		if self.challenge.gamerule1 then
+			g_CurrentMissionParams.idGameRules[self.challenge.gamerule1] = true
+		end
+		if self.challenge.gamerule2 then
+			g_CurrentMissionParams.idGameRules[self.challenge.gamerule2] = true
+		end
+		if self.challenge.gamerule3 then
+			g_CurrentMissionParams.idGameRules[self.challenge.gamerule3] = true
+		end
+	end		
+end
+
+function LandingSiteObject:GetNumChallengeScreenshots()
+	return #GalleryList
+end
+
+function LandingSiteObjectCreateAndLoad(...)
+	local obj = LandingSiteObject:new(...)
+	if obj.challenge_mode then
+		CreateRealTimeThread(function(obj)
+			local err, list = Savegame.ListForTag("gallery")
+			if not err then
+				GalleryList = list
+				
+				ObjModified(obj)
+				local dlg = GetDialog("PGMainMenu")
+				dlg = dlg and dlg.idContent.PGChallenge.idContent.idLandingSpot
+				if dlg then
+					dlg:UpdateActionViews(dlg.idActionBar)
+				end
+				
+			end
+		end, obj)
+	end
 	return obj
 end
 
@@ -912,7 +1130,11 @@ function LoadOverlayGrids(grids_table)
 end
 
 function MapAltitudeValue(val)
-	return MulDivRound(val,29429,25500) - 8200
+	return MulDivRound(val, 29429, 255) - 8200
+end
+
+function OverlayAltitudeValue(map_val)
+	return MulDivRound(map_val + 8200, 255, 29429)
 end
 
 local function GetOverlaysValue(lat, long, grids, values_table)
@@ -924,15 +1146,15 @@ local function GetOverlaysValue(lat, long, grids, values_table)
 			val = 256
 		else
 			local y, x = (lat + 90*60)*255/(180*60), (long + 180*60)*511/(360*60)
-			val = grid:get(x,y, 1)
+			val = grid:get(x, y, 1) -- [0, 255 * 100]
+			assert(val % 100 == 0)
+			val = val / 100 -- [0, 255]
 			if id == "Altitude" then
 				val = MapAltitudeValue(val)
 			elseif id == "Temperature" then
-				val = -(100 - MulDivRound(val,9900,25500)/100)--[0, 255]=>[-100, -1]
+				val = -(100 - MulDivRound(val, 99, 255))--[0, 255]=>[-100, -1]
 			elseif id == "ColdWave" then
-				val = (25500 - val)/100
-			else
-				val = val/100
+				val = 255 - val
 			end
 		end
 		values_table[id] = val
@@ -940,14 +1162,15 @@ local function GetOverlaysValue(lat, long, grids, values_table)
 	return xxhash(lat, long)
 end
 
-function GetOverlayValues(lat, long, overlay_grids)
-	if not overlay_grids then
-		overlay_grids = {}
+function GetOverlayValues(lat, long, overlay_grids, params)
+	params = params or g_CurrentMapParams
+	overlay_grids = overlay_grids or {}
+	if not next(overlay_grids) then
 		LoadOverlayGrids(overlay_grids)
 	end
-	g_CurrentMapParams.seed = GetOverlaysValue(lat, long, overlay_grids, g_CurrentMapParams)
-	g_CurrentMapParams.latitude = lat / 60
-	g_CurrentMapParams.longitude = long / 60
+	params.seed = GetOverlaysValue(lat, long, overlay_grids, params)
+	params.latitude = lat / 60
+	params.longitude = long / 60
 end
 
 function GenerateRandomLandingLocation()
@@ -959,4 +1182,259 @@ function GenerateRandomLandingLocation()
 	long = RoundCoordToFullDegrees(long)
 	lat = Clamp(lat, -70*60, 70*60)
 	return lat, long
+end
+
+if FirstLoad then
+	g_GalleryReadThread = false
+	g_GalleryLastLoadedImg = false
+end
+
+DefineClass.ChallengeGalleryObject = {
+	__parents = { "PropertyObject" },
+	
+	current_shot = 1,
+}
+
+function ChallengeGalleryObjectCreateAndLoad()
+	local obj = ChallengeGalleryObject:new()
+	return obj
+end
+
+function ChallengeGalleryObject:Show(dlg, delta)
+	Savegame.CancelLoad()
+	delta = delta or 0
+	self.current_shot = self.current_shot + delta
+	if self.current_shot < 1 then
+		self.current_shot = #GalleryList
+	end
+	if self.current_shot > #GalleryList then
+		self.current_shot = 1
+	end
+	local descr = GalleryList[self.current_shot]
+	
+	Savegame.Load(descr.savename, function(mountpoint)
+		g_GalleryReadThread = CreateRealTimeThread(function()
+			local win = dlg.idImage
+			local path = mountpoint .. "/shot.png"
+			if not io.exists(path) then return end
+			if delta ~= 0 then -- on open it's already faded in
+				dlg.desktop.idFade:SetVisible(true)
+				Sleep(450)
+			end
+			win:SetImage("")
+			if g_GalleryLastLoadedImg then
+				UIL.UnloadImage(g_GalleryLastLoadedImg)
+			end
+			WaitNextFrame(2)
+			win:SetImage(path)
+			
+			local challenge = Presets.Challenge.Default[descr.displayname]
+			dlg.idChallengeName:SetText(challenge.title)			
+			local record = AccountStorage.CompletedChallenges and AccountStorage.CompletedChallenges[challenge.id]
+			if record then
+				dlg.idChallengeScore:SetText(T{10416, "Completed on Sol <sol>, Score: <score>", sol = 1 + record.time / const.DayDuration, score = record.score})
+				dlg.idChallengeScore:SetVisible(true)
+			else
+				dlg.idChallengeScore:SetVisible(false)
+			end
+			
+			repeat
+				WaitMsg("OnRender")
+			until UIL.IsImageReady(path)
+			g_GalleryLastLoadedImg = path
+			dlg.desktop.idFade:SetVisible(false)
+			Savegame.Unmount()
+			g_GalleryReadThread = false
+			dlg:UpdateActionViews(dlg.idActionBar)
+		end)
+		dlg:UpdateActionViews(dlg.idActionBar)
+	end)
+end
+
+if Platform.developer then
+	if FirstLoad then
+		DbgPlanetStats = false
+		DbgPlanetColors = false
+	end
+	local stat_colors = {{green}, {blue, red}, {blue, green, red}, {blue, green, yellow, red}, {blue, cyan, green, yellow, red}}
+	local function DbgGenColor(value, min, max)
+		local sc = stat_colors[1 + max - min]
+		if sc then
+			return sc[1 + value - min]
+		elseif 2 * value >= max + min then
+			return InterpolateRGB(green, red, 2 * value - (max + min), max - min)
+		else
+			return InterpolateRGB(blue, green, 2 * (value - min), max - min)
+		end
+	end
+	function DbgPlanetColorsCallbackName(params)
+		return FillRandomMapProps(false, params)
+	end
+	function DbgPlanetColorsCallbackTopography(params)
+		local map = FillRandomMapProps(false, params)
+		local rating = MapData[map].challenge_rating
+		return _InternalTranslate(MapChallengeRatingToDifficulty(rating))
+	end
+	function DbgPlanetColorsCallbackDifficulty(params)
+		local map = FillRandomMapProps(false, params)
+		local rating = MapData[map].challenge_rating
+		return CalcChallengeRating(false, false, rating)
+	end
+	function DbgPlanetColorsCallbackAltitude(params)
+		return OverlayAltitudeValue(params.Altitude)
+	end
+	function DbgPlanetColorsCallbackStyle(params)
+		local gen = {}
+		local map = FillRandomMapProps(gen, params)
+		local type_info = MapData[map].type_info
+		local max_pct = 0
+		local max_style
+		for _, entry in ipairs(gen.texture_setup) do
+			local pct = entry.Style ~= "" and not entry.Border and type_info[entry.Texture] or 0
+			if pct > max_pct then
+				max_style = entry.Style
+				max_pct = pct
+			end
+		end
+		return max_style
+	end
+	local function cprintf(color, fmt, ...)
+		local r, g, b = GetRGB(color)
+		printf("<color %d %d %d>" .. fmt .. "</color>", r, g, b, ...)
+	end
+	function DbgShowPlanetColors(stat_callback)
+		DbgPlanetStats = false
+		DbgPlanetColors = false
+		DbgClearVectors()
+		MapDelete("map", "Polyline")
+		MapDelete("map", "attached", true, "Polyline")
+		local planet = stat_callback and PlanetRotationObj and (PlanetRotationObj:GetAttaches("PlanetMars") or {})[1]
+		if not planet then
+			return
+		end
+		PauseInfiniteLoopDetection("DbgShowPlanetColors")
+		planet:SetVisible(true)
+		local function add_line(points, colors)
+			local line = PlacePolyline(points, colors)
+			line:SetDepthTest(true)
+			line:SetLocalSpace(true)
+			line:SetPos(points[1])
+			planet:Attach(line, planet:GetSpotBeginIndex("Origin"))
+			return line
+		end
+		local pos = planet:GetPos()
+		local radius = planet:GetRadius() + 1
+		local pmesh = {}
+		local smesh = {}
+		local min_stat, max_stat
+		local all_stats = {}
+		local N = 1
+		local params = table.copy(g_CurrentMapParams)
+		local overlay_grids = {}
+		local y = 0
+		for lat = -70, 70 do
+			local pline = {}
+			local sline = {}
+			local lat_angle = lat*60
+			local slat, clat = sincos(-lat_angle)
+			local dz = MulDivRound(radius, slat, clat)
+			local x = 0
+			for lon = -180, 180 do
+				local lon_angle = lon*60
+				local slon, clon = sincos(-lon_angle)
+				local dx, dy = MulDivRound(radius, clon, 4096), MulDivRound(radius, slon, 4096)
+				local vector = SetLen(point(dx, dy, dz), radius)
+				GetOverlayValues(lat_angle, lon_angle, overlay_grids, params)
+				local stat = stat_callback(params) or false
+				if not stat then
+					--
+				elseif type(stat) ~= "number" then
+					all_stats[stat] = (all_stats[stat] or 0) + 1
+				elseif not min_stat then
+					min_stat, max_stat = stat, stat
+				elseif min_stat > stat then
+					min_stat = stat
+				elseif max_stat < stat then
+					max_stat = stat
+				end
+				x = x + 1
+				pline[x] = vector
+				sline[x] = stat
+			end
+			y = y + 1
+			pmesh[y] = pline
+			smesh[y] = sline
+		end
+		local cmesh = {}
+		local width, height = #pmesh[1], #pmesh
+		if min_stat then
+			for y = 1,height do
+				local cline = {}
+				for x = 1,width do
+					local stat = smesh[y][x]
+					local color = stat and DbgGenColor(stat, min_stat, max_stat)
+					cline[x] = color
+				end
+				cmesh[y] = cline
+			end
+			local minc = DbgGenColor(min_stat, min_stat, max_stat)
+			local midc = DbgGenColor((min_stat + max_stat) / 2, min_stat, max_stat)
+			local maxc = DbgGenColor(max_stat, min_stat, max_stat)
+			cprintf(minc, "min = %d", min_stat)
+			cprintf(midc, "mid = %d", (min_stat + max_stat) / 2)
+			cprintf(maxc, "max = %d", max_stat)
+		else
+			local stats = {}
+			local total_count = 0
+			for stat, count in pairs(all_stats) do
+				stats[#stats + 1] = stat
+				total_count = total_count + count
+			end
+			table.sort(stats, function(a, b) return all_stats[a] > all_stats[b] end)
+			local stat_to_color = {}
+			for i=1,#stats do
+				local stat = stats[i]
+				local color = DbgGenColor(i, 1, #stats)
+				stat_to_color[stat] = color
+				local r, g, b = GetRGB(color)
+				local count = all_stats[stat]
+				cprintf(color, "%s #%d %d%%", stat, count, 100 * count / total_count)
+			end
+			for y = 1,height do
+				local cline = {}
+				for x = 1,width do
+					local stat = smesh[y][x]
+					cline[x] = stat_to_color[stat]
+				end
+				cmesh[y] = cline
+			end
+		end
+		local points, colors = {}, {}
+		local function add_point(x, y, pt0, clr0)
+			local pt = pmesh[y][x]
+			local clr = cmesh[y][x]
+			local N = #points
+			points[N + 1] = pt0 or points[N] or pt
+			colors[N + 1] = clr0 or 0
+			points[N + 2] = pt
+			colors[N + 2] = pt0 and clr or 0
+			return pt, clr
+		end
+		for y = 1,height do
+			local pt0, clr0
+			for x = 1,width do
+				pt0, clr0 = add_point(x, y, pt0, clr0)
+			end
+		end
+		for x = 1,width do
+			local pt0, clr0
+			for y = 1,height do
+				pt0, clr0 = add_point(x, y, pt0, clr0)
+			end
+		end
+		add_line(points, colors)
+		DbgPlanetStats = smesh
+		DbgPlanetColors = cmesh
+		ResumeInfiniteLoopDetection("DbgShowPlanetColors")
+	end
 end

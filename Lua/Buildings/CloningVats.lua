@@ -14,7 +14,6 @@ function CloningVats:BuildingUpdate(dt, ...)
 		if self.progress >= 1000 then
 			local colonist_table = GenerateColonistData(self.city, "Child")
 			colonist_table.dome = self.parent_dome
-			colonist_table.current_dome = self.parent_dome
 			colonist_table.traits["Clone"] = true
 			if UICity.mystery and UICity.mystery:IsKindOf("DreamMystery") then
 				colonist_table.traits["Dreamer"] = true

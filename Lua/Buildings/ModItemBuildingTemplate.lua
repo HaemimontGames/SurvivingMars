@@ -1,15 +1,23 @@
 ----- ModItemBuildingTemplate
 
-DefineModItemDataInstance("BuildingTemplate", {})
+DefineModItemPreset("BuildingTemplate", {
+	StoreAsTable = false,
+	GedEditor = false,
+	EditorName = "BuildingTemplate",
+})
 
-function ModItemBuildingTemplate:PostLoad(...)
-	BuildingTemplate.PostLoad(self, ...)
-	ModItemDataInstance.PostLoad(self, ...)
+function ModItemBuildingTemplate:NamesCombo()
+	return table.keys2(BuildingTemplates, true)
 end
 
-function ModItemBuildingTemplate:OnEditorSetProperty(prop_id, old_value, ged)
-	ModItemDataInstance.OnEditorSetProperty(self, prop_id, old_value, ged)
-	BuildingTemplate.OnEditorSetProperty(self, prop_id, old_value, ged)
+-- backward compatibility for old ModItemBuildingTemplate objects that derive from DataInstance
+function ModItemBuildingTemplate:PostLoad(...)
+	if (self.name or "") ~= "" then self:SetId(self.name) end
+	local build_category = rawget(self, "build_category")
+	if build_category then
+		self:SetGroup(build_category)
+	end
+	BuildingTemplate.PostLoad(self, ...)
 end
 
 local override_browse_properties = {
@@ -24,7 +32,7 @@ function ModItemBuildingTemplate:GetProperties()
 		return BuildingTemplate.GetProperties(self)
 	end
 	
-	local folder_attribute = { { self.mod.path, os_path = true }, { "UI", game_path = true } }
+	local folder_attribute = { { self.mod.content_path, os_path = true }, { "UI", game_path = true } }
 	
 	local properties = table.copy(BuildingTemplate.GetProperties(self), "deep")
 	for i,prop in ipairs(properties) do

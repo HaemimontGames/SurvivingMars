@@ -438,51 +438,6 @@ PlaceObj('ActionFXParticles', {
 
 PlaceObj('ActionFXParticles', {
 	'Action', "BuildingInteractableComponent",
-	'Moment', "close_start",
-	'Actor', "SolarArray",
-	'Target', "ignore",
-	'DetailLevel', 60,
-	'Disabled', true,
-	'Time', 3200,
-	'EndMoment1', "close",
-	'Particles', "SolarPanel_Close",
-	'Spot', "Light2",
-	'SpotsPercent', 100,
-	'Attach', true,
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "BuildingInteractableComponent",
-	'Moment', "open",
-	'Actor', "SolarArray",
-	'Target', "ignore",
-	'DetailLevel', 40,
-	'Disabled', true,
-	'EndMoment1', "close_start",
-	'Particles', "SolarPanel_Blinks",
-	'Spot', "Light",
-	'SpotsPercent', 100,
-	'Attach', true,
-	'OrientationAxis', 3,
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "BuildingInteractableComponent",
-	'Moment', "open",
-	'Actor', "SolarArray",
-	'Target', "ignore",
-	'DetailLevel', 40,
-	'Disabled', true,
-	'EndMoment1', "close_start",
-	'Particles', "SolarPanel_SunDust",
-	'Spot', "Light",
-	'SpotsPercent', 100,
-	'Attach', true,
-	'OrientationAxis', 3,
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "BuildingInteractableComponent",
 	'Moment', "open",
 	'Actor', "SolarPanel",
 	'Target', "ignore",
@@ -535,22 +490,6 @@ PlaceObj('ActionFXParticles', {
 	'Spot', "Light",
 	'Attach', true,
 	'OrientationAxis', 3,
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "BuildingInteractableComponent",
-	'Moment', "open_start",
-	'Actor', "SolarArray",
-	'Target', "ignore",
-	'DetailLevel', 60,
-	'Disabled', true,
-	'Delay', 1000,
-	'Time', 4500,
-	'EndMoment1', "open",
-	'Particles', "SolarPanel_Open",
-	'Spot', "Light2",
-	'SpotsPercent', 100,
-	'Attach', true,
 })
 
 PlaceObj('ActionFXParticles', {
@@ -811,18 +750,6 @@ PlaceObj('ActionFXParticles', {
 PlaceObj('ActionFXParticles', {
 	'Action', "ClickMove",
 	'Moment', "start",
-	'Actor', "AttackRover",
-	'Time', 500,
-	'EndAction1', "ClickMove",
-	'EndMoment1', "end",
-	'handle', 1585923160,
-	'Particles', "Click",
-	'Source', "ActionPos",
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "ClickMove",
-	'Moment', "start",
 	'Actor', "Drone",
 	'Time', 500,
 	'EndAction1', "ClickMove",
@@ -836,10 +763,10 @@ PlaceObj('ActionFXParticles', {
 	'Action', "ClickMove",
 	'Moment', "start",
 	'Actor', "ExplorerRover",
+	'Disabled', true,
 	'Time', 500,
 	'EndAction1', "ClickMove",
 	'EndMoment1', "end",
-	'handle', 275555055,
 	'Particles', "Click",
 	'Source', "ActionPos",
 })
@@ -848,10 +775,10 @@ PlaceObj('ActionFXParticles', {
 	'Action', "ClickMove",
 	'Moment', "start",
 	'Actor', "RCRover",
+	'Disabled', true,
 	'Time', 500,
 	'EndAction1', "ClickMove",
 	'EndMoment1', "end",
-	'handle', 920183547,
 	'Particles', "Click",
 	'Source', "ActionPos",
 })
@@ -864,6 +791,18 @@ PlaceObj('ActionFXParticles', {
 	'EndAction1', "ClickMove",
 	'EndMoment1', "end",
 	'handle', 571232911,
+	'Particles', "Click",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "ClickMove",
+	'Moment', "start",
+	'Actor', "Rover",
+	'Time', 500,
+	'EndAction1', "ClickMove",
+	'EndMoment1', "end",
+	'handle', 1585923160,
 	'Particles', "Click",
 	'Source', "ActionPos",
 })
@@ -1150,8 +1089,7 @@ PlaceObj('ActionFXParticles', {
 	'Actor', "CrystalsBig",
 	'Target', "ignore",
 	'DetailLevel', 60,
-	'Behavior', "BehaviorDetachAndDestroy",
-	'BehaviorMoment', "end",
+	'EndMoment1', "end",
 	'handle', 671374803,
 	'Particles', "Crystal_PoweredUp",
 	'Flags', "OnGround",
@@ -1165,9 +1103,8 @@ PlaceObj('ActionFXParticles', {
 	'Actor', "CrystalsSmall",
 	'Target', "ignore",
 	'DetailLevel', 60,
-	'Behavior', "BehaviorDetachAndDestroy",
-	'BehaviorMoment', "end",
-	'handle', 1173891420,
+	'EndMoment1', "end",
+	'handle', 618709516,
 	'Particles', "Crystal_PoweredUp",
 	'Flags', "OnGround",
 	'Scale', 55,
@@ -1660,17 +1597,6 @@ PlaceObj('ActionFXParticles', {
 	'Time', 500,
 	'Particles', "Construction_RemoveBuilding",
 	'Flags', "OnGround",
-	'Spot', "Center",
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Demolish",
-	'Moment', "end",
-	'Disabled', true,
-	'Time', 500,
-	'Particles', "Building_Destruction_Inside",
-	'Flags', "OnGround",
-	'Scale', 120,
 	'Spot', "Center",
 })
 
@@ -2471,6 +2397,16 @@ PlaceObj('ActionFXParticles', {
 
 PlaceObj('ActionFXParticles', {
 	'Action', "Kill",
+	'Moment', "end",
+	'Actor', "Firefly",
+	'Target', "ignore",
+	'Particles', "Fireflies_LightTrap_Kill",
+	'Scale', 60,
+	'Spot', "Particle",
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Kill",
 	'Moment', "start",
 	'Actor', "DustDevil1",
 	'Target', "ignore",
@@ -2516,9 +2452,9 @@ PlaceObj('ActionFXParticles', {
 	'Moment', "start",
 	'Actor', "Firefly",
 	'Target', "ignore",
-	'Particles', "Fireflies_LightTrap_Kill",
-	'Scale', 80,
+	'Particles', "Fireflies_Death",
 	'Spot', "Particle",
+	'Attach', true,
 })
 
 PlaceObj('ActionFXParticles', {
@@ -3252,34 +3188,6 @@ PlaceObj('ActionFXParticles', {
 	'Moment', "start",
 	'Actor', "Shuttle",
 	'DetailLevel', 60,
-	'Delay', 1000,
-	'Behavior', "BehaviorDetachAndDestroy",
-	'BehaviorMoment', "end",
-	'handle', 394893362,
-	'Particles', "Shuttle_Trail",
-	'AlwaysVisible', true,
-	'Spot', "Particle1",
-	'Attach', true,
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Move",
-	'Moment', "start",
-	'Actor', "Shuttle",
-	'DetailLevel', 60,
-	'EndMoment1', "end",
-	'handle', 2112479323,
-	'Particles', "Shuttle_Trail_Ignition",
-	'Scale', 80,
-	'Spot', "Particle1",
-	'Attach', true,
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Move",
-	'Moment', "start",
-	'Actor', "Shuttle",
-	'DetailLevel', 60,
 	'EndMoment1', "end",
 	'handle', 25522232,
 	'Particles', "Shuttle_Sides_Ignition",
@@ -3304,9 +3212,129 @@ PlaceObj('ActionFXParticles', {
 })
 
 PlaceObj('ActionFXParticles', {
+	'Action', "Move",
+	'Moment', "start",
+	'Actor', "Shuttle",
+	'Id', "Ignition",
+	'DetailLevel', 60,
+	'Delay', 1000,
+	'Behavior', "BehaviorDetachAndDestroy",
+	'BehaviorMoment', "end",
+	'handle', 394893362,
+	'Particles', "Shuttle_Trail",
+	'AlwaysVisible', true,
+	'Spot', "Particle1",
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Move",
+	'Moment', "start",
+	'Actor', "Shuttle",
+	'Id', "Ignition",
+	'DetailLevel', 60,
+	'EndMoment1', "end",
+	'handle', 2112479323,
+	'Particles', "Shuttle_Trail_Ignition",
+	'Scale', 80,
+	'Spot', "Particle1",
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
 	'Action', "Moving",
 	'Moment', "move",
-	'Actor', "AttackRover",
+	'Actor', "ExplorerRover",
+	'DetailLevel', 60,
+	'Disabled', true,
+	'Time', 4000,
+	'EndMoment1', "end",
+	'Particles', "RCRover_Trail",
+	'Scale', 150,
+	'Spot', "Dust1",
+	'Attach', true,
+	'Offset', point(0, 800, 0),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Moving",
+	'Moment', "move",
+	'Actor', "ExplorerRover",
+	'DetailLevel', 60,
+	'Disabled', true,
+	'Time', 4000,
+	'EndMoment1', "end",
+	'Particles', "RCRover_Trail",
+	'Scale', 150,
+	'Spot', "Dust2",
+	'Attach', true,
+	'Offset', point(0, 800, 0),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Moving",
+	'Moment', "move",
+	'Actor', "RCRover",
+	'DetailLevel', 60,
+	'Disabled', true,
+	'Time', 4000,
+	'EndMoment1', "end",
+	'Particles', "RCRover_Trail",
+	'Scale', 150,
+	'Spot', "Dust1",
+	'Attach', true,
+	'Offset', point(0, 800, 0),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Moving",
+	'Moment', "move",
+	'Actor', "RCRover",
+	'DetailLevel', 60,
+	'Disabled', true,
+	'Time', 4000,
+	'EndMoment1', "end",
+	'Particles', "RCRover_Trail",
+	'Scale', 150,
+	'Spot', "Dust2",
+	'Attach', true,
+	'Offset', point(0, 800, 0),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Moving",
+	'Moment', "move",
+	'Actor', "RCTransport",
+	'DetailLevel', 60,
+	'Disabled', true,
+	'Time', 4000,
+	'EndMoment1', "end",
+	'Particles', "RCRover_Trail",
+	'Scale', 150,
+	'Spot', "Dust1",
+	'Attach', true,
+	'Offset', point(0, 800, 0),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Moving",
+	'Moment', "move",
+	'Actor', "RCTransport",
+	'DetailLevel', 60,
+	'Disabled', true,
+	'Time', 4000,
+	'EndMoment1', "end",
+	'Particles', "RCRover_Trail",
+	'Scale', 150,
+	'Spot', "Dust2",
+	'Attach', true,
+	'Offset', point(0, 800, 0),
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Moving",
+	'Moment', "move",
+	'Actor', "Rover",
 	'DetailLevel', 60,
 	'Time', 4000,
 	'EndMoment1', "end",
@@ -3321,7 +3349,7 @@ PlaceObj('ActionFXParticles', {
 PlaceObj('ActionFXParticles', {
 	'Action', "Moving",
 	'Moment', "move",
-	'Actor', "AttackRover",
+	'Actor', "Rover",
 	'DetailLevel', 60,
 	'Time', 4000,
 	'EndMoment1', "end",
@@ -3335,99 +3363,10 @@ PlaceObj('ActionFXParticles', {
 
 PlaceObj('ActionFXParticles', {
 	'Action', "Moving",
-	'Moment', "move",
-	'Actor', "ExplorerRover",
-	'DetailLevel', 60,
-	'Time', 4000,
-	'EndMoment1', "end",
-	'handle', 609784267,
-	'Particles', "RCRover_Trail",
-	'Scale', 150,
-	'Spot', "Dust2",
-	'Attach', true,
-	'Offset', point(0, 800, 0),
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Moving",
-	'Moment', "move",
-	'Actor', "ExplorerRover",
-	'DetailLevel', 60,
-	'Time', 4000,
-	'EndMoment1', "end",
-	'handle', 986798324,
-	'Particles', "RCRover_Trail",
-	'Scale', 150,
-	'Spot', "Dust1",
-	'Attach', true,
-	'Offset', point(0, 800, 0),
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Moving",
-	'Moment', "move",
-	'Actor', "RCRover",
-	'DetailLevel', 60,
-	'Time', 4000,
-	'EndMoment1', "end",
-	'handle', 1087422164,
-	'Particles', "RCRover_Trail",
-	'Scale', 150,
-	'Spot', "Dust2",
-	'Attach', true,
-	'Offset', point(0, 800, 0),
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Moving",
-	'Moment', "move",
-	'Actor', "RCRover",
-	'DetailLevel', 60,
-	'Time', 4000,
-	'EndMoment1', "end",
-	'handle', 866683978,
-	'Particles', "RCRover_Trail",
-	'Scale', 150,
-	'Spot', "Dust1",
-	'Attach', true,
-	'Offset', point(0, 800, 0),
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Moving",
-	'Moment', "move",
-	'Actor', "RCTransport",
-	'DetailLevel', 60,
-	'Time', 4000,
-	'EndMoment1', "end",
-	'handle', 1419141026,
-	'Particles', "RCRover_Trail",
-	'Scale', 150,
-	'Spot', "Dust1",
-	'Attach', true,
-	'Offset', point(0, 800, 0),
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Moving",
-	'Moment', "move",
-	'Actor', "RCTransport",
-	'DetailLevel', 60,
-	'Time', 4000,
-	'EndMoment1', "end",
-	'handle', 930413333,
-	'Particles', "RCRover_Trail",
-	'Scale', 150,
-	'Spot', "Dust2",
-	'Attach', true,
-	'Offset', point(0, 800, 0),
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Moving",
 	'Moment', "start",
 	'Actor', "Drone",
 	'Target', "Outside",
+	'Id', "Drone_Trail",
 	'DetailLevel', 60,
 	'EndMoment1', "end",
 	'handle', 2036862718,
@@ -4233,7 +4172,7 @@ PlaceObj('ActionFXParticles', {
 PlaceObj('ActionFXParticles', {
 	'Action', "RoverUnsiege",
 	'Moment', "start",
-	'Actor', "RCRover",
+	'Actor', "Rover",
 	'Target', "ignore",
 	'EndMoment1', "end",
 	'handle', 578430178,
@@ -4254,6 +4193,7 @@ PlaceObj('ActionFXParticles', {
 	'Flags', "LockedOrientation",
 	'Scale', 55,
 	'Source', "Target",
+	'Attach', true,
 	'Offset', point(0, 0, 1600),
 })
 
@@ -4269,6 +4209,7 @@ PlaceObj('ActionFXParticles', {
 	'Flags', "LockedOrientation",
 	'Scale', 55,
 	'Source', "Target",
+	'Attach', true,
 })
 
 PlaceObj('ActionFXParticles', {
@@ -4283,6 +4224,7 @@ PlaceObj('ActionFXParticles', {
 	'Flags', "LockedOrientation",
 	'Scale', 55,
 	'Source', "Target",
+	'Attach', true,
 	'Offset', point(0, 0, 800),
 })
 
@@ -4394,6 +4336,7 @@ PlaceObj('ActionFXParticles', {
 	'Action', "Select",
 	'Moment', "start",
 	'Actor', "Drone",
+	'Id', "SelectDrone",
 	'EndMoment1', "end",
 	'handle', 1957356953,
 	'Particles', "Selection_Drone",
@@ -4427,18 +4370,6 @@ PlaceObj('ActionFXParticles', {
 PlaceObj('ActionFXParticles', {
 	'Action', "Select",
 	'Moment', "start",
-	'Actor', "ExplorerRover",
-	'EndMoment1', "end",
-	'handle', 2057521529,
-	'Particles', "Selection_Rover",
-	'Flags', "LockedOrientation",
-	'Scale', 250,
-	'Attach', true,
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Select",
-	'Moment', "start",
 	'Actor', "MetalsExtractor",
 	'Target', "ignore",
 	'Disabled', true,
@@ -4466,8 +4397,8 @@ PlaceObj('ActionFXParticles', {
 	'Action', "Select",
 	'Moment', "start",
 	'Actor', "RCRover",
+	'Disabled', true,
 	'EndMoment1', "end",
-	'handle', 1265186709,
 	'Particles', "Selection_Rover",
 	'Flags', "LockedOrientation",
 	'Scale', 250,
@@ -4478,8 +4409,8 @@ PlaceObj('ActionFXParticles', {
 	'Action', "Select",
 	'Moment', "start",
 	'Actor', "RCTransport",
+	'Disabled', true,
 	'EndMoment1', "end",
-	'handle', 1214264437,
 	'Particles', "Selection_Rover",
 	'Flags', "LockedOrientation",
 	'Scale', 250,
@@ -4519,6 +4450,18 @@ PlaceObj('ActionFXParticles', {
 	'Particles', "Selection_Rover",
 	'Flags', "LockedOrientation",
 	'Scale', 150,
+	'Attach', true,
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Select",
+	'Moment', "start",
+	'Actor', "Rover",
+	'EndMoment1', "end",
+	'handle', 2057521529,
+	'Particles', "Selection_Rover",
+	'Flags', "LockedOrientation",
+	'Scale', 250,
 	'Attach', true,
 })
 
@@ -4610,7 +4553,7 @@ PlaceObj('ActionFXParticles', {
 	'Moment', "start",
 	'Actor', "SupplyRocket",
 	'EndMoment1', "end",
-	'handle', 560469883,
+	'handle', 1996499938,
 	'Particles', "Selection_Rover",
 	'Flags', "LockedOrientation",
 	'Scale', 500,
@@ -5089,31 +5032,6 @@ PlaceObj('ActionFXParticles', {
 	'Particles', "ConstructionSite_Spawn",
 	'Flags', "LockedOrientation",
 	'Scale', 120,
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Spawn",
-	'Moment', "start",
-	'Actor', "ConstructionSite",
-	'Target', "SolarArray",
-	'DetailLevel', 80,
-	'Disabled', true,
-	'EndMoment1', "end",
-	'Particles', "ConstructionSite_Spawn",
-	'Flags', "LockedOrientation",
-	'Scale', 180,
-})
-
-PlaceObj('ActionFXParticles', {
-	'Action', "Spawn",
-	'Moment', "start",
-	'Actor', "ConstructionSite",
-	'Target', "SolarArray",
-	'Disabled', true,
-	'EndMoment1', "end",
-	'Particles', "ConstructionSite_Spawn",
-	'Flags', "LockedOrientation",
-	'Scale', 200,
 })
 
 PlaceObj('ActionFXParticles', {
@@ -6662,7 +6580,7 @@ PlaceObj('ActionFXParticles', {
 	'Target', "ignore",
 	'EndMoment1', "end",
 	'handle', 1327655129,
-	'Particles', "WaterReclamationSystem_Fall_Green/Blue",
+	'Particles', "WaterReclamationSystem_Fall_GreenBlue",
 	'Spot', "Water6",
 	'SpotsPercent', 100,
 	'Attach', true,
@@ -6690,7 +6608,7 @@ PlaceObj('ActionFXParticles', {
 	'Target', "ignore",
 	'EndMoment1', "end",
 	'handle', 1884963033,
-	'Particles', "WaterReclamationSystem_Fall_Green/Blue",
+	'Particles', "WaterReclamationSystem_Fall_GreenBlue",
 	'Spot', "Water5",
 	'SpotsPercent', 100,
 	'Attach', true,

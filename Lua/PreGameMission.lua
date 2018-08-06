@@ -48,50 +48,34 @@ MissionParams = {
 function ReloadMissionSponsors()
 	local sponsors = Presets.MissionSponsorPreset and Presets.MissionSponsorPreset.Default
 	if sponsors then
-		table.sort(sponsors, function (a, b)
-			local k1, k2 = a.SortKey, b.SortKey
-			if not k1 and k2 then
-				return false --items with no SortKey go last
-			elseif k1 and not k2 then
-				return true --items with no SortKey go last
-			elseif k1 ~= k2 then
-				return k1 < k2
-			end
-			return a.id < b.id
-		end)
-		MissionParams.idMissionSponsor.items = sponsors
+		MissionParams.idMissionSponsor.items = {}
+		ForEachPreset("MissionSponsorPreset", function(preset, group, items) items[#items + 1] = preset end, MissionParams.idMissionSponsor.items)
 	end
 end
 
 function ReloadCommanderProfiles()
 	local commanders = Presets.CommanderProfilePreset and Presets.CommanderProfilePreset.Default
 	if commanders then
-		table.sort(commanders, function (a, b)
-			local k1, k2 = a.SortKey, b.SortKey
-			if not k1 and k2 then
-				return false --items with no SortKey go last
-			elseif k1 and not k2 then
-				return true --items with no SortKey go last
-			elseif k1 ~= k2 then
-				return k1 < k2
-			end
-			return a.id < b.id
-		end)
-		MissionParams.idCommanderProfile.items = commanders
+		MissionParams.idCommanderProfile.items = {}
+		ForEachPreset("CommanderProfilePreset", function(preset, group, items) items[#items + 1] = preset end, MissionParams.idCommanderProfile.items)
 	end
 end
 
-do
+
+
+local function ReloadMissionParams(override)
+	if not override and not DataLoaded then
+		return -- wait for data loaded event.
+	end
 	ReloadMissionSponsors()
 	ReloadCommanderProfiles()
 	ReloadGameRules()
 	ReloadMissionLogos()
 end
 
-OnMsg.DataLoaded = ReloadMissionSponsors
-OnMsg.DataLoaded = ReloadCommanderProfiles
-OnMsg.ModsLoaded = ReloadMissionSponsors
-OnMsg.ModsLoaded = ReloadCommanderProfiles
+OnMsg.DataLoaded = function() ReloadMissionParams(true) end
+OnMsg.ModsLoaded = function() ReloadMissionParams(true) end
+OnMsg.Autorun = ReloadMissionParams
 
 local modifier_list_for_sponsor
 local modifier_list = {}
@@ -199,6 +183,7 @@ function InitNewGameMissionParams()
 	g_RocketCargo = false
 	g_CargoCost = 0
 	g_CargoWeight = 0
+	g_CargoMode = false
 	g_SessionSeed = AsyncRand()
 end
 
@@ -213,6 +198,7 @@ if FirstLoad then
 	g_RocketCargo = false
 	g_CargoCost = 0
 	g_CargoWeight = 0
+	g_CargoMode = false
 	
 	g_SessionSeed = false
 end
@@ -221,6 +207,7 @@ function ResetCargo()
 	g_RocketCargo = false
 	g_CargoCost = 0
 	g_CargoWeight = 0
+	g_CargoMode = false
 end
 
 function OnMsg.PersistSave(data)
@@ -326,7 +313,7 @@ function ResolveDisplayName(id)
 	if res then
 		return res.display_name, res.description
 	end
-	local template = DataInstances.BuildingTemplate[id]
+	local template = BuildingTemplates[id]
 	if template then
 		return template.display_name, template.description
 	end
@@ -334,7 +321,12 @@ function ResolveDisplayName(id)
 	if def and def:HasMember("display_name") then
 		return def.display_name, def.description
 	end
-	local article = table.find_value(DataInstances.EncyclopediaArticle, "title_id", id)
+	local article
+	ForEachPreset(EncyclopediaArticle, function(preset, group_list)
+		if preset.title_id == id then
+			article = preset
+		end
+	end)
 	if article then
 		return article.title_text, article.text
 	end
@@ -407,20 +399,21 @@ function RocketPayload_Init()
 	local mods = GetSponsorModifiers(sponsor)
 	local locks = GetSponsorLocks(sponsor)
 	local defs = {}
-	for group_i, group_items in ipairs(Presets.Cargo or empty_table) do
-		for _, item in ipairs(group_items) do
-			local def = setmetatable({}, {__index = item})
-			defs[#defs + 1] = def
-			local mod = mods[def.id] or 0
-			if mod ~= 0 then
-				ModifyResupplyDef(def, "price", mod)
-			end
-			local lock = locks[def.id]
-			if lock ~= nil then
-				def.locked = lock
-			end
+	ForEachPreset("Cargo", function(item, group, self, props)
+		local def = setmetatable({}, {__index = item})
+		defs[#defs + 1] = def
+		local mod = mods[def.id] or 0
+		if mod ~= 0 then
+			ModifyResupplyDef(def, "price", mod)
 		end
-	end
+		local lock = locks[def.id]
+		if lock ~= nil then
+			def.locked = lock
+		end
+		if type(def.verifier) == "function" then 
+			def.locked = def.locked or not def.verifier(def, sponsor)
+		end
+	end)
 	ResupplyItemDefinitions = defs
 end
 
@@ -434,18 +427,38 @@ function OnMsg.NewMapLoaded()
 	RocketPayload_Init()
 end
 
-GlobalVar("ResupplyItemDefinitions", {})
+function GetResupplyItem(name)
+	return table.find_value(ResupplyItemDefinitions, "id", name)
+end
 
-local sponsor_relevant_consts = {
-	"SponsorResearch",
-	"ExportPricePreciousMetals",
-}
+function IsResupplyItemAvailable(name)
+	local item = GetResupplyItem(name)
+	return item and not item.locked
+end
+
+GlobalVar("ResupplyItemDefinitions", {})
 
 modifiableConsts = {
 	{local_id = "additional_research_points", global_id = "SponsorResearch"},
 	{local_id = "additional_colonists_per_rocket", global_id = "MaxColonistsPerRocket"},
 	{local_id = "additional_initial_applicants", global_id = "ApplicantsPoolStartingSize"}
 }
+
+directlyModifiableConsts = {
+	{local_id = "precious_metals_export_price", global_id = "ExportPricePreciousMetals"},
+	{local_id = "research_points", global_id = "SponsorResearch"},
+	{local_id = "initial_applicants", global_id = "ApplicantsPoolStartingSize"},
+	{local_id = "funding_per_interval", global_id = "SponsorFundingPerInterval"},
+}
+
+function IsConstDirectlyModified(label)
+	for _, const_pair in pairs(directlyModifiableConsts) do
+		if const_pair.global_id == label then
+			return true
+		end
+	end
+	return false
+end
 
 if FirstLoad then
 	SponsorModifiedGlobalConsts = {}
@@ -466,7 +479,7 @@ end
 
 OnMsg.DataLoaded = ReloadSponsorModifiedGlobalConsts
 
-function GetSponsorModifierConsts(sponsor)
+function GetModifiedConsts(sponsor, commander)
 	local t = {}
 		
 	for k,v in pairs(SponsorModifiedGlobalConsts) do
@@ -481,28 +494,71 @@ function GetSponsorModifierConsts(sponsor)
 		end
 	end
 	
-	for _, const in ipairs(modifiableConsts) do
+	for _, const in ipairs(directlyModifiableConsts) do
 		local value_id = const.local_id
 		local global_name = const.global_id
-		if sponsor[value_id] and sponsor[value_id] ~= 0 then 
-			t[global_name] = MulDivRound(g_Consts[global_name], 100, 100) + sponsor[value_id]			
+		if sponsor[value_id] and sponsor[value_id] >= 0 then 
+			t[global_name] = sponsor[value_id]			
 		end
 		t[global_name] = t[global_name] or g_Consts[global_name]
-	end  
-	for _, ct in ipairs(sponsor_relevant_consts) do
-		t[ct] = t[ct] or g_Consts[ct]
+	end 
+	
+	if commander then
+		for _, const in ipairs(modifiableConsts) do
+			local value_id = const.local_id
+			local global_name = const.global_id
+			if commander[value_id] and commander[value_id] ~= 0 then 
+				t[global_name] = MulDivRound(t[global_name] or g_Consts[global_name], 100, 100) + commander[value_id]			
+			end
+			t[global_name] = t[global_name] or g_Consts[global_name]
+		end 
 	end
+	
 	return t
 end
 
-function GetSponsorDescr(sponsor, include_flavor)
-	local descr = GetSponsorModifierConsts(sponsor)
-	descr[1] = sponsor.effect or ""
-	descr[2] = sponsor
-	descr.challenge_rating = sponsor.challenge_mod and Untranslated(string.format("%3.2f", (sponsor.challenge_mod + 100)/100.0))
-	descr.flavor = include_flavor and sponsor.flavor or ""
-	setmetatable(descr, TMeta)
-	return descr
+function GetSponsorModifiedFunding(funding, commander)
+	funding = funding or GetMissionSponsor().funding
+	commander = commander or GetCommanderProfile()
+	for _, effect in ipairs(commander or empty_table) do
+		if IsKindOf(effect, "Effect_Funding") then
+			funding = funding + effect.Funding
+		end
+	end
+	if IsGameRuleActive("RichCoffers") then
+		-- Start with $100,000 M funding
+		funding = funding + 100*1000
+	end
+	return funding
+end
+
+function GetSponsorDescr(sponsor, include_flavor, include_rockets, include_commander, include_sponsor)
+	--combining descr and sponsor to create context to resolve tags from sponsor.effect
+	local commander_profile = GetCommanderProfile()
+	local context = GetModifiedConsts(sponsor, include_commander and commander_profile)
+	for _, prop in ipairs(sponsor:GetProperties()) do
+		context[prop.id] = sponsor:GetProperty(prop.id)
+	end
+	context.challenge_rating = sponsor.challenge_mod and Untranslated(string.format("%3.2f", (sponsor.challenge_mod + 100)/100.0))
+	
+	if include_commander then
+		context.funding = GetSponsorModifiedFunding(context.funding, commander_profile)
+	end
+	if IsGameRuleActive("MoreApplicants") then
+		context.ApplicantsPoolStartingSize = context.ApplicantsPoolStartingSize + 500
+	end
+	if IsGameRuleActive("EasyResearch") then
+		context.SponsorResearch = context.SponsorResearch + 3000
+	end
+	local additional_rockets = commander_profile.bonus_rockets and commander_profile.bonus_rockets or 0
+	context.initial_rockets = context.initial_rockets + additional_rockets
+	local txtsponsor = include_sponsor and T{10521, "<em>Mission Sponsor:</em>"}..Untranslated("\n") or ""
+	local start = T{10061, "Difficulty: <em><difficulty></em><newline>Funding: $<funding> M<newline>", context}
+	local rockets = include_rockets and T{10062, "Starting Rockets: <initial_rockets><newline>", context} or ""
+	local applicants = T{10063, "Starting Applicants: <applicants><newline><newline>", applicants = context.ApplicantsPoolStartingSize, context}
+	local effect = sponsor.effect and T{sponsor.effect, context} or ""
+	local flavor = include_flavor and sponsor.flavor and T{10064, "<em><flavor></em>", context} or ""
+	return txtsponsor..start..rockets..applicants..effect..flavor
 end
 
 -------------------------------------------
@@ -511,7 +567,7 @@ function GetSponsorEntryRollover(param_t)
 	return {
 		id = param_t.display_name,
 		title = param_t.display_name,
-		descr = GetSponsorDescr(param_t, "include flavor"),
+		descr = GetSponsorDescr(param_t, "include flavor", false),
 		gamepad_hint = T{3545, "<ButtonA> Select"},
 	}
 end
@@ -531,9 +587,23 @@ function GetEntryRollover(param_t)
 	return rollover
 end
 
+random_mission_params = {
+	idMissionSponsor = false,
+	idCommanderProfile = false,
+}
+
 function GetDescrEffects()
 	local lines = {}
-	local rockets_added
+	local rules = g_CurrentMissionParams.idGameRules or empty_table
+	if next(rules) then
+		lines[#lines + 1] = T{10523, "<em>Game Rules:</em>"}
+		ForEachPreset("GameRules", function(preset, group, lines, rules)
+			if rules[preset.id] then
+				lines[#lines + 1] = T{10106, "- <em><display_name></em> - <description>", preset}
+			end
+		end, lines, rules)
+		lines[#lines + 1] = ""
+	end
 	for i = 1, #PGMenuEntries do
 		local id = PGMenuEntries[i]
 		local search_table = MissionParams[id].items
@@ -541,21 +611,20 @@ function GetDescrEffects()
 		if id == "idMystery" then
 			field = "name"
 		end
-		local entry = table.find_value(search_table, field, g_CurrentMissionParams[id])
-		local effect = entry and entry.effect or ""
-		if effect ~= "" then
-			if not rockets_added and IsKindOfClasses(entry, "MissionSponsorPreset", "CommanderProfilePreset") then
-				lines[#lines + 1] = T{3546, "Starting Rockets: <rockets>", rockets = GetStartingRockets() }
-				rockets_added = true
-			end
+		if not random_mission_params[id] then
+			local entry = table.find_value(search_table, field, g_CurrentMissionParams[id])
+			local effect = entry and entry.effect or ""
 			if IsKindOf(entry, "MissionSponsorPreset") then
-				lines[#lines + 1] = GetSponsorDescr(entry)
-			else
+				lines[#lines + 1] = GetSponsorDescr(entry, false, "include rockets", true, true)
+			elseif effect ~= "" then
+				if id == "idCommanderProfile" then 				
+					lines[#lines + 1] = T{10522, "<em>Commander Profile:</em>" }
+				end	
 				lines[#lines + 1] = T{ effect, entry }
 			end
 		end
 	end
-	return table.concat(lines, "\n")
+	return table.concat(lines, "<newline>")
 end
 
 function GetMapChallengeRating()
@@ -563,11 +632,8 @@ function GetMapChallengeRating()
 		return 0
 	end
 	local gen = GetRandomMapGenerator()
-	if not gen then
-		gen = {}
-		FillRandomMapProps(gen)
-	end
-	local mapdata = MapData[gen.BlankMap]
+	local blank_map = FillRandomMapProps(gen)
+	local mapdata = MapData[blank_map]
 	return mapdata and mapdata.challenge_rating or 0
 end
 
@@ -596,17 +662,18 @@ function CalcChallengeRating(replace_param, replacement_id, map_challenge_rating
 			rating = rating + mod
 		end
 	end
-	for param_id, item_id in pairs(g_CurrentMissionParams) do
+	local params = g_CurrentMissionParams
+	for param_id, item_id in pairs(params) do
 		if replacement_id and param_id == replace_param then
 			item_id = replacement_id
 		end
 		UpdateRatingForParam(param_id, item_id)
 	end
-	if replacement_id and not g_CurrentMissionParams[replace_param] then
+	if replacement_id and not params[replace_param] then
 		UpdateRatingForParam(replace_param, replacement_id)
 	end
-	if g_CurrentMissionParams.SelectedSpotChallengeMods then
-		for k, v in pairs(g_CurrentMissionParams.SelectedSpotChallengeMods) do
+	if params.SelectedSpotChallengeMods then
+		for k, v in pairs(params.SelectedSpotChallengeMods) do
 			rating = rating + v
 		end
 	end
@@ -669,235 +736,62 @@ function GenerateRandomMapParams()
 end
 
 function ShowStartGamePopup()	
-	local sponsor   = GetMissionSponsor()
-	local commander = GetCommanderProfile()
-	WaitPopupNotification("WelcomeGameInfo",
-	{ params = { sponsor_name = sponsor.display_name or "", 
-					commander_name = commander.display_name , 
-					}
-	})		
-end
-
-------------------------------------------------------------
-
-local M = 1000000
-DefineClass.ModItemMissionSponsor = { --Kept for backwards compatibility (mods with DataInstances, instead of Presets)
-	__parents = { "ModItem", "DynamicPropertiesObject" },
-	properties = {
-		{ category = "General", id = "display_name", name = T{1000067, "Display Name"}, editor = "text", default = "", translate = true},
-		{ category = "General", id = "challenge_mod", name = T{3491, "Challenge Mod (%)"}, editor = "number", default = 0},
-		{ category = "General", id = "funding", name = T{3492, "Starting Funding (M)"}, editor = "number", default = const.StartFunding},
-		{ category = "General", id = "funding_per_tech", name = T{3493, "Tech Funding (M)"},              default = 0,                help = T{3494, "Funding earned for each Tech researched"}, editor = "number", modifiable = true },
-		{ category = "General", id = "funding_per_breakthrough", name = T{3495, "Breakthrough Funding (M)"}, default = 0,                help = T{3496, "Funding earned for each Breakthrough Tech researched"}, editor = "number", modifiable = true },
-		{ category = "General", id = "applicants_per_breakthrough", name = T{3497, "Breakthrough applicants"}, default = 0,                help = T{3498, "Applicants earned for each Breakthrough Tech researched"}, editor = "number", modifiable = true },
-		{ category = "General", id = "cargo", name = T{3499, "Cargo Capacity"}, editor = "number", default = const.StartCargoCapacity},
-		{ category = "General", id = "initial_rockets", name = T{3500, "Starting Rockets"}, editor = "number", default = 2},
-		{ category = "General", id = "rocket_price", name = T{6840, "Rocket price (M)"}, editor = "number", default = 3000*M, scale = M, min = 0, help = T{6841, "Specify 0 to disable buying"}},
-		{ category = "General", id = "applicants_price", name = T{6842, "Applicants price (M)"}, editor = "number", default = 0, scale = M, min = 0, help = T{6841, "Specify 0 to disable buying"}},
-		{ category = "General", id = "initial_techs_unlocked", name = T{3503, "Starting Techs to research"}, editor = "number", default = 3, help = T{3504, "Number of initially available Techs to research"}},
-		{ category = "General", id = "trait", name = T{3505, "Trait given to colonists"}, editor = "dropdownlist", default = "", items = function() return TraitsCombo() end },
-		{ category = "General", id = "anomaly_bonus_breakthrough", name = T{3506, "Bonus Breakthrough Anomalies"}, editor = "range", default = range(0, 0), min = 0, max = 5, },
-		{ category = "General", id = "anomaly_bonus_event", name = T{3507, "Bonus event Anomalies"}, editor = "range", default = range(0, 0), min = 0, max = 5, },
-		{ category = "General", id = "anomaly_bonus_free_tech", name = T{3508, "Bonus free Tech Anomalies"}, editor = "range", default = range(0, 0), min = 0, max = 5, },
-		{ category = "General", id = "additional_research_points", name = T{8754, "Additional research points per Sol"}, editor = "number", default = 0},
-		{ category = "General", id = "additional_colonists_per_rocket", name = T{8755, "Increase max colonists per rocket"}, editor = "number", default = 0},
-		{ category = "General", id = "additional_initial_applicants", name = T{8756, "Additional starting applicants"}, editor = "number", default = 0},
-		{ category = "General", id = "effect", name = T{3509, "Effect"}, editor = "multi_line_text", default = "", translate = true},
-		{ category = "General", id = "flavor", name = T{3510, "Flavor text"}, editor = "multi_line_text", default = "", translate = true},
-		{ category = "General", id = "filter", name = T{1000108, "Filter"}, editor = "expression", parameters = "self", default = function() return true end,},
-		{ category = "General", id = "default_skin", name = T{7968, "Default Dome Skin"}, editor = "dropdownlist", default = "", items = DomeSkinsPresetsCombo},
-		{ category = "General", id = "game_apply", name = T{8022, "Game Apply"}, editor = "func", params = "self, city", default = function(self, city) end, },
-		{ category = "General", id = "FreeSpaceLeft", name = T{8494, "Free Space Left"}, editor = "number", default = 0, read_only = true, dont_save = true, help = "Shows how much cargo space is left, after taking into account the initial cargo loadout" },
-		
-		{ category = "Parameters", id = "param1", editor = "number", default = 0},
-		{ category = "Parameters", id = "param2", editor = "number", default = 0},
-		{ category = "Parameters", id = "param3", editor = "number", default = 0},
-		{ category = "Parameters", id = "param4", editor = "number", default = 0},
-		{ category = "Parameters", id = "param5", editor = "number", default = 0},
-		
-		{ category = "Technologies", id = "tech1", name = T{3, "Grant Research"}, editor = "combo", default = "", items = TechCombo },
-		{ category = "Technologies", id = "tech2", name = T{3, "Grant Research"}, editor = "combo", default = "", items = TechCombo },
-		{ category = "Technologies", id = "tech3", name = T{3, "Grant Research"}, editor = "combo", default = "", items = TechCombo },
-		{ category = "Technologies", id = "tech4", name = T{3, "Grant Research"}, editor = "combo", default = "", items = TechCombo },
-		{ category = "Technologies", id = "tech5", name = T{3, "Grant Research"}, editor = "combo", default = "", items = TechCombo },
-		
-		{ category = "Goal", id = "goal", name = T{8076, "Goal"}, editor = "dropdownlist", default = "", items = ClassDescendantsCombo("MissionGoal") },
-		{ category = "Goal", id = "goal_timeout", name = T{8077, "Timeout (Sols)"}, editor = "number", min = 1, default = 100 },
-		{ category = "Goal", id = "goal_target", name = T{8078, "Target"}, editor = "number", default = 0 },
-	},
-	EditorName = "",
-}
-
-function ModItemMissionSponsor:GetDynamicProperties(properties)
-	ForEachPreset("Cargo", function(cargo, group, self, props)
-		if cargo.locked then return end
-		local id = cargo.id
-		rawset(self, id, rawget(self, id) or 0)
-		properties[#properties + 1] = {
-			category = "Rocket Cargo: " .. cargo.group, 
-			id = cargo.id, name = cargo.name,
-			editor = "number", default = 0, min = 0
-		}
-	end, self, properties)
-	return properties
-end
-
-do
-	for i=1,const.MissionSponsorPriceModifiers do
-		table.append(ModItemMissionSponsor.properties, {
-			{ category = "Price Modifiers", id = "modifier_name" .. i,  name = T{3541, "Modifier name <number>", number = i}, editor = "combo", default = "", items = ResupplyItemsCombo },
-			{ category = "Price Modifiers", id = "modifier_value" .. i, name = T{3542, "Modifier value <number>", number = i}, editor = "number", default = 0},
+	if g_CurrentMissionParams.challenge_id then
+		local challenge = Presets.Challenge.Default[g_CurrentMissionParams.challenge_id]
+		WaitPopupNotification("Challenge_Welcome", { 
+			challenge_name = challenge.title,
+			params = {
+				challenge_objective = challenge.description,
+				challenge_deadline = challenge.time_completed / const.DayDuration,
+				perfect_deadline = challenge.time_perfected  / const.DayDuration,
+			},
 		})
-	end
-	for i=1,const.MissionSponsorLockModifiers do
-		table.append(ModItemMissionSponsor.properties, {
-			{ category = "Lock Modifiers", id = "lock_name" .. i,  name = T{8691, "Cargo <number>", number = i}, editor = "combo",         default = "", items = ResupplyItemsCombo },
-			{ category = "Lock Modifiers", id = "lock_value" .. i, name = T{8692, "Status <number>", number = i}, editor = "dropdownlist", default = false, items = LockStatusCombo},
-		})
-	end
-	for i=1,const.MissionSponsorNations do
-		table.append(ModItemMissionSponsor.properties, {
-			{ category = "Sponsor Nations", id = "sponsor_nation_name" .. i,    name = T{3543, "Sponsor nation name <number>", number = i}, editor = "combo", default = "",items = Nations },
-			{ category = "Sponsor Nations", id = "sponsor_nation_percent" .. i, name = T{3544, "Sponsor nation percent <number>", number = i}, editor = "number", default = 0},
+	else
+		local sponsor   = GetMissionSponsor()
+		local commander = GetCommanderProfile()
+		WaitPopupNotification("WelcomeGameInfo",
+		{ params = { sponsor_name = sponsor.display_name or "", 
+						commander_name = commander.display_name , 
+						}
 		})
 	end
 end
 
-function ModItemMissionSponsor:OnModLoad()
-	local mod = self.mod
-	local obj = {
-		id = self.name,
-		name = self.name,
-		SortKey = 1000000, --put those after our sponsors
-		display_name = self.display_name,
-		challenge_mod = self.challenge_mod,
-		funding = self.funding,
-		funding_per_tech = self.funding_per_tech,
-		funding_per_breakthrough = self.funding_per_breakthrough,
-		applicants_per_breakthrough = self.applicants_per_breakthrough,
-		cargo = self.cargo,
-		initial_rockets = self.initial_rockets,
-		rocket_price = self.rocket_price,
-		applicants_price = self.applicants_price,
-		initial_techs_unlocked = self.initial_techs_unlocked,
-		trait = self.trait,
-		anomaly_bonus_breakthrough = self.anomaly_bonus_breakthrough,
-		anomaly_bonus_event = self.anomaly_bonus_event,
-		anomaly_bonus_free_tech = self.anomaly_bonus_free_tech,
-		additional_research_points = self.additional_research_points,
-		additional_colonists_per_rocket = self.additional_colonists_per_rocket,
-		additional_initial_applicants = self.additional_initial_applicants,
-		effect = self.effect,
-		flavor = self.flavor,
-		filter = self.filter,
-		default_skin = self.default_skin,
-		game_apply = self.game_apply,
-		param1 = self.param1,
-		param2 = self.param2,
-		param3 = self.param3,
-		param4 = self.param4,
-		param5 = self.param5,
-		tech1 = self.tech1,
-		tech2 = self.tech2,
-		tech3 = self.tech3,
-		tech4 = self.tech4,
-		tech5 = self.tech5,
-		goal = self.goal,
-		goal_timeout = self.goal_timeout,
-		goal_target = self.goal_target,
-		mod = mod,
-	}
-	for i=1,const.MissionSponsorPriceModifiers do
-		obj["modifier_name" .. i] = self["modifier_name" .. i]
-		obj["modifier_value" .. i] = self["modifier_value" .. i]
+function SponsorCombo()
+	return function()
+		local result = {}
+		for i = 1, #MissionParams.idMissionSponsor.items do
+			result[i] = MissionParams.idMissionSponsor.items[i].id
+		end
+		return result
 	end
-	for i=1,const.MissionSponsorLockModifiers do
-		obj["lock_name" .. i] = self["lock_name" .. i]
-		obj["lock_value" .. i] = self["lock_value" .. i]
-	end
-	for i=1,const.MissionSponsorNations do
-		obj["sponsor_nation_name" .. i] = self["sponsor_nation_name" .. i]
-		obj["sponsor_nation_percent" .. i] = self["sponsor_nation_percent" .. i]
-	end
-	ForEachPreset("Cargo", function(cargo, group, self, props)
-		if cargo.locked then return end
-		obj[cargo.id] = rawget(self, cargo.id)
-	end, self)
-	local new = ModItemMissionSponsorPreset:new(obj)
-	local index = table.find(mod.items, self) or (#mod.items + 1)
-	mod.items[index] = new
-	new:OnModLoad()
 end
 
-------------------------------------------------------------
+function ChooseToPlayTutorial(host)
+	if not AccountStorage.CompletedTutorials then
+		local choice = WaitPopupNotification("Tutorial_FirstTimePlayers", nil, nil, host)
+		AccountStorage.CompletedTutorials = {}
+		SaveAccountStorage(5000)
+		if choice == 1 then
+			host:SetMode("Tutorial")
+			return true
+		end
+	end
+	return false
+end 
 
---[[ Backwards compatibility for TechEffect_ModifyLabelOverTime, which might have saved the commander profile
-and calls GetIdentifier() on it]]
-DefineClass.CommanderProfile = {}
-function CommanderProfile:GetIdentifier()
-	return self.name
-end
-
-DefineClass.ModItemCommanderProfile = { --Kept for backwards compatibility (mods with DataInstances, instead of Presets)
-	__parents = { "ModItem" },
-	properties = {
-		{ category = "General", id = "display_name", name = T{1000067, "Display Name"}, editor = "text", default = "", translate = true},
-		{ category = "General", id = "challenge_mod", name = T{3491, "Challenge Mod (%)"}, editor = "number", default = 0},
-		{ category = "General", id = "effect", name = T{1000017, "Description"}, editor = "multi_line_text", default = "", translate = true},
-		{ category = "General", id = "filter", name = T{1000108, "Filter"}, editor = "expression", parameters = "self", default = function() return true end,},
-		{ category = "General", id = "anomaly_bonus_breakthrough", name = T{3506, "Bonus Breakthrough Anomalies"}, editor = "range", default = range(0, 0), min = 0, max = 5, },
-		{ category = "General", id = "anomaly_bonus_event", name = T{3507, "Bonus event Anomalies"}, editor = "range", default = range(0, 0), min = 0, max = 5, },
-		{ category = "General", id = "anomaly_bonus_free_tech", name = T{3508, "Bonus free Tech Anomalies"}, editor = "range", default = range(0, 0), min = 0, max = 5, },
-		{ category = "General", id = "bonus_rockets", name = T{3511, "Bonus Rockets"}, editor = "number", default = 0, min = 0 },
-		{ category = "General", id = "additional_research_points", name = T{8754, "Additional research points per Sol"}, editor = "number", default = 0},
-		{ category = "General", id = "additional_colonists_per_rocket", name = T{8755, "Increase max colonists per rocket"}, editor = "number", default = 0},
-		{ category = "General", id = "additional_initial_applicants", name = T{8756, "Additional starting applicants"}, editor = "number", default = 0},
-		{ category = "General", id = "game_apply", name = T{8022, "Game Apply"}, editor = "func", params = "self, city", default = function(self, city) end,},
-		{ category = "Parameters", id = "param1", editor = "number", default = 0},
-		{ category = "Parameters", id = "param2", editor = "number", default = 0},
-		{ category = "Parameters", id = "param3", editor = "number", default = 0},
-		{ category = "Parameters", id = "param4", editor = "number", default = 0},
-		{ category = "Parameters", id = "param5", editor = "number", default = 0},
-		{ category = "Technologies", id = "tech1", name = T{3, "Grant Research"}, editor = "combo", default = "", items = TechCombo },
-		{ category = "Technologies", id = "tech2", name = T{3, "Grant Research"}, editor = "combo", default = "", items = TechCombo },
-		{ category = "Technologies", id = "tech3", name = T{3, "Grant Research"}, editor = "combo", default = "", items = TechCombo },
-		{ category = "Technologies", id = "tech4", name = T{3, "Grant Research"}, editor = "combo", default = "", items = TechCombo },
-		{ category = "Technologies", id = "tech5", name = T{3, "Grant Research"}, editor = "combo", default = "", items = TechCombo },
-	},
-	EditorName = "",
-}
-
-function ModItemCommanderProfile:OnModLoad()
-	local mod = self.mod
-	local new = ModItemCommanderProfilePreset:new{
-		id = self.name,
-		name = self.name,
-		SortKey = 1000000, --put those after our commanders
-		display_name = self.display_name,
-		challenge_mod = self.challenge_mod,
-		effect = self.effect,
-		filter = self.filter,
-		anomaly_bonus_breakthrough = self.anomaly_bonus_breakthrough,
-		anomaly_bonus_event = self.anomaly_bonus_event,
-		anomaly_bonus_free_tech = self.anomaly_bonus_free_tech,
-		bonus_rockets = self.bonus_rockets,
-		additional_research_points = self.additional_research_points,
-		additional_colonists_per_rocket = self.additional_colonists_per_rocket,
-		additional_initial_applicants = self.additional_initial_applicants,
-		game_apply = self.game_apply,
-		param1 = self.param1,
-		param2 = self.param2,
-		param3 = self.param3,
-		param4 = self.param4,
-		param5 = self.param5,
-		tech1 = self.tech1,
-		tech2 = self.tech2,
-		tech3 = self.tech3,
-		tech4 = self.tech4,
-		tech5 = self.tech5,
-		mod = mod,
-	}
-	local index = table.find(mod.items, self) or (#mod.items + 1)
-	mod.items[index] = new
-	new:OnModLoad()
+function StartNewGame(host, mode, rules)
+	CreateRealTimeThread(function()
+		if ChooseToPlayTutorial(host) then
+			return
+		end	
+		InitNewGameMissionParams()
+		LoadingScreenOpen("idLoadingScreen", "pre_game")
+		ChangeMap("PreGame")
+		if host.window_state ~= "destroying" then
+			g_CurrentMissionParams.idGameRules = rules or {}
+			host:SetMode(mode or "Mission")
+		end
+		LoadingScreenClose("idLoadingScreen", "pre_game")
+	end)
 end

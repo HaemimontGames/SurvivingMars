@@ -127,7 +127,7 @@ function SaveLoadObject:ShowNewSavegameNamePopup(host, item)
 end
 
 function SaveLoadObject:GetSyncInfo()
-	local count = PopsSyncQueue and (#PopsSyncQueue + (g_PopsSynchronizing and 1 or 0)) or 0
+	local count = g_PopsSyncQueue and (#g_PopsSyncQueue + (g_PopsSynchronizing and 1 or 0)) or 0
 	if PopsCloudSavesAllowed() and count > 0 then
 		return T{8530, "<count> savegames are currently being synchronized with cloud storage", count = count}
 	end
@@ -251,7 +251,7 @@ function ShowSavegameDescription(item, dialog)
 			if data.active_game_rules and next(data.active_game_rules) then
 				game_rules_list = {}
 				for rule_id,_ in sorted_pairs(data.active_game_rules) do
-					local rule = Presets.GameRules.Default[rule_id]
+					local rule = GameRulesMap[rule_id]
 					local name = rule and rule.display_name or Untranslated(rule_id)
 					game_rules_list[#game_rules_list + 1] = name
 				end
@@ -301,7 +301,7 @@ function ShowSavegameDescription(item, dialog)
 				dialog.idDelInfo:SetVisible(false)
 			else
 				local del_hint = metadata and T{4191, "DEL to delete. "} or T{""}
-				dialog.idDelInfo:SetText(T{4192, "<hint>PgUp/PgDn or <middle_click> for prev/next page.", hint = del_hint})
+				dialog.idDelInfo:SetText(del_hint)
 			end
 			
 			local image = ""
@@ -319,7 +319,7 @@ function ShowSavegameDescription(item, dialog)
 				UIL.ReloadImage(image)
 				dialog.idImage:SetImage(image)
 			else
-				dialog.idImage:SetImage("UI/Mods/Placeholder.tga")
+				dialog.idImage:SetImage("UI/Common/Placeholder.tga")
 			end
 			
 			dialog.idDescription:SetVisible(true)
@@ -375,7 +375,7 @@ function LoadSaveGame(dialog)
 					err = LoadGame(savename)
 					if not err then
 						DeleteThread(g_SaveGameDescrThread)
-						local parent_dlg = GetXDialog(parent)
+						local parent_dlg = GetDialog(parent)
 						if parent_dlg and parent_dlg.window_state ~= "destroying" then
 							parent_dlg:Close()
 						end
@@ -419,7 +419,7 @@ function SaveSavegame(item, name, dialog)
 			end
 			if not err then
 				DeleteThread(g_SaveGameDescrThread)
-				local parent_dlg = GetXDialog(dialog.parent)
+				local parent_dlg = GetDialog(dialog.parent)
 				if parent_dlg and parent_dlg.window_state ~= "destroying" then
 					parent_dlg:Close()
 				end
@@ -431,5 +431,5 @@ function SaveSavegame(item, name, dialog)
 end
 
 function IsLoadButtonDisabled(context)
-	return (context and context.savegame_count or 0) == 0 and (not PopsSyncQueue or #PopsSyncQueue == 0) and not g_PopsSynchronizing
+	return (context and context.savegame_count or 0) == 0 and (not g_PopsSyncQueue or #g_PopsSyncQueue == 0) and not g_PopsSynchronizing
 end

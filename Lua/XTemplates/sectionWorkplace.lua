@@ -11,6 +11,7 @@ PlaceObj('XTemplate', {
 		'OnPress', function (self, gamepad)
 self.context:ToggleSpecialistEnforce(not gamepad and IsMassUIModifierPressed())
 end,
+		'AltPress', true,
 		'OnAltPress', function (self, gamepad)
 if gamepad then
 	self.context:ToggleSpecialistEnforce(true)

@@ -1,7 +1,7 @@
 function OpenIngameMainMenu()
 	--don't open this over the pregame menu
 	if GameState.gameplay then
-		local menu = GetXDialog("IGMainMenu")
+		local menu = GetDialog("IGMainMenu")
 		if menu then
 			CloseIngameMainMenu()
 		else
@@ -11,7 +11,7 @@ function OpenIngameMainMenu()
 				CreateRealTimeThread(function()
 					PlayFX("OpenInGameMenu", "start")
 					local savegame_count = WaitCountSaveGames()
-					OpenXDialog("IGMainMenu", nil, {savegame_count = savegame_count})
+					OpenDialog("IGMainMenu", nil, {savegame_count = savegame_count})
 				end)
 			end
 		end
@@ -19,5 +19,5 @@ function OpenIngameMainMenu()
 end
 
 function CloseIngameMainMenu()
-	CloseXDialog("IGMainMenu")
+	CloseDialog("IGMainMenu")
 end

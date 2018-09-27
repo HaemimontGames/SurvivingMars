@@ -531,7 +531,7 @@ PlaceObj('TechPreset', {
 
 PlaceObj('TechPreset', {
 	SortKey = 18,
-	description = T{6557, --[[TechPreset AlienImprints description]] "Uncovers new Anomalies – <em>Alien Artifacts</em> – which provide a boost to all research when scanned.\n\n<grey>Hard as it is to believe, our observations suggest that intelligent life has visited Mars long ago and that remnants of these visits could still be here. These artifacts could help us improve and expand our understanding of the universe.</grey>"},
+	description = T{6557, --[[TechPreset AlienImprints description]] "Uncovers new Anomalies – <em>Alien Artifacts</em> – which provide a tech cost reduction to all fields when scanned.\n\n<grey>Hard as it is to believe, our observations suggest that intelligent life has visited Mars long ago and that remnants of these visits could still be here. These artifacts could help us improve and expand our understanding of the universe.</grey>"},
 	display_name = T{6556, --[[TechPreset AlienImprints display_name]] "Alien Imprints"},
 	group = "Breakthroughs",
 	icon = "UI/Icons/Research/alien_imprints.tga",
@@ -2048,7 +2048,7 @@ PlaceObj('TechPreset', {
 
 PlaceObj('TechPreset', {
 	SortKey = 20,
-	description = T{6479, --[[TechPreset InterplanetaryAstronomy description]] "Wonder: <em>Omega Telescope</em> (<buildinginfo('OmegaTelescope')>) - Gives access to new Breakthrough Technologies and boosts overall research.\n\n<grey>A milestone in human history has been achieved – feeling comfortable enough living on an alien world, so much so that some people are already turning their curiosity towards the endless expanse of space once more.</grey>"},
+	description = T{6479, --[[TechPreset InterplanetaryAstronomy description]] "Wonder: <em>Omega Telescope</em> (<buildinginfo('OmegaTelescope')>) - Gives access to new Breakthrough Technologies and reduces overall research costs.\n\n<grey>A milestone in human history has been achieved – feeling comfortable enough living on an alien world, so much so that some people are already turning their curiosity towards the endless expanse of space once more.</grey>"},
 	display_name = T{6478, --[[TechPreset InterplanetaryAstronomy display_name]] "Interplanetary Astronomy"},
 	group = "Physics",
 	icon = "UI/Icons/Research/interplanetary_astronomy.tga",
@@ -2224,7 +2224,7 @@ PlaceObj('TechPreset', {
 
 PlaceObj('TechPreset', {
 	SortKey = 8,
-	description = T{8002, --[[TechPreset RoverCommandAI description]] "<em>Rovers</em> no longer need recharging. The <em>RC Commander</em> starts with <param1> additional Drones and command limit increased by <param2>. \n\n<grey>Developing a specialized AI with greater autonomy and advanced multitasking capabilities will allow our rovers to control more drones simultaneously.</grey>"},
+	description = T{8002, --[[TechPreset RoverCommandAI description]] "The <em>RC Commander</em> starts with <param1> additional Drones and command limit increased by <param2>. Unlocks new Automated Mode for RC Explorer and RC Transport.\n\n<grey>Developing a specialized AI with greater autonomy and advanced multitasking capabilities will allow our rovers to control more drones simultaneously.</grey>"},
 	display_name = T{8001, --[[TechPreset RoverCommandAI display_name]] "Rover Command AI"},
 	group = "Robotics",
 	icon = "UI/Icons/Research/rover_command_ai.tga",

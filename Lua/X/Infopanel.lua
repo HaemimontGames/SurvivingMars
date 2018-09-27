@@ -303,11 +303,6 @@ function ReopenSelectionXInfopanel(obj, slide_in)
 	local mode, template
 	if obj == nil then
 		obj = SelectedObj
-		if (not obj and ShowResourceOverview) then
-			obj = ResourceOverviewObj	
-			mode = ResourceOverviewObj:GetIPMode()
-			template = "ipResourceOverview"
-		end
 	end
 	if IsValid(obj) then
 		if not slide_in then InfopanelSlideIn = false end

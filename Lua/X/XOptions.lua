@@ -84,7 +84,9 @@ function ApplyOptions(host)
 	CreateRealTimeThread(function(host)
 		local obj = ResolvePropObj(host.context)
 		local original_obj = ResolvePropObj(host.idOriginalOptions.context)
-		local category = GetDialogModeParam(host).id
+		local mode_param = GetDialogModeParam(host)
+		if not mode_param then return end
+		local category = mode_param.id
 		if not obj:WaitApplyOptions(original_obj) then
 			WaitMarsMessage(nil, T{6884, "Warning"}, T{4091, "Changes could not be applied and will be reverted."}, T{1000136, "OK"})
 		else
@@ -114,9 +116,10 @@ function CancelOptions(host)
 	CreateRealTimeThread(function(host)
 		local obj = ResolvePropObj(host.context)
 		local original_obj = ResolvePropObj(host.idOriginalOptions.context)
-		local category = GetDialogModeParam(host).id
+		local mode_param = GetDialogModeParam(host)
+		if not mode_param then return end
 		original_obj:WaitApplyOptions()
-		original_obj:CopyCategoryTo(obj, category)
+		original_obj:CopyCategoryTo(obj, mode_param.id)
 		SetBackDialogMode(host)
 	end, host)
 end
@@ -145,8 +148,9 @@ end
 function CancelDisplayOptions(host)
 	local obj = ResolvePropObj(host.context)
 	local original_obj = ResolvePropObj(host.idOriginalOptions.context)
-	local category = GetDialogModeParam(host).id
-	original_obj:CopyCategoryTo(obj, category)
+	local mode_param = GetDialogModeParam(host)
+	if not mode_param then return end
+	original_obj:CopyCategoryTo(obj, mode_param.id)
 	SetBackDialogMode(host)
 end
 

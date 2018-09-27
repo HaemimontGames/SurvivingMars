@@ -31,13 +31,6 @@ PlaceObj('XTemplate', {
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelButton",
-			'RolloverDisabledText', T{136037016366, --[[XTemplate ipDrone RolloverDisabledText]] "Vehicle Inactive."},
-			'RolloverTitle', T{4433, --[[XTemplate ipDrone RolloverTitle]] "Perform Maintenance"},
-			'RolloverDisabledTitle', T{636653157928, --[[XTemplate ipDrone RolloverDisabledTitle]] "Perform Maintenance"},
-			'OnPressParam', "ToggleMaintenanceInteractionMode",
-		}),
-		PlaceObj('XTemplateTemplate', {
-			'__template', "InfopanelButton",
 			'RolloverText', T{4432, --[[XTemplate ipDrone RolloverText]] "Drops any carried resource."},
 			'RolloverDisabledText', T{448814888293, --[[XTemplate ipDrone RolloverDisabledText]] "<DropCarriedResourceFromUIDisabledRollover>"},
 			'RolloverTitle', T{4431, --[[XTemplate ipDrone RolloverTitle]] "Drop Carried Resource"},

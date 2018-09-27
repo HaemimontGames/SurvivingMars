@@ -233,7 +233,7 @@ function MirrorSphere:IrradiateRemoveEnd()
 		local spheres = colonist.spheres or empty_table
 		if not spheres[self] then
 			irradiated[colonist] = nil
-			if not next(spheres) then
+			if IsValid(colonist) and not next(spheres) then
 				colonist:Affect("StatusEffect_Irradiated", false)
 			end
 		end
@@ -242,11 +242,11 @@ end
 function MirrorSphere:IrradiateRemove()
 	self:IrradiateRemoveBegin()
 	self:IrradiateRemoveEnd()
-	assert(not next(self.irradiated))
+	assert(not self.irradiated or not next(self.irradiated))
 end
 function MirrorSphere:IrradiateAdd(colonist)
 	self.irradiated[colonist]  = true
-	colonist.spheres = colonist.spheres or {}
+	colonist.spheres = colonist.spheres or setmetatable({}, weak_keys_meta)
 	colonist.spheres[self] = true
 	if not colonist.status_effects.StatusEffect_Irradiated then
 		colonist:Affect("StatusEffect_Irradiated", "start", false, "force")
@@ -294,7 +294,7 @@ function MirrorSphere:ColdWaveCmd()
 	self:IdleMark(true)
 	
 	SetIceStrength(ice_strength, self)
-	self.irradiated = self.irradiated or {}
+	self.irradiated = self.irradiated or setmetatable({}, weak_keys_meta)
 
 	local move_delay = min_move_delay + UICity:Random(max_move_delay - min_move_delay + 1)
 	local auto_charge = MulDivRound(split_progress_per_day, power_drain_interval, const.DayDuration)
@@ -760,7 +760,6 @@ function MirrorSphereBuilding:IsActionEnabled(action)
 		if MapCount(self,"hex",const.CommandCenterMaxRadius,"DroneControl", function (center, sphere) return #center.drones > 0 and HexAxialDistance(sphere, center) <= center.work_radius end , self) > 0 then
 			return true
 		end
-		command_center_filter.area = false
 		return false, T{1190, "Too far from any Drone commander."}
 	elseif action == "Communicate" then
 		local towers = self.city.labels.SensorTower or ""

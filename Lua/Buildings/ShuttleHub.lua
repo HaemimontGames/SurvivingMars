@@ -456,6 +456,10 @@ function CargoShuttle:Done()
 	end
 end
 
+function CargoShuttle:Destroy()
+	DoneObject(self)
+end
+
 function OnMsg.GatherLabels(labels)
 	labels.CargoShuttle = true
 end
@@ -1005,7 +1009,7 @@ function CargoShuttle:SetCount(new_count)
 	self.count = new_count/const.ResourceScale --this is a hack. It assumes that the shuttle will always carry one type of resource, and is here so that getstoredamount funcs that use count work correctly.
 end
 
---task maintanance
+--task maintenance
 function CargoShuttle:SetTransportTask(task)
 	task = task or false
 	local prev_task = self.transport_task
@@ -1036,6 +1040,10 @@ function CargoShuttle:SetTransportTask(task)
 	end
 	
 	self.is_colonist_transport_task = false
+	
+	if not task then
+		return
+	end
 	local supply_request = task[2]
 	local demand_request = task[3]
 	local resource = task[4]

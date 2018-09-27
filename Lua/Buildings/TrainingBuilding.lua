@@ -181,6 +181,8 @@ function TrainingBuilding:GetWorstVisitor(unit, shift)
 		end
 		check_forced = false
 	end
+	
+	return nil, shift
 end
 
 function TrainingBuilding:CheckServicedDome()
@@ -196,11 +198,13 @@ function TrainingBuilding:FindFreeSlotForced(shift)
 		shift = shift > 3 and shift % 3 or shift
 	end
 	local to_kick
-	to_kick, shift = self:GetWorstVisitor()
+	to_kick, shift = self:GetWorstVisitor(nil, shift)
 	if to_kick then
 		to_kick.user_forced_workplace = nil
 		return shift, to_kick
 	end
+	
+	return shift
 end
 
 function TrainingBuilding:CloseShift(shift)

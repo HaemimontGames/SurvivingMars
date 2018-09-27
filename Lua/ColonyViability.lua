@@ -7,7 +7,7 @@ DefineClass.SavedGlobalVars = {
 		{ id = "ApplyToGrids", dont_save = true },
 		
 		{ id = "g_ColonyNotViableUntil", editor = "number", default = {}, no_edit = true },
-		{ id = "MilestoneCompleted", editor = "table", default = {}, no_edit = true },
+		{ id = "MilestoneCompleted", editor = "prop table", default = {}, no_edit = true },
 	},
 }
 

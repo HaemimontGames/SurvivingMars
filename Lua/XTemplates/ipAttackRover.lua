@@ -73,7 +73,7 @@ end,
 				'Text', T{51, --[[XTemplate ipAttackRover Text]] "<ui_command>"},
 			}),
 			PlaceObj('XTemplateWindow', {
-				'__condition', function (parent, context) return context.command == "Malfunction" or context.command == "NoBattery" end,
+				'__condition', function (parent, context) return context.command == "Malfunction" end,
 				'__class', "XFrameProgress",
 				'Id', "idProgress",
 				'Margins', box(10, 15, 10, 14),
@@ -100,33 +100,6 @@ end,
 				'Image', "UI/Infopanel/progress_bar.tga",
 				'FrameBox', box(5, 0, 5, 0),
 				'BindTo', "HpProgress",
-				'MinProgressSize', 8,
-				'ProgressImage', "UI/Infopanel/progress_bar_green.tga",
-				'ProgressFrameBox', box(4, 0, 4, 0),
-			}),
-			}),
-		PlaceObj('XTemplateTemplate', {
-			'__condition', function (parent, context) return context.reclaimed end,
-			'__template', "InfopanelSection",
-			'RolloverText', T{7606, --[[XTemplate ipAttackRover RolloverText]] "Vehicles can recharge their batteries from active Power grids. Vehicles are also able to recharge each other, equalizing the Power in their batteries.<newline><newline>Power<right><percent(BatteryPerc)><newline><left><battery_ui_str>"},
-			'RolloverTitle', T{7607, --[[XTemplate ipAttackRover RolloverTitle]] "Battery"},
-			'Icon', "UI/Icons/Sections/batery.tga",
-		}, {
-			PlaceObj('XTemplateWindow', {
-				'__class', "XFrameProgress",
-				'Id', "idProgress",
-				'Margins', box(10, 15, 10, 14),
-				'Image', "UI/Infopanel/progress_bar.tga",
-				'FrameBox', box(5, 0, 5, 0),
-				'OnContextUpdate', function (self, context, ...)
-XFrameProgress.OnContextUpdate(self, context, ...)
-local image = "UI/Infopanel/progress_bar_green.tga"
-if self.Progress < 10 then
-  image = "UI/Infopanel/progress_bar_red.tga"
-end
-self:SetProgressImage(image)
-end,
-				'BindTo', "BatteryPerc",
 				'MinProgressSize', 8,
 				'ProgressImage', "UI/Infopanel/progress_bar_green.tga",
 				'ProgressFrameBox', box(4, 0, 4, 0),

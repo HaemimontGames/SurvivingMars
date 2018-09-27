@@ -18,6 +18,8 @@ PlaceObj('XTemplate', {
 		'RolloverOnFocus', true,
 		'MouseCursor', "UI/Cursors/Rollover.tga",
 		'RelativeFocusOrder', "new-line",
+		'FXMouseIn', "MenuItemHover",
+		'FXPress', "MenuItemClick",
 	}, {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnSetRollover(self, rollover)",
@@ -44,6 +46,7 @@ end,
 			'name', "OnMouseButtonDown(self, pos, button)",
 			'func', function (self, pos, button)
 if button == "L" then
+	self:PlayFX(self.FXPress, "start")
 	ViewObjectMars(self.context)
 	return "break"
 end

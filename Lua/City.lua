@@ -40,7 +40,8 @@ DefineClass.City = {
 	
 	--Construction cost modifiers (per building, per stage, per resource, in percent)
 	--These are filled only when there is a change
-	construction_cost_mods = false,
+	construction_cost_mods_percent = false,
+	construction_cost_mods_amount = false,
 	
 	mystery_id = "",
 	mystery = false,
@@ -73,6 +74,8 @@ DefineClass.City = {
 	TechBoostPerTech = false,
 	OutsourceResearchPoints = false,
 	OutsourceResearchOrders = false,
+	paused_sponsor_research_end_time = false,
+	paused_outsource_research_end_time = false,
 	
 	rand_state = false,
 	
@@ -116,7 +119,11 @@ function City:Init()
 	GetCommanderProfile():EffectsInit(self)
 	local rules = GetActiveGameRules()
 	for _, rule_id in ipairs(rules) do
-		GameRulesMap[rule_id]:EffectsInit(self)
+		local rule = GameRulesMap[rule_id]
+		assert(rule)
+		if rule then
+			rule:EffectsInit(self)
+		end
 	end
 	
 	self:SelectMystery() -- should be before research - research items depend on the current mystery
@@ -145,6 +152,7 @@ function City:Init()
 	CreateGameTimeThread(function(self)
 		self:GameInitResearch()
 		self:InitBreakThroughAnomalies()
+		self:InitHeat()
 		self:InitExploration()
 		self:InitMystery()
 		if not g_Tutorial or g_Tutorial.EnableRockets then
@@ -174,7 +182,10 @@ function City:Init()
 		GetCommanderProfile():EffectsApply(self)
 		local rules = GetActiveGameRules()
 		for _, rule_id in ipairs(rules) do
-			GameRulesMap[rule_id]:EffectsApply(self)
+			local rule = GameRulesMap[rule_id]
+			if rule then
+				rule:EffectsApply(self)
+			end
 		end
 		InitApplicantPool()
 		self:ApplyModificationsFromProperties()
@@ -192,14 +203,15 @@ function City:Init()
 	
 	self.cascade_cable_deletion_dsiable_reasons = {}
 	
-	self.construction_cost_mods = {}
+	self.construction_cost_mods_percent = {}
+	self.construction_cost_mods_amount = {}
 	
 	--mission related
 	self:InitMissionBonuses()
 	self:InitGatheredResourcesTables()
 	self:InitEmptyLabel("Dome")
 	
-	if not g_Tutorial then
+	if not g_Tutorial and CurrentMap ~= "Mod" then
 		self:SetGoals()
 		self:StartChallenge()
 	end
@@ -213,29 +225,35 @@ end
 
 GlobalVar("FirstUniversalStorage", false)
 
-function CreateRand(seed, ...)
-	local seed = xxhash(seed, ...)
+function CreateRand(stable, ...)
+	local seed = xxhash(...)
 	local function rand(max)
 		local value
-		value, seed = BraidRandom(seed, max)
+		value, seed = BraidRandom(seed, max, stable)
 		return value
 	end
-	local function trand(tbl)
+	local function trand(tbl, weight)
 		local value, idx
-		value, idx, seed = table.rand(tbl, seed)
+		if weight then
+			value, idx, seed = table.weighted_rand(tbl, weight, seed, stable)
+		else
+			idx, seed = BraidRandom(seed, #tbl, stable)
+			idx = idx + 1
+			value = tbl[idx]
+		end
 		return value, idx
 	end
 	return rand, trand
 end
 
 function City:CreateSessionRand(...)
-	return CreateRand(g_SessionSeed, ...)
+	return CreateRand(false, g_SessionSeed, ...)
 end
 
 function City:CreateMapRand(...)
 	local gen = GetRandomMapGenerator()
 	local seed = gen and gen.Seed or AsyncRand()
-	return CreateRand(seed, ...)
+	return CreateRand(true, seed, ...)
 end
 
 function City:IsUpgradeUnlocked(id)
@@ -302,6 +320,152 @@ function City:SetGoals()
 end
 
 function City:StartChallenge()
+	local challenge = g_CurrentMissionParams.challenge_id and Presets.Challenge.Default[g_CurrentMissionParams.challenge_id]
+	if not challenge then
+		return
+	end
+	
+	TelemetryChallengeStart(challenge.id)
+	
+	local params_tbl = {
+		start_time = 0, 
+		expiration = challenge.time_completed,
+		rollover_title = challenge.title,
+		rollover_text = challenge.description,
+	}
+	if challenge.TrackProgress then
+		params_tbl.current = 0
+		params_tbl.target = challenge.TargetValue
+		params_tbl.rollover_text = challenge.description .. Untranslated("<newline><newline>") .. T{challenge.ProgressText, params_tbl}
+	else
+		params_tbl.rollover_text = challenge.description
+	end
+	
+	self.challenge_thread = CreateGameTimeThread(function(challenge, params_tbl)
+		local regs = {}
+		if challenge.Init then
+			challenge:Init(regs)
+		end
+		if challenge.TrackProgress then
+			while GameTime() < challenge.time_completed do
+				local progress = challenge:TickProgress(regs)
+				if progress >= challenge.TargetValue and (not challenge.WinCondition or challenge:WinCondition(regs)) then
+					break -- win
+				elseif progress ~= params_tbl.current then
+					params_tbl.current = progress
+					params_tbl.rollover_text = challenge.description .. Untranslated("<newline><newline>") .. T{challenge.ProgressText, params_tbl}
+					AddOnScreenNotification("ChallengeTimer", nil, params_tbl)
+				end
+			end
+		else	
+			challenge:Run()
+		end
+		
+		if IsValidThread(self.challenge_timeout_thread) then
+			DeleteThread(self.challenge_timeout_thread)			
+		end
+		RemoveOnScreenNotification("ChallengeTimer")
+		
+		if GameTime() <= challenge.time_completed then
+			local score = 0
+			ForEachPreset("Milestone", function(o)
+				local cs = o:GetChallengeScore()
+				if cs then
+					score = score + cs
+				end
+			end)
+			
+			AccountStorage.CompletedChallenges = AccountStorage.CompletedChallenges or {}
+			local record = AccountStorage.CompletedChallenges[challenge.id]
+			if type(record) ~= "table" or record.time > GameTime() then
+				record = {
+					time = GameTime(),
+					score = score,
+				}
+				AccountStorage.CompletedChallenges[challenge.id] = record
+				SaveAccountStorage(5000)
+			end
+			local perfected = GameTime() <= challenge.time_perfected
+			Msg("ChallengeCompleted", challenge, perfected)
+			while true do
+				local preset = perfected and "Challenge_Perfected" or "Challenge_Completed"
+				local res = WaitPopupNotification(preset, {
+					challenge_name = challenge.title,
+					challenge_sols = challenge.time_completed / const.DayDuration,
+					perfected_sols = challenge.time_perfected / const.DayDuration,
+					elapsed_sols = 1+ GameTime() / const.DayDuration,
+					score = score,
+				})
+				if res == 1 then
+					TelemetryChallengeEnd(challenge.id, perfected and "perfected" or "completed", true)
+					CreateRealTimeThread(GallerySaveDefaultScreenshot, challenge.id)
+					WaitMsg("ChallengeDefaultScreenshotSaved")
+					break -- keep playing
+				elseif res == 2 then
+					OpenPhotoMode(challenge.id)
+					WaitMsg("ChallengeScreenshotSaved")
+				elseif res == 3 then
+					CreateRealTimeThread(function()
+						LoadingScreenOpen("idLoadingScreen", "challenge completed")
+						TelemetryChallengeEnd(challenge.id, perfected and "perfected" or "completed", false)
+						GallerySaveDefaultScreenshot(challenge.id)
+						OpenPreGameMainMenu()
+						LoadingScreenClose("idLoadingScreen", "challenge completed")
+					end)
+					break
+				end
+			end
+		end
+	end, challenge, params_tbl)
+	
+	self.challenge_timeout_thread = CreateGameTimeThread(function(self, challenge, params_tbl)
+		-- add notification with countdown
+		params_tbl.expiration2 = challenge.time_perfected
+		params_tbl.additional_text = T{10489, "<newline>Perfect time: <countdown2>"}
+		if challenge.TrackProgress then
+			params_tbl.rollover_text = challenge.description .. Untranslated("<newline><newline>") .. T{challenge.ProgressText, params_tbl}
+		end
+		AddOnScreenNotification("ChallengeTimer", nil, params_tbl)
+		Sleep(challenge.time_perfected)
+		params_tbl.expiration2 = nil
+		params_tbl.additional_text = nil
+		if challenge.TrackProgress then
+			params_tbl.rollover_text = challenge.description .. Untranslated("<newline><newline>") .. T{challenge.ProgressText, params_tbl}
+		end
+		AddOnScreenNotification("ChallengeTimer", nil, params_tbl)
+		Sleep(challenge.time_completed - challenge.time_perfected)
+		RemoveOnScreenNotification("ChallengeTimer")
+					
+		if IsValidThread(self.challenge_thread) then
+			DeleteThread(self.challenge_thread)
+		end
+		
+		-- popup fail message, exit to main menu if the player chooses
+		local res = WaitPopupNotification("Challenge_Failed", {
+					challenge_name = challenge.title,
+					challenge_sols = challenge.time_completed / const.DayDuration,
+					perfected_sols = challenge.time_perfected / const.DayDuration,
+					elapsed_sols = 1 + GameTime() / const.DayDuration,
+				})
+		if res == 3 then
+			TelemetryChallengeEnd(challenge.id, "failed", false)
+			CreateRealTimeThread(OpenPreGameMainMenu)
+		elseif res == 2 then
+			TelemetryChallengeEnd(challenge.id, "failed", false)
+			CreateRealTimeThread(function()
+				LoadingScreenOpen("idLoadingScreen", "restart map")
+				TelemetryRestartSession()
+				g_SessionSeed = g_InitialSessionSeed
+				g_RocketCargo = g_InitialRocketCargo
+				g_CargoCost = g_InitialCargoCost
+				g_CargoWeight = g_InitialCargoWeight
+				GenerateCurrentRandomMap()
+				LoadingScreenClose("idLoadingScreen", "restart map")
+			end)
+		else
+			TelemetryChallengeEnd(challenge.id, "failed", true)
+		end
+	end, self, challenge, params_tbl)
 end
 
 function SetGlobalConst(global_const, amount)
@@ -407,6 +571,14 @@ function City:ElectricityToResearch(amount, hours)
 	return rp, rem
 end
 
+function City:UpdatePauseEndTimeProp(prop)
+	if self[prop] then
+		if GameTime() >= self[prop] then
+			self[prop] = false
+		end
+	end
+end
+
 function City:HourlyUpdate(hour)
 	local rp = 0 
 	-- calculate with accumulation for precision, as RPs aren't scaled up
@@ -419,11 +591,16 @@ function City:HourlyUpdate(hour)
 		self.wasted_electricity_for_rp = remainder
 	end
 	
-	rp = rp + self:CalcSponsorResearchPoints(const.HourDuration)
+	self:UpdatePauseEndTimeProp("paused_sponsor_research_end_time")
+	if not self.paused_sponsor_research_end_time then
+		rp = rp + self:CalcSponsorResearchPoints(const.HourDuration)
+	end
+	
 	rp = rp + self:AddExplorerResearchPoints()
 
+	self:UpdatePauseEndTimeProp("paused_outsource_research_end_time")
 	local pts = self.OutsourceResearchPoints[1]
-	if pts then
+	if pts and not self.paused_outsource_research_end_time then
 		table.remove(self.OutsourceResearchPoints, 1)
 		table.remove(self.OutsourceResearchOrders, 1)
 		rp = rp + pts
@@ -581,7 +758,7 @@ function City:SetGameSpeed(factor)
 end
 
 ---- Construction cost modifications
-function City:ModifyConstructionCost(action, building, resource, percent)
+function City:ModifyConstructionCost(action, building, resource, percent, amount)
 	--extract the building name
 	local building_name = building
 	if type(building) == "table" then
@@ -593,21 +770,32 @@ function City:ModifyConstructionCost(action, building, resource, percent)
 	end
 	
 	--Cost modifiers are first indexed by building (the object, see above)
-	local all_costs = self.construction_cost_mods
-	local building_costs = all_costs[building_name] or {}
-	all_costs[building_name] = building_costs
+	local all_costs_percent = self.construction_cost_mods_percent
+	local building_costs_percent = all_costs_percent[building_name] or {}
+	all_costs_percent[building_name] = building_costs_percent
+	
+	local all_costs_amount = self.construction_cost_mods_amount
+	local building_costs_amount = all_costs_amount[building_name] or {}
+	all_costs_amount[building_name] = building_costs_amount
 	
 	--finally by the resource for that stage
-	if not building_costs[resource] then
-		building_costs[resource] = 100
+	if not building_costs_percent[resource] then
+		building_costs_percent[resource] = 100
+	end
+	
+	if not building_costs_amount[resource] then
+		building_costs_amount[resource] = 0
 	end
 	
 	if action == "add" then
-		building_costs[resource] = building_costs[resource] + percent
+		building_costs_percent[resource] = building_costs_percent[resource] + (percent or 0)
+		building_costs_amount[resource] = building_costs_amount[resource] + (amount or 0)
 	elseif action == "remove" then
-		building_costs[resource] = building_costs[resource] - percent
+		building_costs_percent[resource] = building_costs_percent[resource] - (percent or 0)
+		building_costs_amount[resource] = building_costs_amount[resource] - (amount or 0)
 	elseif action == "reset" then
-		building_costs[resource] = 100
+		building_costs_percent[resource] = 100
+		building_costs_amount[resource] = 0
 	else
 		error("Incorrect cost modification action")
 	end
@@ -651,15 +839,17 @@ function City:GetConstructionCost(building, resource, modifier_obj)
 	end
 	
 	--apply building-stage-resource modifier
-	local building_costs = self.construction_cost_mods[building_name] or empty_table
-	local modifier = building_costs[resource] or 100
-	return MulDivRound(value, modifier, 100)
+	local building_costs_percent = self.construction_cost_mods_percent[building_name] or empty_table
+	local percent_modifier = building_costs_percent[resource] or 100
+	local building_costs_amount = self.construction_cost_mods_amount[building_name] or empty_table
+	local amount_modifier = building_costs_amount[resource] or 0
+	return MulDivRound(value, percent_modifier, 100) + amount_modifier
 end
 
 function OnMsg.LoadGame() --patch to fix old saves (see bug:0122359)
 	local city = UICity
 	if city then
-		local modifiers = city.construction_cost_mods
+		local modifiers = city.construction_cost_mods_percent
 		local modifier_keys = table.keys(modifiers)
 		for _,key in ipairs(modifier_keys) do
 			if type(key) == "table" then
@@ -816,6 +1006,14 @@ function City:ChangeFunding(amount, source)
 	self.funding = self.funding + amount
 	Msg("FundingChanged", self, amount, source)
 	return amount
+end
+
+function City:GetTotalFundingGain()
+	local sum = 0
+	for _, category in pairs(self.funding_gain_total or empty_table) do
+		sum = sum + category
+	end
+	return sum
 end
 
 function City:GetFunding()

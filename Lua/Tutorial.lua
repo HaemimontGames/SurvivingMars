@@ -429,8 +429,12 @@ function WaitBuildMenuItemSelected(category, item, mode, view_pos)
 					return dlg and dlg.items and table.find_value(dlg.items, "name", "idBuild") or false
 				end
 				
-				local dlg = GetHUD()
-				return dlg and dlg.idBuild or false
+				if not g_RightClickOpensBuildMenu then
+					local dlg = GetHUD()
+					return dlg and dlg.idBuild or false
+				else
+					return false
+				end
 			end
 			local items = Dialogs.XBuildMenu.items
 			local ctrl = table.find_value(items, "name", item)
@@ -468,8 +472,12 @@ function FindBuildMenuItem(item, category, subcategory)
 			return dlg and dlg.items and table.find_value(dlg.items, "name", "idBuild") or false
 		end
 		
-		local dlg = GetHUD()
-		return dlg and dlg.idBuild or false
+		if not g_RightClickOpensBuildMenu then
+			local dlg = GetHUD()
+			return dlg and dlg.idBuild or false
+		else
+			return false
+		end
 	end
 	if Dialogs.XBuildMenu:HasMember(item) then
 		return Dialogs.XBuildMenu[item]
@@ -491,8 +499,12 @@ function WaitBuildMenuStorageSelected(item, anchor_type)
 					return dlg and dlg.items and table.find_value(dlg.items, "name", "idBuild") or false
 				end
 				
-				local dlg = GetHUD()
-				return dlg and dlg.idBuild or false
+				if not g_RightClickOpensBuildMenu then
+					local dlg = GetHUD()
+					return dlg and dlg.idBuild or false
+				else
+					return false
+				end
 			end
 			if Dialogs.XBuildMenu:HasMember(item) then
 				return Dialogs.XBuildMenu[item]

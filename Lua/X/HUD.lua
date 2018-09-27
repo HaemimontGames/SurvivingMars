@@ -23,10 +23,13 @@ HUD.button_definitions = {
 			if GetDialog("XBuildMenu") then
 				CloseXBuildMenu()
 			else
+				if not GetUIStyleGamepad() then
+					g_BuildMenuHUDClicksCount = g_BuildMenuHUDClicksCount + 1
+				end
 				OpenXBuildMenu()
 			end
 		end,
-		rollover = {title = T{383281603855, "Build Menu"}, descr = T{4002, "Order new construction. Construction usually requires resources and Drone workers in the area."}, hint = T{4003, "<em><ShortcutName('actionOpenBuildMenu')></em> - toggle Build Menu"}, id = "Build menu"},
+		rollover = {title = T{383281603855, "Build Menu"}, descr = T{4002, "Order new construction. Construction usually requires resources and Drone workers in the area."}, hint = T{4003, "<em><ShortcutName('actionOpenBuildMenu')></em> Toggle Build Menu"}, id = "Build menu"},
 		selection = true,
 		image = "UI/HUD/build.tga",
 		shine = "UI/HUD/build_shine.tga",
@@ -43,7 +46,7 @@ HUD.button_definitions = {
 					return current_research and TechDef[current_research].display_name or T{6868, "None"}
 				end,
 				progress = function() return UICity:GetResearchProgress() end},
-			hint = T{4005, "<em><ShortcutName('actionResearchScreen')></em> - open Research Screen"},
+			hint = T{4005, "<em><ShortcutName('actionResearchScreen')></em> Open Research Screen"},
 			id = "Research"},
 		rollover_disabled = {title = T{311, "Research"},
 			descr = T{8958, "Not yet available."},	-- only disabled in tutorial
@@ -60,7 +63,7 @@ HUD.button_definitions = {
 	idResupply = {
 		rollover = {title = T{3997, "Resupply"},
 			descr = T{4006, "Request a new cargo or passenger Rocket from Earth."},
-			hint = T{4007, "<em><ShortcutName('actionResupplyScreen')></em> - open Resupply Screen"},
+			hint = T{4007, "<em><ShortcutName('actionResupplyScreen')></em> Open Resupply Screen"},
 			id = "Resupply",
 			},
 		
@@ -90,7 +93,7 @@ HUD.button_definitions = {
 		rollover = {
 			title = T{973748367669, "Milestones"}, 
 			descr = T{4010, "Shows Colony Milestones and Score."}, 
-			hint = T{4011, "<em><ShortcutName('actionMilestonesScreen')></em> - open Milestones Screen"}, 
+			hint = T{4011, "<em><ShortcutName('actionMilestonesScreen')></em> Open Milestones Screen"}, 
 			id = "Show areas of effect"},
 		rollover_disabled = {
 			title = T{973748367669, "Milestones"}, 
@@ -113,7 +116,7 @@ HUD.button_definitions = {
 		FXPress = "AreasOfEffectButtonClick",
 	},
 	idOverview = {
-		rollover = {title = T{786525376837, "Map Overview"}, descr = T{4012, "Switch between normal camera mode and Map Overview."}, hint = T{4013, "<em><ShortcutName('actionMapOverview')></em> - toggle Overview Mode"}, id = "Overlays"},
+		rollover = {title = T{786525376837, "Map Overview"}, descr = T{4012, "Switch between normal camera mode and Map Overview."}, hint = T{4013, "<em><ShortcutName('actionMapOverview')></em> Toggle Overview Mode"}, id = "Overlays"},
 		selection = true,
 		callback = function(this)
 			ToggleOverviewMode()
@@ -127,32 +130,14 @@ HUD.button_definitions = {
 		callback = function(this)
 			OpenDialog("RadioStationDlg")
 		end,
-		rollover = {title = T{796804896133, "Radio"}, descr = T{7385, "Manage radio channels and volume."}, hint = T{7386, "<em><ShortcutName('actionRadio')></em> - open Radio"}, id = "Radio"},
+		rollover = {title = T{796804896133, "Radio"}, descr = T{7385, "Manage radio channels and volume."}, hint = T{7386, "<em><ShortcutName('actionRadio')></em> Open Radio"}, id = "Radio"},
 		selection = true,
 		image = "UI/HUD/radio.tga",
 		shine = "UI/HUD/radio_shine.tga",
 		FXPress = "RadioButtonClick",
 	},
-	idColonyOverview = {
-		rollover = {title = T{7849, --[[Post-Cert]] "Colony Overview"}, descr = T{7850, "Aggregated information for your Colony."}, hint = T{7851, --[[Post-Cert]] "<em><ShortcutName('actionColonyOverview')></em> - toggle Colony Overview"}, id = "Resource Overview"},
-		selection = true,
-		callback = function(this)
-			ShowResourceOverview = not ShowResourceOverview
-			this:SetToggled(ShowResourceOverview)
-			if ShowResourceOverview then
-				SelectObj()
-				OpenResourceOverviewInfopanel()
-			else
-				CloseResourceOverviewInfopanel()
-			end
-		end,
-		image = "UI/HUD/statistics.tga",
-		shine = "UI/HUD/statistics_shine.tga",
-		Rows = 2,
-		FXPress = "ResourceOverviewButtonClick",
-	},
 	idColonyControlCenter = {
-		rollover = {title = T{137542936955, "Command Center"}, descr = T{8980, "Provides historical stats and tools to inspect and manage Buildings, Domes, Colonists and transportation."}, hint = T{8981, "<em><ShortcutName('actionColonyControlCenter')></em> - toggle Command Center"}, id = "Command Center"},
+		rollover = {title = T{137542936955, "Command Center"}, descr = T{8980, "Provides historical stats and tools to inspect and manage Buildings, Domes, Colonists and transportation."}, hint = T{8981, "<em><ShortcutName('actionColonyControlCenter')></em> Тoggle Command Center"}, id = "Command Center"},
 		selection = true,
 		callback = function(this)
 			OpenCommandCenter()
@@ -163,22 +148,22 @@ HUD.button_definitions = {
 	},
 	
 	idPause = {
-		rollover = {title = T{6869, "Pause"}, descr = T{4017, "Pause the game."}, id = "Pause", hint_gamepad = T{4018, "<em><ShortcutName('actionPauseGame')>/<DPadUp>:</em> Pause/unpause"}, hint = T{10094, "<em><ShortcutName('actionPauseGame')>:</em> Pause/unpause"}},
+		rollover = {title = T{6869, "Pause"}, descr = T{4017, "Pause the game."}, id = "Pause", hint_gamepad = T{4018, "<em><ShortcutName('actionPauseGame')>/<DPadUp></em> Pause/unpause"}, hint = T{10094, "<em><ShortcutName('actionPauseGame')></em> Pause/unpause"}},
 		image = "UI/HUD/pause.tga",
 		shine = "UI/HUD/double_speed_shine.tga",
 	},
 	idPlay = {
-		rollover = {title = T{4019, "Normal"}, descr = T{4020, "Play at normal speed."}, id = "Normal Speed", hint = T{4021, "<em><ShortcutName('actionSpeedUp')>/<ShortcutName('actionSpeedDown')>:</em> Change game speed"}},
+		rollover = {title = T{4019, "Normal"}, descr = T{4020, "Play at normal speed."}, id = "Normal Speed", hint = T{4021, "<em><ShortcutName('actionSpeedUp')>/<ShortcutName('actionSpeedDown')></em> Change game speed"}},
 		image = "UI/HUD/normal_speed.tga",
 		shine = "UI/HUD/double_speed_shine.tga",
 	},
 	idMedium = {
-		rollover = {title = T{4022, "Fast"}, descr = T{4023, "Play at three times normal speed."}, id = "Fast Speed", hint = T{4021, "<em><ShortcutName('actionSpeedUp')>/<ShortcutName('actionSpeedDown')>:</em> Change game speed"}},
+		rollover = {title = T{4022, "Fast"}, descr = T{4023, "Play at three times normal speed."}, id = "Fast Speed", hint = T{4021, "<em><ShortcutName('actionSpeedUp')>/<ShortcutName('actionSpeedDown')></em> Change game speed"}},
 		image = "UI/HUD/double_speed.tga",
 		shine = "UI/HUD/double_speed_shine.tga",
 	},
 	idFast = {
-		rollover = {title = T{4024, "Fastest"}, descr = T{4025, "Play at five times normal speed."}, id = "Fastest Speed", hint = T{4021, "<em><ShortcutName('actionSpeedUp')>/<ShortcutName('actionSpeedDown')>:</em> Change game speed"}},
+		rollover = {title = T{4024, "Fastest"}, descr = T{4025, "Play at five times normal speed."}, id = "Fastest Speed", hint = T{4021, "<em><ShortcutName('actionSpeedUp')>/<ShortcutName('actionSpeedDown')></em> Change game speed"}},
 		image = "UI/HUD/super_fast_speed.tga",
 		shine = "UI/HUD/double_speed_shine.tga",
 	},
@@ -207,7 +192,7 @@ HUD.button_definitions = {
 HUD.button_list = table.keys2(HUD.button_definitions, true)
 
 LeftHUDButtons = {"idBuild", "idOverview", "idResupply", "idResearch"}
-RightHUDButtons = {"idColonyControlCenter", "idColonyOverview", "idMarkers", "idRadio", "idMenu"}
+RightHUDButtons = {"idColonyControlCenter", "idMarkers", "idRadio", "idMenu"}
 local SpeedControlButtons = {"idPause", "idPlay", "idMedium", "idFast"}
 
 function HUD:Init()
@@ -375,7 +360,6 @@ function HUD:Init()
 		MinWidth = 146,
 		MaxWidth = 146,
 		MaxProgress = const.HoursPerDay * const.MinutesPerHour / 5,
-		SeparatorImage = "UI/HUD/day_shine.tga",
 		SeparatorOffset = 4,
 	}, middle_section)
 	self.idDayProgress.idProgress:SetTileFrame(true)
@@ -512,7 +496,7 @@ end
 
 local HUDElementsWithHintHighlights = {
 	"idMenu", "idBuild", "idOverview", "idResupply",
-	"idResearch", "idColonyOverview", "idMarkers", "idRadio",
+	"idResearch", "idMarkers", "idRadio",
 	"idPause", "idPlay", "idMedium", "idFast",
 }
 for i=1,#HUDElementsWithHintHighlights do

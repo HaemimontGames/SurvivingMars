@@ -495,7 +495,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_WaitExpression', {
 			'expression', "_WarTension >= 100",
 		}),
-		PlaceObj('SA_WaitMessage', {
+		PlaceObj('SA_ShowMessage', {
 			'title', T{8232, --[[Scenario Mystery 7 title]] "The Last War: The Day After Tomorrow"},
 			'voiced_text', T{8233, --[[voice:narrator]] "Silence… After a brief increase in brightness, everything has fallen silent."},
 			'text', T{8234, --[[Scenario Mystery 7 text]] "We are scrambling to re-establish communications with Earth, but for the first time no one seems to be listening. Deep down, everyone knows that the unfathomable has happened. \n\nThere is denial, there is depression, yet we all know… for the nature of the luminosity spike can be one thing and one thing only: utter nuclear devastation spread all over the globe.\n\nWe will keep on listening, maybe someday someone will talk back.\n\n<effect>Earth was devastated by the war. Export, Resupply, Research Outsourcing and Applicants have been disabled indefinitely."},
@@ -566,7 +566,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_GameplayConstModifier', {
 			'target_gameplayconst', "OutsourceDisabled",
 		}),
-		PlaceObj('SA_WaitMessage', {
+		PlaceObj('SA_ShowMessage', {
 			'title', T{8236, --[[Scenario Mystery 7 title]] "The Last War: New World Order"},
 			'voiced_text', T{8237, --[[voice:narrator]] "Today we received the call we've been hoping for!"},
 			'text', T{8238, --[[Scenario Mystery 7 text]] "There are humans left on Earth and they are reemerging to form a new society.\n\nThey inform us that things are very different now and Earth will never be the same again. Things are much more difficult; the environment is harsher and sunlight is scarcer; there is little resource to go around and most technological advancements have been lost to nuclear fire.\n\nBut they see this as a means of a new clean beginning and have expressed their desire to cooperate with us, this time as true equals.\n\n<effect>Contact with Earth has been re-established. Rockets are available once again."},
@@ -1134,7 +1134,7 @@ PlaceObj('Scenario', {
 	PlaceObj('ScenarioSequence', {
 		'name', "Timeout",
 	}, {
-		PlaceObj('SA_WaitMessage', {
+		PlaceObj('SA_ShowMessage', {
 			'title', T{8276, --[[Scenario Mystery 7 title]] "The Last War: Cold War 2.0"},
 			'voiced_text', T{8277, --[[voice:narrator]] "Ceasefires are taking effect and armies are pulling back behind borders."},
 			'text', T{8278, --[[Scenario Mystery 7 text]] "Mistrust and disbelief is rampant and while the guns are finally silent, the road to healing the wounds of war will be longer than anything Earth has ever experienced before. \n\nMillions have perished and those who survived will suffer a divide so huge, it seems impossible to fill. \n\nIn what almost seems as an apathetic effort to move on, <reg_param1> has informed us that we are to continue the project and its business as usual – with the exception that now everything costs more after the devastation on Earth.\n\n<effect>Resupply prices increased by 50% for the next 50 Sols."},

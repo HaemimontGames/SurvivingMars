@@ -187,10 +187,12 @@ DefineClass.RangeHexRadius = {
 	size = false,
 	update_thread = false,
 	parent_always_renderable = false,
+	
+	bind_to = "GetSelectionRadiusScale",
 }
 
 function RangeHexRadius:GameInit()
-	self.update_thread = CreateGameTimeThread(function()
+	self.update_thread = CreateRealTimeThread(function()
 		while IsValid(self) and IsValid(self.container) do
 			self:AlignContainer()
 			Sleep(100)
@@ -208,10 +210,11 @@ function RangeHexRadius:GameInit()
 end
 
 function RangeHexRadius:Done()
-	local parent = self:GetParent()
+	local parent = g_HexRanges[self]
 	if IsValid(parent) and not self.parent_always_renderable then
 		parent:ClearGameFlags(const.gofAlwaysRenderable)
 	end
+	g_HexRanges[self] = nil
 	DoneObject(self.container)
 end
 
@@ -328,8 +331,9 @@ DefineClass.RangeHexMultiSelectRadius = {
 }
 
 function RangeHexMultiSelectRadius:GetDecalClassBase()
-	local parent = self:GetParent()
-	return (IsValid(parent) and parent == SelectedObj) and "Range" or "RangeNonActive"
+	local parent = g_HexRanges[self]
+	local active = IsValid(parent) and (parent == SelectedObj or parent:IsKindOf("CursorBuilding"))
+	return (active and self.bind_to == RangeHexRadius.bind_to) and "Range" or "RangeNonActive"
 end
 
 OnMsg.EntitiesLoaded = RebuildHexShapes

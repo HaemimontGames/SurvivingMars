@@ -12,12 +12,12 @@ DefineClass.MapSettings =
 		{ id = "birth_hour",		name = "Birth Hour (h)",			editor = "number",	default = 125 * const.HourDuration, scale = const.HourDuration, category = "Common", help = "This many hours without disaster" },
 		{ id = "use_in_gen",		name = "Use in random selection",	editor = "bool",    default = true, category = "Common" },
 		-- Disaster Lightmodel
-		{ id = "noon",				name = "Noon",		category = "Lightmodel", editor = "dropdownlist", default = "", items = PresetsCombo("Lightmodel") },
-		{ id = "evening",			name = "Evening",	category = "Lightmodel", editor = "dropdownlist", default = "", items = PresetsCombo("Lightmodel") },
-		{ id = "dusk",				name = "Dusk",		category = "Lightmodel", editor = "dropdownlist", default = "", items = PresetsCombo("Lightmodel") },
-		{ id = "night",				name = "Night",		category = "Lightmodel", editor = "dropdownlist", default = "", items = PresetsCombo("Lightmodel") },
-		{ id = "dawn",				name = "Dawn",		category = "Lightmodel", editor = "dropdownlist", default = "", items = PresetsCombo("Lightmodel") },
-		{ id = "morning",			name = "Morning",	category = "Lightmodel", editor = "dropdownlist", default = "", items = PresetsCombo("Lightmodel") },
+		{ id = "noon",				name = "Noon",		category = "Lightmodel", editor = "dropdownlist", default = "", items = PresetsCombo("LightmodelPreset") },
+		{ id = "evening",			name = "Evening",	category = "Lightmodel", editor = "dropdownlist", default = "", items = PresetsCombo("LightmodelPreset") },
+		{ id = "dusk",				name = "Dusk",		category = "Lightmodel", editor = "dropdownlist", default = "", items = PresetsCombo("LightmodelPreset") },
+		{ id = "night",				name = "Night",		category = "Lightmodel", editor = "dropdownlist", default = "", items = PresetsCombo("LightmodelPreset") },
+		{ id = "dawn",				name = "Dawn",		category = "Lightmodel", editor = "dropdownlist", default = "", items = PresetsCombo("LightmodelPreset") },
+		{ id = "morning",			name = "Morning",	category = "Lightmodel", editor = "dropdownlist", default = "", items = PresetsCombo("LightmodelPreset") },
 	},
 }
 
@@ -140,15 +140,34 @@ function OnMsg.GameTimeStart()
 end
 
 function GetDisasterWarningTime(disaster)
+	local towers = GetNumberOfSensorTowers()
+	local warning_time = disaster and disaster.warning_time or MapSettings.warning_time
+	return Min(warning_time + const.SensorTowerPredictionAddTime * towers, const.SensorTowerPredictionMaxTime)
+end
+
+function GetNumberOfSensorTowers()
 	local towers = 0
 	local a_sol_ago = GameTime() - const.SensorTowerPredictionAddTime
 	for _, tower in ipairs(UICity.labels.SensorTower or empty_table) do
-		if tower.working or (tower.turn_off_time - a_sol_ago) > 0 then
+		if tower.working or ( a_sol_ago > 0 and ((tower.turn_off_time - a_sol_ago) > 0) ) then
 			towers = towers + 1
 		end
 	end
-	local warning_time = disaster and disaster.warning_time or MapSettings.warning_time
-	return Min(warning_time + const.SensorTowerPredictionAddTime * towers, const.SensorTowerPredictionMaxTime)
+	return towers
+end
+
+function GetEarlyWarningText(warn_time)
+	local sols = warn_time / const.DayDuration
+	local hours =(warn_time % const.DayDuration) / const.HourDuration
+	local text = sols ~= 0 and ( sols == 1 and T{10975, "1 Sol "} or T{10976, "<sol> Sols ", sol = sols}) or ""
+	text = text .. T{10977, "<h> h", h = hours}
+	return text
+end
+
+function GetTowerCountText()
+	local towers = GetNumberOfSensorTowers()
+	towers = towers == 1 and T{10978, "1 Sensor Tower"} or T{10979, "<tower_number> Sensor Towers", tower_number = towers} 
+	return towers
 end
 
 function IsDisasterActive()
@@ -203,7 +222,7 @@ function GetDisasterLightmodelList()
 	return false
 end
 
-local function StrengthCombo()
+function StrengthCombo()
 	return {
 		{ value = 1, text = "Very Low" },
 		{ value = 2, text = "Low" },

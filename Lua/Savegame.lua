@@ -200,7 +200,7 @@ local function LoadCallback(folder)
 	end
 	l_LoadGameMeta = metadata
 	if not broken and SavegameBroken then
-		WaitMarsMessage(GetLoadingScreenDialog() or terminal.desktop, T{6851, "Warning"}, T{"This savegame was loaded in the past without required mods or with an incompatible game version. It may not function properly."}, T{1000136, "OK"})
+		WaitMarsMessage(GetLoadingScreenDialog() or terminal.desktop, T{6851, "Warning"}, T{10888, "This savegame was loaded in the past without required mods or with an incompatible game version. It may not function properly."}, T{1000136, "OK"})
 	end
 	SavegameBroken = SavegameBroken or broken
 end

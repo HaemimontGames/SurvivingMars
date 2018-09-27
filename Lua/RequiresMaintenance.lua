@@ -1,20 +1,20 @@
-local function GetMaintananceResourcesDropDownItems()
+function GetMaintenanceResourcesDropDownItems()
 	local ret = table.copy(ResourcesDropDownListItems)
-	--rem stuff that cannot be maintanance
+	--rem stuff that cannot be maintenance
 	table.remove_entry(ret, "value", nil)
 	table.remove_entry(ret, "value", "Water")
 	table.remove_entry(ret, "value", "BlackCube")
 	table.remove_entry(ret, "value", "Colonist")
 	table.remove_entry(ret, "value", "WasteRock")
 	
-	--add maintanance specific stuff
+	--add maintenance specific stuff
 	table.insert(ret, 1, {text = T{122, "No maintenance"}, value = "no_maintenance"})
 	table.insert(ret, 1, {text = T{123, "No resource"}, value = "no_resource"})
 	
 	return ret
 end
 
---maintanance (aka dust, but slightly different)
+--maintenance (aka dust, but slightly different)
 --[[@@@
 @class RequiresMaintenance
 class overview...
@@ -23,27 +23,29 @@ DefineClass.RequiresMaintenance = {
 	__parents = { "TaskRequester", "BuildingVisualDustComponent" }, --we use dust visuals to represent accumulated maintenance pnts
 	
 	properties = {
-		{template = true, category = "Maintenance", name = T{124, "Maintenance Resource Type"},  id = "maintenance_resource_type", editor = "dropdownlist", items = GetMaintananceResourcesDropDownItems(), default = GetMaintananceResourcesDropDownItems()[2].value, help = "The type of resource associated with maintenance demands.",},
+		{template = true, category = "Maintenance", name = T{124, "Maintenance Resource Type"},  id = "maintenance_resource_type", editor = "dropdownlist", items = GetMaintenanceResourcesDropDownItems(), default = GetMaintenanceResourcesDropDownItems()[2].value, help = "The type of resource associated with maintenance demands.",},
 		{template = true, category = "Maintenance", name = T{125, "Maintenance Resource Amount"},id = "maintenance_resource_amount", editor = "number", scale = const.ResourceScale, default = const.ResourceScale, modifiable = true, help = "The amount of resources required to maintain this building in working order.",},
 		{template = true, category = "Maintenance", name = T{126, "Maintenance Threshold"},      id = "maintenance_threshold_base", editor = "number",  default = const.MaxMaintenance, modifiable = true, help = "This base value is randomized within 50% - 150% range to determine the maintenance threshold. When the threshold is reached the building requests maintenance." },
 		{template = true, category = "Maintenance", name = T{127, "Maintenance Build Up Per Hr"},id = "maintenance_build_up_per_hr", editor = "number",  default = const.DefaultMaintenanceBuildUpPerHour, modifiable = true, help = "Amount of maintenance pnts accumulated per hr.", no_edit = true, },
-		{template = true, id = "disable_maintenance", name = T{128, "Disable Maintenance"}, no_edit = true, modifiable = true, editor = "number", default = 0, help = "So maintenance can be turned off with modifiers"},
+		{template = true, category = "Maintenance", name = T{128, "Disable Maintenance"},        id = "disable_maintenance", no_edit = true, modifiable = true, editor = "number", default = 0, help = "So maintenance can be turned off with modifiers"},
 	},
 	
 	
 	maintenance_threshold_current = 0, --generated based on _base, actual threshold
-	accumulated_maintenance_points = 0, --actual maintance pnts amount atm.
+	accumulated_maintenance_points = 0, --actual maintenance pnts amount atm.
 	accumulate_maintenance_points = true, --whether we are currently accumulating pnts. always true in current design
 	accumulate_dust = true, --generally, adding dust translates to AccumulateMaintenancePoints, but some special cases (solar, stirling) bld should accum maintenance pnts, but ignore dust accum
 	
 	last_enter_maintenance_mode_ts = false, --when last maintenance request began (could be user/auto)
 	last_maintenance_points_full_ts = false, --when maintenance pnts reached threshold
-	last_maintenance_serviced_ts = false, --when mainenance cycle was completed for the last time.
+	last_maintenance_serviced_ts = false, --when maintenance cycle was completed for the last time.
 	
 	maintenance_phase = false, --false, "demand", "work"
 	
 	is_malfunctioned = false, --no work possible
 	is_need_maintenance = false, -- for game rule "Easy Maintenatce"
+	
+	exceptional_circumstances_maintenance = false,
 	
 	maintenance_request_lookup = false,
 	maintenance_work_request = false,
@@ -104,8 +106,9 @@ function RequiresMaintenance:Done()
 end
 
 function RequiresMaintenance:DoesMaintenanceRequireResources()
-	return self:DoesRequireMaintenance() and self.maintenance_resource_type ~= "no_resource" and 
-				self.maintenance_resource_amount > 0
+	return self:DoesRequireMaintenance() 
+		and self.maintenance_resource_type ~= "no_resource" 
+		and self.maintenance_resource_amount > 0
 end
 
 function RequiresMaintenance:DoesRequireMaintenance()
@@ -122,11 +125,17 @@ function RequiresMaintenance:BuildingUpdate(delta, day, hour)
 			self:AccumulateMaintenancePoints(accum)
 		end
 	elseif (GameTime() - self.last_maintenance_points_full_ts >= const.DayDuration) then --should malf within 1 sol
-		if IsGameRuleActive("EasyMaintenance") then -- Buildings don't malfunction from maintenance
+		if IsGameRuleActive("EasyMaintenance") and not self.exceptional_circumstances_maintenance then -- Buildings don't malfunction from maintenance
 			self:SetNeedsMaintenanceState()
 		else
 			self:SetMalfunction()
 		end
+	end
+end
+
+function RequiresMaintenance:GetWorkNotPermittedReason()
+	if self.exceptional_circumstances_maintenance then
+		return self:IsMalfunctioned() and "ExceptionalCircumstancesMalafunction" or "ExceptionalCircumstancesMaintenance"
 	end
 end
 
@@ -190,7 +199,8 @@ function RequiresMaintenance:StartWorkPhase(drone)
 		local req = self.maintenance_work_request
 		req:AddAmount(self.accumulated_maintenance_points)
 		if drone then --we've been given a drone by the drone gods.
-			drone:SetCommand("Work", req, "repair", Min(g_Consts.DroneBuildingRepairAmount, self.accumulated_maintenance_points))
+			local amount = Min(g_Consts.DroneBuildingRepairAmount, self.accumulated_maintenance_points)
+			drone:SetCommand("Work", req, "repair", amount)
 		end
 		RebuildInfopanel(self)
 	else
@@ -264,19 +274,28 @@ end
 
 --resets maintenance state and malf state as needed.
 function RequiresMaintenance:Repair()
-	if self.maintenance_phase then --we should be running mainenance if we are malfunctionned. we might not be malfunctionned if we are running maintenance..
+	if self.maintenance_phase then --we should be running maintenance if we are malfunctionned. we might not be malfunctionned if we are running maintenance..
 		self:ResetMaintenanceState()
 	end
 	
 	if self:IsMalfunctioned() or self.is_need_maintenance then
 		self.is_malfunctioned = false
 		self.is_need_maintenance = false
+				
 		table.remove_entry(g_MaintenanceNeededBuildings, self)
 		
 		self:AttachSign(false, "SignMalfunction")
 		self:UpdateWorking() --canwork blockers on our part have been cleared
 		self:UpdateConsumption()
 	end
+	
+	if self.exceptional_circumstances_maintenance then
+		-- restore default resource and amount for maintenance
+		self.exceptional_circumstances_maintenance = false
+		self:SetModifier("maintenance_resource_amount", "exceptional_circumstances_maintenance",0, 0 )
+		self:Setexceptional_circumstances(false)
+		self.maintenance_resource_type = nil
+	end	
 	
 	RebuildInfopanel(self)
 end
@@ -354,6 +373,32 @@ function RequiresMaintenance:RequestMaintenance()
 	end
 end
 
+function RequiresMaintenance:SetExceptionalCircumstancesMaintenance(resource, amount)
+	local old_resource = self.maintenance_resource_type
+	self.exceptional_circumstances_maintenance = true
+	self:SetModifier("maintenance_resource_amount", "exceptional_circumstances_maintenance",amount, -100 )
+	self.maintenance_resource_type = resource
+	self:AccumulateMaintenancePoints(self.maintenance_threshold_current)
+	
+	if self.maintenance_resource_request then
+		if old_resource~= resource then
+			self:InterruptDrones(nil, 
+				function(drone) 
+					if drone.d_request and drone.d_request == self.maintenance_resource_request then
+						return drone 
+					end					
+					return false
+				end)
+		end								
+		self:DisconnectFromCommandCenters()
+		self.maintenance_resource_request:ChangeResource(resource)
+		self.maintenance_resource_request:SetAmount(self.maintenance_resource_amount)
+		self:ConnectToCommandCenters()
+	end
+	
+	RebuildInfopanel(self)
+end
+
 function RequiresMaintenance:MaintenanceDroneUnload(drone, req, resource, amount)
 	if req == self.maintenance_resource_request then
 		self.city:OnMaintenanceResourceConsumed(resource, amount)
@@ -368,6 +413,28 @@ function RequiresMaintenance:IsMalfunctioned()
 	return self.is_malfunctioned
 end
 
+function RequiresMaintenance:RoverWork(drone, request, resource, amount)
+	if request == self.maintenance_work_request then
+		assert(self.maintenance_phase == "work")
+		amount = DroneResourceUnits.repair
+
+		drone:PushDestructor(function(drone)
+			if IsValid(self) and request:GetActualAmount() <= 0 then
+				--maintenance finished cleanly.
+				self:Repair()
+			end
+		end)
+		
+		drone:ContinuousTask(request, amount, "gatherStart", 
+								"gatherIdle", "gatherEnd", "Unload", "step", g_Consts.RCRoverTransferResourceWorkTime, false, nil, request:GetActualAmount(), 
+								function(a)
+									request:AddAmount(-a)
+								end, max_int)
+
+		drone:PopAndCallDestructor()
+	end
+end
+
 function RequiresMaintenance:DroneWork(drone, request, resource, amount)
 	if request == self.maintenance_work_request then
 		assert(self.maintenance_phase == "work")
@@ -377,7 +444,7 @@ function RequiresMaintenance:DroneWork(drone, request, resource, amount)
 		amount = DroneResourceUnits.repair
 
 		drone:PushDestructor(function(drone)
-			if drone.w_request:GetActualAmount() <= 0 then
+			if IsValid(drone.target) and drone.w_request:GetActualAmount() <= 0 then
 				--maintenance finished cleanly.
 				drone.target:Repair()
 			end

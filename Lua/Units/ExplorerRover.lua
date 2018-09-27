@@ -19,33 +19,60 @@ DefineClass.ExplorerRover = {
 	encyclopedia_id = "ExplorerRover",
 	
 	StopResearchCommands = {
-		NoBattery = true,
 		Malfunction = true,
 	},
 	research_points_lifetime = false,
 	palettes = { "ExplorerRover" },
 	
 	malfunction_idle_state = "malfunctionIdle",
+	
+	has_auto_mode = true,
 }
 
 function ExplorerRover:GameInit()
 end
 
 function ExplorerRover:Idle()
-	self:TryRechargeFromIdle()
 	self:SetState("idle")
-	Halt()
+	if g_RoverAIResearched and self.auto_mode_on then
+		local unreachable_objects = self:GetUnreachableObjectsTable()
+		
+		local anomaly = MapFindNearest(self, "map", "SubsurfaceAnomaly", 
+								function(a)
+									if a.auto_rover then
+										local r = a.auto_rover
+										if r == self or not IsValid(r) or r.command == "Dead" or r.command == "Malfunction" then
+											a.auto_rover = false
+										end
+									end
+									return not unreachable_objects[a] and not a.auto_rover
+								end)
+		
+		if anomaly then
+			if pf.HasPath(self:GetPos(), self.pfclass, anomaly:GetPos()) then
+				anomaly.auto_rover = self
+				self:SetCommand("Analyze", anomaly)
+			else
+				unreachable_objects[anomaly] = true
+			end
+		end
+		Sleep(2500)
+	else
+		Halt()
+	end
 end
 
-const.ExplorerRoverAnalyzeDrainRate = const.BaseRoverBatteryHourlyDrainRate * 2
-
 function ExplorerRover:Analyze(anomaly)
+	self:PushDestructor(function(self)
+		if anomaly.auto_rover == self then
+			anomaly.auto_rover = false
+		end
+	end)
 	-- approach marker
 	if not self:Goto(anomaly, 20*guim, 15*guim) or not IsValid(self) then
+		self:PopAndCallDestructor()
 		return
 	end	
-	self:StopBatteryThread()
-	self:StartBatteryThread(-const.ExplorerRoverAnalyzeDrainRate) --reset bat thread with analyze cost
 	self:SetState("idle")
 	self:SetPos(self:GetVisualPos()) --stahp
 	self:Face(anomaly:GetPos(), 200)
@@ -70,7 +97,6 @@ function ExplorerRover:Analyze(anomaly)
 		self:StopFX()
 		self.scanning = false
 		self.scanning_start = false
-		self:StopBatteryThread() --so normal drain resumes
 		--self:PlayState("scanEnd")
 	end)
 	
@@ -87,6 +113,7 @@ function ExplorerRover:Analyze(anomaly)
 		anomaly.scanning_progress = self:GetScanAnomalyProgress()
 	end
 		
+	self:PopAndCallDestructor()
 	self:PopAndCallDestructor()
 end
 
@@ -134,4 +161,12 @@ end
 
 function ExplorerRover:LogRP(rp)
 	self.research_points_lifetime = (self.research_points_lifetime or 0) + rp
+end
+
+function ExplorerRover:ToggleAutoMode_Update(button)
+	if not self.auto_mode_on then
+		button:SetIcon("UI/Icons/IPButtons/automated_mode_off.tga")
+	else
+		button:SetIcon("UI/Icons/IPButtons/automated_mode_on.tga")
+	end
 end

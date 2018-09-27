@@ -346,6 +346,7 @@ function OverviewModeDialog:CreateRolloverWindow(gamepad, context, pos)
 end
 
 function OverviewModeDialog:SelectSector(sector, rollover_pos, forced)
+	if not self.sector_obj then return end
 	if sector and (forced or not CameraTransitionThread) then
 		if self.sector_id ~= sector.id then -- only refresh when a new sector is hovered
 			PlayFX("SectorHover", "start") --for sound
@@ -491,7 +492,7 @@ function OverviewModeDialog:GenerateSectorRolloverContext(sector, forced)
 				texts = {T{4056, "<ButtonY> Add/Remove sector from scan queue"}}
 			end
 			if queued>=1 and (queue_idx  and queue_idx>1 or queued < max) then
-				texts[#texts +1] = T{"<RightTrigger><ButtonY> Queue first"}
+				texts[#texts +1] = T{10889, "<RightTrigger><ButtonY> Queue first"}
 			end	
 			if has_probes then
 				texts[#texts +1] = T{10536, "<ButtonX> Deploy an Orbital Probe to scan this sector"}
@@ -504,35 +505,35 @@ function OverviewModeDialog:GenerateSectorRolloverContext(sector, forced)
 				
 			if not self.scan_mode then
 				if queue_idx then
-					hint = T{4057, "<right_click> - remove from queue"}
+					hint = T{4057, "<right_click> Remove from queue"}
 				elseif queued < max then
-					hint = T{4058, "<left_click> - add to queue"}
+					hint = T{4058, "<left_click> Add to queue"}
 				end				 
 				if queued>=1 and (queue_idx  and queue_idx>1 or queued < max) then
-					hint = (hint or "").."\n".. T{10537, "Ctrl + <left_click>: queue first"}
+					hint = (hint or "").."\n".. T{10537, "Ctrl + <left_click> Queue first"}
 				end					
 			end
 			if has_probes then
 				hint = hint and hint .. "<newline>" or ""
 				if self.scan_mode then
 					if deep_probes then
-						hint = hint .. T{4059, "<left_click> to deploy an Orbital Probe and deep scan this Sector"}
+						hint = hint .. T{10985, "<left_click> Deploy an Orbital Probe and deep scan this Sector"}
 					else
-						hint = hint .. T{4060, "<left_click> to deploy an Orbital Probe and scan this Sector"}
+						hint = hint .. T{4060, "<left_click> Deploy an Orbital Probe and scan this Sector"}
 					end
 				else
 					if deep_probes then
-						hint = hint .. T{4061, "Press <em><ShortcutName('actionDeployProbe')></em> to deploy an Orbital Probe and deep scan this Sector"}
+						hint = hint .. T{4061, "<em><ShortcutName('actionDeployProbe')></em> Deploy an Orbital Probe and deep scan this Sector"}
 					else
-						hint = hint .. T{4062, "Press <em><ShortcutName('actionDeployProbe')></em> to deploy an Orbital Probe and scan this Sector"}
+						hint = hint .. T{4062, "<em><ShortcutName('actionDeployProbe')></em> Deploy an Orbital Probe and scan this Sector"}
 					end
 				end
 			end
 		elseif deep_probes and not deep_scanned and has_probes then
 			if self.scan_mode then
-				hint = T{4059, "<left_click> to deploy an Orbital Probe and deep scan this Sector"}
+				hint = T{10986, "<left_click> Deploy an Orbital Probe and deep scan this Sector"}
 			else
-				hint = T{4061, "Press <em><ShortcutName('actionDeployProbe')></em> to deploy an Orbital Probe and deep scan this Sector"}
+				hint = T{4061, "<em><ShortcutName('actionDeployProbe')></em> Deploy an Orbital Probe and deep scan this Sector"}
 			end
 		else
 			hint_gamepad = T{7908, "<ButtonA> Zoom in"}
@@ -541,7 +542,7 @@ function OverviewModeDialog:GenerateSectorRolloverContext(sector, forced)
 		if self.scan_mode then
 			hint = T{4059, "<left_click> to deploy an Orbital Probe and deep scan this Sector"}
 		else
-			hint = T{4061, "Press <em><ShortcutName('actionDeployProbe')></em> to deploy an Orbital Probe and deep scan this Sector"}
+			hint = T{4061, "<em><ShortcutName('actionDeployProbe')></em> Deploy an Orbital Probe and deep scan this Sector"}
 		end
 	end
 	

@@ -3,15 +3,15 @@
 PlaceObj('XTemplate', {
 	__is_kind_of = "XLayer",
 	group = "Layers",
-	id = "DifficultyBonus",
+	id = "TitleLayer",
 	PlaceObj('XTemplateWindow', {
-		'__context', function (parent, context) return PGDifficultyObjectCreate() end,
+		'__context', function (parent, context) return PGTitleObjectCreate() end,
 		'__class', "XLayer",
 	}, {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnDelete",
 			'func', function (self, ...)
-g_DiffBonusObj = false
+g_TitleObj = false
 end,
 		}),
 		PlaceObj('XTemplateWindow', {
@@ -42,10 +42,11 @@ end,
 				'HAlign', "center",
 				'VAlign', "top",
 				'TextFont', "PGChallengeRating",
-				'TextColor', RGBA(255, 188, 59, 255),
-				'RolloverTextColor', RGBA(255, 188, 59, 255),
+				'TextColor', RGBA(177, 177, 245, 255),
+				'RolloverTextColor', RGBA(177, 177, 244, 255),
 				'Translate', true,
-				'Text', T{4262, --[[XTemplate DifficultyBonus Text]] "Difficulty Challenge <white><percent(DifficultyBonus)></white>"},
+				'Text', T{923579610255, --[[XTemplate TitleLayer Text]] "<TitleText>"},
+				'TextHAlign', "center",
 			}),
 			}),
 		}),

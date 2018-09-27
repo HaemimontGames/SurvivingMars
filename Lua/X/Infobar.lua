@@ -19,6 +19,7 @@ end
 function Infobar:Open(...)
 	XDialog.Open(self, ...)
 	
+	self.idGamepadHint:SetImage(GetPlatformSpecificImagePath("DPadUp"))
 	self.idPad:SetMaxHeight(self.PadHeight)
 	self.idPad:SetMinHeight(self.PadHeight)
 	self:RecalculateMargins()
@@ -36,6 +37,8 @@ function Infobar:Open(...)
 	
 	--set contexts to each text field
 	SetContextRecursive(self.idPad, g_InfobarContextObj)
+	
+	self:UpdateGamepadHint()
 end
 
 function Infobar:Close(...)
@@ -60,13 +63,13 @@ function Infobar:RecalculateMargins()
 	self:SetMargins(GetSafeMargins())
 end
 
-function UpdateInfobarVisibility()
+function UpdateInfobarVisibility(force)
 	local igi = GetInGameInterface()
 	if not igi then
 		return
 	end
 	
-	local visible = AccountStorage.Options.InfobarEnabled
+	local visible = force or AccountStorage.Options.InfobarEnabled
 	if visible then
 		OpenDialog("Infobar", igi)
 	else
@@ -76,6 +79,50 @@ function UpdateInfobarVisibility()
 	local dlg = GetDialog("OnScreenHintDlg")
 	if dlg then
 		dlg:RecalculateMargins()
+	end
+end
+
+function Infobar:OnSetFocus()
+	self:UpdateGamepadHint()
+	LockHRXboxLeftThumb("infobar")
+	XDialog.OnSetFocus(self)
+end
+
+function Infobar:OnKillFocus()
+	self:UpdateGamepadHint()
+	UnlockHRXboxLeftThumb("infobar")
+	XDialog.OnKillFocus(self)	
+	UpdateInfobarVisibility()
+end
+
+function Infobar:UpdateGamepadHint()
+	if not GetUIStyleGamepad() then
+		self.idGamepadHint:SetVisible(false)
+		return
+	end
+	
+	local focus = self.desktop:GetKeyboardFocus()
+	if IsKindOfClasses(focus, "SelectionModeDialog", "OverviewModeDialog", "InGameInterface") then
+		self.idGamepadHint:SetVisible(true)
+	else
+		self.idGamepadHint:SetVisible(false)
+	end
+end
+
+function OnMsg.GamepadUIStyleChanged()
+	local infobar = GetDialog("Infobar")
+	if infobar then infobar:UpdateGamepadHint() end
+end
+
+function Infobar:OnShortcut(shortcut, ...)
+	if shortcut == "DPadDown" then
+		self:SetFocus(false, true)
+		return "break"
+	elseif XShortcutToRelation[shortcut] then --fix changing the gamespeed using dpad, while navingating infobar
+		XDialog.OnShortcut(self, shortcut, ...)
+		return "break"
+	else
+		return XDialog.OnShortcut(self, shortcut, ...)
 	end
 end
 
@@ -280,8 +327,20 @@ function InfobarObj:GetPreciousMetalsText()
 	return T{10099, "<precious_metals><icon_PreciousMetals_orig>", precious_metals = self:FmtRes(precious_metals)}
 end
 
-function InfobarObj:GetBasicResourcesRollover()
-	return ResourceOverviewObj:GetBasicResourcesRollover()
+function InfobarObj:GetMetalsRollover()
+	return ResourceOverviewObj:GetMetalsRollover()
+end
+
+function InfobarObj:GetConcreteRollover()
+	return ResourceOverviewObj:GetConcreteRollover()
+end
+
+function InfobarObj:GetFoodRollover()
+	return ResourceOverviewObj:GetFoodRollover()
+end
+
+function InfobarObj:GetRareMetalsRollover()
+	return ResourceOverviewObj:GetRareMetalsRollover()
 end
 
 function InfobarObj:GetPolymersText()
@@ -304,8 +363,20 @@ function InfobarObj:GetFuelText()
 	return T{10103, "<fuel><icon_Fuel_orig>", fuel = self:FmtRes(fuel)}
 end
 
-function InfobarObj:GetAdvancedResourcesRollover()
-	return ResourceOverviewObj:GetAdvancedResourcesRollover()
+function InfobarObj:GetPolymersRollover()
+	return ResourceOverviewObj:GetPolymersRollover()
+end
+
+function InfobarObj:GetElectronicsRollover()
+	return ResourceOverviewObj:GetElectronicsRollover()
+end
+
+function InfobarObj:GetMachinePartsRollover()
+	return ResourceOverviewObj:GetMachinePartsRollover()
+end
+
+function InfobarObj:GetFuelRollover()
+	return ResourceOverviewObj:GetFuelRollover()
 end
 
 function InfobarObj:CycleColonists(label)

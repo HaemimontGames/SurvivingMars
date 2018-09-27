@@ -218,6 +218,7 @@ else
 	self.idBar:SetImage("UI/Common/diagram_column.tga")
 end
 XWindow.OnSetRollover(self, rollover)
+PlayFX("MenuItemHover", "start", self)
 self:Invalidate()
 end,
 						}),
@@ -273,6 +274,7 @@ else
 	self.idBarRight:SetImage("UI/Common/diagram_column.tga")
 end
 XWindow.OnSetRollover(self, rollover)
+PlayFX("MenuItemHover", "start", self)
 self:Invalidate()
 end,
 						}),

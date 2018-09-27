@@ -102,13 +102,6 @@ end,
 			'OnPressParam', "ToggleCreateRouteMode",
 		}),
 		PlaceObj('XTemplateTemplate', {
-			'comment', "recharge",
-			'__condition', function (parent, context) return context:NeedBattery() end,
-			'__template', "InfopanelButton",
-			'RolloverDisabledText', T{221351751895, --[[XTemplate ipRover RolloverDisabledText]] "Vehicle inactive."},
-			'OnPressParam', "ToggleRechargeMode",
-		}),
-		PlaceObj('XTemplateTemplate', {
 			'comment', "salvage",
 			'__context_of_kind', "Demolishable",
 			'__condition', function (parent, context) return context:ShouldShowDemolishButton() end,
@@ -151,6 +144,27 @@ return (button == "ButtonA") and "break"
 end,
 			}),
 			}),
+		PlaceObj('XTemplateTemplate', {
+			'comment', "toggle auto mode",
+			'__context_of_kind', "BaseRover",
+			'__condition', function (parent, context) return context.has_auto_mode and g_RoverAIResearched end,
+			'__template', "InfopanelButton",
+			'RolloverText', T{325361555787, --[[XTemplate ipRover RolloverText]] "If Automated Mode is activated the RC Explorer will look for revealed anomalies and move to analyze them.<newline><newline>Current Status: <on_off(auto_mode_on)>"},
+			'RolloverDisabledText', T{806760132448, --[[XTemplate ipRover RolloverDisabledText]] "Vehicle inactive."},
+			'RolloverTitle', T{370544347739, --[[XTemplate ipRover RolloverTitle]] "Automated Mode"},
+			'RolloverHint', T{7656, --[[XTemplate ipRover RolloverHint]] "<left_click> Toggle Automated Mode\n<em>Ctrl + <left_click></em> Toggle for all Rovers"},
+			'RolloverHintGamepad', T{148065038595, --[[XTemplate ipRover RolloverHintGamepad]] "<ButtonA> Toggle Automated Mode\n<ButtonX> Toggle for all Rovers"},
+			'OnPressParam', "ToggleAutoMode",
+			'OnPress', function (self, gamepad)
+self.context:ToggleAutoMode(not gamepad and IsMassUIModifierPressed())
+end,
+			'AltPress', true,
+			'OnAltPress', function (self, gamepad)
+if gamepad then
+	self.context:ToggleAutoMode(true)
+end
+end,
+		}),
 		PlaceObj('XTemplateTemplate', {
 			'__context_of_kind', "RCRover",
 			'__template', "sectionServiceArea",
@@ -329,37 +343,6 @@ end,
 			'Icon', "UI/Icons/Sections/storage.tga",
 			'TitleHAlign', "stretch",
 		}),
-		PlaceObj('XTemplateTemplate', {
-			'__condition', function (parent, context) return context:NeedBattery() end,
-			'__template', "InfopanelSection",
-			'RolloverText', T{39, --[[XTemplate ipRover RolloverText]] "Vehicles can recharge their batteries from active Power grids. Vehicles are also able to recharge each other, equalizing the Power in their batteries.<newline><newline><left><battery_ui_str>"},
-			'RolloverTitle', T{38, --[[XTemplate ipRover RolloverTitle]] "Battery  <percent(BatteryPerc)>"},
-			'Id', "idBattery",
-			'OnContextUpdate', function (self, context, ...)
-self:SetVisible(context.command ~= "Dead")
-end,
-			'Icon', "UI/Icons/Sections/batery.tga",
-		}, {
-			PlaceObj('XTemplateWindow', {
-				'__class', "XFrameProgress",
-				'Id', "idProgress",
-				'Margins', box(10, 15, 10, 14),
-				'Image', "UI/Infopanel/progress_bar.tga",
-				'FrameBox', box(5, 0, 5, 0),
-				'OnContextUpdate', function (self, context, ...)
-XFrameProgress.OnContextUpdate(self, context, ...)
-local image = "UI/Infopanel/progress_bar_green.tga"
-if self.Progress < 10 then
-  image = "UI/Infopanel/progress_bar_red.tga"
-end
-self:SetProgressImage(image)
-end,
-				'BindTo', "BatteryPerc",
-				'MinProgressSize', 8,
-				'ProgressImage', "UI/Infopanel/progress_bar_green.tga",
-				'ProgressFrameBox', box(4, 0, 4, 0),
-			}),
-			}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "sectionPowerProduction",
 		}),

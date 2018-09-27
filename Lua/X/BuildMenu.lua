@@ -3,6 +3,10 @@ GlobalVar("BuildingWithRCRover", false)
 GlobalVar("g_LastBuildCat", false)
 GlobalVar("g_LastBuildItem", false)
 
+GlobalVar("g_BuildMenuRightClickPopupShown", false)
+GlobalVar("g_BuildMenuHUDClicksCount", 0)
+GlobalVar("g_BuildMenuRightClicksCount", 0)
+
 DefineClass.XBuildMenu = {
 	__parents = {"ItemMenu"},
 	hide_single_category = false,
@@ -116,7 +120,7 @@ function XBuildMenu:Close()
 	UICity:Gossip("BuildMenu", "close")
 
 	if not ShowResourceOverview then
-		CloseResourceOverviewInfopanel()
+		UpdateInfobarVisibility()
 	end	
 end
 
@@ -605,12 +609,19 @@ function UIItemMenu(category_id, bCreateItems)
 			if bCreateItems then
 				local class = building_template.template_class
 				class = class and g_Classes[class]
+				local hint = ""
+				local binding = "actionBuild" .. building_template.id
+				local shortcuts = GetShortcuts(binding)
+				if shortcuts and (shortcuts[1] or shortcuts[2]) then
+					hint = T{10930, "Shortcut - <em><ShortcutName(shortcut, 'keyboard')></em>", shortcut = binding}
+				end
 				table.insert(items, {
 					name = building_template.id,
 					construction_mode = building_template.construction_mode,
 					display_name = class and class.GetDisplayName(building_template) or building_template.display_name,
 					icon = building_template.display_icon,
 					description = description,
+					hint = hint,
 					build_pos = building_template.build_pos,
 					enabled = can_build or false,
 					prefabs = prefabs or false,
@@ -667,12 +678,19 @@ function UIItemMenu(category_id, bCreateItems)
 			if require_construction and construction_cost~="" then
 				description = description..Untranslated("\n\n")..construction_cost
 			end
+			local hint = ""
+			local binding = "actionPlaceCable"
+			local shortcuts = GetShortcuts(binding)
+			if shortcuts and (shortcuts[1] or shortcuts[2]) then
+				hint = T{10930, "Shortcut - <em><ShortcutName(shortcut, 'keyboard')></em>", shortcut = binding}
+			end
 			items[#items + 1] = {
 				name = "PowerCables",
 				Id = "PowerCables",
 				display_name = T{881, "Power Cables"},
 				icon = "UI/Icons/Buildings/power_cables.tga",
 				description = description,
+				hint = hint,
 				enabled = not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.PowerCables or false,
 				action = function()
 					if GetUIStyleGamepad() then g_LastBuildItem =  "PowerCables" end
@@ -682,6 +700,12 @@ function UIItemMenu(category_id, bCreateItems)
 			}
 		
 			local building_template = BuildingTemplates.ElectricitySwitch
+			local hint = ""
+			local binding = "actionBuild" .. building_template.id
+			local shortcuts = GetShortcuts(binding)
+			if shortcuts and (shortcuts[1] or shortcuts[2]) then
+				hint = T{10930, "Shortcut - <em><ShortcutName(shortcut, 'keyboard')></em>", shortcut = binding}
+			end
 			local description = T{8101, "<description>\n\n<formatedbuildinginfo('ElectricitySwitch')>",description = building_template.description}
 			items[#items + 1] = {
 				name = building_template.id,
@@ -689,6 +713,7 @@ function UIItemMenu(category_id, bCreateItems)
 				display_name = building_template.display_name,
 				icon = building_template.display_icon,
 				description = description,
+				hint = hint,
 				enabled = not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.ElectricitySwitch or false,
 				action = function()
 					if GetUIStyleGamepad() then g_LastBuildItem = building_template.id end
@@ -707,12 +732,19 @@ function UIItemMenu(category_id, bCreateItems)
 			if require_construction and construction_cost~="" then
 				description = description..Untranslated("\n\n")..construction_cost
 			end
+			local hint = ""
+			local binding = "actionPlacePipes"
+			local shortcuts = GetShortcuts(binding)
+			if shortcuts and (shortcuts[1] or shortcuts[2]) then
+				hint = T{10930, "Shortcut - <em><ShortcutName(shortcut, 'keyboard')></em>", shortcut = binding}
+			end
 			items[#items + 1] = {
 				name = "Pipes",
 				Id = "Pipes",
 				display_name = T{882, "Pipes"},
 				icon = "UI/Icons/Buildings/pipes.tga",
 				description = description,
+				hint = hint,
 				enabled = not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.Pipes or false,
 				action = function()
 					if GetUIStyleGamepad() then g_LastBuildItem = "Pipes" end
@@ -722,6 +754,12 @@ function UIItemMenu(category_id, bCreateItems)
 			}
 		
 			local building_template = BuildingTemplates.LifesupportSwitch
+			local hint = ""
+			local binding = "actionBuild" .. building_template.id
+			local shortcuts = GetShortcuts(binding)
+			if shortcuts and (shortcuts[1] or shortcuts[2]) then
+				hint = T{10930, "Shortcut - <em><ShortcutName(shortcut, 'keyboard')></em>", shortcut = binding}
+			end
 			local description = T{8103, "<description>\n\n<formatedbuildinginfo('LifesupportSwitch')>",description = building_template.description}
 			items[#items + 1] = {
 				name = building_template.id,
@@ -729,6 +767,7 @@ function UIItemMenu(category_id, bCreateItems)
 				display_name = building_template.display_name,
 				icon = building_template.display_icon,
 				description = description,
+				hint = hint,
 				enabled = not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.LifesupportSwitch or false,
 				action = function()
 					if GetUIStyleGamepad() then g_LastBuildItem = building_template.id end
@@ -743,12 +782,19 @@ function UIItemMenu(category_id, bCreateItems)
 		local next_bld_pos = 20
 		if bCreateItems then
 			if not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.Salvage then
+				local binding = "Demolish"
+				local shortcuts = GetShortcuts(binding)
+				local hint = ""
+				if shortcuts and (shortcuts[1] or shortcuts[2]) then
+					hint = T{10930, "Shortcut - <em><ShortcutName(shortcut, 'keyboard')></em>", shortcut = binding}
+				end
 				items[#items + 1] = {
 					name = "Salvage",
 					Id = "Salvage",
 					display_name = T{3973, "Salvage"},
 					icon = "UI/Icons/Buildings/salvage.tga",
 					description = T{3974, "Marks buildings, cables and pipes to be demolished. Half of the construction resource cost of any salvaged buildings will be refunded."},
+					hint = hint,
 					action = function()
 						if GetUIStyleGamepad() then g_LastBuildItem = "Salvage" end
 						GetInGameInterface():SetMode("demolish")
@@ -766,11 +812,18 @@ function UIItemMenu(category_id, bCreateItems)
 		if g_Consts.InstantPassages == 0 then
 			description = description .. Untranslated("\n\n") .. construction_cost
 		end
+		local hint = ""
+		local binding = "actionBuild" .. building_template.id
+		local shortcuts = GetShortcuts(binding)
+		if shortcuts and (shortcuts[1] or shortcuts[2]) then
+			hint = T{10930, "Shortcut - <em><ShortcutName(shortcut, 'keyboard')></em>", shortcut = binding}
+		end
 		items[#items + 1] = {
 			name = "Passage",
 			display_name = building_template.display_name,
 			icon = building_template.display_icon,
 			description = description,
+			hint = hint,
 			enabled =  not g_Tutorial or (g_Tutorial.BuildMenuWhitelist and g_Tutorial.BuildMenuWhitelist[building_template.id]) or false,
 			action = function()
 				GetInGameInterface():SetMode("passage_grid", {grid_elements_require_construction = g_Consts.InstantPassages == 0})
@@ -778,11 +831,18 @@ function UIItemMenu(category_id, bCreateItems)
 			build_pos = 20,
 		}
 		building_template = BuildingTemplates.PassageRamp
+		local hint = ""
+		local binding = "actionBuild" .. building_template.id
+		local shortcuts = GetShortcuts(binding)
+		if shortcuts and (shortcuts[1] or shortcuts[2]) then
+			hint = T{10930, "Shortcut - <em><ShortcutName(shortcut, 'keyboard')></em>", shortcut = binding}
+		end
 		items[#items + 1] = {
 			name = "PassageRamp",
 			display_name = building_template.display_name,
 			icon = building_template.display_icon,
 			description = T{8721, "<description>\n\n<formatedbuildinginfo('PassageRamp')>",description = building_template.description},
+			hint = hint,
 			enabled =  not g_Tutorial or (g_Tutorial.BuildMenuWhitelist and g_Tutorial.BuildMenuWhitelist[building_template.id]) or false,
 			action = function()
 				GetInGameInterface():SetMode("passage_ramp")
@@ -820,9 +880,19 @@ function XBuildMenu:FindCategoryOfItem(item_name)
 end		
 
 function OpenXBuildMenu(selected_dome)
+	if g_RightClickOpensBuildMenu and not GetUIStyleGamepad() and
+		not g_BuildMenuRightClickPopupShown and
+		g_BuildMenuRightClicksCount < 10 and
+		g_BuildMenuHUDClicksCount >= 10
+	then
+		g_BuildMenuRightClickPopupShown = true
+		ShowPopupNotification("SuggestedShortcutBuildMenu", false, false, GetInGameInterface())
+	end
+
 	CloseDialog("GamepadIGMenu")
 	OpenDialog("XBuildMenu", GetInGameInterface(), { selected_dome = selected_dome, first_category = g_LastBuildCat, first_selected_item = g_LastBuildItem })
-	OpenResourceOverviewInfopanel()
+	CloseXInfopanel()
+	UpdateInfobarVisibility("force")
 end
 
 function CloseXBuildMenu()

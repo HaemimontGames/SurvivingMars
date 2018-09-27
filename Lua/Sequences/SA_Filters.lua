@@ -2,12 +2,10 @@ DefineClass.SA_Filter = {
 	
 }
 
-GetAllLabelsCombo = empty_func
-
 DefineClass.SA_GetLabelToRegister = {
 	__parents = {"SequenceAction"},
 	properties = {
-		{ id = "label", name = T{3689, "Label"}, editor = "combo", default = "", items = function() return GetAllLabelsCombo() end, },
+		{ id = "label", name = T{3689, "Label"}, editor = "combo", default = "", items = function() return LabelsCombo() end, },
 		{ id = "register", name = T{3690, "Register"}, editor = "text", default = ""},
 		{ id = "random_count", name = T{3691, "Random number"}, help = "Pick only this many objects from label, but no more than percent; 0 for all", editor = "number", default = 0 },
 		{ id = "random_percent", name = T{3692, "Random percent"}, help = "Pick only this percent of objects, but no more than number", editor = "number", default = 100 },

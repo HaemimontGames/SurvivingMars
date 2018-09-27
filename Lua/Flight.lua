@@ -737,7 +737,9 @@ function FlyingObject:FollowPathCmd(path)
 			end
 			thrust = thrust - MulDivRound(vz, thrust_frict, 100)
 			z1 = z0 + MulDivRound(vz, time, 1000) + MulDivRound(thrust, time * time, 2000000)
-			z1 = Max(z1, ground_height + min_hover_height)
+			if z1 < ground_height + min_hover_height then
+				z1 = Max(z1, terrain.GetHeight(x1, y1) + min_hover_height)
+			end
 			local roll = MulDivRound(-angle_diff, roll_modifier * new_speed, 100 * max_speed)
 			roll = Clamp(roll, -90*60, 90*60)
 			roll = (roll + roll0) / 2

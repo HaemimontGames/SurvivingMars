@@ -128,6 +128,8 @@ end,
 					'OnContextUpdate', function (self, context, ...)
 self:SetEnabled(UICity.drone_prefabs > 0)
 end,
+					'FXMouseIn', "MenuItemHover",
+					'FXPress', "MenuItemClick",
 					'FocusedBackground', RGBA(0, 0, 0, 0),
 					'OnPress', function (self, gamepad)
 self.context:UseDronePrefab(not gamepad and IsMassUIModifierPressed())
@@ -188,6 +190,8 @@ end,
 					'OnContextUpdate', function (self, context, ...)
 self:SetEnabled(not not context:FindDroneToConvertToPrefab())
 end,
+					'FXMouseIn', "MenuItemHover",
+					'FXPress', "MenuItemClick",
 					'FocusedBackground', RGBA(0, 0, 0, 0),
 					'OnPress', function (self, gamepad)
 self.context:ConvertDroneToPrefab(not gamepad and IsMassUIModifierPressed())
@@ -256,6 +260,8 @@ if context.queued_shuttles_for_construction ~= 0 then
 end
 self:SetRolloverText(table.concat(texts, "<newline><left>"))
 end,
+					'FXMouseIn', "MenuItemHover",
+					'FXPress', "MenuItemClick",
 					'FocusedBackground', RGBA(0, 0, 0, 0),
 					'OnPress', function (self, gamepad)
 self.context:QueueConstructShuttle(1)
@@ -313,6 +319,8 @@ end,
 						'Transparency', 50,
 						'MouseCursor', "UI/Cursors/Rollover.tga",
 						'RelativeFocusOrder', "next-in-line",
+						'FXMouseIn', "MenuItemHover",
+						'FXPress', "MenuItemClick",
 						'FocusedBackground', RGBA(0, 0, 0, 0),
 						'OnPress', function (self, gamepad)
 self.context:ConstructDrone(1)
@@ -367,6 +375,8 @@ end,
 						'Transparency', 50,
 						'MouseCursor', "UI/Cursors/Rollover.tga",
 						'RelativeFocusOrder', "next-in-line",
+						'FXMouseIn', "MenuItemHover",
+						'FXPress', "MenuItemClick",
 						'FocusedBackground', RGBA(0, 0, 0, 0),
 						'OnPress', function (self, gamepad)
 self.context:ConstructAndroid(1)

@@ -183,7 +183,7 @@ function GetCommandCenterColonists(context)
 	for i = #colonists, 1, -1 do
 		local colonist = colonists[i]
 		local removed
-		local trait = context.trait and context.trait.name
+		local trait = context.trait and context.trait.id
 		if trait and not colonist.traits[trait] then
 			table.remove(colonists, i)
 			removed = true

@@ -14,11 +14,6 @@ local altitude_dark_threshold = 120
 local altitude_slate_threshold = 40
 local altitude_decor_threshold = 150
 
--- temp compatibility to ensure the same results:
-altitude_dark_threshold = 0
-altitude_slate_threshold = 0
-altitude_decor_threshold = 0
-
 local decor_above_threshold = 10
 local decor_bellow_threshold = 25
 local preset_suffix = {"_VeryLow", "_Low", "_High", "_VeryHigh"}
@@ -202,7 +197,8 @@ function DurangoTitleScreen:Init()
 		Id = "idStartText",
 		HAlign = "center",
 		VAlign = "center",
-		TextFont = "PGModTitle",
+		TextStyle = "TitleScreen",
+		TextFont = "PGModWarning",
 		TextColor = RGBA(255, 255, 255, 255),
 		Translate = true,
 	}, self)

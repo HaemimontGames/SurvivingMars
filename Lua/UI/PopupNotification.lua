@@ -192,7 +192,7 @@ if FirstLoad then
 	g_PopupsSuspended = {}
 end
 
-function ShowPopupNotification(preset, params, bPersistable, parent)
+function ShowPopupNotification(preset, params, bPersistable, parent, callback)
 	assert(not bPersistable) -- we don't support these
 	local context = _GetPopupNotificationContext(preset, params or {}, bPersistable)
 	context.parent = parent
@@ -200,16 +200,21 @@ function ShowPopupNotification(preset, params, bPersistable, parent)
 		SyncPopupId = SyncPopupId + 1
 		context.sync_popup_id = SyncPopupId
 	else
-		context.async_signal = {}
+		context.async_signal = context.async_signal or {}
 	end
-	table.insert(g_PopupQueue, context)
-	PopPopupNotification(parent)
+	if context.start_minimized == false then
+		table.insert(g_PopupQueue, context)
+		PopPopupNotification(parent)
+	else
+		--spawn an OnScreenNotification
+		AddOnScreenNotification(nil, callback, context)
+	end
 	return context.sync_popup_id, context.async_signal
 end
 
-function WaitPopupNotification(preset, params, bPersistable, parent)
+function WaitPopupNotification(preset, params, bPersistable, parent, callback)
 	assert(not bPersistable or IsGameTimeThread(), "This will desync the game.")
-	local sync_popup_id, async_signal = ShowPopupNotification(preset, params, bPersistable, parent)
+	local sync_popup_id, async_signal = ShowPopupNotification(preset, params, bPersistable, parent, callback)
 	local _, res
 	if sync_popup_id then
 		_, res = WaitMsg("PopupNotification" .. sync_popup_id)
@@ -230,7 +235,7 @@ This function should always be called from within a GameTime thread.
 @result int choice - The users choice.
 ]]
 function WaitCustomPopupNotification(title, text, choices, parent)
-	local params = { title = title, text = text }
+	local params = { title = title, text = text, start_minimized = false }
 	for i,choice in ipairs(choices) do
 		params["choice"..i] = choice
 	end

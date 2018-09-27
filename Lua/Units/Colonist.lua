@@ -53,6 +53,7 @@ DefineClass.Colonist =
 	leaving = false,
 	last_workplace = false,
 	last_residence = false,
+	force_suicide = false, 
 
 	infopanel_icon = "UI/Infopanel/colonist.tga",
 	ip_specialization_icon = false,
@@ -192,11 +193,9 @@ function Colonist:GameInit()
 	if not self.arriving then
 		self:OnArrival()
 	end	
-		
-	self.city:AddToLabel("Colonist", self)	
-	self.city:AddToLabel(self.gender == "OtherGender" and "ColonistOther" or self.gender == "Male" and "ColonistMale" or "ColonistFemale", self)
-	self.city:AddToLabel(self.specialist, self)
-
+	
+	self:AddToLabels()
+	
 	if HintsEnabled then
 		local num_colonists = #self.city.labels.Colonist
 		if num_colonists >= 10 then
@@ -254,6 +253,12 @@ function Colonist:RemoveFromLabels()
 	end
 end
 
+function Colonist:AddToLabels()
+	self.city:AddToLabel("Colonist", self)	
+	self.city:AddToLabel(self.gender == "OtherGender" and "ColonistOther" or self.gender == "Male" and "ColonistMale" or "ColonistFemale", self)
+	self.city:AddToLabel(self.specialist, self)
+end
+
 function Colonist:SetDome(dome)
 	dome = dome or false
 	local prev_dome = self.dome
@@ -309,7 +314,7 @@ function Colonist:AddTrait(trait_id, init)
 	end
 	-- shield specializations adding via SetSpecialist only
 	if const.ColonistSpecialization[trait_id] and self.specialist~=trait_id then
-		assert(false, "specializations not adding via SetSpecialist function")
+		assert(false, string.format("Specialization not added via SetSpecialist function. Current: %s, new: %s",self.specialist, trait_id))
 		self:SetSpecialization(trait_id)
 		return
 	end
@@ -336,18 +341,47 @@ end
 
 function Colonist:RemoveTrait(trait_id)	
 	if not trait_id then return end
-	assert(not not self.traits[trait_id], "Trait is already removed:"..trait_id)
-	self.traits[trait_id]=nil
+	assert(not not self.traits[trait_id], "Trait is already removed:" .. trait_id)
+	self.traits[trait_id] = nil
 	if IsValid(self.dome) then
-		self.dome:RemoveFromLabel(trait_id,self)
+		self.dome:RemoveFromLabel(trait_id, self)
 	end
 	local trait = TraitPresets[trait_id]
-	--assert(trait,trait_id)
 	if trait then 
 		trait:UnApply(self) 
 		Notify(self, "UpdateMorale")
 	end
 	Msg("ColonistRemoveTrait", self, trait_id)
+end
+
+function Colonist:RemoveIncompatibleTraitsWith(new_trait)
+	local traits = self.traits
+	local to_remove = false
+	for trait_id,_ in pairs(traits) do
+		local trait = TraitPresets[trait_id]
+		if trait and trait.incompatible[new_trait] then
+			to_remove = to_remove or {}
+			to_remove[#to_remove + 1] = trait_id
+		end
+	end	
+	for _, trait_id in pairs(to_remove or empty_table) do
+		self:RemoveTrait(trait_id)
+	end
+end
+
+function Colonist:RemoveAllTraits(additional_autotraits_to_remove)
+	local traits = self.traits
+	local to_remove = false
+	for trait_id,_ in pairs(traits) do
+		local trait = TraitPresets[trait_id]
+		if trait and (trait.auto or additional_autotraits_to_remove and additional_autotraits_to_remove[trait_id])then
+			to_remove = to_remove or {}
+			to_remove[#to_remove + 1] = trait_id
+		end
+	end	
+	for _, trait_id in pairs(to_remove or empty_table) do
+		self:RemoveTrait(trait_id)
+	end
 end
 
 function OnMsg.GatherLabels(labels)
@@ -358,14 +392,14 @@ function OnMsg.GatherLabels(labels)
 	labels.scientist = true
 	labels.engineer = true
 	labels.security = true
-	labels.geologist= true
+	labels.geologist = true
 	labels.medic = true
 	labels.botanist = true
 end
 
---value is per hour, format per update_time thant is < from 1hour
+-- value is per hour, format per update_time that is < 1 hour
 local function FormatValueWithUpdateTime(value, updatetime)
-	return value*updatetime/const.HourDuration
+	return value * updatetime / const.HourDuration
 end
 
 if FirstLoad then
@@ -604,6 +638,26 @@ GlobalVar("UnnaturalDeaths", 0)
 GlobalGameTimeThread("InfectedDeadColonistNotif", function()
 	HandleNewObjsNotif(g_InfectedDeadCitizens, "Mystery8DeathInfection")
 end)
+
+function Colonist:Erase()
+	self:PushDestructor(function(self)
+		self:ClearTransportRequest()
+		self.dying = true
+		self:RemoveFromLabels()
+		self:SetWorkplace(false)
+		self:SetResidence(false)
+		self:AssignToService(false) -- unassign from building when interupted
+		self:SetHolder(false)
+		self:SetDome(false)
+		table.clear(self.status_effects)
+		UpdateAttachedSign(self)
+		RebuildInfopanel(self)
+		if IsValid(self) then
+			DoneObject(self)
+		end
+	end)
+	self:PopAndCallDestructor()
+end
 
 function Colonist:Die(reason)
 	reason = DeathReasons[reason] and reason or "low health"
@@ -1306,6 +1360,11 @@ function Colonist:Idle()
 		self:SetCommand("Die",self.dying_reason)
 		return
 	end	
+	
+	if self.force_suicide then
+		self:SetCommand("Suicide")
+	end
+	
 	if self.arriving then
 		self:SetCommand("Arrive")
 		return
@@ -1328,6 +1387,9 @@ function Colonist:Idle()
 		self:RemoveTrait(self.age_trait)
 		self.age_trait = next_age_trait
 		self:AddTrait(next_age_trait)
+		if next_age_trait == "Youth" then
+			Msg("ColonistBecameYouth", self)
+		end
 	end
 
 	local transport = self.transport_task
@@ -1354,6 +1416,7 @@ function Colonist:Idle()
 				end
 			end
 			self:Affect("StatusEffect_StressedOut", "start")
+			Msg("SanityBreakdown", self)
 		end
 	end
 	
@@ -1375,7 +1438,7 @@ function Colonist:Idle()
 			self:SetCommand("Abandoned")
 		end
 	else
-		if not self.dome then
+		if not self.dome and not self:CheckForcedDome() then
 			assert(false, "Colonist in a dome without being assigned to a dome!?")
 			self:SetDome(self.current_dome)
 		end
@@ -2143,7 +2206,12 @@ function Colonist:ToggleInteraction_Update(button)
 	button:SetIcon(to_mode and "UI/Icons/IPButtons/assign_residence.tga" or "UI/Icons/IPButtons/cancel.tga")
 	button:SetRolloverTitle(T{8758, "Assign to Building"})
 	button:SetRolloverText(T{8759, "Assign this Colonist to a residence, workplace or training building. The Colonist will not change assignment for the next 5 Sols. If the target building is in another Dome located far away, a shuttle may be needed to reach it."})
-	button:SetRolloverHint(to_mode and T{7509, "<left_click> Select target mode"} or T{7510, "<left_click> on target to select it  <right_click> Cancel"})
+	local shortcuts = GetShortcuts("actionAssignToBuilding")
+	local hint = ""
+	if shortcuts and (shortcuts[1] or shortcuts[2]) then
+		hint = T{10924, " / <em><ShortcutName('actionAssignToBuilding', 'keyboard')></em>"}
+	end
+	button:SetRolloverHint(to_mode and T{10925, "<left_click><hint> Select target mode", hint = hint} or T{7510, "<left_click> on target to select it  <right_click> Cancel"})
 	button:SetRolloverHintGamepad(to_mode and T{7511, "<ButtonA> Select target mode"} or T{7512, "<ButtonA> Cancel"})
 end
 
@@ -3116,6 +3184,20 @@ function Colonist:MysteryDream()
 	end)
 
 	self:PopAndCallDestructor()
+end
+
+function SavegameFixups.FixForcedWorkplace()
+	MapForEach("map", "Colonist", function(col)
+		if col.user_forced_workplace then
+			local wp = col.user_forced_workplace[1]
+			if wp.specialist_enforce_mode then
+				local wp_spec = wp.specialist or "none"
+				if col.specialist or "none" ~= specialist then
+					col.user_forced_workplace = false
+				end
+			end
+		end
+	end)
 end
 
 function OnMsg.GatherFXActions(list)

@@ -8,7 +8,11 @@ MessageText.DlcRequiresUpdate             = T{950, "Some downloadable content re
 
 ---[==[ remove a dash to comment out this section if not supported
 -- pops - Paradox API
+MessageTitle["mod-manager"]											= T{1000599, "Warning"}
+MessageText["mod-manager"]												= T{8673, "This version of Surviving Mars doesn't yet support downloading mods. You can, however, try the modding tools to create and load your own mods."}
+
 AddMessageContext("pops")
+MessageTemplate["pops"].Generic = "PopsMessageBox"
 MessageTitle["pops"].Generic											= T{1000599, "Warning"}
 MessageText["pops"].Generic             							= T{951, "Failed to complete operation."}
 MessageText["pops"]["No reply"]             						= T{952, "Could not establish a connection with the Paradox server."}
@@ -49,8 +53,6 @@ MessageText["pops"]["duplicate-account-to-psn-connection"]		= T{7534, "This Para
 MessageText["pops"]["psn-not-signed-in"]								= T{8018, "Sign in to PlayStation™Network to use network features."}
 MessageText["pops"]["no err"]											= T{7890, "There is no network connectivity. Please check your connection and try again."}
 MessageText["pops"]["no-network"]										= T{7890, "There is no network connectivity. Please check your connection and try again."}
-MessageText["pops"]["mod-editor"]										= T{8672, "This version of <em>Surviving Mars</em> doesn't yet support uploading mods you created, but you can test them in the game."}
-MessageText["pops"]["mod-manager"]									= T{8673, "This version of Surviving Mars doesn't yet support downloading mods. You can, however, try the modding tools to create and load your own mods."}
 MessageTitle["pops"]["new-dlc"]										= T{1000717, "New Downloadable Content"}
 MessageText["pops"]["new-dlc"]										= T{1000723, "Downloadable Content has been unlocked, returning to Main Menu."}
 
@@ -87,12 +89,12 @@ MessageText["deletegame"].Generic										= T{4190, "Unable to delete <name>"}
 
 function CreateErrorMessageBox(err, context, ok_text, parent, obj)
 	RecordError("msg", err, context)
-	return CreateMarsMessageBox(GetErrorTitle(err, context), GetErrorText(err, context, obj), ok_text, parent, nil, obj)
+	return CreateMarsMessageBox(GetErrorTitle(err, context), GetErrorText(err, context, obj), ok_text, parent, nil, obj, GetErrorTemplate(err, context))
 end
 
 function WaitErrorMessage(err, context, ok_text, parent, obj)
 	RecordError("msg", err, context)
-	return WaitMarsMessage(parent or terminal.desktop, GetErrorTitle(err, context), GetErrorText(err, context, obj), ok_text, nil, obj)
+	return WaitMarsMessage(parent or terminal.desktop, GetErrorTitle(err, context), GetErrorText(err, context, obj), ok_text, nil, obj, GetErrorTemplate(err, context))
 end
 
 function GetLoadingScreenDialog()

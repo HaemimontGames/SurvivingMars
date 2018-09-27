@@ -44,7 +44,7 @@ DefineClass.StatusEffect =  {
 	priority = 0,
 	popup_on_first = false, -- display popup notification the first time a unit is affected by this
 	popup_display_delay = const.HourDuration / 10, -- don't display the message right away if it's a momentary condition causing the effect 
-	popup_group_delay = 2*const.HourDuration, -- don't display similar messages one after another for that time
+	popup_group_delay = 9*const.HourDuration, -- don't display similar messages one after another for that time
 	popup_group = "",
 	move_anim = false,
 }

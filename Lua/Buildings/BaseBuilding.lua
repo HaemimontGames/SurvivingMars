@@ -18,6 +18,9 @@ DefineClass.BaseBuilding = {
 	destroyed = false,
 	orig_state = false,
 	bulldozed = false, -- running out of synonyms
+	
+	exceptional_circumstances = false,
+	
 	signs = false,
 	--working/idle anim controls
 	anim_control_thread = false,
@@ -136,6 +139,10 @@ function BaseBuilding:SetWorking(work)
 	if self.working == old_working then return end
 	self:OnSetWorking(work)
 end
+function BaseBuilding:Setexceptional_circumstances(disabled)
+	self.exceptional_circumstances = disabled	
+	self:SetWorking(not disabled)
+end
 
 function BaseBuilding:DoesHaveConsumption()
 	return false
@@ -191,9 +198,14 @@ end
 
 function BaseBuilding:ToggleWorking_Update(button)
 	button:SetEnabled(not self.suspended)
+	local shortcuts = GetShortcuts("actionOnOff")
+	local binding = ""
+	if shortcuts and (shortcuts[1] or shortcuts[2]) then
+		binding = T{10902, " / <em><ShortcutName('actionOnOff', 'keyboard')></em>"}
+	end
 	if self.suspended then
 		button:SetIcon("UI/Icons/IPButtons/turn_off.tga")
-		button:SetRolloverHint(T{7611, "<left_click> Deactivate <newline><em>Ctrl + <left_click></em> Deactivate all <display_name_pl>"})
+		button:SetRolloverHint(T{7611, "<left_click><binding> Deactivate <newline><em>Ctrl + <left_click></em> Deactivate all <display_name_pl>", binding = binding})
 		button:SetRolloverHintGamepad(T{7612, "<ButtonA> Deactivate <newline><ButtonX> Deactivate all <display_name_pl>"})
 	elseif self.ui_working then
 		if not self.working then
@@ -201,11 +213,11 @@ function BaseBuilding:ToggleWorking_Update(button)
 		else
 			button:SetIcon("UI/Icons/IPButtons/turn_off.tga")
 		end
-		button:SetRolloverHint(T{7611, "<left_click> Deactivate <newline><em>Ctrl + <left_click></em> Deactivate all <display_name_pl>"})
+		button:SetRolloverHint(T{7611, "<left_click><binding> Deactivate <newline><em>Ctrl + <left_click></em> Deactivate all <display_name_pl>", binding = binding})
 		button:SetRolloverHintGamepad(T{7612, "<ButtonA> Deactivate <newline><ButtonX> Deactivate all <display_name_pl>"})
 	else
 		button:SetIcon("UI/Icons/IPButtons/turn_on.tga")
-		button:SetRolloverHint(T{7613, "<left_click> Activate <newline><em>Ctrl + <left_click></em> Activate all <display_name_pl>"})
+		button:SetRolloverHint(T{7613, "<left_click><binding> Activate <newline><em>Ctrl + <left_click></em> Activate all <display_name_pl>", binding = binding})
 		button:SetRolloverHintGamepad(T{7614, "<ButtonA> Activate <newline><ButtonX> Activate all <display_name_pl>"})
 	end
 end
@@ -265,6 +277,8 @@ Returns the reason the building is not permitted to work. For example if the use
 function BaseBuilding:GetWorkNotPermittedReason()
 	if not self.ui_working then
 		return "TurnedOff"
+	elseif self.exceptional_circumstances then
+		return "ExceptionalCircumstancesDisabled"
 	end
 end
 

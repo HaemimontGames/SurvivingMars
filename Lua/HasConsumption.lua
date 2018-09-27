@@ -1,12 +1,12 @@
 function GetConsumptionResourcesDropDownItems()
 	local ret = table.copy(ResourcesDropDownListItems)
-	--rem stuff that cannot be maintanance
+	--rem stuff that cannot be maintenance
 	table.remove_entry(ret, "value", nil)
 	table.remove_entry(ret, "value", "Water")
 	table.remove_entry(ret, "value", "BlackCube")
 	table.remove_entry(ret, "value", "Colonist")
 	
-	--add maintanance specific stuff
+	--add maintenance specific stuff
 	table.insert(ret, 1, {text = T{89, "No consumption"}, value = "no_consumption"})
 	
 	return ret
@@ -67,6 +67,21 @@ function HasConsumption:InitConsumptionRequest() --needs to be after init and be
 		local d_req = self:AddDemandRequest(self.consumption_resource_type, self.consumption_max_storage, const.rfWaitToFill, resource_unit_count)
 		self.consumption_resource_request = d_req
 	end
+end
+
+function HasConsumption:GameInit()
+	self:DelayedConsumptionSignCheck()
+end
+
+function HasConsumption:DelayedConsumptionSignCheck()
+	if not self:IsKindOf("Building") then return end
+	CreateGameTimeThread(function()
+		Sleep(const.HourDuration*2)
+		if not IsValid(self) then return end
+		if not self:CanConsume() then
+			self:AttachSign(true, "SignNoConsumptionResource")
+		end
+	end, self)
 end
 
 function HasConsumption:Done()
@@ -189,8 +204,13 @@ function HasConsumption:ConsumptionDroneUnload(drone, req, resource, amount)
 		self:UpdateVisualStockpile()
 		self:UpdateRequestConnectivity()
 		
-		if not self.working and not was_work_possible then --only try to turn on if we were the reason to be off.
-			self:UpdateWorking()
+		if not was_work_possible then --only try to turn on if we were the reason to be off.
+			if self:IsKindOf("Building") then
+				self:AttachSign(false, "SignNoConsumptionResource")
+			end
+			if not self.working then
+				self:UpdateWorking()
+			end
 		end
 	end
 end
@@ -289,6 +309,9 @@ function HasConsumption:Consume_Internal(input_amount_to_consume)
 	self:UpdateRequestConnectivity()
 	
 	if amount_to_consume ~= input_amount_to_consume then
+		if self:IsKindOf("Building") then
+			self:AttachSign(true, "SignNoConsumptionResource")
+		end
 		self:UpdateWorking(false) --we ran out of resources.
 	end
 	if SelectedObj == self then

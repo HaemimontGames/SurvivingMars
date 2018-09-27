@@ -44,6 +44,7 @@ DefineClass.StorageDepot = {
 	OnCommandCenterWorkingChanged = Building.OnCommandCenterWorkingChanged,
 	OnAddedByControl = Building.OnAddedByControl,
 	OnRemovedByControl = Building.OnRemovedByControl,
+	Select = Building.Select,
 }
 
 function StorageDepot:GameInit()
@@ -99,7 +100,7 @@ function StorageDepot:SetDesiredAmount(amount)
 	self.desired_amount = amount
 	local req_desire = max - amount
 	local supply = self.supply
-	for res, req in pairs(self.demand) do
+	for res, req in pairs(self.demand or empty_table) do
 		req:SetDesiredAmount(req_desire)
 		if supply[res] then
 			supply[res]:SetDesiredAmount(amount)
@@ -109,7 +110,7 @@ end
 
 function StorageDepot:PairRequests()
 	local supply = self.supply
-	for res, req in pairs(self.demand) do
+	for res, req in pairs(self.demand or empty_table) do
 		if supply[res] then
 			req:SetReciprocalRequest(supply[res])
 		end
@@ -154,7 +155,7 @@ StorageDepot.MoveInside = Building.MoveInside
 function StorageDepot:ReturnStockpiledResources()
 	local pos = self:GetVisualPos()
 	if pos ~= InvalidPos() then
-		for resource_flag, request in pairs(self.supply) do
+		for resource_flag, request in pairs(self.supply or empty_table) do
 			local amount = request:GetActualAmount()
 			if amount > 0 then
 				PlaceResourceStockpile_Delayed(pos, resource_flag, amount, self:GetAngle(), true)
@@ -177,7 +178,7 @@ end
 
 function StorageDepot:RoverWork(rover, request, resource, amount, reciprocal_req, interaction_type, total_amount)
 	Building.RoverWork(self, rover, request, resource, amount)
-	if resource ~= "clean" and resource ~= "repair" then
+	if resource ~= "clean" and resource ~= "repair" and (self.demand[resource] == request or self.supply[resource] == request) then
 		--temp presentation
 		rover:ContinuousTask(request, amount, "gatherStart", "gatherIdle", "gatherEnd",
 		interaction_type == "load" and "Load" or "Unload",	"step", g_Consts.RCRoverTransferResourceWorkTime, "add resource", reciprocal_req, total_amount)
@@ -228,7 +229,7 @@ function StorageDepot:GetMaxStorage(resource)
 		return self["GetMaxAmount_"..resource](self)
 	else
 		local t = 0
-		for res, req in pairs(self.demand) do
+		for res, req in pairs(self.demand or empty_table) do
 			t = t + self["GetMaxAmount_"..res](self)
 		end
 		return t
@@ -251,7 +252,7 @@ DefineClass.UniversalStorageDepot = {
 		{ template = true, name = T{775, "Max Boxes On The X Axis"}, category = "Storage Space", id = "max_x", editor = "number", default = 2, help = "Max amount of boxes per axis, for multiple resources its per resource type."},
 		{ template = true, name = T{7626, "Max Boxes On The Y Axis"}, category = "Storage Space", id = "max_y", editor = "number", default = 5, help = "Max amount of boxes per axis, for multiple resources its per resource type." },
 		{ template = true, name = T{7627, "Max Boxes On The Z Axis"}, category = "Storage Space", id = "max_z", editor = "number", default = 3, help = "Max amount of boxes per axis, for multiple resources its per resource type." },
-		{ template = true, name = T{776, "Storable Resources"}, category = "Storage Space", id = "storable_resources", editor = "table", default = {"Concrete",  "Food", "Metals", "PreciousMetals","Polymers","Electronics", "MachineParts", "Fuel"}, help = "The type of resources this depot can store."},
+		{ template = true, name = T{776, "Storable Resources"}, category = "Storage Space", id = "storable_resources", editor = "prop table", default = {"Concrete",  "Food", "Metals", "PreciousMetals","Polymers","Electronics", "MachineParts", "Fuel"}, help = "The type of resources this depot can store."},
 		{ template = true, name = T{777, "Switch Fill Order"}, category = "Storage Space", id = "switch_fill_order", editor = "bool", default = true, help = "When true will fill in x of the spot dir first then y, the opposite when false."},
 		{ template = true, name = T{7770, "Fill Group Idx"}, category = "Storage Space", id = "fill_group_idx", editor = "number", default = 5, help = "When true will fill in x of the spot dir first then y, the opposite when false."},
 		
@@ -379,7 +380,7 @@ function UniversalStorageDepot:GetStoredAmount(resource)
 		return self.supply and self.supply[resource] and self.supply[resource]:GetActualAmount() or self.stockpiled_amount[resource] or 0
 	else
 		local total = 0
-		for k, v in pairs(self.supply) do
+		for k, v in pairs(self.supply or empty_table) do
 			total = total + v:GetActualAmount()
 		end
 		
@@ -458,7 +459,6 @@ function UniversalStorageDepot:ToggleAcceptResource(res_id, broadcast)
 end
 
 function UniversalStorageDepot:IsStoring(res_id)
-	local resource = self.resource
 	local req = self.demand[res_id]
 	return table.find(self.task_requests, req) and true or false
 end
@@ -537,12 +537,12 @@ function UniversalStorageDepot:GetEmptyStorage(resource)
 	if not resource then
 		return self:GetMaxStorage() - self:GetStoredAmount()
 	else
-		return	self.demand[resource]:GetActualAmount()
+		return	self.demand[resource] and self.demand[resource]:GetActualAmount() or 0
 	end
 end
 
 function UniversalStorageDepot:TestReqConsistency()
-	for resource, s_req in pairs(self.supply) do
+	for resource, s_req in pairs(self.supply or empty_table) do
 		local total = self:GetMaxStorage(resource)
 		--assert(s_req:GetActualAmount() + self.demand[resource]:GetActualAmount() == total)
 		
@@ -597,7 +597,7 @@ DefineClass.MechanizedDepot = {
 	__parents = { "Building", "StockpileController", "ResourceStockpileBase", "ElectricityConsumer" },
 	
 	properties = {
-		{ template = true, name = T{776, "Storable Resources"}, category = "Storage Space", id = "storable_resources", editor = "table", default = {"Concrete",  "Food", "Metals", "PreciousMetals","Polymers","Electronics", "MachineParts", "Fuel"}, help = "The type of resources this depot can store."},
+		{ template = true, name = T{776, "Storable Resources"}, category = "Storage Space", id = "storable_resources", editor = "prop table", default = {"Concrete",  "Food", "Metals", "PreciousMetals","Polymers","Electronics", "MachineParts", "Fuel"}, help = "The type of resources this depot can store."},
 		{ template = true, name = T{774, "Max Storage Per Resource"},  category = "Storage Space", id = "max_storage_per_resource",  editor = "number", default = 30000, scale = const.ResourceScale },
 		
 		{ template = true, id = "desire_slider_max", name = T{10369, "Desire Slider Max"}, category = "Storage Space", default = 40, editor = "number"},
@@ -638,6 +638,7 @@ DefineClass.MechanizedDepot = {
 	InitOutside = Building.InitOutside,
 	InitInside = Building.InitInside,
 	GetStoredAmount = ResourceStockpileBase.GetStoredAmount,
+	Select = Building.Select,
 	
 	crane = false,
 	pillars = false,
@@ -654,6 +655,13 @@ DefineClass.MechanizedDepot = {
 	
 	is_unloading = false,
 }
+
+function MechanizedDepot:GetEmptyStorage(resource)
+	if self.resource == resource then
+		return self.max_storage_per_resource + 5000 - self:GetStoredAmount(resource)
+	end
+	return 0
+end
 
 function MechanizedDepot:GetFillIndex(resource)
 	local r = self.stockpiles[1].supply_request or self.stockpiles[1].demand_request
@@ -829,6 +837,10 @@ function MechanizedDepot:GetStoredAmount(resource)
 	return self.resource == resource and self["GetStored_"..resource](self) or 0
 end
 
+function MechanizedDepot:GetIOStockpileStoredAmount()
+	return self.stockpiles[1]:GetStoredAmount(self.resource)
+end
+
 function MechanizedDepot:GetIOStockpileMaxAmount()
 	local io_stockpile = self.stockpiles[1]
 	return io_stockpile:GetMax() * const.ResourceScale
@@ -951,35 +963,35 @@ function CraneGotoOriginWrapper(self)
 end
 
 function MechanizedDepot:AddResourceAmount(amount_to_add, notify_parents)
-	local new_a = self.stockpiled_amount + amount_to_add
 	local remainder = 0
+	local stock = self.stockpiles[1]
+	local new_a = stock:GetStoredAmount() + amount_to_add
+	local amount_to_add_to_stock = amount_to_add
+	local stock_max = stock:GetMax()*const.ResourceScale
+	
 	if new_a < 0 then
-		amount_to_add = -self.stockpiled_amount
+		amount_to_add_to_stock = -stock:GetStoredAmount()
 		remainder = new_a
-	elseif new_a > self.max_storage_per_resource then
-		amount_to_add = self.max_storage_per_resource - self.stockpiled_amount
-		remainder = new_a - self.max_storage_per_resource
+	elseif new_a > stock_max then
+		amount_to_add_to_stock = stock_max - stock:GetStoredAmount()
+		remainder = new_a - stock_max
 	end
+	
+	self.stockpiles[1]:AddResourceAmount(amount_to_add_to_stock)
 
-	self:SetCount(self.stockpiled_amount + amount_to_add)
-	
 	if remainder ~= 0 then
-		local stock = self.stockpiles[1]
-		new_a = stock:GetStoredAmount() + remainder
+		new_a = self.stockpiled_amount + remainder
 		amount_to_add = remainder
-		local stock_max = stock:GetMax()*const.ResourceScale
-		
 		if new_a < 0 then
-			amount_to_add = -stock:GetStoredAmount()
+			amount_to_add = -self.stockpiled_amount
 			remainder = new_a
-		elseif new_a > stock_max then
-			amount_to_add = stock_max - stock:GetStoredAmount()
-			remainder = new_a - stock_max
+		elseif new_a > self.max_storage_per_resource then
+			amount_to_add = self.max_storage_per_resource - self.stockpiled_amount
+			remainder = new_a - self.max_storage_per_resource
 		end
-		
-		self.stockpiles[1]:AddResourceAmount(amount_to_add)
+
+		self:SetCount(self.stockpiled_amount + amount_to_add)
 	end
-	
 	
 	if remainder < 0 then
 		local carried = self.carrying and 5*const.ResourceScale or 0

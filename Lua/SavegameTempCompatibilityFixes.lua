@@ -773,6 +773,31 @@ function SavegameFixups.DuplicatedSpecialization()
 	MapForEach("map", "Colonist", function(col) ValidateSpecialization(col) end)
 end
 
+function SavegameFixups.DuplicatedSpecializationApplicant()
+	MapForEach("map", "SupplyRocket", 
+		function(rocket)
+			for _, item in ipairs(rocket.cargo or empty_table) do
+				if item.amount > 0 and item.class == "Passengers" then
+					for _, applicant in ipairs(item.applicants_data) do
+						local specialization = applicant.specialist
+						local traits = applicant.traits
+						if not traits[specialization] then 
+						--	sepcialization not added in traits
+							applicant.traits[specialization] = true
+						end
+						traits = applicant.traits
+						for spec, _ in pairs(const.ColonistSpecialization) do
+							if spec~=specialization and traits[spec] then
+								--duplicated sepcialization added in traits
+								applicant.traits[spec] = nil
+							end
+						end						
+					end
+				end
+			end
+	end)
+end
+
 function SavegameFixups.CameraScrollBorder()
 	cameraRTS.SetProperties(1, {ScrollBorder = const.DefaultCameraRTS.ScrollBorder})
 end
@@ -786,4 +811,46 @@ function SavegameFixups.FixGameEventsThread()
 		DeleteThread(GameEventsTickThread)
 		GameEventsTickThread = nil
 	end
+end
+
+function SavegameFixups.RemoveRoverBattery()
+	local t = rawget(_G, "VehiclesLowBatteryNotif")
+	if IsValidThread(t) then
+		DeleteThread(t)
+	end
+	RemoveOnScreenNotification("VehiclesLowBatteryNotif")
+	
+	MapForEach("map", "BaseRover", function(o)
+		if o.command == "NoBattery" or o.command == "RechargeFromGrid" or o.command == "EqualizePowerWithOtherRover" or
+			o.command == "AutoTransportRoute" or o.command == "Analyze" or o.command == "Idle" then
+			o:SetCommand("Idle")
+		end
+		
+		local t = rawget(o, "battery_thread")
+		if IsValidThread(t) then
+			DeleteThread(t)
+		end
+		
+		rawset(o, "battery_thread", nil)
+		rawset(o, "battery_thread_data", nil)
+		rawset(o, "battery_cable_used_for_recharge", nil)
+		local cdn = rawget(o, "cable_death_notifier")
+		if IsValid(cdn) then
+			DoneObject(cdn)
+		end
+		rawset(o, "cable_death_notifier", nil)
+	end)
+end
+
+function SavegameFixups.FixConstructionCostModifiers()
+	UICity.construction_cost_mods_percent = rawget(UICity, "construction_cost_mods") or {}
+	UICity.construction_cost_mods_amount = {}
+end
+
+function SavegameFixups.RocketLoadWait()
+	MapForEach(true, "SupplyRocket", function(rocket)
+		if rocket.command == "WaitLaunchOrder" then
+			rocket.waiting_resources = true
+		end
+	end)
 end

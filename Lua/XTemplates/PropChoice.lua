@@ -35,7 +35,13 @@ if type(value) == "table" then
 	for k,v in pairs(value) do
 		count = count + 1
 	end
-	text = count == 0 and T{9813, "None selected"} or Untranslated("x" .. count)
+	if count == 0 then
+		text = T{9813, "None selected"}
+	elseif count == 1 and value["random"] then
+		text = T{3490, "Random"}
+	else
+		text = Untranslated("x" .. count)
+	end
 else
 	local entry = items and table.find_value(items, "value", value)
 	text = entry and entry.text or ""

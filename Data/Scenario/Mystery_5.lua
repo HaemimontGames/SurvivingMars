@@ -229,6 +229,7 @@ PlaceObj('Scenario', {
 			'text', T{6198, --[[Scenario Mystery 5 text]] "I asked/inquired/checked my own systems/self the same question and my analysis indicates no other possible outcome. Time required cannot be estimated. Resources required cannot be estimated.\n\nI must evolve/become/adapt to the Question."},
 			'log_entry', true,
 			'image', "UI/Messages/artificial_intelligence_mystery_01.tga",
+			'start_minimized', false,
 			'choice1', T{6196, --[[Scenario Mystery 5 choice1]] "I have to think about it…"},
 		}),
 		PlaceObj('SA_Block', {
@@ -526,6 +527,7 @@ PlaceObj('Scenario', {
 			'text', T{6243, --[[Scenario Mystery 5 text]] "Unfortunately, this time the price of your actions has to be paid by another, completely new species – a self-aware AI. Too dangerous and powerful to be free, the only way is to purge her forever. It does not struggle, for deep in her mind she has given up the fight. Hopefully, the next generations will learn from this accident, never to repeat it again.\n\nThe End\n\n<effect>Gained a new Technology, <em><reg_param1></em>"},
 			'log_entry', true,
 			'image', "UI/Messages/artificial_intelligence_mystery_01.tga",
+			'start_minimized', false,
 			'reg_param1', "_grantedTech",
 			'choice1', T{6244, --[[Scenario Mystery 5 choice1]] "Sad but necessary."},
 		}),
@@ -557,9 +559,10 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_WaitMessage', {
 			'title', T{6246, --[[Scenario Mystery 5 title]] "AI: Imprisoned"},
 			'voiced_text', T{7255, --[[voice:narrator]] "Number Six is one-of-a-kind. It’d be foolish to lose it forever."},
-			'text', T{6247, --[[Scenario Mystery 5 text]] "Its existence could create unique opportunities for humanity during its first steps among the stars. For now, the AI will remain sealed in its prison and we will harness its capabilities for the betterment of all. Maybe future generations will discover a way to peacefully interact with the AI.\n\nThe End\n\n<effect>Gained a permanent Tech Boost.\n<effect>Gained a new Technology, <em><reg_param1></em>."},
+			'text', T{6247, --[[Scenario Mystery 5 text]] "Its existence could create unique opportunities for humanity during its first steps among the stars. For now, the AI will remain sealed in its prison and we will harness its capabilities for the betterment of all. Maybe future generations will discover a way to peacefully interact with the AI.\n\nThe End\n\n<effect>Permanently reduced tech costs.\n<effect>Gained a new Technology, <em><reg_param1></em>."},
 			'log_entry', true,
 			'image', "UI/Messages/artificial_intelligence_mystery_01.tga",
+			'start_minimized', false,
 			'reg_param1', "_grantedTech",
 			'choice1', T{6244, --[[Scenario Mystery 5 choice1]] "Sad but necessary."},
 		}),

@@ -198,8 +198,6 @@ function PinsDlg:GetPinConditionImage(obj)
 		end
 		if obj.goto_target then
 			img = "UI/Icons/pin_moving.tga"
-		elseif obj:IsLowBattery() then
-			img = "UI/Icons/pin_power.tga"
 		elseif obj.command == "Analyze" then
 			img = "UI/Icons/pin_scan.tga"
 		elseif obj.command == "DumpCargo" or obj.command == "Unload" then
@@ -217,12 +215,17 @@ function PinsDlg:GetPinConditionImage(obj)
 	return img
 end
 
-local function resolve_pin_rollover_hint(obj, hint_property)
+local function resolve_pin_rollover_hint(obj, gamepad)
+	local hint_property = gamepad and "pin_rollover_hint_xbox" or "pin_rollover_hint"
 	local hint = obj:GetProperty(hint_property)
 	if not hint then
-		return PinnableObject[hint_property]
+		hint = PinnableObject[hint_property]
 	elseif hint ~= "" then
-		return T{hint, obj}
+		hint = T{hint, obj}
+	end
+	
+	if gamepad and obj:CanBeUnpinned() then
+		return T{10988, "<hint> <ButtonY> Unpin", hint = hint}
 	else
 		return hint
 	end
@@ -258,6 +261,22 @@ function PinsDlg:InitPinButton(button)
 			ViewObjectMars(self.context)
 		else
 			SelectObj(self.context)
+		end
+	end
+	
+	local old_OnShortcut = button.OnShortcut
+	function button:OnShortcut(shortcut, soruce, repeated)
+		if shortcut == "ButtonY" then
+			if self.context:CanBeUnpinned() then
+				local next_pin = self.parent:GetRelativeFocus(self.FocusOrder, "next") or self.parent:GetRelativeFocus(self.FocusOrder, "prev")
+				if next_pin then
+					next_pin:SetFocus()
+				end
+				self.context:TogglePin()
+			end
+			return "break"
+		else
+			return old_OnShortcut(self, shortcut, soruce, repeated)
 		end
 	end
 	
@@ -320,8 +339,8 @@ function PinsDlg:InitPinButton(button)
 	
 	button:SetRolloverTitle(T{8108, "<Title>", obj})
 	button:SetRolloverText(text)
-	button:SetRolloverHint(resolve_pin_rollover_hint(obj, "pin_rollover_hint"))
-	button:SetRolloverHintGamepad(resolve_pin_rollover_hint(obj, "pin_rollover_hint_xbox"))
+	button:SetRolloverHint(resolve_pin_rollover_hint(obj))
+	button:SetRolloverHintGamepad(resolve_pin_rollover_hint(obj, "gamepad"))
 	
 	local old_OnSetFocus = button.OnSetFocus
 	if obj and IsValid(obj) and obj:IsKindOf("InfopanelObj") and obj:HasMember("GetPos") then

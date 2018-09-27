@@ -82,6 +82,8 @@ DefineClass.SubsurfaceAnomaly = {
 	
 	fx_actor_class = "SubsurfaceAnomaly",
 	ip_template = "ipAnomaly",
+	
+	auto_rover = false,
 }
 
 function SubsurfaceAnomaly:GetModifiedBSphereRadius(r)
@@ -250,7 +252,7 @@ function SubsurfaceAnomaly:ScanCompleted(scanner)
 			local list_text = table.concat(list_of_techs, '\n')
 			AddOnScreenNotification("TechUnlockAnomalyAnalyzed", function()
 				CreateRealTimeThread(function()
-					local res = WaitPopupNotification("AnomalyAnalyzed", { params = {list_text = list_text} })
+					local res = WaitPopupNotification("AnomalyAnalyzed", { params = {list_text = list_text}, start_minimized = false })
 					if res == 1 then
 						OpenResearchDialog()
 					end
@@ -428,15 +430,20 @@ end
 
 function City:InitBreakThroughAnomalies()
 	local markers = MapGet("map", "SubsurfaceAnomalyMarker", function(a) return a.tech_action == "breakthrough" end )
-	local rand, trand = self:CreateSessionRand("InitBreakThroughAnomalies")
-	markers = table.shuffle(markers)
-	local techs = Presets.TechPreset.Breakthroughs
+	local techs = table.icopy(Presets.TechPreset.Breakthroughs)
 	assert(#techs >= #markers, "Too many breakthrough anomalies found!")
-	local techs = table.icopy(techs)
+	if IsGameRuleActive("ChaosTheory") then
+		table.shuffle(techs)
+		table.shuffle(markers)
+	else
+		StableShuffle(techs, self:CreateMapRand("ShuffleBreakThroughTech"), 100)
+		table.shuffle(markers, self:CreateMapRand("ShuffleBreakThroughMarkers"))
+	end
 	-- assign breakthrough tech to each marker
 	local assigned = 0
 	while assigned < #markers do
-		local tech, idx = trand(techs)
+		local idx = #techs
+		local tech = techs[idx]
 		if not tech then
 			break
 		end

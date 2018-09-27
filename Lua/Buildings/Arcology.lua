@@ -1,6 +1,6 @@
 DefineClass.Arcology =
 {
-	__parents = { "SpireBase", "ElectricityConsumer", "Residence" },
+	__parents = { "ElectricityConsumer", "SpireBase", "Residence" },
 }
 
 function Arcology:BuildingUpdate()

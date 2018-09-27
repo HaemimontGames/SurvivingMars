@@ -15,35 +15,57 @@ MissionParams = {
 	idMissionSponsor = {
 		display_name = T{3474, "Mission Sponsor"},
 		display_name_caps = T{3475, "MISSION SPONSOR"},
-		rollover = {id = "MISSION SPONSOR", title = T{3475, "MISSION SPONSOR"}, descr = T{3476, "The patron country or organization standing behind the Mars mission. Grants funding, research and other benefits to colony."}, gamepad_hint = T{3477, "<ButtonA> Choose Sponsor"}},
+		descr = T{3476, "The patron country or organization standing behind the Mars mission. Grants funding, research and other benefits to colony."},
+		gamepad_hint = T{3477, "<ButtonA> Choose Sponsor"},
+		SortKey = 10000,
+		empty_on_start = true,
 	},
 	idCommanderProfile = {
 		display_name = T{3478, "Commander Profile"},
 		display_name_caps = T{3479, "COMMANDER PROFILE"},
-		rollover = {id = "COMMANDER PROFILE", title = T{3479, "COMMANDER PROFILE"}, descr = T{3480, "The mission commander grants various benefits to the colony."}, gamepad_hint = T{3481, "<ButtonA> Choose Commander"}},
+		descr = T{3480, "The mission commander grants various benefits to the colony."},
+		gamepad_hint = T{3481, "<ButtonA> Choose Commander"},
+		SortKey = 20000,
+		empty_on_start = true,
 	},
 
 	idMissionLogo = {
 		display_name = T{3482, "Colony Logo"},
 		display_name_caps = T{3483, "COLONY LOGO"},
-		rollover = {id = "LOGO", title = T{3483, "COLONY LOGO"}, descr = T{3484, "This is an aesthetic choice that has no effect on gameplay."}, gamepad_hint = T{3485, "<ButtonA> Choose Logo"}},
+		descr = T{3484, "This is an aesthetic choice that has no effect on gameplay."},
+		gamepad_hint = T{3485, "<ButtonA> Choose Logo"},
+		SortKey = 30000,
 	},
 	
 	idMystery = {
 		display_name = T{3486, "Mystery"},
 		display_name_caps = T{3487, "MYSTERY"},
-		rollover = {id = "MYSTERY", title = T{3487, "MYSTERY"}, descr = T{3488, "Select an active storyline for this playthrough."}, gamepad_hint = T{3489, "<ButtonA> Choose Mystery"}},
+		descr = T{3488, "Select an active storyline for this playthrough."},
+		gamepad_hint = T{3489, "<ButtonA> Choose Mystery"},
 		items = {
-			{name = "random", display_name = T{3490, "Random"}, rollover_text = T{7904, "Chooses a random mystery, preferably one you have not played yet."}},
-			{name = "none", display_name = T{6839, "None"}},
+			{id = "random", display_name = T{3490, "Random"}, rollover_text = T{7904, "Chooses a random mystery, preferably one you have not played yet."}},
+			{id = "none", display_name = T{6839, "None"}},
 		},
+		SortKey = 40000,
 	},
 	
 	idGameRules = {
 		display_name = T{8800, "Game Rules"},
 		display_name_caps = T{8801, "GAME RULES"},
+		descr = T{8804, "Select game rules you want to activate for this playthrough."}, 
+		gamepad_hint = T{8903, "<ButtonA> Choose Game Rules"},
+		SortKey = 50000,
+		empty_on_start = true,
 	},
 }
+
+function GetSortedMissionParamsKeys()
+	local keys = table.keys(MissionParams)
+	table.sort(keys, function(a,b)
+		return (MissionParams[a].SortKey or 0) < (MissionParams[b].SortKey or 0)
+	end)
+	return keys
+end
 
 function ReloadMissionSponsors()
 	local sponsors = Presets.MissionSponsorPreset and Presets.MissionSponsorPreset.Default
@@ -61,9 +83,9 @@ function ReloadCommanderProfiles()
 	end
 end
 
+const.TagLookupTable["sponsor_name"] = function() return GetMissionSponsor().display_name end
 
-
-local function ReloadMissionParams(override)
+function ReloadMissionParams(override)
 	if not override and not DataLoaded then
 		return -- wait for data loaded event.
 	end
@@ -74,8 +96,8 @@ local function ReloadMissionParams(override)
 end
 
 OnMsg.DataLoaded = function() ReloadMissionParams(true) end
-OnMsg.ModsLoaded = function() ReloadMissionParams(true) end
-OnMsg.Autorun = ReloadMissionParams
+OnMsg.ModsReloaded = function() ReloadMissionParams(true) end
+OnMsg.Autorun = function() ReloadMissionParams() end --intentionally a function, can be overriden in DLC
 
 local modifier_list_for_sponsor
 local modifier_list = {}
@@ -147,9 +169,9 @@ function OnMsg.ClassesBuilt()
 		for i = 1, #all_mysteries do
 			local mystery_id = all_mysteries[i]
 			local class = g_Classes[mystery_id]
-			if (Platform.developer or IsDlcAvailable(class.dlc)) and not table.find(items, "name", mystery_id) then
+			if (Platform.developer or IsDlcAvailable(class.dlc)) and not table.find(items, "id", mystery_id) then
 				items[#items + 1] = {
-					name = mystery_id,
+					id = mystery_id,
 					display_name = class.display_name,
 					challenge_mod = class.challenge_mod,
 					rollover_text = class.rollover_text
@@ -168,12 +190,12 @@ end
 function InitNewGameMissionParams()
 	g_CurrentMissionParams = {}
 	for k, v in pairs(MissionParams) do
-		if k ~= "idMissionSponsor" and k ~= "idCommanderProfile" and k~= "idGameRules" then --empty at the beginning
+		if not MissionParams[k].empty_on_start then
 			local items = v.items
 			for i=1,#items do
 				local item = items[i]
 				if item.filter == nil or item.filter == true or (type(item.filter) == "function" and item:filter()) then
-					g_CurrentMissionParams[k] = rawget(item, "name") or rawget(item, "id")
+					g_CurrentMissionParams[k] = item.id
 					break
 				end
 			end
@@ -417,10 +439,6 @@ function RocketPayload_Init()
 	ResupplyItemDefinitions = defs
 end
 
-if FirstLoad then
-	PGMenuEntries = {"idMissionSponsor", "idCommanderProfile", "idMissionLogo", "idMystery", "idGameRules" }
-end
-
 function OnMsg.NewMapLoaded()
 	--when a new map is loaded, ResupplyItemDefinitions gets initialized with default values
 	--so we need to apply the sponsor modifiers once again
@@ -573,15 +591,17 @@ function GetSponsorEntryRollover(param_t)
 end
 
 function GetEntryRollover(param_t)
-	if (not param_t.effect or param_t.effect == "") and not rawget(param_t, "rollover_text") then return end
+	if (not param_t.effect or param_t.effect == "") and not rawget(param_t, "rollover_text") and not rawget(param_t, "description") then return end
 	local rollover = {title = param_t.display_name}
-	local lines = { }
-	if param_t.effect then
-		lines[#lines + 1] = param_t.effect
-	else
-		lines[#lines + 1] = param_t.rollover_text
+	local descr = rawget(param_t, "rollover_text") or rawget(param_t, "description") or param_t.effect or ""
+	local flavor = rawget(param_t, "flavor")
+	if flavor and flavor ~= "" then
+		descr = table.concat({descr, flavor},"\n\n")
 	end
-	rollover.descr = table.concat(lines, "\n")
+	if IsKindOf(param_t, "GameRules") then
+		descr = descr .. GetIncompatibleGameRulesNames(param_t.id)
+	end
+	rollover.descr = descr
 	rollover.id = rollover.title
 	rollover.gamepad_hint = T{3545, "<ButtonA> Select"}
 	return rollover
@@ -604,15 +624,10 @@ function GetDescrEffects()
 		end, lines, rules)
 		lines[#lines + 1] = ""
 	end
-	for i = 1, #PGMenuEntries do
-		local id = PGMenuEntries[i]
-		local search_table = MissionParams[id].items
-		local field = "id"
-		if id == "idMystery" then
-			field = "name"
-		end
+	local keys = GetSortedMissionParamsKeys()
+	for i, id in ipairs(keys) do
 		if not random_mission_params[id] then
-			local entry = table.find_value(search_table, field, g_CurrentMissionParams[id])
+			local entry = table.find_value(MissionParams[id].items, "id", g_CurrentMissionParams[id])
 			local effect = entry and entry.effect or ""
 			if IsKindOf(entry, "MissionSponsorPreset") then
 				lines[#lines + 1] = GetSponsorDescr(entry, false, "include rockets", true, true)
@@ -645,11 +660,7 @@ function CalcChallengeRating(replace_param, replacement_id, map_challenge_rating
 			return
 		end
 		local search_table = MissionParams[param_id].items
-		local field = "id"
-		if param_id == "idMystery" then
-			field = "name"
-		end
-		local idx = table.find(search_table, field, item_id)
+		local idx = table.find(search_table, "id", item_id)
 		local mod
 		if param_id == "idGameRules" then
 			mod = CalcGameRulesChallengeMod(item_id)
@@ -708,13 +719,13 @@ function GetRandomMissionParam(param)
 	local items = MissionParams[param].items
 	for i=1,#items do
 		local item = items[i]
-		local id = rawget(item, "name") or rawget(item, "id")
+		local id = item.id
 		if id ~= "random" and id ~= "none" and (item.filter == nil or item.filter == true or (type(item.filter) == "function" and item:filter())) then
 			filtered[#filtered + 1] = item
 		end
 	end
 	local chosen = filtered[1 + AsyncRand(#filtered)]
-	return rawget(chosen, "name") or rawget(chosen, "id")
+	return chosen.id
 end
 
 function GenerateRandomMapParams()

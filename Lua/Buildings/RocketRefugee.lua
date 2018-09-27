@@ -72,6 +72,7 @@ end
 
 function RefugeeRocket:OnPassengersLost()
 	g_RefugeeOutcome[self.custom_id] = "timeout"
+	Msg("RefugeeRocketTimeout", self)
 	self:Notify("delete")
 end
 

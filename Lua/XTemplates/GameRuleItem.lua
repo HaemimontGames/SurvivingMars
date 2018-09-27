@@ -72,6 +72,7 @@ end,
 			'RolloverTextColor', RGBA(255, 255, 255, 255),
 			'DisabledTextColor', RGBA(114, 114, 114, 255),
 			'Translate', true,
+			'Text', T{714247552511, --[[XTemplate GameRuleItem Text]] "<text>"},
 			'Shorten', true,
 		}, {
 			PlaceObj('XTemplateFunc', {

@@ -52,42 +52,7 @@ end,
 						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
 						'ActionShortcut', "Ctrl-B",
 						'OnAction', function (self, host, source)
-	if not g_BuildableZ or hr.TerrainDebugDraw == nil then
-		return
-	end
-	if not DbgLastBuildableColors or not DbgLastBuildableGrid or DbgLastShowBuildablePlanes ~= config.ShowBuildablePlanes  then
-		local src = g_BuildableZ
-		local UnbuildableZ = buildUnbuildableZ()
-		if config.ShowBuildablePlanes then
-			local value_to_level = {[UnbuildableZ] = 0}
-			local colors = {0}
-			local width, height = src:size()
-			local res = NewGrid(width, height, 8, 0)
-			for y = 0, height - 1 do
-				for x = 0, width - 1 do
-					local z = src:get(x, y)
-					local level = value_to_level[z]
-					if not level then
-						level = #colors % 256
-						if level == 0 then
-							level = level + 1
-						end
-						value_to_level[z] = level
-						colors[level + 1] = RGB(UIL.HSVtoRGB( 50 + xxhash(z) % 150, 255, 255))
-					end
-					res:set(x, y, level)
-				end
-			end
-			DbgLastBuildableGrid = res
-			DbgLastBuildableColors = colors
-		else
-			DbgLastBuildableGrid = HexGridMask(src, UnbuildableZ)
-			DbgLastBuildableGrid:set_default(1)
-			DbgLastBuildableColors = {green}
-		end
-		DbgLastShowBuildablePlanes = config.ShowBuildablePlanes 
-	end
-	DbgToggleTerrainGrid(DbgLastBuildableGrid, DbgLastBuildableColors)
+	DbgToggleBuildableGrid()
 end,
 						'replace_matching_id', true,
 					}),
@@ -117,17 +82,7 @@ end,
 						'ActionName', "Draw Decor Circles",
 						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
 						'OnAction', function (self, host, source)
-	DbgSetVectorOffset(guim)
-	MapForEach("map",
-		"PrefabDecorMarker",
-		function(obj)
-			if obj:GetOpacity() > 0 then
-				--local clr_mod = SetA(obj:GetColorModifier(), 255)
-				--local color = clr_mod ~= clrNoModifier and clr_mod or white
-				local pos = obj:GetPos():SetInvalidZ()
-				DbgAddCircle(pos, obj.DecorRadius, white, 128)
-			end
-		end)
+	PrefabDbgDrawDecorCircles()
 end,
 						'replace_matching_id', true,
 					}),
@@ -137,24 +92,7 @@ end,
 						'ActionName', "Draw Prefab Pos",
 						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
 						'OnAction', function (self, host, source)
-	DbgSetVectorOffset(guim)
-	local dbg_offset = point(0, 0, 200*guim)
-	MapForEach("map",
-		"PrefabMarker",
-		function(obj)
-			if obj.apply_pos and obj:GetOpacity() > 0 then
-				local clr_mod = SetA(obj:GetColorModifier(), 255)
-				local color = clr_mod ~= clrNoModifier and clr_mod or white
-				color = InterpolateRGB(color, white, 50, 100)
-				local pos = obj.apply_pos
-				DbgAddVector(pos, dbg_offset, color)
-				local name = obj:GetPrefabName()
-				if obj.place_mark ~= -1 then
-					name = name .. '(' .. obj.place_mark .. ')'
-				end
-				DbgAddText(name, pos + dbg_offset, color)
-			end
-		end)
+	PrefabDbgDrawPos()
 end,
 						'replace_matching_id', true,
 					}),
@@ -164,17 +102,7 @@ end,
 						'ActionName', "Draw Resource Clusters",
 						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
 						'OnAction', function (self, host, source)
-	DbgSetVectorOffset(guim)
-	local gen = GetRandomMapGenerator()
-	local stats = gen and gen.debug_info and gen.debug_info.ClusterStats or empty_table
-	for i=1,#stats do
-		local stat = stats[i]
-		DbgAddVector(stat.center, 100*guim, stat.color)
-		DbgAddText(stat.txt, ValidateZ(stat.center, 120*guim), stat.color)
-		if stat.radius > 0 then
-			DbgAddCircle(stat.center, stat.radius, stat.color, 90)
-		end
-	end
+	PrefabDbgDrawResourceClusters()
 end,
 						'replace_matching_id', true,
 					}),
@@ -184,24 +112,7 @@ end,
 						'ActionName', "Draw Features",
 						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
 						'OnAction', function (self, host, source)
-	DbgSetVectorOffset(guim)
-	local dbg_offset = point(0, 0, 50*guim)
-	MapForEach("map",
-		"PrefabFeatureMarker",
-		function(obj)
-			local feature = obj:GetOpacity() > 0 and PrefabFeatures[obj.FeatureType]
-			if feature then
-				local pos = obj:GetVisualPos()
-				local color = feature.color
-				DbgAddVector(pos, dbg_offset, color)
-				DbgAddCircle(pos:SetInvalidZ(), obj.FeatureRadius, color, 128)
-				local name = obj.FeatureType
-				if obj.dbg_deposits > 0 then
-					name = name .. '(' .. obj.dbg_deposits .. ')'
-				end
-				DbgAddText(name, pos + dbg_offset, color)
-			end
-		end)
+	PrefabDbgDrawFeatures()
 end,
 						'replace_matching_id', true,
 					}),
@@ -211,23 +122,17 @@ end,
 						'ActionName', "Editor Objects Toggle",
 						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
 						'OnAction', function (self, host, source)
-	if show == nil then
-		show = not PrefabEditorObjects
-	end
-	if PrefabEditorObjects == show then
-		return
-	end
-	PrefabEditorObjects = show
-	if not IsEditorActive() then
-		return
-	end
-	PauseInfiniteLoopDetection("PrefabEditorObjects")
-	MapForEach("map",
-		"PrefabMarker",
-		function(obj)
-			obj:EditorObjectsShow(true)
-		end)
-	ResumeInfiniteLoopDetection("PrefabEditorObjects")
+	PrefabEditorObjectsToggle()
+end,
+						'replace_matching_id', true,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "PrefabDbgDrawCompare",
+						'ActionTranslate', false,
+						'ActionName', "Draw Compare",
+						'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+						'OnAction', function (self, host, source)
+	PrefabDbgDrawCompare()
 end,
 						'replace_matching_id', true,
 					}),
@@ -251,12 +156,7 @@ end,
 					'ActionName', "Feature Editor",
 					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
 					'OnAction', function (self, host, source)
-	local _, window_id = PropEditor_GetFirstWindow("PrefabFeatureEditor")
-	if not window_id then
-		PropEditorOpen(PrefabFeatureEditor:new(PrefabFeatures)) 
-	else
-		PropEditorActivateWindow(window_id)
-	end
+	OpenFeatureEditor()
 end,
 					'replace_matching_id', true,
 				}),
@@ -265,46 +165,7 @@ end,
 					'ActionTranslate', false,
 					'ActionName', "Resave All Blank Maps",
 					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
-					'OnAction', function (self, host, source)
-	if IsValidThread(l_ResaveAllMapsThread) then
-		return
-	end
-	l_ResaveAllMapsThread = CreateRealTimeThread(function()
-		print("Resaving maps...")
-		local maps = {}
-		local valid_files = {"mapdata.lua", "height.grid", "type.grid"}
-		for map, data in pairs(MapData) do
-			if data.IsRandomMap then
-				maps[map] = true
-				local folder = "Maps/" .. map .. "/"
-				local err, files = AsyncListFiles(folder)
-				for i=1,#(files or "") do
-					local file = files[i]
-					local valid
-					for j=1,#valid_files do
-						if string.ends_with(file, valid_files[j]) then
-							valid = true
-							break
-						end
-					end
-					local filename = string.sub(files[i], #folder + 1)
-					if not valid then
-						AsyncFileDelete(file)
-					end
-				end
-				AsyncStringToFile(folder .. "objects.lua", "")
-			end
-		end
-		maps = table.keys(maps, true)
-		ForEachMap(maps, function() 
-			print("Resaving map ", GetMap())
-			EditorActivate()
-			SaveMap(false, true)
-		end)
-		l_ResaveAllMapsThread = false
-		print("Resaving all blank maps complete.")
-	end)
-end,
+					'OnAction', function (self, host, source) return ResaveAllBlankMaps() end,
 					'replace_matching_id', true,
 				}),
 				PlaceObj('XTemplateAction', {
@@ -312,62 +173,7 @@ end,
 					'ActionTranslate', false,
 					'ActionName', "Resave All Prefabs",
 					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
-					'OnAction', function (self, host, source)
-	if IsValidThread(l_ResaveAllMapsThread) then
-		return
-	end
-	l_ResaveAllMapsThread = CreateRealTimeThread(function()
-		if not version then
-			local err, files = AsyncListFiles("Prefabs", "*")
-			if #files > 0 then
-				print("Deleting all prefabs...")
-				for i=1,#files do
-					local success, err = os.remove(files[i])
-					if err then
-						print("Error", err, "deleting prefab file", files[i])
-					end
-				end
-			end
-			ExportedPrefabs = {}
-		end
-		print("Resaving maps...")
-		local maps = {}
-		for map, data in pairs(MapData) do
-			if data.IsPrefabMap then
-				maps[map] = true
-			end
-		end
-		
-		local markers = DataInstances.Marker
-		for i = 1,#markers do
-			local marker = markers[i]
-			if marker.type == "Prefab" and not maps[marker.map] then
-				print("map", marker.map, "should be defined as prefab map!")
-				maps[marker.map] = true
-			end
-		end
-		
-		if version then
-			for map in pairs(maps) do
-				if version ~= GetPrefabVersion(map) then
-					maps[map] = nil
-				end
-			end
-		end
-		maps = table.keys(maps, true)
-
-		ForEachMap(maps, function() 
-			print("Resaving map ", GetMap())
-			EditorActivate()
-			SaveMap(false, true)
-		end)
-		
-		l_ResaveAllMapsThread = false
-		PrefabUpdateMarkers()
-		
-		print("Resaving all prefabs complete.")
-	end)
-end,
+					'OnAction', function (self, host, source) ResaveAllPrefabs() end,
 					'replace_matching_id', true,
 				}),
 				PlaceObj('XTemplateForEach', {
@@ -384,24 +190,16 @@ end,
 					}),
 					}),
 				}),
-			PlaceObj('XTemplateAction', {
-				'ActionId', "Editors.Game",
-				'ActionMode', "Game",
-				'ActionTranslate', false,
-				'ActionName', "Game Content ...",
-				'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
-				'OnActionEffect', "popup",
-				'replace_matching_id', true,
-			}, {
-				PlaceObj('XTemplateAction', {
-					'comment', " (Ctrl-Alt-M)",
-					'RolloverText', " (Ctrl-Alt-M)",
-					'ActionId', "MapSettingsEditor",
-					'ActionTranslate', false,
-					'ActionName', "Map Settings",
-					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
-					'ActionShortcut', "Ctrl-Alt-M",
-					'OnAction', function (self, host, source)
+			}),
+		PlaceObj('XTemplateAction', {
+			'comment', " (Ctrl-Alt-M)",
+			'RolloverText', " (Ctrl-Alt-M)",
+			'ActionId', "MapSettingsEditor",
+			'ActionTranslate', false,
+			'ActionName', "Map Settings",
+			'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+			'ActionShortcut', "Ctrl-Alt-M",
+			'OnAction', function (self, host, source)
 			local _, window_id = PropEditor_GetFirstWindow("MapSettingsEditor")
 			if not window_id then
 				local class_names = ClassDescendantsList("MapSettings")
@@ -418,10 +216,8 @@ end,
 				PropEditorActivateWindow(window_id)
 			end
 end,
-					'replace_matching_id', true,
-				}),
-				}),
-			}),
+			'replace_matching_id', true,
+		}),
 		}),
 	PlaceObj('XTemplateAction', {
 		'ActionId', "Debug",
@@ -940,9 +736,13 @@ end,
 			'ActionBindable', true,
 			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
-local dlg = GetHUD()
-if igi and dlg and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode == "selection" then
-	dlg.idBuild:Press()
+if igi and igi:GetVisible() and igi.mode == "selection" then
+	if not GetDialog("XBuildMenu") then
+		g_BuildMenuRightClicksCount = g_BuildMenuRightClicksCount + 1
+		OpenXBuildMenu()
+	else
+		CloseXBuildMenu()
+	end
 end
 end,
 			'IgnoreRepeated', true,
@@ -1040,20 +840,6 @@ if igi and dlg and dlg.window_state ~= "destroying" and igi:GetVisible() and igi
 	dlg.idResearch:Press()
 else
 	CloseResearchDialog()
-end
-end,
-			'IgnoreRepeated', true,
-		}),
-		PlaceObj('XTemplateAction', {
-			'ActionId', "actionColonyOverview",
-			'ActionName', T{7849, --[[XTemplate GameShortcuts ActionName]] "Colony Overview"},
-			'ActionShortcut', "O",
-			'ActionBindable', true,
-			'OnAction', function (self, host, source)
-local igi = GetInGameInterface()
-local dlg = GetHUD()
-if igi and dlg and dlg.window_state ~= "destroying" and igi:GetVisible() then
-	dlg.idColonyOverview:Press()
 end
 end,
 			'IgnoreRepeated', true,
@@ -1171,7 +957,7 @@ end,
 			'ActionShortcut', "Delete",
 			'ActionBindable', true,
 			'ActionState', function (self, host)
-return SelectedObj and IsKindOf(SelectedObj, "Demolishable") or "disabled"
+return SelectedObj and IsKindOfClasses(SelectedObj, "Demolishable", "LifeSupportGridElement", "ElectricityGridElement") or "disabled"
 end,
 			'OnAction', function (self, host, source)
 FocusInfopanel = false
@@ -1180,6 +966,9 @@ if SelectedObj and IsKindOf(SelectedObj, "Demolishable") and not (g_Tutorial and
 	if SelectedObj then
 		RebuildInfopanel(SelectedObj)
 	end
+elseif SelectedObj and IsKindOfClasses(SelectedObj, "LifeSupportGridElement", "ElectricityGridElement") then
+	SelectedObj:Demolish()
+	SelectObj(false)
 end
 end,
 			'IgnoreRepeated', true,
@@ -1217,6 +1006,15 @@ end,
 			'IgnoreRepeated', true,
 		}),
 		PlaceObj('XTemplateAction', {
+			'ActionId', "actionClearAllPins",
+			'ActionName', T{463783151661, --[[XTemplate GameShortcuts ActionName]] "Clear Pins"},
+			'ActionShortcut', "Alt-P",
+			'ActionBindable', true,
+			'ActionToggled', function (self, host)  end,
+			'ActionState', function (self, host)  end,
+			'OnAction', function (self, host, source) UnpinAll() end,
+		}),
+		PlaceObj('XTemplateAction', {
 			'ActionId', "actionRenameSelected",
 			'ActionName', T{337463951534, --[[XTemplate GameShortcuts ActionName]] "Rename Selected"},
 			'ActionToolbar', "SelectedObj",
@@ -1227,7 +1025,7 @@ end,
 			'OnAction', function (self, host, source)
 FocusInfopanel = false
 if SelectedObj and IsKindOf(SelectedObj, "Renamable") then
-	SelectedObj:ShowRenameUI()
+	SelectedObj:ShowRenameUI(source == "gamepad")
 end
 end,
 			'IgnoreRepeated', true,
@@ -1335,28 +1133,6 @@ end
 end,
 		}),
 		PlaceObj('XTemplateAction', {
-			'ActionId', "actionPerformMaintenance",
-			'ActionName', T{926715334434, --[[XTemplate GameShortcuts ActionName]] "Perform maintenance"},
-			'ActionToolbar', "SelectedObj",
-			'ActionGamepad', "RightTrigger-ButtonB",
-			'ActionBindable', true,
-			'ActionState', function (self, host)
-return SelectedObj and IsKindOf(SelectedObj, "Drone") or "disabled"
-end,
-			'OnAction', function (self, host, source)
-FocusInfopanel = false
-if not SelectedObj or not IsKindOf(SelectedObj, "Drone") then return end
-local igi = GetInGameInterface()
-if igi and igi:GetVisible() then
-	SelectedObj:ToggleMaintenanceInteractionMode()
-	if source == "gamepad" then
-		ActivateControlModeDlgAction()
-	end
-	RebuildInfopanel(SelectedObj)
-end
-end,
-		}),
-		PlaceObj('XTemplateAction', {
 			'ActionId', "actionAssignToBuilding",
 			'ActionName', T{8761, --[[XTemplate GameShortcuts ActionName]] "Assign To Building"},
 			'ActionToolbar', "SelectedObj",
@@ -1371,27 +1147,6 @@ if not IsKindOf(SelectedObj, "Colonist") then return end
 local igi = GetInGameInterface()
 if igi and igi:GetVisible() then
 	SelectedObj:ToggleInteraction()
-	if source == "gamepad" then
-		ActivateControlModeDlgAction()
-	end
-	RebuildInfopanel(SelectedObj)
-end
-end,
-		}),
-		PlaceObj('XTemplateAction', {
-			'ActionId', "actionRecharge",
-			'ActionName', T{542727559467, --[[XTemplate GameShortcuts ActionName]] "Recharge battery"},
-			'ActionToolbar', "SelectedObj",
-			'ActionGamepad', "RightTrigger-ButtonB",
-			'ActionState', function (self, host)
-return SelectedObj and IsKindOf(SelectedObj, "BaseRover") or "disabled"
-end,
-			'OnAction', function (self, host, source)
-FocusInfopanel = false
-if not SelectedObj or not IsKindOf(SelectedObj, "BaseRover") then return end
-local igi = GetInGameInterface()
-if igi and igi:GetVisible() then
-	SelectedObj:ToggleRechargeMode()
 	if source == "gamepad" then
 		ActivateControlModeDlgAction()
 	end
@@ -1579,9 +1334,20 @@ end,
 				'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 if not igi or not igi:GetVisible() then return end
-local bld_template = BuildingTemplates[self.OnActionParam]
+local id = self.OnActionParam
+if id == "Passage" then
+	if not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.Passage then
+		GetInGameInterface():SetMode("passage_grid", {grid_elements_require_construction = g_Consts.InstantPassages == 0})
+	end
+	return
+elseif id == "PassageRamp" then
+	if not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.PassageRamp then
+		GetInGameInterface():SetMode("passage_ramp")
+	end
+	return
+end
+local bld_template = BuildingTemplates[id]
 local show, prefabs, can_build, action = UIGetBuildingPrerequisites(bld_template.build_category, bld_template, true)
-local dlg = GetDialog("XBuildMenu")
 if show then
 	local items
 	local parent_categories = GetBuildMenuSubcategories()
@@ -2434,7 +2200,7 @@ end,
 				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
 				'OnAction', function (self, host, source)
 				if not CheatsEnabled() then return end
-				UnpinAll()
+				UnpinAll("force")
 end,
 				'replace_matching_id', true,
 			}),

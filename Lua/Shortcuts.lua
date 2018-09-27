@@ -51,10 +51,10 @@ TFormat.GamepadShortcutName = function(context_obj, shortcut)
 	return Untranslated(table.concat(buttons))
 end
 
-TFormat.ShortcutName = function(context_obj,action_id)
+TFormat.ShortcutName = function(context_obj,action_id,source)
 	local shortcuts = GetShortcuts(action_id)
-	if GetUIStyleGamepad() then
-		return TFormat.GamepadShortcutName(context_obj,shortcuts[3])
+	if GetUIStyleGamepad() and (not source or source == "gamepad") then
+		return TFormat.GamepadShortcutName(context_obj, shortcuts and shortcuts[3])
 	else
 		if shortcuts and shortcuts[1] and shortcuts[1] ~= "" then
 			local keys = SplitShortcut(shortcuts[1])
@@ -78,7 +78,7 @@ function GetShortcuts(action_id)
 		return AccountStorage.Shortcuts[action_id]
 	elseif XShortcutsTarget then
 		local action = table.find_value(XShortcutsTarget.actions, "ActionId", action_id)
-		if action and action.ActionShortcut ~= "" or action.ActionShortcut2 ~= "" or action.ActionGamepad ~= "" then
+		if action and (action.ActionShortcut ~= "" or action.ActionShortcut2 ~= "" or action.ActionGamepad ~= "") then
 			return {action.ActionShortcut, action.ActionShortcut2, action.ActionGamepad}
 		end
 	end

@@ -324,6 +324,14 @@ OptionsData.Options.AutosaveCount = {
 	{ value = 10, text = T{10074, "<number> Autosaves", number = 10} },
 }
 
+OptionsData.Options.AutoPinMaxNum = {
+	{ value = 20, text = Untranslated("20") },
+	{ value = 50, text = Untranslated("50") },
+	{ value = 100, text = Untranslated("100") },
+	{ value = 150, text = Untranslated("150") },
+	{ value = 200, text = Untranslated("200") },
+}
+
 -- storage is "local", "account", "session"
 -- items is Options.OptionsData[id], if not specified
 
@@ -387,6 +395,13 @@ function OnMsg.ClassesGenerate(classdefs)
 		{ name = T{7544, "Display Area Margin"}, id = "DisplayAreaMargin", category = "Gameplay", storage = "local", editor = "number", min = 0, max = 10, slider = true, default = 0, filter = function() return Platform.developer or Platform.durango end },
 		--{ name = T{"Colorblind Mode"}, id = "Colorblind", category = "Gameplay", storage = "account", editor = "bool", default = false},
 		{ name = T{8529, "Save to Cloud"}, id = "AutosaveToCloud", category = "Gameplay", storage = "account", editor = "bool", default = false, filter = function() return IsParadoxPlatform() end },
+		
+		{ name = T{10908, "Auto Pin Domes"}, id = "AutoPinDomes", category = "Gameplay", storage = "account", editor = "bool", default = true },
+		{ name = T{10909, "Auto Pin Drone Hubs"}, id = "AutoPinDroneHubs", category = "Gameplay", storage = "account", editor = "bool", default = false },
+		{ name = T{10910, "Auto Pin Rovers"}, id = "AutoPinRovers", category = "Gameplay", storage = "account", editor = "bool", default = true },
+		{ name = T{10911, "Auto Pin Rare Colonists"}, id = "AutoPinRareColonists", category = "Gameplay", storage = "account", editor = "bool", default = true },
+		{ name = T{10912, "Auto Pin Founders"}, id = "AutoPinFounders", category = "Gameplay", storage = "account", editor = "bool", default = false },
+		{ name = T{10913, "Max Number of Auto Pins"}, id = "AutoPinMaxNum", category = "Gameplay", storage = "account", editor = "dropdown", default = 50 },
 		
 		{ name = T{1000102, "Language"}, id = "Language", category = "Gameplay", storage = "account", editor = "dropdown", default = "English", filter = FilterNonConsole, },
 		
@@ -585,7 +600,7 @@ function OnMsg.AccountStorageChanged()
 		ApplyPreset(EngineOptions.VideoPreset)
 	end
 	if AccountStorage and next(AccountStorage.Shortcuts) then
-		ReloadShortcuts()
+		DelayedCall(0, ReloadShortcuts)
 	end
 end
 
@@ -692,5 +707,12 @@ if FirstLoad then
 		DefaultAccountStorage.Options.InfobarEnabled = true
 		DefaultAccountStorage.Options.AutosaveCount = const.DefaultAutosaveCount
 		DefaultAccountStorage.Options.AutosaveInterval = const.DefaultAutosaveInterval
+		
+		DefaultAccountStorage.Options.AutoPinMaxNum = 50
+		DefaultAccountStorage.Options.AutoPinDomes = true
+		DefaultAccountStorage.Options.AutoPinDroneHubs = false
+		DefaultAccountStorage.Options.AutoPinRovers = true
+		DefaultAccountStorage.Options.AutoPinRareColonists = true
+		DefaultAccountStorage.Options.AutoPinFounders = false
 	end
 end

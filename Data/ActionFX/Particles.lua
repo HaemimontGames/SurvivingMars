@@ -5730,6 +5730,15 @@ PlaceObj('ActionFXParticles', {
 
 PlaceObj('ActionFXParticles', {
 	'Action', "Working",
+	'Actor', "AutomaticMetalsExtractor",
+	'Delay', 200,
+	'EndMoment1', "end",
+	'handle', 957357658,
+	'Particles', "AutoMetalExtractor_Digging",
+})
+
+PlaceObj('ActionFXParticles', {
+	'Action', "Working",
 	'Moment', "start",
 	'Actor', "BlackCubeMonolith",
 	'Target', "ignore",

@@ -209,6 +209,7 @@ end,
 			'HAlign', "right",
 			'VAlign', "center",
 			'MinWidth', 350,
+			'MaxWidth', 470,
 			'MaxHeight', 670,
 			'LayoutMethod', "VList",
 		}, {
@@ -220,12 +221,30 @@ end,
 			}, {
 				PlaceObj('XTemplateWindow', {
 					'__class', "XText",
+					'Dock', "top",
 					'HAlign', "right",
 					'TextFont', "PGLandingPosDetails",
 					'TextColor', RGBA(118, 163, 222, 255),
 					'RolloverTextColor', RGBA(118, 163, 222, 255),
 					'Translate', true,
 					'Text', T{482503373345, --[[XTemplate PGMissionLandingSpot Text]] "<white><Coord></white>"},
+					'TextHAlign', "right",
+				}),
+				PlaceObj('XTemplateWindow', {
+					'__class', "XText",
+					'Margins', box(0, 15, 0, 0),
+					'Dock', "top",
+					'HAlign', "right",
+					'FoldWhenHidden', true,
+					'TextFont', "PGResource",
+					'TextColor', RGBA(96, 135, 185, 255),
+					'RolloverTextColor', RGBA(96, 135, 185, 255),
+					'OnContextUpdate', function (self, context, ...)
+self:SetVisible(not context.lat)
+end,
+					'Translate', true,
+					'Text', T{563905386684, --[[XTemplate PGMissionLandingSpot Text]] "Map topology, threats and available resources will be determined by the chosen site. You can replay a game on the same map by entering the same custom coordinates."},
+					'HideOnEmpty', true,
 					'TextHAlign', "right",
 				}),
 				PlaceObj('XTemplateWindow', {
@@ -333,5 +352,8 @@ end,
 				}),
 			}),
 		}),
+	PlaceObj('XTemplateFunc', {
+		'name', "Open",
+	}),
 })
 

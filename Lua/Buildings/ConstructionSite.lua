@@ -1200,7 +1200,7 @@ function ConstructionSite:RoverWork(rover, request, resource, amount)
 		end)
 		rover:ContinuousTask(request, amount, "constructStart", "constructIdle", "constructEnd", "Construct")
 		rover:PopAndCallDestructor()
-	else
+	elseif self.construction_resources[resource] == request then
 		rover:ContinuousTask(request, amount, "gatherStart", "gatherIdle", "gatherEnd", "Unload",	"step", g_Consts.RCRoverTransferResourceWorkTime, "add resource")
 	end
 end
@@ -1393,6 +1393,8 @@ function ConstructionSite:Cancel()
 	local ws_block_obj = self.construction_group and self.construction_group[1] or self
 	local ws_block = ws_block_obj:IsBlockerClearenceComplete()
 	local grp = self.construction_group
+	
+	self:RestoreTerrain(self.building_class_proto)
 
 	if not ws_block then
 		if grp then --we are cancelling the entire group
@@ -1695,6 +1697,9 @@ function PlaceConstructionSite(city, class_name, pos, angle, params, no_block_pa
 	PlayFXAroundBuilding(site, "Place")
 	
 	Msg("ConstructionSitePlaced", site)
+	if params.prefab then
+		Msg("ConstructionPrefabPlaced", site)
+	end
 	return site
 end
 
@@ -2399,11 +2404,17 @@ DefineClass.WireFramedPrettification = {
 	__parents = { "Shapeshifter" },
 	class_flags = { cfComponentCustomData = true },
 	construction_stage = 1,
+	GetSelectionRadiusScale = false,
 }
 
 function WireFramedPrettification:GameInit()
 	self:ChangeEntity(self.entity)
-	local bb = ObjectHierarchyBBox(self)
+	local bb = box(0, 0, min_int, 1, 1, max_int)
+	self:SetConstruction(0, self.construction_stage, bb)
+end
+
+function WireFramedPrettification:UpdateConstructionShaderParams()
+	local bb = box(0, 0, min_int, 1, 1, max_int)
 	self:SetConstruction(0, self.construction_stage, bb)
 end
 

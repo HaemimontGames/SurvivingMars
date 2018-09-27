@@ -826,7 +826,7 @@ function UICropUpdate(self, farm, index)
 			texts[#texts+1] = T{248, "Water consumption<right><water(number)>", number = farm:GetCropWaterDemand(index)}
 			texts[#texts+1] = T{249, "Optimal harvest<right><resource(number, res)>", res = crop.ResourceType, number = crop.FoodOutput or 0}
 			if crop.OxygenProduction > 0 then
-				texts[#texts+1] = T{250, "Oxygen production<right><air(number)>", number = crop.OxygenProduction}
+				texts[#texts+1] = T{250, "Reduces Oxygen consumption<right><air(number)>", number = crop.OxygenProduction}
 			end
 			if crop.SoilEffect > 0 then
 				texts[#texts+1] = T{251, "Soil quality increase<right><green><number>%</green>", number = crop.SoilEffect}

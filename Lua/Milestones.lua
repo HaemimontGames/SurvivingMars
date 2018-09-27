@@ -10,7 +10,7 @@ DefineClass.Milestone = {
 	},
 	PropertyTranslation = true,
 	HasSortKey = true,
-	EditorName = "Milestones",
+	EditorMenubarName = "Milestones",
 	EditorMenubar = "Editors.Game",
 }
 

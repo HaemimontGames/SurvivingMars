@@ -224,6 +224,19 @@ function RegolithExtractor:GetExtractionShape()
 	return GetEntityCombinedShape("QuarryClosedShape")
 end
 
+GlobalVar("RegolithExtractorExtendedExtractionShape", nil)
+
+function RegolithExtractor:GetExtractionShapeExtended()
+	if not RegolithExtractorExtendedExtractionShape then
+		local extraction_shape = table.copy(self:GetExtractionShape())
+		local peripheral_shape = GetPeripheralHexShape(extraction_shape)
+		local one_hex_extended_shape = table.append(extraction_shape, peripheral_shape)
+		peripheral_shape = GetPeripheralHexShape(one_hex_extended_shape)
+		RegolithExtractorExtendedExtractionShape = table.append(one_hex_extended_shape, peripheral_shape)
+	end
+	return RegolithExtractorExtendedExtractionShape
+end
+
 function RegolithExtractor:GetFlattenShape()
 	local flatten_shape = table.copy(self:GetShapePoints())
 	local extractor_shape = self:GetExtractionShape()
@@ -279,12 +292,13 @@ function RegolithExtractor:ExtractResource(...)
 end
 
 function RegolithExtractor:GatherConstructionStatuses(statuses)
-	local closest_deposit = self:FindClosestDeposit()
-	local percents = self:GetCurrentDepositQualityMultiplier(closest_deposit)
-	local amount = self:GetAmount()
-	if percents == 0 or amount == 0 then
+	local construction_shape = self:GetExtractionShapeExtended()
+	local concrete_markers = HexGetUnits(self, nil, nil, nil, nil, nil, "TerrainDepositConcrete", 4*const.GridSpacing, construction_shape)
+	if #concrete_markers == 0 then
 		statuses[#statuses + 1] = ConstructionStatus.ResourceRequired
 	else
+		local amount = self:GetAmount()
+		local closest_deposit = self:FindClosestDeposit()
 		local status = table.copy(ConstructionStatus.DepositInfo)
 		status.text = T{status.text, {resource = FormatResource(empty_table, amount, self.exploitation_resource), grade = self:Getgrade_name(closest_deposit), col = ConstructionStatusColors.info.color_tag}}
 		statuses[#statuses + 1] = status
@@ -317,6 +331,10 @@ function RegolithExtractor:OnSetWorking(working)
 	if HintsEnabled and working then
 		HintTrigger("HintWasteRock")
 	end
+end
+
+function RegolithExtractor:GetSelectionRadiusScale()
+	return false
 end
 
 GlobalVar("RegolithExtractorHintPopupThread", false)

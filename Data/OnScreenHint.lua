@@ -31,7 +31,7 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "HintBuildingConstruction",
 	'title', T{5510, --[[OnScreenHint HintBuildingConstruction title]] "Building Construction"},
-	'text', T{5511, --[[OnScreenHint HintBuildingConstruction text]] "Permanent buildings are constructed by Drones. Open the Build Menu with <right_click> or <em><ShortcutName('actionOpenBuildMenu')></em>, select a building, and place it on the desired location with <left_click>.\n\nSuggested Building: A <em>Large Solar Panel</em> will generate electrical Power required for other buildings"},
+	'text', T{5511, --[[OnScreenHint HintBuildingConstruction text]] "Permanent buildings are constructed by Drones. <OpenBuildMenuHint()>.\nSuggested Building: A <em>Large Solar Panel</em> will generate electrical Power required for other buildings"},
 	'gamepad_text', T{5512, --[[OnScreenHint HintBuildingConstruction gamepad_text]] "Permanent buildings are constructed by Drones. Open the Build Menu with <ButtonY>, select a building construction and place it on the desired location with <ButtonA>.\n\nSuggested building: A <em>Large Solar Panel</em> will generate electrical Power required for other buildings"},
 })
 
@@ -58,7 +58,7 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "HintSuggestConcreteExtractor",
 	'title', T{5518, --[[OnScreenHint HintSuggestConcreteExtractor title]] "Suggested Building: Concrete Extractor"},
-	'text', T{5519, --[[OnScreenHint HintSuggestConcreteExtractor text]] "Concrete Extractors automatically produce <em>Concrete</em>, but they still need Power and <em>Drones</em> to service them. Place a <em>Concrete Extractor</em> near a Concrete deposit indicated by yellow terrain in a scanned Sector."},
+	'text', T{5519, --[[OnScreenHint HintSuggestConcreteExtractor text]] "Concrete Extractors automatically produce <em>Concrete</em>, but they still need Power and <em>Drones</em> to service them. Place a <em>Concrete Extractor</em> near a Concrete deposit in a scanned Sector."},
 })
 
 PlaceObj('OnScreenHint', {
@@ -303,12 +303,6 @@ PlaceObj('OnScreenHint', {
 })
 
 PlaceObj('OnScreenHint', {
-	'name', "HintRoverBatteries",
-	'title', T{7027, --[[OnScreenHint HintRoverBatteries title]] "Vehicle Batteries"},
-	'text', T{7028, --[[OnScreenHint HintRoverBatteries text]] "RC Rovers are powered by batteries with limited capacity. To recharge them you have to connect the vehicle to a Power grid or transfer Power from another vehicle with a charged battery."},
-})
-
-PlaceObj('OnScreenHint', {
 	'name', "HintEarthsick",
 	'title', T{7029, --[[OnScreenHint HintEarthsick title]] "Earthsick Colonists"},
 	'text', T{7030, --[[OnScreenHint HintEarthsick text]] "Colonists with very low Comfort will get <em>Earthsick</em>. They will stop working and travel back to Earth at first opportunity. To prevent this, make sure they have access to a variety of operational service Buildings that satisfy their different interests."},
@@ -367,7 +361,7 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "Tutorial_1_DronesNResources_1",
 	'title', T{5162, --[[OnScreenHint Tutorial_1_DronesNResources_1 title]] "Metals Depot"},
-	'text', T{9036, --[[OnScreenHint Tutorial_1_DronesNResources_1 text]] "Open the <em>Build Menu</em> using <right_click> or <left_click> on the HUD icon. Then follow the arrows to chose the <em>Metals Depot</em>."},
+	'text', T{9036, --[[OnScreenHint Tutorial_1_DronesNResources_1 text]] "<OpenBuildMenuTutorialHint1()>. Then follow the arrows to chose the <em>Metals Depot</em>."},
 	'gamepad_text', T{9037, --[[OnScreenHint Tutorial_1_DronesNResources_1 gamepad_text]] "Open the <em>Build Menu</em> using <ButtonY>. \n\nFollow the hint arrows by using <LB><RB> to navigate the categories and then <DPadLeft><DPadRight> or <LS> to pick a building within a category.\n\nThen use <ButtonA> to select the building or sub category as in the case of the <em>Metals Depot</em>."},
 	'tutorial', "Tutorial1",
 	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_DronesAndResources.tga",
@@ -392,7 +386,7 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "Tutorial_1_UniversalStorage",
 	'title', T{5303, --[[OnScreenHint Tutorial_1_UniversalStorage title]] "Universal Depot"},
-	'text', T{9042, --[[OnScreenHint Tutorial_1_UniversalStorage text]] "Open the Build Menu and select the <em>Universal Depot</em> by following the arrows. Then place it near your Rocket."},
+	'text', T{9042, --[[OnScreenHint Tutorial_1_UniversalStorage text]] "<OpenBuildMenuTutorialHint2()>. Then place it near your Rocket."},
 	'gamepad_text', T{9043, --[[OnScreenHint Tutorial_1_UniversalStorage gamepad_text]] "Open the Build Menu with <ButtonY> and select the <em>Universal Depot</em> by following the arrows. Then place it near your Rocket."},
 	'tutorial', "Tutorial1",
 	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_UnloadRocket.tga",
@@ -401,7 +395,7 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "Tutorial_1_ConcreteExtractor_1",
 	'title', T{5032, --[[OnScreenHint Tutorial_1_ConcreteExtractor_1 title]] "Concrete Extractor"},
-	'text', T{9044, --[[OnScreenHint Tutorial_1_ConcreteExtractor_1 text]] "Open the Build Menu and choose a <em>Concrete Extractor</em> from the Production category."},
+	'text', T{9044, --[[OnScreenHint Tutorial_1_ConcreteExtractor_1 text]] "<OpenBuildMenuTutorialHint3()>."},
 	'gamepad_text', T{9045, --[[OnScreenHint Tutorial_1_ConcreteExtractor_1 gamepad_text]] "Open the Build Menu with <ButtonY> and choose a <em>Concrete Extractor</em> from the Production category."},
 	'tutorial', "Tutorial1",
 	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial1/Tutorial1_ConcreteExtractor.tga",
@@ -532,14 +526,6 @@ PlaceObj('OnScreenHint', {
 	'gamepad_text', T{9080, --[[OnScreenHint Tutorial_2_MoveRover gamepad_text]] "Move the vehicle to the area indicated by the arrow.\n\nWith the RC Transport selected, use <RT> to focus the Rover's Info Panel and then <DPadLeft><DPadRight> to select the \"Move\" action.\n\nAlternatively you can move the RC Transport by  holding <RT> and then pressing <ButtonA>."},
 	'tutorial', "Tutorial2",
 	'encyclopedia_image', "UI/Messages/rc_transport.tga",
-})
-
-PlaceObj('OnScreenHint', {
-	'name', "Tutorial_2_RechargeRover",
-	'title', T{9084, --[[OnScreenHint Tutorial_2_RechargeRover title]] "Rover Batteries"},
-	'text', T{9085, --[[OnScreenHint Tutorial_2_RechargeRover text]] "Move the Rover next to a cable and wait until it is <em>fully charged</em>.\n\nThis will take some time, so you may want to speed up the simulation."},
-	'tutorial', "Tutorial2",
-	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial2/Tutorial2_Battery.tga",
 })
 
 PlaceObj('OnScreenHint', {

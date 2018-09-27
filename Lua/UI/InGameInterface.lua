@@ -9,55 +9,96 @@ function OnMsg.SelectedObjChange(obj, prev)
 	if not IsKindOf(dlg, "UnitDirectionModeDialog") then
 		return
 	end
-	
-	dlg:RemoveSelectionArrow()
-	dlg:CreateSelectionArrow(obj)
 end
 
 GlobalVar("g_HexRanges", {}, weak_keys_meta)
 
 local function update_hex_range(obj)
 	if not obj or not IsValid(obj) then return end
-	local rxs = obj:GetAttaches("RangeHexMultiSelectRadius") or empty_table
+	local rxs = obj:GetAttaches("RangeHexRadius") or empty_table
 	for i = 1, #rxs do
 		rxs[i].size = -1
-		rxs[i]:SetScale(obj:GetSelectionRadiusScale())
+		if obj:HasMember(rxs[i].bind_to) then
+			rxs[i]:SetScale(obj[rxs[i].bind_to](obj))
+		end
 	end
 end
 
-function ShowHexRanges(city, class, cursor_obj)
-	city = city or UICity
-	
-	if not g_Classes[class] or not g_Classes[class]:HasMember("GetSelectionRadiusScale") then
-		return
-	end
-	
-	if city.labels[class] then
-		for _, bld in ipairs(city.labels[class]) do
-			if not g_HexRanges[bld] and not bld.destroyed then
-				local obj = PlaceObject("RangeHexMultiSelectRadius")
-				bld:Attach(obj)
-				g_HexRanges[bld] = obj
-				obj:SetScale(bld:GetSelectionRadiusScale())
-			end
+function CleanupHexRanges(obj, bind_func)
+	for i = #(g_HexRanges[obj] or empty_table), 1, -1 do
+		local r = g_HexRanges[obj][i]
+		if not bind_func or r.bind_to == bind_func then
+			DoneObject(r)
+			table.remove(g_HexRanges[obj], i)
 		end
 	end
-	if city.labels.ConstructionSite then
+end
+
+local function ShowBuildingHexes(bld, hex_range_class, bind_func)
+	if bld:IsValidPos() and not bld.destroyed then
+		CleanupHexRanges(bld, bind_func)
+		local obj = PlaceObject(hex_range_class)
+		obj:SetPos(bld:GetPos():SetStepZ()) -- avoid attaching it in air in case of landing rockets
+		g_HexRanges[bld] = g_HexRanges[bld] or {}
+		table.insert(g_HexRanges[bld], obj)
+		g_HexRanges[obj] = bld
+		obj.bind_to = bind_func
+		obj:SetScale(bld[bind_func](bld))
+	end
+end
+
+local function ShowConstructionSiteHexes(site, bind_func)
+	CleanupHexRanges(site, bind_func)
+	local obj = PlaceObject("RangeHexMultiSelectRadius")
+	site:Attach(obj)
+	g_HexRanges[site] = g_HexRanges[site] or {}
+	table.insert(g_HexRanges[site], obj)
+	g_HexRanges[obj] = site
+	update_hex_range(site)
+end
+
+function ShowHexRanges(city, class, cursor_obj, bind_func, single_obj)
+	city = city or UICity
+	
+	bind_func = bind_func or RangeHexRadius.bind_to
+	if class and (not g_Classes[class] or not g_Classes[class]:HasMember(bind_func)) then
+		return
+	end	
+	if single_obj and not class then
+		if single_obj.class == "ConstructionSite" then
+			ShowConstructionSiteHexes(single_obj, bind_func)
+		else
+			ShowBuildingHexes(single_obj, "RangeHexMovableRadius", bind_func)
+		end
+	end
+	if class and city.labels[class] then
+		for _, bld in ipairs(city.labels[class]) do
+			ShowBuildingHexes(bld, bld == SelectedObj and "RangeHexMovableRadius" or "RangeHexMultiSelectRadius", bind_func)
+		end
+	end
+	if class and city.labels.ConstructionSite then
 		for _, site in ipairs(city.labels.ConstructionSite) do
-			if IsKindOf(site.building_class_proto, class) and not g_HexRanges[site] then
+			if IsKindOf(site.building_class_proto, class) then
+				CleanupHexRanges(site, bind_func)
 				local obj = PlaceObject("RangeHexMultiSelectRadius")
 				site:Attach(obj)
-				g_HexRanges[site] = obj
+				g_HexRanges[site] = g_HexRanges[site] or {}
+				table.insert(g_HexRanges[site], obj)
+				g_HexRanges[obj] = site
 				update_hex_range(site)
 			end
 		end
 	end	
-	if IsValid(cursor_obj) and cursor_obj:HasMember("GetSelectionRadiusScale") then
-		assert(type(cursor_obj.GetSelectionRadiusScale) == "number")
+	if IsValid(cursor_obj) and cursor_obj:HasMember(bind_func) then	
+		assert(type(cursor_obj[bind_func]) == "number")
+		CleanupHexRanges(cursor_obj, bind_func)
 		local obj = PlaceObject("RangeHexMultiSelectRadius")
 		cursor_obj:Attach(obj)
-		g_HexRanges[cursor_obj] = obj
-		obj:SetScale(cursor_obj.GetSelectionRadiusScale)
+		g_HexRanges[cursor_obj] = g_HexRanges[cursor_obj] or {}
+		table.insert(g_HexRanges[cursor_obj], obj)
+		g_HexRanges[obj] = cursor_obj
+		obj.bind_to = bind_func
+		obj:SetScale(cursor_obj[bind_func])
 	end
 end
 
@@ -66,17 +107,19 @@ function HideHexRanges(city, class)
 	
 	if city.labels[class] then
 		for _, bld in ipairs(city.labels[class]) do
-			if g_HexRanges[bld] then
-				DoneObject(g_HexRanges[bld])
+			for _, hex in ipairs(g_HexRanges[bld] or empty_table) do
+				DoneObject(hex)
 				g_HexRanges[bld] = nil
 			end
 		end
 	end
 	if city.labels.ConstructionSite then
 		for _, site in ipairs(city.labels.ConstructionSite) do
-			if IsKindOf(site.building_class_proto, class) and g_HexRanges[site] then
-				DoneObject(g_HexRanges[site])
-				g_HexRanges[site] = nil
+			if IsKindOf(site.building_class_proto, class) then
+				for _, hex in ipairs(g_HexRanges[site] or empty_table) do
+					DoneObject(hex)
+					g_HexRanges[site] = nil
+				end
 			end
 		end
 	end	
@@ -98,8 +141,8 @@ function UpdateHexRanges(city, class)
 end
 
 function OnMsg.Demolished(bld)
-	if g_HexRanges[bld] then
-		DoneObject(g_HexRanges[bld])
+	for _, range in ipairs(g_HexRanges[bld] or empty_table) do
+		DoneObject(range)
 		g_HexRanges[bld] = nil
 	end
 end
@@ -112,16 +155,32 @@ function OnMsg.SelectedObjChange(obj, prev)
 			UpdateHexRanges(UICity, g_FXBuildingType.class)
 		end
 		-- ignore 'prev' so "end" is not fired twice
-		PlayFXBuildingType("Select", "end", g_FXBuildingType.city, g_FXBuildingType.class, obj)
 		g_FXBuildingType = false
 	end
+	for _, hex in ipairs(g_HexRanges[prev] or empty_table) do
+		DoneObject(hex)
+		g_HexRanges[prev] = nil
+	end
+	
 
 	local bld = GetBuildingObj(obj)
+	if bld and bld.show_range and not bld.show_range_all then
+		ShowHexRanges(nil, nil, nil, nil, obj)
+	end
 	if bld and (bld.show_range_all or g_BCHexRangeEnable[bld.class]) then
-		-- ignore 'obj' so "start" is not fired twice
-		PlayFXBuildingType("Select", "start", obj.city, bld.class, obj)	
 		g_FXBuildingType = { city = obj.city, class = bld.class }
 		ShowHexRanges(UICity, bld.class)
+	end
+	if bld and IsKindOfClasses(bld, "SupplyRocket", "DustGenerator") then
+		g_FXBuildingType = { city = obj.city, class = bld.class }
+		local bind_func = "GetDustRadius"
+		local range = PlaceObject("RangeHexMultiSelectRadius")
+		range:SetPos(obj:GetPos():SetStepZ())
+		g_HexRanges[obj] = g_HexRanges[obj] or {}
+		table.insert(g_HexRanges[obj], range)
+		g_HexRanges[range] = obj
+		range.bind_to = bind_func
+		range:SetScale(bld[bind_func](bld))
 	end
 end
 
@@ -364,7 +423,7 @@ function InGameInterface:SetMode(mode, params)
 	end
 	if self.mode == "selection" then
 		--resurrect infopanel
-		if SelectedObj or ShowResourceOverview then
+		if SelectedObj then
 			ReopenSelectionXInfopanel()
 		end
 	end
@@ -393,11 +452,19 @@ end
 function InGameInterface:OnSetFocus()
 	local pins = GetDialog("PinsDlg")
 	if pins then pins:UpdateGamepadHint() end
+	local notifs = GetDialog("OnScreenNotificationsDlg")
+	if notifs then notifs:UpdateGamepadHint() end
+	local infobar = GetDialog("Infobar")
+	if infobar then infobar:UpdateGamepadHint() end
 end
 
 function InGameInterface:OnKillFocus()
 	local pins = GetDialog("PinsDlg")
 	if pins then pins:UpdateGamepadHint() end
+	local notifs = GetDialog("OnScreenNotificationsDlg")
+	if notifs then notifs:UpdateGamepadHint() end
+	local infobar = GetDialog("Infobar")
+	if infobar then infobar:UpdateGamepadHint() end
 end
 
 function GetInGameInterface()

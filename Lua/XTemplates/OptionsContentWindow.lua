@@ -171,7 +171,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "restoreDefaults",
-						'ActionName', T{5468, --[[XTemplate OptionsContentWindow ActionName]] "RESTORE DEFAULTS"},
+						'ActionName', T{5469, --[[XTemplate OptionsContentWindow ActionName]] "RESET"},
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonY",
 						'OnAction', function (self, host, source)
@@ -183,7 +183,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "resetToDefaults",
-						'ActionName', T{5469, --[[XTemplate OptionsContentWindow ActionName]] "RESET TO DEFAULTS"},
+						'ActionName', T{5469, --[[XTemplate OptionsContentWindow ActionName]] "RESET"},
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonY",
 						'OnAction', function (self, host, source)

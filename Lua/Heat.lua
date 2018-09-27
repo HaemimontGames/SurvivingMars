@@ -32,6 +32,13 @@ function GetHeatAt(x, y)
 	return g_HeatGrid:get(x, y)
 end
 
+function GetAverageHeatIn(area)
+	if not g_HeatGrid then
+		return max_heat
+	end
+	return Heat_Average(g_HeatGrid, area, map_border, grid_tile)
+end
+
 function OnHeatGridChanged()
 	HeatChanged = true
 	if IsValidThread(lerp_grid_thread) then
@@ -219,10 +226,12 @@ end
 function OnMsg.NewMapLoaded()
 	if not mapdata.GameLogic then return end
 	CreateHeatGrids()
-	CreateGameTimeThread(function()
-		AsyncLerpHeatGrid(g_HeatGrid, s_HeatGridTarget, 100, heat_step_min)
-		hr.TR_UpdateHeatGrid = 1
-	end)
+end
+
+function City:InitHeat()
+	if not mapdata.GameLogic then return end
+	AsyncLerpHeatGrid(g_HeatGrid, s_HeatGridTarget, 100, heat_step_min)
+	hr.TR_UpdateHeatGrid = 1
 end
 
 function OnMsg.LoadGame()
@@ -243,7 +252,7 @@ DefineClass.ColdSensitive = {
 		{ template = true, name = T{665, "Penalty Percent"},      id = "penalty_pct",             category = "Cold", editor = "number", default = const.DefaultPanaltyPct,  min = 0, max = 300, slider = true, help = "Cold penalty percents" },
 		{ template = true, name = T{666, "Freeze Time"},          id = "freeze_time",             category = "Cold", editor = "number", default = const.DefaultFreezeTime,  scale = const.HourDuration, help = "Freeze time if under the freeze heat" },
 		{ template = true, name = T{8526, "Defrost Time"},        id = "defrost_time",            category = "Cold", editor = "number", default = const.DefaultDefrostTime, scale = const.HourDuration, help = "Defrost time if above the freeze heat" },
-		{ template = true, name = T{667, "Freeze Heat"},          id = "freeze_heat",             category = "Cold", editor = "number", default = const.DefaultFreezeHeat,  min = 0, max = const.MaxHeat, slider = true, help = "Heat at which the building begins to freeze" },
+		{ template = true, name = T{667, "Freeze Heat"},          id = "freeze_heat",             category = "Cold", editor = "number", default = const.DefaultFreezeHeat,  min = 0, max = const.MaxHeat, slider = true, help = "Below that heat the building begins to freeze" },
 	},
 	
 	is_electricity_consumer = false, --el consumer child flips this

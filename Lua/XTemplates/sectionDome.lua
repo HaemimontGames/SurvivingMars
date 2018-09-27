@@ -11,13 +11,21 @@ PlaceObj('XTemplate', {
 			'__template', "InfopanelButton",
 			'RolloverText', T{363, --[[XTemplate sectionDome RolloverText]] "Filter Colonists in the Dome by desired or undesired traits. Colonists that do not match the filter will try to resettle in another Dome. If a Quarantine was set for the Dome, this action will remove it."},
 			'RolloverTitle', T{362, --[[XTemplate sectionDome RolloverTitle]] "Filter by Traits"},
+			'OnContextUpdate', function (self, context, ...)
+local shortcuts = GetShortcuts("actionDomeFilter")
+local hint = ""
+if shortcuts and (shortcuts[1] or shortcuts[2]) then
+	hint = T{10952, " / <em><ShortcutName('actionDomeFilter', 'keyboard')></em>"}
+end
+self:SetRolloverHint(T{10947, "<left_click><hint> Activate", hint = hint})
+end,
 			'OnPressParam', "OpenFilterTraits",
 			'Icon', "UI/Icons/IPButtons/colonists_accept.tga",
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelActiveSection",
 			'OnContextUpdate', function (self, context, ...)
-local dome = ResolvePropObj(context)
+	local dome = ResolvePropObj(context)
 	local accept = dome.allow_birth
 	if accept then
 		self:SetIcon("UI/Icons/Sections/birth_on.tga")

@@ -10,7 +10,7 @@ PlaceObj('XTemplate', {
 		'__class', "XTextButton",
 		'RolloverTemplate', "InfopanelRollover",
 		'RolloverAnchor', "left",
-		'RolloverHint', T{7656, --[[XTemplate InfopanelButton RolloverHint]] "<left_click> Activate"},
+		'RolloverHint', T{10989, --[[XTemplate InfopanelButton RolloverHint]] "<left_click> Activate"},
 		'RolloverHintGamepad', T{643294919927, --[[XTemplate InfopanelButton RolloverHintGamepad]] "<ButtonA> Activate"},
 		'ScaleModifier', point(900, 900),
 		'LayoutMethod', "Box",

@@ -62,7 +62,7 @@ DefineClass.ResourceStockpileBase = {
 		{ id = "additional_demand_flags", editor = "number", default = 0, no_edit = true },
 		{ id = "destroy_when_empty", editor = "bool", default = false, no_edit = true },
 		
-		{ id = "DesiredAmountSlider", name = T{10368, "DesiredAmount"}, category = "Storage Space", default = 0, editor = "number", min = 0, max = function(self) return self.desire_slider_max end, },
+		{ id = "DesiredAmountSlider", name = T{10368, "DesiredAmount"}, category = "Storage Space", default = 0, editor = "number", min = 0, max = function(self) return self.desire_slider_max end, dont_save = true },
 		{ template = true, id = "desire_slider_max", name = T{10369, "Desire Slider Max"}, category = "Storage Space", default = 10000, editor = "number"},
 		{ template = true, id = "desired_amount", name = T{10370, "Desire Amount"}, category = "Storage Space", default = 0, editor = "number", scale = const.ResourceScale},
 	},
@@ -121,7 +121,12 @@ DefineClass.ResourceStockpileBase = {
 	interest11 = false,
 	
 	dome_label = "ResourceStockpile",
+	auto_rovers = 0,
 }
+
+function ResourceStockpileBase:Select()
+	Building.Select(self:GetParent() or self)
+end
 
 function ResourceStockpileBase:GetFillIndex(resource)
 	local r = self.supply_request or self.demand_request
@@ -160,6 +165,7 @@ function ResourceStockpileBase:BroadcastVerify(other)
 end
 
 function ResourceStockpileBase:SetDesiredAmountSlider(perc)
+	if GameTime() == 0 then return end
 	local max = self:GetMaxStorageForAnyOneResource()
 	local amount =  ((MulDivRound(perc, max, self.desire_slider_max) + const.ResourceScale / 2) / const.ResourceScale) * const.ResourceScale
 	if IsMassUIModifierPressed() then
@@ -723,9 +729,11 @@ function ResourceStockpileBase:GetDescription()
 end
 
 function ResourceStockpileBase:RoverWork(rover, request, resource, amount, reciprocal_req, interaction_type, total_amount)	
-	--temp presentation
-	return rover:ContinuousTask(request, amount, "gatherStart", "gatherIdle", "gatherEnd",
-	interaction_type == "load" and "Load" or "Unload",	"step", g_Consts.RCRoverTransferResourceWorkTime, "add resource", reciprocal_req, total_amount)
+	if self.supply_request == request or self.demand_request == request then
+		--temp presentation
+		return rover:ContinuousTask(request, amount, "gatherStart", "gatherIdle", "gatherEnd",
+			interaction_type == "load" and "Load" or "Unload",	"step", g_Consts.RCRoverTransferResourceWorkTime, "add resource", reciprocal_req, total_amount)
+	end
 end
 
 function ResourceStockpileBase:GetEmptyStorage(resource)
@@ -892,7 +900,7 @@ DefineClass.SharedStorageBaseVisualOnly = {
 	__parents = { "ResourceStockpileBase" },
 		properties = {
 		{ template = true, name = T{696, "Max Shared Storage"},  category = "Storage Space", id = "max_shared_storage",  editor = "number", default = 120000, scale = const.ResourceScale },
-		{ id = "storable_resources", editor = "table", no_edit = true },
+		{ id = "storable_resources", editor = "prop table", no_edit = true },
 		{ id = "StoredAmount", editor = false },
 		
 		{ id = "stockpiled_amount", editor = "number", default = false, no_edit = true },

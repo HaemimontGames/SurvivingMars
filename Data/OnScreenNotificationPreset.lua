@@ -277,7 +277,7 @@ PlaceObj('OnScreenNotificationPreset', {
 	group = "Default",
 	id = "TechAlienAnomaly",
 	image = "UI/Icons/Notifications/anomaly_analyzed.tga",
-	text = T{5617, --[[OnScreenNotificationPreset TechAlienAnomaly text]] "Tech Boost: -5% Research cost (all fields)"},
+	text = T{5617, --[[OnScreenNotificationPreset TechAlienAnomaly text]] "Tech Boost: Reduced cost of techs by 5% (all fields) "},
 	title = T{5616, --[[OnScreenNotificationPreset TechAlienAnomaly title]] "Alien Artifact Analyzed"},
 	voiced_text = T{7042, --[[voice:aide]] "Anomaly analyzed"},
 })
@@ -299,6 +299,26 @@ PlaceObj('OnScreenNotificationPreset', {
 	priority = "Important",
 	text = T{5618, --[[OnScreenNotificationPreset ColdWave text]] "Disaster starts in <countdown>"},
 	title = T{4149, --[[OnScreenNotificationPreset ColdWave title]] "Cold Wave"},
+	voiced_text = T{7043, --[[voice:aide]] "Cold Wave approaching"},
+})
+
+PlaceObj('OnScreenNotificationPreset', {
+	ImagePreview = "UI/Icons/Notifications/cold_wave_2.tga",
+	SortKey = 1002300,
+	VignetteImage = "UI/Vignette_Red.tga",
+	VignettePulseDuration = 2000,
+	dismissable = false,
+	display_countdown = true,
+	encyclopedia_id = "Cold_Wave",
+	fx_action = "UINotificationDisasterStart",
+	game_time = true,
+	group = "Default",
+	id = "ColdWave2",
+	image = "UI/Icons/Notifications/cold_wave_2.tga",
+	popup_preset = "ColdWave",
+	priority = "Important",
+	text = T{433938547139, --[[OnScreenNotificationPreset ColdWave2 text]] "<early_warning> warning due to <num_of_sensors>."},
+	title = T{10966, --[[OnScreenNotificationPreset ColdWave2 title]] "Cold Wave  in <countdown>"},
 	voiced_text = T{7043, --[[voice:aide]] "Cold Wave approaching"},
 })
 
@@ -356,6 +376,26 @@ PlaceObj('OnScreenNotificationPreset', {
 	priority = "Important",
 	text = T{5618, --[[OnScreenNotificationPreset MeteorStorm text]] "Disaster starts in <countdown>"},
 	title = T{5620, --[[OnScreenNotificationPreset MeteorStorm title]] "Meteor Storm"},
+	voiced_text = T{7044, --[[voice:aide]] "Meteor Shower incoming"},
+})
+
+PlaceObj('OnScreenNotificationPreset', {
+	ImagePreview = "UI/Icons/Notifications/meteor_storm_2.tga",
+	SortKey = 1002600,
+	VignetteImage = "UI/Vignette_Red.tga",
+	VignettePulseDuration = 2000,
+	dismissable = false,
+	display_countdown = true,
+	encyclopedia_id = "Meteors",
+	fx_action = "UINotificationDisasterStart",
+	game_time = true,
+	group = "Default",
+	id = "MeteorStorm2",
+	image = "UI/Icons/Notifications/meteor_storm_2.tga",
+	popup_preset = "MeteorStorm",
+	priority = "Important",
+	text = T{705678861063, --[[OnScreenNotificationPreset MeteorStorm2 text]] "<early_warning> warning due to <num_of_sensors>."},
+	title = T{10967, --[[OnScreenNotificationPreset MeteorStorm2 title]] "Meteor Storm in <countdown>"},
 	voiced_text = T{7044, --[[voice:aide]] "Meteor Shower incoming"},
 })
 
@@ -443,6 +483,26 @@ PlaceObj('OnScreenNotificationPreset', {
 
 PlaceObj('OnScreenNotificationPreset', {
 	ImagePreview = "UI/Icons/Notifications/dust_storm_2.tga",
+	SortKey = 1003100,
+	VignetteImage = "UI/Vignette_Red.tga",
+	VignettePulseDuration = 2000,
+	dismissable = false,
+	display_countdown = true,
+	encyclopedia_id = "Duststorm",
+	fx_action = "UINotificationDisasterStart",
+	game_time = true,
+	group = "Default",
+	id = "normalDustStorm2",
+	image = "UI/Icons/Notifications/dust_storm_2.tga",
+	popup_preset = "normalDustStorm",
+	priority = "Important",
+	text = T{954067675131, --[[OnScreenNotificationPreset normalDustStorm2 text]] "<early_warning> warning due to <num_of_sensors>."},
+	title = T{10968, --[[OnScreenNotificationPreset normalDustStorm2 title]] "Dust Storm  in <countdown>"},
+	voiced_text = T{7047, --[[voice:aide]] "Dust Storm approaching"},
+})
+
+PlaceObj('OnScreenNotificationPreset', {
+	ImagePreview = "UI/Icons/Notifications/dust_storm_2.tga",
 	SortKey = 1003200,
 	VignetteImage = "UI/Vignette_Red.tga",
 	VignettePulseDuration = 2000,
@@ -463,6 +523,26 @@ PlaceObj('OnScreenNotificationPreset', {
 
 PlaceObj('OnScreenNotificationPreset', {
 	ImagePreview = "UI/Icons/Notifications/dust_storm_2.tga",
+	SortKey = 1003200,
+	VignetteImage = "UI/Vignette_Red.tga",
+	VignettePulseDuration = 2000,
+	dismissable = false,
+	display_countdown = true,
+	encyclopedia_id = "Duststorm",
+	fx_action = "UINotificationDisasterStart",
+	game_time = true,
+	group = "Default",
+	id = "greatDustStorm2",
+	image = "UI/Icons/Notifications/dust_storm_2.tga",
+	popup_preset = "greatDustStorm",
+	priority = "Important",
+	text = T{844269843610, --[[OnScreenNotificationPreset greatDustStorm2 text]] "<early_warning> warning due to <num_of_sensors>."},
+	title = T{10969, --[[OnScreenNotificationPreset greatDustStorm2 title]] "Great Dust Storm  in <countdown>"},
+	voiced_text = T{7048, --[[voice:aide]] "Great Dust Storm approaching"},
+})
+
+PlaceObj('OnScreenNotificationPreset', {
+	ImagePreview = "UI/Icons/Notifications/dust_storm_2.tga",
 	SortKey = 1003300,
 	VignetteImage = "UI/Vignette_Red.tga",
 	VignettePulseDuration = 2000,
@@ -478,6 +558,26 @@ PlaceObj('OnScreenNotificationPreset', {
 	priority = "Important",
 	text = T{5618, --[[OnScreenNotificationPreset electrostaticDustStorm text]] "Disaster starts in <countdown>"},
 	title = T{5628, --[[OnScreenNotificationPreset electrostaticDustStorm title]] "Electrostatic Dust Storm"},
+	voiced_text = T{7049, --[[voice:aide]] "Electrostatic Dust Storm approaching"},
+})
+
+PlaceObj('OnScreenNotificationPreset', {
+	ImagePreview = "UI/Icons/Notifications/dust_storm_2.tga",
+	SortKey = 1003300,
+	VignetteImage = "UI/Vignette_Red.tga",
+	VignettePulseDuration = 2000,
+	dismissable = false,
+	display_countdown = true,
+	encyclopedia_id = "Duststorm",
+	fx_action = "UINotificationDisasterStart",
+	game_time = true,
+	group = "Default",
+	id = "electrostaticDustStorm2",
+	image = "UI/Icons/Notifications/dust_storm_2.tga",
+	popup_preset = "electrostaticDustStorm",
+	priority = "Important",
+	text = T{705592427125, --[[OnScreenNotificationPreset electrostaticDustStorm2 text]] "<early_warning> warning due to <num_of_sensors>."},
+	title = T{10970, --[[OnScreenNotificationPreset electrostaticDustStorm2 title]] "Electrostatic Dust Storm in <countdown>"},
 	voiced_text = T{7049, --[[voice:aide]] "Electrostatic Dust Storm approaching"},
 })
 
@@ -1089,41 +1189,15 @@ PlaceObj('OnScreenNotificationPreset', {
 })
 
 PlaceObj('OnScreenNotificationPreset', {
-	ImagePreview = "UI/Icons/Notifications/low_battery.tga",
-	SortKey = 1007900,
-	fx_action = "UINotificationTransportation",
-	group = "Default",
-	id = "VehiclesLowBattery",
-	image = "UI/Icons/Notifications/low_battery.tga",
-	text = T{5667, --[[OnScreenNotificationPreset VehiclesLowBattery text]] "Vehicles with low Power: <count>"},
-	title = T{5666, --[[OnScreenNotificationPreset VehiclesLowBattery title]] "Low Battery"},
-	voiced_text = T{7065, --[[voice:aide]] "Vehicle Battery low"},
-})
-
-PlaceObj('OnScreenNotificationPreset', {
-	SortKey = 1008000,
-	VignetteImage = "UI/Vignette_Red.tga",
-	VignettePulseDuration = 2000,
-	fx_action = "UINotificationMalfunction",
-	group = "Default",
-	id = "BrokenCables",
-	priority = "Important",
-	text = T{5669, --[[OnScreenNotificationPreset BrokenCables text]] "Malfunctioning Cables: <count>"},
-	title = T{5668, --[[OnScreenNotificationPreset BrokenCables title]] "Cable Faults"},
-	voiced_text = T{7066, --[[voice:aide]] "Cable fault reported"},
-})
-
-PlaceObj('OnScreenNotificationPreset', {
 	SortKey = 1008100,
 	VignetteImage = "UI/Vignette_Red.tga",
 	VignettePulseDuration = 2000,
 	fx_action = "UINotificationMalfunction",
 	group = "Default",
-	id = "BrokenPipes",
+	id = "LeakDetected",
 	priority = "Important",
-	text = T{5671, --[[OnScreenNotificationPreset BrokenPipes text]] "Malfunctioning Pipes: <count>"},
-	title = T{5670, --[[OnScreenNotificationPreset BrokenPipes title]] "Pipe Leaks"},
-	voiced_text = T{7067, --[[voice:aide]] "Pipe leak reported"},
+	text = T{137173434527, --[[OnScreenNotificationPreset LeakDetected text]] "<leaks>"},
+	title = T{522588249261, --[[OnScreenNotificationPreset LeakDetected title]] "Leak Detected"},
 })
 
 PlaceObj('OnScreenNotificationPreset', {
@@ -1250,5 +1324,34 @@ PlaceObj('OnScreenNotificationPreset', {
 	priority = "Important",
 	text = T{8855, --[[OnScreenNotificationPreset SplitLifeSupportGrid text]] "Split Life Support grids: <count>"},
 	title = T{8854, --[[OnScreenNotificationPreset SplitLifeSupportGrid title]] "Split Life Support Grids"},
+})
+
+PlaceObj('OnScreenNotificationPreset', {
+	ImagePreview = "UI/Icons/Notifications/timer_2.tga",
+	SortKey = 1009300,
+	VignetteImage = "UI/Vignette_Red.tga",
+	VignettePulseDuration = 2000,
+	dismissable = false,
+	display_countdown = true,
+	fx_action = "UINotificationTimer",
+	game_time = true,
+	group = "Default",
+	id = "ChallengeTimer",
+	image = "UI/Icons/Notifications/timer_2.tga",
+	priority = "Important",
+	text = T{10289, --[[OnScreenNotificationPreset ChallengeTimer text]] "Remaining time: <countdown>"},
+	title = T{10288, --[[OnScreenNotificationPreset ChallengeTimer title]] "Challenge Deadline"},
+})
+
+PlaceObj('OnScreenNotificationPreset', {
+	ImagePreview = "UI/Icons/Notifications/drone.tga",
+	SortKey = 1009400,
+	VignetteImage = "UI/Vignette_Red.tga",
+	dismissable = true,
+	group = "Default",
+	id = "DestroyedDrones",
+	image = "UI/Icons/Notifications/drone.tga",
+	text = T{10953, "Destroyed Drones: <count><image UI/Icons/res_drone_red.tga 1300>"},
+	title = T{10954, "Destroyed Drones"},
 })
 

@@ -19,9 +19,6 @@ DefineClass.AttackRover = {
 	reclaimed_description = T{6923, "A remote-controlled combat vehicle, reclaimed by the Colony. Protects against meteor strikes and EsoCorp vehicles."},
 	display_icon = "UI/Icons/Buildings/rover_combat.tga",
 
-	-- override battery numbers if needed
-	battery_max = 200000,
-	battery_hourly_drain_rate = 1000,	
 	accumulate_dust = false,
 	dust_devil_malfunction_chance = 0,
 	
@@ -54,7 +51,6 @@ DefineClass.AttackRover = {
 	ip_template = "ipAttackRover",
 	
 	attack_look_for_target = false,
-	affected_by_no_battery_tech = false,
 
 	palettes = { "AttackRoverBlue" },
 	land_decal_name = "DecRocketSplatter",
@@ -388,7 +384,6 @@ function AttackRover:RocketDamage(shooter)
 end
 
 function AttackRover:Repair()
-	self.battery_current = self.battery_max
 	local city = self.city or UICity
 	self:DisconnectFromCommandCenters()
 	self.current_health = self.max_health
@@ -397,7 +392,6 @@ function AttackRover:Repair()
 	self.is_repair_request_initialized = false
 	if city.mystery.reclaim_repaired_rovers then
 		self.reclaimed = true
-		self.affected_by_no_battery_tech = true
 		self.palettes = { "AttackRoverRed" }
 		SetPaletteFromClassMember(self)
 		city:AddToLabel("Rover", self)
@@ -431,20 +425,12 @@ function AttackRover:Dead()
 	ObjModified(self)
 end
 
-function AttackRover:NoBattery()
-	-- can't revert to malfunction, rovers are too smart for their own good
-	local city = self.city or UICity
-	city:RemoveFromLabel("HostileAttackRovers", self)
-	Msg("AttackRoverMalfunctioned", self)
-	BaseRover.NoBattery(self)
-end
-
 function AttackRover:CanBeRepaired()
-	return IsValid(self) and (self.command == "Malfunction" or self.command == "NoBattery") and not self.demolishing
+	return IsValid(self) and self.command == "Malfunction" and not self.demolishing
 end
 
 function AttackRover:CanDemolish()
-	return IsValid(self) and (self.reclaimed or ((self.command == "Malfunction" or self.command == "NoBattery") and self.current_health <= 0))
+	return IsValid(self) and (self.reclaimed or (self.command == "Malfunction" and self.current_health <= 0))
 end
 
 function AttackRover:CanBeControlled()
@@ -483,7 +469,7 @@ function AttackRover:GetDescription()
 end
 
 function AttackRover:GetMalfunctionRepairProgress()	
-	return (self.command == "Malfunction" or self.command == "NoBattery") and self.is_repair_request_initialized and 100 - MulDivRound(self.repair_work_request:GetActualAmount(), 100, self.repair_work_amount_on_malfunction) or 0
+	return self.command == "Malfunction" and self.is_repair_request_initialized and 100 - MulDivRound(self.repair_work_request:GetActualAmount(), 100, self.repair_work_amount_on_malfunction) or 0
 end
 
 function AttackRover:Getui_command()
@@ -508,8 +494,6 @@ end
 function AttackRover:GetHpProgress()
 	return MulDivRound(self.current_health, 100, self.max_health)
 end
-
-AttackRover.AddToRoversWithLowBattery = empty_func
 
 function AttackRover:ToggleDemolish()
 	BaseRover.ToggleDemolish(self)

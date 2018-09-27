@@ -171,12 +171,39 @@ function ModManagerEnd(dialog)
 				exit_choice = (choice == "ok")
 			end
 			if exit_choice then
+				LoadingScreenOpen("idLoadingScreen", "reload mods")
 				SaveAccountStorage(5000)
 				ModsReloadItems()
 				ModManagerClose(dialog)
+				LoadingScreenClose("idLoadingScreen", "reload mods")
 			end
 		end)
 	else
 		ModManagerClose(dialog)
 	end
+end
+
+---- SignUp ----
+local months = {T{10427, "January"},T{10428, "February"},T{10429, "March"},T{10430, "April"},T{10431, "May"},T{10432, "June"},T{10433, "July"},T{1962, "August"},T{10434, "September"},T{10435, "October"},T{10436, "November"},T{10437, "December"}}
+function PDXAccountFillBirthDataCombos(self)
+	--day:1-31, month:January_December (translated), Year:1900-Current
+	local items = {}
+	items[1] = {name = _InternalTranslate(T{7715, "Day"}), id = ""}
+	for i=1, 31 do
+		items[#items + 1] = {name = tostring(i), id = i}
+	end
+	self:ResolveId("idDay").idCombo:SetItems(items)
+	items = {}
+	items[1] = {name = _InternalTranslate(T{7714, "Month"}), id = ""}
+	for i=1, #months do
+		items[#items+1] = {name = _InternalTranslate(months[i]), id = i}
+	end
+	self:ResolveId("idMonth").idCombo:SetItems(items)
+	items = {}
+	local start = tonumber(os.date("%Y"))
+	items[1] = {name = _InternalTranslate(T{10438, "Year"}), id = ""}
+	for i = start, 1900, -1 do
+		items[#items + 1] = {name = tostring(i), id = i}
+	end
+	self:ResolveId("idYear").idCombo:SetItems(items)
 end

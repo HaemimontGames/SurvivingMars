@@ -72,6 +72,8 @@ DefineClass.SA_WaitChoiceEntries = {
 		{ category = "General", id = "log_entry",    name = T{6856, "Log Entry"},   editor = "bool", default = false },
 		{ category = "General", id = "actor",        name = T{6857, "Voice Actor"}, editor = "combo", items = VoiceActors, default = "narrator" },
 		{ category = "General", id = "image",        name = T{3794, "Image"},       editor = "browse", default = "", folder = "UI"},
+		{ category = "General", id = "start_minimized", name = T{10914, "Start Minimized"}, editor = "bool", default = true, },
+		{ category = "General", id = "validate_context", name = T{10915, "Validate Context"}, editor = "func", default = false, params = "context", help = T{849714426285, "Periodically validates the context of the OnScreenNotification (only used when start_minimized == true)"}, },
 		{ category = "General", id = "text_param1", 	name = T{3795, "Text Param 1"}, editor = "text", translate = true, default = "", help = T{3796, "This is translatable text, ref as text_param1 in the body"}, },
 		{ category = "General", id = "text_param2", 	name = T{3797, "Text Param 2"}, editor = "text", translate = true, default = "", help = T{3798, "This is translatable text, ref as text_param2 in the body"}, },
 		{ category = "General", id = "text_param3", 	name = T{3799, "Text Param 3"}, editor = "text", translate = true, default = "", help = T{3800, "This is translatable text, ref as text_param3 in the body"}, },
@@ -165,6 +167,8 @@ DefineClass.SA_WaitChoice = {
 		{ category = "General", id = "log_entry", name = T{6856, "Log Entry"}, editor = "bool", default = false },
 		{ category = "General", id = "actor",   name = T{6857, "Voice Actor"}, editor = "combo", items = VoiceActors, default = "narrator" },
 		{ category = "General", id = "image",          name = T{3794, "Image"},            editor = "browse", default = "", folder = "UI"},
+		{ category = "General", id = "start_minimized", name = T{10914, "Start Minimized"}, editor = "bool", default = true, },
+		{ category = "General", id = "validate_context", name = T{10915, "Validate Context"}, editor = "func", default = false, params = "context", help = T{849714426285, "Periodically validates the context of the OnScreenNotification (only used when start_minimized == true)"}, },
 		{ category = "General", id = "text_param1", 	name = T{3795, "Text Param 1"}, 		editor = "text", translate = true, default = "", help = T{3796, "This is translatable text, ref as text_param1 in the body"}, },
 		{ category = "General", id = "text_param2", 	name = T{3797, "Text Param 2"}, 		editor = "text", translate = true, default = "", help = T{3798, "This is translatable text, ref as text_param2 in the body"}, },
 		{ category = "General", id = "text_param3", 	name = T{3799, "Text Param 3"}, 		editor = "text", translate = true, default = "", help = T{3800, "This is translatable text, ref as text_param3 in the body"}, },
@@ -281,7 +285,33 @@ function SA_WaitChoice:Exec(seq_player, ip, seq, registers)
 			context[prop_id] = value
  		end
  	end
+	self:PopMessage(context, registers)
+end
+
+function SA_WaitChoice:PopMessage(context, registers)
 	registers[ "choice_result" .. self.choice_register ] = WaitPopupNotification(self.preset, context)
+end
+
+DefineClass.SA_ShowChoice = {
+	__parents = { "SA_WaitChoice" },
+	Menu = "Show",
+	MenuName = T{10916, "Show Choice"},
+}
+
+function SA_ShowChoice:ShortDescription()
+	return string.format("Show choice '%s' of <b>'%s'</b>, <b>'%s'</b>, <b>'%s'</b>, <b>'%s'</b>",
+		_InternalTranslate(self.title),
+		_InternalTranslate(self.choice1),
+		_InternalTranslate(self.choice2),
+		_InternalTranslate(self.choice3),
+		_InternalTranslate(self.choice4))
+end
+
+function SA_ShowChoice:PopMessage(context, registers)
+	local function callback(cur_obj, params, res)
+		registers[ "choice_result" .. self.choice_register ] = res
+	end
+	ShowPopupNotification(self.preset, context, nil, nil, callback)
 end
 
 DefineClass.SA_WaitMessage = {
@@ -346,10 +376,28 @@ function SA_WaitMessage:Exec(seq_player, ip, seq, registers)
 			context[prop_id] = value
 		end
 	end
+	self:PopMessage(context, registers)
+end
+
+function SA_WaitMessage:PopMessage(context, registers)
 	WaitPopupNotification(self.preset, context)
 end
 
 function SA_WaitMessage:OnCreate(sequence, ip)
 	-- don't insert 'if' blocks for message
 	SequenceAction.OnCreate(self, sequence, ip)
+end
+
+DefineClass.SA_ShowMessage = {
+	__parents = { "SA_WaitMessage" },
+	Menu = "Show",
+	MenuName = T{10917, "Show Message"},
+}
+
+function SA_ShowMessage:ShortDescription()
+	return string.format("Show message '%s'", _InternalTranslate(self.title))
+end
+
+function SA_ShowMessage:PopMessage(context, registers)
+	ShowPopupNotification(self.preset, context)
 end

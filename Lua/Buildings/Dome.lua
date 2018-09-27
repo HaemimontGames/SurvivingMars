@@ -694,7 +694,7 @@ function Dome:OnDestroyed()
 		return
 	end
 	for i=self:GetFracturesCount(),max_visible_fractures do
-		self:PlaceFracture("Large")
+		self:PlaceFracture()
 	end
 	self:VisualizeOxygenLeak(false)
 	self:VisualizeFractures()
@@ -1056,10 +1056,10 @@ function Dome:GetInnerBuildingConsumption()
 	local buildings = self.labels.SupplyGridBuildings
 	local power, water, air = 0,0,0
 	for _,bld in ipairs(buildings) do
-		if IsKindOf(bld, "ElectricityConsumer") and bld:IsWorkPermitted() then
+		if IsKindOf(bld, "ElectricityConsumer") and bld:IsWorkPermitted() and not bld:IsSupplyGridDemandStoppedByGame() then
 			power = power + bld.electricity_consumption
 		end
-		if IsKindOf(bld, "LifeSupportConsumer") and bld:IsWorkPermitted() then
+		if IsKindOf(bld, "LifeSupportConsumer") and bld:IsWorkPermitted() and not bld:IsSupplyGridDemandStoppedByGame() then
 			air = air + bld.air_consumption
 			water = water + bld.water_consumption
 		end
@@ -1437,9 +1437,10 @@ function Dome:CrimeEvents_StoleResource()
 		local storable_resources = stockpile.storable_resources
 		local resource_count = #storable_resources
 		local stored_amount = {}
+		local is_mech_depot = IsKindOf(stockpile, "MechanizedDepot")
 		for i = 1, resource_count do
 			local resource = storable_resources[i]
-			local amount = stockpile:GetStoredAmount(resource)
+			local amount = is_mech_depot and stockpile:GetIOStockpileStoredAmount() or stockpile:GetStoredAmount(resource)
 			if amount >= const.ResourceScale then
 				stored_amount[#stored_amount + 1] = {resource, amount}
 			end
@@ -1758,15 +1759,16 @@ end
 function Dome:PlaceFracture(crack_type, fracture_pos, fracture_radius)
 	local glass = self.cupola_attach[1]
 	crack_type = crack_type or AsyncRand(100) < 50 and "Large" or "Small"
+	fracture_radius = fracture_radius or crack_type == "Small" and (100 + AsyncRand(100)) or (200 + AsyncRand(100))
 	local fracture = PlaceObject("DomeMeteorFracture" .. crack_type, {size = fracture_radius}, const.cfComponentAttach)
 	local origin_idx = glass:GetSpotBeginIndex("Origin")
 	local origin_spot = glass:GetSpotPos(origin_idx)
 	local axis, angle = self:GetAxis(), self:GetAngle()
 	glass:Attach(fracture, origin_idx)
 	if not fracture_pos then
-		fracture_pos = RotateRadius(AsyncRand(glass:GetRadius()), AsyncRand(360*60), origin_spot)
-		fracture_pos = fracture_pos:SetZ(origin_spot:z() + glass:GetRadius() + guim)
-		fracture_pos = IntersectRayWithObject(origin_spot, fracture_pos, glass, EntitySurfaces.Collision)
+		local bottom = RotateRadius(AsyncRand(glass:GetRadius() - 10*guim), AsyncRand(360*60), origin_spot)
+		local top = bottom:SetZ(bottom:z() + 1000*guim)
+		fracture_pos = IntersectRayWithObject(bottom, top, glass, EntitySurfaces.Collision)
 		assert(fracture_pos)
 		if not fracture_pos then
 			return
@@ -1785,11 +1787,11 @@ function Dome:PlaceFracture(crack_type, fracture_pos, fracture_radius)
 	return fracture
 end
 
-function Dome:AddFracture(crack_type, fracture_pos, fracture_radius)
-	local fracture = self:PlaceFracture(crack_type, fracture_pos, fracture_radius)
+function Dome:AddFracture(crack_type, fracture_pos)
+	local fracture = self:PlaceFracture(crack_type, fracture_pos)
 	self.fractures_oxygen_modifier:Change(self:GetFracturesCount() * 1 * const.ResourceScale, 0)
 	table.insert_unique(g_DomesWithFractures, self)
-	self.fracture_demand_request:AddAmount(const.DronePolymersPerFraction)
+	self.fracture_demand_request:AddAmount(g_Consts.PolymersPerFracture)
 	self:AddPanicMarker(fracture_pos, 20*guim, 3*const.HourDuration)
 	self:VisualizeOxygenLeak()
 	self:VisualizeFractures()
@@ -1861,30 +1863,62 @@ function Dome:FracturesInNeedOfResourcesCount()
 	return c
 end
 
+function OnMsg.ConstValueChanged(prop, old_value, new_value)
+	if prop == "PolymersPerFracture" then
+		local delta = new_value - old_value
+		MapForEach("map", "Dome", function(dome)
+			local count = dome:FracturesInNeedOfResourcesCount()
+			if count > 0 then
+				local req = dome.fracture_demand_request
+				req:AddAmount(delta * count)
+				if delta < 0 then
+					if req:GetTargetAmount() < 0 then
+						dome:InterruptDrones(nil, function(drone)
+							if drone.d_request == req then 
+								return drone
+							end
+						end, function(drone)
+							if req:GetTargetAmount() >= 0 then
+								return "break"
+							end
+						end)
+					end
+					dome:OnFractureResourceReceived(nil, req, req:GetResource(), 0)
+					
+				end
+			end
+		end)
+	end	
+end
+
+function Dome:OnFractureResourceReceived(drone, request, resource, amount)
+	local amount_needed_for_one = g_Consts.PolymersPerFracture
+	local fracture = self:GetFractureToFix()
+	local fractures_that_need_fixing = self:FracturesInNeedOfResourcesCount() --total fractures that need resources
+	local amount_to_fix_all_fracs = fractures_that_need_fixing * amount_needed_for_one
+	local fractures_to_fix = amount_needed_for_one <= 0 and fractures_that_need_fixing or (amount_to_fix_all_fracs - request:GetActualAmount()) / amount_needed_for_one
+	
+	if not fracture or fractures_to_fix <= 0 then
+		return
+	end
+	while fractures_to_fix > 0 and fracture do
+		fracture.fixing = true
+		fracture = self:GetFractureToFix()
+		fractures_to_fix = fractures_to_fix - 1
+	end
+	local req_repair = self.fracture_work_request
+	req_repair:AddAmount(const.DroneFractionRepairTime)
+	if not drone or not req_repair:CanAssignUnit() then
+		return
+	end
+	local repair_amount = Min(g_Consts.DroneBuildingRepairAmount, req_repair:GetActualAmount())
+	drone:SetCommand("Work", req_repair, "repair", repair_amount)
+end
+
 function Dome:DroneUnloadResource(drone, request, resource, amount)
 	Building.DroneUnloadResource(self, drone, request, resource, amount)
 	if request == self.fracture_demand_request then
-		local amount_needed_for_one = const.DronePolymersPerFraction
-		local fracture = self:GetFractureToFix()
-		local fractures_that_need_fixing = self:FracturesInNeedOfResourcesCount() --total fractures that need resources
-		local amount_to_fix_all_fracs = fractures_that_need_fixing * amount_needed_for_one
-		local fractures_to_fix = (amount_to_fix_all_fracs - request:GetActualAmount()) / amount_needed_for_one
-		
-		if not drone or not fracture or fractures_to_fix <= 0 then
-			return
-		end
-		while fractures_to_fix > 0 and fracture do
-			fracture.fixing = true
-			fracture = self:GetFractureToFix()
-			fractures_to_fix = fractures_to_fix - 1
-		end
-		local req_repair = self.fracture_work_request
-		req_repair:AddAmount(const.DroneFractionRepairTime)
-		if not req_repair:CanAssignUnit() then
-			return
-		end
-		local repair_amount = Min(g_Consts.DroneBuildingRepairAmount, req_repair:GetActualAmount())
-		drone:SetCommand("Work", req_repair, "repair", repair_amount)
+		self:OnFractureResourceReceived(drone, request, resource, amount)
 	end
 end
 
@@ -2371,10 +2405,6 @@ end
 DefineClass("DomeMeteorFractureSmall", "DomeMeteorFracture")
 DefineClass("DomeMeteorFractureLarge", "DomeMeteorFracture")
 
-function DomeMeteorFractureSmall:Init()
-	self.size = 100 + AsyncRand(100)
-end
-
 function Dome:ApplyTraitsFilter()
 	local traits_filter = self.traits_filter
 	for _, colonist in ipairs(self.labels.Colonist) do
@@ -2698,7 +2728,7 @@ end
 function Dome:GetUIWarning()
 	local fractures = self:GetFracturesCount()
 	if fractures > 0 then
-		return T{276, "This Dome is fractured and is losing oxygen.<newline><left>Number of fractures<right><fractures><newline><left>Cost of repairs<right><polymers(number)>", number = const.DronePolymersPerFraction * fractures, fractures = fractures}
+		return T{276, "This Dome is fractured and is losing oxygen.<newline><left>Number of fractures<right><fractures><newline><left>Cost of repairs<right><polymers(number)>", number = g_Consts.PolymersPerFracture * fractures, fractures = fractures}
 	end
 	return Building.GetUIWarning(self)
 end

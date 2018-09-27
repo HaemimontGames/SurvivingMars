@@ -136,6 +136,7 @@ function TerrainDepositMarker:SpawnDeposit(rand)
 			__index = info
 		})
 	end
+	local amount = self.max_amount
 	local pos = self:GetPos()
 	rand = rand or RandState(xxhash(GetMap(), pos))
 	local radius_max, new_bbox, err
@@ -182,7 +183,6 @@ function TerrainDepositMarker:SpawnDeposit(rand)
 		local grade2_mask
 		local dist2 = 0
 		local volumes = info.volume_to_dist2
-		local amount = self.max_amount
 		for i=1,#volumes do
 			if amount >= volumes[i] then
 				dist2 = i
@@ -219,15 +219,14 @@ function TerrainDepositMarker:SpawnDeposit(rand)
 			return
 		end
 	end
-	local amount_added = TerrainDeposit_SyncAmount(TerrainDepositGrid, radius_max, pos, info)
+
 	local deposit = deposit_def:new()
 	self.deposit = deposit
 	deposit.grade = self.grade
 	deposit.bbox = new_bbox
 	deposit.radius_max = radius_max
 	deposit:SetPos(pos)
-	local max_amount = TerrainDeposit_GetAmount(deposit, radius_max, TerrainDepositGrid, info)
-	deposit.max_amount = (max_amount / const.ResourceScale) * const.ResourceScale
+	deposit.max_amount = amount
 
 	MaxTerrainDepositRadius = Max(MaxTerrainDepositRadius, deposit.radius_max)
 	
@@ -348,6 +347,8 @@ DefineClass.TerrainDeposit = {
 	
 	city_label = "TerrainDeposit",
 	ip_template = "ipTerrainDeposit",
+	
+	amount = false,
 }
 
 function TerrainDeposit:GameInit()
@@ -365,28 +366,15 @@ function TerrainDeposit:GetAmount()
 	if not IsValid(self) then
 		return 0
 	end
-	local info = TerrainDepositsInfo[self.resource]
-	if not info then
-		return 0
-	end
-	local amount = TerrainDeposit_GetAmount(self, self.radius_max, TerrainDepositGrid, info)
-	return Min(amount, self.max_amount)
+	return self.amount or self.max_amount
 end
 
 local function deposit_weight(a)
 	return a:z()
 end
 
-function TerrainDeposit:GetRandDepositPos(seed)
-	if not IsValid(self) then
-		return
-	end
-	local info = TerrainDepositsInfo[self.resource]
-	if not info then
-		return
-	end
-	local amount, hexes = TerrainDeposit_GetAmount(self, self.radius_max, TerrainDepositGrid, info, true)
-	return table.weighted_rand(hexes, deposit_weight, seed)
+function TerrainDeposit:GetRandDepositPos()
+	return GetRandomPassableAround(self, self.radius_max)
 end
 
 function TerrainDeposit:Done()
@@ -454,7 +442,7 @@ function TerrainDepositExtractor:FindClosestDeposit(center)
 end
 
 function TerrainDepositExtractor:GetDeposit()
-	self.found_deposit = self.found_deposit or self:FindClosestDeposit() or true
+	self.found_deposit = self.found_deposit or self:FindClosestDeposit()
 	return self.found_deposit
 end
 
@@ -482,13 +470,11 @@ function TerrainDepositExtractor:GetCurrentDepositQualityMultiplier(...)
 end
 
 function TerrainDepositExtractor:CheckDeposit()
-	local info = self:GetRessourceInfo()
-	local shape = self:GetExtractionShape()
-	return info and shape and TerrainDeposit_Check(shape, self, TerrainDepositGrid, info)
+	return self:GetAmount() > 0
 end
 
 function TerrainDepositExtractor:OnDepositDepleted()
-	self.depleted = true -- mark deposit as depleted even thare is left amount, that is unreachable from extractor
+	self.depleted = true
 end
 
 function TerrainDepositExtractor:ExtractResource(amount)
@@ -498,14 +484,17 @@ function TerrainDepositExtractor:ExtractResource(amount)
 		return 0
 	end
 	
-	local extracted, remaining = TerrainDeposit_Extract(shape, self, TerrainDepositGrid, info, amount)
+	local deposit = self:GetDeposit()
+	local deposit_amount = deposit:GetAmount()
+	local extracted = Min(amount, deposit_amount)
+	local remaining = Max(0, deposit_amount - amount)
+	deposit.amount = remaining
+	
 	Msg("ResourceExtracted", self.exploitation_resource, extracted)
 	
 	if remaining == 0 then
-		assert(not self:CheckDeposit())
 		self:OnDepositDepleted()
-		local deposit = self:GetDeposit()
-		if IsValid(deposit) and deposit:GetAmount() < 10 * const.ResourceScale then
+		if IsValid(deposit) then
 			DoneObject(deposit)
 		end
 	end
@@ -523,16 +512,29 @@ function TerrainDepositExtractor:GetAmount()
 	if not IsValid(self) then
 		return 0
 	end
-	local info = self:GetRessourceInfo()
-	local shape = self:GetExtractionShape()
-	if not info or not shape then
+	local deposit = self:GetDeposit()
+	if IsValid(deposit) then
+		return deposit:GetAmount()
+	else
 		return 0
 	end
-	return TerrainDeposit_GetAmount(shape, self, TerrainDepositGrid, info)
 end
 
 function TerrainDepositExtractor:Getgrade_name(...) 
 	return DepositGradeToDisplayName[self:GetDepositGrade(...)] 
+end
+
+function SavegameFixups.FixTerrainDepositAmount()
+	MapForEach("map", "TerrainDeposit", function(self)
+		if self.amount then
+			return
+		end
+		local info = TerrainDepositsInfo[self.resource]
+		if not info then
+			return
+		end
+		self.amount = Min(TerrainDeposit_GetAmount(self, self.radius_max, TerrainDepositGrid, info), self.max_amount)
+	end)
 end
 
 ----

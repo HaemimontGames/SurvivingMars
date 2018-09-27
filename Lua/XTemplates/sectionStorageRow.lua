@@ -10,7 +10,7 @@ PlaceObj('XTemplate', {
 		'RolloverText', T{376908863267, --[[XTemplate sectionStorageRow RolloverText]] "Toggle storage of this resource.\n\nStatus: <on_off(IsResourceEnabled(res))>"},
 		'RolloverTitle', T{883661504598, --[[XTemplate sectionStorageRow RolloverTitle]] "<resource(res)>"},
 		'RolloverHint', T{934659949775, --[[XTemplate sectionStorageRow RolloverHint]] "<left_click> Toggle <newline><em>Ctrl + <left_click></em>Toggle for all <display_name_pl>"},
-		'RolloverHintGamepad', T{454042608125, --[[XTemplate sectionStorageRow RolloverHintGamepad]] "<ButtonA> Toggle"},
+		'RolloverHintGamepad', T{454042608125, --[[XTemplate sectionStorageRow RolloverHintGamepad]] "<ButtonA> Toggle <newline><ButtonX> Toggle for all <display_name_pl>"},
 		'OnContextUpdate', function (self, context, ...)
 if context[1]:IsResourceEnabled(context.res) then
 	self:SetIcon("UI/Icons/Sections/resource_accept.tga")
@@ -30,6 +30,23 @@ end,
 			'func', function (self, context)
 context[1]:ToggleAcceptResource(context.res, IsMassUIModifierPressed())
 ObjModified(context[1])
+end,
+		}),
+		PlaceObj('XTemplateFunc', {
+			'name', "OnShortcut(self, shortcut, source)",
+			'parent', function (parent, context) return parent.parent end,
+			'func', function (self, shortcut, source)
+if shortcut == "ButtonX" then
+	local context = self.context
+	context[1]:ToggleAcceptResource(context.res, true)
+	ObjModified(context[1])
+	return "break"
+elseif shortcut == "ButtonA" then
+	local context = self.context
+	context[1]:ToggleAcceptResource(context.res, false)
+	ObjModified(context[1])
+	return "break"
+end
 end,
 		}),
 		}),

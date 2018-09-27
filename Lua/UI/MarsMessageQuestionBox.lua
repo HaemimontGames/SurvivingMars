@@ -8,18 +8,17 @@ DefineClass.XMarsMessageBox =
 {
 	__parents = {"XDialog"},
 	ZOrder = 1000001,
-	Padding = box(25,0,25,0),
-	Dock = "box",
-	HAlign = "center",
-	VAlign = "center",
-	MinWidth = 792,
-	MaxWidth = 792,
-	LayoutMethod = "VList",
 	ContextUpdateOnOpen = true,
+	
+	template = false,
 }
 
 function XMarsMessageBox:Init()
-	XTemplateSpawn("MarsMessageBox", self, self.context)
+	local template = "MarsMessageBox"
+	if XTemplates[self.template] then
+		template = self.template
+	end
+	XTemplateSpawn(template, self, self.context)
 end
 
 function XMarsMessageBox:OnContextUpdate(context, ...)
@@ -31,7 +30,10 @@ function XMarsMessageBox:OnContextUpdate(context, ...)
 	end
 
 	if context.image and context.image ~= "" then
-		self.idBackground:SetImage(context.image)
+		local background = self:ResolveId("idBackground")
+		if background then
+			background:SetImage(context.image)
+		end
 	end
 end
 
@@ -74,7 +76,7 @@ function GetMarsMessageBox()
 	return GetDialog("MarsMessageBox")
 end
 
-function CreateMarsMessageBox(caption, text, ok_text, parent, image, context)
+function CreateMarsMessageBox(caption, text, ok_text, parent, image, context, template)
 	parent = parent or terminal.desktop
 	local subcontext = SubContext(context, {
 		title = caption,
@@ -91,9 +93,9 @@ function CreateMarsMessageBox(caption, text, ok_text, parent, image, context)
 		ActionIcon = "UI/Icons/message_ok.tga",
 		OnActionEffect = "close",
 	})
-	local msg = XMarsMessageBox:new({actions = actions}, parent, subcontext)
+	local msg = XMarsMessageBox:new({actions = actions, template = template}, parent, subcontext)
 	msg.OnShortcut = function(self, shortcut, source)
-		if shortcut == "ButtonB" then
+		if shortcut == "ButtonB" or shortcut == "1" then
 			self:Close()
 			return "break"
 		end
@@ -104,24 +106,24 @@ function CreateMarsMessageBox(caption, text, ok_text, parent, image, context)
 	return msg
 end
 
-function CreateMessageBox(caption, text, ok_text, parent, obj)
-	return CreateMarsMessageBox(caption, text, ok_text, parent, nil, obj)
+function CreateMessageBox(caption, text, ok_text, parent, obj, template)
+	return CreateMarsMessageBox(caption, text, ok_text, parent, nil, obj, template)
 end
 
 --function should always be called from a thread
-function WaitMarsMessage(parent, caption, text, ok_text, image, context)
-	local msg = CreateMarsMessageBox(caption, text, ok_text, parent, image, context)
+function WaitMarsMessage(parent, caption, text, ok_text, image, context, template)
+	local msg = CreateMarsMessageBox(caption, text, ok_text, parent, image, context, template)
 	local result, dataset, xInputStateAtClose = msg:Wait()
 	return result, dataset, xInputStateAtClose
 end
 
-function WaitMessage(parent, caption, text, ok_text, obj)
-	return WaitMarsMessage(parent, caption, text, ok_text, nil, obj)
+function WaitMessage(parent, caption, text, ok_text, obj, template)
+	return WaitMarsMessage(parent, caption, text, ok_text, nil, obj, template)
 end
 
 ----- Question
 
-function CreateMarsQuestionBox(caption, text, ok_text, cancel_text, parent, image, context)
+function CreateMarsQuestionBox(caption, text, ok_text, cancel_text, parent, image, context, template)
 	parent = parent or terminal.desktop
 	local subcontext = SubContext(context, {
 		title = caption,
@@ -150,7 +152,7 @@ function CreateMarsQuestionBox(caption, text, ok_text, cancel_text, parent, imag
 			host:Close("cancel")
 		end
 	})
-	local msg = XMarsMessageBox:new({actions = actions}, parent, subcontext)
+	local msg = XMarsMessageBox:new({actions = actions, template = template}, parent, subcontext)
 	msg.OnShortcut = function(self, shortcut, source)
 		local res = XDialog.OnShortcut(self, shortcut, source)
 		return not PopupPropagateShortcuts[shortcut] and not shortcut:starts_with("+") and "break" or res
@@ -160,14 +162,14 @@ function CreateMarsQuestionBox(caption, text, ok_text, cancel_text, parent, imag
 end
 
 -- returns "ok", "cancel"  or false (if killed prematurely)
-function WaitMarsQuestion(parent, caption, text, ok_text, cancel_text, image, context)
-	local msg = CreateMarsQuestionBox(caption, text, ok_text, cancel_text, parent, image, context)
+function WaitMarsQuestion(parent, caption, text, ok_text, cancel_text, image, context, template)
+	local msg = CreateMarsQuestionBox(caption, text, ok_text, cancel_text, parent, image, context, template)
 	local result, dataset, xInputStateAtClose = msg:Wait()
 	return result, dataset, xInputStateAtClose
 end
 
-function WaitQuestion(parent, caption, text, ok_text, cancel_text, obj)
-	return WaitMarsQuestion(parent, caption, text, ok_text, cancel_text, nil, obj)
+function WaitQuestion(parent, caption, text, ok_text, cancel_text, obj, template)
+	return WaitMarsQuestion(parent, caption, text, ok_text, cancel_text, nil, obj, template)
 end
 
 ----- Overrides and other members for the "Switch to controller?" question box (special case)

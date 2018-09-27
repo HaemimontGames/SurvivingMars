@@ -737,7 +737,7 @@ function PlaceCableLine(city, start_q, start_r, dir, steps, test, elements_requi
 			else
 				current_group_has_hub = false
 			end
-		else
+		elseif not (data[i] ~= last_placed_data_cell and cable and construction_group and table.find(construction_group, cable)) then
 			cs_grp_elements_in_this_group = cs_grp_elements_in_this_group + 1
 		end
 		
@@ -959,7 +959,7 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 DefineClass.ElectricityProducer = {
 	__parents = { "Building", "ElectricityGridObject"},
 	properties = {
-		{ template = true, id = "electricity_production", name = T{936, "Power production"}, category = "Power Production", editor = "number", default = 1000, help = Untranslated("This is the amount produced per hour."), modifiable = true },
+		{ template = true, id = "electricity_production", name = T{11017, "Power production"}, category = "Power Production", editor = "number", default = 1000, help = Untranslated("This is the amount produced per hour."), modifiable = true },
 	},
 }
 

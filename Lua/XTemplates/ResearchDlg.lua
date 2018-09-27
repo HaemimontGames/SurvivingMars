@@ -225,7 +225,7 @@ end,
 			'ActionToolbar', "ActionBar",
 			'ActionGamepad', "ButtonY",
 			'ActionState', function (self, host)
-if (g_Consts.OutsourceDisabled or 0) > 0 then
+if (g_Consts.OutsourceDisabled or 0) > 0 or UICity.paused_outsource_research_end_time then
 	return "disabled"
 end
 end,
@@ -247,6 +247,7 @@ host:CreateThread("outsource", function()
 					choice1 = T{7877, "Outsource <ResearchPoints(points)> for <funding(price)> in the next <time(sols)>", points = g_Consts.OutsourceResearch, price = g_Consts.OutsourceResearchCost, sols = g_Consts.OutsourceResearchTime},
 					choice2 = multiple_outsource_allowed and T{7877, "Outsource <ResearchPoints(points)> for <funding(price)> in the next <time(sols)>", points = g_Consts.OutsourceResearch * multiplier, price = g_Consts.OutsourceResearchCost * multiplier, sols = g_Consts.OutsourceResearchTime} or nil,
 					image = "UI/Messages/outsource.tga",
+					start_minimized = false,
 				}
 				if multiple_outsource_allowed then
 					params.choice3 = T{1139, "No"}
@@ -332,8 +333,7 @@ end,
 				PlaceObj('XTemplateWindow', {
 					'__class', "XLabel",
 					'HAlign', "right",
-					'TextFont', "PGModTitle",
-					'TextColor', RGBA(119, 198, 255, 255),
+					'TextStyle', "OverlayTitle",
 					'Translate', true,
 					'Text', T{4530, --[[XTemplate ResearchDlg Text]] "RESEARCH"},
 				}),
@@ -425,8 +425,7 @@ end,
 					PlaceObj('XTemplateWindow', {
 						'__class', "XLabel",
 						'Dock', "right",
-						'TextFont', "PGModTitle",
-						'TextColor', RGBA(119, 198, 255, 255),
+						'TextStyle', "OverlayTitle",
 						'Translate', true,
 						'Text', T{4540, --[[XTemplate ResearchDlg Text]] "RESEARCH QUEUE"},
 					}),

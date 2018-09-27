@@ -179,8 +179,16 @@ end,
 						'RolloverText', T{4034, --[[XTemplate Infopanel RolloverText]] "Set a custom name."},
 						'RolloverTitle', T{4033, --[[XTemplate Infopanel RolloverTitle]] "Rename <display_name>"},
 						'RelativeFocusOrder', "next-in-line",
+						'OnContextUpdate', function (self, context, ...)
+local shortcuts = GetShortcuts("actionRenameSelected")
+local hint = ""
+if shortcuts and (shortcuts[1] or shortcuts[2]) then
+	hint = T{10946, " / <em><ShortcutName('actionRenameSelected', 'keyboard')></em>"}
+end
+self:SetRolloverHint(T{10947, "<left_click><hint> Activate", hint = hint})
+end,
 						'OnPress', function (self, gamepad)
-self.context:ShowRenameUI()
+self.context:ShowRenameUI(gamepad)
 end,
 						'Image', "UI/Infopanel/rename.tga",
 						'Rows', 2,
@@ -207,6 +215,14 @@ end,
 						'RolloverText', T{10116, --[[XTemplate Infopanel RolloverText]] "Activate a close-up camera that follows this unit."},
 						'RolloverTitle', T{10117, --[[XTemplate Infopanel RolloverTitle]] "Follow Camera"},
 						'RelativeFocusOrder', "next-in-line",
+						'OnContextUpdate', function (self, context, ...)
+local shortcuts = GetShortcuts("actionFollowCamera")
+local hint = ""
+if shortcuts and (shortcuts[1] or shortcuts[2]) then
+	hint = T{10948, " / <em><ShortcutName('actionFollowCamera', 'keyboard')></em>"}
+end
+self:SetRolloverHint(T{10947, "<left_click><hint> Activate", hint = hint})
+end,
 						'OnPress', function (self, gamepad)
 Camera3pFollow(self.context)
 end,
@@ -220,6 +236,12 @@ end,
 						'__template', "InfopanelAction",
 						'RelativeFocusOrder', "next-in-line",
 						'OnContextUpdate', function (self, context, ...)
+local shortcuts = GetShortcuts("actionTogglePin")
+local hint = ""
+if shortcuts and (shortcuts[1] or shortcuts[2]) then
+	hint = T{10949, " / <em><ShortcutName('actionTogglePin', 'keyboard')></em>"}
+end
+self:SetRolloverHint(T{10947, "<left_click><hint> Activate", hint = hint})
 if context:IsPinned() then
 	self:SetRow(2)
 	self:SetRolloverTitle(T{4043, "Pinned"})

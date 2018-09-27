@@ -58,7 +58,7 @@ PlaceObj('GameRules', {
 PlaceObj('GameRules', {
 	SortKey = 100220,
 	challenge_mod = -200,
-	description = T{888956787429, --[[GameRules EndlessSupply description]] "The first Universal Depot you place will automatically fill with resources each Sol"},
+	description = T{888956787429, --[[GameRules EndlessSupply description]] "The first Universal Depot you place will automatically fill with resources each Sol. <NoAchievements()>"},
 	display_name = T{999555336280, --[[GameRules EndlessSupply display_name]] "Endless Supply"},
 	flavor = T{572957738460, --[[GameRules EndlessSupply flavor]] '<grey>"Make the workmanship surpass the materials."\n<right>Ovid</grey><left>'},
 	group = "Default",

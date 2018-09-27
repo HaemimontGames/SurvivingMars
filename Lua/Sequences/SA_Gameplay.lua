@@ -171,29 +171,6 @@ function GetDroneHubLabels(ret, used)
 	return ret
 end
 
-function GetAllLabels()
-	local ret, used = {}, {}
-	GetDomeLabels(ret, used)
-	GetDroneLabels(ret, used)
-	GetDroneHubLabels(ret, used)
-	GetBuildingLabels(ret, used)
-	GetDepositLabels(ret, used)
-	GetColonistLabels(ret, used)
-	for name,_ in pairs(UICity and UICity.labels or empty_table) do
-		if not used[name] then
-			table.insert(ret, {value = name, text = name})
-			used[name] = true
-		end
-	end
-	return ret
-end
-
-function GetAllLabelsCombo()
-	local ret = GetAllLabels()
-	SortLabelsByText(ret)
-	return ret
-end
-
 function SortLabelsByText(labels)
 	table.sort(labels, function(a, b) return (IsT(a.text) and _InternalTranslate(a.text) or a.text) < (IsT(b.text) and  _InternalTranslate(b.text) or b.text) end)
 end
@@ -1106,7 +1083,6 @@ DefineClass.SA_ModifyConstructionCost = {
 	__parents = {"SequenceAction"},
 	properties = {
 		{ category = "Construction", name = "Building", id = "building", editor = "combo", default = false, items = BuildingsCombo },
-		{ category = "Construction", name = "Stage",    id = "stage",    editor = "combo", default = false, items = ConstructionStages },
 		{ category = "Construction", name = "Resource", id = "resource", editor = "combo", default = false, items = ConstructionResourceList },
 		{ category = "Construction", name = "Percent",  id = "percent",  editor = "text", default = "0" },	
 	},
@@ -1119,14 +1095,13 @@ function SA_ModifyConstructionCost:ShortDescription()
 	if not self.building then
 		return "Modify construction cost"
 	else
-		local stage = self.stage == 2 and "(2nd stage)" or ""
-		return string.format("Modify %s construction cost of %s%s by %s%%", self.resource, self.building, stage, self.percent)
+		return string.format("Modify %s construction cost of %s by %s%%", self.resource, self.building, self.percent)
 	end
 end
 
 function SA_ModifyConstructionCost:Exec(seq_player, ip, seq, registers)
 	local percent = seq_player:Eval("return " .. self.percent, registers)
-	UICity:ModifyConstructionCost("add", self.building, self.resource, percent, self.stage)
+	UICity:ModifyConstructionCost("add", self.building, self.resource, percent)
 end
 
 --TODO  : remove
@@ -1212,7 +1187,7 @@ end
 
 --
 
-local function RevealableTechs()
+function RevealableTechs()
 	local techs = {
 		{value = "", text = T{3733, "Random Breakthrough"}},
 	}
@@ -2709,7 +2684,7 @@ DefineClass.SA_LabelModifier = {
 	__parents = { "SA_Modifier" },
 	properties = {
 		{ id = "property",     name = "Property",     editor = "combo", default = "", items = function() return ModifiablePropsCombo() end},
-		{ id = "target_label", name = "Target Label", editor = "combo", default = "", items = function() return GetAllLabelsCombo() end, help = "Target is one of the city labels", },
+		{ id = "target_label", name = "Target Label", editor = "combo", default = "", items = function() return LabelsCombo() end, help = "Target is one of the city labels", },
 	},
 	Menu = "Logic",
 	MenuName = "Label Modifier",

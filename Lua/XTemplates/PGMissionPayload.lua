@@ -134,11 +134,7 @@ end,
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonX",
 						'ActionState', function (self, host)
-return (
-  g_CargoWeight <= 0 or 
-  (g_Tutorial and g_Tutorial.SuppressResupplyLaunch)
-) 
-  and "disabled"
+return (g_Tutorial and g_Tutorial.SuppressResupplyLaunch) and "disabled"
 end,
 						'OnAction', function (self, host, source)
 LaunchCargoRocket(host.context, function() host.parent.parent:Close() end)

@@ -198,6 +198,7 @@ function MapSector:Scan(status, scanner)
 	if status == "unexplored" or status == self.status then
 		return
 	end
+	self.scan_progress = 0
 	
 	-- exploration queue
 	self:RemoveFromQueue()
@@ -868,16 +869,20 @@ function InitialReveal(eligible, trand)
 		qty_per_sector[sector.id] = qtys
 	end
 	
+	local function weight_func(sector)
+		return MulDivRound(sector.play_ratio, sector.avg_heat, const.MaxHeat)
+	end
+	
 	if #best > 0 then
 		-- start in a single sector featuring both resources
-		local sector = trand(best)
+		local sector = trand(best, weight_func)
 		return { sector }
 	end
 		
 	local sector
 	-- no single sectors matching the selection criteria, fallback to sectors with enough metals
 	if #filtered > 0 then
-		sector = trand(filtered)
+		sector = trand(filtered, weight_func)
 	else
 		print("no sectors found with enough average expected metals")
 		if #has_metals > 0 then
@@ -971,10 +976,10 @@ function City:InitExploration()
 				display_name = name,
 				area = bbox,
 				play_ratio = BuildableGridRatio(g_BuildableZ, UnbuildableZ, 100, bbox),
+				avg_heat = GetAverageHeatIn(bbox),
 				row = i,
 				col = j,
 			}
-			
 			InitSector(sector, eligible)			
 			row[i] = sector
 			g_MapSectors[sector] = true

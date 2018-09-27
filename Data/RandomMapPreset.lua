@@ -48,18 +48,7 @@ PlaceObj('RandomMapPreset', {
 	'ResPreset_Metals', "Metals_Average",
 	'ResPreset_Polymers', "New_Polymers_Average",
 	'ResPreset_Water', "NEW_Water_Average",
-	'ZoneMaskingProps', {
-		Octave_1 = 64,
-		Octave_2 = 420,
-		Octave_3 = 172,
-		Octave_4 = 71,
-		Octave_5 = 29,
-		Octave_6 = 12,
-		Octave_7 = 5,
-		Octave_8 = 2,
-		Octave_9 = 1,
-		Persistence = 41,
-	},
+	'ZoneMaskingProps', {Octave_1 = 64,Octave_2 = 420,Octave_3 = 172,Octave_4 = 71,Octave_5 = 29,Octave_6 = 12,Octave_7 = 5,Octave_8 = 2,Octave_9 = 1,Persistence = 41},
 	'name', "Slate_Kras01",
 })
 
@@ -86,18 +75,7 @@ PlaceObj('RandomMapPreset', {
 	'ResPreset_Metals', "Metals_Average",
 	'ResPreset_Polymers', "Polymers_Average",
 	'ResPreset_Water', "Water_Average",
-	'ZoneMaskingProps', {
-		Octave_1 = 64,
-		Octave_2 = 420,
-		Octave_3 = 172,
-		Octave_4 = 71,
-		Octave_5 = 29,
-		Octave_6 = 12,
-		Octave_7 = 5,
-		Octave_8 = 2,
-		Octave_9 = 1,
-		Persistence = 41,
-	},
+	'ZoneMaskingProps', {Octave_1 = 64,Octave_2 = 420,Octave_3 = 172,Octave_4 = 71,Octave_5 = 29,Octave_6 = 12,Octave_7 = 5,Octave_8 = 2,Octave_9 = 1,Persistence = 41},
 	'name', "Red_Kras01",
 })
 
@@ -154,12 +132,7 @@ PlaceObj('RandomMapPreset', {
 	'ResPreset_Polymers', "Polymers_Average",
 	'ResTag_Polymers', "polymer",
 	'ResPreset_Water', "Water_Average",
-	'TerraceProps', {
-		Octave_2 = 551,
-		Octave_3 = 187,
-		Octaves = 3,
-		Persistence = 40,
-	},
+	'TerraceProps', {Octave_2 = 551,Octave_3 = 187,Octaves = 3,Persistence = 40},
 	'name', "Red Terrace",
 })
 
@@ -187,18 +160,7 @@ PlaceObj('RandomMapPreset', {
 	'ResPreset_Polymers', "Polymers_Average",
 	'ResTag_Polymers', "polymer",
 	'ResPreset_Water', "Water_Average",
-	'ZoneMaskingProps', {
-		Octave_1 = 64,
-		Octave_2 = 420,
-		Octave_3 = 172,
-		Octave_4 = 71,
-		Octave_5 = 29,
-		Octave_6 = 12,
-		Octave_7 = 5,
-		Octave_8 = 2,
-		Octave_9 = 1,
-		Persistence = 41,
-	},
+	'ZoneMaskingProps', {Octave_1 = 64,Octave_2 = 420,Octave_3 = 172,Octave_4 = 71,Octave_5 = 29,Octave_6 = 12,Octave_7 = 5,Octave_8 = 2,Octave_9 = 1,Persistence = 41},
 	'name', "Slate",
 })
 
@@ -232,21 +194,8 @@ PlaceObj('RandomMapPreset', {
 	'ResPreset_Polymers', "Polymers_Average",
 	'ResTag_Polymers', "polymer",
 	'ResPreset_Water', "Water_Average",
-	'StyleMixingProps', {
-		Octaves = 5,
-	},
-	'ZoneMaskingProps', {
-		Octave_1 = 64,
-		Octave_2 = 420,
-		Octave_3 = 172,
-		Octave_4 = 71,
-		Octave_5 = 29,
-		Octave_6 = 12,
-		Octave_7 = 5,
-		Octave_8 = 2,
-		Octave_9 = 1,
-		Persistence = 41,
-	},
+	'StyleMixingProps', {Octaves = 5},
+	'ZoneMaskingProps', {Octave_1 = 64,Octave_2 = 420,Octave_3 = 172,Octave_4 = 71,Octave_5 = 29,Octave_6 = 12,Octave_7 = 5,Octave_8 = 2,Octave_9 = 1,Persistence = 41},
 	'name', "Red_Lapis01",
 })
 
@@ -276,15 +225,8 @@ PlaceObj('RandomMapPreset', {
 	'ResPreset_Polymers', "Polymers_Average",
 	'ResTag_Polymers', "polymer",
 	'ResPreset_Water', "Water_Average",
-	'TerraceProps', {
-		Octave_2 = 551,
-		Octave_3 = 187,
-		Octaves = 3,
-		Persistence = 40,
-	},
-	'StyleMixingProps', {
-		Octaves = 5,
-	},
+	'TerraceProps', {Octave_2 = 551,Octave_3 = 187,Octaves = 3,Persistence = 40},
+	'StyleMixingProps', {Octaves = 5},
 	'name', "Slate Terrace",
 })
 
@@ -315,24 +257,8 @@ PlaceObj('RandomMapPreset', {
 	'ResPreset_Polymers', "Polymers_Average",
 	'ResTag_Polymers', "polymer",
 	'ResPreset_Water', "Water_Average",
-	'TerraceProps', {
-		Octave_2 = 551,
-		Octave_3 = 187,
-		Octaves = 3,
-		Persistence = 40,
-	},
-	'ZoneMaskingProps', {
-		Octave_1 = 64,
-		Octave_2 = 420,
-		Octave_3 = 172,
-		Octave_4 = 71,
-		Octave_5 = 29,
-		Octave_6 = 12,
-		Octave_7 = 5,
-		Octave_8 = 2,
-		Octave_9 = 1,
-		Persistence = 41,
-	},
+	'TerraceProps', {Octave_2 = 551,Octave_3 = 187,Octaves = 3,Persistence = 40},
+	'ZoneMaskingProps', {Octave_1 = 64,Octave_2 = 420,Octave_3 = 172,Octave_4 = 71,Octave_5 = 29,Octave_6 = 12,Octave_7 = 5,Octave_8 = 2,Octave_9 = 1,Persistence = 41},
 	'name', "Red Resource Test",
 })
 
@@ -356,18 +282,14 @@ PlaceObj('RandomMapPreset', {
 	'ResPreset_Polymers', "Polymers_Average",
 	'ResTag_Polymers', "polymer",
 	'ResPreset_Water', "Water_Average",
-	'TerraceProps', {
-		Octave_2 = 551,
-		Octave_3 = 187,
-		Octaves = 3,
-		Persistence = 40,
-	},
+	'TerraceProps', {Octave_2 = 551,Octave_3 = 187,Octaves = 3,Persistence = 40},
+	'StyleMixingProps', {Octaves = 5},
 	'name', "Dark",
 })
 
 PlaceObj('RandomMapPreset', {
 	'Seed', 398497987,
-	'PrefabVersion', 2,
+	'PrefabVersion', 3,
 	'PlayRatioTarget', 100,
 	'PlayDist', range(11673, 204800),
 	'DecorationRatio', 40,
@@ -384,22 +306,15 @@ PlaceObj('RandomMapPreset', {
 	'DeepAnomEventChance', 20,
 	'DeepAnomTechUnlockChance', 40,
 	'DeepAnomFreeTechChance', 0,
-	'DepBorderSubs', 8000,
-	'DepBorderTerr', 12800,
+	'DepBorderSurf', 3200,
+	'DepBorderSubs', 3200,
+	'DepBorderTerr', 6400,
 	'ClusterMargin', 12800,
 	'MaxClustAnomDist', 32000,
 	'Terrace1Chance', 50,
 	'Terrace1Height', range(12000, 22000),
 	'Terrace1Ratio', range(35, 50),
-	'TTypeSetup', {
-		Prefab_Green = {},
-		Prefab_Orange = {},
-		Prefab_Red = {},
-		Prefab_Violet = {
-			Border = true,
-		},
-		Prefab_Yellow = {},
-	},
+	'TTypeSetup', {Prefab_Green = {},Prefab_Orange = {},Prefab_Red = {},Prefab_Violet = {Border = true},Prefab_Yellow = {}},
 	'ZonePlayable', set( "Playable" ),
 	'ZoneBase', set( "Plain" ),
 	'ZoneFiller', set( "PlainDecor", "Plain" ),
@@ -417,27 +332,9 @@ PlaceObj('RandomMapPreset', {
 	'ResTag_Polymers', "polymer",
 	'ResPreset_Water', "Water_Average",
 	'ResPreset_PreciousMetals', "PreciousMetals_Average",
-	'TerraceProps', {
-		Octave_2 = 551,
-		Octave_3 = 187,
-		Octaves = 3,
-		Persistence = 40,
-	},
-	'StyleMixingProps', {
-		Octaves = 5,
-	},
-	'ZoneMaskingProps', {
-		Octave_1 = 64,
-		Octave_2 = 420,
-		Octave_3 = 172,
-		Octave_4 = 71,
-		Octave_5 = 29,
-		Octave_6 = 12,
-		Octave_7 = 5,
-		Octave_8 = 2,
-		Octave_9 = 1,
-		Persistence = 41,
-	},
+	'TerraceProps', {Octave_2 = 551,Octave_3 = 187,Octaves = 3,Persistence = 40},
+	'StyleMixingProps', {Octaves = 5},
+	'ZoneMaskingProps', {Octave_1 = 64,Octave_2 = 420,Octave_3 = 172,Octave_4 = 71,Octave_5 = 29,Octave_6 = 12,Octave_7 = 5,Octave_8 = 2,Octave_9 = 1,Persistence = 41},
 	'name', "MAIN",
 })
 
@@ -455,15 +352,7 @@ PlaceObj('RandomMapPreset', {
 	'Terrace1Chance', 50,
 	'Terrace1Height', range(12000, 22000),
 	'Terrace1Ratio', range(35, 50),
-	'TTypeSetup', {
-		Prefab_Green = {},
-		Prefab_Orange = {},
-		Prefab_Red = {},
-		Prefab_Violet = {
-			Border = true,
-		},
-		Prefab_Yellow = {},
-	},
+	'TTypeSetup', {Prefab_Green = {},Prefab_Orange = {},Prefab_Red = {},Prefab_Violet = {Border = true},Prefab_Yellow = {}},
 	'ZonePlayable', set( "Playable" ),
 	'ZoneBase', set( "Plain", "Base" ),
 	'ZoneFiller', set( "Plain" ),
@@ -481,27 +370,9 @@ PlaceObj('RandomMapPreset', {
 	'ResTag_Polymers', "polymer",
 	'ResPreset_Water', "Water_Average",
 	'ResPreset_PreciousMetals', "PreciousMetals_Average",
-	'TerraceProps', {
-		Octave_2 = 551,
-		Octave_3 = 187,
-		Octaves = 3,
-		Persistence = 40,
-	},
-	'StyleMixingProps', {
-		Octaves = 5,
-	},
-	'ZoneMaskingProps', {
-		Octave_1 = 64,
-		Octave_2 = 420,
-		Octave_3 = 172,
-		Octave_4 = 71,
-		Octave_5 = 29,
-		Octave_6 = 12,
-		Octave_7 = 5,
-		Octave_8 = 2,
-		Octave_9 = 1,
-		Persistence = 41,
-	},
+	'TerraceProps', {Octave_2 = 551,Octave_3 = 187,Octaves = 3,Persistence = 40},
+	'StyleMixingProps', {Octaves = 5},
+	'ZoneMaskingProps', {Octave_1 = 64,Octave_2 = 420,Octave_3 = 172,Octave_4 = 71,Octave_5 = 29,Octave_6 = 12,Octave_7 = 5,Octave_8 = 2,Octave_9 = 1,Persistence = 41},
 	'name', "MAIN (1)",
 })
 
@@ -534,24 +405,8 @@ PlaceObj('RandomMapPreset', {
 	'ResPreset_Polymers', "New_Polymers_Average",
 	'ResTag_Polymers', "polymer",
 	'ResPreset_Water', "NEW_Water_Average",
-	'TerraceProps', {
-		Octave_2 = 551,
-		Octave_3 = 187,
-		Octaves = 3,
-		Persistence = 40,
-	},
-	'ZoneMaskingProps', {
-		Octave_1 = 64,
-		Octave_2 = 420,
-		Octave_3 = 172,
-		Octave_4 = 71,
-		Octave_5 = 29,
-		Octave_6 = 12,
-		Octave_7 = 5,
-		Octave_8 = 2,
-		Octave_9 = 1,
-		Persistence = 41,
-	},
+	'TerraceProps', {Octave_2 = 551,Octave_3 = 187,Octaves = 3,Persistence = 40},
+	'ZoneMaskingProps', {Octave_1 = 64,Octave_2 = 420,Octave_3 = 172,Octave_4 = 71,Octave_5 = 29,Octave_6 = 12,Octave_7 = 5,Octave_8 = 2,Octave_9 = 1,Persistence = 41},
 	'name', "New Resource Positioning",
 })
 
@@ -569,17 +424,7 @@ PlaceObj('RandomMapPreset', {
 	'Terrace1Chance', 50,
 	'Terrace1Height', range(12000, 22000),
 	'Terrace1Ratio', range(35, 50),
-	'TTypeSetup', {
-		Prefab_Orange = {
-			Select = "random",
-		},
-		Prefab_Violet = {
-			Border = true,
-		},
-		Prefab_Yellow = {
-			Select = "random",
-		},
-	},
+	'TTypeSetup', {Prefab_Orange = {Select = "random"},Prefab_Violet = {Border = true},Prefab_Yellow = {Select = "random"}},
 	'ZonePlayable', set( "Playable" ),
 	'ZoneBase', set( "Plain", "Base" ),
 	'ZoneFiller', set( "PlainDecor", "Base", "Playable", "Plain" ),
@@ -595,24 +440,8 @@ PlaceObj('RandomMapPreset', {
 	'ResPreset_Polymers', "New_Polymers_Average",
 	'ResTag_Polymers', "polymer",
 	'ResPreset_Water', "NEW_Water_Average",
-	'TerraceProps', {
-		Octave_2 = 551,
-		Octave_3 = 187,
-		Octaves = 3,
-		Persistence = 40,
-	},
-	'ZoneMaskingProps', {
-		Octave_1 = 64,
-		Octave_2 = 420,
-		Octave_3 = 172,
-		Octave_4 = 71,
-		Octave_5 = 29,
-		Octave_6 = 12,
-		Octave_7 = 5,
-		Octave_8 = 2,
-		Octave_9 = 1,
-		Persistence = 41,
-	},
+	'TerraceProps', {Octave_2 = 551,Octave_3 = 187,Octaves = 3,Persistence = 40},
+	'ZoneMaskingProps', {Octave_1 = 64,Octave_2 = 420,Octave_3 = 172,Octave_4 = 71,Octave_5 = 29,Octave_6 = 12,Octave_7 = 5,Octave_8 = 2,Octave_9 = 1,Persistence = 41},
 	'name', "Prefab Map",
 })
 
@@ -630,9 +459,7 @@ PlaceObj('RandomMapPreset', {
 	'ZoneBorder', set( "Mountain" ),
 	'ZoneSlope', set( "Mountain" ),
 	'ZoneSlopeAlt', set( "Mountain" ),
-	'StyleMixingProps', {
-		Octaves = 5,
-	},
+	'StyleMixingProps', {Octaves = 5},
 	'name', "DarkFaith_01",
 })
 
@@ -666,24 +493,8 @@ PlaceObj('RandomMapPreset', {
 	'ResPreset_Polymers', "Polymers_Average",
 	'ResTag_Polymers', "polymer",
 	'ResPreset_Water', "Water_Average",
-	'TerraceProps', {
-		Octave_2 = 551,
-		Octave_3 = 187,
-		Octaves = 3,
-		Persistence = 40,
-	},
-	'ZoneMaskingProps', {
-		Octave_1 = 64,
-		Octave_2 = 420,
-		Octave_3 = 172,
-		Octave_4 = 71,
-		Octave_5 = 29,
-		Octave_6 = 12,
-		Octave_7 = 5,
-		Octave_8 = 2,
-		Octave_9 = 1,
-		Persistence = 41,
-	},
+	'TerraceProps', {Octave_2 = 551,Octave_3 = 187,Octaves = 3,Persistence = 40},
+	'ZoneMaskingProps', {Octave_1 = 64,Octave_2 = 420,Octave_3 = 172,Octave_4 = 71,Octave_5 = 29,Octave_6 = 12,Octave_7 = 5,Octave_8 = 2,Octave_9 = 1,Persistence = 41},
 	'name', "Terrain_Type_Red",
 })
 
@@ -717,24 +528,8 @@ PlaceObj('RandomMapPreset', {
 	'ResPreset_Polymers', "Polymers_Average",
 	'ResTag_Polymers', "polymer",
 	'ResPreset_Water', "Water_Average",
-	'TerraceProps', {
-		Octave_2 = 551,
-		Octave_3 = 187,
-		Octaves = 3,
-		Persistence = 40,
-	},
-	'ZoneMaskingProps', {
-		Octave_1 = 64,
-		Octave_2 = 420,
-		Octave_3 = 172,
-		Octave_4 = 71,
-		Octave_5 = 29,
-		Octave_6 = 12,
-		Octave_7 = 5,
-		Octave_8 = 2,
-		Octave_9 = 1,
-		Persistence = 41,
-	},
+	'TerraceProps', {Octave_2 = 551,Octave_3 = 187,Octaves = 3,Persistence = 40},
+	'ZoneMaskingProps', {Octave_1 = 64,Octave_2 = 420,Octave_3 = 172,Octave_4 = 71,Octave_5 = 29,Octave_6 = 12,Octave_7 = 5,Octave_8 = 2,Octave_9 = 1,Persistence = 41},
 	'name', "Terrain_Type_Dark",
 })
 
@@ -792,24 +587,8 @@ PlaceObj('RandomMapPreset', {
 	'ResPreset_Polymers', "Polymers_Average",
 	'ResTag_Polymers', "polymer",
 	'ResPreset_Water', "Water_Average",
-	'TerraceProps', {
-		Octave_2 = 551,
-		Octave_3 = 187,
-		Octaves = 3,
-		Persistence = 40,
-	},
-	'ZoneMaskingProps', {
-		Octave_1 = 64,
-		Octave_2 = 420,
-		Octave_3 = 172,
-		Octave_4 = 71,
-		Octave_5 = 29,
-		Octave_6 = 12,
-		Octave_7 = 5,
-		Octave_8 = 2,
-		Octave_9 = 1,
-		Persistence = 41,
-	},
+	'TerraceProps', {Octave_2 = 551,Octave_3 = 187,Octaves = 3,Persistence = 40},
+	'ZoneMaskingProps', {Octave_1 = 64,Octave_2 = 420,Octave_3 = 172,Octave_4 = 71,Octave_5 = 29,Octave_6 = 12,Octave_7 = 5,Octave_8 = 2,Octave_9 = 1,Persistence = 41},
 	'name', "OLD_Terrain_Type_Red",
 })
 
@@ -843,24 +622,8 @@ PlaceObj('RandomMapPreset', {
 	'ResPreset_Polymers', "Polymers_Average",
 	'ResTag_Polymers', "polymer",
 	'ResPreset_Water', "Water_Average",
-	'TerraceProps', {
-		Octave_2 = 551,
-		Octave_3 = 187,
-		Octaves = 3,
-		Persistence = 40,
-	},
-	'ZoneMaskingProps', {
-		Octave_1 = 64,
-		Octave_2 = 420,
-		Octave_3 = 172,
-		Octave_4 = 71,
-		Octave_5 = 29,
-		Octave_6 = 12,
-		Octave_7 = 5,
-		Octave_8 = 2,
-		Octave_9 = 1,
-		Persistence = 41,
-	},
+	'TerraceProps', {Octave_2 = 551,Octave_3 = 187,Octaves = 3,Persistence = 40},
+	'ZoneMaskingProps', {Octave_1 = 64,Octave_2 = 420,Octave_3 = 172,Octave_4 = 71,Octave_5 = 29,Octave_6 = 12,Octave_7 = 5,Octave_8 = 2,Octave_9 = 1,Persistence = 41},
 	'name', "OLD_Terrain_Type_Dark",
 })
 
@@ -886,12 +649,7 @@ PlaceObj('RandomMapPreset', {
 	'ResPreset_Polymers', "Polymers_Average",
 	'ResTag_Polymers', "polymer",
 	'ResPreset_Water', "Water_Average",
-	'TerraceProps', {
-		Octave_2 = 551,
-		Octave_3 = 187,
-		Octaves = 3,
-		Persistence = 40,
-	},
+	'TerraceProps', {Octave_2 = 551,Octave_3 = 187,Octaves = 3,Persistence = 40},
 	'name', "Dark Terrace",
 })
 
@@ -916,24 +674,7 @@ PlaceObj('RandomMapPreset', {
 	'PlayDist', range(5000, 30000),
 	'BlankMap', "BlankBigTerraceCMix_06",
 	'SlopeExcessDist', 9600,
-	'TTypeSetup', {
-		Prefab_Green = {
-			Style = "Slate",
-		},
-		Prefab_Orange = {
-			Style = "Light",
-		},
-		Prefab_Red = {
-			Style = "Dark",
-		},
-		Prefab_Violet = {
-			Border = true,
-			Style = "Red",
-		},
-		Prefab_Yellow = {
-			Style = "Red",
-		},
-	},
+	'TTypeSetup', {Prefab_Green = {Style = "Slate"},Prefab_Orange = {Style = "Light"},Prefab_Red = {Style = "Dark"},Prefab_Violet = {Border = true,Style = "Red"},Prefab_Yellow = {Style = "Red"}},
 	'ZonePlayable', set( "Playable" ),
 	'ZoneBase', set( "PlainDecor", "Base", "Plain" ),
 	'ZoneFiller', set( "Fill", "PlainDecor", "Plain" ),

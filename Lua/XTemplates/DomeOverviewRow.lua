@@ -148,6 +148,7 @@ end
 texts[#texts + 1]  = dome:GetBirthText()	
 self:SetRolloverText(table.concat(texts, "<newline><left>"))
 end,
+			'FXMouseIn', "MenuItemHover",
 			'FocusedBackground', RGBA(0, 0, 0, 0),
 			'OnPress', function (self, gamepad)
 self.context:ToggleAcceptBirth(not gamepad and IsMassUIModifierPressed())
@@ -218,6 +219,7 @@ local dome = ResolvePropObj(context)
 		self:SetRolloverHintGamepad(T{8892, "<ButtonA> Allow for this Dome<newline><ButtonX> Allow for all Domes"})
 	end
 end,
+			'FXMouseIn', "MenuItemHover",
 			'FocusedBackground', RGBA(0, 0, 0, 0),
 			'OnPress', function (self, gamepad)
 self.context:ToggleWorkInConnected(not gamepad and IsMassUIModifierPressed())
@@ -288,6 +290,7 @@ local dome = ResolvePropObj(context)
 		self:SetRolloverHintGamepad(T{8892, "<ButtonA> Allow for this Dome<newline><ButtonX> Allow for all Domes"})
 	end
 end,
+			'FXMouseIn', "MenuItemHover",
 			'FocusedBackground', RGBA(0, 0, 0, 0),
 			'OnPress', function (self, gamepad)
 self.context:ToggleServiceInConnected(not gamepad and IsMassUIModifierPressed())
@@ -370,6 +373,7 @@ local dome = ResolvePropObj(context)
 		end
 	end
 end,
+			'FXMouseIn', "MenuItemHover",
 			'FocusedBackground', RGBA(0, 0, 0, 0),
 			'OnPress', function (self, gamepad)
 self.context:ToggleAcceptColonists(not gamepad and IsMassUIModifierPressed())

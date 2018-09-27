@@ -169,6 +169,14 @@ PlaceObj('ActionFXSound', {
 })
 
 PlaceObj('ActionFXSound', {
+	'Action', "ArtificialSunProduce",
+	'Moment', "start",
+	'Actor', "ArtificialSun",
+	'Target', "ignore",
+	'Sound', "Object ArtificialSun ProduceWave",
+})
+
+PlaceObj('ActionFXSound', {
 	'Action', "BioroboticsArmMotion",
 	'Moment', "start",
 	'Actor', "BioroboticsWorkshopArm",
@@ -231,6 +239,13 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "AttackRover",
 	'Sound', "Unit RoverAttack Fail",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Breakdown",
+	'Moment', "start",
+	'Actor', "AutomaticMetalsExtractor",
+	'Sound', "Object MetalExtractorAuto Fail",
 })
 
 PlaceObj('ActionFXSound', {
@@ -1195,6 +1210,13 @@ PlaceObj('ActionFXSound', {
 })
 
 PlaceObj('ActionFXSound', {
+	'Action', "Close",
+	'Moment', "start",
+	'Actor', "RoverEuropeAntena",
+	'Sound', "Unit RoverSensor TowerOFF",
+})
+
+PlaceObj('ActionFXSound', {
 	'Action', "ColdWave",
 	'Moment', "start",
 	'EndMoment1', "end",
@@ -2056,6 +2078,14 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "AttackRover",
 	'Sound', "Unit RoverAttack Crash",
+	'Source', "ActionPos",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Destroyed",
+	'Moment', "start",
+	'Actor', "AutomaticMetalsExtractor",
+	'Sound', "Object MetalExtractorAuto Demolition",
 	'Source', "ActionPos",
 })
 
@@ -4589,10 +4619,210 @@ PlaceObj('ActionFXSound', {
 })
 
 PlaceObj('ActionFXSound', {
+	'Action', "OccupationFull",
+	'Moment', "start",
+	'Actor', "MartianUniversity",
+	'EndMoment1', "end",
+	'handle', 1092436099,
+	'Sound', "Building MartianUni LoopFull",
+	'FadeIn', 500,
+	'FadeOut', 500,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "OccupationFull",
+	'Moment', "start",
+	'Actor', "Nursery",
+	'EndMoment1', "end",
+	'handle', 440876565,
+	'Sound', "Building Nurcery LoopFull",
+	'FadeIn', 500,
+	'FadeOut', 500,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "OccupationFull",
+	'Moment', "start",
+	'Actor', "OpenAirGym",
+	'EndMoment1', "end",
+	'handle', 625036521,
+	'Sound', "Building OpenAirGym LoopFull",
+	'FadeIn', 500,
+	'FadeOut', 500,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "OccupationFull",
+	'Moment', "start",
+	'Actor', "Playground",
+	'EndMoment1', "end",
+	'handle', 2009392204,
+	'Sound', "Building Playground LoopFull",
+	'FadeIn', 500,
+	'FadeOut', 500,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "OccupationFull",
+	'Moment', "start",
+	'Actor', "School",
+	'EndMoment1', "end",
+	'handle', 2088634148,
+	'Sound', "Building School LoopFull",
+	'FadeIn', 500,
+	'FadeOut', 500,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "OccupationLow",
+	'Moment', "start",
+	'Actor', "MartianUniversity",
+	'EndMoment1', "end",
+	'handle', 1716545556,
+	'Sound', "Building MartianUni LoopLow",
+	'FadeIn', 500,
+	'FadeOut', 500,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "OccupationLow",
+	'Moment', "start",
+	'Actor', "Nursery",
+	'EndMoment1', "end",
+	'handle', 1015115991,
+	'Sound', "Building Nurcery LoopLow",
+	'FadeIn', 500,
+	'FadeOut', 500,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "OccupationLow",
+	'Moment', "start",
+	'Actor', "OpenAirGym",
+	'EndMoment1', "end",
+	'handle', 79959358,
+	'Sound', "Building OpenAirGym LoopLow",
+	'FadeIn', 500,
+	'FadeOut', 500,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "OccupationLow",
+	'Moment', "start",
+	'Actor', "Playground",
+	'EndMoment1', "end",
+	'handle', 1824924454,
+	'Sound', "Building Playground LoopLow",
+	'FadeIn', 500,
+	'FadeOut', 500,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "OccupationLow",
+	'Moment', "start",
+	'Actor', "School",
+	'EndMoment1', "end",
+	'handle', 1600269993,
+	'Sound', "Building School LoopLow",
+	'FadeIn', 500,
+	'FadeOut', 500,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "OccupationPopulated",
+	'Moment', "start",
+	'Actor', "MartianUniversity",
+	'EndMoment1', "end",
+	'handle', 1052164224,
+	'Sound', "Building MartianUni LoopMedium",
+	'FadeIn', 500,
+	'FadeOut', 500,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "OccupationPopulated",
+	'Moment', "start",
+	'Actor', "Nursery",
+	'EndMoment1', "end",
+	'handle', 1351900098,
+	'Sound', "Building Nurcery LoopMedium",
+	'FadeIn', 500,
+	'FadeOut', 500,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "OccupationPopulated",
+	'Moment', "start",
+	'Actor', "OpenAirGym",
+	'EndMoment1', "end",
+	'handle', 795519953,
+	'Sound', "Building OpenAirGym LoopMedium",
+	'FadeIn', 500,
+	'FadeOut', 500,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "OccupationPopulated",
+	'Moment', "start",
+	'Actor', "Playground",
+	'EndMoment1', "end",
+	'handle', 832914212,
+	'Sound', "Building Playground LoopMedium",
+	'FadeIn', 500,
+	'FadeOut', 500,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "OccupationPopulated",
+	'Moment', "start",
+	'Actor', "School",
+	'EndMoment1', "end",
+	'handle', 1203166234,
+	'Sound', "Building School LoopMedium",
+	'FadeIn', 500,
+	'FadeOut', 500,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
 	'Action', "Open",
 	'Moment', "start",
 	'Actor', "RoverChinaSolarPanel",
 	'Sound', "Unit RoverSolar Open",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Open",
+	'Moment', "start",
+	'Actor', "RoverEuropeAntena",
+	'EndAction1', "Close",
+	'EndMoment1', "start",
+	'handle', 2026190135,
+	'Sound', "Unit RoverSensor TowerLoop",
+	'FadeIn', 3000,
+	'FadeOut', 3000,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Open",
+	'Moment', "start",
+	'Actor', "RoverEuropeAntena",
+	'Sound', "Unit RoverSensor TowerON",
 })
 
 PlaceObj('ActionFXSound', {
@@ -5685,6 +5915,21 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
+	'Actor', "AutomaticMetalsExtractor",
+	'Sound', "Object MetalExtractorAuto Select",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
+	'Actor', "AutomaticMetalsExtractor",
+	'Sound', "UI SelectObject",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
 	'Actor', "Battery_WaterFuelCell",
 	'Sound', "Object PowerAccumulator Select",
 })
@@ -6727,6 +6972,14 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
+	'Actor', "Nurcery",
+	'Sound', "UI SelectBuilding",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
 	'Actor', "Nursery",
 	'Sound', "Building Nurcery Select",
 })
@@ -7445,6 +7698,14 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "SelectObj",
 	'Moment', "start",
+	'Actor', "Temple",
+	'Sound', "UI SelectBuilding",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "SelectObj",
+	'Moment', "start",
 	'Actor', "TheExcavator",
 	'Sound', "Object Excavator Select",
 })
@@ -7726,6 +7987,14 @@ PlaceObj('ActionFXSound', {
 	'Moment', "start",
 	'Actor', "AttackRover",
 	'Sound', "Unit RoverAttack Complete",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "AutomaticMetalsExtractor",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
 })
 
 PlaceObj('ActionFXSound', {
@@ -8379,6 +8648,13 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Spawn",
 	'Moment', "start",
+	'Actor', "Nursery",
+	'Sound', "UI BuildComplete",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
 	'Actor', "OmegaTelescope",
 	'Sound', "UI BuildComplete",
 	'Source', "UI",
@@ -8762,6 +9038,14 @@ PlaceObj('ActionFXSound', {
 	'Action', "Spawn",
 	'Moment', "start",
 	'Actor', "SubsurfaceHeater",
+	'Sound', "UI BuildComplete",
+	'Source', "UI",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Spawn",
+	'Moment', "start",
+	'Actor', "Temple",
 	'Sound', "UI BuildComplete",
 	'Source', "UI",
 })
@@ -9398,6 +9682,13 @@ PlaceObj('ActionFXSound', {
 PlaceObj('ActionFXSound', {
 	'Action', "Working",
 	'Moment', "end",
+	'Actor', "AutomaticMetalsExtractor",
+	'Sound', "Object MetalExtractorAuto LoopStop",
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Working",
+	'Moment', "end",
 	'Actor', "Battery_WaterFuelCell",
 	'Sound', "Object PowerAccumulator LoopStop",
 })
@@ -9751,6 +10042,25 @@ PlaceObj('ActionFXSound', {
 	'FadeIn', 1500,
 	'FadeOut', 1500,
 	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Working",
+	'Moment', "start",
+	'Actor', "AutomaticMetalsExtractor",
+	'EndMoment1', "end",
+	'handle', 60739382,
+	'Sound', "Object MetalExtractorAuto Loop",
+	'FadeIn', 1500,
+	'FadeOut', 1500,
+	'AttachToObj', true,
+})
+
+PlaceObj('ActionFXSound', {
+	'Action', "Working",
+	'Moment', "start",
+	'Actor', "AutomaticMetalsExtractor",
+	'Sound', "Object MetalExtractorAuto LoopStart",
 })
 
 PlaceObj('ActionFXSound', {
@@ -10219,7 +10529,7 @@ PlaceObj('ActionFXSound', {
 	'Actor', "MartianUniversity",
 	'EndMoment1', "end",
 	'handle', 1845930611,
-	'Sound', "Building MartianUni Loop",
+	'Sound', "Building MartianUni LoopEmpty",
 	'FadeIn', 500,
 	'FadeOut', 500,
 	'AttachToObj', true,
@@ -10324,9 +10634,9 @@ PlaceObj('ActionFXSound', {
 	'Actor', "Nursery",
 	'EndMoment1', "end",
 	'handle', 2066254566,
-	'Sound', "Building Nurcery Loop",
-	'FadeIn', 1000,
-	'FadeOut', 1000,
+	'Sound', "Building Nurcery LoopEmpty",
+	'FadeIn', 500,
+	'FadeOut', 500,
 	'AttachToObj', true,
 })
 
@@ -10355,9 +10665,9 @@ PlaceObj('ActionFXSound', {
 	'Actor', "OpenAirGym",
 	'EndMoment1', "end",
 	'handle', 431559711,
-	'Sound', "Building OpenAirGym Loop",
-	'FadeIn', 2000,
-	'FadeOut', 2000,
+	'Sound', "Building OpenAirGym LoopEmpty",
+	'FadeIn', 500,
+	'FadeOut', 500,
 	'AttachToObj', true,
 })
 
@@ -10412,9 +10722,9 @@ PlaceObj('ActionFXSound', {
 	'Actor', "Playground",
 	'EndMoment1', "end",
 	'handle', 563803895,
-	'Sound', "Building Playground Loop",
-	'FadeIn', 1000,
-	'FadeOut', 1000,
+	'Sound', "Building Playground LoopEmpty",
+	'FadeIn', 500,
+	'FadeOut', 500,
 	'AttachToObj', true,
 })
 
@@ -10546,7 +10856,7 @@ PlaceObj('ActionFXSound', {
 	'Actor', "School",
 	'EndMoment1', "end",
 	'handle', 1294901360,
-	'Sound', "Building School Loop",
+	'Sound', "Building School LoopEmpty",
 	'FadeIn', 500,
 	'FadeOut', 500,
 	'AttachToObj', true,

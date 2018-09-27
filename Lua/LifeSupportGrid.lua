@@ -856,6 +856,9 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 	local current_group_has_hub = false
 	local last_element_found_hub = false
 	local current_chunk_group_has_hub = false
+	local last_non_chunk_element = false
+	local total_chunk_cost = 0
+	
 	if input_data and #input_data > 0 then
 		last_placed_data_cell = input_data[#input_data]
 		last_pass_idx = last_placed_data_cell.idx
@@ -865,6 +868,8 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 		cs_grp_elements_in_this_group = Max((input_data.cs_grp_elements_in_this_group or cs_grp_elements_in_this_group) - 1, 0)
 		has_group_with_no_hub = input_data.has_group_with_no_hub
 		current_group_has_hub = input_data.current_group_has_hub
+		local input_lnce = input_data.last_non_chunk_element
+		last_non_chunk_element = input_lnce and input_lnce == #input_data and 0 or not not input_lnce
 		if input_data.last_group_had_no_hub then
 			has_group_with_no_hub = false
 		end
@@ -918,6 +923,10 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 			table.insert(obstructors, pipe)
 			data[i].status = SupplyGridElementHexStatus.blocked
 			data[i].can_make_pillar = false
+		end
+		
+		if data[i] ~= last_placed_data_cell and pipe and construction_group and table.find(construction_group, pipe) then
+			cs_grp_elements_in_this_group = cs_grp_elements_in_this_group - 1
 		end
 		
 		if surf_deps and #surf_deps > 0 then
@@ -993,6 +1002,12 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 						current_chunk_group_has_hub = true
 					end
 				end
+				if last_non_chunk_element == i - 1 then
+					last_non_chunk_element = false
+				end
+				if not start_node.pipe then
+					total_chunk_cost = total_chunk_cost + 200 --mark prev
+				end
 			elseif last_status == SupplyGridElementHexStatus.unbuildable and data[i].status == SupplyGridElementHexStatus.blocked 
 				and unbuildable_chunks[chunk_idx] then
 				--blocked chunk
@@ -1006,6 +1021,15 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 				data[i].chunk_end = unbuildable_chunks[chunk_idx]
 				unbuildable_chunks[chunk_idx].place_construction_site = unbuildable_chunks[chunk_idx].place_construction_site or data[i].place_construction_site
 				unbuildable_chunks[chunk_idx].status = not chunk_has_blocked_members and SupplyGridElementHexStatus.clear or unbuildable_chunks[chunk_idx].status
+				
+				--ui counters
+				cs_chunk_grp_counter_for_cost = cs_chunk_grp_counter_for_cost + 1
+				if not current_chunk_group_has_hub then
+					has_group_with_no_hub = true
+				else
+					current_chunk_group_has_hub = false
+				end
+				
 				--build z data
 				local cell_data = data[unbuildable_chunks[chunk_idx].chunk_start - last_pass_idx]
 				local x1, y1 = HexToWorld(cell_data.q, cell_data.r)
@@ -1029,12 +1053,6 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 						unbuildable_chunks[chunk_idx].status = SupplyGridElementHexStatus.blocked
 					else
 						last_pillar = pillar_spacing - (i % pillar_spacing)
-						cs_chunk_grp_counter_for_cost = cs_chunk_grp_counter_for_cost + 1
-						if not current_chunk_group_has_hub then
-							has_group_with_no_hub = true
-						else
-							current_chunk_group_has_hub = false
-						end
 					end
 				end
 				
@@ -1079,6 +1097,9 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 					current_group_has_hub = false
 				end
 			else
+				if cs_grp_elements_in_this_group <= 0 and cs_grp_counter_for_cost <= 0 then
+					cs_grp_counter_for_cost = 1
+				end
 				cs_grp_elements_in_this_group = cs_grp_elements_in_this_group + 1
 			end
 			
@@ -1089,11 +1110,18 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 				end
 			end
 		else
+			if not data[i].pipe then
+				total_chunk_cost = total_chunk_cost + 200
+			end
 			if not current_chunk_group_has_hub and not has_group_with_no_hub then
 				if DoesAnyDroneControlServiceAtPoint(world_pos) then
 					current_chunk_group_has_hub = true
 				end
 			end
+		end
+		
+		if not last_non_chunk_element and not data[i].chunk then
+			last_non_chunk_element = i
 		end
 		
 		last_status = data[i].status
@@ -1104,12 +1132,13 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 	data.cs_chunk_grp_counter_for_cost = cs_chunk_grp_counter_for_cost
 	local total_cost = GetGridElementConstructionCost("LifeSupportGridElement")
 	for k, v in pairs(total_cost or empty_table) do
-		total_cost[k] = v * cs_grp_counter_for_cost + v * cs_chunk_grp_counter_for_cost * 5
+		total_cost[k] = v * cs_grp_counter_for_cost + total_chunk_cost
 	end
 	
 	if not has_group_with_no_hub and 
-			((data[steps].chunk and not current_chunk_group_has_hub or not current_group_has_hub) or
-			 not data[steps].chunk and not current_group_has_hub)then
+			((data[steps].chunk and (not data[steps].chunk_end and not current_chunk_group_has_hub or 
+				(last_non_chunk_element and not current_group_has_hub))) or
+			 not data[steps].chunk and not current_group_has_hub) then
 		has_group_with_no_hub = true
 		data.last_group_had_no_hub = true
 	end
@@ -1157,8 +1186,9 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 	local proc_placed_pipe = function(data_idx, cell_data, pillar, chain, cg)
 		if cell_data.pipe then
 			if pillar then
+				local is_chunk_pillar = cell_data.pipe.pillar == max_int
 				cell_data.pipe:MakePillar(pillar == max_int and pillar or cell_data.pipe.pillar or true)
-				if cg and cell_data.pipe:GetGameFlags(const.gofUnderConstruction) ~= 0 and pillar == max_int then
+				if not is_chunk_pillar and cg and cell_data.pipe:GetGameFlags(const.gofUnderConstruction) ~= 0 and pillar == max_int then
 					cell_data.pipe:ChangeConstructionGroup(cg)
 				end
 			end
@@ -1236,7 +1266,6 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 				--place constr grp, chunks are their own groups
 				local chunk_construction_group = CreateConstructionGroup("LifeSupportGridElement", point(HexToWorld(q, r)), 3, not elements_require_construction)
 				local chunk_group_leader = chunk_construction_group[1]
-				chunk_group_leader.construction_cost_multiplier = 500
 				--add pillar 1
 				local p1 = place_pipe_cs(i, chunk_construction_group, max_int) --pillar == number means it cant auto demote
 				--place the lines
@@ -1251,6 +1280,7 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 					DoneObject(chunk_group_leader)
 				else
 					chunk_group_leader.drop_offs = {p1, p2}
+					chunk_group_leader.construction_cost_multiplier = (20 * (#chunk_construction_group - 1)) --0.2 per pipe
 					last_placed_obj = p2
 				end
 			else

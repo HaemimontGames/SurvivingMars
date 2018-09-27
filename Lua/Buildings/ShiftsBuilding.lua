@@ -67,6 +67,9 @@ function OnMsg.NewWorkshift(workshift)
 end
 
 function ShiftsBuilding:SetWorkshift(workshift)
+	if self.destroyed then 
+		return 
+	end
 	self:OnChangeWorkshift(self.current_shift, workshift)							
 	self.current_shift = workshift
 	self:SetWorkplaceWorking()
@@ -167,17 +170,25 @@ function ShiftsBuilding:CloseShift(shift)
 	end
 end
 
+function ShiftsBuilding:MoveWorkers(from_shift, to_shift)
+end
+
 function ShiftsBuilding:OpenShift(shift)
 	local all_closed = self:AreAllShiftsClosed()
+	local prev_active
 	if self.active_shift > 0 then
+		prev_active = self.active_shift
 		self.closed_shifts[self.active_shift] = true
 		self.active_shift = shift
 	end
 	self.closed_shifts[shift] = false
+	if self.active_shift > 0 then
+		self:MoveWorkers(prev_active, shift)
+	end
 	if all_closed then
 		self:SetUIWorking(true)
 	end
-	if shift == self.current_shift then
+	if shift == self.current_shift or self.active_shift > 0 then
 		self:UpdateWorking()
 		self:UpdateConsumption()
 	end

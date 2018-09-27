@@ -16,7 +16,7 @@ PlaceObj('Scenario', {
 			'image', "UI/Messages/deposits.tga",
 			'choice1', T{5775, --[[Scenario Anomalies choice1]] "Concentrate effort on gathering as many samples as possible. (<research(1000)>)"},
 			'choice1_img', "UI/Icons/message_1.tga",
-			'choice2', T{5777, --[[Scenario Anomalies choice2]] "Focus on geochemical analysis of the most Sulphide-rich samples. (Engineering research boost: 10%)"},
+			'choice2', T{5777, --[[Scenario Anomalies choice2]] "Focus on geochemical analysis of the most Sulphide-rich samples. (Reduces the cost of Engineering techs by 10%)"},
 			'choice2_img', "UI/Icons/message_2.tga",
 		}),
 		PlaceObj('SA_WaitChoiceCheck', {
@@ -69,7 +69,7 @@ PlaceObj('Scenario', {
 			'image', "UI/Messages/debris.tga",
 			'choice1', T{5781, --[[Scenario Anomalies choice1]] "Send Curiosity back to Earth. (<funding(500000000)> Funding)"},
 			'choice1_img', "UI/Icons/message_1.tga",
-			'choice2', T{5783, --[[Scenario Anomalies choice2]] "Display it as a monument in the Colony. (Social research boost: 10%)"},
+			'choice2', T{5783, --[[Scenario Anomalies choice2]] "Display it as a monument in the Colony. (Reduces the cost of Social techs by 10%)"},
 			'choice2_img', "UI/Icons/message_2.tga",
 		}),
 		PlaceObj('SA_WaitChoiceCheck', {
@@ -106,7 +106,7 @@ PlaceObj('Scenario', {
 			'text', T{5785, --[[Scenario Anomalies text]] "The geological team couldn't wait to get their hands on the samples, but this was going to prevent the engineering team from smelting the materials for their ceaseless operations. The experts at Mission Control argued for hours, but the course of action was clear."},
 			'log_entry', true,
 			'image', "UI/Messages/deposits_2.tga",
-			'choice1', T{5786, --[[Scenario Anomalies choice1]] "Study the Chromium deposit. (Engineering research boost: 10%)"},
+			'choice1', T{5786, --[[Scenario Anomalies choice1]] "Study the Chromium deposit. (Reduces the cost of Engineering techs by 10%)"},
 			'choice1_img', "UI/Icons/message_1.tga",
 			'choice2', T{5788, --[[Scenario Anomalies choice2]] "Exploit the deposit. (deep Rare Metals deposit)"},
 			'choice2_img', "UI/Icons/message_2.tga",
@@ -145,7 +145,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_WaitMessage', {
 			'title', T{5614, --[[Scenario Anomalies title]] "Anomaly Analyzed"},
 			'voiced_text', T{7160, --[[voice:narrator]] "Someone joked we found kryptonite. It was because of the greenish-yellow hue of the beryl crystals."},
-			'text', T{5790, --[[Scenario Anomalies text]] "The contrast with the red Martian dust made them appear almost alien. Even if they wouldn't make any of the Colonists superhuman, they would surely give us almost supernatural powers!\n\nOur plans at Mission Control included the introduction of a long-term nuclear energy solution for the growing Colony, and the Beryllium that we would produce from these minerals would be an immense help in this difficult mission. We would encase the nuclear fuel rods of our nuclear reactors in Beryllium and make a good use of its incredible mechanical, chemical and nuclear properties.\n\n<effect>The Technologies in the Physics field gain a 10% Boost."},
+			'text', T{5790, --[[Scenario Anomalies text]] "The contrast with the red Martian dust made them appear almost alien. Even if they wouldn't make any of the Colonists superhuman, they would surely give us almost supernatural powers!\n\nOur plans at Mission Control included the introduction of a long-term nuclear energy solution for the growing Colony, and the Beryllium that we would produce from these minerals would be an immense help in this difficult mission. We would encase the nuclear fuel rods of our nuclear reactors in Beryllium and make a good use of its incredible mechanical, chemical and nuclear properties.\n\n<effect>Reduces the cost of Physics techs by 10%."},
 			'log_entry', true,
 			'image', "UI/Messages/deposits_2.tga",
 			'choice1', T{5791, --[[Scenario Anomalies choice1]] "Awesome!"},
@@ -161,7 +161,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_WaitMessage', {
 			'title', T{5614, --[[Scenario Anomalies title]] "Anomaly Analyzed"},
 			'voiced_text', T{7161, --[[voice:narrator]] "The rover manipulators held the silver-white mineral up to the camera just as the chemical analysis came through. We’ve found Tellurium."},
-			'text', T{5792, --[[Scenario Anomalies text]] "In a moment, the Chief Engineer at Mission Control was at the communications station, urging instructions to the RC Explorer on how to handle and analyze the discovery. It was amusing to watch the almost childlike excitement in the eyes of the expert.\n\nThis is a significant discovery because it allows us to overcome an old problem in metallurgy. Easily-machinable metals allow for economical manufacturing of components, but the factors that allow it usually lower their performance, and vice versa. Thus, engineers had always been challenged to find ways to balance the two factors. The addition of Tellurium to iron alloys allows them to perform better in both areas.\n\n<effect>The Technologies in the Robotics field gain a 10% Boost."},
+			'text', T{5792, --[[Scenario Anomalies text]] "In a moment, the Chief Engineer at Mission Control was at the communications station, urging instructions to the RC Explorer on how to handle and analyze the discovery. It was amusing to watch the almost childlike excitement in the eyes of the expert.\n\nThis is a significant discovery because it allows us to overcome an old problem in metallurgy. Easily-machinable metals allow for economical manufacturing of components, but the factors that allow it usually lower their performance, and vice versa. Thus, engineers had always been challenged to find ways to balance the two factors. The addition of Tellurium to iron alloys allows them to perform better in both areas.\n\n<effect>Reduces the cost of Robotics techs by 10%."},
 			'log_entry', true,
 			'image', "UI/Messages/deposits_2.tga",
 			'choice1', T{5793, --[[Scenario Anomalies choice1]] "Great news!"},
@@ -193,7 +193,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_WaitMessage', {
 			'title', T{5614, --[[Scenario Anomalies title]] "Anomaly Analyzed"},
 			'voiced_text', T{7163, --[[voice:narrator]] "The probe’s drill had hit one hundred meters before it detected a spike in temperature. The data tells us it was ignited Magnesium compounds."},
-			'text', T{5795, --[[Scenario Anomalies text]] "We are still waiting for confirmation but the preliminary results are clear. There are signs of chemical burning, indicating a combustible material in contact with the probe. The mechanical friction of the drilling head must have ignited the magnesium. What a great discovery!\n\nScientists on Earth had long planned the creation of jet engines that could burn the carbon dioxide in the Martian atmosphere with the use of magnesium powder. With abundant amounts on site, the research teams could begin preliminary testing of a working prototype right away!\n\n<effect>Tech Boost (10%) for all Robotics Technologies."},
+			'text', T{5795, --[[Scenario Anomalies text]] "We are still waiting for confirmation but the preliminary results are clear. There are signs of chemical burning, indicating a combustible material in contact with the probe. The mechanical friction of the drilling head must have ignited the magnesium. What a great discovery!\n\nScientists on Earth had long planned the creation of jet engines that could burn the carbon dioxide in the Martian atmosphere with the use of magnesium powder. With abundant amounts on site, the research teams could begin preliminary testing of a working prototype right away!\n\n<effect>Reduces the cost of Robotics techs by 10%."},
 			'log_entry', true,
 			'image', "UI/Messages/deposits.tga",
 		}),
@@ -269,7 +269,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_WaitMessage', {
 			'title', T{5614, --[[Scenario Anomalies title]] "Anomaly Analyzed"},
 			'voiced_text', T{7168, --[[voice:narrator]] "We've just found Beagle 2. Or at least what’s left of it."},
-			'text', T{5800, --[[Scenario Anomalies text]] "Over the years over two-thirds of the missions sent to Mars ended in disaster. The tragic course of events, attributed to bad luck, human error, or simply to the inevitability of shooting blind in the dark, had created a dark humor revolving around the Great Galactic Ghoul which feeds on exploration probes and the mystery of the Martian Triangle.\n\nOne of the best-equipped probe missions to Mars was Beagle 2, which failed dramatically in the last minutes before landing. Failed by the parachutes and the treacherous Martian atmosphere, the brave little probe crashed at fatally high speed against the red desert.\n\n<effect> Gain Tech Boost (10%) to all Robotics Technologies."},
+			'text', T{5800, --[[Scenario Anomalies text]] "Over the years over two-thirds of the missions sent to Mars ended in disaster. The tragic course of events, attributed to bad luck, human error, or simply to the inevitability of shooting blind in the dark, had created a dark humor revolving around the Great Galactic Ghoul which feeds on exploration probes and the mystery of the Martian Triangle.\n\nOne of the best-equipped probe missions to Mars was Beagle 2, which failed dramatically in the last minutes before landing. Failed by the parachutes and the treacherous Martian atmosphere, the brave little probe crashed at fatally high speed against the red desert.\n\n<effect>Reduces the cost of Robotics techs by 10%."},
 			'log_entry', true,
 			'image', "UI/Messages/debris.tga",
 			'choice1', T{5801, --[[Scenario Anomalies choice1]] "Begin analysis on the crash site."},
@@ -288,9 +288,9 @@ PlaceObj('Scenario', {
 			'text', T{5802, --[[Scenario Anomalies text]] "The pocket of natural gas we discovered deep among the hydrocarbon rocks was nothing short of an evidence of petroleum formation. The geophysicists here, at Mission Control, stare at the research data in disbelief. Mars, even in its alien nature, has proven once more a teacher in the mysteries so well veiled on our home world.\n\nThis unique opportunity allows us to gaze into the past of Mars and gather knowledge which would take months to simulate inside a laboratory."},
 			'log_entry', true,
 			'image', "UI/Messages/deposits.tga",
-			'choice1', T{5803, --[[Scenario Anomalies choice1]] "Conduct on-site volatiles experiments. (Physics research boost: 10%)"},
+			'choice1', T{5803, --[[Scenario Anomalies choice1]] "Conduct on-site volatiles experiments. (Reduce cost of Physics research by 10%)"},
 			'choice1_img', "UI/Icons/message_1.tga",
-			'choice2', T{5805, --[[Scenario Anomalies choice2]] "Conduct on-site polymerization experiments. (Engineering research boost: 10%)"},
+			'choice2', T{5805, --[[Scenario Anomalies choice2]] "Conduct on-site polymerization experiments. (Reduce cost of Engineering research by 10%)"},
 			'choice2_img', "UI/Icons/message_2.tga",
 			'choice3', T{5807, --[[Scenario Anomalies choice3]] "Sell the scientific data. (<funding(500000000)> Funding)"},
 			'choice3_img', "UI/Icons/message_3.tga",
@@ -381,7 +381,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_WaitMessage', {
 			'title', T{5614, --[[Scenario Anomalies title]] "Anomaly Analyzed"},
 			'voiced_text', T{7171, --[[voice:narrator]] "The analysis tells us that we’ve found Iridium-rich sulfides! That’s a real rarity on Earth!"},
-			'text', T{5814, --[[Scenario Anomalies text]] "Mankind's ingenuity had found a myriad of applications for it. But we focused our plan on a much simpler, more vital role in our growing Colony – RTGs. Free energy for everyone!\n\n<effect>Tech Boost (10%) to all Physics Technologies."},
+			'text', T{5814, --[[Scenario Anomalies text]] "Mankind's ingenuity had found a myriad of applications for it. But we focused our plan on a much simpler, more vital role in our growing Colony – RTGs. Free energy for everyone!\n\n<effect>Reduces the cost of Physics techs by 10%."},
 			'log_entry', true,
 			'image', "UI/Messages/exploration_2.tga",
 			'choice1', T{5815, --[[Scenario Anomalies choice1]] "Excellent!"},
@@ -394,10 +394,13 @@ PlaceObj('Scenario', {
 	PlaceObj('ScenarioSequence', {
 		'name', "Electromagnetic Concentration",
 	}, {
+		PlaceObj('SA_Exec', {
+			'expression', 'rover:SetCommand("Malfunction")',
+		}),
 		PlaceObj('SA_WaitMessage', {
 			'title', T{5614, --[[Scenario Anomalies title]] "Anomaly Analyzed"},
 			'voiced_text', T{7172, --[[voice:narrator]] "The Rover went dark for five hours. When it rebooted, it confirmed it had come into contact with an unusually high-voltage electrical charge."},
-			'text', T{5816, --[[Scenario Anomalies text]] "The red alert was sounded immediately after we lost contact with the RC Explorer vehicle. Five long hours of fear and desperation ended with the reinstating of data feed. A wave of relief passed through the crowd of scientists gathered at the control center. The telescopic drill used to probe the crust at the Anomaly site disturbed a layer of magnetite-rich rocks, the source of the electric charge. The rover is still functional but it would take time before its locomotion systems are fully restored. The operators turned the defeat into a victory, devoting the unexpected time window to studying the magnetic properties of the Martian crust.\n\n<effect>The RC Explorer has malfunctioned. It has to be repaired by Drones.\n<effect>Tech Boost (50%) granted to the following technologies: Low-G Drive (faster Drones and Rovers), Autonomous Sensors (Sensor Towers require no Power or Maintenance).\n<effect> Gain <funding(200000000)> Funding."},
+			'text', T{5816, --[[Scenario Anomalies text]] "The red alert was sounded immediately after we lost contact with the RC Explorer vehicle. Five long hours of fear and desperation ended with the reinstating of data feed. A wave of relief passed through the crowd of scientists gathered at the control center. The telescopic drill used to probe the crust at the Anomaly site disturbed a layer of magnetite-rich rocks, the source of the electric charge. The rover is still functional but it would take time before its locomotion systems are fully restored. The operators turned the defeat into a victory, devoting the unexpected time window to studying the magnetic properties of the Martian crust.\n\n<effect>The RC Explorer has malfunctioned. It has to be repaired by Drones.\n<effect>50% cost reduction for the following technologies: Low-G Drive (faster Drones and Rovers), Autonomous Sensors (Sensor Towers require no Power or Maintenance).\n<effect> Gain <funding(200000000)> Funding."},
 			'log_entry', true,
 			'image', "UI/Messages/dust_storm.tga",
 		}),
@@ -410,9 +413,6 @@ PlaceObj('Scenario', {
 			'Field', "Physics",
 			'Research', "AutonomousSensors",
 			'Amount', 50,
-		}),
-		PlaceObj('SA_Exec', {
-			'expression', 'rover:SetCommand("Malfunction")',
 		}),
 		PlaceObj('SA_ChangeFunding', {
 			'funding', "200000000",
@@ -453,15 +453,15 @@ PlaceObj('Scenario', {
 	PlaceObj('ScenarioSequence', {
 		'name', "Crust Fault",
 	}, {
+		PlaceObj('SA_Exec', {
+			'expression', 'rover:SetCommand("Malfunction")',
+		}),
 		PlaceObj('SA_WaitMessage', {
 			'title', T{5614, --[[Scenario Anomalies title]] "Anomaly Analyzed"},
 			'voiced_text', T{7174, --[[voice:narrator]] "Our Explorer just got into a pretty serious accident. The good news is it’s still in one piece."},
 			'text', T{5818, --[[Scenario Anomalies text]] "The vehicle stumbled upon a crust fault which could have lasted for a couple hundreds of years under the slow erosion of the planet. Disturbed by the mechanical motion of the scanning probes, the surface opened like a wound and swallowed the rover, luckily, only for a dozen of meters. The sturdy machine got out of the hole, but nevertheless it sustained heavy damage.\n\nMillions of years ago Mars had been shaken to its core by cataclysmic impact which sealed the fate of the planet. Since then Mars, like all giants, is dying, too slow for our mortal eyes to witness. Yet even today the death-throes of the Red Planet can be felt unmistakably.\n\n<effect>The RC Explorer has malfunctioned. It has to be repaired by Drones."},
 			'log_entry', true,
 			'image', "UI/Messages/malfunctioned_rover.tga",
-		}),
-		PlaceObj('SA_Exec', {
-			'expression', 'rover:SetCommand("Malfunction")',
 		}),
 		}),
 	PlaceObj('ScenarioSequence', {
@@ -615,9 +615,7 @@ PlaceObj('Scenario', {
 		}),
 		PlaceObj('SA_AddApplicants', {
 			'Trait', "Genius",
-		}),
-		PlaceObj('SA_Comment', {
-			'comment', "Should be genius scientist!",
+			'Specialization', "scientist",
 		}),
 		}),
 	PlaceObj('ScenarioSequence', {

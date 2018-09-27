@@ -107,7 +107,6 @@ PlaceObj('XTemplate', {
 				'__template', "InfopanelButton",
 				'RolloverText', T{370449987367, --[[XTemplate ipBuilding RolloverText]] "Priority affects how often this building is serviced by Drones as well as its share of Power and life support. Notifications are not shown for buildings with low priority.<newline><newline>Current priority: <em><UIPriority></em>"},
 				'RolloverTitle', T{369, --[[XTemplate ipBuilding RolloverTitle]] "Change Priority"},
-				'RolloverHint', T{7658, --[[XTemplate ipBuilding RolloverHint]] "<left><left_click> Increase priority<right><right_click> Decrease priority<newline><center><em>Ctrl + <left_click></em> Change priority of all <display_name_pl>"},
 				'RolloverHintGamepad', T{7659, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> Change priority<newline><ButtonX> Change priority of all <display_name_pl>"},
 				'Id', "idPriority",
 				'OnContextUpdate', function (self, context, ...)
@@ -118,6 +117,12 @@ elseif context.priority == 2 then
 else
 	self:SetIcon("UI/Icons/IPButtons/urgent_priority.tga")
 end
+local shortcuts = GetShortcuts("actionPriority")
+local binding = ""
+if shortcuts and (shortcuts[1] or shortcuts[2]) then
+	binding = T{10950, "<newline><center><em><ShortcutName('actionPriority', 'keyboard')></em> Increase Priority"}
+end
+self:SetRolloverHint(T{10951, "<left><left_click> Increase priority<right><right_click> Decrease priority<binding><newline><center><em>Ctrl + <left_click></em> Change priority of all <display_name_pl>", binding = binding})
 end,
 				'OnPress', function (self, gamepad)
 PlayFX("UIChangePriority")

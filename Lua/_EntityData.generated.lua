@@ -9584,41 +9584,6 @@ EntityData["TerrainDig"] = {
 		material_type = "Rock",
 	},
 }
-EntityData["TestRover_01"] = {
-	category_Decors = true,
-	entity = {
-		fade_category = "Never",
-		material_type = "Wood",
-	},
-}
-EntityData["TestRover_02"] = {
-	category_Decors = true,
-	entity = {
-		fade_category = "Never",
-		material_type = "Wood",
-	},
-}
-EntityData["TestRover_03"] = {
-	category_Decors = true,
-	entity = {
-		fade_category = "Never",
-		material_type = "Wood",
-	},
-}
-EntityData["TestRover_04"] = {
-	category_Decors = true,
-	entity = {
-		fade_category = "Never",
-		material_type = "Wood",
-	},
-}
-EntityData["TestRover_05"] = {
-	category_Decors = true,
-	entity = {
-		fade_category = "Never",
-		material_type = "Wood",
-	},
-}
 EntityData["ResourceMetal"] = {
 	category_Decors = true,
 	entity = {

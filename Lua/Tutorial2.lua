@@ -82,31 +82,6 @@ g_TutorialScenarios.Tutorial2 = function()
 	end
 	RemoveAllTutorialArrows()
 	
-	
-	--2. Battery
-	--set battery to 60%
-	transport.battery_current = MulDivRound(transport.battery_max, 60, 100)
-	--show messages
-	WaitTutorialPopup("Tutorial2_Popup2_Battery")
-	TutorialNextHint("Tutorial_2_RechargeRover")
-	--wait until recharging
-	local arrow = TutorialUIArrow:new({
-		AnchorType = "left-center",
-		FindTarget = function(self)
-			local infopanel = Dialogs.Infopanel
-			if not infopanel then return false end
-			if infopanel.context ~= transport then return false end
-			return infopanel.idBattery or false
-		end,
-	}, terminal.desktop)
-	ShowTutorialArrow("RechargeRover")
-	while transport.battery_current < transport.battery_max do
-		Sleep(1000)
-	end
-	arrow:delete()
-	RemoveAllTutorialArrows()
-	
-	
 	--3. Transport Rover
 	--show transport
 	ViewObjectMars(transport)
@@ -264,7 +239,6 @@ g_TutorialScenarios.Tutorial2 = function()
 	TutorialNextHint("Tutorial_2_MoveRCRover")
 	--wait for the rover to move to the marker
 	local rc_rover = UICity.labels.RCRover[1]
-	rc_rover.battery_current = rc_rover.battery_max
 	DisableMaintenance(rc_rover)
 	WaitObjectSelected(rc_rover)
 	local expand_pos = GetMarkerPosition("TransportRoute"):AddX(20*guim)
@@ -389,7 +363,6 @@ g_TutorialScenarios.Tutorial2 = function()
 	local explorer = UICity.labels.ExplorerRover[1]
 	WaitObjectSelected(explorer)
 	--recharge it to 100% instantly
-	explorer.battery_current = explorer.battery_max
 	ShowTutorialArrow(anomaly, "ArrowTutorialBase")
 	while explorer.command ~= "Analyze" do
 		Sleep(50)

@@ -66,14 +66,6 @@ GamepadIGMenu_game_items = {
 		description = "",
 		close_parent = false,
 	},
-	{ --resource overview
-		name = "idColonyOverview",
-		display_name = T{7849, --[[Post-Cert]] "Colony Overview"},
-		icon = "UI/Icons/console_statistics.tga",
-		action = fnaction,
-		description = "",
-		close_parent = false,
-	},
 	{ --markers
 		name = "idMarkers",
 		display_name = T{973748367669, "Milestones"},

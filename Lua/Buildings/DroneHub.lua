@@ -61,6 +61,7 @@ DefineClass.DroneControl = {
 	lap_time = 0,
 	
 	unreachable_buildings = false,
+	can_control_drones = true,
 }
 
 function DroneControl:UpdateDeficits()
@@ -753,10 +754,10 @@ end
 function DroneControl:SetUIWorkRadius(value)
 	self.UIWorkRadius = value
 	self:SetWorkRadius(value)
-
-	local rxs = self:GetAttaches("RangeHexMultiSelectRadius") or empty_table
-	for i = 1, #rxs do
-		rxs[i]:SetScale(self.work_radius)
+	
+	local rxs = g_HexRanges[self] or empty_table
+	for _, range in ipairs(rxs) do
+		range:SetScale(self[range.bind_to](self))
 	end
 end
 

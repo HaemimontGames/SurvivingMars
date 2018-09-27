@@ -281,7 +281,7 @@ function PassageGridElement:RequestFractureRepairResources()
 		end
 	end
 	
-	self.fracture_demand_request:AddAmount(const.DronePolymersPerFraction)
+	self.fracture_demand_request:AddAmount(g_Consts.PolymersPerFracture)
 	
 	if not self.auto_connect then
 		self.auto_connect = true
@@ -297,25 +297,61 @@ function PassageGridElement:GetPriorityForRequest(req)
 	end
 end
 
+function OnMsg.ConstValueChanged(prop, old_value, new_value)
+	if prop == "PolymersPerFracture" then
+		local delta = new_value - old_value
+		MapForEach("map", "PassageGridElement", function(pge)
+			if not IsKindOf(pge, "ConstructionSite") and pge.auto_connect then
+				local fractures_waiting_resources = pge:CountAttaches("PassageFracture") - pge.fracture_fixing_count
+				local req = pge.fracture_demand_request
+				req:AddAmount(delta * fractures_waiting_resources)
+				if delta < 0 then
+					if req:GetTargetAmount() < 0 then
+						pge:InterruptDrones(nil, function(drone)
+							if drone.d_request == req then 
+								return drone 
+							end
+						end, function(drone)
+							if req:GetTargetAmount() >= 0 then
+								return "break"
+							end
+						end)
+					end
+				end
+				pge:OnFractureResourceReceived(nil, req, req:GetResource(), 0)
+			end
+			if pge.fracture_demand_request then
+				assert(pge.fracture_demand_request:GetActualAmount() + pge.fracture_received_resources
+					== (pge:CountAttaches("PassageFracture") - pge.fracture_fixing_count) * g_Consts.PolymersPerFracture)
+			end
+		end)
+	end	
+end
+
+function PassageGridElement:OnFractureResourceReceived(drone, request, resource, amount)
+	self.fracture_received_resources = self.fracture_received_resources + amount
+		
+	if self.fracture_received_resources < g_Consts.PolymersPerFracture then
+		return
+	end
+	
+	local num_to_fix = g_Consts.PolymersPerFracture <= 0 and self:CountAttaches("PassageFracture") or self.fracture_received_resources / g_Consts.PolymersPerFracture
+	self.fracture_received_resources = self.fracture_received_resources - num_to_fix * g_Consts.PolymersPerFracture
+	local req_repair = self.fracture_work_request
+	self.fracture_fixing_count = self.fracture_fixing_count + num_to_fix
+	req_repair:AddAmount(const.DroneFractionRepairTime * num_to_fix)
+	if not drone or not req_repair:CanAssignUnit() then
+		return
+	end
+	
+	local repair_amount = Min(g_Consts.DroneBuildingRepairAmount, req_repair:GetActualAmount())
+	drone:SetCommand("Work", req_repair, "repair", repair_amount)	
+end
+
 function PassageGridElement:DroneUnloadResource(drone, request, resource, amount)
 	Building.DroneUnloadResource(self, drone, request, resource, amount)
 	if request == self.fracture_demand_request then
-		self.fracture_received_resources = self.fracture_received_resources + amount
-		
-		if self.fracture_received_resources < const.DronePolymersPerFraction then
-			return
-		end
-		
-		local num_to_fix = self.fracture_received_resources / const.DronePolymersPerFraction
-		self.fracture_received_resources = self.fracture_received_resources - num_to_fix * const.DronePolymersPerFraction
-		local req_repair = self.fracture_work_request
-		self.fracture_fixing_count = self.fracture_fixing_count + num_to_fix
-		req_repair:AddAmount(const.DroneFractionRepairTime * num_to_fix)
-		if not req_repair:CanAssignUnit() then
-			return
-		end
-		local repair_amount = Min(g_Consts.DroneBuildingRepairAmount, req_repair:GetActualAmount())
-		drone:SetCommand("Work", req_repair, "repair", repair_amount)
+		self:OnFractureResourceReceived(drone, request, resource, amount)
 	end
 end
 
@@ -559,6 +595,14 @@ DefineClass.Passage = {
 	last_node_idx = 0,
 }
 
+function PassageGridElement:DroneApproach(drone, resource)
+	return self.passage_obj:DroneApproach(drone, resource)
+end
+
+function Passage:DroneApproach(drone, resource)
+	return drone:GotoBuildingsSpot(#self.elements_under_construction > 0 and self.elements_under_construction or self.elements, drone.work_spot_task)
+end
+
 function Passage:AreNightLightsAllowed()
 	return self.domes_connected and (self.domes_connected[1]:HasPower() or self.domes_connected[2]:HasPower())
 end
@@ -582,7 +626,7 @@ function Passage:AddFracture(element, meteor_pos)
 	self.fractures = self.fractures or {}
 	
 	local p, dir, norm, attach_offset = element:GetFracturePos(meteor_pos)
-	local f = PlaceObject("PassageFracture", {element = element, dir = dir, normal = norm})
+	local f = PlaceObject("PassageFracture", {element = element, dir = dir, normal = norm}, const.cfComponentAttach)
 	element:RequestFractureRepairResources()
 	element:Attach(f)
 	f:SetAttachOffset(attach_offset)
@@ -814,7 +858,7 @@ function Passage:GetUIWarning()
 	end
 	local fractures = self.fractures and #self.fractures or 0
 	if fractures > 0 then
-		return T{8898, "This Passage is fractured and is losing oxygen.<newline><left>Number of fractures<right><fractures><newline><left>Cost of repairs<right><polymers(number)>", number = const.DronePolymersPerFraction * fractures, fractures = fractures}
+		return T{8898, "This Passage is fractured and is losing oxygen.<newline><left>Number of fractures<right><fractures><newline><left>Cost of repairs<right><polymers(number)>", number = g_Consts.PolymersPerFracture * fractures, fractures = fractures}
 	end
 	return Building.GetUIWarning(self)
 end
@@ -870,6 +914,10 @@ function Passage:GetConstructionGroupLeader()
 	return nil
 end
 
+function SavegameFixups.ResetDomeConnectionCache()
+	UICity.dome_networks = false
+end
+
 function ConnectDomesWithPassage(d1, d2)
 	local t1 = d1.connected_domes
 	local t2 = d2.connected_domes
@@ -881,7 +929,7 @@ function ConnectDomesWithPassage(d1, d2)
 		--connection created
 		local networks = d2.city.dome_networks or empty_table
 		local network1 = networks[d1]
-		if network1 and network1 ~= networks[d2] then
+		if not network1 or network1 ~= networks[d2] then
 			d2.city.dome_networks = false
 		end
 	end
@@ -1621,6 +1669,10 @@ DefineClass.PassageConstructionSite = {
 
 function PassageConstructionSite:GameInit()
 	self:DestroyAttaches("PassageCurtain")
+end
+
+function PassageConstructionSite:DroneApproach()
+	return ConstructionSite.DroneApproach(self)
 end
 
 function PassageConstructionSite:ToggleDemolish()

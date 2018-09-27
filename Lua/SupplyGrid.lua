@@ -533,6 +533,16 @@ function SupplyGridFragment:RandomBreakConnection()
 	end
 end
 
+function SupplyGridFragment:BreakConnection()
+	if #self.consumers <= 0 or #self.producers <= 0 then return end --at least one producer and one consumer in order for something to break
+	if #self.connectors <= 10 then return end --nothing to break.
+	local break_chance = random_break_chances[self.supply_resource]
+	assert(break_chance)
+	local element = table.rand(self.connectors)
+	local bld = element.building
+	bld:Break()
+end
+
 function SupplyGridFragment:TestElementValidity()
 	for i = 1, #self.elements do
 		if not IsValid(self.elements[i].building) then
@@ -1521,12 +1531,52 @@ DefineClass.BreakableSupplyGridElement = {
 	UpdateAttachedSigns = empty_func,
 }
 
-GlobalGameTimeThread("BrokenCablesNotif", function()
-	HandleNewObjsNotif(g_BrokenSupplyGridElements.electricity, "BrokenCables")
-end)
+GlobalVar("g_NewLeak", false)
 
-GlobalGameTimeThread("BrokenPipesNotif", function()
-	HandleNewObjsNotif(g_BrokenSupplyGridElements.water, "BrokenPipes")
+local function HandleLeakDetectedNotif()
+	while true do
+		Sleep(3000)
+		local pipe_leaks = g_BrokenSupplyGridElements.water
+		local cable_faults = g_BrokenSupplyGridElements.electricity
+		if #pipe_leaks + #cable_faults == 0 then
+			RemoveOnScreenNotification("LeakDetected")
+		elseif g_NewLeak or IsOnScreenNotificationShown("LeakDetected") then
+			g_NewLeak = false
+			local air_lost = 0
+			local water_lost = 0
+			for i = 1, #pipe_leaks do
+				if pipe_leaks[i].air and pipe_leaks[i].air.current_consumption then
+					air_lost = air_lost + pipe_leaks[i].air.current_consumption
+				end
+				if pipe_leaks[i].water and pipe_leaks[i].water.current_consumption then
+					water_lost = water_lost + pipe_leaks[i].water.current_consumption
+				end
+			end
+			local power_lost = 0
+			for i = 1, #cable_faults do
+				if cable_faults[i].electricity and cable_faults[i].electricity.current_consumption then
+					power_lost = power_lost + cable_faults[i].electricity.current_consumption
+				end
+			end
+			local displayed_in_notif = table.append(table.copy(pipe_leaks), cable_faults)
+			local text
+			if #cable_faults > 0 then
+				if #pipe_leaks > 0 then
+					text = T{10981, "<power(power)> <air(air)> <water(water)>", power = power_lost, air = air_lost, water = water_lost}
+				else
+					text = T{10982, "<power(power)>", power = power_lost}
+				end
+			elseif #pipe_leaks > 0 then
+				text = T{10983, "<air(air)> <water(water)>", air = air_lost, water = water_lost}
+			end
+			local rollover = T{10984, "Cable faults: <cables> <newline> Pipe Leaks: <pipes>", cables = #cable_faults, pipes = #pipe_leaks}
+			AddOnScreenNotification("LeakDetected", nil, { leaks = text, rollover_title = T{522588249261, "Leak Detected"}, rollover_text = rollover }, displayed_in_notif)
+		end
+	end
+end
+
+GlobalGameTimeThread("LeakDetectedNotif", function()
+	HandleLeakDetectedNotif()
 end)
 
 function BreakableSupplyGridElement:Init()
@@ -1617,6 +1667,7 @@ function BreakableSupplyGridElement:Presentation(start)
 	if start then
 		assert(IsValid(self), "Trying to break dead cable/pipe!")
 		table.insert(g_BrokenSupplyGridElements[self.supply_resource], self)
+		g_NewLeak = true
 		local leak_spot_id
 		if self.supply_resource == "electricity" then
 			leak_spot_id = self:GetSpotBeginIndex("Sparks")

@@ -209,12 +209,28 @@ function Tunnel:TraverseTunnel(unit, start_point, end_point, param)
 		local travel_time = self.travel_time_per_hex * tunnel_len / const.GridSpacing
 
 		self:LeadIn(unit, entrance)
+		local unit_pos = unit:GetPos()
 		if not IsValid(unit) then return end
 		unit:DetachFromMap()
+		local dummy_obj = false
 		if IsValid(linked_obj) then
 			unit:SetHolder(linked_obj)
+			if camera3p.IsActive() and unit == CameraFollowObj then
+				dummy_obj = PlaceObject("Movable"); 
+				dummy_obj:SetPos(unit_pos)
+				camera3p.DetachObject(unit)
+				camera3p.AttachObject(dummy_obj)
+				dummy_obj:SetPos(exit[1], travel_time)
+			end
 			unit.current_dome = IsObjInDome(linked_obj)
 			Sleep(travel_time)
+			if dummy_obj then
+				if camera3p.IsActive() then
+					camera3p.DetachObject(dummy_obj)
+					camera3p.AttachObject(unit)
+				end
+				DoneObject(dummy_obj)
+			end
 			if IsValid(unit) and IsValid(linked_obj) then
 				unit:ExitBuilding(linked_obj, nil, "tunnel_entrance")
 			end

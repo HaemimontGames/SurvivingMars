@@ -14,6 +14,7 @@ AutoResolveMethods.SetPriority = true
 AutoResolveMethods.ShouldShowNotConnectedToGridSign = "or"
 AutoResolveMethods.IsSuitable = "and"
 AutoResolveMethods.InitConstruction = true
+AutoResolveMethods.RoverWork = true
 
 BuildCategories = {
 	{ id = "Infrastructure", name = T{78, "Infrastructure"},              img = "UI/Icons/bmc_infrastructure.tga",     highlight_img = "UI/Icons/bmc_infrastructure_shine.tga" },
@@ -83,7 +84,8 @@ DefineClass.Building = {
 		{ template = true, name = T{155, "Entity"},               id = "entity",            category = "General",  editor = "dropdownlist", default = invalid_entity, items = function() return GetBuildingEntities(invalid_entity) end},
 		--
 		{ template = true, name = T{156, "Dome Comfort"},         id = "dome_comfort",      category = "General",  editor = "number",       default = 0 , scale = "Stat", modifiable = true },
-		{ template = true, name = T{158, "Show Range for All"},   id = "show_range_all", 	 category = "General",  editor = "bool",         default = false, help = "Show range radii for all buildings of that class when selected" },
+		{ template = true, name = T{10971, "Show Range for All"},   id = "show_range_all", 	 category = "General",  editor = "bool",         default = false, help = "Show range radii for all buildings of that class when selected" },
+		{ template = true, name = T{158, "Show Range"},   		 id = "show_range", 	 	category = "General",  editor = "bool",         default = false, help = "Show range radius for this building" },
 		{ template = true, name = T{7331, "Infopanel"},           id = "ip_template", 	    category = "General",  editor = "text",         default = "ipBuilding", help = "Template used for building infopanel" },
 		{ template = true, name = T{8697, "Suspend on Dust Storm"},     id = "suspend_on_dust_storm", category = "General",  editor = "bool",         default = false },
 		
@@ -154,6 +156,7 @@ DefineClass.Building = {
 	upgrades_built = false,
 	
 	upgrades_under_construction = false, --{ [id] = {id = id, tier = tier, construction_start_ts = , required_time = , reqs[] = } }
+	upgrade_being_built = false,
 	
 	construction_cost_at_completion = false, --keeps the amount of resources spent to complete this bld, so we don't have to guess what they were.
 	clear_work_request = false,
@@ -297,7 +300,6 @@ function Building:GameInit()
 	end
 	self:Notify("UpdateNoCCSign")
 	self:Gossip("place", self:GetPos())
-	
 	if not dome and self.suspend_on_dust_storm then
 		local dust_storm_start_time = g_DustStorm and g_DustStorm.start_time or GameTime()
 		if GameTime() - dust_storm_start_time > const.HourDuration then
@@ -345,6 +347,7 @@ function Building:Done()
 	end
 	self.demolish_debris_objs = nil
 	BumpDroneUnreachablesVersion()
+	RefreshConstructionCursor()
 end
 
 function Building:InitInside(dome)
@@ -516,6 +519,13 @@ function Building:SetPalette(palette)
 	palette = EntityPalettes[palette]
 	if palette then
 		SetObjectPalette(self, palette)
+		if IsKindOf(self, "LifeSupportGridObject") then
+			local pipes = self:GetPipeConnLookup()
+			local pipe_palette = EntityPalettes.Pipes
+			for p, _ in pairs(pipes) do
+				pipe_palette:ApplyToObj(p)
+			end
+		end
 	end
 end
 
@@ -608,12 +618,7 @@ function Building:ShouldShowNoCCSign()
 end
 
 function Building:UpdateNoCCSign()
-	local show = self:ShouldShowNoCCSign()
-	if show then
-		self:AttachSign(true, "SignNoCommandCenter")
-	else
-		self:AttachSign(false, "SignNoCommandCenter")
-	end
+	self:AttachSign(self:ShouldShowNoCCSign(), "SignNoCommandCenter")
 end
 
 function Building:OnAddedByControl(...)
@@ -1087,12 +1092,6 @@ function Building:OnSetWorking(working)
 		end
 	end
 	
-	if working then
-		self:AttachSign(false, "SignNoConsumptionResource")
-	elseif not self:CanConsume() then
-		self:AttachSign(true, "SignNoConsumptionResource")
-	end
-	
 	--@@@msg OnSetWorking,building, working- fired when a buildings working state has been changed.
 	Msg("OnSetWorking", self, working) --hook for modding
 end
@@ -1143,7 +1142,11 @@ local function IsSandTerrain(idx)
 	return info and info.type == "Sand"
 end
 
-function Building:RestoreTerrain()
+function Building:RestoreTerrain(shape_obj)
+	if self:GetEnumFlags(const.efApplyToGrids) == 0 then
+		return
+	end
+	shape_obj = shape_obj or self
 	if HasAnySurfaces(self, EntitySurfaces.Terrain, true) and not terrain.HasRestoreType() then
 		local type_noise, type_thres
 		local type_idx1, type_idx2 = self.orig_terrain1, self.orig_terrain2
@@ -1164,12 +1167,12 @@ function Building:RestoreTerrain()
 			end
 		end
 		if type_idx1 then
-			SetTerrainInShape(self:GetBuildShape(), self, type_idx1, type_idx2, type_thres, type_noise)
+			SetTerrainInShape(shape_obj:GetBuildShape(), self, type_idx1, type_idx2, type_thres, type_noise)
 			GridOpFree(type_noise)
 		end
 	end
 	if HasAnySurfaces(self, EntitySurfaces.Height, true) and not terrain.HasRestoreHeight() then
-		FlattenTerrainInBuildShape(self:GetFlattenShape(), self)
+		FlattenTerrainInBuildShape(shape_obj:GetFlattenShape(), self)
 	end
 end
 
@@ -1569,9 +1572,31 @@ function Building:ConstructUpgrade(id)
 	end
 end
 
+function SavegameFixups.SupplyOneUpgradeAtATime()
+	MapForEach("map", "Building", function(o)
+		if o.upgrades_under_construction then			
+			o:DisconnectFromCommandCenters()
+			o.upgrade_being_built = false
+			for id, data in pairs(o.upgrades_under_construction) do
+				local reqs = data.reqs
+				if not o.upgrade_being_built and reqs and not data.resources_delivered and not data.canceled then
+					o.upgrade_being_built = id
+				else
+					for i = 1, #reqs do
+						table.remove_entry(o.task_requests, reqs[i])
+					end
+				end
+			end
+			
+			o:ConnectToCommandCenters()
+		end
+	end)
+end
+
 function Building:StartUpgradeConstruction(id)
 	if not IsValid(self) then return end
 	self.upgrades_under_construction = self.upgrades_under_construction or {}
+	self.upgrade_being_built = self.upgrade_being_built or id
 	
 	if not self.upgrades_under_construction[id] then
 		local tier = self:GetUpgradeTier(id)
@@ -1586,7 +1611,6 @@ function Building:StartUpgradeConstruction(id)
 			resources_delivered = false,
 			canceled = false,
 		}
-		
 		self:DisconnectFromCommandCenters()
 		local is_free = true
 		for i = 1, #AllResourcesList do
@@ -1598,6 +1622,10 @@ function Building:StartUpgradeConstruction(id)
 				--0-5-> 2 drone, 6-8 - 3 drones, etc.
 				local d_req = self:AddDemandRequest(r_n, c, const.rfUpgrade, Clamp(c/(const.ResourceScale * 3) + 1, 1, 8))
 				reqs[#reqs + 1] = d_req
+				--
+				if self.upgrade_being_built ~= id then
+					self.task_requests[#self.task_requests] = nil
+				end
 			end
 		end
 		
@@ -1648,7 +1676,30 @@ function Building:StopUpgradeConstruction(id)
 		self:CleanUpgradeConstructionRequests(id, false) 
 		self.upgrades_under_construction[id] = nil
 	end
+	
+	if self.upgrade_being_built == id then
+		self:ConnectNextUpgradeRequests(id)
+	end
+	
 	RebuildInfopanel(self)
+end
+
+function Building:ConnectNextUpgradeRequests(exclude_id, already_disconnected)
+	for uid, data in pairs(self.upgrades_under_construction or empty_table) do
+		if uid ~= exclude_id then
+			local reqs = data and data.reqs
+			if reqs and not data.resources_delivered and not data.canceled then
+				self:DisconnectFromCommandCenters()
+				self.upgrade_being_built = uid
+				for i = 1, #reqs do
+					table.insert(self.task_requests, reqs[i])
+				end
+				self:ConnectToCommandCenters()
+				return
+			end
+		end
+	end
+	self.upgrade_being_built = false
 end
 
 function Building:IsUpgradeBeingConstructedAndCanceled(id)
@@ -1706,6 +1757,15 @@ function Building:UpdateUpgradeConstructionSupplyRequests(data)
 	if reqs then
 		local sreqs = data.sreqs or {}
 		data.sreqs = sreqs
+		if Platform.developer and #sreqs > 0 then
+			local sreq_cpy = table.copy(sreqs)
+			CreateGameTimeThread(function(sreq_cpy)
+				for i = 1, #sreq_cpy do
+					local sreq = sreq_cpy[i]
+					assert(sreq:GetActualAmount() == sreq:GetTargetAmount())
+				end
+			end, sreq_cpy)
+		end
 		for i = 1, #reqs do
 			local resource = reqs[i]:GetResource()
 			local amount = self:GetUpgradeCost(data.tier, resource) - reqs[i]:GetActualAmount()
@@ -1715,7 +1775,6 @@ function Building:UpdateUpgradeConstructionSupplyRequests(data)
 				sreq = self:AddSupplyRequest(resource, amount, const.rfUpgrade, max_units)
 				sreqs[i] = sreq
 			elseif sreq then
-				assert(sreq:GetActualAmount() == sreq:GetTargetAmount())
 				sreq:SetAmount(amount)
 				table.insert(self.task_requests, sreq)
 			else
@@ -1728,9 +1787,11 @@ end
 function Building:CleanUpgradeConstructionRequests(id, preserve_requestes)
 	local data = self.upgrades_under_construction[id]
 	local reqs = data and data.reqs
+	local sreqs = data and data.sreqs or empty_table
 	if reqs then
 		self:InterruptDrones(nil, function(drone)
-											return drone.d_request and table.find(reqs, drone.d_request) and drone
+											return drone.d_request and table.find(reqs, drone.d_request) and drone or
+													drone.s_request and table.find(sreqs, drone.s_request) and drone
 										end, nil)
 		
 		
@@ -1744,7 +1805,6 @@ function Building:CleanUpgradeConstructionRequests(id, preserve_requestes)
 			data.reqs = false
 			if data.resources_delivered then
 				if Platform.developer then
-					local sreqs = data and data.sreqs or empty_table
 					local t = false
 					local i = 1
 					while not t and i <= #sreqs do
@@ -1788,7 +1848,9 @@ function Building:ResumeUpgradeConstruction(id)
 				table.remove_entry(self.task_requests, r)
 			end
 			
-			table.insert(self.task_requests, reqs[i])
+			if self.upgrade_being_built == id then
+				table.insert(self.task_requests, reqs[i])
+			end
 		end
 		
 		self:ConnectToCommandCenters()
@@ -1826,6 +1888,7 @@ function Building:OnUpgradeResourcesDelivered(id)
 		else
 			self:ApplyUpgrade(self.upgrades_under_construction[id].tier)
 		end
+		self:ConnectNextUpgradeRequests(id)
 	end
 end
 
@@ -1963,7 +2026,7 @@ function Building:Getavailable_drone_prefabs()
 end
 ----------------------------------------
 
-DefineClassTemplate("Building") -- all descendants of Building can be templated in a "Building Editor"
+DefineClassTemplate("Building", "Buildings", "Editors.Game", "Ctrl-Alt-B") -- all descendants of Building can be templated in a "Building Editor"
 
 if FirstLoad then
 	SortedBuildingTemplates = {} -- used in GameShortcuts
@@ -2043,6 +2106,9 @@ NotWorkingWarning = {
 	IonStorm = T{8926, "This building has been disabled by an Ion Storm."},
 	Defrosting = T{8520, "Defrosting. This building will need repair after it is defrosted."},
 	TurnedOff = T{184, "This building has been turned off."},
+	ExceptionalCircumstancesDisabled = T{10903, "This building is disabled due to exceptional circumstances"},
+	ExceptionalCircumstancesMalafunction = T{10904, "This building was damaged due to exceptional circumstances. Drones can repair it with <resource(maintenance_resource_amount, maintenance_resource_type)>."},  
+	ExceptionalCircumstancesMaintenance = T{10905, "This building requires maintenance due to exceptional circumstances. Required resources <resource(maintenance_resource_amount, maintenance_resource_type)>."},  
 	SuspendedDustStorm = T{185, "Doesn't function during Dust Storms."},
 	Suspended = T{7524, "Building disabled by lightning strike. Will resume work in several hours."},
 	NoDeposits = T{187, "No deposits"},
@@ -2083,12 +2149,16 @@ function Building:GetUIWarning()
 		reason = "TurnedOff" 
 	elseif self.demolishing then
 		reason = "Demolish"
+	elseif self.exceptional_circumstances_maintenance then
+		reason = self:IsMalfunctioned() and "ExceptionalCircumstancesMalafunction" or "ExceptionalCircumstancesMaintenance"		
 	elseif self:IsMalfunctioned() then
 		if self:DoesRequireMaintenance() then
 			reason = "MalfunctionRes"
 		else
 			reason = "Malfunction"
-		end
+		end	
+	elseif self.exceptional_circumstances then	
+		reason  = "ExceptionalCircumstancesDisabled"
 	elseif self.destroyed then
 		reason = "Destroyed"
 	elseif #(self.ion_storms or empty_table) > 0 then
@@ -2615,3 +2685,8 @@ function SelectNextBuildingOfSameType(dir)
 		ViewAndSelectObject(bld)
 	end
 end
+
+GlobalVar("g_DestroyedDrones", {})
+GlobalGameTimeThread("DestroyedDronesNotif", function()
+	HandleNewObjsNotif(g_DestroyedDrones, "DestroyedDrones", nil, nil, nil, true)
+end)

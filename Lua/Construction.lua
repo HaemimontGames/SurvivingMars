@@ -17,13 +17,13 @@ ConstructionStatusColors = {
 }
 
 ConstructionStatus = {
-	OnTopOfResourceSign =             { type = "warning", priority = 100,  text = T{7571, "May block access to deposit."}, short = T{7572, "Overlaps deposit"} }, --on top of deposit sign
-	ElectricityRequired =             { type = "warning", priority = 94,  text = T{842, "This building requires Power."}, short = T{843, "No cable connection"}}, --no grids nearby
-	ElectricityGridNotEnoughPower =   { type = "warning", priority = 93,  text = T{844, "Not enough Power for this building."}, short =  T{193, "Not enough Power"} }, --there are grids nearby, but they do not produce enough.
-	VaporatorInRange =                { type = "warning", priority = 100, text = T{847, "Producing <water(number)> less than optimal due to the presence of other Moisture Vaporators in the vicinity."}, short =  T{848, "Vaporator nearby"}},
-	ColdSensitive =                   { type = "warning", priority = 97,  text = T{849, "The building will consume <red><percent(pct)></red> more Power in cold areas."}, short = T{850, "Cold terrain"}},
-	NoNearbyDome =                    { type = "warning", priority = 99, text = T{7702, "No operational Domes in walking distance."}, short =  T{7703, "Far from operational Domes"}}, --no dome nearby
-	UnexploredSector =                { type = "warning", priority = 98, text = T{852, "This sector is not yet scanned. The construction will possibly make resource deposits or Anomalies unreachable."} , short =  T{853, "Unexplored sector"}},
+	OnTopOfResourceSign =             { type = "warning", priority = 99,  text = T{7571, "May block access to deposit."}, short = T{7572, "Overlaps deposit"} }, --on top of deposit sign
+	ElectricityRequired =             { type = "warning", priority = 93,  text = T{842, "This building requires Power."}, short = T{843, "No cable connection"}}, --no grids nearby
+	ElectricityGridNotEnoughPower =   { type = "warning", priority = 92,  text = T{844, "Not enough Power for this building."}, short =  T{193, "Not enough Power"} }, --there are grids nearby, but they do not produce enough.
+	VaporatorInRange =                { type = "warning", priority = 99, text = T{847, "Producing <water(number)> less than optimal due to the presence of other Moisture Vaporators in the vicinity."}, short =  T{848, "Vaporator nearby"}},
+	ColdSensitive =                   { type = "warning", priority = 96,  text = T{849, "The building will consume <red><percent(pct)></red> more Power in cold areas."}, short = T{850, "Cold terrain"}},
+	NoNearbyDome =                    { type = "warning", priority = 98, text = T{7702, "No operational Domes in walking distance."}, short =  T{7703, "Far from operational Domes"}}, --no dome nearby
+	UnexploredSector =                { type = "warning", priority = 97, text = T{852, "This sector is not yet scanned. The construction will possibly make resource deposits or Anomalies unreachable."} , short =  T{853, "Unexplored sector"}},
 
 	NoDroneHub =                      { type = "problem", priority = 100,  text = T{845, "Too far from working Drone commander."}, short =  T{8016, "Too far from working Drone commander"}}, --outside the range of any drone command center
 	
@@ -243,7 +243,7 @@ function ConstructionModeDialog:Close(...)
 		UICity:SelectDome(false)
 	end
 	if ShowResourceOverview then
-		OpenResourceOverviewInfopanel()
+		UpdateInfobarVisibility("force")
 	end
 	
 	if self:IsThreadRunning("GamepadCursorUpdate") then
@@ -374,6 +374,7 @@ DefineClass.CursorBuilding = {
 
 	auto_attach = false,
 	GetSelectionRadiusScale = false,
+	GetDustRadius = false,
 	entity = false,
 	
 	override_palette = false,
@@ -468,7 +469,7 @@ function CursorBuilding:GameInit()
 		StorageWithIndicators.ResetIndicatorAnimations(self, class.indicator_class)
 	end
 	if class.show_range_all or g_BCHexRangeEnable[class.class] then
-		ShowHexRanges(UICity, class.class, self)
+		ShowHexRanges(UICity, class.class)
 	end
 	if class.show_range_class ~= "" then
 		ShowHexRanges(UICity, class.show_range_class)
@@ -491,6 +492,10 @@ function CursorBuilding:Done()
 	end
 	if self.template.show_range_class ~= "" then
 		HideHexRanges(UICity, self.template.show_range_class)
+	end
+	for _, hex in ipairs(g_HexRanges[self] or empty_table) do
+		DoneObject(hex)
+		g_HexRanges[self] = nil
 	end
 end
 
@@ -735,11 +740,19 @@ function ConstructionController:Activate(template,	params)
 	
 	if IsKindOf(self.template_obj, "RocketLandingSite") then
 		self.cursor_obj.GetSelectionRadiusScale = params.drones and const.CommandCenterMaxRadius or 0
+		self.cursor_obj.GetDustRadius = params.rocket:GetDustRadius()
 	else
 		self.cursor_obj.GetSelectionRadiusScale = self.template_obj:HasMember("GetSelectionRadiusScale") and self.template_obj:GetSelectionRadiusScale()
-	end
+		self.cursor_obj.GetDustRadius = self.template_obj:HasMember("GetDustRadius") and self.template_obj:GetDustRadius()
+	end	
 	
 	PlayFX("ConstructionCursor", "start", self.cursor_obj, self.template_obj.class)
+	if self.cursor_obj.GetSelectionRadiusScale then
+		ShowHexRanges(UICity, false, self.cursor_obj, "GetSelectionRadiusScale")
+	end
+	if self.cursor_obj.GetDustRadius then
+		ShowHexRanges(UICity, false, self.cursor_obj, "GetDustRadius")
+	end
 	
 	if IsKindOf(self.template_obj, "Workplace") and self.template_obj.dome_forbidden then
 		if g_FXBuildingType then
@@ -762,6 +775,20 @@ function ConstructionController:Activate(template,	params)
 	
 	if template_obj:IsKindOf("SubsurfaceDepositConstructionRevealer") then
 		template_obj:Reveal()
+	end
+end
+
+function GetCurrentConstructionControllerDlg()
+	return InGameInterfaceMode == "construction" and CityConstruction[UICity] or 
+			(InGameInterfaceMode == "electricity_grid" or InGameInterfaceMode == "life_support_grid" or InGameInterfaceMode == "passage_grid") and CityGridConstruction[UICity] or
+			(InGameInterfaceMode ==  "passage_ramp" or InGameInterfaceMode ==  "electricity_switch" or InGameInterfaceMode ==  "lifesupport_switch")and CityGridSwitchConstruction[UICity] or 
+			InGameInterfaceMode == "tunnel_construction" and CityTunnelConstruction[UICity]
+end
+
+function RefreshConstructionCursor()
+	local construction = GetCurrentConstructionControllerDlg()
+	if construction and IsValid(construction.cursor_obj) then
+		construction:UpdateCursor(construction.cursor_obj:GetPos(), "force")
 	end
 end
 
@@ -834,7 +861,14 @@ function ConstructionController:ChangeCursorObj(dir)
 	self.cursor_obj = self:CreateCursorObj(new_entity)
 	
 	self.cursor_obj.GetSelectionRadiusScale = self.template_obj:HasMember("GetSelectionRadiusScale") and self.template_obj:GetSelectionRadiusScale()
+	self.cursor_obj.GetDustRadius = self.template_obj:HasMember("GetDustRadius") and self.template_obj:GetDustRadius()
 	PlayFX("ConstructionCursor", "start", self.cursor_obj, self.template_obj.class)
+	if self.cursor_obj.GetSelectionRadiusScale then
+		ShowHexRanges(UICity, false, self.cursor_obj, "GetSelectionRadiusScale")
+	end
+	if self.cursor_obj.GetDustRadius then
+		ShowHexRanges(UICity, false, self.cursor_obj, "GetDustRadius")
+	end
 	
 	self.cursor_obj:SetAngle(angle)
 	self.cursor_obj:SetPos(pos)
@@ -1050,8 +1084,8 @@ function ConstructionController:UpdateConstructionObstructors()
 				self:AlignToLandingPad(self.cursor_obj, obj)
 				self:ClearColorFromAllConstructionObstructors()
 				self:ClearColorFromMissingConstructionObstructors(old_obstructors, empty_table)
-				self.construction_obstructors = {}
-				return
+				self.construction_obstructors = HexGridShapeGetObjectList(ObjectGrid, self.cursor_obj, self.template_obj_points, nil, "LandingPad", pipe_filter)
+				break
 			end
 		end
 	end
@@ -1184,7 +1218,7 @@ function ConstructionController:UpdateCursor(pos, force)
 					if self.template_obj.dome_spot == "Spire" then
 						if self.template_obj:IsKindOf("SpireBase") and self.template_obj.spire_frame_entity ~= "none" and IsValidEntity(self.template_obj.spire_frame_entity) then
 							assert(_G[self.template_obj.spire_frame_entity], "Specified Spire Frame Entity does not exist!")
-							local frame = self.cursor_obj:GetAttaches("Shapeshifter")[1]
+							local frame = self.cursor_obj:GetAttach("Shapeshifter")
 							local spot = dome:GetNearestSpot("idle", "Spireframe", self.cursor_obj)
 							local pos = dome:GetSpotPos(spot)
 							frame:SetAttachOffset(pos - hex_world_pos)
@@ -1454,13 +1488,6 @@ function ConstructionController.BlockingUnitsFilter(obj)
 end
 --
 function ConstructionController:HasDepositUnderneath()
-	if not IsKindOf(self.template_obj, "TerrainDepositExtractor") then
-		local shape =  GetEntityCombinedShape(self.cursor_obj:GetEntity())
-		local amount = TerrainDeposit_GetAmount(shape, self.cursor_obj, TerrainDepositGrid, TerrainDepositsInfo.Concrete)
-		if amount>0 then 
-			return true 
-		end
-	end
 	local force_extend_bb = self.template_obj:HasMember("force_extend_bb_during_placement_checks") and self.template_obj.force_extend_bb_during_placement_checks ~= 0 and self.template_obj.force_extend_bb_during_placement_checks or false
 	local excluded_resource = IsKindOf(self.template_obj, "DepositExploiter") and self.template_obj.exploitation_resource or false
 	return HexGetUnits(self.cursor_obj, self.template_obj:GetEntity(), nil, nil, true, function(o) return not IsKindOf(o, "SubsurfaceAnomaly") and excluded_resource ~= o.resource end, "Deposit", force_extend_bb)
@@ -2933,6 +2960,9 @@ function GridConstructionController:UpdateVisuals(pt)
 	--buildability tests
 	local data_count = #all_data
 	local last_idx = Min(data_count, self.max_hex_distance_to_allow_build)
+	if last_idx <= 0 then
+		return
+	end
 	if not can_constr_final then
 		if not is_passage_grid then
 			table.insert(self.construction_statuses, ConstructionStatus.UnevenTerrain)
@@ -4248,9 +4278,10 @@ function SetWaterMarkers(obj, show, list)
 		obj:ForEachAttach(marker_class, function(marker)
 			local spot = marker:GetAttachSpot()
 			local x, y, z = obj:GetSpotPosXYZ(spot)
+			local q, r = WorldToHex(x, y)
 			local zmin = GetMaxHeightInHex(x, y) + 30
 			marker:SetAttachOffset(0, 0, Max(0, zmin - z))
-			marker:SetVisible(IsBuildableZone(x, y))
+			marker:SetVisible(IsBuildableZone(x, y) and not HexGetBuilding(q, r))
 		end)
 	elseif obj:CountAttaches(marker_class) == 0 then
 		local first, last = obj:GetSpotRange(spot_name)
@@ -4259,9 +4290,10 @@ function SetWaterMarkers(obj, show, list)
 			obj:Attach(marker, idx)
 			marker:SetAttachAngle(- marker:GetAngle())
 			local x, y, z = marker:GetVisualPosXYZ()
+			local q, r = WorldToHex(x, y)
 			local zmin = GetMaxHeightInHex(x, y) + 30
 			marker:SetAttachOffset(0, 0, Max(0, zmin - z))
-			marker:SetVisible(IsBuildableZone(x, y))
+			marker:SetVisible(IsBuildableZone(x, y) and not HexGetBuilding(q, r))
 			if list then
 				list[#list + 1] = marker
 			end

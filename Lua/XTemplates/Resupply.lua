@@ -41,6 +41,7 @@ if self.Mode == "" then
 	self:CreateThread("FadeThread", function(self, ...)
 		local fade_window = self.desktop.idFade
 		XDialog.SetMode(self, ...)
+		ObjModified(g_TitleObj)
 		fade_window:SetVisible(true, true)
 		fade_window:SetVisible(false)
 		Sleep(450)
@@ -63,7 +64,7 @@ return XDialog.OnXButtonDown(self, button, controller_id)
 end,
 		}),
 		PlaceObj('XTemplateLayer', {
-			'layer', "DifficultyBonus",
+			'layer', "TitleLayer",
 		}),
 		PlaceObj('XTemplateLayer', {
 			'layer', "EarthPlanet",

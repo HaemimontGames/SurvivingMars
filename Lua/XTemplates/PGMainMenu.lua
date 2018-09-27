@@ -76,7 +76,7 @@ end,
 				'mode', "Paradox",
 			}, {
 				PlaceObj('XTemplateTemplate', {
-					'__template', "PGParadox",
+					'__template', "ParadoxAccountDialog",
 				}),
 				}),
 			PlaceObj('XTemplateMode', {
@@ -102,18 +102,25 @@ end,
 				}),
 				}),
 			PlaceObj('XTemplateMode', {
-				'mode', "ModManager",
-			}, {
-				PlaceObj('XTemplateTemplate', {
-					'__template', "ModManager",
-				}),
-				}),
-			PlaceObj('XTemplateMode', {
 				'mode', "Tutorial",
 			}, {
 				PlaceObj('XTemplateTemplate', {
 					'__template', "PGTutorial",
 					'HostInParent', true,
+				}),
+				}),
+			PlaceObj('XTemplateMode', {
+				'mode', "Challenge",
+			}, {
+				PlaceObj('XTemplateTemplate', {
+					'__template', "PGChallenge",
+				}),
+				}),
+			PlaceObj('XTemplateMode', {
+				'mode', "ModManager",
+			}, {
+				PlaceObj('XTemplateTemplate', {
+					'__template', "ModManager",
 				}),
 				}),
 			}),

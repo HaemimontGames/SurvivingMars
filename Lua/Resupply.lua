@@ -279,6 +279,11 @@ function OrbitalProbe:ScanSector(sector)
 	HintDisable("HintProbes")
 end
 
+function OrbitalProbe:CanBeUnpinned()
+	local label = self.city.labels.OrbitalProbe
+	return not label or not next(label)
+end
+
 function OrbitalProbe:OnPinClicked(gamepad)
 	local dlg = GetInGameInterface()
 	assert(dlg)

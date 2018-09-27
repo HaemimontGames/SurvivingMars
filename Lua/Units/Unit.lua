@@ -30,6 +30,8 @@ DefineClass.Unit =
 	
 	use_passages = false,
 	camera_follow_disabled = false,
+	selection_dir_arrow = false,
+	selection_scale_uniform = 110, -- use this to control how close/far is the arrow without having to adjust all unit classes
 }
 
 function Unit:GameInit()
@@ -445,21 +447,26 @@ function Unit:GotoBuildingSpot(building, spot, force_teleport, dest_tolerance)
 		return false
 	end
 	
-	local goto_args = building:HasMember("destroyed") and building.destroyed and building.orig_state and spot and building.orig_state[spot] and {building.orig_state[spot]} or {building, spot}
 	local begin_idx = spot and building:GetSpotBeginIndex("idle", spot) or -1
+	local goto_a1, goto_a2
+	if building:HasMember("destroyed") and building.destroyed and building.orig_state and spot and building.orig_state[spot] then
+		goto_a1 = building.orig_state[spot]
+	else
+		goto_a1, goto_a2 = building, spot
+	end
 	
-	local result = self:Goto(table.unpack(goto_args))
+	local result = goto_a2 and self:Goto(goto_a1, goto_a2) or not goto_a2 and self:Goto(goto_a1)
 	
-	if not result then
+	if not result and IsValid(building) then
 		-- if can't reach a free spot then allow colliding with other units
-		result = IsValid(building) and self:Goto_NoDestlock(table.unpack(goto_args))
+		result = goto_a2 and self:Goto_NoDestlock(goto_a1, goto_a2) or not goto_a2 and self:Goto_NoDestlock(goto_a1)
 	end
 	if not IsValid(building) then
 		return false
 	end
 	local idx = spot and building:GetNearestSpot("idle", spot, self)
 	if not result then
-		local spot_pos = (#goto_args == 2 or not idx) and building:GetSpotPos(idx or -1) or goto_args[1][idx - begin_idx + 1]
+		local spot_pos = (goto_a2 or not idx) and building:GetSpotPos(idx or -1) or goto_a1[idx - begin_idx + 1]
 		if self:GetDist(spot_pos) > (dest_tolerance or 2*guim) then
 			return false
 		end
@@ -661,6 +668,74 @@ function Unit:IsDead()
 end
 
 function Unit:ResolveObjAt(pos, interaction_mode)
+end
+
+function Unit:AddToLabels()
+end
+
+function Unit:RemoveFromLabels()
+end
+
+function SavegameFixups.DeleteStuckArrows()
+	MapForEach("map", "Unit", function(unit)
+		local arrows = unit:GetAttaches("Selection_Direction_Rover")
+		if arrows then
+			for i = 1, #arrows do
+				DoneObject(arrows[i])
+			end
+		end
+	end)
+end
+
+function OnMsg.SelectedObjChange(obj, prev)
+	if obj and obj:IsKindOf("Unit") then
+		obj:CreateSelectionArrow()
+	end
+	if prev and prev:IsKindOf("Unit") then
+		prev:RemoveSelectionArrow()
+	end
+end
+
+function Unit:RemoveSelectionArrow()
+	if IsValid(self.selection_dir_arrow) then
+		DoneObject(self.selection_dir_arrow)
+		self.selection_dir_arrow = nil
+	end
+end
+
+function Unit:UpdateSelectionArrow()
+	local pt
+	if IsPoint(self.goto_target) then
+		pt = self.goto_target
+	elseif IsValid(self.goto_target) then
+		pt = self.goto_target:GetPos()
+	end	
+	if pt then
+		self.selection_dir_arrow:SetEnumFlags(const.efVisible)
+		self.selection_dir_arrow:Face(pt, 0)
+	else
+		self.selection_dir_arrow:ClearEnumFlags(const.efVisible)
+	end
+end
+
+function Unit:CreateSelectionArrow()
+	if not IsValid(self) or not IsKindOf(self, "Unit") then
+		return
+	end
+
+	self.selection_dir_arrow = PlaceParticles("Selection_Direction_Rover")
+	self.selection_dir_arrow:SetGameFlags(const.gofLockedOrientation)
+	self:Attach(self.selection_dir_arrow)
+	self.selection_dir_arrow:SetScale(MulDivRound(self.direction_arrow_scale, self.selection_scale_uniform, 100))
+	
+	self:UpdateSelectionArrow()
+	
+	CreateRealTimeThread(function(obj, arrow)
+		while SelectedObj == self and IsValid(self.selection_dir_arrow) do
+			self:UpdateSelectionArrow()
+			Sleep(50)
+		end
+	end, self)
 end
 
 ----- Vehicle

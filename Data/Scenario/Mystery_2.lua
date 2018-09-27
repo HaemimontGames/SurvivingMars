@@ -23,6 +23,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_RunSequence', {
 			'sequence_list', "Mystery 2",
 			'sequence', "Message 1: Introduction",
+			'wait', true,
 		}),
 		PlaceObj('SA_CustomNotification', {
 			'id', "Mystery2Counter",
@@ -39,12 +40,11 @@ PlaceObj('Scenario', {
 			'sequence', "Update Mystery Log",
 		}),
 		PlaceObj('SA_WaitMarsTime', {
-			'duration', 4380000,
+			'duration', 4200000,
 		}),
 		PlaceObj('SA_RunSequence', {
 			'sequence_list', "Mystery 2",
 			'sequence', "Message 2: Approaching Asteroid",
-			'wait', true,
 		}),
 		PlaceObj('SA_WaitMarsTime', {
 			'duration', 2700000,
@@ -52,10 +52,9 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_RunSequence', {
 			'sequence_list', "Mystery 2",
 			'sequence', "Message 2.5: Prior to Landing",
-			'wait', true,
 		}),
 		PlaceObj('SA_WaitMarsTime', {
-			'duration', 120000,
+			'duration', 300000,
 		}),
 		PlaceObj('SA_RunSequence', {
 			'sequence_list', "Mystery 2",
@@ -67,7 +66,7 @@ PlaceObj('Scenario', {
 			'wait', true,
 		}),
 		PlaceObj('SA_WaitMarsTime', {
-			'duration', 30000,
+			'duration', 90000,
 		}),
 		PlaceObj('SA_RunSequence', {
 			'sequence_list', "Mystery 2",
@@ -313,16 +312,15 @@ PlaceObj('Scenario', {
 			'parent', 23,
 		}),
 		PlaceObj('SA_SpawnAnomaly', {
-			'description', T{5943, --[[Scenario Mystery 2 description]] "The Dredger that lands excavates something from the planet's surface. Sending an expedition crew to analyze this location will shed light on the Dredgers' behavior."},
+			'description', T{5943, "The Dredger that lands excavates something from the planet's surface. Sending an expedition crew to analyze this location will shed light on the Dredgers' behavior."},
 			'check_passability', false,
 			'check_buildable', false,
 			'register_placement_pos', "diggerPos",
 			'attach_obj_spot', "Anomaly",
 			'store_obj', "anomaly",
-			'display_name', T{5944, --[[Scenario Mystery 2 display_name]] "Dredger Encounter: Alpha"},
+			'display_name', T{5944, "Dredger Encounter: Alpha"},
 			'sequence_list', "Mystery 2",
 			'sequence', "Anomaly 1: First Digger",
-			'revealed', true,
 		}),
 		PlaceObj('SA_Repeat', {
 			'sa_id', 4,
@@ -350,7 +348,6 @@ PlaceObj('Scenario', {
 			'display_name', T{5946, --[[Scenario Mystery 2 display_name]] "Dredger Excavation Site: Alpha"},
 			'sequence_list', "Mystery 2",
 			'sequence', "Anomaly 1 (Alt): First Waste Rock",
-			'revealed', true,
 		}),
 		PlaceObj('SA_RunSequence', {
 			'sequence_list', "Mystery 2",
@@ -577,7 +574,6 @@ PlaceObj('Scenario', {
 			'display_name', T{5948, --[[Scenario Mystery 2 display_name]] "Dredger Landing Site"},
 			'sequence_list', "Mystery 2",
 			'sequence', "Anomaly 2: First Tech Boosting",
-			'revealed', true,
 		}),
 		PlaceObj('SA_Exec', {
 			'expression', "digger.my_anomally = anomaly",
@@ -839,6 +835,12 @@ PlaceObj('Scenario', {
 	PlaceObj('ScenarioSequence', {
 		'name', "Digger Spawner (Boss)",
 	}, {
+		PlaceObj('SA_CustomNotification', {
+			'id', "Mystery2Counter",
+			'expression', "",
+			'interval', -1,
+			'expiration', 2160000,
+		}),
 		PlaceObj('SA_PlaceObject', {
 			'check_dome', "outside",
 			'random_pos_label', "BuildingNoDomes",
@@ -858,7 +860,7 @@ PlaceObj('Scenario', {
 			'pos_reg', "markerPos",
 		}),
 		PlaceObj('SA_WaitMarsTime', {
-			'duration', 1800000,
+			'duration', 2160000,
 		}),
 		PlaceObj('SA_PlaceObject', {
 			'check_passability', false,
@@ -871,6 +873,27 @@ PlaceObj('Scenario', {
 		}),
 		PlaceObj('SA_Exec', {
 			'expression', "DoneObject(markerObj)",
+		}),
+		}),
+	PlaceObj('ScenarioSequence', {
+		'name', "Meteor Storms Trigger",
+	}, {
+		PlaceObj('SA_Repeat', {
+			'sa_id', 1,
+			'expression', "3",
+			'end_block', 2,
+		}),
+		PlaceObj('SA_WaitMarsTime', {
+			'wait_type', "Sols",
+			'duration', 2250000,
+		}),
+		PlaceObj('SA_StartDisaster', {
+			'disaster', "Meteors",
+			'meteors', "storm",
+		}),
+		PlaceObj('SA_Block', {
+			'sa_id', 2,
+			'parent', 1,
 		}),
 		}),
 	PlaceObj('ScenarioSequence', {
@@ -913,6 +936,7 @@ PlaceObj('Scenario', {
 			'text', T{5954, --[[Scenario Mystery 2 text]] "The rover ventured within mere meters of the Object and conducted a series of field tests and observations on it. We scanned it with radiological and spectroscopic equipment and extended a remote probe to its carapace, gathering tiny samples of its crust. Via its telescopic arm a camera and sonar were inserted within the Object, revealing a perplexing maze of cavities and corridors inside. A close inspection below the Object shows that it digs a hole beneath itself through a rotation of its frontal hull and extracts metal-rich ores, but its position above the ground level remains the same. The RC Explorer operators report no response from the Object during any of these operations.\n\nThe data we've gathered is already sent to our sponsor via encrypted transmission. We are sure the commission will value our efforts greatly.\n\n<effect>You've gained <funding(reg_param1)> Funding and <research(reg_param2)>.\n\n<hint>The Object extracts resources from below the surface."},
 			'log_entry', true,
 			'image', "UI/Messages/dredgers_mystery_02.tga",
+			'start_minimized', false,
 			'reg_param1', "funding",
 			'reg_param2', "research",
 			'choice1', T{5955, --[[Scenario Mystery 2 choice1]] "Fortune favors the brave"},
@@ -937,6 +961,7 @@ PlaceObj('Scenario', {
 			'text', T{5956, --[[Scenario Mystery 2 text]] "The RC Explorer ventured within mere meters of the Object and conducted series of field tests and observations on it. The operators scanned the Object with radiological and spectroscopic equipment and extended a remote probe to its carapace, gathering tiny samples of its crust. When the RC Explorer approached the Object to perform closer interaction with it via the telescopic arms, the digging process of the Object caused a minor crust collapse and it nearly smashed the front of the rover’s hull. This didn't appear to be a deliberate attack but the damage is evident – it seems the Object possesses immense strength as well.\n\nDespite our setbacks we gathered important data and have already sent it to our sponsor via encrypted transmission. We are sure the commission will value our efforts greatly.\n\n<effect>You've gained <funding(reg_param1)> Funding. The RC Explorer suffered a malfunction.\n\n<hint>The Object extracted resources from below the surface."},
 			'log_entry', true,
 			'image', "UI/Messages/dredgers_mystery_02.tga",
+			'start_minimized', false,
 			'reg_param1', "funding",
 			'choice1', T{5957, --[[Scenario Mystery 2 choice1]] "We knew the risks but it was worth it."},
 		}),
@@ -968,6 +993,7 @@ PlaceObj('Scenario', {
 			'text', T{5959, --[[Scenario Mystery 2 text]] "The RC Explorer will be returning to base soon. Meanwhile, we will continue to gather visual and telemetry data on the object. The data we've gathered is already sent to our sponsor via encrypted transmission. We are sure the commission will value our efforts greatly.\n\n<effect>You receive <funding(reg_param1)> Funding.\n\n<hint>The Object extracted metals from below the surface."},
 			'log_entry', true,
 			'image', "UI/Messages/dredgers_mystery_02.tga",
+			'start_minimized', false,
 			'reg_param1', "funding",
 			'choice1', T{5960, --[[Scenario Mystery 2 choice1]] "Better safe than sorry"},
 		}),
@@ -1019,7 +1045,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_WaitMessage', {
 			'title', T{5964, --[[Scenario Mystery 2 title]] "The Dredgers: A Curious Observation"},
 			'voiced_text', T{7453, --[[voice:narrator]] "Mission Control, we’ve got our first detailed analysis of a landed Dredger."},
-			'text', T{5965, --[[Scenario Mystery 2 text]] "The RC Explorer used molecular spectroscopy to scan the Rubidium-Strontium proportions on the outer shell of the Dredger and the results are astonishing! It seems that the outer shell of the Dredger is extremely new, as if it has been created years ago!\n\nSome of our scientists proposed that the Dredgers must originate from our Solar System, unless they can traverse immense distances in a flash.\n\n<effect>The Dredger Morphology technology receives a 50% Boost."},
+			'text', T{5965, --[[Scenario Mystery 2 text]] "The RC Explorer used molecular spectroscopy to scan the Rubidium-Strontium proportions on the outer shell of the Dredger and the results are astonishing! It seems that the outer shell of the Dredger is extremely new, as if it has been created years ago!\n\nSome of our scientists proposed that the Dredgers must originate from our Solar System, unless they can traverse immense distances in a flash.\n\n<effect>The Dredger Morphology technology cost is reduced by 50%."},
 			'log_entry', true,
 			'image', "UI/Messages/dredgers_mystery_02.tga",
 			'choice1', T{5966, --[[Scenario Mystery 2 choice1]] "If this is true, how could we have missed them for so long?"},
@@ -1042,7 +1068,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_WaitMessage', {
 			'title', T{5964, --[[Scenario Mystery 2 title]] "The Dredgers: A Curious Observation"},
 			'voiced_text', T{7454, --[[voice:narrator]] "Mission Control, we’ve got RC Explorer operators reporting in from the Dredger analysis site."},
-			'text', T{5967, --[[Scenario Mystery 2 text]] "The expedition leader took the initiative to make physical contact with the landed Dredger. Risking it, he ordered the RC Explorer to approach the imposing alien object with a sampling tool and scrape off a portion of its outer hull, nervously anticipating a hostile reaction. The Dredger did nothing, so the RC Explorer ventured closer to it, taking more samples of its hull and probing its insides with various scanning equipment.\n\nIt is now evident that the outer shell of the Dredger consists of silicates and heavy inert metals with no traces of organic materials. The inner walls of the jet vents contain traces of burned alkaline metals. Some of our scientists propose that they are the fuel used to propel the Dredger during flight and take-off.\n\nThe object demonstrated no interest in the activities of the rover. The scientists speculate that it lacks any sort of sensors or processing power whatsoever.\n\n<effect>The Dredger Morphology technology receives a 50% Boost."},
+			'text', T{5967, --[[Scenario Mystery 2 text]] "The expedition leader took the initiative to make physical contact with the landed Dredger. Risking it, he ordered the RC Explorer to approach the imposing alien object with a sampling tool and scrape off a portion of its outer hull, nervously anticipating a hostile reaction. The Dredger did nothing, so the RC Explorer ventured closer to it, taking more samples of its hull and probing its insides with various scanning equipment.\n\nIt is now evident that the outer shell of the Dredger consists of silicates and heavy inert metals with no traces of organic materials. The inner walls of the jet vents contain traces of burned alkaline metals. Some of our scientists propose that they are the fuel used to propel the Dredger during flight and take-off.\n\nThe object demonstrated no interest in the activities of the rover. The scientists speculate that it lacks any sort of sensors or processing power whatsoever.\n\n<effect>The Dredger Morphology technology cost is reduced by 50%."},
 			'log_entry', true,
 			'image', "UI/Messages/dredgers_mystery_02.tga",
 			'choice1', T{5968, --[[Scenario Mystery 2 choice1]] "So we are talking about a machine or a very primitive organism? Maybe both?"},
@@ -1058,7 +1084,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_WaitMessage', {
 			'title', T{5964, --[[Scenario Mystery 2 title]] "The Dredgers: A Curious Observation"},
 			'voiced_text', T{7455, --[[voice:narrator]] "An RC Explorer has just completed analyzing a Dredger."},
-			'text', T{5969, --[[Scenario Mystery 2 text]] "After our operators made their brave approach and even touched the previous Dredger, no one feels intimidated by the large alien landers. The RC Explorer operators have even begun nicknaming the Dredgers with cute names such as Big Betty. While this raises the morale of the Colony, the scientists are excited to work with the large inflow of samples and data.\n\n<effect>Dredger Morphology technology receives a 50% Boost."},
+			'text', T{5969, --[[Scenario Mystery 2 text]] "After our operators made their brave approach and even touched the previous Dredger, no one feels intimidated by the large alien landers. The RC Explorer operators have even begun nicknaming the Dredgers with cute names such as Big Betty. While this raises the morale of the Colony, the scientists are excited to work with the large inflow of samples and data.\n\n<effect>The Dredger Morphology technology cost is reduced by 50%."},
 			'log_entry', true,
 			'image', "UI/Messages/dredgers_mystery_02.tga",
 			'choice1', T{5970, --[[Scenario Mystery 2 choice1]] "Name one Cthulhu just for me, OK?"},
@@ -1090,7 +1116,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_WaitMessage', {
 			'title', T{5971, --[[Scenario Mystery 2 title]] "The Dredgers: The Chinese Puzzle"},
 			'voiced_text', T{7456, --[[voice:narrator]] "Our science team is busy with the scant remains of the destroyed Dredger."},
-			'text', T{5972, --[[Scenario Mystery 2 text]] "The spectacular explosion revealed that the Dredger lacks mechanical components, its warped internal components resembling organs more than devices. The mysteries behind such a technology have already inspired some of our greatest minds. The Head Scientist called this the project of the century and one can clearly hear the excitement in his voice.\n\n<effect>The Dredger Wavelength Decoding receives a 50% Boost"},
+			'text', T{5972, --[[Scenario Mystery 2 text]] "The spectacular explosion revealed that the Dredger lacks mechanical components, its warped internal components resembling organs more than devices. The mysteries behind such a technology have already inspired some of our greatest minds. The Head Scientist called this the project of the century and one can clearly hear the excitement in his voice.\n\n<effect>The Dredger Wavelength Decoding technology cost is reduced by 50%."},
 			'log_entry', true,
 			'image', "UI/Messages/dredgers_mystery_02.tga",
 			'choice1', T{5973, --[[Scenario Mystery 2 choice1]] "Keep up the good work."},
@@ -1106,7 +1132,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_WaitMessage', {
 			'title', T{5971, --[[Scenario Mystery 2 title]] "The Dredgers: The Chinese Puzzle"},
 			'voiced_text', T{7457, --[[voice:narrator]] "An RC Explorer just brought in materials salvaged from another destroyed Dredger."},
-			'text', T{5974, --[[Scenario Mystery 2 text]] "More samples would allow our scientists to apply more aggressive experimentation and analytical methods, speeding up their work immensely.\n\n<effect>The Dredger Wavelength Decoding receives a 50% Boost"},
+			'text', T{5974, --[[Scenario Mystery 2 text]] "More samples would allow our scientists to apply more aggressive experimentation and analytical methods, speeding up their work immensely.\n\n<effect>The Dredger Wavelength Decoding technology cost is reduced by 50%."},
 			'log_entry', true,
 			'image', "UI/Messages/dredgers_mystery_02.tga",
 		}),
@@ -1132,22 +1158,9 @@ PlaceObj('Scenario', {
 			'text_param1', T{5977, --[[Scenario Mystery 2 text_param1]] "10"},
 			'choice1', T{5978, --[[Scenario Mystery 2 choice1]] "All personnel – keep calm and watch for meteors."},
 		}),
-		PlaceObj('SA_Repeat', {
-			'sa_id', 1,
-			'expression', "3",
-			'end_block', 2,
-		}),
-		PlaceObj('SA_WaitMarsTime', {
-			'wait_type', "Sols",
-			'duration', 2250000,
-		}),
-		PlaceObj('SA_StartDisaster', {
-			'disaster', "Meteors",
-			'meteors', "storm",
-		}),
-		PlaceObj('SA_Block', {
-			'sa_id', 2,
-			'parent', 1,
+		PlaceObj('SA_RunSequence', {
+			'sequence_list', "Mystery 2",
+			'sequence', "Meteor Storms Trigger",
 		}),
 		}),
 	PlaceObj('ScenarioSequence', {
@@ -1330,7 +1343,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_WaitMessage', {
 			'title', T{6011, --[[Scenario Mystery 2 title]] "The Dredgers: The Koronis Predicament"},
 			'voiced_text', T{7468, --[[voice:narrator]] "A recent detailed analysis of the Dredgers revealed that they're sending signals towards the Koronis asteroid cluster."},
-			'text', T{6012, --[[Scenario Mystery 2 text]] "This occasional discovery was made later rather than sooner, as the emissions are cleverly masked to resemble cosmic rays in their wavelength. It is apparent that the source of the landers is closer than we thought.\n\nThe science team immediately requested permission to “dissect” one of the Dredgers to get their hands on the mysterious device used to send these transmissions.\n\n<effect>A new research is available – Dredger Wavelength Decoding.\n\n<hint>Destroy Dredgers using Drones to gain a Tech Boost towards the Technology’s progress."},
+			'text', T{6012, --[[Scenario Mystery 2 text]] "This occasional discovery was made later rather than sooner, as the emissions are cleverly masked to resemble cosmic rays in their wavelength. It is apparent that the source of the landers is closer than we thought.\n\nThe science team immediately requested permission to “dissect” one of the Dredgers to get their hands on the mysterious device used to send these transmissions.\n\n<effect>A new research is available – Dredger Wavelength Decoding.\n\n<hint>Destroy Dredgers using Drones to reduce the cost of the technology."},
 			'log_entry', true,
 			'image', "UI/Messages/dredgers_mystery_02.tga",
 			'choice1', T{6013, --[[Scenario Mystery 2 choice1]] "Time to stop whistling in the dark."},
@@ -1441,6 +1454,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7472, --[[voice:narrator]] "What we can confirm is that the automated vessels we encountered were of unknown origin."},
 			'text', T{6027, --[[Scenario Mystery 2 text]] "The vessels dismissed all of our attempts to communicate and proceeded with their only mission – to consume and transport resources from the surface of Mars. In another time we would address their activity with affectionate curiosity and excitement, but in the light of our current situation, this has caused great distress and concern in all personnel of Mars Alpha. Without bothering you with the tiresome technical details, the extraction and utilization of Martian resources is crucial to the success of Mars Alpha and our ability to settle in the Solar System.\n\nOur Colony's safety and viability is our utmost priority. This is why I’ve personally supervised operations to deny the alien vessels the opportunity to extract and steal away the metal deposits crucial to our survival. I would ask those who might raise questions on the measure of our reaction – what do you call a neighbor who deliberately tries to stall your attempts to lead a better life?"},
 			'image', "UI/Messages/dredgers_mystery_02.tga",
+			'start_minimized', false,
 			'choice1', T{7317, --[[Scenario Mystery 2 choice1]] "Continue"},
 		}),
 		PlaceObj('SA_Block', {
@@ -1457,6 +1471,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7473, --[[voice:narrator]] "Humanity’s imagination has always portrayed contact with an alien species as either a precursor to military conflict or a chance for peaceful exchange of culture and ideas."},
 			'text', T{6029, --[[Scenario Mystery 2 text]] "At their core of our expectations has always been a flawed assumption – that an alien race would be psychologically human.\n\nThe first contact, if one has the audacity to call it that way, was with a system of automated mining equipment. As disappointing as it may sound, the alien machines displayed an almost offensive disregard for our presence. So far they had followed their simple purpose – to extract resources from the surface of Mars. The nature and intentions of their creators remains a mystery and our best minds are working towards unveiling it."},
 			'image', "UI/Messages/dredgers_mystery_02.tga",
+			'start_minimized', false,
 			'choice1', T{7318, --[[Scenario Mystery 2 choice1]] "Continue"},
 		}),
 		PlaceObj('SA_Block', {
@@ -1480,6 +1495,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7475, --[[voice:narrator]] "Honorable delegates, we stand at the doorway to a new era, taking those first hesitant steps towards the stars beyond. Allowing fear and doubt to sway us from our path would fail not only Mars Alpha, but us as a species."},
 			'text', T{6035, --[[Scenario Mystery 2 text]] "For countless generations the human species had proven to possess the ability to adapt, survive and thrive. Let us not forget who we are.\n\nThe actions I ordered were not an act of war and aggression, but instead were means to secure the future of our initiative and fulfill a promise to all people on Earth. Dismantling several alien vessels is a fair price to pay for what's at stake today. And if the creators of these vessels see our actions as something more than doing the right thing, we will prove them wrong. For we do not desire to take what's not ours – we want to fulfill our destiny as a space-faring species."},
 			'image', "UI/Messages/dredgers_mystery_02.tga",
+			'start_minimized', false,
 			'choice1', T{7319, --[[Scenario Mystery 2 choice1]] "Continue"},
 		}),
 		PlaceObj('SA_WaitMarsTime', {
@@ -1522,6 +1538,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7477, --[[voice:narrator]] "I would only take issue with half of the statement given by our honorable delegate. While we did indeed dismantle the vessel, I would hardly paint our intent as an expression of the darker side of human nature."},
 			'text', T{6041, --[[Scenario Mystery 2 text]] "Our goal was to make sense of what's happening, of the nature of the alien vessels, which is one of the underlying principles of science.\n\nOur efforts were not in vain. The greatest minds of Mars Alpha and Earth managed to make amazing progress. Dismantling the probe allowed us to make sense of the communications of the alien machines, maybe even the basis of the language of their creators, and not only that. The scientific knowledge we gained from this event will speed our way to the stars, where even more puzzling mysteries await those of us who have the bravery and integrity to face the unknown."},
 			'image', "UI/Messages/dredgers_mystery_02.tga",
+			'start_minimized', false,
 			'choice1', T{7320, --[[Scenario Mystery 2 choice1]] "Continue"},
 		}),
 		PlaceObj('SA_WaitMarsTime', {
@@ -1669,7 +1686,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_WaitMessage', {
 			'title', T{6057, --[[Scenario Mystery 2 title]] "The Dredgers – Conclusion: Fires of Tomorrow's Dawn"},
 			'voiced_text', T{7481, --[[voice:narrator]] "We all watched as the Dredger collapsed into a blazing inferno. A spectacular end. While some at Mission Control cheered, others simply stared, their concerns unvoiced."},
-			'text', T{6058, --[[Scenario Mystery 2 text]] "The comm-feed from the dying Dredger report a singular message broadcast towards the Koronis cluster – “retreat”, “retreat”. Others may wonder, but you know deep inside that you beheaded the beast – the other Dredgers won't be coming back.\n\nSomehow you don't feel like the victor. You stand silent as you ask yourself one question – have you defeated a dangerous enemy or rebuffed a potential ally?\n\n<effect>Xeno-Extraction Technology is available for research with a 100% Boost\n<effect>Gained a new technology, <em><reg_param1></em>"},
+			'text', T{6058, --[[Scenario Mystery 2 text]] "The comm-feed from the dying Dredger report a singular message broadcast towards the Koronis cluster – “retreat”, “retreat”. Others may wonder, but you know deep inside that you beheaded the beast – the other Dredgers won't be coming back.\n\nSomehow you don't feel like the victor. You stand silent as you ask yourself one question – have you defeated a dangerous enemy or rebuffed a potential ally?\n\n<effect>Xeno-Extraction Technology is available for research with a 50% cost reduction.\n<effect>Gained a new technology, <em><reg_param1></em>"},
 			'log_entry', true,
 			'image', "UI/Messages/dredgers_mystery_02.tga",
 			'reg_param1', "_grantedTech",

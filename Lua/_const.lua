@@ -298,6 +298,14 @@ DefineConst{
 }
 DefineConst{
 	group = "Cost",
+	help = T{357577730941, --[[ConstDef Cost PolymersPerFracture help]] "The number of polymers required to fix a single dome/passage fracture"},
+	id = "PolymersPerFracture",
+	name = T{805664154231, --[[ConstDef Cost PolymersPerFracture name]] "Fracture Repair Cost"},
+	scale = 1000,
+	value = 5000,
+}
+DefineConst{
+	group = "Cost",
 	help = T{4718, --[[ConstDef Cost Polymers_cost_modifier help]] "All building construction costs in Polymers will be modified by this percent"},
 	id = "Polymers_cost_modifier",
 	name = T{4719, --[[ConstDef Cost Polymers_cost_modifier name]] "Cost modifier (Polymers)"},

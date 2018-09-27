@@ -698,6 +698,8 @@ PlaceObj('EntityPalette', {
 	id = "SubSurfaceHeater",
 })
 
+
+
 PlaceObj('EntityPalette', {
 	Color1 = 6297110,
 	Color2 = 8816262,

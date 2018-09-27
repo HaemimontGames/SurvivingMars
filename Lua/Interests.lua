@@ -126,6 +126,7 @@ ColonistStatReasons =
 	["StatusEffect_Irradiated"]  = T{1034, "<red>Irradiated <amount></red>"},
 	["rest"]                     = T{1035, "<green>Well rested <amount></green>"},
 	["ChronicCondition"]         = T{1036, "<red>Chronic Condition <amount></red>"}, -- ChronicCondition trait effect
+	["Infected"]                 = T{10907, "<red>Infected <amount></red>"},
 	
 	-- ChangeSanity reasons
 	["geyser"]                = T{1037, "<red>Damage from a CO2 eruption <amount></red>"},

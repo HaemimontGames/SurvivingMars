@@ -117,6 +117,20 @@ function MarsPauseDlg:ForceDelete()
 	self:delete()
 end
 
+DialogsHidingPauseDlg = {["Resupply"] = true}
+
+local function ShouldHidePauseDlg()
+	local hide = false
+	local dlgs = ListDialogs()
+	for _, open_dlg in ipairs(dlgs) do
+		if DialogsHidingPauseDlg[open_dlg] then
+			hide = true
+			break
+		end
+	end
+	return hide
+end
+
 function ShowPauseDialog(bShow, force)
 	if bShow then
 		local dlg = GetMarsPauseDlg()
@@ -125,7 +139,7 @@ function ShowPauseDialog(bShow, force)
 				dlg:ForceDelete()
 			end
 			dlg = OpenMarsPauseDlg()
-		elseif dlg and GetDialog("Resupply") then
+		elseif dlg and ShouldHidePauseDlg() then
 			dlg:SetParent(GetInGameInterface())
 		end
 		if dlg then
@@ -150,7 +164,7 @@ function ShowPauseDialog(bShow, force)
 end
 
 function OpenMarsPauseDlg()
-	if not GetDialog("Resupply") and GameState.gameplay then
+	if not ShouldHidePauseDlg() and GameState.gameplay then
 		return OpenDialog("MarsPauseDlg")
 	end
 end

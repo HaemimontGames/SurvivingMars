@@ -73,6 +73,7 @@ function Workplace:SetSpecialistEnforce(specialist_enforce_mode)
 			local worker = list[i]
 			if (worker.specialist or "none") ~= specialist and not worker:IsDying() then
 				worker:SetWorkplace(false)
+				worker.user_forced_workplace = false
 				worker:UpdateWorkplace()
 			end
 		end
@@ -148,7 +149,11 @@ function Workplace:HasAnyWorkers()
 end
 
 function Workplace:SetWorkshift(workshift)
+	if self.destroyed then 
+		return 
+	end
 	if self:HasMember("electricity") and not self.electricity then -- in case it gets called before the building is properly initilized
+		assert(false, string.format("%s,Workshift will not be changed", self.class))
 		return
 	end
 	ShiftsBuilding.SetWorkshift(self, workshift)
@@ -470,13 +475,18 @@ end
 
 function Workplace:ColonistInteract(col)
 	if col.workplace == self then return end
-	local current_shift = CurrentWorkshift --should be the shift @ click moment
-	for i = 1, 3 do
-		if self:HasFreeWorkSlots(current_shift) then
-			break
+	local current_shift
+	if self.active_shift == 0 then
+		current_shift = CurrentWorkshift --should be the shift @ click moment
+		for i = 1, 3 do
+			if self:HasFreeWorkSlots(current_shift) then
+				break
+			end
+			current_shift = current_shift + 1
+			current_shift = current_shift > 3 and current_shift  % 3 or current_shift
 		end
-		current_shift = current_shift + 1
-		current_shift = current_shift > 3 and current_shift  % 3 or current_shift
+	else
+		current_shift = self.active_shift
 	end
 	col.user_forced_workplace = {self, current_shift, GameTime()}
 	
@@ -515,6 +525,30 @@ function Workplace:KickAllWorkers()
 			if not worker:IsDying() then
 				worker:SetWorkplace(false)
 				worker:UpdateWorkplace()
+			end
+		end
+	end
+end
+
+function Workplace:MoveWorkers(from_shift, to_shift)
+	if from_shift == to_shift then return end
+	local shift = to_shift
+	from_shift = self.workers[from_shift]
+	to_shift = self.workers[to_shift]
+	local c = 1
+	while #from_shift > 0 do
+		local fworker = from_shift[1]
+		local tworker = to_shift[c]
+		c = c + 1
+		if fworker and not fworker:IsDying() then
+			if tworker then
+				tworker:SetWorkplace(false)
+			end
+			
+			fworker:SetWorkplace(self, shift)
+			
+			if tworker and not tworker:IsDying() then
+				tworker:UpdateWorkplace()
 			end
 		end
 	end
@@ -613,22 +647,30 @@ function Workplace:GetWorstWorker(unit, shift)
 		end
 		check_forced = false
 	end
+	
+	return nil, shift
 end
 
 function Workplace:FindFreeSlotForced(shift)
-	for i = 1, 3 do
-		if self:HasFreeWorkSlots(shift) then
-			return shift
+	if self.active_shift == 0 then
+		for i = 1, 3 do
+			if self:HasFreeWorkSlots(shift) then
+				return shift
+			end
+			shift = shift + 1
+			shift = shift > 3 and shift % 3 or shift
 		end
-		shift = shift + 1
-		shift = shift > 3 and shift % 3 or shift
+	else
+		shift = self.active_shift
 	end
 	local to_kick
-	to_kick, shift = self:GetWorstWorker()
+	to_kick, shift = self:GetWorstWorker(nil, shift)
 	if to_kick then
 		to_kick.user_forced_workplace = nil
 		return shift, to_kick
 	end
+	
+	return shift
 end
 
 function Workplace:OnChangeWorkshift(old, new)

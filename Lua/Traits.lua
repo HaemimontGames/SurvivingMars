@@ -562,7 +562,7 @@ function OnMsg.DataLoaded()
 	DataInstances.Trait = TraitPresets
 end
 
-function OnMsg.ModsLoaded()
+function OnMsg.ModsReloaded()
 	PostprocessTraits()
 end
 
@@ -749,6 +749,7 @@ GuruTraitBlacklist = {
 	ChronicCondition = true,
 	Founder = true,
 	Android = true,
+	Refugee = true,
 }
 
 function GuruDailyUpdate(guru)

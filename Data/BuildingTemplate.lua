@@ -3,7 +3,6 @@
 PlaceObj('BuildingTemplate', {
 	'Group', "Decorations",
 	'Id', "BlackCubeLargeMonument",
-	'template_class', "",
 	'construction_cost_BlackCube', 126000,
 	'build_points', 1000,
 	'use_demolished_state', false,
@@ -21,7 +20,6 @@ PlaceObj('BuildingTemplate', {
 PlaceObj('BuildingTemplate', {
 	'Group', "Decorations",
 	'Id', "BlackCubeSmallMonument",
-	'template_class', "",
 	'construction_cost_BlackCube', 42000,
 	'build_points', 1000,
 	'use_demolished_state', false,
@@ -330,6 +328,7 @@ PlaceObj('BuildingTemplate', {
 	'template_class', "BlackCubeDumpSite",
 	'build_points', 0,
 	'dome_forbidden', true,
+	'use_demolished_state', false,
 	'display_name', T{5039, --[[BuildingTemplate BlackCubeDump display_name]] "Cube Depot"},
 	'display_name_pl', T{5040, --[[BuildingTemplate BlackCubeDump display_name_pl]] "Cube Depots"},
 	'description', T{5041, --[[BuildingTemplate BlackCubeDump description]] "A safe place to store Black Cubes."},
@@ -350,6 +349,7 @@ PlaceObj('BuildingTemplate', {
 	'build_points', 0,
 	'instant_build', true,
 	'dome_forbidden', true,
+	'use_demolished_state', false,
 	'display_name', T{5036, --[[BuildingTemplate StorageConcrete display_name]] "Concrete Depot"},
 	'display_name_pl', T{5037, --[[BuildingTemplate StorageConcrete display_name_pl]] "Concrete Depots"},
 	'description', T{5038, --[[BuildingTemplate StorageConcrete description]] "Stores <concrete(max_storage_per_resource)>. Some resources will be transported to other depots within Drone range."},
@@ -364,9 +364,7 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'max_storage_per_resource', 180000,
 	'max_x', 12,
-	'storable_resources', {
-		"Concrete",
-	},
+	'storable_resources', {"Concrete"},
 })
 
 PlaceObj('BuildingTemplate', {
@@ -377,6 +375,7 @@ PlaceObj('BuildingTemplate', {
 	'build_points', 0,
 	'instant_build', true,
 	'dome_forbidden', true,
+	'use_demolished_state', false,
 	'display_name', T{5062, --[[BuildingTemplate StorageElectronics display_name]] "Electronics Depot"},
 	'display_name_pl', T{5063, --[[BuildingTemplate StorageElectronics display_name_pl]] "Electronics Depots"},
 	'description', T{5064, --[[BuildingTemplate StorageElectronics description]] "Stores <electronics(max_storage_per_resource)>. Some resources will be transported to other depots within Drone range."},
@@ -391,9 +390,7 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'max_storage_per_resource', 180000,
 	'max_x', 12,
-	'storable_resources', {
-		"Electronics",
-	},
+	'storable_resources', {"Electronics"},
 })
 
 PlaceObj('BuildingTemplate', {
@@ -404,6 +401,7 @@ PlaceObj('BuildingTemplate', {
 	'build_points', 0,
 	'instant_build', true,
 	'dome_forbidden', true,
+	'use_demolished_state', false,
 	'display_name', T{5071, --[[BuildingTemplate StorageFood display_name]] "Food Depot"},
 	'display_name_pl', T{5072, --[[BuildingTemplate StorageFood display_name_pl]] "Food Depots"},
 	'description', T{5073, --[[BuildingTemplate StorageFood description]] "Stores <food(max_storage_per_resource)>. Some resources will be transported to other depots within Drone range."},
@@ -418,9 +416,7 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'max_storage_per_resource', 180000,
 	'max_x', 12,
-	'storable_resources', {
-		"Food",
-	},
+	'storable_resources', {"Food"},
 })
 
 PlaceObj('BuildingTemplate', {
@@ -431,6 +427,7 @@ PlaceObj('BuildingTemplate', {
 	'build_points', 0,
 	'instant_build', true,
 	'dome_forbidden', true,
+	'use_demolished_state', false,
 	'display_name', T{5078, --[[BuildingTemplate StorageFuel display_name]] "Fuel Depot"},
 	'display_name_pl', T{5079, --[[BuildingTemplate StorageFuel display_name_pl]] "Fuel Depots"},
 	'description', T{5080, --[[BuildingTemplate StorageFuel description]] "Stores <fuel(max_storage_per_resource)>. Some resources will be transported to other depots within Drone range."},
@@ -445,9 +442,7 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'max_storage_per_resource', 180000,
 	'max_x', 12,
-	'storable_resources', {
-		"Fuel",
-	},
+	'storable_resources', {"Fuel"},
 })
 
 PlaceObj('BuildingTemplate', {
@@ -458,6 +453,7 @@ PlaceObj('BuildingTemplate', {
 	'build_points', 0,
 	'instant_build', true,
 	'dome_forbidden', true,
+	'use_demolished_state', false,
 	'display_name', T{5134, --[[BuildingTemplate StorageMachineParts display_name]] "Machine Parts Depot"},
 	'display_name_pl', T{5135, --[[BuildingTemplate StorageMachineParts display_name_pl]] "Machine Parts Depots"},
 	'description', T{5136, --[[BuildingTemplate StorageMachineParts description]] "Stores <machineparts(max_storage_per_resource)>. Some resources will be transported to other depots within Drone range."},
@@ -472,9 +468,7 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'max_storage_per_resource', 180000,
 	'max_x', 12,
-	'storable_resources', {
-		"MachineParts",
-	},
+	'storable_resources', {"MachineParts"},
 })
 
 PlaceObj('BuildingTemplate', {
@@ -485,6 +479,7 @@ PlaceObj('BuildingTemplate', {
 	'build_points', 0,
 	'instant_build', true,
 	'dome_forbidden', true,
+	'use_demolished_state', false,
 	'display_name', T{5162, --[[BuildingTemplate StorageMetals display_name]] "Metals Depot"},
 	'display_name_pl', T{5163, --[[BuildingTemplate StorageMetals display_name_pl]] "Metals Depots"},
 	'description', T{5164, --[[BuildingTemplate StorageMetals description]] "Stores <metals(max_storage_per_resource)>. Some resources will be transported to other depots within Drone range."},
@@ -499,9 +494,7 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'max_storage_per_resource', 180000,
 	'max_x', 12,
-	'storable_resources', {
-		"Metals",
-	},
+	'storable_resources', {"Metals"},
 })
 
 PlaceObj('BuildingTemplate', {
@@ -512,6 +505,7 @@ PlaceObj('BuildingTemplate', {
 	'build_points', 0,
 	'instant_build', true,
 	'dome_forbidden', true,
+	'use_demolished_state', false,
 	'display_name', T{8112, --[[BuildingTemplate StorageMysteryResource display_name]] "Mystery Depot"},
 	'display_name_pl', T{8112, --[[BuildingTemplate StorageMysteryResource display_name_pl]] "Mystery Depot"},
 	'description', T{8113, --[[BuildingTemplate StorageMysteryResource description]] "It's very mysterious."},
@@ -525,9 +519,7 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'max_storage_per_resource', 180000,
 	'max_x', 12,
-	'storable_resources', {
-		"MysteryResource",
-	},
+	'storable_resources', {"MysteryResource"},
 })
 
 PlaceObj('BuildingTemplate', {
@@ -538,6 +530,7 @@ PlaceObj('BuildingTemplate', {
 	'build_points', 0,
 	'instant_build', true,
 	'dome_forbidden', true,
+	'use_demolished_state', false,
 	'display_name', T{5202, --[[BuildingTemplate StoragePolymers display_name]] "Polymers Depot"},
 	'display_name_pl', T{5203, --[[BuildingTemplate StoragePolymers display_name_pl]] "Polymers Depots"},
 	'description', T{5204, --[[BuildingTemplate StoragePolymers description]] "Stores <polymers(max_storage_per_resource)>. Some resources will be transported to other depots within Drone range."},
@@ -552,9 +545,7 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'max_storage_per_resource', 180000,
 	'max_x', 12,
-	'storable_resources', {
-		"Polymers",
-	},
+	'storable_resources', {"Polymers"},
 })
 
 PlaceObj('BuildingTemplate', {
@@ -565,6 +556,7 @@ PlaceObj('BuildingTemplate', {
 	'build_points', 0,
 	'instant_build', true,
 	'dome_forbidden', true,
+	'use_demolished_state', false,
 	'display_name', T{5226, --[[BuildingTemplate StorageRareMetals display_name]] "Rare Metals Depot"},
 	'display_name_pl', T{5227, --[[BuildingTemplate StorageRareMetals display_name_pl]] "Rare Metals Depots"},
 	'description', T{5228, --[[BuildingTemplate StorageRareMetals description]] "Stores <preciousmetals(max_storage_per_resource)>. Some resources will be transported to other depots within Drone range."},
@@ -579,9 +571,7 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'max_storage_per_resource', 180000,
 	'max_x', 12,
-	'storable_resources', {
-		"PreciousMetals",
-	},
+	'storable_resources', {"PreciousMetals"},
 })
 
 PlaceObj('BuildingTemplate', {
@@ -1098,8 +1088,8 @@ PlaceObj('BuildingTemplate', {
 	'demolish_sinking', range(0, 0),
 	'demolish_tilt_angle', range(0, 0),
 	'demolish_debris', 90,
-	'spire_frame_entity', "ArcologyFrame",
 	'electricity_consumption', 20000,
+	'spire_frame_entity', "ArcologyFrame",
 	'service_comfort', 60000,
 	'comfort_increase', 4000,
 	'capacity', 32,
@@ -1558,17 +1548,17 @@ PlaceObj('BuildingTemplate', {
 	'pin_rollover_context', "obj",
 	'pin_summary1', T{5016, --[[BuildingTemplate DomeMegaTrigon pin_summary1]] "<GetColonistCount><icon_Colonist_small>"},
 	'pin_on_start', true,
-	'construction_cost_Concrete', 200000,
-	'construction_cost_Metals', 150000,
-	'construction_cost_Polymers', 120000,
+	'construction_cost_Concrete', 150000,
+	'construction_cost_Metals', 100000,
+	'construction_cost_Polymers', 60000,
 	'construction_entity', "DomeMegaTrigonSmoothConstruction",
-	'build_points', 80000,
+	'build_points', 60000,
 	'is_tall', true,
 	'construction_site_applies_height_surfaces', true,
 	'dome_forbidden', true,
 	'achievement', "FirstDome",
 	'maintenance_resource_type', "Polymers",
-	'maintenance_resource_amount', 3000,
+	'maintenance_resource_amount', 2500,
 	'display_name', T{9009, --[[BuildingTemplate DomeMegaTrigon display_name]] "Mega Trigon Dome"},
 	'display_name_pl', T{9010, --[[BuildingTemplate DomeMegaTrigon display_name_pl]] "Mega Trigon Domes"},
 	'description', T{9011, --[[BuildingTemplate DomeMegaTrigon description]] "An alternative Mega Dome configuration. Cheaper, but provides less habitable space."},
@@ -1581,9 +1571,9 @@ PlaceObj('BuildingTemplate', {
 	'palettes', "Dome_NEW",
 	'demolish_sinking', range(0, 0),
 	'demolish_debris', 0,
-	'electricity_consumption', 40000,
-	'water_consumption', 3000,
-	'air_consumption', 3000,
+	'electricity_consumption', 30000,
+	'water_consumption', 2500,
+	'air_consumption', 2500,
 })
 
 PlaceObj('BuildingTemplate', {
@@ -1667,8 +1657,8 @@ PlaceObj('BuildingTemplate', {
 	'construction_site_applies_height_surfaces', true,
 	'dome_forbidden', true,
 	'achievement', "FirstDome",
-	'maintenance_resource_type', "Concrete",
-	'maintenance_resource_amount', 2000,
+	'maintenance_resource_type', "Polymers",
+	'maintenance_resource_amount', 1500,
 	'display_name', T{9003, --[[BuildingTemplate DomeTrigon display_name]] "Trigon Dome"},
 	'display_name_pl', T{9004, --[[BuildingTemplate DomeTrigon display_name_pl]] "Trigon Domes"},
 	'description', T{9005, --[[BuildingTemplate DomeTrigon description]] "An alternative medium Dome configuration. Cheaper, but provides less habitable space."},
@@ -2168,6 +2158,7 @@ PlaceObj('BuildingTemplate', {
 	'instant_build', true,
 	'can_rotate_during_placement', false,
 	'dome_forbidden', true,
+	'use_demolished_state', false,
 	'display_name', T{1685, --[[BuildingTemplate RefugeeRocket display_name]] "Rocket"},
 	'display_name_pl', T{5238, --[[BuildingTemplate RefugeeRocket display_name_pl]] "Rockets"},
 	'description', T{5239, --[[BuildingTemplate RefugeeRocket description]] "Delivers cargo or Colonists to Mars. Commands nearby Drones. Contaminates nearby buildings with dust when landing and taking off. Requires <em>Fuel</em> for the return trip to Earth."},
@@ -2182,14 +2173,7 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'exclude_from_lr_transportation', true,
 	'max_storage_per_resource', 60000,
-	'storable_resources', {
-		"Concrete",
-		"Metals",
-		"Polymers",
-		"Food",
-		"Electronics",
-		"MachineParts",
-	},
+	'storable_resources', {"Concrete","Metals","Polymers","Food","Electronics","MachineParts"},
 	'starting_drones', 0,
 	'launch_fuel', 0,
 	'sponsor_selectable', false,
@@ -2231,9 +2215,10 @@ PlaceObj('BuildingTemplate', {
 	'instant_build', true,
 	'can_rotate_during_placement', false,
 	'dome_forbidden', true,
+	'use_demolished_state', false,
 	'display_name', T{1685, --[[BuildingTemplate SupplyRocket display_name]] "Rocket"},
 	'display_name_pl', T{5238, --[[BuildingTemplate SupplyRocket display_name_pl]] "Rockets"},
-	'description', T{5239, --[[BuildingTemplate SupplyRocket description]] "Delivers cargo or Colonists to Mars. Commands nearby Drones. Contaminates nearby buildings with dust when landing and taking off. Requires <em>Fuel</em> for the return trip to Earth."},
+	'description', T{10961, --[[BuildingTemplate SupplyRocket description]] "Delivers cargo or Colonists to Mars. Commands nearby Drones.Requires <em>Fuel</em> for the return trip to Earth.<newline>Raises dust when landing and taking off causing increased maintenance of buildings in the grey area."},
 	'build_category', "Hidden",
 	'display_icon', "UI/Icons/Buildings/rocket.tga",
 	'build_pos', 7,
@@ -2245,14 +2230,7 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'exclude_from_lr_transportation', true,
 	'max_storage_per_resource', 60000,
-	'storable_resources', {
-		"Concrete",
-		"Metals",
-		"Polymers",
-		"Food",
-		"Electronics",
-		"MachineParts",
-	},
+	'storable_resources', {"Concrete","Metals","Polymers","Food","Electronics","MachineParts"},
 	'starting_drones', 0,
 	'launch_fuel', 50000,
 	'max_export_storage', 30000,
@@ -2272,6 +2250,7 @@ PlaceObj('BuildingTemplate', {
 	'instant_build', true,
 	'can_rotate_during_placement', false,
 	'dome_forbidden', true,
+	'use_demolished_state', false,
 	'display_name', T{1685, --[[BuildingTemplate TradeRocket display_name]] "Rocket"},
 	'display_name_pl', T{5238, --[[BuildingTemplate TradeRocket display_name_pl]] "Rockets"},
 	'description', T{5239, --[[BuildingTemplate TradeRocket description]] "Delivers cargo or Colonists to Mars. Commands nearby Drones. Contaminates nearby buildings with dust when landing and taking off. Requires <em>Fuel</em> for the return trip to Earth."},
@@ -2286,14 +2265,7 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'exclude_from_lr_transportation', true,
 	'max_storage_per_resource', 60000,
-	'storable_resources', {
-		"Concrete",
-		"Metals",
-		"Polymers",
-		"Food",
-		"Electronics",
-		"MachineParts",
-	},
+	'storable_resources', {"Concrete","Metals","Polymers","Food","Electronics","MachineParts"},
 	'starting_drones', 0,
 	'launch_fuel', 50000,
 	'sponsor_selectable', false,
@@ -2931,7 +2903,7 @@ PlaceObj('BuildingTemplate', {
 	'show_range_all', true,
 	'suspend_on_dust_storm', true,
 	'encyclopedia_id', "MoistureVaporator",
-	'encyclopedia_text', T{5175, --[[BuildingTemplate MoistureVaporator encyclopedia_text]] "Moisture Vaporators provide a limitless, albeit slower and energy consuming, supply of water once water deposits are no longer a viable option. \n\n<center><image UI/Common/rollover_line.tga 2000> <left>\n\nMoisture Vaporators are based on WAVAR tech (Water-Vapor Adsorption Reactor), a process that extracts water directly from the Martian atmosphere by alternately blowing air over a zeolite adsorption bed and heating the bed to extract the absorbed water. While the water output is less than that of the Water Extractor, there is no end to the amount of water it can generate, and its mechanical simplicity means Water Vaporators can be deployed anywhere on the Martian surface."},
+	'encyclopedia_text', T{5175, --[[BuildingTemplate MoistureVaporator encyclopedia_text]] "Moisture Vaporators provide a limitless, albeit slower and energy consuming, supply of water once water deposits are no longer a viable option. \n\n<center><image UI/Common/rollover_line.tga 2000> <left>\n\nMoisture Vaporators are based on WAVAR tech (Water-Vapor Adsorption Reactor), a process that extracts water directly from the Martian atmosphere by alternately blowing air over a zeolite adsorption bed and heating the bed to extract the absorbed water. While the water output is less than that of the Water Extractor, there is no end to the amount of water it can generate, and its mechanical simplicity means Moisture Vaporators can be deployed anywhere on the Martian surface."},
 	'encyclopedia_image', "UI/Encyclopedia/MoistureVaporator.tga",
 	'label1', "OutsideBuildings",
 	'label2', "OutsideBuildingsTargets",
@@ -3021,10 +2993,9 @@ PlaceObj('BuildingTemplate', {
 	'upgrade3_mod_prop_id_1', "water_production",
 	'upgrade3_mul_value_1', 50,
 	'maintenance_resource_type', "MachineParts",
-	'maintenance_threshold_base', 150000,
 	'display_name', T{3529, --[[BuildingTemplate WaterExtractor display_name]] "Water Extractor"},
 	'display_name_pl', T{5306, --[[BuildingTemplate WaterExtractor display_name_pl]] "Water Extractors"},
-	'description', T{5307, --[[BuildingTemplate WaterExtractor description]] "Extracts Water from underground deposits. All extractors contaminate nearby buildings with dust."},
+	'description', T{10962, --[[BuildingTemplate WaterExtractor description]] "Extracts Water from underground deposits.<newline><newline>All extractors raise dust resulting in more frequent maintenance for buildings in the grey area."},
 	'build_category', "Life-Support",
 	'display_icon', "UI/Icons/Buildings/water_extractor.tga",
 	'build_pos', 3,
@@ -3103,9 +3074,7 @@ PlaceObj('BuildingTemplate', {
 	'label1', "OutsideBuildings",
 	'palettes', "Warehouse",
 	'demolish_sinking', range(0, 0),
-	'storable_resources', {
-		"Concrete",
-	},
+	'storable_resources', {"Concrete"},
 	'max_storage_per_resource', 3950000,
 })
 
@@ -3133,9 +3102,7 @@ PlaceObj('BuildingTemplate', {
 	'label1', "OutsideBuildings",
 	'palettes', "Warehouse",
 	'demolish_sinking', range(0, 0),
-	'storable_resources', {
-		"Electronics",
-	},
+	'storable_resources', {"Electronics"},
 	'max_storage_per_resource', 3950000,
 })
 
@@ -3163,9 +3130,7 @@ PlaceObj('BuildingTemplate', {
 	'label1', "OutsideBuildings",
 	'palettes', "Warehouse",
 	'demolish_sinking', range(0, 0),
-	'storable_resources', {
-		"Food",
-	},
+	'storable_resources', {"Food"},
 	'max_storage_per_resource', 3950000,
 })
 
@@ -3193,9 +3158,7 @@ PlaceObj('BuildingTemplate', {
 	'label1', "OutsideBuildings",
 	'palettes', "Warehouse",
 	'demolish_sinking', range(0, 0),
-	'storable_resources', {
-		"Fuel",
-	},
+	'storable_resources', {"Fuel"},
 	'max_storage_per_resource', 3950000,
 })
 
@@ -3222,9 +3185,7 @@ PlaceObj('BuildingTemplate', {
 	'label1', "OutsideBuildings",
 	'palettes', "Warehouse",
 	'demolish_sinking', range(0, 0),
-	'storable_resources', {
-		"MachineParts",
-	},
+	'storable_resources', {"MachineParts"},
 	'max_storage_per_resource', 3950000,
 })
 
@@ -3252,9 +3213,7 @@ PlaceObj('BuildingTemplate', {
 	'label1', "OutsideBuildings",
 	'palettes', "Warehouse",
 	'demolish_sinking', range(0, 0),
-	'storable_resources', {
-		"Metals",
-	},
+	'storable_resources', {"Metals"},
 	'max_storage_per_resource', 3950000,
 })
 
@@ -3281,9 +3240,7 @@ PlaceObj('BuildingTemplate', {
 	'label1', "OutsideBuildings",
 	'palettes', "Warehouse",
 	'demolish_sinking', range(0, 0),
-	'storable_resources', {
-		"MysteryResource",
-	},
+	'storable_resources', {"MysteryResource"},
 	'max_storage_per_resource', 3950000,
 })
 
@@ -3311,9 +3268,7 @@ PlaceObj('BuildingTemplate', {
 	'label1', "OutsideBuildings",
 	'palettes', "Warehouse",
 	'demolish_sinking', range(0, 0),
-	'storable_resources', {
-		"Polymers",
-	},
+	'storable_resources', {"Polymers"},
 	'max_storage_per_resource', 3950000,
 })
 
@@ -3341,9 +3296,7 @@ PlaceObj('BuildingTemplate', {
 	'label1', "OutsideBuildings",
 	'palettes', "Warehouse",
 	'demolish_sinking', range(0, 0),
-	'storable_resources', {
-		"PreciousMetals",
-	},
+	'storable_resources', {"PreciousMetals"},
 	'max_storage_per_resource', 3950000,
 })
 
@@ -3882,10 +3835,9 @@ PlaceObj('BuildingTemplate', {
 	'upgrade3_mul_value_1', 50,
 	'maintenance_resource_type', "MachineParts",
 	'maintenance_resource_amount', 2000,
-	'maintenance_threshold_base', 150000,
 	'display_name', T{3527, --[[BuildingTemplate MetalsExtractor display_name]] "Metals Extractor"},
 	'display_name_pl', T{5159, --[[BuildingTemplate MetalsExtractor display_name_pl]] "Metals Extractors"},
-	'description', T{5160, --[[BuildingTemplate MetalsExtractor description]] "Extracts Metals from underground deposits. All extractors contaminate nearby buildings with dust."},
+	'description', T{10963, --[[BuildingTemplate MetalsExtractor description]] "Extracts Metals from underground deposits.<newline><newline>All extractors raise dust resulting in more frequent maintenance for buildings in the grey area."},
 	'build_category', "Production",
 	'display_icon', "UI/Icons/Buildings/metals_extractor.tga",
 	'build_pos', 4,
@@ -4018,10 +3970,9 @@ PlaceObj('BuildingTemplate', {
 	'upgrade3_mul_value_1', 50,
 	'maintenance_resource_type', "MachineParts",
 	'maintenance_resource_amount', 2000,
-	'maintenance_threshold_base', 150000,
 	'display_name', T{3530, --[[BuildingTemplate PreciousMetalsExtractor display_name]] "Rare Metals Extractor"},
 	'display_name_pl', T{5223, --[[BuildingTemplate PreciousMetalsExtractor display_name_pl]] "Rare Metals Extractors"},
-	'description', T{5224, --[[BuildingTemplate PreciousMetalsExtractor description]] "Extracts Rare Metals from underground deposits. All extractors contaminate nearby buildings with dust."},
+	'description', T{10964, --[[BuildingTemplate PreciousMetalsExtractor description]] "Extracts Rare Metals from underground deposits.<newline><newline>All extractors raise dust resulting in more frequent maintenance for buildings in the grey area."},
 	'build_category', "Production",
 	'display_icon', "UI/Icons/Buildings/universal_extractor.tga",
 	'build_pos', 5,
@@ -4088,10 +4039,9 @@ PlaceObj('BuildingTemplate', {
 	'upgrade3_mod_prop_id_1', "production_per_day1",
 	'upgrade3_mul_value_1', 50,
 	'maintenance_resource_type', "MachineParts",
-	'maintenance_threshold_base', 150000,
 	'display_name', T{5032, --[[BuildingTemplate RegolithExtractor display_name]] "Concrete Extractor"},
 	'display_name_pl', T{5033, --[[BuildingTemplate RegolithExtractor display_name_pl]] "Concrete Extractors"},
-	'description', T{5034, --[[BuildingTemplate RegolithExtractor description]] "Extracts sulfurous rich regolith from Concrete deposits and produces Concrete. All extractors contaminate nearby buildings with dust."},
+	'description', T{10965, --[[BuildingTemplate RegolithExtractor description]] "Extracts sulfurous rich regolith from Concrete deposits and produces Concrete.<newline><newline>All extractors raise dust resulting in more frequent maintenance for buildings in the grey area."},
 	'build_category', "Production",
 	'display_icon', "UI/Icons/Buildings/regolith_extractor.tga",
 	'entity', "RegolithExtractor",
@@ -4112,6 +4062,7 @@ PlaceObj('BuildingTemplate', {
 	'template_class', "UniversalStorageDepot",
 	'instant_build', true,
 	'dome_forbidden', true,
+	'use_demolished_state', false,
 	'display_name', T{5303, --[[BuildingTemplate UniversalStorageDepot display_name]] "Universal Depot"},
 	'display_name_pl', T{5304, --[[BuildingTemplate UniversalStorageDepot display_name_pl]] "Universal Depots"},
 	'description', T{5305, --[[BuildingTemplate UniversalStorageDepot description]] "Stores <resource(max_storage_per_resource)> units of each transportable resource. Some resources will be transported to other depots within Drone range."},
@@ -4139,6 +4090,7 @@ PlaceObj('BuildingTemplate', {
 	'instant_build', true,
 	'dome_forbidden', true,
 	'force_extend_bb_during_placement_checks', 2000,
+	'use_demolished_state', false,
 	'display_name', T{5051, --[[BuildingTemplate WasteRockDumpBig display_name]] "Dumping Site"},
 	'display_name_pl', T{5052, --[[BuildingTemplate WasteRockDumpBig display_name_pl]] "Dumping Sites"},
 	'description', T{5053, --[[BuildingTemplate WasteRockDumpBig description]] "Stores <wasterock(max_amount_WasteRock)>. Waste Rock is produced as side product of different mining activities."},
@@ -4153,7 +4105,7 @@ PlaceObj('BuildingTemplate', {
 	'color_modifier', RGBA(122, 85, 8, 255),
 	'count_as_building', false,
 	'exclude_from_lr_transportation', true,
-	'max_amount_WasteRock', 70000,
+	'max_amount_WasteRock', 105000,
 })
 
 PlaceObj('BuildingTemplate', {
@@ -4299,6 +4251,7 @@ PlaceObj('BuildingTemplate', {
 	'palettes', "MoholeMine",
 	'demolish_sinking', range(0, 0),
 	'demolish_tilt_angle', range(0, 0),
+	'freeze_heat', 0,
 	'electricity_consumption', 40000,
 })
 
@@ -4317,7 +4270,7 @@ PlaceObj('BuildingTemplate', {
 	'maintenance_resource_amount', 3000,
 	'display_name', T{5182, --[[BuildingTemplate OmegaTelescope display_name]] "Omega Telescope"},
 	'display_name_pl', T{5183, --[[BuildingTemplate OmegaTelescope display_name_pl]] "Omega Telescopes"},
-	'description', T{5184, --[[BuildingTemplate OmegaTelescope description]] "Peering beyond the veil of the unknown, this radio telescope gives access to new Breakthrough Technologies and boosts overall Research."},
+	'description', T{5184, --[[BuildingTemplate OmegaTelescope description]] "Peering beyond the veil of the unknown, this radio telescope gives access to new Breakthrough Technologies and reduces overall Research costs."},
 	'build_category', "Wonders",
 	'display_icon', "UI/Icons/Buildings/omega_telescope.tga",
 	'entity', "RadioDish",
@@ -4373,7 +4326,7 @@ PlaceObj('BuildingTemplate', {
 	'dome_forbidden', true,
 	'wonder', true,
 	'achievement', "BuiltSpaceElevator",
-	'use_demolished_state', true,
+	'use_demolished_state', false,
 	'maintenance_resource_type', "MachineParts",
 	'maintenance_resource_amount', 3000,
 	'display_name', T{1120, --[[BuildingTemplate SpaceElevator display_name]] "Space Elevator"},
@@ -4387,14 +4340,7 @@ PlaceObj('BuildingTemplate', {
 	'label1', "OutsideBuildings",
 	'palettes', "SpaceElevator",
 	'max_storage_per_resource', 100000000,
-	'storable_resources', {
-		"Concrete",
-		"Metals",
-		"Polymers",
-		"Food",
-		"Electronics",
-		"MachineParts",
-	},
+	'storable_resources', {"Concrete","Metals","Polymers","Food","Electronics","MachineParts"},
 	'electricity_consumption', 40000,
 	'cargo_capacity', 80000,
 })

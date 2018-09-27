@@ -30,13 +30,13 @@ else
 	if context.auto_export then
 		self:SetIcon("UI/Icons/IPButtons/automated_mode_on.tga")
 		self:SetRolloverTitle(T{7814, "Automated Mode"})
-		self:SetRolloverText(T{7816, "If Automated mode is activated the Rocket will repeatedly travel to Earth and back. It will land on the same spot and won't carry any imports or passengers from Earth. The Rocket will launch to Earth when the cargo hold is full and the rocket is refueled.\n\nCurrent status: <em>Automated Mode</em>"})
+		self:SetRolloverText(T{7816, "If Automated mode is activated the Rocket will repeatedly travel to Earth and back. It will land on the same spot and won't carry any imports or passengers from Earth. The Rocket will launch to Earth when the cargo hold is full and the rocket is refueled.\n\nCurrent status: <em><on_off(auto_export)></em>", context})
 		self:SetRolloverHint(T{10111, --[[XTemplate customSupplyRocket RolloverHint]] "<left_click> Activate Manual Mode <newline><em>"})
 		self:SetRolloverHintGamepad(T{10112, "<ButtonA> Activate Manual Mode <newline><em>"})
 	else
 		self:SetIcon("UI/Icons/IPButtons/automated_mode_off.tga")
 		self:SetRolloverTitle(T{7814, "Automated Mode"})
-		self:SetRolloverText(T{7817, "If Automated mode is activated the Rocket will repeatedly travel to Earth and back. It will land on the same spot and won't carry any imports or passengers from Earth. The Rocket will launch to Earth when the cargo hold is full and the rocket is refueled.\n\nCurrent status: <em>Manual Mode</em>"})
+		self:SetRolloverText(T{7816, "If Automated mode is activated the Rocket will repeatedly travel to Earth and back. It will land on the same spot and won't carry any imports or passengers from Earth. The Rocket will launch to Earth when the cargo hold is full and the rocket is refueled.\n\nCurrent status: <em><on_off(auto_export)></em>", context})
 		self:SetRolloverHint(T{8724, --[[XTemplate customSupplyRocket RolloverHint]] "<left_click> Activate Automated Mode <newline><em>"})
 		self:SetRolloverHintGamepad(T{10113, "<ButtonA> Activate Automated Mode <newline><em>"})
 	end

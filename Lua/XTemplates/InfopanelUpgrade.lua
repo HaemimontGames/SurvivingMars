@@ -13,6 +13,8 @@ PlaceObj('XTemplate', {
 		'LayoutMethod', "Box",
 		'Background', RGBA(0, 0, 0, 0),
 		'MouseCursor', "UI/Cursors/Rollover.tga",
+		'FXMouseIn', "MenuItemHover",
+		'FXPress', "MenuItemClick",
 		'FocusedBackground', RGBA(0, 0, 0, 0),
 		'AltPress', true,
 		'RolloverBackground', RGBA(0, 0, 0, 0),

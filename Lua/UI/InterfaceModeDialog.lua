@@ -3,7 +3,6 @@ DefineClass.InterfaceModeDialog = {
 	MouseCursor = const.DefaultMouseCursor,
 	HandleMouse = true,
 	
-	last_speed_change = 0, --used to avoid game speed jitters from accidentally pressing dpad down/up right after left/right
 	mode_name = false,
 }
 
@@ -62,19 +61,21 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 			GetDialog("Infopanel"):ShowIPRollover()
 		end
 	elseif shortcut == "-RightTrigger" then
-		if GetDialog("Infopanel") then
-			if FocusInfopanel then 
+		if FocusInfopanel then
+			if GetDialog("Infopanel") then
 				GetDialog("Infopanel"):SetFocus()
-			elseif RolloverControl == GetDialog("Infopanel") and GetDialog("Infopanel") ~= self.desktop.keyboard_focus then
+			end
+		else
+			if RolloverControl == GetDialog("Infopanel") and GetDialog("Infopanel") ~= self.desktop.keyboard_focus then
 				XDestroyRolloverWindow()
 			end
 		end
 		FocusInfopanel = false
 	--right trigger + right thumbstick (tilt camera) disables focusing the infopanel (same as infopanel quick actions)
 	elseif infopanel_focus_cancelling_shortcuts[shortcut] then
+		FocusInfopanel = false
 		local infopanel = GetDialog("Infopanel")
 		if infopanel then
-			FocusInfopanel = false
 			if RolloverControl == infopanel and IsKindOf(infopanel:GetContext(), "ResourceOverview") then
 				XDestroyRolloverWindow()
 			end
@@ -105,9 +106,6 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 	elseif shortcut == "ButtonB" then
 		if SelectedObj then
 			SelectObj(nil)
-		elseif ShowResourceOverview then
-			ShowResourceOverview = false
-			CloseResourceOverviewInfopanel()
 		end
 		return "break"
 	elseif shortcut == "ButtonY" and cursor then
@@ -162,31 +160,16 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 		
 	--DPad -> Game speed manipulation
 	elseif shortcut == "DPadLeft" then --Slow down
-		if (RealTime() - self.last_speed_change) > speed_change_block_ms then
-			ChangeGameSpeedState(-1)
-		end
-		self.last_speed_change = RealTime()
+		ChangeGameSpeedState(-1)
 		return "break"
 	elseif shortcut == "DPadRight" then --Speed up
-		if (RealTime() - self.last_speed_change) > speed_change_block_ms then
-			ChangeGameSpeedState(1)
-		end
-		self.last_speed_change = RealTime()
+		ChangeGameSpeedState(1)
 		return "break"
 	elseif shortcut == "DPadUp" then --Pause/unpause (opposite to DPadDown)
-		--restore only from paused state
-		if UISpeedState == "pause" and (RealTime() - self.last_speed_change) > speed_change_block_ms then
-			SetGameSpeedState(speed_state_before_pause)
-		end
-		self.last_speed_change = RealTime()
+		UpdateInfobarVisibility("force")
+		GetDialog("Infobar").idPad.idGridResources:SetFocus()
 		return "break"
 	elseif shortcut == "DPadDown" then --Pause/unpause (opposite to DPadUp)
-		--prevent speed_state_before_pause to get "pause" value
-		if UISpeedState ~= "pause" and (RealTime() - self.last_speed_change) > speed_change_block_ms then
-			speed_state_before_pause = UISpeedState
-			SetGameSpeedState("pause")
-		end
-		self.last_speed_change = RealTime()
 		return "break"
 		
 	--Object cycling using thumb-stick clicks
@@ -202,9 +185,17 @@ end
 function InterfaceModeDialog:OnSetFocus()
 	local pins = GetDialog("PinsDlg")
 	if pins then pins:UpdateGamepadHint() end
+	local notifs = GetDialog("OnScreenNotificationsDlg")
+	if notifs then notifs:UpdateGamepadHint() end
+	local infobar = GetDialog("Infobar")
+	if infobar then infobar:UpdateGamepadHint() end
 end
 
 function InterfaceModeDialog:OnKillFocus()
 	local pins = GetDialog("PinsDlg")
 	if pins then pins:UpdateGamepadHint() end
+	local notifs = GetDialog("OnScreenNotificationsDlg")
+	if notifs then notifs:UpdateGamepadHint() end
+	local infobar = GetDialog("Infobar")
+	if infobar then infobar:UpdateGamepadHint() end
 end

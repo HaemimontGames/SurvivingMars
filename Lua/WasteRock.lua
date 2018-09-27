@@ -201,7 +201,6 @@ end
 
 function WasteRockObstructor:TransformToStockpile(drone)
 	local pos = self:GetPos() --cache
-	local teleported = false
 	local was_underneath_constr = self:IsUnderneathConstruction()
 	local parent_constructions = self.parent_construction
 	self.parent_construction = false --suppress destructor
@@ -225,20 +224,6 @@ function WasteRockObstructor:TransformToStockpile(drone)
 								apply_to_grids = snap_and_apply,
 								snap_to_grid = snap_and_apply,
 								additional_supply_flags = const.rfSpecialDemandPairing + (was_underneath_constr and const.rfCanExecuteAlone or 0)})
-			
-			if drone then
-				local obj = parent_constructions[1]
-				local p_shape = GetEntityPeripheralHexShape(obj:GetEntity())
-				if #p_shape == 6 then p_shape = HexSurroundingsCheckShapeLarge end --1 hex buildings can get surrounded pretty quickly so extend the search.
-				local res
-				local q, r = WorldToHex(obj)
-				res, q, r = TryFindStockpileDumpSpot(q, r, obj:GetAngle(), p_shape, HexGetAnyObj, true)
-				if res then
-					teleported = true
-					local x, y = HexToWorld(q, r)
-					pos = point(x, y)
-				end
-			end	
 			stock:SetPos(pos:SetTerrainZ())
 		end
 		
@@ -246,7 +231,7 @@ function WasteRockObstructor:TransformToStockpile(drone)
 		local parents_to_give_to_stock = {}
 		for i = 1, #(parent_constructions or "") do
 			local send_stock = nil
-			if was_underneath_constr and was_underneath_constr == parent_constructions[i] and not teleported then
+			if was_underneath_constr and was_underneath_constr == parent_constructions[i] then
 				send_stock = stock
 				table.insert(parents_to_give_to_stock, parent_constructions[i])
 			end
@@ -479,9 +464,6 @@ DefineClass.DumpSiteWithAttachedVisualPilesBase = {
 	dome_label = false,
 }
 
-DumpSiteWithAttachedVisualPilesBase.PairRequests = empty_func
-DumpSiteWithAttachedVisualPilesBase.SetDesiredAmount = empty_func
-
 function DumpSiteWithAttachedVisualPilesBase:Init()
 	--self.exploitation_resource = self.resource
 	self.stockpiled_resource = self.resource
@@ -614,8 +596,11 @@ function WasteRockDumpSite:CreateResourceRequests()
 	Building.CreateResourceRequests(self)
 	self.demand = {}
 	self.supply = {}
-	self.demand["WasteRock"] = self:AddDemandRequest("WasteRock", self.max_amount_WasteRock, const.rfStorageDepot + const.rfRestrictorWasteRockDump)
-	self.supply["WasteRock"] = self:AddSupplyRequest("WasteRock", 0, const.rfStorageDepot)
+	local s = self:AddDemandRequest("WasteRock", self.max_amount_WasteRock, const.rfStorageDepot + const.rfRestrictorWasteRockDump)
+	local d = self:AddSupplyRequest("WasteRock", 0, const.rfStorageDepot)
+	self.demand["WasteRock"] = s
+	self.supply["WasteRock"] = d
+	s:SetReciprocalRequest(d)
 	if g_WasteRockLiquefaction then
 		self.supply["Concrete"] = self:AddSupplyRequest("Concrete", 0, const.rfWaitToFill)
 	end

@@ -13,7 +13,6 @@ function OpenPhotoMode(challenge_id)
 	g_PrePhotoModeStoredVisuals = {}
 	
 	if challenge_id then
-		GalleryMountMemFs()
 		g_PhotoModeChallengeId = challenge_id
 	end
 	
@@ -29,10 +28,6 @@ function OpenPhotoMode(challenge_id)
 		CloseIngameMainMenu() --could have been opened by the user during camera transition
 		OpenDialog("PhotoMode")
 	end)
-end
-
-local function ChallengeShotSaveCallback(folder)
-	return CopyFile("scratch/shot.png", folder .. "/shot.png")
 end
 
 function ClosePhotoMode()
@@ -196,8 +191,12 @@ end
 
 function PhotoModeTake()
 	g_PhotoModeShotThread = IsValidThread(g_PhotoModeShotThread) and g_PhotoModeShotThread or CreateMapRealTimeThread(function()
+		local dlg = GetDialog("PhotoMode")
 		if g_PhotoModeChallengeId then
 			GalleryTakeScreenshot()
+			if dlg then
+				dlg:BlinkFilePath(_InternalTranslate(T{1000015, "Success"}))
+			end
 		else
 			g_PhotoModeShotNum = g_PhotoModeShotNum or 0
 			local folder = "AppPictures/"
@@ -216,7 +215,6 @@ function PhotoModeTake()
 			MovieWriteScreenshot(folder .. proposed_name, 0, 32, false, width, height)
 			UnlockCamera("Screenshot")
 			g_PhotoModeShotNum = g_PhotoModeShotNum + 1
-			local dlg = GetDialog("PhotoMode")
 			if dlg then
 				dlg:BlinkFilePath(ConvertToOSPath(folder .. proposed_name))
 			end
@@ -236,10 +234,6 @@ function PhotoObjectCreateAndLoad()
 		end
 	end
 	PropertyObject.SetProperty(obj, "timeOfDay", UICity.hour * const.MinutesPerHour + UICity.minute)
-	PropertyObject.SetProperty(obj, "fogDensity", CurrentLightmodel[1].fog_density)
-	PropertyObject.SetProperty(obj, "bloomStrength", CurrentLightmodel[1].pp_bloom_strength)
-	PropertyObject.SetProperty(obj, "exposure", CurrentLightmodel[1].exposure)
-	PropertyObject.SetProperty(obj, "vignette", CurrentLightmodel[1].vignette)
 	PhotoModeObj = obj
 	PhotoModeObj.initial_time_factor = GetTimeFactor()
 	return obj
@@ -272,18 +266,18 @@ DefineClass.PhotoModeObject = {
 	__parents = {"PropertyObject"},
 	properties =
 	{
-		{ name = T{3451, "FOV"}, id = "fov", editor = "number", default = const.Camera.DefaultFovX_16_9, slider = true, min = 20*60, max = 120*60, scale = 60, dont_save = true, step = function() return GetUIStyleGamepad() and 300 or 1 end, dpad_only = true, },
+		{ name = T{3451, "FOV"}, id = "fov", editor = "number", default = const.Camera.DefaultFovX_16_9, slider = true, min = 20*60, max = 120*60, scale = 60, step = function() return GetUIStyleGamepad() and 300 or 1 end, dpad_only = true, },
 		{ name = T{3452, "Time of day"}, id = "timeOfDay", editor = "number", default = 0, slider = true, min = 0, max = const.HoursPerDay * const.MinutesPerHour, dont_save = true, filter = function() return GetTimeFactor() == 0 end, step = function() return GetUIStyleGamepad() and 20 or 1 end, dpad_only = true, },
 		{ name = T{3453, "Gameplay Indicators"}, id = "toggleSigns", editor = "bool", default = true },
 		{ name = T{8712, "Free Camera"}, id = "freeCamera", editor = "bool", default = false, dont_save = true, },
 		{ name = T{3454, "Photo Filter"}, id = "filter", editor = "dropdown", default = "None", items = GetPhotoModeFilters },
-		{ name = T{3455, "Vignette"}, id = "vignette", editor = "number", slider = true, default = 0, min = 0, max = 255, dont_save = true, step = function() return GetUIStyleGamepad() and 10 or 1 end, dpad_only = true, },
-		{ name = T{3456, "Exposure"}, id = "exposure", editor = "number", slider = true, default = 0, min = -255, max = 255, dont_save = true, step = function() return GetUIStyleGamepad() and 20 or 1 end, dpad_only = true, },
-		{ name = T{3457, "Fog Density"}, id = "fogDensity", editor = "number", slider = true, default = 0, min = 0, max = 1000, dont_save = true, step = function() return GetUIStyleGamepad() and 50 or 1 end, dpad_only = true, },
-		{ name = T{8656, "Depth of Field"}, id = "depthOfField", editor = "number", slider = true, default = 50, min = 0, max = 100, dont_save = true, step = 1, dpad_only = true },
-		{ name = T{8657, "Focus Depth"}, id = "focusDepth", editor = "number", slider = true, default = 50, min = 0, max = 100, dont_save = true, step = 1, dpad_only = true },
-		{ name = T{8658, "Defocus Strength"}, id = "defocusStrength", editor = "number", slider = true, default = 0, min = 0, max = 100, dont_save = true, step = 1, dpad_only = true },
-		{ name = T{3458, "Bloom Strength"}, id = "bloomStrength", editor = "number", slider = true, default = 0, min = 0, max = 100, dont_save = true, step = function() return GetUIStyleGamepad() and 5 or 1 end, dpad_only = true, },
+		{ name = T{3455, "Vignette"}, id = "vignette", editor = "number", slider = true, default = 0, min = 0, max = 255, step = function() return GetUIStyleGamepad() and 10 or 1 end, dpad_only = true, },
+		{ name = T{3456, "Exposure"}, id = "exposure", editor = "number", slider = true, default = 0, min = -255, max = 255, step = function() return GetUIStyleGamepad() and 20 or 1 end, dpad_only = true, },
+		{ name = T{3457, "Fog Density"}, id = "fogDensity", editor = "number", slider = true, default = 0, min = 0, max = 1000, step = function() return GetUIStyleGamepad() and 50 or 1 end, dpad_only = true, },
+		{ name = T{8656, "Depth of Field"}, id = "depthOfField", editor = "number", slider = true, default = 50, min = 0, max = 100, step = 1, dpad_only = true },
+		{ name = T{8657, "Focus Depth"}, id = "focusDepth", editor = "number", slider = true, default = 50, min = 0, max = 100, step = 1, dpad_only = true },
+		{ name = T{8658, "Defocus Strength"}, id = "defocusStrength", editor = "number", slider = true, default = 0, min = 0, max = 100, step = 1, dpad_only = true },
+		{ name = T{3458, "Bloom Strength"}, id = "bloomStrength", editor = "number", slider = true, default = 0, min = 0, max = 100, step = function() return GetUIStyleGamepad() and 5 or 1 end, dpad_only = true, },
 	},
 	initial_time_factor = 0,
 }
@@ -292,6 +286,18 @@ function PhotoModeObject:SetProperty(id, value)
 	local ret = PropertyObject.SetProperty(self, id, value)
 	PhotoModeApply(self, id)
 	return ret
+end
+
+function PhotoModeObject:ResetProperties()
+	for i, prop in ipairs(self:GetProperties()) do
+		if not prop.dont_save then
+			self:SetProperty(prop.id, nil)
+		end
+	end
+	self:SetProperty("fogDensity", CurrentLightmodel[1].fog_density)
+	self:SetProperty("bloomStrength", CurrentLightmodel[1].pp_bloom_strength)
+	self:SetProperty("exposure", CurrentLightmodel[1].exposure)
+	self:SetProperty("vignette", CurrentLightmodel[1].vignette)
 end
 
 function PhotoModeObject:Save()
@@ -321,15 +327,34 @@ end
 
 -- gallery-related
 
-function GalleryMountMemFs()
-	if not io.exists("scratch") then
-		MountMemoryFS("scratch", 32*1024*1024)
-	end
-end
-
 function GalleryWriteLastScreenshot(id)
-	if io.exists("scratch/shot.png") then
-		Savegame.WithTag("gallery", id, ChallengeShotSaveCallback)
+	local list = io.listfiles("memoryscreenshot")
+	for _, name in ipairs(list) do
+		local path, file, ext = SplitPath(name)
+		if ext == ".jpg" then
+			if Platform.console then
+				local err, saves = Savegame.ListForTag("gallery")
+				if not err then
+					local item, idx
+					while true do
+						item, idx = table.find_value(saves, "displayname", id)
+						if not item then break end
+						Savegame.Delete(item.savename)
+						table.remove(saves, idx)
+					end
+				end
+			end
+			Savegame.WithTag("gallery", id, function(folder)
+				local shots = io.listfiles(folder, "*.jpg")
+				for _, file in ipairs(shots) do
+					AsyncFileDelete(file)
+				end
+				AsyncCopyFile(name, folder .. file .. ext)
+			end, nil, "force overwrite")
+			SavegamesList:Reset()
+			AsyncFileDelete(name)
+			break
+		end
 	end
 	Msg("ChallengeScreenshotSaved", id)
 end
@@ -339,7 +364,8 @@ function GalleryTakeScreenshot()
 	local width, height = GetResolution()
 	WaitNextFrame(3)
 	LockCamera("Screenshot")
-	MovieWriteScreenshot("scratch/shot.png", 0, 32, false, width, height)
+	local name = string.format("memoryscreenshot/shot%dx%d.jpg", width, height)
+	WaitCaptureScreenshot(name, {interface = false, width = width, height = height})
 	UnlockCamera("Screenshot")
 end
 
@@ -350,7 +376,6 @@ function GallerySaveDefaultScreenshot(id)
 		Pause("GalleryDefaultScreenshot")
 		SetTimeFactor(0, "sync")
 		
-		GalleryMountMemFs()
 		GalleryTakeScreenshot()
 		GalleryWriteLastScreenshot(id)
 		

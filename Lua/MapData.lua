@@ -8,14 +8,14 @@ table.append(MapDataClass.properties, {
 	
 	{ category = "Prefab", id = "weight",               editor = "number",       default = 100,           min = 0 },
 	{ category = "Prefab", id = "challenge_rating",     editor = "number",       default = 0,              },
-	{ category = "Prefab", id = "map_location",         editor = "table",        default = false,         indent = ' '},
+	{ category = "Prefab", id = "map_location",         editor = "prop table",        default = false,         indent = ' '},
 	{ category = "Prefab", id = "map_altitude",         editor = "range",        default = range(0, 255), min = 0, max = 255, },
-	{ category = "Prefab", id = "type_info",            editor = "table",        default = false,         read_only = true },
+	{ category = "Prefab", id = "type_info",            editor = "prop table",        default = false,         read_only = true },
 	{ category = "Prefab", id = "terrain_hash",         editor = "number",       default = false,         read_only = true },
 	
 	{ category = "Dev", id = "StartMystery", editor = "bool",         default = false, },
 	{ category = "Dev", id = "DisableHints", editor = "bool",         default = false, },
-	{ category = "Dev", id = "TechState",    editor = "table",        default = false, indent = ' ' },
+	{ category = "Dev", id = "TechState",    editor = "prop table",        default = false, indent = ' ' },
 })
 
 function OnMsg.DataLoaded()

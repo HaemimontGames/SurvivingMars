@@ -69,10 +69,14 @@ if not self.idActionBar:GetVisible() and (shortcut == "Start" or shortcut == "Bu
 	self:ToggleUI()
 	return "break"
 elseif cameraFly.IsActive() and (shortcut == "Alt" or shortcut == "LeftTrigger") then
-	SetMouseDeltaMode(false)
+	if g_MouseConnected then
+		SetMouseDeltaMode(false)
+	end
 	return "break"
 elseif cameraFly.IsActive() and (shortcut == "-Alt" or shortcut == "-LeftTrigger") then
-	SetMouseDeltaMode(true)
+	if g_MouseConnected then
+		SetMouseDeltaMode(true)
+	end
 	return "break"
 end
 return XDialog.OnShortcut(self, shortcut, source)
@@ -110,8 +114,7 @@ end,
 					'__class', "XLabel",
 					'Dock', "top",
 					'HAlign', "right",
-					'TextFont', "PGModTitle",
-					'TextColor', RGBA(119, 198, 255, 255),
+					'TextStyle', "OverlayTitle",
 					'Translate', true,
 					'Text', T{919878375490, --[[XTemplate PhotoMode Text]] "PHOTO MODE"},
 				}),
@@ -277,7 +280,7 @@ end,
 				'ShadowSize', 1,
 				'ShadowColor', RGBA(0, 0, 0, 255),
 				'Translate', true,
-				'Text', T{522319645304, --[[XTemplate PhotoMode Text]] "<em><ShortcutName('actionPanUp')>, <ShortcutName('actionPanDown')>, <ShortcutName('actionPanLeft')>, <ShortcutName('actionPanRight')></em> - move, hold <em>Ctrl</em> - move faster, hold <em>Alt</em> - release mouse cursor."},
+				'Text', T{522319645304, --[[XTemplate PhotoMode Text]] "<em><ShortcutName('actionPanUp')>, <ShortcutName('actionPanDown')>, <ShortcutName('actionPanLeft')>, <ShortcutName('actionPanRight')></em> Move, hold <em>Ctrl</em> Move faster, hold <em>Alt</em> Release mouse cursor."},
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__condition', function (parent, context) return GetUIStyleGamepad() end,
@@ -295,6 +298,16 @@ end,
 				'ShadowColor', RGBA(0, 0, 0, 255),
 				'Translate', true,
 				'Text', T{650277449050, --[[XTemplate PhotoMode Text]] "<LS> - move, <RS> - rotate."},
+			}),
+			PlaceObj('XTemplateAction', {
+				'ActionId', "idReset",
+				'ActionName', T{5469, --[[XTemplate PhotoMode ActionName]] "RESET"},
+				'ActionToolbar', "ActionBar",
+				'ActionGamepad', "LeftShoulder",
+				'OnAction', function (self, host, source)
+host.context:ResetProperties()
+host.idList:RespawnContent()
+end,
 			}),
 			PlaceObj('XTemplateAction', {
 				'ActionId', "idTakeScreenshot",

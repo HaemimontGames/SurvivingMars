@@ -130,9 +130,13 @@ g_TutorialScenarios.Tutorial5 = function()
 				if GetInGameInterfaceMode() == "construction" then
 					return false
 				end	
-				if not Dialogs.XBuildMenu then 
-					local dlg = GetDialog("HUD")
-					return dlg and dlg.idBuild or false
+				if not Dialogs.XBuildMenu then
+					if not g_RightClickOpensBuildMenu then
+						local dlg = GetDialog("HUD")
+						return dlg and dlg.idBuild or false
+					else
+						return false
+					end
 				end			
 				if Dialogs.XBuildMenu:HasMember(item) then
 					return Dialogs.XBuildMenu[item].enabled and Dialogs.XBuildMenu[item] or false

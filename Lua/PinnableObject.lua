@@ -24,12 +24,48 @@ DefineClass.PinnableObject = {
 	show_pin_toggle = true,
 }
 
+local Map_Loading = false
 GlobalVar("g_PinnedObjs", {})
 
 function PinnableObject:GameInit()
-	if self.pin_on_start then
+	if self.pin_on_start then 
+		if Map_Loading or self:AutoPinAvailable() then 
+			self:TogglePin()
+		end
+	end 
+--so far founders were not set up as pin_on_start type of colonist soo have to check separately for them.
+	if #g_PinnedObjs < AccountStorage.Options.AutoPinMaxNum and AccountStorage.Options.AutoPinFounders and
+			not self.is_pinned and self:IsKindOf("Colonist") and self.traits.Founder then
 		self:TogglePin()
 	end
+end
+
+function PinnableObject:AutoPinAvailable()
+	local options = AccountStorage.Options
+	local pin_it = true
+
+	if #g_PinnedObjs >= AccountStorage.Options.AutoPinMaxNum then 
+		return false
+	end
+	
+	if ( self:IsKindOf("Dome") and not options.AutoPinDomes ) or
+		( self:IsKindOf("DroneHub") and not options.AutoPinDroneHubs ) or 
+		( self:IsKindOf("BaseRover") and not options.AutoPinRovers ) then  
+			pin_it = false
+	elseif self:IsKindOf("Colonist") then
+		local colonist_traits = self.traits
+		if colonist_traits.Founder and not options.AutoPinFounders then
+			pin_it = false
+		elseif not options.AutoPinRareColonists then
+			for _, trait in pairs(colonist_traits) do
+				if g_RareTraits[trait] then
+					pin_it = false
+					break
+				end
+			end						
+		end
+	end
+	return pin_it
 end
 
 function PinnableObject:Done()
@@ -61,12 +97,14 @@ function PinnableObject:GetPinSummary()
   end
 end
 
-function PinnableObject:TogglePin()
+function PinnableObject:TogglePin(force)
 	local pins_dlg = OpenDialog("PinsDlg", GetInGameInterface())
 	if self:IsPinned() then
-		self.is_pinned = false
-		table.remove_entry(g_PinnedObjs, self)
-		if pins_dlg then pins_dlg:Unpin(self) end
+		if self:CanBeUnpinned() or force then
+			self.is_pinned = false
+			table.remove_entry(g_PinnedObjs, self)
+			if pins_dlg then pins_dlg:Unpin(self) end
+		end
 	else
 		assert(IsValid(self), "Pinning an invalid object")
 		self.is_pinned = true
@@ -80,6 +118,10 @@ function PinnableObject:IsPinned()
 	return self.is_pinned
 end
 
+function PinnableObject:CanBeUnpinned()
+	return true
+end
+
 function PinnableObject:OnPinClicked(gamepad)
 	-- return true to disable the standard select/view funcionality of the pin dialog
 end
@@ -90,12 +132,19 @@ function OnMsg.LoadGame()
 	end
 end
 
-function UnpinAll()
-	local pins_dlg = OpenDialog("PinsDlg", GetInGameInterface())
+function UnpinAll(force)
 	for i=#g_PinnedObjs,1,-1 do
 		local obj = g_PinnedObjs[i]
-		obj.is_pinned = false
-		g_PinnedObjs[i] = nil
-		if pins_dlg then pins_dlg:Unpin(obj) end
+		if force or obj:CanBeUnpinned() then 
+			obj:TogglePin(force)
+		end
 	end
+end
+
+function OnMsg.ChangeMap()
+	Map_Loading = true
+end
+
+function OnMsg.ChangeMapDone()
+	Map_Loading = false
 end

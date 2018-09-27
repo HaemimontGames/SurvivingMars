@@ -82,8 +82,7 @@ DefineClass.RCRover =
 	siege_destro_pushed = false,
 
 	palettes = { "RCRover" },
-	
-	affected_by_no_battery_tech = true,
+
 	
 	Getavailable_drone_prefabs = Building.Getavailable_drone_prefabs,
 	exit_drones_thread = false,
@@ -210,12 +209,10 @@ function RCRover:DroneEnter(drone, skip_visuals)
 		local is_in_drone_command_thread = CurrentThread() == drone.command_thread
 		if is_in_drone_command_thread then
 			drone:PushDestructor(function(drone)
-				if not IsValid(drone) then
-					if self.guided_drone == drone then self.guided_drone = false end
-					table.remove_entry(self.embarking_drones, drone)
-					self:WakeFromWaitingOnDroneToEnterOrExit()
-					self:WakeFromUnsiegeMode()
-				end
+				if self.guided_drone == drone then self.guided_drone = false end
+				table.remove_entry(self.embarking_drones, drone)
+				self:WakeFromWaitingOnDroneToEnterOrExit()
+				self:WakeFromUnsiegeMode()
 			end)
 		end
 		
@@ -386,18 +383,8 @@ function RCRover:InterupIncomingDronesForRecharge()
 	end
 end
 
-function RCRover:HasEnoughBatteryToChargeDrone()
-	return self.battery_current > (5 * self.battery_max / 100)
-end
-
 function RCRover:IsRechargerWorking()
-	return self.working and self:HasEnoughBatteryToChargeDrone()
-end
-
-function RCRover:OnBatteryChanged(chng)
-	if chng < 0 and not self:HasEnoughBatteryToChargeDrone() and self:HasIncomingRechargeDrones() then
-		self:InterupIncomingDronesForRecharge()
-	end
+	return self.working
 end
 
 function RCRover:SetWorking(...)
@@ -514,6 +501,8 @@ function RCRover:ExitAllDrones()
 		self.exit_drones_thread = CurrentThread()
 	end
 	
+	self:CleanupGuidedDrones()
+	
 	while #self.attached_drones > 0 and self.siege_state_name == "Siege" do
 		local drone = self.attached_drones[#self.attached_drones]
 		if IsValid(drone) then
@@ -549,6 +538,25 @@ function RCRover:GetSelectionRadiusScale()
 	end
 end
 
+function SavegameFixups.CleanStuckGuidedDrones()
+	MapForEach("map", "RCRover", RCRover.CleanupGuidedDrones)
+end
+
+function RCRover:CleanupGuidedDrones()
+	if self.guided_drone and not table.find(self.drones, self.guided_drone) then
+		print("RCRover: Guided drone has failed to clear")
+		self.guided_drone = false
+	end
+	
+	for i = #self.embarking_drones, 1, -1 do
+		local d = self.embarking_drones[i]
+		if not table.find(self.drones, d) then
+			print("RCRover: embarking_drones drone has failed to clear")
+			table.remove(self.embarking_drones, i)
+		end
+	end	
+end
+
 function RCRover:Unsiege()
 	self.siege_state_name = "Unsiege"
 	PlayFX("RoverUnsiege", "start", self)
@@ -559,9 +567,11 @@ function RCRover:Unsiege()
 		self:SetState("deployIdle", const.eDontCrossfade)
 	end
 	
+	self.last_guided_drone = IsValid(self.last_guided_drone) and table.find(self.drones, self.last_guided_drone) and self.last_guided_drone or false
 	self.guided_drone = self.guided_drone or self.last_guided_drone or false
 	self.last_guided_drone = false
 	self.waiting_on_drones = 0
+	self:CleanupGuidedDrones()
 	
 	for i = #self.drones, 1, -1 do
 		local drone = self.drones[i]
@@ -824,28 +834,6 @@ function RCRover:GetEmptyStorage(resource)
 	return self.resource_capacity[resource] - self.resource_storage[resource]
 end
 
-function RCRover:Work(request, resource, amount)
-	local building = request:GetBuilding()
-	if not building then
-		Sleep(1000)
-		return
-	end
-	self:PushDestructor(function(self)
-		self.resource = false
-	end)
-	self.resource = resource
-	self.amount = amount
-	self:Gossip("Work", building:GossipName(), building.handle, resource, amount)
-	if not building:DroneApproach(self, resource) then
-		self:PopAndCallDestructor()
-		Sleep(1000)
-		return
-	end
-	self:Gossip("working", building:GossipName(), building.handle, resource, amount)
-	building:RoverWork(self, request, resource, amount)
-	self:PopAndCallDestructor()
-end
-
 function RCRover:SetCommand(command, ...)
 	if command == "Malfunction" and self.command == "Malfunction" then
 		return
@@ -934,15 +922,11 @@ function RCRover:Idle()
 		if not self.siege_destro_pushed then
 			self:Siege(true)
 		end
-		while true do
-			self:TryRechargeFromIdle()
-			WaitWakeup(99999999)
-		end
+		Halt()
 	else
 		if self:AreThereDronesOutside() then
 			self:SetCommand("Unsiege")
 		else
-			self:TryRechargeFromIdle()
 			Halt()
 		end
 	end
@@ -963,11 +947,6 @@ function RCRover:RepairDrone(drone, power)
 	end
 	
 	local drone_initial_battery = drone.battery
-	self:PushDestructor(function(self)
-		if drone.battery > drone_initial_battery then
-			self:ApplyBatteryChange(-g_Consts.RCRoverDroneRechargeCost)
-		end
-	end)
 	BaseRover.RepairDrone(self, drone, power, false)
 	self:PopAndCallDestructor()
 	
@@ -998,11 +977,8 @@ function RCRover:AbandonAllDrones()
 	DroneControl.AbandonAllDrones(self)
 end
 
-function RCRover:OnBatteryDrained()
-	self:AbandonAllDrones()
-end
-
 RCRover.OnDead = RCRover.AbandonAllDrones
+RCRover.OnDisappear = RCRover.AbandonAllDrones
 
 ----------------------------------------------------------------------------
 --                        Info panel
@@ -1114,8 +1090,6 @@ end
 function RCRover:GetDronesStatusText()
 	if self.command == "Malfunction" then
 		return T{4480, "RC Commander has malfunctioned and is awaiting repairs."}
-	elseif self.command == "NoBattery" then
-		return T{4481, "RC Commander is out of battery and cannot give new orders to controlled Drones."}
 	elseif not self.sieged_state then
 		return T{10091, "Drones have been recalled in the RC Commander"}
 	elseif not self.working then

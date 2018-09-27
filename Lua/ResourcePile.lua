@@ -78,7 +78,7 @@ function SpawnResourcePile(piles, res, amount, pos)
 	if amount<=0 then return end
 	local pt
 	for i = 1, 200 do
-		pt = GetRandomPassablePos(10*guim, 0*guim, pos)
+		pt = GetRandomPassableAround(pos, 10*guim)
 		local bover = false
 		for j=1, #piles do
 			if piles[j]:GetDist2D(pt) < 1*guim then

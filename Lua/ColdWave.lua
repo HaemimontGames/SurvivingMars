@@ -104,7 +104,7 @@ GlobalGameTimeThread("ColdWave", function()
 			else
 				local warn_time = GetDisasterWarningTime(cold_wave)
 				if GameTime() - start_time > wait_time - warn_time then
-					AddDisasterNotification("ColdWave", {start_time = GameTime(), expiration = warn_time})
+					AddDisasterNotification("ColdWave2", {start_time = GameTime(), expiration = warn_time, early_warning = GetEarlyWarningText(warn_time) , num_of_sensors = GetTowerCountText() })
 					ShowDisasterDescription("ColdWave")
 					WaitMsg("TriggerColdWave", wait_time - (GameTime() - start_time))
 					while IsDisasterActive() do
@@ -235,6 +235,20 @@ function CheatColdWave(setting)
 			StartColdWave(data[setting] or data["ColdWave_VeryLow"])
 		end)
 	end
+end
+
+function CheatDisasterWarning()
+	if IsDisasterPredicted() then 
+		return 
+	end
+	local disaster = "ColdWave2"
+	local cold_wave = GetColdWaveDescr()
+	if not cold_wave then
+		return
+	end	
+	local warn_time = GetDisasterWarningTime(cold_wave)
+	AddDisasterNotification(disaster, {start_time = GameTime(), expiration = warn_time, early_warning = GetEarlyWarningText(warn_time), num_of_sensors = GetTowerCountText() })
+	ShowDisasterDescription(disaster)
 end
 
 function StopColdWave()

@@ -6,6 +6,7 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateWindow', {
 		'__context', function (parent, context) return PGMissionObjectCreateAndLoad() end,
 		'__class', "XDialog",
+		'Id', "PGMission",
 		'InitialMode', "sponsor",
 		'InternalModes', "sponsor,payload,landing",
 	}, {
@@ -29,13 +30,14 @@ self:CreateThread("FadeThread", function(self, ...)
 		Sleep(450)
 	end
 	XDialog.SetMode(self, ...)
+	ObjModified(g_TitleObj)
 	fade_window:SetVisible(false)
 	Sleep(450)
 end, self, ...)
 end,
 		}),
 		PlaceObj('XTemplateLayer', {
-			'layer', "DifficultyBonus",
+			'layer', "TitleLayer",
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XContentTemplate",

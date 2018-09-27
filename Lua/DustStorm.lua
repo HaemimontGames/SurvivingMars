@@ -113,9 +113,9 @@ function FuelExplosion(obj)
 end
 
 function StartDustStorm(storm_type, dust_storm)
-	g_DustStorm = { type = storm_type, descr = dust_storm, start_time = GameTime() }
 	local duration = UICity:Random(dust_storm.min_duration, dust_storm.max_duration)
-	Msg("DustStorm", duration)
+	g_DustStorm = { type = storm_type, descr = dust_storm, start_time = GameTime(), duration = duration }
+	Msg("DustStorm")
 	RemoveDisasterNotifications()
 	local preset = storm_type .. "DustStormDuration"
 	AddDisasterNotification(preset, {start_time = GameTime(), expiration = duration})
@@ -285,7 +285,7 @@ GlobalGameTimeThread("DustStorm", function()
 			else
 				local warn_time = GetDisasterWarningTime(dust_storm)
 				if GameTime() - start_time > wait_time - warn_time then
-					AddDisasterNotification(g_DustStormType .. "DustStorm", {start_time = GameTime(), expiration = warn_time})
+					AddDisasterNotification(g_DustStormType .. "DustStorm2", {start_time = GameTime(), expiration = warn_time, early_warning = GetEarlyWarningText(warn_time) , num_of_sensors = GetTowerCountText() })
 					ShowDisasterDescription("DustStorm")
 					WaitMsg("TriggerDustStorm", wait_time - (GameTime() - start_time))
 					while IsDisasterActive() do

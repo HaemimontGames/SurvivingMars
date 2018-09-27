@@ -28,7 +28,6 @@ PlaceObj('Scenario', {
 		}),
 		PlaceObj('SA_WaitMarsTime', {
 			'duration', 30000,
-			'rand_duration', 60000,
 		}),
 		PlaceObj('SA_WaitMessage', {
 			'title', T{6083, --[[Scenario Mystery 4 title]] "Inner Light: The Advent"},
@@ -69,7 +68,6 @@ PlaceObj('Scenario', {
 		}),
 		PlaceObj('SA_WaitMarsTime', {
 			'duration', 30000,
-			'rand_duration', 60000,
 		}),
 		PlaceObj('SA_WaitMessage', {
 			'title', T{6091, --[[Scenario Mystery 4 title]] "Inner Light: Childhood's End"},
@@ -83,6 +81,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7204, --[[voice:narrator]] "Lea. Her name comes back to you as she looks toward the horizon, frowning."},
 			'text', T{6094, --[[Scenario Mystery 4 text]] "“Kal, another dust storm is coming. Let's finish with these moss veins and get back inside.” You clench the rope with your six-digit, two-thumb hands and start climbing towards the last of the moss veins which keeps the bark of Home healthy and alive.\n\n“This one is almost completely dry, too.” You speak out, which upsets your sister. You remember that speaking words instead of sending them had always been an expression of deep, uncontrollable feelings. “Only four dozen out of three hundred are still alive. I fear Home will not survive for much longer. Mother would be devastated.”\n\nYou both enter Home in grim silence. As you enter the dim-lit hollow, the mirage fades and you wake up in your chair."},
 			'image', "UI/Messages/inner_light_mystery_01.tga",
+			'start_minimized', false,
 			'choice1', T{6095, --[[Scenario Mystery 4 choice1]] "Wake Up"},
 		}),
 		PlaceObj('SA_WaitMsg', {
@@ -171,6 +170,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7208, --[[voice:narrator]] "The Watcher senses your approach, turning to face you before you can so much as utter a word."},
 			'text', T{6106, --[[Scenario Mystery 4 text]] "“Kal, I already know what’s bothering you. Or you presumed that such an obvious thought wouldn’t have surfaced? Of course not. Anyway, I strongly recommend you not to give way to such… lowly concerns. Kal, look at me. Do you truly believe the lies your Mother has fed into your heart? Do you believe that the Authority would allow their people to die in vain? These thoughts are forbidden and you know what the punishment is…”\n\nYou shiver when he mentions it. He smiles at your reaction.\n\n“You have been such a good steward all these years, and I know that you would never betray my trust. This nonsense ends now. Do we have an agreement, Kal?”\n\nYou hear yourself whisper, “Yes, Watcher.”"},
 			'image', "UI/Messages/inner_light_mystery_01.tga",
+			'start_minimized', false,
 			'choice1', T{6093, --[[Scenario Mystery 4 choice1]] "Continue..."},
 		}),
 		PlaceObj('SA_WaitChoice', {
@@ -178,6 +178,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7209, --[[voice:narrator]] "Later that evening you stand next to the Watcher as he gives a speech before the Chamber of Labor."},
 			'text', T{6107, --[[Scenario Mystery 4 text]] "The event is purely for show, as is the enthusiasm with which the public applauds the Watcher’s last words. Not that they have any other option – any misdemeanor is an instant trip to the reeducation stations.\n\nYou can see some people in the crowd who are Clan representatives from the neighboring farms. Almost the entire region is gathered here. You have to show them the truth – that the Authority doesn't care about them, that they are alone. Maybe then it would make a change!"},
 			'image', "UI/Messages/inner_light_mystery_01.tga",
+			'start_minimized', false,
 			'choice1', T{6108, --[[Scenario Mystery 4 choice1]] "You jump out in front and telepathically project the message."},
 			'choice2', T{6109, --[[Scenario Mystery 4 choice2]] "You keep it to yourself and wait for a better time to act."},
 		}),
@@ -190,6 +191,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7210, --[[voice:narrator]] "You have a moment in front of the crowd before reality crystallizes. Freezes. Shatters."},
 			'text', T{6110, --[[Scenario Mystery 4 text]] "You wake up abruptly, with the feeling that something is wrong. You don't remember it that way..."},
 			'image', "UI/Messages/inner_light_mystery_01.tga",
+			'start_minimized', false,
 			'choice1', T{6095, --[[Scenario Mystery 4 choice1]] "Wake Up"},
 		}),
 		PlaceObj('SA_Block', {
@@ -206,6 +208,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7211, --[[voice:narrator]] "“Patience is a virtue.” You can practically hear your Clan Mother saying it now."},
 			'text', T{6111, --[[Scenario Mystery 4 text]] "You keep your mouth shut and calm your thoughts, hoping that Bor is distracted enough by the conversations with the rich industrialists to not notice your momentary excitement. You know that your time will come soon – wasting the opportunity to help your Clan now wouldn't do any good.\n\nYou wake up in your room, back on Mars, with a feeling of purpose and relaxation."},
 			'image', "UI/Messages/inner_light_mystery_01.tga",
+			'start_minimized', false,
 			'choice1', T{6095, --[[Scenario Mystery 4 choice1]] "Wake Up"},
 		}),
 		PlaceObj('SA_Block', {
@@ -260,6 +263,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7213, --[[voice:narrator]] "Your eyes flutter open as you feel the presence of someone else there. A figure in the bushes. You can’t help but to gasp as they step into the dim glow of the streetlight."},
 			'text', T{6115, --[[Scenario Mystery 4 text]] "“Lea...” Your breath stops in your throat, silencing your voice. You feel tears forming in the corners of your eyes. Your sister projects love and happiness over the telepathic link and sweeps her own tears away.\n\n“Is it really you, Kal? I've missed you so much!”\n\n“I'm so happy to see you! Where have you been? What happened to you?”\n\n“I've been doing the same thing as you – trying to free us from the Authority. I've found out terrible secrets and the solution to our problems – but it's dangerous, even fatal. My comrades devised a cure.” She opens her palm – two vials of pale liquid lay there. “So I've come to you to take the cure with you. If I'm to die here today, I want to do so in your embrace, Kal. We are the only survivors of our Clan and I want to rest with my people.”\n\n“What are you talking about, Lea? It doesn't make sense!”"},
 			'image', "UI/Messages/inner_light_mystery_01.tga",
+			'start_minimized', false,
 			'choice1', T{6093, --[[Scenario Mystery 4 choice1]] "Continue..."},
 		}),
 		PlaceObj('SA_WaitChoice', {
@@ -280,6 +284,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7215, --[[voice:narrator]] "The liquid in the vial tastes like nothing. Like death. You can feel your mouth forming the words."},
 			'text', T{6120, --[[Scenario Mystery 4 text]] "Then oblivion comes. You fall unconscious, failing to witness the convulsions which shake your body. You wake up just before dawn. Lea lies still beside you. She's not breathing.\n\nThe rising sun mercilessly dries your bitter tears from the sand.\n\n<effect>A Dreamer dies."},
 			'image', "UI/Messages/inner_light_mystery_01.tga",
+			'start_minimized', false,
 			'choice1', T{6121, --[[Scenario Mystery 4 choice1]] "Wake up in tears..."},
 		}),
 		PlaceObj('SA_KillColonist', {
@@ -300,6 +305,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7216, --[[voice:narrator]] "The liquid in the vial tastes like nothing. Like death. You can barely hear yourself say it before a wave of oblivion sweeps over you."},
 			'text', T{6123, --[[Scenario Mystery 4 text]] "You won't remember it, but your body shakes in painful convulsions in the hands of your loving sister who watches over you the entire night. You wake up just before dawn. When you open your eyes, you look into the smiling face of Lea.\n\n“Welcome back, silly.”\n\n<effect>Several Dreamers gain negative traits."},
 			'image', "UI/Messages/inner_light_mystery_01.tga",
+			'start_minimized', false,
 			'choice1', T{6124, --[[Scenario Mystery 4 choice1]] "Wake up..."},
 		}),
 		PlaceObj('SA_AddTrait', {
@@ -331,6 +337,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7217, --[[voice:narrator]] "Finding your sister after all these years. The thought of losing her again is enough to break you."},
 			'text', T{6125, --[[Scenario Mystery 4 text]] "Luckily, you know just the right disillusioned government biologists who would take great interest in the formula for the cure. You hide the vials under your robe and give Lea a hand. You sit down by a tree and talk for hours and hours until the sun dawns on the horizon. Then she kisses you farewell and vanishes in the waking city. You have the feeling that you will see her soon enough.\n\n<effect>Additional Dreamers are created."},
 			'image', "UI/Messages/inner_light_mystery_01.tga",
+			'start_minimized', false,
 			'choice1', T{6124, --[[Scenario Mystery 4 choice1]] "Wake up..."},
 		}),
 		PlaceObj('SA_Exec', {
@@ -398,6 +405,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7220, --[[voice:narrator]] "The waters of the deep ground reservoir are long gone, replaced now with the leaders of various resistance cells."},
 			'text', T{6132, --[[Scenario Mystery 4 text]] "They all await you to start the meeting and you don’t keep them in suspense. The horrible truth devours your heart and you have to share the burden with them, listen to their words and advice and set the course for the future.\n\nYou know the gathering wouldn’t be easy as the tensions had grown strong within the ranks of the resistance – Clansmen straying from city-dwellers and vice versa. Bad blood is running between the two groups, each viewing the other as something far too different to tolerate. You’re attributing much of this behavior to the recent effects of the Cure taken by your clansmen, which turned their world upside down. You hope they realize the vital role of the city dissidents – mostly scientists and thinkers – who bear skills and knowledge of which your people had been deprived on purpose.\n\nYou don’t have any intention to delay the meeting. You stand before the crowd and start to raise your voice. The murmur in the reservoir stops and everybody listens."},
 			'image', "UI/Messages/inner_light_mystery_01.tga",
+			'start_minimized', false,
 			'choice1', T{6093, --[[Scenario Mystery 4 choice1]] "Continue..."},
 		}),
 		PlaceObj('SA_WaitChoice', {
@@ -405,6 +413,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7221, --[[voice:narrator]] "You talk for what seems an eternity, hoping beyond hope that your words are enough to reach the hearts of your audience."},
 			'text', T{6133, --[[Scenario Mystery 4 text]] "You describe the pictures of the dying world and make sure they understand that the clock is ticking for all of you. You cannot wait for better times, but the raw military might of the Authority makes any attempt for direct confrontation a lost cause. After all, your people are farmers, not soldiers. One by one, the cell leaders speak their minds. The discussion is heated and continues until late in the night. You dismiss the gathering with the promise to continue tomorrow.\n\nLater you’re lying in bed and the sleep is chased away by your heavy thoughts. You realize that your word weighs a lot and, whichever solution you support, it would probably be the course for the future. Some of the Clansmen propose that all must hide deep in the desert and live off the land the way you did before – but this would mean condemning millions of people in the city to a starving death. The scientists who perfected the Cure uphold the plan to introduce gene-altering chemicals into the food rations sent to the city – this will instill the truth directly into the minds of the people and cause them to rise. You insist on taking the most brave and noble path – to send agents to spread the word to the people of the city. This would be dangerous and even fatal should the Authority agents get their hands on you."},
 			'image', "UI/Messages/inner_light_mystery_01.tga",
+			'start_minimized', false,
 			'choice1', T{6134, --[[Scenario Mystery 4 choice1]] "Retreat to the desert and let the city-dwellers fend for themselves."},
 			'choice2', T{6135, --[[Scenario Mystery 4 choice2]] "It’s either us or them – spread the Cure."},
 			'choice3', T{6136, --[[Scenario Mystery 4 choice3]] "Spread the truth."},
@@ -418,6 +427,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7222, --[[voice:narrator]] "Freed from the burden of servitude, the clansmen took to the depths of the desert. The citizens of Bedlam can lie in the bed they’ve made."},
 			'text', T{6137, --[[Scenario Mystery 4 text]] "Most of the intellectual dissidents abandon your cause, returning to their homes to continue the fight on their own. The new challenges strengthen your people but also planted the seed of doubt in the hearts of many, including yours. By day your resolve was growing stronger, until you finally decided to return to Bedlam and finish what you started. Some of your closest allies follow you – after all, Clansmen or not, all people deserved their place under the sun.\n\n<effect>Several Dreamers gain new traits."},
 			'image', "UI/Messages/inner_light_mystery_01.tga",
+			'start_minimized', false,
 			'choice1', T{6124, --[[Scenario Mystery 4 choice1]] "Wake up..."},
 		}),
 		PlaceObj('SA_AddTrait', {
@@ -449,6 +459,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7223, --[[voice:narrator]] "You watched the first of those infected shipments leave the city, praying that all of this was for the best."},
 			'text', T{6138, --[[Scenario Mystery 4 text]] "The experts were sure that the information you were instilling into the brains of the people would help all of you to live together in harmony. The next generations could judge you harshly for the morality of your actions, or they could praise you for your bravery. You don’t care. The only thing that mattered for you was to lead the disgruntled population of Bedlam to the realization that hard times await all of you – and that none of you could trust the selfish leaders who led you to your doom on purpose.\n\n<effect>Some Dreamers become Gurus."},
 			'image', "UI/Messages/inner_light_mystery_01.tga",
+			'start_minimized', false,
 			'choice1', T{6124, --[[Scenario Mystery 4 choice1]] "Wake up..."},
 		}),
 		PlaceObj('SA_AddTrait', {
@@ -470,6 +481,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7224, --[[voice:narrator]] "A belief forced down your throat is no belief at all."},
 			'text', T{6139, --[[Scenario Mystery 4 text]] "You and anyone who follows you would be the prophets of a new age of freedom and personal responsibility. The Truth will be the highest virtue – no propaganda and no threats from government agents would stop it from spreading. Deep in your heart you know that this is the right course and that soon the citizens of Bedlam would follow you till the end. This is why you’re the first to volunteer to return to the city. Many follow you without hesitation.\n\n<effect>More Dreamers appear."},
 			'image', "UI/Messages/inner_light_mystery_01.tga",
+			'start_minimized', false,
 			'choice1', T{6124, --[[Scenario Mystery 4 choice1]] "Wake up..."},
 		}),
 		PlaceObj('SA_Exec', {
@@ -527,6 +539,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7226, --[[voice:narrator]] "You turn the corner to find a man bumping into you, flustered. He falls back into the dirt. His uniform catches your eye."},
 			'text', T{6143, --[[Scenario Mystery 4 text]] "He's one of the Enforcers of the Authority. He frantically crawls back and reaches for his gun. That’s when the angry mob appears.\n\nAll motion stops – the officer pointing with his gun at you, the crowd, even the wind. You reach out to him. “Give me the gun,” you say. Then you turn to the mob. “What would the death of one man do to help you? Go back to your homes and families!” There’s a second of hesitation. One by one, the street empties.\n\nThe officer breathes a sigh of relief. He throws the gun on the ground and looks you right in the eye for a minute. Then he gestures for you to follow him. For some reason, you know he’s not a threat. You don’t need telepathy to tell you it, either. “Kal, right? The ex-Watcher? Know you’re going to get a kick out of this. You’re the only one of those nut jobs knows how to use it. Come on.”\n\nHe leads you to a bunker. The guards are long gone, fled or taken by the crowd. The officer opens the blast door and motions towards the entrance. ‘The Authority installed this thing a while back. Doesn’t mean a thing to me anymore. I got my life. That’s all that counts.’"},
 			'image', "UI/Messages/inner_light_mystery_01.tga",
+			'start_minimized', false,
 			'choice1', T{6093, --[[Scenario Mystery 4 choice1]] "Continue..."},
 		}),
 		PlaceObj('SA_WaitMessage', {
@@ -534,6 +547,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7227, --[[voice:narrator]] "The device is unfathomably complex, its true purpose lurking behind a sinister aura."},
 			'text', T{6144, --[[Scenario Mystery 4 text]] "You give your old scientist buddies a ring and decide to give the old bones a rest while you wait. You aren't young anymore – even in your mid-forties your body wasn't genetically designed to live to old age. Nevertheless you lived a full life.\n\nThe sun sets on Bedlam. The palace of the Autharch has been taken over and the rule of the Authority is no more. You hope that the new day will bring new hope for survival and rebuilding of your tired, devastated world. This would be a monumental effort, but failure is not an option. All it takes is a helping hand. But you can save that for tomorrow. For now, you need to rest.\n\n<effect>Create more Dreamers to strengthen the Mirage."},
 			'image', "UI/Messages/inner_light_mystery_01.tga",
+			'start_minimized', false,
 			'choice1', T{6124, --[[Scenario Mystery 4 choice1]] "Wake up..."},
 		}),
 		PlaceObj('SA_CheckExpression', {

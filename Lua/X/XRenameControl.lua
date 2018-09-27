@@ -7,10 +7,14 @@ function CreateMarsRenameControl(actionbar_parent, title, initial_text, ok_func,
 	local max_len = params and params.max_len
 	ok_func = ok_func or __empty_function__
 	cancel_func = cancel_func or __empty_function__
+	local steam_keyboard = Platform.steam and GetUIStyleGamepad()
 	local function Keyboard(dialog)
 		CreateRealTimeThread(function(dialog)
-			local text, err = WaitControllerTextInput(initial_text, title, "", max_len or 255, params and params.password)
-			if err or text == "" then
+			local text, err, shown = WaitControllerTextInput(initial_text, title, "", max_len or 255, params and params.password)
+			if not shown and steam_keyboard then
+				CreateMessageBox(T{1000620, "Warning"}, T{10972, "Steam virtual keyboard requires Steam Big Picture Mode to be enabled. Please restart the game from Big Picture Mode in order to use the Steam virtual keyboard."})
+			end
+			if err or not shown or text == "" then
 				cancel_func(text)
 			else
 				if params.check_format and params.pattern and params.format and not string.match(text, params.pattern) then
@@ -27,11 +31,11 @@ function CreateMarsRenameControl(actionbar_parent, title, initial_text, ok_func,
 			end
 		end, dialog)
 	end
-	if Platform.console and not params.console_show then
+	if (Platform.console or steam_keyboard) and not params.console_show then
 		Keyboard()
 	else
 		local dlg = OpenDialog("MarsRenameControl", nil, context)
-		if Platform.console and params.console_show then
+		if (Platform.console or steam_keyboard) and params.console_show then
 			local rename_action = table.find_value(dlg.actions, "ActionId", "rename")
 			if rename_action then
 				rename_action.OnAction = function()

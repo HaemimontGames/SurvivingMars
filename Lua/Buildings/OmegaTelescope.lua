@@ -24,11 +24,16 @@ end
 
 function OmegaTelescope:UnlockBreakthroughs(count)
 	local anomalies = MapGet("map", "SubsurfaceAnomalyMarker", function(a) return a.tech_action == "breakthrough" end )
-	local rand, trand = self.city:CreateSessionRand("InitBreakThroughAnomalies")
 	local breakthroughs = table.icopy(Presets.TechPreset.Breakthroughs or empty_table)
+	if IsGameRuleActive("ChaosTheory") then
+		table.shuffle(breakthroughs)
+	else
+		StableShuffle(breakthroughs, self.city:CreateMapRand("OmegaTelescope"), 100)
+	end
 	local unlocked = 0
 	while unlocked < count do
-		local breakthrough, idx = trand(breakthroughs)
+		local idx = #breakthroughs
+		local breakthrough = breakthroughs[idx]
 		if not breakthrough then
 			break
 		end

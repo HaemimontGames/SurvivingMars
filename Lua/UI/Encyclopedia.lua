@@ -167,15 +167,39 @@ function Encyclopedia:Init(parent, context)
 		Id = "idDescrTextArea",
 		Margins = box(0,20,0,0),
 		IdNode = false,
-		VScroll = "idVScroll",
+		VScroll = "idArticleScroll",
 		MouseWheelStep = 40,
 	}, desc_window)
-	XVerticalScroller:new({
-		Id = "idVScroll",
+	local article_scroll = XScrollThumb:new({
+		Id = "idArticleScroll",
+		ZOrder = 10,
+		Padding = box(5, 0, 5, 0),
 		Dock = "left",
-		Margins = box(0,0,10,0),
+		MinWidth = 18,
+		MaxWidth = 18,
+		Visible = false,
+		FoldWhenHidden = false,
+		MouseCursor = "UI/Cursors/Rollover.tga",
+		FullPageAtEnd = true,
+		SnapToItems = true,
+		AutoHide = true,
+		MinThumbSize = 30,
+		FixedSizeThumb = false,
+		Margins = box(0,5,5,5),
 		Target = "idDescrTextArea",
 	}, scroll_area)
+	XFrame:new({
+		Dock = "box",
+		Image = "UI/Common/scrollbar_line.tga",
+		FrameBox = box(0, 5, 0, 5),
+	}, article_scroll)
+	XFrame:new({
+		Id = "idThumb",
+		Image = "UI/Common/scrollbar.tga",
+		ImageScale = point(400, 400),
+		FrameBox = box(0, 10, 0, 10),
+		SqueezeX = false,
+	}, article_scroll)
 	XText:new({
 		Id = "idDescription",
 		TextFont = "EncyclopediaArticleDescr",

@@ -86,9 +86,8 @@ function Drone:Init()
 end
 
 function Drone:GameInit()
-	self.city:AddToLabel("Unit", self)
-	self.city:AddToLabel("Drone", self)
-	
+	self:AddToLabels()
+
 	if GetMissionSponsor().id == "SpaceY" and self.city.day < 100 and #self.city.labels.Drone >= AchievementPresets.SpaceYBuiltDrones.target then
 		AchievementUnlock(XPlayerActive, "SpaceYBuiltDrones")
 	end
@@ -128,19 +127,32 @@ end
 function Drone:Done()
 	self:Gossip("done")
 	self:RemoveFromLabels()
-	UpdateRogueNotification()
 	
 	if self.is_orphan then
 		table.remove_entry(g_OrphanedDrones, self)
 	elseif self.command_center and IsValid(self.command_center) then
 		table.remove_entry(self.command_center.drones, self)
 	end
+	
+	table.remove_entry(g_DestroyedDrones, self)
 end
 
 function Drone:RemoveFromLabels()
 	self.city:RemoveFromLabel("Unit", self)
 	self.city:RemoveFromLabel("Drone", self)
-	self.city:RemoveFromLabel("RogueDrones", self)
+	if self.rogue then
+		self.city:RemoveFromLabel("RogueDrones", self)
+		UpdateRogueNotification()
+	end
+end
+
+function Drone:AddToLabels()
+	self.city:AddToLabel("Unit", self)
+	self.city:AddToLabel("Drone", self)
+	if self.rogue then
+		self.city:AddToLabel("RogueDrones", self)
+		UpdateRogueNotification()
+	end
 end
 
 function OnMsg.GatherLabels(labels)
@@ -917,6 +929,11 @@ function Drone:CreateDumpingStockpile()
 		q, r = WorldToHex(obj)
 		res, q, r = TryFindStockpileDumpSpot(q, r, obj:GetAngle(), p_shape, HexGetAnyObj, self.resource == "WasteRock")
 		if not res then
+			--try again
+			q, r = WorldToHex(self)
+			res, q, r = TryFindStockpileDumpSpot(q, r, 0, HexSurroundingsCheckShapeLarge, HexGetAnyObj, self.resource == "WasteRock")
+		end
+		if not res then
 			PlaceResourcePile(GetPassablePointNearby(self), self.resource, self.amount)
 			self.resource = false
 			self.amount = false
@@ -1146,10 +1163,6 @@ function Drone:Charge(recharger)
 		recharger.charging_progress = 0
 		recharger.charging_time_left = false
 		
-		if self.battery > battery_start and IsKindOf(recharger, "BaseRover") then
-			recharger:ApplyBatteryChange(-g_Consts.RCRoverDroneRechargeCost)
-		end
-		
 		if IsValid(recharger) and IsValid(self) then
 			recharger:LeadOut(self)
 		end
@@ -1233,7 +1246,6 @@ function Drone:Dead(already_dead, meteor)
 	end)
 	
 	self:RemoveFromLabels()
-	UpdateRogueNotification()
 	
 	if not already_dead then
 		local exploded_fuel = false
@@ -1254,6 +1266,9 @@ function Drone:Dead(already_dead, meteor)
 		self:SetIsNightLightPossible(false)
 		--rem from command center
 		self:SetCommandCenter(false)
+		if not g_Tutorial then
+			table.insert(g_DestroyedDrones, self)
+		end
 	end
 
 	Halt()
@@ -1528,28 +1543,6 @@ function Drone:SetInteractionState(val)
 	end
 end
 
-function Drone:ToggleMaintenanceInteractionMode()
-	if self:IsDead() then 
-		return 
-	end
-	if self.interaction_mode ~= "maintenance" then
-		self:SetInteractionState("maintenance")
-	else
-		self:SetInteractionState(false)
-	end
-end
-
-function Drone:ToggleMaintenanceInteractionMode_Update(button)
-	local to_mode = self.interaction_mode ~= "maintenance"
-	button:SetIcon(to_mode and
-		"UI/Icons/IPButtons/rebuild.tga"
-		or "UI/Icons/IPButtons/cancel.tga")
-	button:SetEnabled(self:CanBeControlled())
-	button:SetRolloverText(T{4434, "Perform repairs on target building. Repairs may require maintenance resources."})
-	button:SetRolloverHint(to_mode and T{7509, "<left_click> Select target mode"} or T{7510, "<left_click> on target to select it  <right_click> Cancel"})
-	button:SetRolloverHintGamepad(to_mode and T{7511, "<ButtonA> Select target mode"} or T{7512, "<ButtonA> Cancel"})
-end
-
 function Drone:ToggleDemolish_Update(btn)	
 	Demolishable.ToggleDemolish_Update(self,btn)
 	btn:SetEnabled(self.command ~= "Embark" and self.command ~= "ExitRover" and self.command ~= "RecallToRover" and self.command ~= "DespawnAtHub")
@@ -1584,7 +1577,12 @@ function Drone:ToggleReassignInteractionMode_Update(button)
 		or "UI/Icons/IPButtons/cancel.tga")
 	button:SetEnabled(self:CanBeControlled())
 	button:SetRolloverText(T{4428, "Assign to target Hub, Commander or Rocket."})
-	button:SetRolloverHint(to_mode and T{7509, "<left_click> Select target mode"} or T{7510, "<left_click> on target to select it  <right_click> Cancel"})
+	local shortcuts = GetShortcuts("actionReassignDrone")
+	local hint = ""
+	if shortcuts and (shortcuts[1] or shortcuts[2]) then
+		hint = T{10926, " / <em><ShortcutName('actionReassignDrone', 'keyboard')></em>"}
+	end
+	button:SetRolloverHint(to_mode and T{10925, "<left_click><hint> Select target mode", hint = hint} or T{7510, "<left_click> on target to select it  <right_click> Cancel"})
 	button:SetRolloverHintGamepad(to_mode and T{7511, "<ButtonA> Select target mode"} or T{7512, "<ButtonA> Cancel"})
 end
 
@@ -1783,12 +1781,12 @@ ResourceSources_func = function(o, resource, amount)
 end
 
 function Drone:InteractionObjTest_RepairSupplyGridElement(obj)
-	return IsKindOfClasses(obj, "ElectricityGridElement", "LifeSupportGridElement") and obj:IsBroken()
+	return not IsKindOf(obj, "ConstructionSite") and IsKindOfClasses(obj, "ElectricityGridElement", "LifeSupportGridElement") and obj:IsBroken()
 end
 
 function Drone:InteractionCheck_RepairSupplyGridElement(obj)
 	local r = obj.repair_resource_request
-	if not r:CanAssignUnit() or r:GetTargetAmount() <= 0 then
+	if not r or not r:CanAssignUnit() or r:GetTargetAmount() <= 0 then
 		return false --other drone working on it.
 	end
 	local resource = r:GetResource()
@@ -1826,6 +1824,14 @@ function Drone:CanInteractWithObject(obj)
 			if obj.working then
 				return true, T{9629, "<UnitMoveControl('ButtonA',interaction_mode)>:  Use Tunnel", self}--UseTunnel
 			end
+		elseif IsKindOf(obj, "BaseRover") and obj:IsMalfunctioned() then
+			if  obj.repair_work_request:CanAssignUnit() then
+				return true, T{9720, "<UnitMoveControl('ButtonA',interaction_mode)>: Repair",self}	
+			elseif IsKindOf(obj, "AttackRover") and not UICity.mystery.enable_rover_repair then
+				return false, ""
+			else
+				return false, T{7589, "<red>Too many Drones are repairing this vehicle</red>"}, true
+			end
 		elseif (IsKindOf(obj, "RechargeStation") or
 				(IsKindOf(obj, "RechargeStationBase") and obj == self.command_center)) --if we select our own command center go charge there
 				and obj.working then 
@@ -1852,7 +1858,7 @@ function Drone:CanInteractWithObject(obj)
 			return true, T{9631, "<UnitMoveControl('ButtonB',interaction_mode)>: Repair this building", self}
 		elseif resource_demand_req then --we are carrying a resource and this bld needs it, or is a storage depot that accepts it
 			return true, T{4396, "<UnitMoveControl('ButtonA',interaction_mode)>: Deliver <resource(amount, resource)>", amount = self.amount, resource = self.resource, self}
-		elseif obj ~= self.command_center and IsKindOf(obj, "DroneControl") then
+		elseif obj ~= self.command_center and IsKindOf(obj, "DroneControl") and obj.can_control_drones then
 			if not obj:CanHaveMoreDrones() then
 				return false, T{4401, "<red>At full capacity</red>"}, true
 			else
@@ -1879,14 +1885,6 @@ function Drone:CanInteractWithObject(obj)
 			end
 		elseif IsKindOf(obj, "SurfaceDeposit") and TestReq(obj.transport_request, nil, 1) then
 			return true, T{4402, "<UnitMoveControl('ButtonA',interaction_mode)>: Gather", self}
-		elseif IsKindOf(obj, "BaseRover") and obj:IsMalfunctioned() then
-			if  obj.repair_work_request:CanAssignUnit() then
-				return true, T{9720, "<UnitMoveControl('ButtonA',interaction_mode)>: Repair",self}	
-			elseif IsKindOf(obj, "AttackRover") and not UICity.mystery.enable_rover_repair then
-				return false, ""
-			else
-				return false, T{7589, "<red>Too many Drones are repairing this vehicle</red>"}, true
-			end
 		elseif IsKindOf(obj, "Drone") and obj:IsDisabled() then
 			if obj:IsDead() then
 				return false
@@ -1899,7 +1897,7 @@ function Drone:CanInteractWithObject(obj)
 		end		
 		return false, GetUIStyleGamepad() and  T{4339, "<UnitMoveControl('ButtonA',interaction_mode)>: Move",self} or false
 	elseif self.interaction_mode == "reassign" or self.interaction_mode == "reassign_all" then
-		if obj ~= self.command_center and IsKindOf(obj, "DroneControl") then
+		if obj ~= self.command_center and IsKindOf(obj, "DroneControl") and obj.can_control_drones then
 			if obj:CanHaveMoreDrones() then
 				return true, T{4400, "<UnitMoveControl('ButtonA',interaction_mode)>: Assign to this command center",self}
 			else
@@ -1985,6 +1983,10 @@ function Drone:InteractWithObject(obj, interaction_mode)
 				self:SetCommand("UseTunnel", obj)
 				SetUnitControlInteractionMode(self, false) --toggle button
 			end
+		elseif IsKindOf(obj, "BaseRover") and obj:IsMalfunctioned() and obj.repair_work_request:CanAssignUnit() then
+			drop_resource = true
+			local request = obj.repair_work_request
+			self:SetCommandUserInteraction("Work", request, "repair", Min(DroneResourceUnits.repair, request:GetTargetAmount()))
 		elseif (IsKindOf(obj, "RechargeStation") or
 				(IsKindOf(obj, "RechargeStationBase") and obj == self.command_center)) --if we select our command center go charge there
 				and obj.working then 
@@ -2059,10 +2061,6 @@ function Drone:InteractWithObject(obj, interaction_mode)
 			local request = obj.transport_request
 			local resource = request:GetResource()
 			self:SetCommandUserInteraction("PickUp", request, false, resource, Min(DroneResourceUnits[resource], request:GetTargetAmount()))
-		elseif IsKindOf(obj, "BaseRover") and obj:IsMalfunctioned() and obj.repair_work_request:CanAssignUnit() then
-			drop_resource = true
-			local request = obj.repair_work_request
-			self:SetCommandUserInteraction("Work", request, "repair", Min(DroneResourceUnits.repair, request:GetTargetAmount()))
 		elseif IsKindOf(obj, "Drone") and obj:IsDisabled() then
 			drop_resource = true
 			if obj.repair_drone then

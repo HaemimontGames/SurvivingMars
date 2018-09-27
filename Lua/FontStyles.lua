@@ -20,25 +20,16 @@ __game_font_styles =
 	InfopanelText = T{994, --[[InfopanelText]] "SchemeBk, 18, aa"},
 	
 	HUDSol = T{9762, --[[HUDSol]] "SchemeBk, 18, aa"},
-	HUDHumans = T{992, --[[HUDHumans]] "SchemeBk, 20, aa"},
 	HUDDrones = T{992, --[[HUDDrones]] "SchemeBk, 20, aa"},
 	HUDConstruction = T{995, --[[HUDHumans]] "LibelSuitRg, 26, aa"},
 	HUDButton = T{995, --[[HUDHumans]] "LibelSuitRg, 26, aa"},
-	
-	OnScreenTitle = T{989, --[[OnScreenTitle]] "LibelSuitRg, 20, aa"},
-	OnScreenText = T{988, --[[OnScreenText]] "SchemeBk, 16, aa"},
-	
+		
 	PinTextSmall = T{988, --[[PinTextSmall]] "SchemeBk, 16, aa"},
 	PinText      = T{994, --[[PinText]] "SchemeBk, 18, aa"},
 	PinButton    = T{996, --[[PinButton]] "SchemeBk, 12, aa"},
 	PinButtonBig = T{997, --[[PinButtonBig]] "SchemeBk, 15, aa"},
 	PinButtonSmall = T{998, --[[PinButtonBig]] "SchemeBk, 11, aa"},
 
-	ResearchIconTitle = T{993, --[[ResearchIconTitle]] "LibelSuitRg, 22, aa"},
-	ResearchIconTitleBig = T{999, --[[ResearchIconTitleBig]] "LibelSuitRg, 32, aa"},
-	ResearchStats = T{992, --[[ResearchStats]] "SchemeBk, 20, aa"},
-	ResearchBtn = T{1000, --[[ResearchBtn]] "LibelSuitRg, 24, aa"},
-	
 	PGChallengeRating = T{995, --[[PGChallengeRating]] "LibelSuitRg, 26, aa"},
 	PGLogo = T{987, --[[PGLogo]] "LibelSuitRg, 28, aa"},
 	PGListItem = T{995, --[[PGListItem]] "LibelSuitRg, 26, aa"},
@@ -50,7 +41,6 @@ __game_font_styles =
 	PGChallengeSummary = T{993, --[[PGChallengeSummary]] "LibelSuitRg, 22, aa"},
 	PGLandingPosName = T{1002, --[[PGLandingPosName]] "LibelSuitRg, 36, aa"},
 	PGModDescr = T{992, --[[PGModDescr]] "SchemeBk, 20, aa"},
-	PGModTitle = T{1001, --[[PGModTitle]] "LibelSuitRg, 30, aa"},
 	PGModAuthorDate = T{9837, --[[PGModAuthorDate]] "LibelSuitRg, 25, aa"},
 	PGModTags = T{993, --[[PGModTags]] "LibelSuitRg, 22, aa"},
 	PGModWarning = T{1001, --[[PGModWarning]] "LibelSuitRg, 30, aa"},
@@ -82,16 +72,13 @@ __game_font_styles =
 	
 	PhotoModeFilePath = T{9838, --[[PhotoModeFilePath]] "LibelSuitRg, 25, aa"},
 	
-	UICreditsCompanyName =  T{1005, --[[UICreditsCompanyName]] "LibelSuitRg, 56, aa"},
-	UICredits            =  T{1002, --[[UICredits]] "LibelSuitRg, 36, aa"},
-	
 	GoalsDescription = T{1003, --[[GoalsDescription]] "LibelSuitRg, 24, aa"},
 	GoalsReward = T{1003, --[[GoalsDescription]] "LibelSuitRg, 24, aa"},
 	
-	ModsUIItemTitleConsole = T{9839, --[[ModsUIItemTitleConsole]] "Source Sans Pro, 30, bold, aa"},
-	ModsUIItemSubtitleConsole = T{10550, --[[ModsUIItemSubtitleConsole]] "Source Sans Pro, 22, aa"},
-	ModsUIItemTitlePC = T{9841, --[[ModsUIItemTitlePC]] "Source Sans Pro, 26, bold, aa"},
-	ModsUIItemSubtitlePC = T{9842, --[[ModsUIItemSubtitlePC]] "Source Sans Pro, 18, aa"},
+	ModsUIItemTitleConsole = T{11018, --[[ModsUIItemTitleConsole]] "Noto Sans CJK SC Regular, 30, bold, aa"},
+	ModsUIItemSubtitleConsole = T{11019, --[[ModsUIItemSubtitleConsole]] "Noto Sans CJK SC Regular, 22, aa"},
+	ModsUIItemTitlePC = T{11020, --[[ModsUIItemTitlePC]] "Noto Sans CJK SC Regular, 26, bold, aa"},
+	ModsUIItemSubtitlePC = T{11021, --[[ModsUIItemSubtitlePC]] "Noto Sans CJK SC Regular, 18, aa"},
 	ModsUIItemStatusConsole = T{9843, --[[ModsUIItemStatusConsole]] "Source Sans Pro, 24, bold, aa"},
 	ModsUIItemStatusPC = T{9842, --[[ModsUIItemStatusPC]] "Source Sans Pro, 18, aa"},
 	ModsUITab = T{10379, --[[ModsUITab]] "Source Sans Pro, 26, aa"},
@@ -107,8 +94,8 @@ __game_font_styles =
 	ModsUITagsTitle = T{9850, --[[ModsUITagsTitle]] "Source Sans Pro, 16, aa"},
 	ModsUIPopupsText= T{9840, --[[ModsUIPopupsText]] "Source Sans Pro, 24, aa"},
 	ModsUITag = T{9845, --[[ModsUITag]] "Source Sans Pro, 20, aa"},
-	ModsUIDetailsTitle = T{9851, --[[ModsUIDetailsTitle]] "Source Sans Pro, 34, bold, aa"},
-	ModsUIDetailsSubtitle = T{9845, --[[ModsUIDetailsSubtitle]] "Source Sans Pro, 20, aa"},
+	ModsUIDetailsTitle = T{11022, --[[ModsUIDetailsTitle]] "Noto Sans CJK SC Regular, 34, bold, aa"},
+	ModsUIDetailsSubtitle = T{11023, --[[ModsUIDetailsSubtitle]] "Noto Sans CJK SC Regular, 20, aa"},
 	ModsUIDetailsVersionLabel = T{9850, --[[ModsUIDetailsVersion]] "Source Sans Pro, 16, aa"},
 	ModsUIDetailsVersion = T{9842, --[[ModsUIDetailsVersion]] "Source Sans Pro, 18, aa"},
 	ModsUIDetailsStatus = T{9843, --[[ModsUIDetailsStatus]] "Source Sans Pro, 24, bold, aa"},
@@ -118,16 +105,16 @@ __game_font_styles =
 	ModsUILogInTitle = T{10381, --[[ModsUILogInTitle]] "Source Sans Pro, 22, bold, aa"},
 	ModsUIRateFlagTitle = T{9841, --[[ModsUIRateFlagTitle]] "Source Sans Pro, 26, bold, aa"},
 	ModsUIRateText = T{9840, --[[ModsUIRateText]] "Source Sans Pro, 24, aa"},
-	ModsUILogInEdit = T{10382, --[[ModsUILogInEdit]] "Source Sans Pro, 20,  aa"},
+	ModsUILogInEdit = T{11024, --[[ModsUILogInEdit]] "Noto Sans CJK SC Regular, 20,  aa"},
 	ModsUILogInText = T{9842, --[[ModsUILogInText]] "Source Sans Pro, 18, aa"},
 	ModsUILogInButtons = T{9842, --[[ModsUILogInButtons]] "Source Sans Pro, 18, aa"},
 	ModsUISignUpRequired = T{9848, --[[ModsUISignUpRequired]] "Source Sans Pro, 14, aa"},
 	ModsUISignUpFieldLabel = T{9850, --[[ModsUISignUpFieldLabel]] "Source Sans Pro, 16, aa"},
 	ModsUIDescription= T{9845, --[[ModsUIDescription]] "Source Sans Pro, 20, aa"},
 	ModsUIDetailsColumnHeadings = T{9842, --[[ModsUIDetailsColumnHeadings]] "Source Sans Pro, 18, aa"},
-	ModsUIDetailsColumnItems = T{9846, --[[ModsUIDetailsColumnItems]] "Source Sans Pro, 20, bold, aa"},
-	ModsUIDetailsChangelog = T{9845, --[[ModsUIDetailsChangelog]] "Source Sans Pro, 20, aa"},
-	ModsUIDetailsDescription = T{10379, --[[ModsUIDetailsDescription]] "Source Sans Pro, 26, aa"},
+	ModsUIDetailsColumnItems = T{11025, --[[ModsUIDetailsColumnItems]] "Noto Sans CJK SC Regular, 20, bold, aa"},
+	ModsUIDetailsChangelog = T{11023, --[[ModsUIDetailsChangelog]] "Noto Sans CJK SC Regular, 20, aa"},
+	ModsUIDetailsDescription = T{11026, --[[ModsUIDetailsDescription]] "Noto Sans CJK SC Regular, 26, aa"},
 	ModsUIDetailsRatingsTotal = T{9850, --[[ModsUIDetailsRatingsTotal]] "Source Sans Pro, 16, aa"},
 }
 

@@ -183,7 +183,7 @@ end,
 						'OnAction', function (self, host, source)
 CreateRealTimeThread(function()
 	if AccountStorage and AccountStorage.LoadMods and next(AccountStorage.LoadMods) ~= nil then
-		local choice = WaitPopupNotification("Tutorial_ActiveMods", nil, nil, host)
+		local choice = Platform.durango and 1 or WaitPopupNotification("Tutorial_ActiveMods", nil, nil, host)
 		if choice == 1 then
 			AllModsOff()
 			SaveAccountStorage(5000)
@@ -197,35 +197,7 @@ end)
 end,
 					}),
 					PlaceObj('XTemplateAction', {
-						'RolloverText', T{223893111241, --[[XTemplate PGMenu RolloverText]] "Start a game with the easiest Mission Sponsor on one of several predefined easy maps."},
-						'RolloverTitle', T{1126, --[[XTemplate PGMenu RolloverTitle]] "EASY START"},
-						'ActionId', "idQuickStart",
-						'ActionName', T{1126, --[[XTemplate PGMenu ActionName]] "EASY START"},
-						'ActionIcon', "UI/Icons/main_menu_quick_start.tga",
-						'ActionToolbar', "mainmenu",
-						'OnAction', function (self, host, source)
-CreateRealTimeThread(function()
-	if not AccountStorage.CompletedTutorials then
-		local choice = WaitPopupNotification("Tutorial_FirstTimePlayers", nil, nil, host)
-		AccountStorage.CompletedTutorials = {}
-		SaveAccountStorage(5000)
-		if choice == 1 then
-			host:SetMode("Tutorial")
-			return
-		end
-	end
-	LoadingScreenOpen("idLoadingScreen", "QuickStart")
-	GenerateRandomMissionParams()
-	GenerateRandomMapParams()
-	GenerateCurrentRandomMap()
-	TelemetryBeginSession("new_quick_start")
-	CloseMenuDialogs()
-	LoadingScreenClose("idLoadingScreen", "QuickStart")
-end)
-end,
-					}),
-					PlaceObj('XTemplateAction', {
-						'RolloverText', T{10545, --[[XTemplate PGMenu RolloverText]] "Start a survival game, which allows you to choose Mission Sponsor, Commander Profile, Rocket payload and landing location."},
+						'RolloverText', T{427174640796, --[[XTemplate PGMenu RolloverText]] "Start a survivial game, which allows you to choose Mission Sponsor, Commander Profile, Rocket payload and landing location."},
 						'RolloverTitle', T{10455, --[[XTemplate PGMenu RolloverTitle]] "NEW GAME"},
 						'ActionId', "idStandardGame",
 						'ActionName', T{10455, --[[XTemplate PGMenu ActionName]] "NEW GAME"},
@@ -236,7 +208,7 @@ StartNewGame(host, "Mission")
 end,
 					}),
 					PlaceObj('XTemplateAction', {
-						'RolloverText', T{10555, --[[XTemplate PGMenu RolloverText]] "Start a game in which buildings cost nothing and never malfunction, colonists never die or leave Mars, base research is increased and map scanning is faster.<newline><newline><NoAchievements()>"},
+						'RolloverText', T{650579644429, --[[XTemplate PGMenu RolloverText]] "Create the colony that you imagine and test how it works without worrying about survival threats.<newline><newline><NoAchievements()>"},
 						'RolloverTitle', T{144559490492, --[[XTemplate PGMenu RolloverTitle]] "CREATIVE MODE"},
 						'ActionId', "idCreativeMode",
 						'ActionName', T{144559490492, --[[XTemplate PGMenu ActionName]] "CREATIVE MODE"},
@@ -253,6 +225,16 @@ StartNewGame(host, "Mission", {
 	MoreApplicants = true,
 	RichCoffers = true,
 })
+end,
+					}),
+					PlaceObj('XTemplateAction', {
+						'RolloverText', T{554914047909, --[[XTemplate PGMenu RolloverText]] "Challenge yourself to accomplish a specific objective within a time limit.\n\nMission parameters and colony site are predetermined."},
+						'ActionId', "idChallenge",
+						'ActionName', T{10519, --[[XTemplate PGMenu ActionName]] "CHALLENGE MODE"},
+						'ActionIcon', "UI/Icons/main_menu_challenges.tga",
+						'ActionToolbar', "mainmenu",
+						'OnAction', function (self, host, source)
+StartNewGame(host, "Challenge")
 end,
 					}),
 					PlaceObj('XTemplateAction', {
@@ -302,7 +284,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idAchievements",
-						'ActionName', T{498260347235, --[[XTemplate PGMenu ActionName]] "ACHIEVEMENTS"},
+						'ActionName', T{856797454991, --[[XTemplate PGMenu ActionName]] "ACHIEVEMENTS"},
 						'ActionIcon', "UI/Icons/main_menu_achievements.tga",
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)

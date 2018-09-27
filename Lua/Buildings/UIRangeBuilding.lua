@@ -24,9 +24,9 @@ function UIRangeBuilding:SetUIRange(value)
 		--play sound
 		PlayFX("RangeChange", "end", self)
 		DelayedCall(100, PlayFX, "RangeChange", "start", self)
-		local rxs = self:GetAttaches("RangeHexRadius") or empty_table
-		for i = 1, #rxs do
-			rxs[i]:SetScale(value)
+		local rxs = g_HexRanges[self] or empty_table
+		for _, range in ipairs(rxs) do
+			range:SetScale(value)
 		end
 		
 		DeleteThread(UIRangeUpdateThread)

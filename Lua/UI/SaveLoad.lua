@@ -306,12 +306,12 @@ function ShowSavegameDescription(item, dialog)
 			
 			local image = ""
 			local forced_path = not metadata and g_TempScreenshotFilePath or false
-			if not forced_path then
-				local images = io.listfiles(Savegame.Mountpoint, "screenshot*.jpg", "non recursive")
+			if not forced_path and Savegame._MountPoint then
+				local images = io.listfiles(Savegame._MountPoint, "screenshot*.jpg", "non recursive")
 				if #(images or "") > 0 then
 					image = images[1]
 				end
-			elseif io.exists(forced_path) then
+			elseif forced_path and io.exists(forced_path) then
 				image = forced_path
 			end
 			

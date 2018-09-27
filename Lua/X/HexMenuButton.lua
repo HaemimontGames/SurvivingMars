@@ -163,10 +163,8 @@ function HexButtonItem:FillRollover()
 		local parent = GetDialog(self)
 		parent.idContainer:SetRolloverText(self.description or "")
 		parent.idContainer:SetRolloverTitle(self.display_name or "")
-		local gamepad = GetUIStyleGamepad()
-		if gamepad then 
-			parent.idContainer:SetRolloverHint(T{3545, "<ButtonA> Select"})
-		end
+		parent.idContainer:SetRolloverHint(self.hint or "")
+		parent.idContainer:SetRolloverHintGamepad(T{3545, "<ButtonA> Select"})
 		XUpdateRolloverWindow(parent.idContainer)	
 	end	
 end

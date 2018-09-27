@@ -81,6 +81,22 @@ end,
 return "break"
 end,
 							}),
+							PlaceObj('XTemplateFunc', {
+								'name', "OnShortcut(self, shortcut, source)",
+								'func', function (self, shortcut, source)
+if shortcut == "DPadDown" or shortcut == "LeftThumbDown" then
+	local dlg = GetDialog(self)
+	local list = dlg:ResolveId("idList")
+	if list and #list > 0 then
+		list:SetFocus()
+		list:SetSelection(1)
+		dlg:UpdateActionViews(dlg.idActionBar)
+	end
+	return "break"
+end
+return XTextButton.OnShortcut(self, shortcut, source)
+end,
+							}),
 							}),
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
@@ -234,6 +250,14 @@ end,
 if shortcut == "Delete" or shortcut == "ButtonY" then
 	DeleteSaveGame(GetDialog(self))
 	return "break"
+elseif shortcut == "Up" and self.focused_item == 1 then
+	local dlg = GetDialog(self)
+	if dlg.Mode == "save" then
+		self:SetSelection(false)
+		dlg.idTopContent.idNewSave:SetFocus()
+		dlg:UpdateActionViews(dlg.idActionBar)
+		return "break"
+	end
 end
 return XContentTemplateList.OnShortcut(self, shortcut, source)
 end,
@@ -353,11 +377,7 @@ end,
 					'__class', "XText",
 					'Id', "idSavegameTitle",
 					'HandleMouse', false,
-					'TextFont', "PGModTitle",
-					'TextColor', RGBA(255, 255, 255, 255),
-					'ShadowType', "outline",
-					'ShadowSize', 1,
-					'ShadowColor', RGBA(0, 0, 0, 255),
+					'TextStyle', "ItemTitle",
 					'Translate', true,
 					'HideOnEmpty', true,
 					'TextHAlign', "center",

@@ -44,7 +44,7 @@ local function GenerateCropGrowthSequences(crop)
 end
 
 OnMsg.DataLoaded = GenerateCropGrowthSequences
-OnMsg.ModsLoaded = GenerateCropGrowthSequences
+OnMsg.ModsReloaded = GenerateCropGrowthSequences
 
 
 local function LockDefaultLockedCrops()

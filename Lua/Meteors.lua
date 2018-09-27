@@ -18,6 +18,8 @@ DefineClass.MapSettings_Meteor =
 		{ id = "storm_delay_max",			name = "Meteor Delay Max",			editor = "number",	default = 20 * 1000, scale = 1000, help = "Maximum delay between meteors in the storm(in seconds)", category = "Meteor Storm" },
 		{ id = "storm_duration_min",		name = "Duration Min",				editor = "number",	default = 1 * const.DayDuration, scale = const.DayDuration, help = "Minimum storm duration(in sols)", category = "Meteor Storm" },
 		{ id = "storm_duration_max",		name = "Duration Max",				editor = "number",	default = 3 * const.DayDuration, scale = const.DayDuration, help = "Maximum storm duration(in sols)", category = "Meteor Storm" },
+		{ id = "storm_move_speed_min",	name = "Move Speed Min (m/s)",	editor = "number", default = 0, category = "Meteor Storm" },
+		{ id = "storm_move_speed_max",	name = "Move Speed Max (m/s)",	editor = "number", default = 0, category = "Meteor Storm" },
 		{ id = "large_chance",				name = "Large Meteor Chance",		editor = "number",	default = 10, min = 0, max = 100, category = "Meteor Specs" },
 		{ id = "small_radius",				name = "Small Meteor Radius",		editor = "number",	default = 20*guim, scale = guim, category = "Meteor Specs"  },
 		{ id = "large_radius",				name = "Large Meteor Radius",		editor = "number",	default = 35*guim, scale = guim, category = "Meteor Specs"  },
@@ -84,12 +86,19 @@ end
 local largest_prefab = 100 * guim
 
 function SpawnMeteor(meteors, dir, angle, pos)
-	pos = pos and GetRandomPassableAround(pos, meteors.storm_radius) or GetRandomPassable()
-	if not pos then
+	--DbgAddVector(pos, point(0, 0, 100*guim), const.clrGreen)
+	--DbgAddCircle(pos + point(0, 0, 100*guim), meteors.storm_radius, const.clrWhite)
+	
+	local new_pos = pos and GetRandomPassableAround(pos, meteors.storm_radius) or GetRandomPassable()
+	if not new_pos or (pos and new_pos:Dist2D(pos) > meteors.storm_radius) then
 		return
 	end
+	pos = new_pos
 	
 	pos = pos:SetZ(terrain.GetHeight(pos))
+	
+	--DbgAddVector(pos, point(0, 0, 100*guim), const.clrRed)
+
 	dir = GenerateDir(dir, angle)
 	local start = pos + SetLen(dir, meteors.travel_dist)
 	
@@ -110,13 +119,38 @@ function MeteorsDisaster(meteors, meteors_type, pos)
 			meteor.pause = UICity:Random(meteors.multispawn_delay_min, meteors.multispawn_delay_max)
 		end
 	elseif meteors_type == "storm" then
+		--DbgClearVectors()
 		local dir, angle = GenerateDir()
 		pos = pos or GetRandomPassable()
+		local speed = UICity:Random(meteors.storm_move_speed_min, meteors.storm_move_speed_max)
+		--speed = 2*guim
+		local duration = UICity:Random(meteors.storm_duration_min, meteors.storm_duration_max)
+		local move_dir = Rotate(point(-guim, 0, 0), mapdata.OverviewOrientation)
+		
+		if speed > 0 then
+			-- make sure at least 75% of the duration will be on playable area
+			local dist = MulDivRound(speed, duration, 1000)
+			local steplen = 100*guim
+			local step = SetLen(move_dir, steplen)
+			for d = 0, dist, steplen do
+				local pt = pos + SetLen(move_dir, d)
+				if not pt:InBox2D(g_MapArea) then
+					if d >= MulDivRound(dist, 75, 100) then
+						break
+					end
+					local bpt = pos - step
+					if bpt:InBox2D(g_MapArea) then
+						pos = bpt
+					end
+				end
+			end
+		end
+		
 		assert(pos, "Failed to find meteor storm pos!")
 		--pos = point(283405, 244259, 8006)
-		local duration = UICity:Random(meteors.storm_duration_min, meteors.storm_duration_max)
 		AddOnScreenNotification("MeteorStormDuration", nil, {start_time = GameTime(), expiration = duration})
 		ShowDisasterDescription("MeteorStorm")
+		local pos_orig = pos
 		local time = 0
 		while time <= duration do
 			local meteor = SpawnMeteor(meteors, dir, angle, pos)	-- share same direction and pos, deviate angle
@@ -126,6 +160,9 @@ function MeteorsDisaster(meteors, meteors_type, pos)
 			meteor.pause = UICity:Random(meteors.storm_delay_min, meteors.storm_delay_max)
 			table.insert(spawned, meteor)
 			time = time + meteor.pause
+			if speed > 0 then
+				pos = pos + MulDivRound(move_dir, speed * meteor.pause, 1000*guim)
+			end
 		end
 	elseif meteors_type == "single" then
 		local meteor = SpawnMeteor(meteors, nil, nil, pos)		-- random direction, angle and pos
@@ -223,7 +260,7 @@ GlobalGameTimeThread("MeteorStorm", function()
 		while GameTime() - start_time < wait_time do
 			local warning_time = GetDisasterWarningTime(meteors)
 			if GameTime() - start_time > wait_time - warning_time then
-				AddOnScreenNotification("MeteorStorm", nil, {start_time = GameTime(), expiration = warning_time})
+				AddOnScreenNotification("MeteorStorm2", nil, {start_time = GameTime(), expiration = warning_time, early_warning = GetEarlyWarningText(warning_time) , num_of_sensors = GetTowerCountText()})
 				ShowDisasterDescription("MeteorStorm")
 				break
 			end

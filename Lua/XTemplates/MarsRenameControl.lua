@@ -9,6 +9,9 @@ PlaceObj('XTemplate', {
 		'HAlign', "center",
 		'VAlign', "center",
 	}, {
+		PlaceObj('XTemplateLayer', {
+			'layer', "XSuppressInputLayer",
+		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XImage",
 			'Dock', "box",
@@ -58,7 +61,7 @@ PlaceObj('XTemplate', {
 			'ActionName', T{10120, --[[XTemplate MarsRenameControl ActionName]] "RENAME"},
 			'ActionToolbar', "RenameActionBar",
 			'ActionGamepad', "ButtonY",
-			'__condition', function (parent, context) return Platform.console and context and context.console_show end,
+			'__condition', function (parent, context) return (Platform.console or (Platform.steam and GetUIStyleGamepad())) and context and context.console_show end,
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "cancel",

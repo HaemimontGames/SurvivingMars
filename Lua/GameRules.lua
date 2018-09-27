@@ -10,7 +10,7 @@ function ToggleGameRule(id, dialog)
 	local rules = g_CurrentMissionParams.idGameRules
 	if rules[id] then
 		rules[id] = nil
-		ObjModified(g_DiffBonusObj)
+		ObjModified(g_TitleObj)
 		return false
 	else
 		rules[id] = true
@@ -27,7 +27,7 @@ function ToggleGameRule(id, dialog)
 			end
 		end
 		UpdateGameRulesList(dialog)
-		ObjModified(g_DiffBonusObj)
+		ObjModified(g_TitleObj)
 		return true
 	end
 end
@@ -64,7 +64,7 @@ function GetIncompatibleGameRulesNames(id)
 			end
 		else
 			for exclusion in string.gmatch(exclusions, "%a+") do
-				names[exclusion] = GameRulesMap[exclusion].display_name
+				names[exclusion] = GameRulesMap[exclusion] and GameRulesMap[exclusion].display_name
 			end
 		end
 	end
@@ -92,4 +92,8 @@ end
 
 function GetActiveGameRules()
 	return table.keys(g_CurrentMissionParams.idGameRules)
+end
+
+function GetCheckboxImage(state)
+	return state and "UI/Icons/Research/researched.tga" or "UI/Common/mod_button.tga"
 end

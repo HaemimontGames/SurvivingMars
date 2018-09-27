@@ -77,6 +77,7 @@ function SelectionModeDialog:OnMouseButtonDown(pt, button)
 				if dlg then
 					dlg:SelectParentCategory()
 				else
+					g_BuildMenuRightClicksCount = g_BuildMenuRightClicksCount + 1
 					OpenXBuildMenu(IsValid(UICity.selected_dome) and UICity.selected_dome or nil)
 				end
 			end

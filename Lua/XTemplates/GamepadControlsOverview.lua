@@ -116,7 +116,7 @@ PlaceObj('XTemplate', {
 					'ShadowSize', 1,
 					'ShadowColor', RGBA(32, 32, 32, 128),
 					'Translate', true,
-					'Text', T{4243, --[[XTemplate GamepadControlsOverview Text]] "Game speed / Navigate"},
+					'Text', T{4243, --[[XTemplate GamepadControlsOverview Text]] "Game speed / Infobar"},
 				}),
 				PlaceObj('XTemplateWindow', {
 					'comment', "RS",
@@ -165,7 +165,7 @@ PlaceObj('XTemplate', {
 					'ShadowSize', 1,
 					'ShadowColor', RGBA(32, 32, 32, 128),
 					'Translate', true,
-					'Text', T{4235, --[[XTemplate GamepadControlsOverview Text]] "Manage Infopanel<newline>(Hold) Infopanel shortcuts"},
+					'Text', T{4235, --[[XTemplate GamepadControlsOverview Text]] "Manage Infopanel\n(Hold) Infopanel shortcuts"},
 				}),
 				PlaceObj('XTemplateWindow', {
 					'comment', "Y",
@@ -350,7 +350,7 @@ PlaceObj('XTemplate', {
 					'ShadowSize', 1,
 					'ShadowColor', RGBA(32, 32, 32, 128),
 					'Translate', true,
-					'Text', T{4243, --[[XTemplate GamepadControlsOverview Text]] "Game speed / Navigate"},
+					'Text', T{4243, --[[XTemplate GamepadControlsOverview Text]] "Game speed / Infobar"},
 				}),
 				PlaceObj('XTemplateWindow', {
 					'comment', "LS",
@@ -478,7 +478,7 @@ PlaceObj('XTemplate', {
 					'ShadowSize', 1,
 					'ShadowColor', RGBA(32, 32, 32, 128),
 					'Translate', true,
-					'Text', T{4235, --[[XTemplate GamepadControlsOverview Text]] "Manage Infopanel<newline>(Hold) Infopanel shortcuts"},
+					'Text', T{4235, --[[XTemplate GamepadControlsOverview Text]] "Manage Infopanel\n(Hold) Infopanel shortcuts"},
 				}),
 				}),
 			}),

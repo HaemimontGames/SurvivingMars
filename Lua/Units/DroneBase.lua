@@ -26,6 +26,7 @@ DefineClass.DroneBase =
 	override_ui_status = false,
 
 	interaction_mode = false, --custom str, represents special interraction btn toggle.
+	control_override = false,
 }
 
 function DroneBase:Done()
@@ -91,7 +92,7 @@ function DroneBase:IsDead()
 end
 
 function DroneBase:CanBeControlled()
-	return self.command ~= "Malfunction" and self.command ~= "Dead"
+	return not self.control_override and self.command ~= "Malfunction" and self.command ~= "Dead"
 end
 
 function DroneBase:ToggleControlMode()
@@ -107,7 +108,7 @@ function DroneBase:ToggleControlMode()
 		return
 	end
 
-	if unit_ctrl_dlg.unit == self then
+	if unit_ctrl_dlg.unit == self and not IsValid(unit_ctrl_dlg.interaction_obj) then
 		local new_val = unit_ctrl_dlg.interaction_mode ~= "move" and "move" or false
 		SetUnitControlInteractionMode(self, new_val)
 		if unit_ctrl_dlg.interaction_mode == "move" then
@@ -128,7 +129,12 @@ function DroneBase:ToggleControlMode_Update(button)
 		(self:IsKindOf("RCTransport") or self:IsKindOf("RCDesireTransport")) and T{4463, "Give command to move or harvest resources."}
 		or self:IsKindOf("RCRover") and T{4483, "Give command to move or repair Drones."}
 		or T{4424, "Give command to move or interact with an object."})
-	button:SetRolloverHint(to_mode and T{7401, "<left_click> Select target mode<newline><UnitMoveControl()> on target to move or interact", self}
+	local shortcuts = GetShortcuts("actionMoveInteract")
+	local hint = ""
+	if shortcuts and (shortcuts[1] or shortcuts[2]) then
+		hint = T{10927, " / <em><ShortcutName('actionMoveInteract', 'keyboard')></em>"}
+	end
+	button:SetRolloverHint(to_mode and T{7401, "<left_click><hint> Select target mode<newline><UnitMoveControl()> on target to move or interact", hint = hint, self}
 		or T{7510, "<left_click> on target to select it  <right_click> Cancel"})
 	button:SetRolloverHintGamepad(to_mode and T{7511, "<ButtonA> Select target mode"} or T{7512, "<ButtonA> Cancel"})
 end

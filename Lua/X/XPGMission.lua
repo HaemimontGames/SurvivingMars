@@ -1,40 +1,54 @@
 if FirstLoad then
-	g_DiffBonusObj = false
-	g_ChallengesObj = false
+	g_TitleObj = false
 	g_RenameRocketObj = false
 	g_UIAvailableRockets = 0
 	g_UITotalRockets = 0
 end
 
-DefineClass.PGDifficultyObject = {
+DefineClass.PGTitleObject = {
 	__parents = { "PropertyObject" },
-	
 	replace_param = false,
 	replace_value = false,
 	map_challenge_rating = false,
-	
 }
 
-function PGDifficultyObject:GetDifficultyBonus()
+function PGTitleObject:GetTitleText()
+	local dlg = GetDialog("PGMainMenu")	
+	if dlg and dlg.Mode == "Challenge" then
+		local mode = dlg.idContent.PGChallenge.Mode
+		if mode == "landing" then
+			return T{10880, "CHALLENGES"} .. Untranslated("<newline>") .. T{10881, "<white>Completed <CompletedChallenges>/<TotalChallenges></white>", self}
+		elseif mode == "payload" then
+			return T{4159, "PAYLOAD"}
+		else
+			return ""
+		end
+	end
+	if dlg and dlg.Mode == "Mission" then
+		local mode = dlg.idContent.PGMission and dlg.idContent.PGMission.Mode or false
+		if mode == "sponsor" then
+			return T{10892, "MISSION PARAMETERS"} .. Untranslated("<newline>") .. T{10893, "<white>Difficulty Challenge <percent(DifficultyBonus)></white>", self}
+		elseif mode == "payload" then
+			return T{4159, "PAYLOAD"} .. Untranslated("<newline>") .. T{10893, "<white>Difficulty Challenge <percent(DifficultyBonus)></white>", self}
+		elseif mode == "landing" then
+			return T{10894, "COLONY SITE"} .. Untranslated("<newline>") .. T{10893, "<white>Difficulty Challenge <percent(DifficultyBonus)></white>", self}
+		else
+			return ""
+		end
+	end
+	
+	local dlg = GetDialog("Resupply")
+	if dlg then
+		return T{4159, "PAYLOAD"} .. Untranslated("<newline>") .. T{10893, "<white>Difficulty Challenge <percent(DifficultyBonus)></white>", self}
+	end
+	return ""
+end
+
+function PGTitleObject:GetDifficultyBonus()
 	return 100 + CalcChallengeRating(self.replace_param, self.replace_value, self.map_challenge_rating)
 end
 
-function PGDifficultyObjectCreate()
-	g_DiffBonusObj = g_DiffBonusObj or PGDifficultyObject:new()
-	return g_DiffBonusObj
-end
-
-
-DefineClass.PGChallengesObject = {
-	__parents = { "PropertyObject" },
-	
-	replace_param = false,
-	replace_value = false,
-	map_challenge_rating = false,
-	
-}
-
-function PGChallengesObject:GetCompletedChallenges()
+function PGTitleObject:GetCompletedChallenges()
 	local n = 0
 	ForEachPreset("Challenge", function(preset) 
 		if preset.id ~= "" and AccountStorage.CompletedChallenges and AccountStorage.CompletedChallenges[preset.id] then
@@ -44,7 +58,7 @@ function PGChallengesObject:GetCompletedChallenges()
 	return n
 end
 
-function PGChallengesObject:GetTotalChallenges()
+function PGTitleObject:GetTotalChallenges()
 	local n = 0
 	ForEachPreset("Challenge", function(preset) 
 		if preset.id ~= "" then
@@ -54,9 +68,9 @@ function PGChallengesObject:GetTotalChallenges()
 	return n
 end
 
-function PGChallengesObjectCreate()
-	g_ChallengesObj = g_ChallengesObj or PGChallengesObject:new()
-	return g_ChallengesObj
+function PGTitleObjectCreate()
+	g_TitleObj = g_TitleObj or PGTitleObject:new()
+	return g_TitleObj
 end
 
 local function MissionParamCombo(id)
@@ -73,54 +87,42 @@ local function MissionParamCombo(id)
 				rollover = GetEntryRollover(v)
 			end
 			items[#items + 1] = {
-				value = rawget(v, "name") or rawget(v, "id"),
-				text = v.display_name,
-				rollover = rollover,
-				image = id == "idMissionLogo" and v.image,
-				mystery = id == "idMystery"
-			}
-		end
-	end
-	return items
-end
-
-local function MissionParamComboGameRules()
-	local items = {}
-	for k,v in ipairs(MissionParams["idGameRules"].items) do
-		local lines = {}
-		local rollover = {title = v.display_name}
-		lines[#lines + 1] = v.description
-		rollover.descr = table.concat(lines, "\n")
-		if v.flavor and v.flavor ~= "" then
-			rollover.descr = rollover.descr .. "\n\n" .. v.flavor
-		end
-		rollover.id = rollover.title
-		rollover.gamepad_hint = T{3545, "<ButtonA> Select"}
-		items[#items + 1] = {
 				value = v.id,
 				text = v.display_name,
 				rollover = rollover,
-				game_rule = true,
+				image = id == "idMissionLogo" and v.image,
+				item_type = id,
 			}
+		end
 	end
 	return items
 end
 
-DefineClass.PGMissionObject = {
-	__parents = { "PropertyObject" },
-	properties = {
-		{id = "idMissionSponsor", name = T{3474, "Mission Sponsor"}, title = T{3475, "MISSION SPONSOR"}, descr = T{3476, "The patron country or organization standing behind the Mars mission. Grants funding, research and other benefits to colony."}, gamepad_hint = T{3477, "<ButtonA> Choose Sponsor"}, editor = "dropdown", default = "", items = function() return MissionParamCombo("idMissionSponsor") end, submenu = true, },
-		{id = "idCommanderProfile", name = T{3478, "Commander Profile"}, title = T{3479, "COMMANDER PROFILE"}, descr = T{3480, "The mission commander grants various benefits to the colony."}, gamepad_hint = T{3481, "<ButtonA> Choose Commander"}, editor = "dropdown", default = "", items = function() return MissionParamCombo("idCommanderProfile") end, submenu = true, },
-		{id = "idMissionLogo", name = T{3482, "Colony Logo"}, title = T{3483, "COLONY LOGO"}, descr = T{3484, "This is an aesthetic choice that has no effect on gameplay."}, gamepad_hint = T{3485, "<ButtonA> Choose Logo"}, editor = "dropdown", default = "", items = function() return MissionParamCombo("idMissionLogo") end, submenu = true, },
-		{id = "idMystery", name = T{3486, "Mystery"}, title = T{3487, "MYSTERY"}, descr = T{3488, "Select an active storyline for this playthrough."}, gamepad_hint = T{3489, "<ButtonA> Choose Mystery"}, editor = "dropdown", default = "", items = function() return MissionParamCombo("idMystery") end, submenu = true, },
-		{id = "idGameRules", name = T{8800, "Game Rules"}, title = T{8801, "GAME RULES"}, descr = T{8804, "Select game rules you want to activate for this playthrough."}, gamepad_hint = T{8903, "<ButtonA> Choose Game Rules"}, editor = "dropdown", default = "", items = function() return MissionParamComboGameRules() end, submenu = true, },
-	},
-}
+function GetMissionParamUICategories()
+	local keys = GetSortedMissionParamsKeys()
+	local items = {}
+	for _, category in ipairs(keys) do
+		local value = MissionParams[category]
+		items[#items + 1] = {
+			id = category,
+			name = value.display_name,
+			title = value.display_name_caps,
+			descr = value.descr,
+			gamepad_hint = value.gamepad_hint,
+			editor = "dropdown",
+			submenu = true,
+			items = function()
+				return MissionParamCombo(category)
+			end,
+		}
+	end
+	return items
+end
 
-function PGMissionObject:GetRollover(item)
+function GetMissionParamRollover(item, value)
 	local id = item.id
 	if id == "idMissionSponsor" or id == "idCommanderProfile" then
-		local entry = table.find_value(MissionParams[id].items, "id", self[id])
+		local entry = table.find_value(MissionParams[id].items, "id", value)
 		local descr = item.descr
 		local effect = entry and entry.effect or ""
 		if effect ~= "" then
@@ -137,23 +139,45 @@ function PGMissionObject:GetRollover(item)
 		}
 	end
 	if id == "idGameRules" then
+		local descr = item.descr
+		local names = GetGameRulesNames()
+		if names and names ~= "" then
+			descr = table.concat({descr, names}, "\n\n")
+		end
 		return {
 			title = item.title,
-			descr = item.descr .. "\n\n" .. GetGameRulesNames(),
+			descr = descr,
 			gamepad_hint = item.gamepad_hint,
 		}
 	end
 	return item
 end
 
+DefineClass.PGMissionObject = {
+	__parents = { "PropertyObject" },
+	params = false,
+}
+
 function PGMissionObject:GetEffects()
 	return GetDescrEffects()
 end
 
-function PGMissionObjectCreateAndLoad()
-	local obj = PGMissionObject:new()
+function PGMissionObject:GetProperty(prop_id)
+	if self.params[prop_id] then
+		return self.params[prop_id]
+	end
+	return PropertyObject.GetProperty(self, prop_id)
+end
+
+function PGMissionObject:SetProperty(prop_id, prop_val)
+	self.params[prop_id] = prop_val
+end
+
+function PGMissionObjectCreateAndLoad(obj)
+	local obj = PGMissionObject:new(obj)
+	obj.params = {}
 	for k, v in pairs(g_CurrentMissionParams) do
-		obj[k] = v
+		obj.params[k] = v
 	end
 	return obj
 end
@@ -221,7 +245,7 @@ function RocketRenameObject:RenameRocket(host, func)
 				self.rocket_name_base = false
 			end
 		end, 
-		nil, self, {max_len = 23})
+		nil, self, {max_len = 23, console_show = Platform.steam and GetUIStyleGamepad()})
 end
 
 function RocketRenameObject:GetRocketHyperlink()

@@ -61,7 +61,6 @@ const.RCRoverMinRadius = 5
 const.DroneBatteryMax = 800*100
 const.DroneTimeAfterUserGotoToRest = 30 * 1000
 const.DroneTimeAfterUserPickUpToRest = 30 * 1000
-const.DronePolymersPerFraction = 5 * const.ResourceScale
 const.DroneFractionRepairTime = 25 * 1000
 
 const.DroneLoadLowThreshold = const.HourDuration / 3
@@ -121,6 +120,7 @@ ResourceDescription = {
 	{ name = "Funding",         display_name = T{3613, "Funding"},    },
 	{ name = "Colonist",        display_name = T{4290, "Colonist"},         display_icon = "UI/Icons/Buildings/res_fuel.tga", unit_amount = const.ResourceScale, color = RGB(255, 128, 0), entity = "ResourceFuel" },	
 	{ name = "MysteryResource", display_name = T{8064, "Mystery Resource"}, display_icon = "UI/Icons/Buildings/res_mystery_resource.tga", unit_amount = const.ResourceScale, color = RGB(128, 255, 0), entity = "ResourceMystery", description = T{8065, "Mystery Resource Description"} },
+	{ name = "ResearchPoints",  display_name = T{9755, "Research Points"},        display_icon = "UI/Icons/res_experimental_research.tga", unit_amount = const.ResourceScale, color = RGB(128, 255, 0), entity = "ResourceFuel", description = T{9755, "Research Points"} },
 }
 
 Resources = {}
@@ -171,7 +171,7 @@ const.HeatGridBorder = 100 * guim
 const.HeatGridTileSize = 512
 const.SubsurfaceHeaterFrameRange = const.HeatGridTileSize * 4
 const.DefaultPanaltyHeat = 210 -- Heat at which the cold penalty is applied
-const.DefaultPanaltyPct = 60   -- Cold penalty percents
+const.DefaultPanaltyPct = 100   -- Cold penalty percents
 const.DefaultFreezeHeat = 100  -- Heat at which the building begins to freeze
 const.DefaultFreezeTime = 24 * const.HourDuration   -- Freeze time if under the freeze heat
 const.DefaultDefrostTime = 4 * const.HourDuration  -- Defrost time if above the freeze heat

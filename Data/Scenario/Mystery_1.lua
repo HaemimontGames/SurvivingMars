@@ -401,7 +401,6 @@ PlaceObj('Scenario', {
 			'display_name', T{5866, --[[Scenario Mystery 1 display_name]] "Cube Disaster"},
 			'sequence_list', "Mystery 1",
 			'sequence', "Anomaly 2: Damaged Building",
-			'revealed', true,
 		}),
 		PlaceObj('SA_WaitMessage', {
 			'title', T{5867, --[[Scenario Mystery 1 title]] "Power of Three: Disappearing Act"},
@@ -628,7 +627,7 @@ PlaceObj('Scenario', {
 			'State', "Researched",
 		}),
 		PlaceObj('SA_Exec', {
-			'expression', "UICity.mystery.can_destroy_cubes = true; table.insert(StorableResourcesForSession, \"BlackCube\")",
+			'expression', 'UICity.mystery.can_destroy_cubes = true; table.insert(StorableResourcesForSession, "BlackCube")',
 		}),
 		PlaceObj('SA_WaitMessage', {
 			'title', T{5892, --[[Scenario Mystery 1 title]] "Power of Three: Solace in Science"},
@@ -741,15 +740,15 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_WaitMarsTime', {
 			'duration', 30000,
 		}),
-		PlaceObj('SA_Exec', {
-			'expression', '_ENV["start_time"] = GameTime()',
-		}),
 		PlaceObj('SA_WaitMessage', {
 			'title', T{5905, --[[Scenario Mystery 1 title]] "Power of Three: The Countdown"},
 			'voiced_text', T{7988, --[[voice:narrator]] "Within the hour all the cubes across the Colony started emitting light pulses, sending a wave of panic across the Colony. Even here at Mission Control we found it hard not to worry."},
 			'text', T{5906, --[[Scenario Mystery 1 text]] "The photovoltaic effect we observed earlier has completely disappeared. To make things worse, numerous glitches in the drone command software have our technicians scattering to extinguish fires all across the board. It seems that the pulses from the cubes are somehow interfering with the Drone uplink.\n\nAs reports are flowing in, we can clearly see a trend in the intensification of the light pulses. Is this some kind of countdown? And if so, to what?"},
 			'image', "UI/Messages/power_of_three_mystery_01.tga",
 			'choice1', T{5907, --[[Scenario Mystery 1 choice1]] "Just colonizing a new world isn’t interesting enough, it seems."},
+		}),
+		PlaceObj('SA_Exec', {
+			'expression', '_ENV["start_time"] = GameTime()',
 		}),
 		PlaceObj('SA_CustomNotification', {
 			'id', "Mystery1Counter",
@@ -759,7 +758,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_WaitMarsTime', {
 			'duration', 720000,
 		}),
-		PlaceObj('SA_WaitMessage', {
+		PlaceObj('SA_ShowMessage', {
 			'title', T{5908, --[[Scenario Mystery 1 title]] "Power of Three: Of Mice & Men"},
 			'voiced_text', T{7989, --[[voice:narrator]] "Our Colonists want decisive action in dealing with the cubes."},
 			'text', T{5909, --[[Scenario Mystery 1 text]] "Some of them call for the immediate destruction of all the cubes while others still insist on storing and studying them – as far away from the Domes as possible. And yet, the number of eccentrics worshiping the cubes and erecting monuments with them has grown even larger. Could the cubes be affecting us like they influenced our drones?"},
@@ -891,6 +890,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7992, --[[voice:narrator]] "The Ancients were pleased to see we had reacted with restraint and curiosity, trying to understand the unknown phenomenon instead of fearing it. "},
 			'text', T{5920, --[[Scenario Mystery 1 text]] "Judging from their own history, they assume this was not necessarily an easy thing to do.\n\nThey recall the fondest epochs of their history, where such strivings were predominant amongst them. Proud and nostalgic, they offer us a gift.\n\n<effect>Gained a new Technology, <em><reg_param1></em>"},
 			'image', "UI/Messages/power_of_three_mystery_02.tga",
+			'start_minimized', false,
 			'reg_param1', "_grantedTech",
 			'choice1', T{5921, --[[Scenario Mystery 1 choice1]] "It has been quite the ride."},
 		}),
@@ -923,6 +923,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7993, --[[voice:narrator]] "The Ancients were set back by the hostile reaction we had towards their messengers – the cubes."},
 			'text', T{5923, --[[Scenario Mystery 1 text]] "Ultimately they expressed understanding, noting that there were times in their own long history, dark times when they had the same hostile response towards the unknown.\n\nThey hope that with time and maturity we will come to embrace the idea that while the universe is a dangerous place, not everything is a threat and there are also wonders to be discovered.\n\n<effect>All Black Cubes have disappeared\n<effect>Gained a new Technology, <em><reg_param1></em>"},
 			'image', "UI/Messages/power_of_three_mystery_02.tga",
+			'start_minimized', false,
 			'reg_param1', "_grantedTech",
 			'choice1', T{5921, --[[Scenario Mystery 1 choice1]] "It has been quite the ride."},
 		}),
@@ -984,6 +985,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7994, --[[voice:narrator]] "The Ancients were intrigued and quite surprised by our choice to indulge in creations of art with their cubes."},
 			'text', T{5925, --[[Scenario Mystery 1 text]] "Oblivious to the concept of higher powers, they seemed to see no other reason for our actions other than a pursuit of aesthetic decoration, one that seems to have eluded them as a possibility.\n\nNot quite sure what to make of this, they express hope we will retain our creativity as a race in the ages ahead.\n\n<effect>The monument collapsed into a pile of Black Cubes\n<effect>Gained a new Technology, <em><reg_param1></em>"},
 			'image', "UI/Messages/power_of_three_mystery_02.tga",
+			'start_minimized', false,
 			'reg_param1', "_grantedTech",
 			'choice1', T{5921, --[[Scenario Mystery 1 choice1]] "It has been quite the ride."},
 		}),
@@ -1023,6 +1025,7 @@ PlaceObj('Scenario', {
 			'voiced_text', T{7995, --[[voice:narrator]] "The moment the last cube fit in the structure, we detected a single, intense beam of high-energy particles directed towards the cosmos. What could it mean?"},
 			'text', T{5927, --[[Scenario Mystery 1 text]] "Meanwhile, reports from all over the Colony indicate that all cubes have ceased their pulsating and reverted to their previous lifeless state. Many Colonists report to the medical facilities that they feel different states of depression – ranging from melancholy to outright despair. Could these events be attributed to the mysterious structure and the death of the cubes? We would never find out.\n\n<effect>All Colonists suffer penalties to Morale."},
 			'image', "UI/Messages/power_of_three_mystery_02.tga",
+			'start_minimized', false,
 			'choice1', T{5928, --[[Scenario Mystery 1 choice1]] "Perhaps we should've done more"},
 		}),
 		PlaceObj('SA_AppendToLog', {

@@ -339,8 +339,6 @@ function OnMsg.SelectedObjChange(obj, prev)
 			if UICity.labels.SupplyRocket and table.find(UICity.labels.SupplyRocket, "landed", true) then
 				HintTrigger("HintSuggestConcreteExtractor")
 			end
-		elseif IsKindOf(obj, "BaseRover") and obj.battery_current < (obj.battery_max/10) then
-			HintTrigger("HintRoverBatteries")
 		elseif IsKindOf(obj, "RCRover") then
 			ContextAwareHintShow("HintRover", true)
 		elseif IsKindOf(obj, "RCTransport") then
@@ -393,6 +391,14 @@ DefineClass.HintBuildingConstruction = {
 	highlight_dialog = "XBuildMenu",
 	highlight_element = "SolarPanelBig",
 }
+
+function TFormat.OpenBuildMenuHint(context_obj)
+	if g_RightClickOpensBuildMenu then
+		return T{11005, --[[Open build menu hint (right click)]] "Open the Build Menu with <right_click> or <em><ShortcutName('actionOpenBuildMenu')></em>, select a building, and place it on the desired location with <left_click>"}
+	else
+		return T{11006, --[[Open build menu hint (no right click)]] "Open the Build Menu with <em><ShortcutName('actionOpenBuildMenu')></em> or the <em>HUD button</em>, select a building, and place it on the desired location with <left_click>"}
+	end
+end
 
 DefineClass.HintProbes = {
 	__parents = { "BaseHint" },
@@ -711,10 +717,6 @@ DefineClass.HintDrones = {
 	__parents = { "BaseHint" },
 	
 	context_aware = true,
-}
-
-DefineClass.HintRoverBatteries = {
-	__parents = { "BaseHint" },
 }
 
 DefineClass.HintEarthsick = {

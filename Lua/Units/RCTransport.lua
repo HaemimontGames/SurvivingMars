@@ -61,6 +61,10 @@ DefineClass.RCTransport = {
 	track_anim_moments = false,
 	track_anim_moments_thread = false,
 	amount_transfered_last_ct = 0,
+	
+	Select = BaseRover.Select,
+	
+	has_auto_mode = true,
 }
 
 --resolve inheritance
@@ -92,10 +96,14 @@ function RCTransport:IsStorageFull()
 	return self:GetStoredAmount() >= self.max_shared_storage
 end
 
+function RCTransport:IsStorageEmpty()
+	return self:GetStoredAmount() == 0
+end
+
 function RCTransport:OnContinuousTaskTick(amount, total_amount)
 end
 
-function RCTransport:ContinuousTask(request, amount, anim_start, anim_idle, anim_end, fx, fx_work_moment, work_time, add_res, reciprocal_request, total_amount)
+function RCTransport:ContinuousTask(request, amount, anim_start, anim_idle, anim_end, fx, fx_work_moment, work_time, add_res, reciprocal_request, total_amount, custom_add_r_functor, force_empty_storage)
 	local building = request:GetBuilding()
 	if not IsValid(building) then return end
 	if amount == 0 then return end
@@ -118,24 +126,25 @@ function RCTransport:ContinuousTask(request, amount, anim_start, anim_idle, anim
 	self.amount_transfered_last_ct = 0
 	local construction_resource = table.find(AllResourcesList, resource) or false
 	local is_supplying = construction_resource and ((is_demmand and amount > 0) or (not is_demmand and amount < 0)) or false --whether we are givin or taking resources.
-	local empty_storage = construction_resource and not is_supplying and self:GetEmptyStorage(resource) or building:GetEmptyStorage(resource) or 10000000
+	local empty_storage = force_empty_storage or construction_resource and not is_supplying and self:GetEmptyStorage(resource) or building:GetEmptyStorage(resource) or max_int
 	local amount_sign = abs(amount) / amount
 	local abs_amount = abs(amount)
 	local amount_transfered = 0
-	local add_r_functor
-	if building:HasMember("AddResource") then
-		add_r_functor = function(a)
-			building:AddResource(abs(a) * (is_supplying and 1 or -1), resource, true)
-		end
-	else
-		add_r_functor = function(a)
-			request:AddAmount(-a)
-			if reciprocal_request then
-				reciprocal_request:AddAmount(a)
+	local add_r_functor = custom_add_r_functor
+	if not add_r_functor then
+		if building:HasMember("AddResource") then
+			add_r_functor = function(a)
+				building:AddResource(abs(a) * (is_supplying and 1 or -1), resource, true)
+			end
+		else
+			add_r_functor = function(a)
+				request:AddAmount(-a)
+				if reciprocal_request then
+					reciprocal_request:AddAmount(a)
+				end
 			end
 		end
 	end
-	
 	while IsValid(building) and amount_transfered < (total_amount or max_int) and (not construction_resource or empty_storage > 0) 
 			and ((is_supplying and self.resource_storage[resource] > 0 and (not request:IsAnyFlagSet(const.rfDemand) or request:GetActualAmount() > 0)) --if it aint a demand req we cant determine max amount.
 			or (not is_supplying and ((is_demmand and construction_resource) or request:GetActualAmount() > 0)))
@@ -154,17 +163,22 @@ function RCTransport:ContinuousTask(request, amount, anim_start, anim_idle, anim
 			max = Min(is_supplying and is_demmand and construction_resource and request:GetActualAmount() or max, max) --we are supplying construction resources, supply as much as the req requires.
 			max = Min(not is_supplying and not is_demmand and construction_resource and request:GetActualAmount() or max, max) --we are taking stuff, reqs amount is the amount of stuff there is.
 			local amount_clamped = amount_sign * Min(abs_amount, max, empty_storage)			
+			
+			self:PushDestructor(function()
+				if add_res then
+					local a = amount_clamped * (is_demmand and -1 or 1) --negative amount for demmand reqs, positive amount for supply reqs..
+					self:AddResource(a, resource)
+					empty_storage = empty_storage - abs(a)
+				end
+				
+				local abs_amount_clamped = abs(amount_clamped)
+				amount_transfered = amount_transfered + abs_amount_clamped
+				self.amount_transfered_last_ct = amount_transfered
+				self:OnContinuousTaskTick(abs_amount_clamped, amount_transfered)
+			end)
+			
 			add_r_functor(amount_clamped)
-			
-			if add_res then
-				local a = amount_clamped * (is_demmand and -1 or 1) --negative amount for demmand reqs, positive amount for supply reqs..
-				self:AddResource(a, resource)
-				empty_storage = empty_storage - abs(a)
-			end
-			
-			amount_transfered = amount_transfered + abs_amount
-			self.amount_transfered_last_ct = amount_transfered
-			self:OnContinuousTaskTick(abs_amount, amount_transfered)
+			self:PopAndCallDestructor()
 		end
 	end
 	self:StopFX()
@@ -185,6 +199,26 @@ function RCTransport:GameInit()
 	self:SetColorModifier(RGB(100, 100, 100)) --remove me, this is so saved green rovers revert to default.
 	self.transport_route = {from = false, to = false}
 	self.resource_storage = self.stockpiled_amount --same thing, called different things in diff classes, make one point to the other.
+end
+
+local function CanUnloadAt(self, depot)
+	if type(depot.resource) == "string" then
+		local r = depot.resource
+		if (self.stockpiled_amount[r] or 0) > 0 and depot:GetEmptyStorage(r) > 0 then
+			if IsKindOf(depot, "MechanizedDepot") and not depot.working and depot.stockpiles[1]:GetEmptyStorage(r) < self.stockpiled_amount[r] then
+				return false
+			end
+			return true
+		end
+	else
+		for res, amount in pairs(self.stockpiled_amount) do
+			if amount > 0 and depot:GetEmptyStorage(res) > 0 then
+				return true
+			end
+		end
+	end
+	
+	return false
 end
 
 local function FullAndCanUnload(self, depot)
@@ -250,7 +284,7 @@ function RCTransport:CanInteractWithObject(obj, interaction_mode)
 			return true, T{9638, "<UnitMoveControl('ButtonA', interaction_mode)>Load Resource", self}
 		else
 			if FullAndCanUnload(self, obj) then
-				return true, T{9721, "<UnitMoveControl('ButtonX', interaction_mode)>Unload Resource", self}
+				return true, T{9721, "<UnitMoveControl('ButtonY', interaction_mode)>Unload Resource", self}
 			elseif CanLoad(self, obj) then
 				return true, T{9639, "<UnitMoveControl('ButtonX', interaction_mode)>Load Resource", self}
 			end
@@ -355,10 +389,23 @@ end
 function RCTransport:LoadResource_Update(button)
 	local to_mode = self.interaction_mode ~= "load"
 	button:SetIcon(to_mode and "UI/Icons/IPButtons/load.tga" or "UI/Icons/IPButtons/cancel.tga")
-	button:SetEnabled(self:CanBeControlled())
+	local enabled = false
+	if not self:CanBeControlled() then
+		button:SetRolloverDisabledText(T{266581508662, --[[XTemplate ipRover RolloverDisabledText]] "Vehicle inactive."})
+	elseif self:IsStorageFull() then
+		button:SetRolloverDisabledText(T{10890, "Transport full."})
+	else
+		enabled = true
+	end
+	button:SetEnabled(enabled)
 	button:SetRolloverTitle(T{7554, "Load resources"})
 	button:SetRolloverText(T{4499, "Give command to load or gather resources."})
-	button:SetRolloverHint(to_mode and T{7509, "<left_click> Select target mode"} or T{7510, "<left_click> on target to select it  <right_click> Cancel"})
+	local shortcuts = GetShortcuts("actionLoadResources")
+	local hint = ""
+	if shortcuts and (shortcuts[1] or shortcuts[2]) then
+		hint = T{10928, " / <em><ShortcutName('actionLoadResources', 'keyboard')></em>"}
+	end
+	button:SetRolloverHint(to_mode and T{10925, "<left_click><hint> Select target mode", hint = hint} or T{7510, "<left_click> on target to select it  <right_click> Cancel"})
 	button:SetRolloverHintGamepad(to_mode and T{7511, "<ButtonA> Select target mode"} or T{7512, "<ButtonA> Cancel"})
 end
 
@@ -369,10 +416,23 @@ end
 function RCTransport:UnloadResource_Update(button)
 	local to_mode = self.interaction_mode ~= "unload"
 	button:SetIcon(to_mode and "UI/Icons/IPButtons/unload.tga" or "UI/Icons/IPButtons/cancel.tga")
-	button:SetEnabled(self:CanBeControlled())
+	local enabled = false
+	if not self:CanBeControlled() then
+		button:SetRolloverDisabledText(T{266581508662, --[[XTemplate ipRover RolloverDisabledText]] "Vehicle inactive."})
+	elseif self:IsStorageEmpty() then
+		button:SetRolloverDisabledText(T{10891, "Nothing to unload."})
+	else
+		enabled = true
+	end
+	button:SetEnabled(enabled)
 	button:SetRolloverTitle(T{4501, "Unload resources"})
 	button:SetRolloverText(T{4502, "Give command to unload resources on a storage depot or on the ground."})
-	button:SetRolloverHint(to_mode and T{7509, "<left_click> Select target mode"} or T{7510, "<left_click> on target to select it  <right_click> Cancel"})
+	local shortcuts = GetShortcuts("actionUnloadResources")
+	local hint = ""
+	if shortcuts and (shortcuts[1] or shortcuts[2]) then
+		hint = T{10929, " / <em><ShortcutName('actionUnloadResources', 'keyboard')></em>"}
+	end
+	button:SetRolloverHint(to_mode and T{10925, "<left_click><hint> Select target mode", hint = hint} or T{7510, "<left_click> on target to select it  <right_click> Cancel"})
 	button:SetRolloverHintGamepad(to_mode and T{7511, "<ButtonA> Select target mode"} or T{7512, "<ButtonA> Cancel"})
 end
 
@@ -460,9 +520,9 @@ function RCTransport:GetStoredAmountIn(o, res)
 	return stored_amount
 end
 
-local RCTransport_AutoRouteRadius = 100 * guim
+RCTransport_AutoRouteRadius = 20
 local ResourceScale = const.ResourceScale
-local ResourceSourcesRoute_func = function(o, rover)
+ResourceSourcesRoute_func = function(o, rover)
 		if IsKindOf(o, "SharedStorageBaseVisualOnly") then return false end
 		if IsObjInDome(o) then return false end
 		if rover.route_visited_dests[o] then return end
@@ -488,6 +548,10 @@ end
 
 local dest_tolerance = 50 * guim
 
+function RCTransport:FindNextRouteSource()
+	return MapFindNearest(self, self, "hex", RCTransport_AutoRouteRadius, "SurfaceDeposit", "ResourceStockpile", "ResourcePile", "StorageDepot", ResourceSourcesRoute_func, self)
+end
+
 function RCTransport:TransportRouteLoad()
 	if self:GetEmptyStorage() <= 0 then return end
 	if not self.transport_route then return end --no route set
@@ -497,7 +561,6 @@ function RCTransport:TransportRouteLoad()
 		return
 	end
 	
-	self:TryRechargeFromRoute()
 	
 	--analyze the area and pick stuff to load, if any
 	--we can load from: surface dep, ResourcePile, ResourceStockpile and storage depots.
@@ -507,7 +570,8 @@ function RCTransport:TransportRouteLoad()
 			return
 		end
 		potential_sources = false
-		local next_source = MapFindNearest(self, self, RCTransport_AutoRouteRadius, "ResourceStockpile", "ResourcePile", "SurfaceDeposit", "StorageDepot", ResourceSourcesRoute_func, self)
+		local next_source = self:FindNextRouteSource()
+		
 		if not next_source then --no sources left
 			if potential_sources then
 				if self:GetStoredAmount() <= 0 then
@@ -616,11 +680,9 @@ function RCTransport:TransportRouteUnload()
 		return
 	end
 
-	self:TryRechargeFromRoute()
-
 	while self:GetStoredAmount() > 0 do
 		resource_dest_type = self:GetPredominantStoredResource()
-		local next_dest = MapFindNearest(self, self, RCTransport_AutoRouteRadius, "StorageDepot", "ResourceStockpile", ResourceDestinations_func, self)
+		local next_dest = MapFindNearest(self, self, "hex", RCTransport_AutoRouteRadius, "StorageDepot", "ResourceStockpile", ResourceDestinations_func, self)
 		if next_dest then
 			self.route_visited_dests[next_dest] = true
 			local result = self:TransferResources(next_dest, "unload", resource_dest_type)
@@ -676,55 +738,116 @@ function RCTransport:AutoTransportRoute()
 	self:PopAndCallDestructor()
 end
 
-local cable_auto_search_radius = 6
-function RCTransport:TryRechargeFromRoute()
-	if self:ShouldAutoRecharge() then
-		local c = self:GetCableNearby(cable_auto_search_radius)
-		if c and c.electricity.grid.current_reserve >= self.battery_hourly_recharge_rate / const.RoverToGridElectricityScale then
-			self:RechargeFromGrid(c, false, false)
-			self:StartBatteryThread(-self.battery_hourly_drain_rate) --reset battery drain
+local max_auto_rovers_per_pickup = 4
+local max_auto_rovers_per_depot = 4
+
+function RCTransport:Automation_Gather()
+	local unreachable_objects = self:GetUnreachableObjectsTable()
+	local deposit = MapFindNearest(self, "map", "SurfaceDepositMetals", "SurfaceDepositConcrete", "SurfaceDepositPolymers",
+											function(d)
+												local grp = d:GetDepositGroup()
+												if grp and (grp.auto_rovers or 0) >= max_auto_rovers_per_pickup then
+													return false
+												end
+												return grp and not unreachable_objects[grp] or not grp and not unreachable_objects[d]
+											end)
+	if deposit then
+		if pf.HasPath(self:GetPos(), self.pfclass, deposit:GetPos()) then
+			local grp = deposit:GetDepositGroup()
+			if grp then
+				grp.auto_rovers = (grp.auto_rovers or 0) + 1
+			end
+			self:PushDestructor(function(self)
+				if grp then
+					grp.auto_rovers = grp.auto_rovers - 1
+				end
+			end)
+			self:SetCommand("PickupResource", deposit.transport_request, nil, "goto_loading_complete")
+		else
+			unreachable_objects[deposit:GetDepositGroup() or deposit] = true
 		end
 	end
 end
 
-function RCTransport:SetSupply(resource, amount)
-	BaseRover.SetSupply(self, resource, amount)
-	if self.command == "AutoTransportRoute" and self.waiting_wakeup_recharge and amount < self.electricity.consumption then --we are not charging
-		--electricity got turned off.
-		self.force_exit_recharge_loop = true
-		Wakeup(self.command_thread)
+function RCTransport:Automation_Unload()
+	local unreachable_objects = self:GetUnreachableObjectsTable()
+	local nearest_reachable = false
+	local depot = MapFindNearest(self, "map", "UniversalStorageDepot", "MechanizedDepot",
+											function(d)
+												if d.auto_rovers < max_auto_rovers_per_depot and
+														not IsKindOf(d, "SupplyRocket") and
+														not unreachable_objects[d] then
+													nearest_reachable = nearest_reachable or d
+													return CanUnloadAt(self, d)
+												end
+												
+												return false
+											end)
+
+	local command = "TransferAllResources"
+	if not depot and nearest_reachable then
+		command = "DumpCargo"
+		depot = nearest_reachable
 	end
+	
+	if depot then
+		if pf.HasPath(self:GetPos(), self.pfclass, depot:GetPos()) then
+			if command == "TransferAllResources" then
+				self:SetCommand(command, IsKindOf(depot, "MechanizedDepot") and depot.stockpiles[1] or depot, "unload", empty_table, self.stockpiled_amount)
+			else
+				self:SetCommand(command, GetPassablePointNearby(depot:GetPos()), "all")
+			end
+		else
+			unreachable_objects[depot] = true
+		end
+	end
+end
+
+function RCTransport:ProcAutomation()
+	if self:GetStoredAmount() <= 0 then
+		self:Automation_Gather()
+	else
+		self:Automation_Unload()
+	end
+	
+	Sleep(2500)
 end
 
 function RCTransport:LoadingComplete()
-	self:TryRechargeFromIdle()
 	self:SetState("idle")
-	Halt()
+	if g_RoverAIResearched and self.auto_mode_on then
+		self:ProcAutomation()
+	else
+		Halt()
+	end
 end
 
 function RCTransport:Idle()
-	self:PushDestructor(function(self)
-		self:InterruptDrones(nil, function(drone)
-			if drone.s_request and drone.s_request == self.resource_requests[drone.s_request:GetResource()] then
-				return drone
-			end
-		end)
-		
-		self.auto_connect = false
-		self:DisconnectFromCommandCenters()
-	end)
 	self:Gossip("Idle")
 	self:SetState("idle")
-	
-	for res, amount in pairs(self.stockpiled_amount) do
-		self.resource_requests[res]:ResetAmount(amount)
+	if g_RoverAIResearched and self.auto_mode_on then
+		self:ProcAutomation()
+	else
+		self:PushDestructor(function(self)
+			self:InterruptDrones(nil, function(drone)
+				if drone.s_request and drone.s_request == self.resource_requests[drone.s_request:GetResource()] then
+					return drone
+				end
+			end)
+			
+			self.auto_connect = false
+			self:DisconnectFromCommandCenters()
+		end)
+		
+		for res, amount in pairs(self.stockpiled_amount) do
+			self.resource_requests[res]:ResetAmount(amount)
+		end
+		
+		self:ConnectToCommandCenters()
+		self.auto_connect = true
+		
+		Halt()
 	end
-	
-	self:ConnectToCommandCenters()
-	self.auto_connect = true
-	
-	self:TryRechargeFromIdle()
-	Halt()
 end
 
 
@@ -782,6 +905,17 @@ function RCTransport:SetTransportRoute(route)
 	route.from = GetPassablePointNearby(route.from, self.pfclass) or route.from
 	route.to = GetPassablePointNearby(route.to, self.pfclass) or route.to
 	self.transport_route = route
+	
+	local dlg = GetDialog("ResourceItems")
+	if dlg then
+		--resource selector still open
+		local items = dlg.items
+		local idx = table.find(items, "name", "all") or 1
+		local item = items[idx]
+		item.action({target = self})
+		CloseDialog("ResourceItems")
+	end
+	
 	self:SetCommand("AutoTransportRoute")
 end
 
@@ -795,20 +929,39 @@ local DepositsNearby_func = function(deposit, resource)
 		if deposit:IsDepleted() then
 			return false
 		end
+		local grp = deposit:GetDepositGroup()
 		local request = deposit.transport_request
-		return IsValid(request:GetBuilding()) and request:GetResource() == resource 
+		return IsValid(request:GetBuilding()) and request:GetResource() == resource and 
+				(not grp or (grp.auto_rovers or 0) < max_auto_rovers_per_pickup)
 end
 
 function RCTransport:PickupResource(request, pile, goto_loading_complete, force_one_pickup, total_amount)
 	while request do
 		local building = request:GetBuilding()
 		if not IsValid(building) then return end
+		local start_automation_counters = IsKindOf(building, "SurfaceDeposit") and building:GetDepositGroup()
+		if start_automation_counters then
+			start_automation_counters.auto_rovers = (start_automation_counters.auto_rovers or 0) + 1
+			self:PushDestructor(function(self)
+				start_automation_counters.auto_rovers = start_automation_counters.auto_rovers - 1
+			end)
+		end
+		
 		local resource = request:GetResource()
 		local rinfo = Resources[resource]
 		assert(rinfo, "No such resource")
 		local space_available = self:GetEmptyStorage(resource)
 		self:Gossip("PickupResource", building:GossipName(), building.handle, resource)
 		if space_available == 0 or not building:DroneApproach(self, resource) then
+			if IsKindOf(building, "SurfaceDeposit") then
+				self.unreachable_objects[building:GetDepositGroup() or building] = true
+			else
+				self.unreachable_objects[building] = true
+			end
+			if start_automation_counters then
+				self:PopAndCallDestructor()
+			end
+			Sleep(1000)
 			return
 		end
 		local amount = pile and space_available or Min(rinfo and rinfo.unit_amount or ResourceScale, space_available)
@@ -823,10 +976,13 @@ function RCTransport:PickupResource(request, pile, goto_loading_complete, force_
 		building:RoverWork(self, request, resource, amount, nil, "load", total_amount)
 		RebuildInfopanel(self)
 		if not pile and not force_one_pickup and self:GetEmptyStorage(resource) > 0 then
-			local deposit = MapFindNearest(self, self, 50*guim,"SurfaceDeposit", DepositsNearby_func, resource)
+			local deposit = MapFindNearest(self, self, "hex", RCTransport_AutoRouteRadius,"SurfaceDeposit", DepositsNearby_func, resource)
 			request = deposit and deposit.transport_request
 		else
 			request = false
+		end
+		if start_automation_counters then
+			self:PopAndCallDestructor()
 		end
 	end
 	
@@ -855,14 +1011,17 @@ function RCTransport:TransferResources(storage_depot, interaction_type, resource
 	local space_available = self:GetEmptyStorage(resource)
 	if (interaction_type == "load" and space_available <= 0) 
 		or	(interaction_type == "unload" and self.resource_storage[resource] <= 0) then
+		Sleep(1000)
 		return "nothing to do"
 	end
 	if not storage_depot:DroneApproach(self, resource) then
+		self.unreachable_objects[storage_depot] = true
+		Sleep(1000)
 		return "approach failed"
 	end
 	
 	local space_left = interaction_type == "load" and s_req:GetActualAmount() or (d_req and d_req:GetActualAmount() or storage_depot:GetEmptyStorage(resource))
-	local amount = Min( space_left, rinfo and rinfo.unit_amount or ResourceScale)
+	local amount = Min( space_left, rinfo and rinfo.unit_amount or ResourceScale, amount_to_transfer)
 
 	local arg_req1 = interaction_type == "load" and s_req or d_req
 	local arg_req2 = interaction_type == "load" and d_req or s_req
@@ -904,8 +1063,10 @@ local LoadAllStep = 5 * ResourceScale
 function RCTransport:TransferAllResources(storage_depot, interaction_type, resources, amounts, load_all)
 	if not IsValid(storage_depot) then return end
 	local cache_transport_resource = self.transport_resource
+	storage_depot.auto_rovers = storage_depot.auto_rovers + 1
 	self:PushDestructor(function(self)
 		self.transport_resource = cache_transport_resource --restore
+		storage_depot.auto_rovers = storage_depot.auto_rovers - 1
 	end)
 	local passed = {}
 	
@@ -946,11 +1107,16 @@ function RCTransport:TransferAllResources(storage_depot, interaction_type, resou
 		if interaction_type == "load" then
 			local step = #remaining_resources > 1 and LoadAllStep or nil
 			local has_anything_to_load = true
-			while has_anything_to_load and self:GetEmptyStorage() > 0 do
+			local empty_storage = self:GetEmptyStorage()
+			while has_anything_to_load and empty_storage > 0 do
 				has_anything_to_load = false
 				for _, res in ipairs(remaining_resources) do
 					local remaining = functor(self, storage_depot, res, {}, step, true)
 					has_anything_to_load = has_anything_to_load or (remaining or 0) > 0
+					empty_storage = empty_storage - self.amount_transfered_last_ct
+					if empty_storage <= 0 then
+						break
+					end
 				end
 			end
 		else
@@ -1322,3 +1488,11 @@ function OnMsg.SelectedObjChange(obj, prev)
 	end
 end
 	
+function RCTransport:ToggleAutoMode_Update(button)
+	button:SetRolloverText(T{10987, "If Automated Mode is activated the RC Transport will gather resources automatically.<newline><newline>Current Status: <em><on_off(auto_mode_on)></em>", self})
+	if not self.auto_mode_on then
+		button:SetIcon("UI/Icons/IPButtons/automated_mode_off.tga")
+	else
+		button:SetIcon("UI/Icons/IPButtons/automated_mode_on.tga")
+	end
+end

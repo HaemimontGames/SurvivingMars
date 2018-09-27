@@ -17,6 +17,22 @@ GlobalVar("g_OutsourceDisabled", false)
 GlobalVar("g_ResearchScroll", 0)
 GlobalVar("g_ResearchFocus", point(1, 1))
 
+function StableShuffle(tbl, rand, max)
+	assert(#tbl < max)
+	max = Max(max, #tbl)
+	local tmp = {}
+	while #tbl > 1 do
+		local idx = 1 + rand(max)
+		if idx <= #tbl then
+			tmp[#tmp + 1] = tbl[idx]
+			table.remove(tbl, idx)
+		end
+	end
+	for i = #tmp,1,-1 do
+		tbl[#tbl + 1] = tmp[i]
+	end
+end
+
 function City:InitResearch()
 	self.tech_status = {}
 	self.tech_field = {}
@@ -29,7 +45,6 @@ function City:InitResearch()
 	
 	local initial_unlocked = GetMissionSponsor().initial_techs_unlocked
 	local defs = TechDef
-	local rand, trand = self:CreateSessionRand("InitResearch")
 	local current_mystery = self.mystery_id
 	local fields = Presets.TechFieldPreset.Default
 	for i=1,#fields do
@@ -46,31 +61,30 @@ function City:InitResearch()
 		end
 		local discoverable = field.discoverable
 		if discoverable then
-			table.shuffle(list, rand)
-			local retries = 0
-			while true do
-				local changed
-				for j=1,#list do
-					local tech_id = list[j]
-					local tech = defs[tech_id]
-					local min, max
-					if IsGameRuleActive("ChaosTheory") then
-						min, max = 1, 100
-					else
-						min, max = Max(tech.position.from, 1), Min(tech.position.to, #list)
+			if IsGameRuleActive("ChaosTheory") then
+				table.shuffle(list)
+			else
+				StableShuffle(list, self:CreateMapRand("InitResearch", field.id), 100)
+				local retries = 0
+				while true do
+					local changed
+					for j=1,#list do
+						local tech_id = list[j]
+						local tech = defs[tech_id]
+						local min, max = Max(tech.position.from, 1), Min(tech.position.to, #list)
+						if j < min or j > max then
+							table.insert(list, (min + max) / 2, table.remove(list, j))
+							changed = true
+						end
 					end
-					if j < min or j > max then
-						table.insert(list, (min + max) / 2, table.remove(list, j))
-						changed = true
+					if not changed then
+						break
 					end
-				end
-				if not changed then
-					break
-				end
-				retries = retries + 1
-				if retries >= 10 then
-					print("Failed to find correct places for all techs in", field.id)
-					break
+					retries = retries + 1
+					if retries >= 10 then
+						print("Failed to find correct places for all techs in", field.id)
+						break
+					end
 				end
 			end
 		end
@@ -209,8 +223,9 @@ function City:SetTechResearched(tech_id)
 	status.points = 0
 	tech:EffectsApply(self)
 	self:DequeueResearch(tech_id)
-	--@@@msg TechResearched,tech_id, city, first_time- fired when a tech has been researched.
+	--@@@msg TechResearched,tech_id, city, first_time - fired when a tech has been researched.
 	Msg("TechResearched", tech_id, self, status.researched == 1)
+	Msg("TechResearchedTrigger", TechDef[tech_id]) -- for StoryBits
 	if tech_id == current_research then
 		AddOnScreenNotification("ResearchComplete", OpenResearchDialog, {name = tech.display_name, context = tech, rollover_title = tech.display_name, rollover_text = tech.description})
 	end
@@ -526,7 +541,11 @@ end
 ----
 
 function City:GetEstimatedRP_Outsource()
-	return self:CalcOutsourceRP(const.DayDuration)
+	local time = const.DayDuration
+	if UICity.paused_outsource_research_end_time then
+		time = Max(time - Max(UICity.paused_outsource_research_end_time - GameTime(), 0), 0)
+	end
+	return self:CalcOutsourceRP(time)
 end
 
 function City:CalcOutsourceRP(time)
@@ -593,10 +612,21 @@ function City:GetEstimatedRP_Genius()
 end
 
 function City:GetEstimatedRP_Sponsor()
+	local research = g_Consts.SponsorResearch
 	if IsGameRuleActive("EasyResearch") then
-		return g_Consts.SponsorResearch + 3000
+		research = research + 3000
 	end
-	return g_Consts.SponsorResearch
+	if UICity.paused_sponsor_research_end_time then
+		local time_remaining = Max(UICity.paused_sponsor_research_end_time - GameTime(), 0)
+		if time_remaining < const.DayDuration then
+			local hours_remaining = time_remaining / const.HourDuration + 1
+			research = MulDivRound(const.HoursPerDay-hours_remaining, research, const.HoursPerDay)
+		else
+			research = 0
+		end
+	end
+	
+	return research
 end
 
 function City:GetEstimatedRP_SuperconductingComputing()
@@ -684,24 +714,6 @@ function OnMsg.SaveMap()
 	end
 end
 
-function City:LoadMapStoredTechs_old()	
-	local map_stored_techs = MapGet("detached", "MapStoredTech")
-	for _, tech in ipairs(map_stored_techs) do
-		local id = tech.tech_id
-		if TechDef[id] then
-			map_stored_techs[id] = true
-		end
-	end
-	for field_id, list in sorted_pairs(self.tech_field) do
-		for i=1,#list do
-			local tech_id = list[i]
-			if map_stored_techs[tech_id] then
-				self:SetTechResearched(tech_id)
-			end
-		end
-	end
-end
-
 function City:LoadMapStoredTechs()	
 	--Blank (random) maps should not have prediscovered/preresearched techs (mantis:0130773)
 	if mapdata.IsRandomMap then
@@ -718,7 +730,6 @@ function City:LoadMapStoredTechs()
 			self:SetTechDiscovered(tech_id)
 		end
 	end
-	self:LoadMapStoredTechs_old()
 end
 function City:SaveMapStoredTechs()	
 	local tech_state
@@ -960,7 +971,9 @@ function XTechControl:GetRolloverText()
 	elseif researched and not UICity:IsTechRepeatable(tech_id) then
 		return T{3920, "<description><newline><newline><em>Researched</em>"}
 	end
-	return T{3921, "<description><newline><newline>Research cost<right><ResearchPoints(cost)>"}
+	local percent = (UICity.TechBoostPerTech[tech_id] or 0) + (UICity.TechBoostPerField[TechDef[tech_id].group] or 0)
+	local percent_check = percent > 0
+	return T{10980, "<description><newline><newline>Research cost<right><ResearchPoints(cost)><if(percent_check)><newline><left>Cost reduction<right><percent>%</if>", percent = percent, percent_check = percent_check }
 end
 
 local queue = T{3923, "<left><left_click> Queue for research<right><em>Ctrl+<left_click></em> Queue on top"}

@@ -282,6 +282,10 @@ TubeSkinsBuildingConnections = {
 function SavegameFixups.SkinnedPipesFallbackToDefault()
 	PipeConnectionsCache = {}
 end
+
+function SavegameFixups.SkinnedPipesCacheKeyChanged()
+	PipeConnectionsCache = {}
+end
 -- returns a list of items { hex_point, direction (0..5), spot-index, entity-to-attach, decor_table or nil }
 -- decor table = { entity name,
 --						{spot, e},
@@ -295,14 +299,15 @@ function GridObject:GetGridSkinName()
 	return "Default"
 end
 
-function GridObject:GetPipeConnections(force_default)
+function GridObject:GetPipeConnections(force)
 	if not IsKindOf(self, "LifeSupportGridObject") then
 		return
 	end
 	
-	local gsn = force_default and "Default" or self:GetGridSkinName()
+	local gsn = force or self:GetGridSkinName()
 	local entity = self.entity
-	local cache_key = self:GetEntityNameForPipeConnections(gsn)
+	local grid_skin_entity = self:GetEntityNameForPipeConnections(gsn)
+	local cache_key = xxhash(entity, grid_skin_entity)
 	local list = PipeConnectionsCache[cache_key]
 	if not list then
 		local skin = TubeSkinsBuildingConnections[gsn]
@@ -327,7 +332,7 @@ function GridObject:GetPipeConnections(force_default)
 			local first, last = GetSpotRange(entity, "idle", spot)
 			local pipe_entity, pt_end, angle_end
 			for i = first, last do
-				pipe_entity = pipe_entity or (cache_key .. spot_attach[s])
+				pipe_entity = pipe_entity or (grid_skin_entity .. spot_attach[s])
 				if not IsValidEntity(pipe_entity) then 
 					--default connection tube.
 					pipe_entity = skin.default_tube
@@ -367,13 +372,13 @@ function GridObject:GetPipeConnections(force_default)
 		end
 		
 		if gsn ~= "Default" then
-			local default_list = self:GetPipeConnections(true)
+			local default_list = self:GetPipeConnections("Default")
 			local consistent = #list == #default_list
 			if consistent then
 				for i = 1, #list do
-					local pos1, dir1, spot1 = list[i][1], list[i][2], list[i][3]
-					local pos2, dir2, spot2 = default_list[i][1], default_list[i][2], default_list[i][3]
-					if pos1 ~= pos2 or dir1 ~= dir2 or spot1 ~= spot2 then
+					local pos1, dir1 = list[i][1], list[i][2]
+					local pos2, dir2 = default_list[i][1], default_list[i][2]
+					if pos1 ~= pos2 or dir1 ~= dir2 then
 						consistent = false
 						break
 					end
@@ -482,8 +487,14 @@ OnMsg.EntitiesLoaded = RebuildBuildingConnections
 local LookupGrid = false
 
 --when constructing both template_obj and cursor_obj are used to gather the data
-function HexGetUnits(obj, entity, pos, angle, test, filter, classes, force_extend_bb_by)
-	local outline, interior = GetEntityHexShapes(entity)
+function HexGetUnits(obj, entity, pos, angle, test, filter, classes, force_extend_bb_by, shape)
+	local outline, interior
+	if shape then
+		outline = shape
+		interior = {}
+	else
+		outline, interior = GetEntityHexShapes(entity)
+	end
 	local dir = HexAngleToDirection(angle or obj:GetAngle())
 	local initial_q, initial_r = WorldToHex(pos or obj)
 	

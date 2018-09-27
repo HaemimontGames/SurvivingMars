@@ -88,7 +88,7 @@ DefineClass.SolarPanel = {
 }
 
 function SolarPanel:GameInit()
-	self.panel_obj = self:GetAttaches(self:GetEntity() .. "Top")[1]
+	self.panel_obj = self:GetAttach(self:GetEntity() .. "Top")
 	self.panel_obj:Detach()
 	self.panel_obj:SetAngle(self:GetAngle())
 	self.panel_obj.base = self

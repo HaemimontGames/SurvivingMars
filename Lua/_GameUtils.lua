@@ -44,23 +44,6 @@ function GetCropEntities(first_element)
 	table.append(items, mod_entities)
 	return items
 end
-
-function GetRandomPassablePos(max_radius, min_radius, center)
-	min_radius = min_radius or 0
-	local mw, mh = terrain.GetMapSize()
-	center = center or point(mw / 2, mh / 2)
-	for j = 1, 25 do
-		local pt = RotateRadius(min_radius + InteractionRand(max_radius - min_radius),InteractionRand(360 * 60), center)
-		local x, y = pt:x(), pt:y()
-		x = Clamp(x, guim, mw - guim)
-		y = Clamp(y, guim, mh - guim)
-		if terrain.IsPassable(x, y) then
-			return point(x, y)
-		end
-	end
-	return center
-end
-
 -----------------------------------------------------------------------------------------------------------
 function Random(min, max, id, obj1, obj2)
 	assert(max < max_int, "You are about to overflow and get a random zero")
@@ -275,10 +258,12 @@ function FormatIndex(index, context_obj)
 	return T{4854, "#<index>", index = index, context_obj}
 end
 
-local function FormatResourceFn(format_id,resource)
- TFormat[format_id] = 
-	function(context_obj, value, max) 
-		return FormatResourceValueMaxResource(context_obj, value, max, resource) 
+FormattableResources = {}
+
+local function FormatResourceFn(format_id, resource)
+	FormattableResources[#FormattableResources + 1] = { text = resource, value = format_id }
+	TFormat[format_id] = function(context_obj, value, max)
+		return FormatResourceValueMaxResource(context_obj, value, max, resource)
 	end
 end
 
@@ -370,7 +355,7 @@ end
 
 TFormat.funding = function(context_obj,x)
 	local div, suffix
-	if not x then return end
+	if type(x) ~= "number" then return end
 	if x < 1000 then
 		return T{4857, "<em>$<integer></em>", integer = x}
 	elseif x < 1000*1000 then
@@ -427,6 +412,18 @@ function ConstructionResourcesCombo()
 	return result
 end
 
+function AllResourcesCombo() --construction resources, food, grid, funding, RP
+	local result = table.icopy(ResourcesDropDownListItems)
+	table.remove_entry(result, "value", "Water")
+	result[#result + 1] = { text = T{4806, "Water Production"}, value =  "Water"}
+	result[#result + 1] = { text = T{5558, "Air Production"}, value =  "Air"}
+	result[#result + 1] = { text = T{936, "Power Production"}, value =  "Power"}
+	result[#result + 1] = { text = T{33, "Stored Water"}, value =  "StoredWater"}
+	result[#result + 1] = { text = T{1074, "Stored Air"}, value =  "StoredAir"}
+	result[#result + 1] = { text = T{945, "Stored Power"}, value =  "StoredPower"}
+	return result
+end
+
 function BuildCategoriesCombo()
 	local list = { {value = "", text = ""} }
 	for i = 1, #BuildCategories do
@@ -435,13 +432,13 @@ function BuildCategoriesCombo()
 	return list
 end
 
-function BuildingsCombo()
+function BuildingsCombo(first_entry)
 	local items = {}
 	for id, template in pairs(BuildingTemplates or "") do
 		items[#items + 1] = {value = id, text = template.display_name}
 	end
 	TSort(items, "text")
-	table.insert(items, 1, "")
+	table.insert(items, 1, first_entry or {value = "", text = ""})
 	return items
 end
 
@@ -462,9 +459,10 @@ function ResearchFieldsCombo()
 	return fields
 end
 
-function ResearchTechsCombo(object)
-	local techs = { { value = "", text = "" } }
-	if not TechFields[object.Field] then
+function ResearchTechsCombo(object, first)
+	first = first or { value = "", text = "" }
+	local techs = { first }
+	if not object:HasMember("Field") or not TechFields[object.Field] then
 		return techs
 	end
 	--gather techs
@@ -480,17 +478,17 @@ function TraitsCombo(category, city, traitsonly)
 	local traits = {{value = "", text = ""}}
 	for i=1,#nonerare do
 		local trait = TraitPresets[nonerare[i]]
-		local name = trait.name
+		local name = trait.id
 		if not traitsonly or not const.ColonistSpecialization[name] then
 			if not city or IsTraitAvailable(trait, city) then
-				traits[#traits+1] = { value = trait.name, text = trait.display_name }
+				traits[#traits+1] = { value = trait.id, text = trait.display_name }
 			end
 		end
 	end
 	for i=1,#rare do
 		local trait = TraitPresets[rare[i]]
 		if not city or IsTraitAvailable(trait, city) then
-			traits[#traits+1] = { value = trait.name, text = trait.display_name }
+			traits[#traits+1] = { value = trait.id, text = trait.display_name }
 		end
 	end
 	return traits
@@ -732,9 +730,8 @@ function TFormat.cut_if_not_platform(context_obj, platform)
 end		
 
 function TFormat.opt_amount(context_obj, amount)
-	amount = tonumber(amount)
-	if type(amount) ~= "number" or amount == 0 then return "" end
-	if amount < 0 then
+	if not amount or amount == 0 then return "" end
+	if type(amount) == "number" and amount < 0 then
 		return Untranslated("" .. amount)
 	else
 		return Untranslated("+" .. amount)
@@ -742,10 +739,9 @@ function TFormat.opt_amount(context_obj, amount)
 end
 
 function TFormat.opt_percent(context_obj, percent)
-	percent = tonumber(percent)
-	if type(percent) ~= "number" or percent == 0 then return "" end
-	local pattern = percent < 0 and "%d%%" or "+%d%%"
-	return Untranslated(string.format(pattern, percent))
+	if not percent or percent == 0 then return "" end
+	local pattern = type(percent) == "number" and percent < 0 and "%s%%" or "+%s%%"
+	return Untranslated(string.format(pattern, tostring(percent)))
 end
 
 -- "<on_off(IsResourceAvailable(res))>"

@@ -14,9 +14,7 @@ function XCreditsWindow:Init()
 		Id = "idCredits",
 		HAlign =  "center",
 		ChildrenHandleMouse =  false,
-		TextFont = "UICredits",
-		TextColor =  RGBA(250, 243, 204, 255),
-		ShadowColor = RGBA(74,58,32,255),
+		TextStyle = "UICredits",
 		TextHAlign = "center",
 	}, self)
 	XScroll:new({
@@ -39,7 +37,7 @@ function XCreditsWindow:SetTextData()
 			and (not section.voice_language or section.voice_language == voice_lang)
 		then
 			if section.company_name then
-				texts[#texts + 1] = _InternalTranslate("<font UICreditsCompanyName>" .. section.company_name .. "</font>")
+				texts[#texts + 1] = _InternalTranslate("<style UICreditsCompanyName>" .. section.company_name .. "</style>")
 				texts[#texts + 1] = "\n\n\n\n\n\n\n\n\n\n\n\n\n"
 			end
 			for _, text in ipairs(section) do

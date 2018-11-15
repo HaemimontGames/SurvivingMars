@@ -43,6 +43,10 @@ DefineClass.SolarPanelBuilding = {
 	__parents = { "SolarPanelBase", "ElectricityProducer" },
 }
 
+function SolarPanelBuilding:GameInit()
+	self:OnChangeState()
+end
+
 function SolarPanelBuilding:OnSetWorking(working)
 	self:UpdateProduction()
 	ElectricityProducer.OnSetWorking(self, working)
@@ -154,6 +158,11 @@ end
 
 function SolarPanel:OrientToSun(sun_azi, time)
 	return self.panel_obj:SetAngle(sun_azi, time or const.MinuteDuration)
+end
+
+function SolarPanel:SetPalette(...)
+	SolarPanelBuilding.SetPalette(self, ...)
+	SetObjectPaletteRecursive(self.panel_obj, ...)
 end
 
 function OnMsg.SunChange()

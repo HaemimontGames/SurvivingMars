@@ -18,6 +18,14 @@ PrefabFeatures = {
 		}),
 		}),
 	PlaceObj('PrefabFeature', {
+		'id', "Beauty",
+		'color', RGBA(231, 73, 196, 255),
+	}, {
+		PlaceObj('PrefabFeatureChar_Effect', {
+			'EffectType', "BeautyEffectDeposit",
+		}),
+		}),
+	PlaceObj('PrefabFeature', {
 		'id', "Lava Coils",
 		'color', RGBA(52, 187, 136, 255),
 	}, {
@@ -28,6 +36,12 @@ PrefabFeatures = {
 			'DepositLayer', "terr",
 			'DepositResource', "Concrete",
 			'RepulseDist', 10000,
+		}),
+		PlaceObj('PrefabFeatureChar_Effect', {
+			'EffectType', "ResearchEffectDeposit",
+		}),
+		PlaceObj('PrefabFeatureChar_Effect', {
+			'EffectType', "BeautyEffectDeposit",
 		}),
 		}),
 	PlaceObj('PrefabFeature', {
@@ -41,6 +55,9 @@ PrefabFeatures = {
 		PlaceObj('PrefabFeatureChar_Deposit', {
 			'Weight', 50,
 			'DepositResource', "Metals",
+		}),
+		PlaceObj('PrefabFeatureChar_Effect', {
+			'EffectType', "ResearchEffectDeposit",
 		}),
 		}),
 	PlaceObj('PrefabFeature', {
@@ -65,6 +82,9 @@ PrefabFeatures = {
 		PlaceObj('PrefabFeatureChar_Deposit', {
 			'DepositLayer', "surf",
 			'DepositResource', "Polymers",
+		}),
+		PlaceObj('PrefabFeatureChar_Effect', {
+			'EffectType', "ResearchEffectDeposit",
 		}),
 		}),
 	PlaceObj('PrefabFeature', {
@@ -128,6 +148,9 @@ PrefabFeatures = {
 		PlaceObj('PrefabFeatureChar_Deposit', {
 			'Weight', 120,
 			'DepositResource', "Water",
+		}),
+		PlaceObj('PrefabFeatureChar_Effect', {
+			'EffectType', "ResearchEffectDeposit",
 		}),
 		}),
 	}

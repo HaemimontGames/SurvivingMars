@@ -175,6 +175,13 @@ function TriboelectricScrubber:GetChargeTime()
 	return self.charge_time / const.HourDuration
 end
 
+function TriboelectricScrubber:SetPalette(...)
+	Building.SetPalette(self, ...)
+	if self.sphere then
+		SetObjectPaletteRecursive(self.sphere, ...)
+	end
+end
+
 DefineClass.TriboelectricScrubberSphere =
 {
 	__parents = { "Object" },

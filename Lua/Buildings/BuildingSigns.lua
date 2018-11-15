@@ -98,6 +98,18 @@ DefineClass.SignOutOfRange = {
 	priority = 1,
 }
 
+DefineClass.SignExpeditionRocket = {
+	__parents = { "BuildingSign" },
+	entity = "SignExpeditionRocket",
+	priority = 50,
+}
+
+DefineClass.SignTradeRocket = {
+	__parents = { "BuildingSign" },
+	entity = "SignAutomatedMode",
+	priority = 50,
+}
+
 DefineClass.UnitSign = {
 	__parents = { "EntityClass", "UIAttach" },
 	enum_flags = { efSelectable = true },
@@ -151,6 +163,11 @@ DefineClass.UnitSignEarthsick = {
 	entity = "SignEarthsick",
 }
 
+DefineClass.UnitSignUnableToWork = {
+	__parents = { "UnitSign" },
+	entity = "SignUnableToWork",
+}
+
 DefineClass.UnitSignRogue = {
 	__parents = { "UnitSign" },
 	entity = "SignRogue",
@@ -194,6 +211,19 @@ DefineClass.UnitArrowEarthsick = {
 	__parents = { "UnitSign" },
 	entity = "ArrowEarthsick",
 }
+
+DefineClass.UnitArrowUnableToWork = {
+	__parents = { "UnitSign" },
+	entity = "ArrowUnableToWork",
+}
+
+DefineClass.SignHalted = {
+	__parents = { "BuildingSign" },
+	entity = "SignNotWorking",
+	priority = 12,
+}
+
+----
 
 GlobalVar("g_SignsVisible", true)
 

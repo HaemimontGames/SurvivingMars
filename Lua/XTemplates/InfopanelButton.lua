@@ -12,7 +12,7 @@ PlaceObj('XTemplate', {
 		'RolloverAnchor', "left",
 		'RolloverHint', T{10989, --[[XTemplate InfopanelButton RolloverHint]] "<left_click> Activate"},
 		'RolloverHintGamepad', T{643294919927, --[[XTemplate InfopanelButton RolloverHintGamepad]] "<ButtonA> Activate"},
-		'ScaleModifier', point(900, 900),
+		'ScaleModifier', point(700, 700),
 		'LayoutMethod', "Box",
 		'Background', RGBA(0, 0, 0, 0),
 		'MouseCursor', "UI/Cursors/Rollover.tga",

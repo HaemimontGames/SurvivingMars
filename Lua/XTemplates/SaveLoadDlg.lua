@@ -60,20 +60,6 @@ return XDialog.OnShortcut(self, shortcut, source)
 end,
 		}),
 		PlaceObj('XTemplateWindow', {
-			'__condition', function (parent, context) return GameState.gameplay end,
-			'__class', "XImage",
-			'Dock', "box",
-			'Image', "UI/Menu Background 01.tga",
-			'ImageFit', "largest",
-		}),
-		PlaceObj('XTemplateWindow', {
-			'__condition', function (parent, context) return not GameState.gameplay end,
-			'Dock', "box",
-			'Background', RGBA(8, 17, 39, 130),
-			'FadeInTime', 500,
-			'FadeOutTime', 500,
-		}),
-		PlaceObj('XTemplateWindow', {
 			'__condition', function (parent, context) return not GameState.gameplay end,
 			'__class', "XAspectWindow",
 			'Fit', "smallest",

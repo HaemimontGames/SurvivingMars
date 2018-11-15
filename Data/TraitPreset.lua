@@ -68,6 +68,24 @@ PlaceObj('TraitPreset', {
 })
 
 PlaceObj('TraitPreset', {
+	auto = false,
+	daily_update_func = function (colonist, trait)
+if g_DustStormStart then
+	local change= 5 + colonist:Random(trait.param)
+	colonist:ChangeHealth(-trait.param*const.Scale.Stat, trait.id)
+end
+end,
+	description = T{915592309937, --[[TraitPreset DustSickness description]] "Takes damage during Dust Storms, even when inside a Dome."},
+	display_name = T{890233389906, --[[TraitPreset DustSickness display_name]] "Dust Sickness"},
+	dome_filter_only = true,
+	group = "Negative",
+	hidden_on_start = true,
+	id = "DustSickness",
+	incompatible = {},
+	param = 10,
+})
+
+PlaceObj('TraitPreset', {
 	add_interest = "interestGambling",
 	description = T{6657, --[[TraitPreset Gambler description]] "Has a 50% chance to lose 20 Sanity when visiting a Casino. Can be caused by Sanity breakdowns. +Gambling"},
 	display_name = T{6656, --[[TraitPreset Gambler display_name]] "Gambler"},

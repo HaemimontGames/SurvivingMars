@@ -6,7 +6,11 @@ PlaceObj('XTemplate', {
 	id = "BuildingOverviewRow",
 	PlaceObj('XTemplateTemplate', {
 		'__template', "CommandCenterRow",
+		'RolloverAnchor', "bottom",
+		'RolloverAnchorId', "idUpgrades",
 		'RolloverText', T{345376930850, --[[XTemplate BuildingOverviewRow RolloverText]] "<OverviewInfo>"},
+		'RolloverHint', T{115984499466, --[[XTemplate BuildingOverviewRow RolloverHint]] "<left_click><left_click> Select"},
+		'RolloverHintGamepad', T{764097870353, --[[XTemplate BuildingOverviewRow RolloverHintGamepad]] "<ButtonA> Select"},
 		'OnContextUpdate', function (self, context, ...)
 UpdateUICommandCenterRow(self, context, "building")
 XContextControl.OnContextUpdate(self, context, ...)
@@ -17,9 +21,6 @@ end,
 			'func', function (self, ...)
 local upgrade_win = self.idUpgrades
 UICreateUpgradeButtons(upgrade_win, self.context, true)
-for _, win in ipairs(upgrade_win) do
-	win:SetRolloverAnchorId("node")
-end
 XContextControl.Open(self, ...)
 end,
 		}),
@@ -36,9 +37,7 @@ end,
 				'VAlign', "center",
 				'MinWidth', 290,
 				'MaxWidth', 290,
-				'TextFont', "InfopanelTitle",
-				'TextColor', RGBA(255, 248, 233, 255),
-				'RolloverTextColor', RGBA(255, 248, 233, 255),
+				'TextStyle', "OverviewItemName",
 				'Translate', true,
 				'Text', T{7412, --[[XTemplate BuildingOverviewRow Text]] "<DisplayName>"},
 				'Shorten', true,
@@ -55,9 +54,7 @@ end,
 					'Padding', box(0, 0, 0, 0),
 					'HAlign', "center",
 					'VAlign', "center",
-					'TextFont', "InfopanelTitle",
-					'TextColor', RGBA(255, 248, 233, 255),
-					'RolloverTextColor', RGBA(255, 248, 233, 255),
+					'TextStyle', "OverviewItemName",
 					'Translate', true,
 					'WordWrap', false,
 					'TextHAlign', "center",
@@ -84,9 +81,7 @@ end,
 					'Padding', box(0, 0, 0, 0),
 					'HAlign', "center",
 					'VAlign', "center",
-					'TextFont', "InfopanelTitle",
-					'TextColor', RGBA(255, 248, 233, 255),
-					'RolloverTextColor', RGBA(255, 248, 233, 255),
+					'TextStyle', "OverviewItemName",
 					'Translate', true,
 					'WordWrap', false,
 					'TextHAlign', "center",
@@ -113,9 +108,7 @@ end,
 					'Padding', box(0, 0, 0, 0),
 					'HAlign', "center",
 					'VAlign', "center",
-					'TextFont', "InfopanelTitle",
-					'TextColor', RGBA(255, 248, 233, 255),
-					'RolloverTextColor', RGBA(255, 248, 233, 255),
+					'TextStyle', "OverviewItemName",
 					'Translate', true,
 					'WordWrap', false,
 					'TextHAlign', "center",
@@ -144,65 +137,88 @@ end,
 			'Visible', false,
 			'FoldWhenHidden', true,
 		}, {
-			PlaceObj('XTemplateWindow', {
-				'__context_of_kind', "ShiftsBuilding",
-				'LayoutMethod', "HList",
+			PlaceObj('XTemplateGroup', {
+				'__condition', function (parent, context) return context:GetUIInteractionState() end,
 			}, {
-				PlaceObj('XTemplateForEach', {
-					'array', function (parent, context) return nil, 1, 3 end,
-					'map', function (parent, context, array, i) return i end,
-					'item_in_context', "shift",
-					'run_after', function (child, context, item, i, n)
+				PlaceObj('XTemplateWindow', {
+					'__context_of_kind', "ShiftsBuilding",
+					'LayoutMethod', "HList",
+				}, {
+					PlaceObj('XTemplateForEach', {
+						'array', function (parent, context) return nil, 1, 3 end,
+						'map', function (parent, context, array, i) return i end,
+						'item_in_context', "shift",
+						'run_after', function (child, context, item, i, n)
 child:SetRelativeFocusOrder("next-in-line")
-child.idBackground:SetMargins(box(0,0,0,0))
-child.idActive:SetMargins(box(0,0,0,0))
-child.idRollover2:SetMargins(box(0,37,0,-8))
-child.idIcon:SetMargins(box(-28,0,0,0))
-child.idContent:SetMargins(box(2, 3, 20, 0))
 CreateRealTimeThread(function(child)
 	if child.window_state == "destroying" then return end
 	for _, win in ipairs(child.idWorkers) do
-		win:SetRolloverAnchor("left")
+		win:SetRolloverAnchor("right")
 		win:SetRolloverAnchorId("idRow")
 	end
-	child.idOvertime:SetRolloverAnchor("left")
+	child.idOvertime:SetRolloverAnchor("right")
 	child.idOvertime:SetRolloverAnchorId("idRow")
+	
+	local has_shifts = context:IsKindOf("ShiftsBuilding")
+	child.idBackground:SetVisible(not has_shifts)
 end, child)
 end,
+					}, {
+						PlaceObj('XTemplateTemplate', {
+							'__template', "sectionWorkshiftsRow",
+							'RolloverAnchor', "right",
+							'RolloverAnchorId', "node",
+							'MinWidth', 372,
+							'MaxWidth', 372,
+						}),
+						}),
+					}),
+				PlaceObj('XTemplateWindow', {
+					'__context_of_kind', "Residence",
+					'HAlign', "center",
+					'VAlign', "center",
+					'MinWidth', 1116,
+					'MaxWidth', 1116,
 				}, {
 					PlaceObj('XTemplateTemplate', {
-						'__template', "sectionWorkshiftsRow",
-						'RolloverAnchorId', "node",
-						'MinWidth', 372,
-						'MaxWidth', 372,
-					}),
-					}),
-				}),
-			PlaceObj('XTemplateWindow', {
-				'__context_of_kind', "Residence",
-				'HAlign', "center",
-				'VAlign', "center",
-				'MinWidth', 1116,
-				'MaxWidth', 1116,
-			}, {
-				PlaceObj('XTemplateTemplate', {
-					'__template', "sectionResidenceList",
-					'LayoutMethod', "HOverlappingList",
-				}, {
-					PlaceObj('XTemplateFunc', {
-						'name', "Open",
-						'func', function (self, ...)
+						'__template', "sectionResidenceList",
+						'LayoutMethod', "HOverlappingList",
+					}, {
+						PlaceObj('XTemplateFunc', {
+							'name', "Open",
+							'func', function (self, ...)
 XContextControl.Open(self, ...)
 for _, win in ipairs(self) do
 	win:SetRolloverAnchor("left")
 	win:SetRolloverAnchorId("idRow")
 end
 end,
+						}),
+						}),
+					}),
+				PlaceObj('XTemplateWindow', {
+					'__condition', function (parent, context) return not IsKindOfClasses(context, "ShiftsBuilding", "Residence") end,
+					'MinWidth', 1116,
+					'MaxWidth', 1116,
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XText",
+						'Margins', box(0, 5, 0, 0),
+						'Padding', box(0, 0, 0, 0),
+						'HAlign', "center",
+						'VAlign', "center",
+						'HandleMouse', false,
+						'TextStyle', "OverviewItemName",
+						'Translate', true,
+						'Text', T{130, --[[XTemplate BuildingOverviewRow Text]] "N/A"},
+						'WordWrap', false,
+						'TextHAlign', "center",
+						'TextVAlign', "center",
 					}),
 					}),
 				}),
 			PlaceObj('XTemplateWindow', {
-				'__condition', function (parent, context) return not IsKindOfClasses(context, "ShiftsBuilding", "Residence") end,
+				'__condition', function (parent, context) return not context:GetUIInteractionState() end,
 				'MinWidth', 1116,
 				'MaxWidth', 1116,
 			}, {
@@ -213,11 +229,9 @@ end,
 					'HAlign', "center",
 					'VAlign', "center",
 					'HandleMouse', false,
-					'TextFont', "InfopanelTitle",
-					'TextColor', RGBA(255, 248, 233, 255),
-					'RolloverTextColor', RGBA(255, 248, 233, 255),
+					'TextStyle', "OverviewItemName",
 					'Translate', true,
-					'Text', T{130, --[[XTemplate BuildingOverviewRow Text]] "N/A"},
+					'Text', T{862135144106, --[[XTemplate BuildingOverviewRow Text]] "Gone Rogue"},
 					'WordWrap', false,
 					'TextHAlign', "center",
 					'TextVAlign', "center",

@@ -59,19 +59,12 @@ function UIRangeBuilding:GetRangeBuildings()
 	return false
 end
 
---If you want someone to use terrain distored mesh, please make him heir to this class for LogGameShader purposes
-DefineClass.TerrainDistortedMesh = 
-{
-	__parents = { "CObject" },
-	game_flags = { gofTerrainDistortedMesh = true },
-}
-
 DefineClass.RangeRadius =
 {
-	__parents = { "TerrainDistortedMesh" },
+	__parents = { "CObject" },
 	entity = "RangeRadius_01",
 	class_flags = { cfConstructible = false },
-	game_flags = { gofTerrainDistortedMesh = true, gofAlwaysRenderable = true },
+	game_flags = { gofAlwaysRenderable = true },
 	enum_flags = { efSelectable = false },
 	ScaleMember = "GetSelectionRadiusScale",
 }

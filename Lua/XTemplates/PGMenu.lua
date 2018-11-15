@@ -97,9 +97,7 @@ end,
 							'comment', "news",
 							'__class', "XText",
 							'Id', "idNews",
-							'TextFont', "InfopanelText",
-							'TextColor', RGBA(244, 228, 117, 255),
-							'RolloverTextColor', RGBA(255, 255, 255, 255),
+							'TextStyle', "PGNews",
 							'TextHAlign', "center",
 							'TextVAlign', "center",
 						}, {
@@ -183,7 +181,7 @@ end,
 						'OnAction', function (self, host, source)
 CreateRealTimeThread(function()
 	if AccountStorage and AccountStorage.LoadMods and next(AccountStorage.LoadMods) ~= nil then
-		local choice = Platform.durango and 1 or WaitPopupNotification("Tutorial_ActiveMods", nil, nil, host)
+		local choice = WaitPopupNotification("Tutorial_ActiveMods", nil, nil, host)
 		if choice == 1 then
 			AllModsOff()
 			SaveAccountStorage(5000)
@@ -197,7 +195,7 @@ end)
 end,
 					}),
 					PlaceObj('XTemplateAction', {
-						'RolloverText', T{427174640796, --[[XTemplate PGMenu RolloverText]] "Start a survivial game, which allows you to choose Mission Sponsor, Commander Profile, Rocket payload and landing location."},
+						'RolloverText', T{427174640796, --[[XTemplate PGMenu RolloverText]] "Start a survival game, which allows you to choose Mission Sponsor, Commander Profile, Rocket payload and landing location."},
 						'RolloverTitle', T{10455, --[[XTemplate PGMenu RolloverTitle]] "NEW GAME"},
 						'ActionId', "idStandardGame",
 						'ActionName', T{10455, --[[XTemplate PGMenu ActionName]] "NEW GAME"},

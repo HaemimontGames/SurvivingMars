@@ -53,6 +53,10 @@ PlaceObj('XTemplate', {
 				'__template', "sectionResearchProject",
 			}),
 			PlaceObj('XTemplateTemplate', {
+				'__condition', function (parent, context) return IsDlcAvailable("gagarin") end,
+				'__template', "sectionGameDevProgress",
+			}),
+			PlaceObj('XTemplateTemplate', {
 				'__template', "sectionPowerProduction",
 			}),
 			PlaceObj('XTemplateTemplate', {
@@ -99,6 +103,9 @@ PlaceObj('XTemplate', {
 			}),
 			PlaceObj('XTemplateTemplate', {
 				'__template', "sectionWarning",
+			}),
+			PlaceObj('XTemplateTemplate', {
+				'__template', "sectionSensorTower",
 			}),
 			PlaceObj('XTemplateTemplate', {
 				'comment', "priority",
@@ -223,6 +230,28 @@ end,
 				}),
 				}),
 			}),
+		PlaceObj('XTemplateTemplate', {
+			'comment', "toggle lrt",
+			'__condition', function (parent, context) return IsKindOfClasses(context, "StorageDepot", "MechanizedDepot") and not IsKindOf(context, "SupplyRocket") end,
+			'__template', "InfopanelButton",
+			'RolloverText', T{11233, --[[XTemplate ipBuilding RolloverText]] "Storages with forbidden Shuttle Access are never serviced by Shuttles.<newline><newline>Current status: <em><on_off(user_include_in_lrt)></em>"},
+			'RolloverTitle', T{11254, --[[XTemplate ipBuilding RolloverTitle]] "Shuttle Access"},
+			'RolloverHint', T{11255, --[[XTemplate ipBuilding RolloverHint]] "<left_click> Toggle <newline><em>Ctrl + <left_click></em> Toggle for all <display_name_pl>"},
+			'RolloverHintGamepad', T{454042608125, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> Toggle <newline><ButtonX> Toggle for all <display_name_pl>"},
+			'Id', "ToggleLRTServiceButton",
+			'FoldWhenHidden', true,
+			'OnPressParam', "ToggleLRTService",
+			'OnPress', function (self, gamepad)
+self.context:ToggleLRTService(not gamepad and IsMassUIModifierPressed())
+end,
+			'AltPress', true,
+			'OnAltPress', function (self, gamepad)
+if gamepad then
+	self.context:ToggleLRTService(true)
+end
+end,
+			'Icon', "UI/Icons/IPButtons/rebuild.tga",
+		}),
 		PlaceObj('XTemplateGroup', nil, {
 			PlaceObj('XTemplateTemplate', {
 				'comment', "rebuild",

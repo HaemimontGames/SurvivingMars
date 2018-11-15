@@ -47,18 +47,12 @@ end,
 				PlaceObj('XTemplateTemplate', {
 					'__template', "PGChallengePayload",
 				}),
-				PlaceObj('XTemplateLayer', {
-					'layer', "TitleLayer",
-				}),
 				}),
 			PlaceObj('XTemplateMode', {
 				'mode', "landing",
 			}, {
 				PlaceObj('XTemplateTemplate', {
 					'__template', "PGChallengeLandingSpot",
-				}),
-				PlaceObj('XTemplateLayer', {
-					'layer', "TitleLayer",
 				}),
 				}),
 			PlaceObj('XTemplateMode', {

@@ -18,6 +18,8 @@ GlobalVar("g_ResearchScroll", 0)
 GlobalVar("g_ResearchFocus", point(1, 1))
 
 function StableShuffle(tbl, rand, max)
+	rand = rand or AsyncRand
+	max = max or #tbl
 	assert(#tbl < max)
 	max = Max(max, #tbl)
 	local tmp = {}
@@ -64,7 +66,7 @@ function City:InitResearch()
 			if IsGameRuleActive("ChaosTheory") then
 				table.shuffle(list)
 			else
-				StableShuffle(list, self:CreateMapRand("InitResearch", field.id), 100)
+				StableShuffle(list, self:CreateResearchRand("InitResearch", field.id), 100)
 				local retries = 0
 				while true do
 					local changed
@@ -165,7 +167,7 @@ function City:SetTechDiscovered(tech_id)
 	end
 	self.discover_idx = self.discover_idx + 1
 	status.discovered = self.discover_idx
-	status.new = true
+	status.new = GameTime()
 	return true
 end
 
@@ -195,7 +197,7 @@ end
 --[[
 - updates the tech status to researched (clear new)
 --]]
-function City:SetTechResearched(tech_id)
+function City:SetTechResearched(tech_id, notify)
 	local current_research = self.research_queue[1]
 	tech_id = tech_id or current_research
 	local status = self.tech_status[tech_id]
@@ -212,7 +214,7 @@ function City:SetTechResearched(tech_id)
 		status.new = nil
 	else
 		status.researched = 1
-		status.new = true
+		status.new = GameTime()
 		local field_id = status.field
 		if TechFields[field_id].discoverable then
 			if tech_id == current_research or not self:IsNewResearchAvailable(field_id) then
@@ -226,7 +228,7 @@ function City:SetTechResearched(tech_id)
 	--@@@msg TechResearched,tech_id, city, first_time - fired when a tech has been researched.
 	Msg("TechResearched", tech_id, self, status.researched == 1)
 	Msg("TechResearchedTrigger", TechDef[tech_id]) -- for StoryBits
-	if tech_id == current_research then
+	if notify then
 		AddOnScreenNotification("ResearchComplete", OpenResearchDialog, {name = tech.display_name, context = tech, rollover_title = tech.display_name, rollover_text = tech.description})
 	end
 	return true
@@ -430,9 +432,16 @@ function City:TechCount(field_id, state)
 	return count, #list
 end
 
+GlobalVar("TechLastSeen", 0)
+
 function City:IsTechNew(tech_id)
 	local status = self.tech_status[tech_id]
-	return status and status.new
+	local new_since = status and status.new
+	if new_since == true then
+		new_since = GameTime()
+		status.new = new_since
+	end
+	return (new_since or 0) > TechLastSeen
 end
 
 function City:SetTechNew(tech_id, is_new)
@@ -441,7 +450,7 @@ function City:SetTechNew(tech_id, is_new)
 		assert(false, "No such tech")
 		return
 	end
-	status.new = is_new or nil
+	status.new = is_new and GameTime() or nil
 	return true
 end
 
@@ -455,10 +464,43 @@ function City:ModifyResearchPoints(research_points, tech_id)
 	return MulDivRound(research_points, 100 + OmegaTelescopeResearchBoostPercent(self), 100)
 end
 
+function City:UnmodifyResearchPoints(research_points, tech_id)
+	tech_id = tech_id or self.research_queue[1]
+	research_points = MulDivRound(research_points, 100, 100 + OmegaTelescopeResearchBoostPercent(self))
+	if tech_id and not self:IsTechDiscoverable(tech_id) then
+		research_points = MulDivRound(research_points, 100, g_Consts.BreakthroughResearchSpeedMod)
+	else
+		research_points = MulDivRound(research_points, 100, g_Consts.ExperimentalResearchSpeedMod)
+	end
+	return research_points
+end
+
+function City:GetCheapestTech()
+	local field_ids = table.keys(self.tech_field)
+	table.sort(field_ids, function(f1, f2) return TechFields[f1].SortKey < TechFields[f2].SortKey end)
+	local cheapest_cost, cheapest_tech = max_int
+	for _, field_id in ipairs(field_ids) do
+		for _, tech_id in ipairs(self.tech_field[field_id]) do
+			local status = self.tech_status[tech_id]
+			if status and status.discovered and not status.researched then
+				local cost = self:TechCost(tech_id)
+				if cheapest_cost > cost then
+					cheapest_cost = cost
+					cheapest_tech = tech_id
+				end
+			end
+		end
+	end
+	return cheapest_tech
+end
+
 function City:AddResearchPoints(research_points, tech_id)
+	if research_points <= 0 then
+		return
+	end
 	local current_research = self.research_queue[1]
-	tech_id = tech_id or current_research
-	if not tech_id or research_points <= 0 then
+	tech_id = tech_id or current_research or self:GetCheapestTech()
+	if not tech_id then
 		return
 	end
 	if not self:IsTechResearchable(tech_id) then
@@ -467,34 +509,25 @@ function City:AddResearchPoints(research_points, tech_id)
 	end
 	local scale = const.ResearchPointsScale
 	local available_points = self:ModifyResearchPoints(research_points * scale, tech_id)
-	while tech_id do
-		local status = self.tech_status[tech_id]
-		if not status then
-			assert(false, "No such tech!")
-			return
-		end
-		local prev_points = status.points
-		status.points = prev_points + available_points
-		local research_cost = self:TechCost(tech_id)
-		assert(research_cost > 0)
-		available_points = status.points - research_cost * scale
-		if available_points < 0 then
-			-- research isn't completed
-			return
-		end
-		local prev_queue_size = #self.research_queue
-		if not self:SetTechResearched(tech_id) then
-			assert(false, "Tech research failed!?")
-			return
-		end
-		if tech_id ~= current_research then
-			-- research not in the queue
-			return
-		end
-		assert(prev_queue_size > #self.research_queue)
-		current_research = self.research_queue[1]
-		tech_id = current_research
+	local status = self.tech_status[tech_id]
+	if not status then
+		assert(false, "No such tech!")
+		return
 	end
+	local research_cost = self:TechCost(tech_id)
+	assert(research_cost > 0)
+	status.points = status.points + available_points
+	local remaining_points = status.points - research_cost * scale
+	if remaining_points < 0 then
+		-- research isn't completed
+		return
+	end
+	if not self:SetTechResearched(tech_id, "notify") then
+		assert(false, "Tech research failed!?")
+		return
+	end
+	research_points = self:UnmodifyResearchPoints(remaining_points, tech_id) / scale
+	return self:AddResearchPoints(research_points)
 end
 
 function City:CheckAvailableTech()
@@ -580,6 +613,7 @@ function City:GetEstimatedRP()
 		+ self:GetEstimatedRP_Outsource()
 		+ self:GetEstimatedRP_Explorer()
 		+ self:GetEstimatedRP_SuperconductingComputing()
+		+ self:GetEstimatedRP_LowGLab()
 	return self:ModifyResearchPoints(estimate)
 end
 
@@ -639,6 +673,14 @@ function City:GetEstimatedRP_SuperconductingComputing()
 		return rp
 	end
 	return 0
+end
+
+function City:GetEstimatedRP_LowGLab()
+	local total = 0
+	for _, lab in ipairs(self.labels.LowGLab or empty_table) do
+		total = total + lab:GetEstimatedDailyProduction()
+	end
+	return total
 end
 
 function City:CalcExplorerResearchPoints(dt, log)

@@ -118,6 +118,7 @@ DefineClass.Colonist =
 	next_heavy_update = 0,
 	
 	assigned_to_service_with_amount = false,
+	expedition_rocket = false,
 }
 
 GlobalVar("ColonistHeavyUpdateTime", 0)
@@ -329,11 +330,6 @@ function Colonist:AddTrait(trait_id, init)
 	-- apply new traits and that from generation table on unit init
 	if trait and (not has_trait or init) then 
 		trait:Apply(self, init) 
-		--if rare_trait and total colonists count no more than 100, then pin
-		local total_colonists = #(UICity.labels.Colonist or empty_table)
-		if g_RareTraits[trait_id] and not self:IsPinned() and total_colonists <= 100 then
-			self:TogglePin()
-		end
 		Notify(self, "UpdateMorale")
 	end	
 	Msg("ColonistAddTrait", self, trait_id, init)
@@ -589,7 +585,7 @@ function Colonist:LeavingMars(rocket)
 	
 	local reached
 	self:PushDestructor(function(self)
-		assert(self.command == "Die")
+		assert(self.command == "Die", "unexpected command (" .. self.command .. ") breaking colonist boarding sequence")
 		self.leaving = false
 		table.remove_entry(rocket.departures, self)
 	end)
@@ -1001,7 +997,7 @@ function Colonist:ChangeWorkplacePerformance()
 		local text =  match and
 				T{6927, "<green>Correct workplace specialization +<amount></color>"}
 				or T{6928, "<red>Wrong workplace specialization <amount></color>"}
-		self:SetModifier("performance", "specialist_match", amount - (sponsor.specialist_bonus_performance or 0), 0, text)
+		self:SetModifier("performance", "specialist_match", amount, 0, text)
 		if sponsor.specialist_bonus_performance and match then
 			text = T{10538, "<green>"}..sponsor.specialist_bonus_performance_name..T{10539, " +<amount></color>", amount = sponsor.specialist_bonus_performance}
 			self:SetModifier("performance", "specialist_match_sponsor_bonus", sponsor.specialist_bonus_performance, 0, text)
@@ -1641,8 +1637,7 @@ function Colonist:CanTrain()
 	return self:CanChangeCommand()
 end
 
--- can be employed; colonists for which this returns false should quit their jobs
-function Colonist:CanWork()
+function Colonist:_IsWorkStatusOk()
 	local traits = self.traits
 	local status_effects = self.status_effects
 	return 	
@@ -1650,9 +1645,25 @@ function Colonist:CanWork()
 		and (not traits.Senior or g_SeniorsCanWork)
 		and not traits.Child
 		and not traits.Tourist
-		and (traits.Fit or not (self.stat_health < g_Consts.LowStatLevel))
 		and not status_effects.StatusEffect_Earthsick
+end
+-- can be employed; colonists for which this returns false should quit their jobs
+function Colonist:CanWork()
+	local traits = self.traits
+	local status_effects = self.status_effects
+	return 	
+		self:_IsWorkStatusOk()
+		and (traits.Fit or not (self.stat_health < g_Consts.LowStatLevel))
 		and not status_effects.StatusEffect_StressedOut
+end
+
+function Colonist:IsTemporaryIll()	
+	local traits = self.traits
+	local status_effects = self.status_effects	
+	return 	
+		self:_IsWorkStatusOk()
+		and (not traits.Fit and (self.stat_health < g_Consts.LowStatLevel))
+		and status_effects.StatusEffect_StressedOut		
 end
 
 function Colonist:Work()
@@ -1957,10 +1968,14 @@ local function HasFreeWorkplacesAround(dome, colonist)
 			return true
 		end
 	end
-	for d in pairs(dome.connected_domes or empty_table) do
-		for _, b in ipairs(d.labels.Workplaces or empty_table) do
-			if not b.destroyed and b.ui_working and b:CanWorkHere(colonist) and b:HasFreeWorkSlots() then
-				return true
+	if dome.allow_work_in_connected then
+		for d in pairs(dome.connected_domes or empty_table) do
+			if d.allow_work_in_connected then
+				for _, b in ipairs(d.labels.Workplaces or empty_table) do
+					if not b.destroyed and b.ui_working and b:CanWorkHere(colonist) and b:HasFreeWorkSlots() then
+						return true
+					end
+				end
 			end
 		end
 	end
@@ -2201,7 +2216,7 @@ function Colonist:ToggleInteraction()
 end
 
 function Colonist:ToggleInteraction_Update(button)
-	button:SetEnabled(self:CanChangeCommand())
+	button:SetEnabled(self:CanChangeCommand()and not self.traits.Renegade)
 	local to_mode = self.interaction_mode ~= "assign_to_bld"
 	button:SetIcon(to_mode and "UI/Icons/IPButtons/assign_residence.tga" or "UI/Icons/IPButtons/cancel.tga")
 	button:SetRolloverTitle(T{8758, "Assign to Building"})
@@ -2305,13 +2320,21 @@ function Colonist:UIStatUpdate(win, stat)
 				texts[#texts + 1] = T{8803, "<green>Works in: <WorkplaceDisplayName> <amount></green>",obj, amount = Untranslated("+")..(g_Consts.WorkInWorkshopMoraleBoost/const.Scale.Stat)}
 			end
 			local trait_defs = TraitPresets
+			local cap_count = 0 -- show first 20 lines 
 			for _,mod in ipairs(obj.modifications and obj.modifications.base_morale or empty_table) do
 				local id = mod.id
+				local trait_def = trait_defs[id]
+				
+				if cap_count >= 20  and (mod.display_text  or trait_def) then
+					texts[#texts + 1] = Untranslated("...")
+					break -- show first 20 lines 
+				end	
+				
 				if mod.display_text then
 					texts = texts or {def.description, "", T{4370, "Effects:"}}
 					texts[#texts + 1] = T{mod.display_text, amount = mod.amount/stat_scale}
+					cap_count = cap_count + 1
 				end
-				local trait_def = trait_defs[id]
 				if trait_def then
 					texts = texts or {def.description, "", T{4370, "Effects:"}}
 					local infopanel_text = trait_def.infopanel_effect_text
@@ -2323,10 +2346,12 @@ function Colonist:UIStatUpdate(win, stat)
 					else
 						texts[#texts + 1] = T{4374, "<red><trait_text></red>", trait_text = trait_text}
 					end
+					cap_count = cap_count + 1
 				end
-				if IsKindOf(mod, "PropertyObect") and mod:HasMember("infopanel_text") or rawget(mod, "infopanel_text") then
+				if IsKindOf(mod, "PropertyObject") and mod:HasMember("infopanel_text") or rawget(mod, "infopanel_text") then
 					texts = texts or {def.description, "", T{4370, "Effects:"}}
 					texts[#texts + 1] = mod.infopanel_text
+					cap_count = cap_count + 1
 				end
 			end
 		else
@@ -2611,7 +2636,10 @@ function Colonist:GetDisplayName()
 	return Untranslated(self.name)
 end
 
-function Colonist:GetTitle()return self:GetDisplayName()end
+function Colonist:GetTitle()
+	return self:GetDisplayName()
+end
+
 function Colonist:GetInfopanelIcon()
 	return self.infopanel_icon
 end
@@ -2754,8 +2782,11 @@ function GenerateColonistData(city, age_trait, martianborn, params)
 		age_trait = "Child"
 		age = 0
 	else	
-		local sponsor_id = g_CurrentMissionParams.idMissionSponsor
+		local sponsor_id = params and params.sponsor or g_CurrentMissionParams.idMissionSponsor
 		local sponsor_nations = GetSponsorNations(sponsor_id)
+		if #(sponsor_nations or "") <= 0 then
+			sponsor_nations = GetSponsorNations("IMM")
+		end
 		birthplace = martianborn and "Mars" or GetWeightedRandNation(sponsor_nations) or "Mars"
 		
 		local trait_age_el = table.weighted_rand(const.ApplicantsWeights, function(el) return el[2] end)
@@ -3210,4 +3241,92 @@ if Platform.developer then
 		AddCallFreqStat(Colonist, "UpdateWorkplace")
 		AddCallFreqStat(Colonist, "UpdateResidence")
 	end
+end
+
+function Colonist:OnDisappear()
+	self:ClearTransportRequest()
+	self:SetWorkplace(false)
+	self:SetResidence(false)
+	self:AssignToService(false)
+	self:SetDome(false)
+	UpdateAttachedSign(self)
+	for effect in pairs(self.status_effects) do
+		self:Affect(effect, false)
+	end
+end
+
+function Colonist:BoardExpeditionRocket(rocket)
+	assert(rocket.expedition)
+	self:SetDome(false)
+	self:ClearTransportRequest()
+	self.expedition_rocket = rocket
+	table.insert(rocket.departures, self)
+	
+	local reached
+	self:PushDestructor(function(self)
+		assert(self.command == "Die", "unexpected command (" .. self.command .. ") breaking colonist boarding sequence")
+		table.remove_entry(rocket.departures, self)
+	end)
+	
+	if not self:GotoBuildingSpot(rocket, rocket.drone_entry_spot) -- the colonist cannot reach the rocket, don't try to pass through objects, mountains or walk above ground...
+		or not IsValid(rocket) or not rocket:IsBoardingAllowed() then -- rocket already left
+		self:PopDestructor()
+		table.remove_entry(rocket.departures, self)
+		return
+	end
+	
+	self:PopDestructor()
+	self:PushDestructor(function(self)
+		table.remove_entry(rocket.departures, self)
+		if not rocket:IsBoardingAllowed() then
+			return
+		end
+		table.insert(rocket.boarding, self)
+		
+		rocket:LeadIn(self, rocket.waypoint_chains.rocket_entrance[1])		
+
+		table.remove_entry(rocket.boarding, self)
+		table.insert(rocket.expedition.crew, self)
+		ObjModified(rocket)
+
+		if SelectedObj == self then
+			SelectObj()
+		end
+		self:SetHolder(rocket)
+		self:SetCommand("Disappear", "keep in holder")
+	end)
+	self:PopAndCallDestructor()
+end
+
+function Colonist:ReturnFromExpedition(rocket, dome)
+	self.emigration_dome = nil
+	self:PushDestructor(self.OnArrival)
+		
+	-- msg for return?
+	--Msg("ColonistArrived", self)
+		
+	self:SetOutside(true)
+	self.current_dome = false
+	-- disembark
+	local spot = rocket:GetSpotBeginIndex("Colonistout")
+	local pos, angle = rocket:GetSpotLoc(spot)
+	self:SetPos(pos)
+	self:SetAngle(angle)
+	self:SetHolder(false)
+	self:SetAnim(1, rocket.disembark_anim)
+	self:PushDestructor(function()
+		Sleep(self:TimeToAnimEnd())
+		self:Detach()
+		self:SetPos(pos)
+		self:SetState("idle")
+		table.remove_value(rocket.expedition.crew, self)
+	end)
+	self:PopAndCallDestructor() -- Disembark uninterruptible
+
+	if not dome then
+		rocket.disembarking_confused = true
+	elseif self:EnterBuilding(dome) then
+		self:SetDome(dome)
+	end
+	self:PopAndCallDestructor() -- OnArrival
 end

@@ -18,8 +18,8 @@ DefineClass.MapSettings_Meteor =
 		{ id = "storm_delay_max",			name = "Meteor Delay Max",			editor = "number",	default = 20 * 1000, scale = 1000, help = "Maximum delay between meteors in the storm(in seconds)", category = "Meteor Storm" },
 		{ id = "storm_duration_min",		name = "Duration Min",				editor = "number",	default = 1 * const.DayDuration, scale = const.DayDuration, help = "Minimum storm duration(in sols)", category = "Meteor Storm" },
 		{ id = "storm_duration_max",		name = "Duration Max",				editor = "number",	default = 3 * const.DayDuration, scale = const.DayDuration, help = "Maximum storm duration(in sols)", category = "Meteor Storm" },
-		{ id = "storm_move_speed_min",	name = "Move Speed Min (m/s)",	editor = "number", default = 0, category = "Meteor Storm" },
-		{ id = "storm_move_speed_max",	name = "Move Speed Max (m/s)",	editor = "number", default = 0, category = "Meteor Storm" },
+		{ id = "storm_move_speed_min",	name = "Move Speed Min (m/s)",	editor = "number", default = 50, category = "Meteor Storm" },
+		{ id = "storm_move_speed_max",	name = "Move Speed Max (m/s)",	editor = "number", default = 150, category = "Meteor Storm" },
 		{ id = "large_chance",				name = "Large Meteor Chance",		editor = "number",	default = 10, min = 0, max = 100, category = "Meteor Specs" },
 		{ id = "small_radius",				name = "Small Meteor Radius",		editor = "number",	default = 20*guim, scale = guim, category = "Meteor Specs"  },
 		{ id = "large_radius",				name = "Large Meteor Radius",		editor = "number",	default = 35*guim, scale = guim, category = "Meteor Specs"  },
@@ -821,7 +821,7 @@ function GatherSupplyGridObjectsToBeDestroyed(first_obj, collected, chain_id_cou
 		local obj = objs[i]
 		if not table.find(collected or empty_table, 4, obj) then
 			local q, r = WorldToHex(obj)
-			ret[idx] = {q, r, HexGridGet(conn_grid, q, r), obj, obj.chain, obj.pillar, obj:GetAngle(), not is_pipe and obj.sloped or nil, obj.is_switch, obj.switched_state}
+			ret[idx] = {q, r, HexGridGet(conn_grid, q, r), obj, obj.chain, obj.pillar, obj:GetAngle(), nil --[[free]], obj.is_switch, obj.switched_state}
 			idx = idx + 1
 		end
 	end
@@ -843,7 +843,6 @@ function RebuildSupplyGridObjects(arr, class)
 		local chain = o[5]
 		local pillar = o[6]
 		local angle = o[7]
-		local sloped = o[8]
 		local is_switch = o[9]
 		local switch_state = o[10] and "on" or "off"
 		local cg
@@ -874,7 +873,6 @@ function RebuildSupplyGridObjects(arr, class)
 		params.construction_connections = conn
 		params.pillar = pillar
 		params.chain = chain
-		params.sloped = sloped
 		params.is_switch = is_switch
 		params.switch_state = switch_state
 		

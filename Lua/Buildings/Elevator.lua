@@ -220,7 +220,9 @@ function BaseElevator:Move(floor)
 		if floor == 1 then
 			self:SetStateText(self.up_state, const.eDontCrossfade + const.eReverse)
 			Sleep(self:TimeToAnimEnd())
-			self:SetStateText("idle", const.eDontCrossfade)
+			if IsValid(self) then
+				self:SetStateText("idle", const.eDontCrossfade)
+			end
 		else
 			self:SetStateText(self.up_state, const.eDontCrossfade)
 			Sleep(self:TimeToAnimEnd())

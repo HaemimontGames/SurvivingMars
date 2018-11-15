@@ -43,6 +43,7 @@ OptionsData.VideoPresetsData = {
 		ObjectDetail = "Low",
 		MaxFps = "240",
 		SSAO = "Off",
+		ShowFireworks = "On",
 	},
 	Medium = {
 		Textures = "Medium",
@@ -61,6 +62,7 @@ OptionsData.VideoPresetsData = {
 		ObjectDetail = "High",
 		MaxFps = "240",
 		SSAO = "Off",
+		ShowFireworks = "On",
 	},
 	High = {
 		Textures = "High",
@@ -79,6 +81,7 @@ OptionsData.VideoPresetsData = {
 		ObjectDetail = "High",
 		MaxFps = "240",
 		SSAO = "On",
+		ShowFireworks = "On",
 	},
 	Ultra = {
 		Textures = "Ultra",
@@ -97,6 +100,7 @@ OptionsData.VideoPresetsData = {
 		ObjectDetail = "High",
 		MaxFps = "240",
 		SSAO = "On",
+		ShowFireworks = "On",
 	},
 	Durango = {
 		Textures = "High",
@@ -116,6 +120,7 @@ OptionsData.VideoPresetsData = {
 		FPSCounter = "Off",
 		MaxFps = "Unlimited",
 		SSAO = "Off",
+		ShowFireworks = "On",
 	},
 	Scorpio = {
 		Textures = "Ultra",
@@ -135,6 +140,7 @@ OptionsData.VideoPresetsData = {
 		FPSCounter = "Off",
 		MaxFps = "Unlimited",
 		SSAO = "Off",
+		ShowFireworks = "On",
 	},
 	Ps4 = {
 		Textures = "High",
@@ -154,6 +160,7 @@ OptionsData.VideoPresetsData = {
 		FPSCounter = "Off",
 		MaxFps = "Unlimited",
 		SSAO = "Off",
+		ShowFireworks = "On",
 	},
 	Neo = {
 		Textures = "High",
@@ -173,6 +180,7 @@ OptionsData.VideoPresetsData = {
 		FPSCounter = "Off",
 		MaxFps = "Unlimited",
 		SSAO = "Off",
+		ShowFireworks = "On",
 	},
 }
 
@@ -201,10 +209,10 @@ OptionsData.Options.Textures = {
 }
 
 OptionsData.Options.Terrain = {
-	{ value = "Low", text = T{644, "Low"}, hr = { TR_ChunkSize = 256, TR_MaxChunks = 100, TR_MaxChunksPerFrame = 5, TR_MaterialQualityReductionLevel = 2, TR_PriorityModifier = 80, TR_BakedDecalThreshold = 0 } },
-	{ value = "Medium", text = T{645, "Medium"}, hr = { TR_ChunkSize = 256, TR_MaxChunks = 150, TR_MaxChunksPerFrame = 10, TR_MaterialQualityReductionLevel = 1, TR_PriorityModifier = 20, TR_BakedDecalThreshold = 0 } },
-	{ value = "High", text = T{7377, "High"}, hr = { TR_ChunkSize = 512, TR_MaxChunks = 100, TR_MaxChunksPerFrame = 10, TR_MaterialQualityReductionLevel = 0, TR_PriorityModifier = 10, TR_BakedDecalThreshold = 0 } },
-	{ value = "Ultra", text = T{3551, "Ultra"}, hr = { TR_ChunkSize = 512, TR_MaxChunks = 200, TR_MaxChunksPerFrame = 20, TR_MaterialQualityReductionLevel = 0, TR_PriorityModifier = 10, TR_BakedDecalThreshold = 0 } },
+	{ value = "Low", text = T{644, "Low"}, hr = { TR_ChunkSize = 256, TR_MaxChunks = 50, TR_MaxChunksPerFrame = 5, TR_MaterialQualityReductionLevel = 2, TR_PriorityModifier = 80, TR_BakedDecalThreshold = 0 } },
+	{ value = "Medium", text = T{645, "Medium"}, hr = { TR_ChunkSize = 256, TR_MaxChunks = 65, TR_MaxChunksPerFrame = 10, TR_MaterialQualityReductionLevel = 1, TR_PriorityModifier = 20, TR_BakedDecalThreshold = 0 } },
+	{ value = "High", text = T{7377, "High"}, hr = { TR_ChunkSize = 512, TR_MaxChunks = 80, TR_MaxChunksPerFrame = 10, TR_MaterialQualityReductionLevel = 0, TR_PriorityModifier = 10, TR_BakedDecalThreshold = 0 } },
+	{ value = "Ultra", text = T{3551, "Ultra"}, hr = { TR_ChunkSize = 512, TR_MaxChunks = 120, TR_MaxChunksPerFrame = 20, TR_MaterialQualityReductionLevel = 0, TR_PriorityModifier = 10, TR_BakedDecalThreshold = 0 } },
 }
 
 OptionsData.Options.ResolutionPercent = {
@@ -288,6 +296,11 @@ OptionsData.Options.FPSCounter = {
 	{ value = "Ms", text = T{3559, "ms"}, hr = { FpsCounter = 2 } },
 }
 
+OptionsData.Options.ShowFireworks = {
+	{ value = "Off", text = T{6844, "Off"}, hr = { ShowFireworks = 0 } },
+	{ value = "On", text = T{6847, "On"}, hr = { ShowFireworks = 1 } },
+}
+
 OptionsData.Options.RightClickAction = {
 	{ value = "Build", text = T{383281603855, "Build Menu"}},
 	{ value = "Move", text = T{3560, "Move Units"}},
@@ -347,6 +360,10 @@ local function FilterHide()
 	return false
 end
 
+local function FilterInGame()
+	return GameState.gameplay
+end
+
 function OnMsg.ClassesGenerate(classdefs) 
 	classdefs.OptionsObject.properties = {
 		-- Video
@@ -402,6 +419,8 @@ function OnMsg.ClassesGenerate(classdefs)
 		{ name = T{10911, "Auto Pin Rare Colonists"}, id = "AutoPinRareColonists", category = "Gameplay", storage = "account", editor = "bool", default = true },
 		{ name = T{10912, "Auto Pin Founders"}, id = "AutoPinFounders", category = "Gameplay", storage = "account", editor = "bool", default = false },
 		{ name = T{10913, "Max Number of Auto Pins"}, id = "AutoPinMaxNum", category = "Gameplay", storage = "account", editor = "dropdown", default = 50 },
+
+		{ name = T{11518, "Show Fireworks"}, id = "ShowFireworks", category = "Gameplay", storage = "local", editor = "dropdown", display_as_bool = true, default = "On" },
 		
 		{ name = T{1000102, "Language"}, id = "Language", category = "Gameplay", storage = "account", editor = "dropdown", default = "English", filter = FilterNonConsole, },
 		
@@ -532,6 +551,7 @@ local function UpdateHintsOption(hints_enabled)
 			CreateGameTimeThread(PeriodicHintChecks)
 		end
 		HintsEnabled = hints_enabled
+		GetOnScreenHintDlg()
 	end
 end
 
@@ -553,7 +573,7 @@ end
 local function RecursiveUpdateTTexts(root)
 	if IsKindOf(root, "XTranslateText") and root.Translate and IsT(root:GetText()) then
 		root:SetText(root:GetText())
-		root:SetTextFont(root:GetTextFont())
+		root:SetTextStyle(root:GetTextStyle())
 	end
 	for i=1,#root do
 		RecursiveUpdateTTexts(root[i])
@@ -590,14 +610,15 @@ end
 
 --reload account options when reloading Lua
 function OnMsg.Autorun()
-	ApplyPreset(EngineOptions.VideoPreset)
+	local preset = Platform.console and GetDefaultEngineOptions().VideoPreset or EngineOptions.VideoPreset
+	ApplyPreset(preset)
 	ApplyProjectAccountOptions()
 end
 
 --reload account options when we get new account storage, something that happens on the durango
 function OnMsg.AccountStorageChanged()
 	if Platform.console and AccountStorage then
-		ApplyPreset(EngineOptions.VideoPreset)
+		ApplyPreset(GetDefaultEngineOptions().VideoPreset) --override saved video preset in engine options
 	end
 	if AccountStorage and next(AccountStorage.Shortcuts) then
 		DelayedCall(0, ReloadShortcuts)

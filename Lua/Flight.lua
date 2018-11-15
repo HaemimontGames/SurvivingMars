@@ -44,6 +44,11 @@ local GetEnumFlags = CObject.GetEnumFlags
 local IsValidEntity = IsValidEntity
 local developer = Platform.developer
 
+if developer then
+	GlobalVar("FlightCObjs", {}, weak_keys_meta)
+	PersistableGlobals.FlightCObjs = nil
+end
+
 Flight_MaxSplineDist = 100*guim
 function OnMsg.ClassesBuilt()
 	local max_spline_dist = 0
@@ -260,7 +265,7 @@ function MarkThreadProc()
 end
 
 function OnMsg.DoneMap()
-	Flight_Free()
+	Flight_Free(true)
 end
 
 function OnMsg.NewMapLoaded()
@@ -272,8 +277,8 @@ function OnMsg.LoadGame()
 	Flight_Free()
 	Flight_Init()
 	Flight_StartComputeThread()
-	for i=1,#FlyingObjs do
-		FlyingObjs[i]:RegisterFlight()
+	for _, obj in ipairs(FlyingObjs) do
+		obj:RegisterFlight()
 	end
 end
 
@@ -309,13 +314,6 @@ function Flight_Mark(obj)
 	MarkThreadStart()
 end
 
-function Flight_MarkCustom(obj, x, y, r, h)
-	assert(not Flight_MarkedObjs[obj])
-	Flight_MarkedObjs[obj] = {x, y, r, h}
-	Flight_ObjsToMark[obj] = true
-	MarkThreadStart()
-end
-
 function Flight_Unmark(obj)
 	if Flight_ObjToUnmark[obj] then
 		return
@@ -346,10 +344,10 @@ end
 DefineClass.FlyingObject = {
 	__parents = { "FXObject", "Object", "CommandObject", "ComponentAttach", "ComponentEx" },
 	enum_flags = { efWalkable = false, efApplyToGrids = false, efCollision = false },
+	class_flags = { cfComponentSound = true },
 	
 	flight_id = 0,
 	idle_mark_pos = false,
-	registered_cobj = false,
 	
 	-- collision params:
 	collision = false,
@@ -550,13 +548,15 @@ function FlyingObject:FollowPathCmd(path)
 		assert(false, "Invalid flying object")
 		return
 	end
-	local Flight_GetHeight = Flight_GetHeight
 	if FlyingObjs[self] then
 		assert(false, "Flying object controlled from multiple threads!")
 		return
 	end
 	FlyingObjs[#FlyingObjs + 1] = self
 	FlyingObjs[self] = CurrentThread()
+	self:RegisterFlight()
+	
+	local Flight_GetHeight = Flight_GetHeight
 	local hover_height = self.hover_height
 	local last_pos = path[#path][4]
 	local first_pos = path[1][1]
@@ -613,9 +613,6 @@ function FlyingObject:FollowPathCmd(path)
 	local dist_to_target 
 	local travel_dist = 0
 	local time
-	
-	self:RegisterFlight()
-	
 	while IsValid(self) and (spline_idx ~= #path or spline_coef < 4096) do
 		do
 			local Min, Max = Min, Max
@@ -765,14 +762,18 @@ function FlyingObject:FollowPathCmd(path)
 end
 
 function FlyingObject:RegisterFlight()
-	assert(not self.registered_cobj or self.registered_cobj == self[true])
-	self.registered_cobj = self[true]
+	if developer then
+		assert(not FlightCObjs[self] or FlightCObjs[self] == self[true])
+		FlightCObjs[self] = self[true]
+	end
 	Flight_Register(self)
 end
 
 function FlyingObject:UnregisterFlight()
-	assert(not self.registered_cobj or self.registered_cobj == self[true])
-	self.registered_cobj = false
+	if developer then
+		assert(not FlightCObjs[self] or FlightCObjs[self] == self[true])
+		FlightCObjs[self] = nil
+	end
 	Flight_Unregister(self)
 end
 

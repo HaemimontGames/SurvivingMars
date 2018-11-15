@@ -30,6 +30,9 @@ DefineClass.MapSettings_DustStorm =
 GlobalVar("g_DustStorm", false)
 GlobalVar("g_DustStormType", false)
 GlobalVar("g_DustStormStopped", false)
+GlobalVar("g_DustStormDuration", 0)
+GlobalVar("g_DustStormStart", false)
+GlobalVar("g_DustStormEnd", false)
 
 local hour_duration = const.HourDuration
 local day_duration = const.DayDuration
@@ -112,13 +115,23 @@ function FuelExplosion(obj)
 		end)
 end
 
+function ExtendDustStorm(time)
+	if g_DustStorm then
+		g_DustStormDuration = g_DustStormDuration + time
+		g_DustStormEnd = g_DustStormEnd + time
+		AddDisasterNotification(g_DustStorm.type .. "DustStormDuration", {start_time = g_DustStormStart, expiration = g_DustStormEnd - g_DustStormStart}, "extend")
+	end
+end
+
 function StartDustStorm(storm_type, dust_storm)
-	local duration = UICity:Random(dust_storm.min_duration, dust_storm.max_duration)
-	g_DustStorm = { type = storm_type, descr = dust_storm, start_time = GameTime(), duration = duration }
+	g_DustStormDuration = UICity:Random(dust_storm.min_duration, dust_storm.max_duration)
+	g_DustStorm = { type = storm_type, descr = dust_storm, start_time = GameTime(), duration = g_DustStormDuration }
 	Msg("DustStorm")
 	RemoveDisasterNotifications()
 	local preset = storm_type .. "DustStormDuration"
-	AddDisasterNotification(preset, {start_time = GameTime(), expiration = duration})
+	g_DustStormStart = GameTime()
+	g_DustStormEnd = g_DustStormStart + g_DustStormDuration
+	AddDisasterNotification(preset, {start_time = g_DustStormStart, expiration = g_DustStormDuration})
 	ShowDisasterDescription("DustStorm")
 	local target_dust = g_DustStorm.type == "great" and 2 * dust_storm.target_dust or dust_storm.target_dust
 	local time = 0
@@ -148,7 +161,7 @@ function StartDustStorm(storm_type, dust_storm)
 	local period_dust = target_dust * period / 1000
 	local batches = period / interval
 	local batch = 1
-	while not g_DustStormStopped and duration > 0 do
+	while not g_DustStormStopped and g_DustStormDuration > 0 do
 		for _, label_name in ipairs(dust_labels) do
 			apply_dust(UICity.labels[label_name], period_dust, batch, batches)
 		end
@@ -195,8 +208,8 @@ function StartDustStorm(storm_type, dust_storm)
 						if IsKindOf(obj, "ElectricityStorage") then
 							obj.electricity.current_storage = Max(0, obj.electricity.current_storage - dust_storm.strike_discharge)
 						end
-					elseif IsKindOf(obj, "Citizen") then
-						if not self:IsDying() then
+					elseif IsKindOf(obj, "Colonist") then
+						if not obj:IsDying() then
 							obj:SetCommand("Die", "lighting strike")
 						end
 					end
@@ -216,10 +229,10 @@ function StartDustStorm(storm_type, dust_storm)
 				end
 			end
 		end
-		local delta = Min(duration, interval)
+		local delta = Min(g_DustStormDuration, interval)
 		Sleep(delta)
 		time = time + delta
-		duration = duration - delta
+		g_DustStormDuration = g_DustStormDuration - delta
 		batch = batch < batches and (batch + 1) or 1
 	end
 	if g_DustStorm.type == "electrostatic" then
@@ -230,6 +243,8 @@ function StartDustStorm(storm_type, dust_storm)
 		PlayFX("DustStorm", "end")
 	end
 	g_DustStorm = false
+	g_DustStormStart = false
+	g_DustStormEnd = false
 	RemoveOnScreenNotification(preset)
 	Msg("DustStormEnded")
 end

@@ -68,7 +68,7 @@ function BuildStorableResourcesArray()
 	for i = 1, #descendants do
 		local class_def = BuildingTemplates[descendants[i]] or g_Classes[descendants[i]]
 		if not class_def.exclude_from_lr_transportation then
-			if class_def:HasMember("storable_resources") then --shared storage
+			if class_def:HasMember("storable_resources") and class_def.storable_resources then --shared storage
 				for i = 1, #(class_def.storable_resources or empty_table) do
 					resources[class_def.storable_resources[i]] = true
 				end
@@ -269,7 +269,7 @@ function PathLenCached(pt1, pfclass, pt2)
 		dist = PathLenCache[key]
 	end
 	if dist == nil then
-		local has_path, len = pf.PathLen(pt1, pfclass, pt2)
+		local has_path, len = pf.PosPathLen(pt1, pfclass, pt2)
 		dist = has_path and len or false
 		PathLenCache[key] = dist
 	else
@@ -292,26 +292,33 @@ end
 
 local function CheckMinDist(bld1, bld2)
 	if bld1:IsCloser2D(bld2, dist_threshold) then
-		local did_reach, len = pf.PathLen(bld1:GetPos(), 0, bld2:GetPos()) --cant cache :(
+		local did_reach, len = pf.PosPathLen(bld1:GetPos(), 0, bld2:GetPos()) --cant cache :(
 		return not did_reach or len > dist_threshold 
 	end
 	return true
 end
 
 local hystory_time = 3*const.HourDuration
-function LRManager:FindTransportTask(requestor, demand_only, force_resource, capacity)
+function LRManager:FindTransportTask(requestor, demand_only, force_resource, capacity, transport_mode)
+	transport_mode = transport_mode or "all"
 	local colonist_task
 	local colonist_tasks = self.colonist_transport_tasks or ""
-	if not demand_only and not force_resource then
+	if transport_mode ~= "cargo" and not demand_only and not force_resource then
 		for i = 1,#colonist_tasks do
 			if colonist_tasks[i]:CanExecute() then
 				colonist_task = colonist_tasks[i]
-				if self.last_task_type == "resource" then
+				if transport_mode == "people" then
+					return colonist_task
+				elseif self.last_task_type == "resource" then
 					self.last_task_type = "colonist"
 					return colonist_task
 				end
 				break
 			end
+		end
+		
+		if transport_mode == "people" then
+			return
 		end
 	end
 	
@@ -371,7 +378,9 @@ function LRManager:FindTransportTask(requestor, demand_only, force_resource, cap
 	if demand_only then
 		return best_task
 	elseif best_task then
-		self.last_task_type = "resource"
+		if transport_mode == "all" then
+			self.last_task_type = "resource"
+		end
 		return best_task
 	elseif colonist_task then
 		self.last_task_type = "colonist"

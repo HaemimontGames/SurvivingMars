@@ -16,16 +16,19 @@ function GetModsListForTag(param)
 		end
 		if list_mod then
 			local corrupted, warning = GetModCorruptedStatus(v)
-			local author = v.author ~= "" and v.author or "Unknown"
+			local author = v.author ~= "" and Untranslated(v.author) or T{4328, "Unknown"}
 			items[#items+1] = {
 				id = k,
 				title = Untranslated(v.title),
 				corrupted = corrupted,
-				warning = corrupted and warning or "",
-				author = T{1121, "Author: <color_pref><value><color_suff>", color_pref = TLookupTag("<sharp_yellow>"), value = Untranslated(author), color_suff = TLookupTag("</sharp_yellow>")},
+				warning = corrupted and (TLookupTag("<red>") .. warning .. TLookupTag("</red>")) or "",
+				author = T{1000022, "Author"},
+				author_val = author,
 				description = Untranslated(v.description),
-				last_update = T{1122, "Last Update: <color_pref><value><color_suff>", color_pref = TLookupTag("<sharp_yellow>"), value = v.saved and Untranslated(os.date("%d.%m.%Y", v.saved)) or "", color_suff = TLookupTag("</sharp_yellow>")},
-				mod_tags = mod_tags and #mod_tags > 0 and T{1123, "Tags: <color_pref><value><color_suff>", color_pref = TLookupTag("<sharp_yellow>"), value = Untranslated(table.concat(mod_tags, ", ")), color_suff = TLookupTag("</sharp_yellow>")} or "",
+				last_update = v.saved and T{1122, "Last Update"} or "",
+				last_update_val = v.saved and Untranslated(os.date("%d.%m.%Y", v.saved)) or "",
+				mod_tags = mod_tags and #mod_tags > 0 and T{1000018, "Tags"} or "",
+				mod_tags_val = mod_tags and #mod_tags > 0 and Untranslated(table.concat(mod_tags, ", ")),
 				image = v.image,
 			}
 		end
@@ -120,10 +123,13 @@ function ShowModDescription(item, dialog)
 	local mod_image = item.image ~= "" and item.image or "UI/Common/Placeholder.tga"
 	dialog.idImage:SetImage(mod_image)
 	dialog.idAuthor:SetText(item.author)
+	dialog.idAuthorVal:SetText(item.author_val)
 	dialog.idLastUpdate:SetText(item.last_update)
+	dialog.idLastUpdateVal:SetText(item.last_update_val)
 	dialog.idWarning:SetText(item.warning)
 	dialog.idDescription:SetText(item.description)
 	dialog.idTags:SetText(item.mod_tags)
+	dialog.idTagsVal:SetText(item.mod_tags_val)
 	dialog.idModInfo:SetVisible(true)
 end
 

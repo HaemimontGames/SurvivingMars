@@ -63,6 +63,32 @@ function Infobar:RecalculateMargins()
 	self:SetMargins(GetSafeMargins())
 end
 
+function Infobar:DockInPopupNotification(popup, dock)
+	if dock then
+		self:SetDock("none")
+		self:SetParent(popup)
+		self:EnumFocusChildren(function(child, x, y)
+			assert(not rawget(child, "GetRolloverHint") and not rawget(child, "GetRolloverHintGamepad"))
+			child.GetRolloverHint = function() return T{816190283569, --[[XTemplate Infobar RolloverHintGamepad]] "<DPad> Navigate <DPadDown> Close"} end
+			child.GetRolloverHintGamepad = child.GetRolloverHint
+			rawset(child, "oldOnPress", rawget(child, "OnPress"))
+			rawset(child, "OnPress", nil)
+			child:SetFocusOrder(child.FocusOrder + point(-1, -1))
+		end)
+	else
+		self:SetDock(false)
+		self:SetParent(GetInGameInterface())
+		self:EnumFocusChildren(function(child, x, y)
+			child.GetRolloverHint = nil
+			child.GetRolloverHintGamepad = nil
+			rawset(child, "OnPress", rawget(child, "oldOnPress"))
+			rawset(child, "oldOnPress", nil)
+			child:SetFocusOrder(child.FocusOrder - point(-1, -1))
+		end)
+	end
+	self:UpdateGamepadHint()
+end
+
 function UpdateInfobarVisibility(force)
 	local igi = GetInGameInterface()
 	if not igi then
@@ -101,9 +127,11 @@ function Infobar:UpdateGamepadHint()
 		return
 	end
 	
-	local focus = self.desktop:GetKeyboardFocus()
+	local focus = GetDialog(self.desktop:GetKeyboardFocus())
 	if IsKindOfClasses(focus, "SelectionModeDialog", "OverviewModeDialog", "InGameInterface") then
 		self.idGamepadHint:SetVisible(true)
+	elseif IsKindOf(focus, "PopupNotification") then
+		self.idGamepadHint:SetVisible(focus.idList:IsFocused(true) and focus.idList:GetSelection()[1] == 1)
 	else
 		self.idGamepadHint:SetVisible(false)
 	end
@@ -118,7 +146,7 @@ function Infobar:OnShortcut(shortcut, ...)
 	if shortcut == "DPadDown" then
 		self:SetFocus(false, true)
 		return "break"
-	elseif XShortcutToRelation[shortcut] then --fix changing the gamespeed using dpad, while navingating infobar
+	elseif XShortcutToRelation[shortcut] then -- fix changing the gamespeed using DPad while navigating the infobar
 		XDialog.OnShortcut(self, shortcut, ...)
 		return "break"
 	else
@@ -252,6 +280,28 @@ function InfobarObj:GetGridResourcesText()
 	}
 end
 
+function InfobarObj:GetElectricityText()
+	local power = ResourceOverviewObj:GetPowerNumber() / const.ResourceScale
+	return T{11680, "<power><icon_Power_orig>", power = self:FmtRes(power, "colorized"),}
+end
+
+function InfobarObj:GetLifesupportText()
+	local air = ResourceOverviewObj:GetAirNumber() / const.ResourceScale
+	local water = ResourceOverviewObj:GetWaterNumber() / const.ResourceScale
+	
+	return T{11681, "<air><icon_Air_orig>  <water><icon_Water_orig>", 
+				air = self:FmtRes(air, "colorized"),
+				water = self:FmtRes(water, "colorized"),}
+end
+
+function InfobarObj:GetElectricityGridRollover()
+	return ResourceOverviewObj:GetElectricityGridRollover()
+end
+
+function InfobarObj:GetLifesupportGridRollover()
+	return ResourceOverviewObj:GetLifesupportGridRollover()
+end
+
 function InfobarObj:GetGridResourcesRollover()
 	return ResourceOverviewObj:GetGridRollover()
 end
@@ -305,6 +355,21 @@ function InfobarObj:CycleResources(resource)
 	end
 	
 	CycleObjects(unique_objs)
+end
+
+function InfobarObj:CycleDroneControl()
+	local list = UICity.labels["DroneControl"] or empty_table
+	local count = #list
+	if count == 0 then return end
+	local controllers = {}
+	for i = count, 1, -1 do
+		local obj = list[i]
+		if obj:IsValidPos() then
+			controllers[#controllers + 1] = obj
+		end
+	end
+	
+	CycleObjects(controllers)
 end
 
 function InfobarObj:GetMetalsText()
@@ -379,11 +444,8 @@ function InfobarObj:GetFuelRollover()
 	return ResourceOverviewObj:GetFuelRollover()
 end
 
-function InfobarObj:CycleColonists(label)
-	--gather the colonists
-	local list = UICity.labels[label]
-	
-	CycleObjects(list)
+function InfobarObj:CycleLabel(label)
+	CycleObjects(UICity.labels[label])
 end
 
 function InfobarObj:CycleFreeHomes()
@@ -410,9 +472,20 @@ function InfobarObj:CycleFreeWorkplaces()
 	CycleObjects(list)
 end
 
+function InfobarObj:GetTotalDrones()
+	local total_drones = #(UICity.labels.Drone or empty_table)
+	return T{11183, "<total_drones><icon_Drone_orig>", total_drones = self:FmtRes(total_drones)}
+end
+
+function InfobarObj:GetTotalColonists()
+	local total_coloinsts = ResourceOverviewObj:GetColonistCount()
+	return T{11184, "<total_coloinsts><icon_Colonist_orig>", total_coloinsts = self:FmtRes(total_coloinsts)}
+end
+
 function InfobarObj:GetFreeHomes()
 	local free_homes = ResourceOverviewObj:GetFreeLivingSpace()
-	return T{10422, "<free_homes><icon_Home_orig>", free_homes = self:FmtRes(free_homes)}
+	local homeless = ResourceOverviewObj:GetHomelessColonists()
+	return T{10422, "<free_homes><icon_Home_orig>", free_homes = self:FmtRes(free_homes)}..Untranslated(" ")..T{10423, "<homeless><icon_Homeless_orig>", homeless = self:FmtRes(homeless)}
 end
 
 function InfobarObj:GetHomeless()
@@ -422,7 +495,8 @@ end
 
 function InfobarObj:GetFreeWork()
 	local free_work = ResourceOverviewObj:GetFreeWorkplaces()
-	return T{10424, "<free_work><icon_Work_orig>", free_work = self:FmtRes(free_work)}
+	local unemployed = ResourceOverviewObj:GetUnemployedColonists()
+	return T{10424, "<free_work><icon_Work_orig>", free_work = self:FmtRes(free_work)}..Untranslated(" ").. T{10425, "<unemployed><icon_Unemployed_orig>", unemployed = self:FmtRes(unemployed)}
 end
 
 function InfobarObj:GetUnemployed()
@@ -436,4 +510,26 @@ end
 
 function InfobarObj:GetColonistsRollover()
 	return ResourceOverviewObj:GetColonistsRollover()
+end
+
+function InfobarObj:GetDronesCount()
+	return ResourceOverviewObj:GetDronesCount()
+end
+
+function InfobarObj:GetDronesRollover()
+	local texts = 
+	{
+		T{11697, "Drone controllers<right><number>", number = #(UICity.labels.DroneControl or empty_table)},
+		T{11698, "Drone prefabs<right><number>", number = FormatResourceValueMaxResource(empty_table, UICity.drone_prefabs,"Drone")},
+		T{11699, "Destroyed drones<right><number>", number =  FormatResourceValueMaxResource(empty_table,#g_DestroyedDrones, "Drone")},
+	}
+	return table.concat(texts, "<newline><left>")
+end
+
+function InfobarObj:GetFreeHomesRollover()
+	return ResourceOverviewObj:GetHomesRollover()
+end	
+
+function InfobarObj:GetJobsRollover()
+	return ResourceOverviewObj:GetJobsRollover()
 end

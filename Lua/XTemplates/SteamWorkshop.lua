@@ -6,9 +6,9 @@ PlaceObj('XTemplate', {
 	id = "SteamWorkshop",
 	PlaceObj('XTemplateWindow', {
 		'__class', "XLayer",
-		'Margins', box(0, 0, 0, 40),
-		'Padding', box(-465, 0, 0, 0),
-		'HAlign', "left",
+		'Margins', box(0, 40, 0, 0),
+		'Padding', box(0, 0, -465, 0),
+		'HAlign', "right",
 		'VAlign', "bottom",
 	}, {
 		PlaceObj('XTemplateFunc', {
@@ -28,7 +28,7 @@ end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XImage",
-			'Margins', box(240, -40, 0, 0),
+			'Margins', box(0, -40, 240, 0),
 			'HandleMouse', true,
 			'MouseCursor', "UI/Cursors/Rollover.tga",
 			'Image', "UI/Common/mod_steam_workshop.tga",

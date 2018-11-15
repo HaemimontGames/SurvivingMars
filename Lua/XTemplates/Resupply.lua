@@ -64,10 +64,7 @@ return XDialog.OnXButtonDown(self, button, controller_id)
 end,
 		}),
 		PlaceObj('XTemplateLayer', {
-			'layer', "TitleLayer",
-		}),
-		PlaceObj('XTemplateLayer', {
-			'layer', "EarthPlanet",
+			'layer', "EarthPlanetCloseup",
 		}),
 		PlaceObj('XTemplateLayer', {
 			'layer', "XHideInGameInterfaceLayer",

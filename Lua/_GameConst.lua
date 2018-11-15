@@ -53,6 +53,7 @@ const.MoistureVaporatorPenaltyPercent = 40
 const.OmegaTelescopeBreakthroughsCount = 3
 const.OmegaTelescopeBoostPercent = 20
 const.MoholeMineHeatRadius = 8 --in hexes
+const.AdvancedStirlingGeneratorHeatRadius = 6
 
 const.RCRoverDefaultRadius = 20
 const.RCRoverMaxRadius = 20
@@ -79,6 +80,10 @@ const.PreGameMenuFadeOutDuration = 450
 const.DemolishCountdownMax = 5 * 1000
 
 const.MaxDomeDist = 300*guim
+
+const.MinTradeAmount = 5 --amounts for resources that can be traded with rival colonies
+const.MaxTradeAmount = 50
+const.DistressCallCooldown = 5 --in Sols
 
 const.ScanTick = 1000
 const.SectorCount = 10 -- per dimension
@@ -179,30 +184,30 @@ const.DustStormSuspendBuildings = {"MOXIE", "MoistureVaporator", "ShuttleHub"}
 const.DustStormSuspendReason = "SuspendedDustStorm"
 
 -- color tags
-const.TagLookupTable["red"]     = "<color  255 69 38><shadowcolor 1 60 40>"
+const.TagLookupTable["red"]     = "<color  255 65 79><shadowcolor 1 60 40>"
 const.TagLookupTable["/red"]    = "</shadowcolor></color>"
-const.TagLookupTable["green"]   = "<color  138 223 47>"
+const.TagLookupTable["green"]   = "<color  24 185 115>"
 const.TagLookupTable["/green"]  = "</color>"
 const.TagLookupTable["yellow"]     = "<color  244 228 117>"
 const.TagLookupTable["/yellow"]    = "</color>"
-const.TagLookupTable["white"]     = "<color  250 236 208>"
+const.TagLookupTable["white"]     = "<color  248 242 230>"
 const.TagLookupTable["/white"]    = "</color>"
-const.TagLookupTable["sharp_yellow"]     = "<color  255 230 69>"
-const.TagLookupTable["/sharp_yellow"]    = "</color>"
-const.TagLookupTable["grey"]     = "<color  158 158 158>"
+const.TagLookupTable["grey"]     = "<color flavor>"
 const.TagLookupTable["/grey"]    = "</color>"
-const.TagLookupTable["blue"]     = "<color  129 202 233>"
-const.TagLookupTable["/blue"]    = "</color>"
-const.TagLookupTable["em"]     = "<color 250 236 208>"
+const.TagLookupTable["em"]     = "<color em>"
 const.TagLookupTable["/em"]    = "</color>"
-const.TagLookupTable["graph_left"] = "<color 58 184 25>"
+const.TagLookupTable["graph_left"] = "<color 24 185 115>"
 const.TagLookupTable["/graph_left"] = "</color>"
-const.TagLookupTable["graph_right"] = "<color 32 151 219>"
+const.TagLookupTable["graph_right"] = "<color 113 186 223>"
 const.TagLookupTable["/graph_right"] = "</color>"
 
+const.TagLookupTable["condition_text"]   = ""
+const.TagLookupTable["/condition_text"]  = ""
 const.TagLookupTable["outcome_text"]   = "<color 233 242 255>"
 const.TagLookupTable["/outcome_text"]  = "</color>"
-const.TagLookupTable["white_shadow"]   = "<shadowcolor  233 242 255>"
+const.TagLookupTable["disabled_text"]   = "<color 196 196 196>"
+const.TagLookupTable["/disabled_text"]  = "</color>"
+const.TagLookupTable["white_shadow"]   = "<shadowcolor 233 242 255>"
 const.TagLookupTable["/white_shadow"]  = "</shadowcolor>"
 
 const.TagLookupTable["icon_Concrete"]     = "<image UI/Icons/res_concrete.tga 1300>"
@@ -272,6 +277,7 @@ const.TagLookupTable["icon_Work_small"]             = "<image UI/Icons/res_work.
 const.TagLookupTable["icon_Unemployed_small"]       = "<image UI/Icons/res_unemployed.tga 800>"
 const.TagLookupTable["icon_MysteryResource_small"]= "<image UI/Icons/res_mystery_resource.tga 800>"
 
+const.TagLookupTable["lock_icon"] = "<image UI/Common/padlock.tga 540>"
 const.TagLookupTable["left_click"] = "<image UI/Infopanel/left_click.tga 1400>"
 const.TagLookupTable["right_click"] = "<image UI/Infopanel/right_click.tga 1400>"
 const.TagLookupTable["middle_click"] = "<image UI/Infopanel/middle_click.tga 1400>"
@@ -337,23 +343,27 @@ FarmPerformanceEffects =
 
 DeathReasons = 
 {
-	["meteor"]     = T{4791, "Meteor Impact"},
+	["meteor"]              = T{4791, "Meteor Impact"},
 	["lighting strike"]     = T{7879, "Struck by lighting"},
-	["fuel explosion"]     = T{7880, "Fuel explosion"},
-	["low health"] = T{4792, "Low Health"},
-	["Old age"]    = T{4793, "Old Age"},
+	["fuel explosion"]      = T{7880, "Fuel explosion"},
+	["low health"]          = T{4792, "Low Health"},
+	["Old age"]             = T{4793, "Old Age"},
 	["could not reach dome"]= T{4794, "Spacesuit out of Oxygen"},
 	["could not find dome"] = T{4794, "Spacesuit out of Oxygen"},
-	["suicide"]    = T{4795, "Suicide (Low Sanity)"},
-	["rogue drone"] = T{4796, "Killed by a rogue machine"},
+	["suicide"]             = T{4795, "Suicide (Low Sanity)"},
+	["rogue drone"]         = T{4796, "Killed by a rogue machine"},
 	
 	["StatusEffect_Suffocating"]         = T{4797, "Suffocating"},
 	["StatusEffect_Suffocating_Outside"] = T{4797, "Suffocating"},
 	
-	["StatusEffect_Dehydrated"]         = T{4798, "Dehydrated"},
-	["StatusEffect_Freezing"]        = T{3875, "Freezing"},
-	["StatusEffect_Starving"]        = T{3877, "Starving"},
+	["StatusEffect_Dehydrated"] = T{4798, "Dehydrated"},
+	["StatusEffect_Freezing"]   = T{3875, "Freezing"},
+	["StatusEffect_Starving"]   = T{3877, "Starving"},
+	
+	["StoryBit"]     = T{10995, "Extenuating circumstances"},
+	["DustSickness"] = T{924901666901, "Dust Sickness"},
 }
+
 NaturalDeathReasons = 
 {
 	["Old age"] = true,

@@ -4,27 +4,9 @@ PlaceObj('XTemplate', {
 	group = "InGame",
 	id = "XIGMenu",
 	PlaceObj('XTemplateTemplate', {
-		'__template', "OverlayDlg",
-		'MinWidth', 420,
+		'__template', "NewOverlayDlg",
 		'HostInParent', true,
 	}, {
-		PlaceObj('XTemplateCode', {
-			'run', function (self, parent, context)
-parent:SetPadding(box(80,30,120,50))
-local toolbar = GetDialog(parent).idToolbar
-toolbar:SetPadding(box(80, 0, 0, 0))
-toolbar:SetHAlign("center")
-end,
-		}),
-		PlaceObj('XTemplateWindow', {
-			'__class', "XFrame",
-			'Margins', box(-80, 6, -155, -100),
-			'VAlign', "top",
-			'Transparency', 100,
-			'Image', "UI/Common/bm_pad_small.tga",
-			'FrameBox', box(170, 0, 165, 0),
-			'SqueezeY', false,
-		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "close",
 			'ActionName', T{4523, --[[XTemplate XIGMenu ActionName]] "CLOSE"},
@@ -34,22 +16,34 @@ end,
 			'OnActionEffect', "close",
 			'IgnoreRepeated', true,
 		}),
+		PlaceObj('XTemplateTemplate', {
+			'__template', "DialogTitleNew",
+			'Margins', box(115, 0, 0, 0),
+			'Title', T{552944862587, --[[XTemplate XIGMenu Title]] "GAME OPTIONS"},
+			'SmallImage', true,
+		}),
 		PlaceObj('XTemplateWindow', {
-			'__class', "XContentTemplateList",
-			'Id', "idList",
-			'Margins', box(80, 20, 0, 0),
-			'BorderWidth', 0,
-			'LayoutVSpacing', 12,
-			'Background', RGBA(0, 0, 0, 0),
-			'HandleMouse', false,
-			'FocusedBackground', RGBA(0, 0, 0, 0),
-			'VScroll', "idScroll",
-			'ShowPartialItems', false,
-			'MouseScroll', true,
+			'Margins', box(60, 40, 0, 0),
 		}, {
-			PlaceObj('XTemplateFunc', {
-				'name', "OnShortcut(self, shortcut, source)",
-				'func', function (self, shortcut, source)
+			PlaceObj('XTemplateWindow', {
+				'__class', "XContentTemplateList",
+				'Id', "idList",
+				'Margins', box(39, 0, 0, 0),
+				'BorderWidth', 0,
+				'Padding', box(0, 0, 0, 0),
+				'LayoutVSpacing', 10,
+				'UniformRowHeight', true,
+				'Clip', false,
+				'Background', RGBA(0, 0, 0, 0),
+				'HandleMouse', false,
+				'FocusedBackground', RGBA(0, 0, 0, 0),
+				'VScroll', "idScroll",
+				'ShowPartialItems', false,
+				'MouseScroll', true,
+			}, {
+				PlaceObj('XTemplateFunc', {
+					'name', "OnShortcut(self, shortcut, source)",
+					'func', function (self, shortcut, source)
 local prev_item = self.focused_item
 local ret = XList.OnShortcut(self, shortcut, source)
 if shortcut == "Down" and prev_item == #self then
@@ -61,63 +55,67 @@ elseif shortcut == "Up" and prev_item == 1 then
 end
 return ret
 end,
-			}),
-			PlaceObj('XTemplateAction', {
-				'ActionId', "idSaveGame",
-				'ActionName', T{1133, --[[XTemplate XIGMenu ActionName]] "SAVE GAME"},
-				'ActionToolbar', "mainmenu",
-				'ActionState', function (self, host)
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "idSaveGame",
+					'ActionName', T{11476, --[[XTemplate XIGMenu ActionName]] "Save Game"},
+					'ActionToolbar', "mainmenu",
+					'ActionState', function (self, host)
 return (PlayWithoutStorage() or not not g_Tutorial) and "disabled"
 end,
-				'OnActionEffect', "mode",
-				'OnActionParam', "Save",
-			}),
-			PlaceObj('XTemplateAction', {
-				'ActionId', "idLoadGame",
-				'ActionName', T{1128, --[[XTemplate XIGMenu ActionName]] "LOAD GAME"},
-				'ActionToolbar', "mainmenu",
-				'ActionState', function (self, host)
+					'OnActionEffect', "mode",
+					'OnActionParam', "Save",
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "idLoadGame",
+					'ActionName', T{1009, --[[XTemplate XIGMenu ActionName]] "Load Game"},
+					'ActionToolbar', "mainmenu",
+					'ActionState', function (self, host)
 return IsLoadButtonDisabled(host.context) and "disabled"
 end,
-				'OnActionEffect', "mode",
-				'OnActionParam', "Load",
-			}),
-			PlaceObj('XTemplateAction', {
-				'ActionId', "idOptions",
-				'ActionName', T{1131, --[[XTemplate XIGMenu ActionName]] "OPTIONS"},
-				'ActionToolbar', "mainmenu",
-				'OnActionEffect', "mode",
-				'OnActionParam', "Options",
-			}),
-			PlaceObj('XTemplateAction', {
-				'ActionId', "idPhotoMode",
-				'ActionName', T{1134, --[[XTemplate XIGMenu ActionName]] "PHOTO MODE"},
-				'ActionToolbar', "mainmenu",
-				'OnAction', function (self, host, source)
+					'OnActionEffect', "mode",
+					'OnActionParam', "Load",
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "idOptions",
+					'ActionName', T{11477, --[[XTemplate XIGMenu ActionName]] "Options"},
+					'ActionToolbar', "mainmenu",
+					'OnActionEffect', "mode",
+					'OnActionParam', "Options",
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "idPhotoMode",
+					'ActionName', T{11478, --[[XTemplate XIGMenu ActionName]] "Photo Mode"},
+					'ActionToolbar', "mainmenu",
+					'OnAction', function (self, host, source)
 CloseIngameMainMenu()
 OpenPhotoMode()
 end,
-			}),
-			PlaceObj('XTemplateAction', {
-				'ActionId', "idEncyclopedia",
-				'ActionName', T{5473, --[[XTemplate XIGMenu ActionName]] "ENCYCLOPEDIA"},
-				'ActionToolbar', "mainmenu",
-				'OnActionEffect', "mode",
-				'OnActionParam', "Encyclopedia",
-			}),
-			PlaceObj('XTemplateAction', {
-				'ActionId', "idAchievements",
-				'ActionName', T{496720013568, --[[XTemplate XIGMenu ActionName]] "ACHIEVEMENTS"},
-				'ActionToolbar', "mainmenu",
-				'OnActionEffect', "mode",
-				'OnActionParam', "Achievements",
-				'__condition', function (parent, context) return not Platform.steam and not Platform.console end,
-			}),
-			PlaceObj('XTemplateAction', {
-				'ActionId', "idRestartMap",
-				'ActionName', T{1135, --[[XTemplate XIGMenu ActionName]] "RESTART MAP"},
-				'ActionToolbar', "mainmenu",
-				'OnAction', function (self, host, source)
+				}),
+				PlaceObj('XTemplateTemplate', {
+					'__template', "CrashTest",
+					'IgnoreMissing', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "idEncyclopedia",
+					'ActionName', T{7384, --[[XTemplate XIGMenu ActionName]] "Encyclopedia"},
+					'ActionToolbar', "mainmenu",
+					'OnActionEffect', "mode",
+					'OnActionParam', "Encyclopedia",
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "idAchievements",
+					'ActionName', T{697482021580, --[[XTemplate XIGMenu ActionName]] "Achievements"},
+					'ActionToolbar', "mainmenu",
+					'OnActionEffect', "mode",
+					'OnActionParam', "Achievements",
+					'__condition', function (parent, context) return not Platform.steam and not Platform.console end,
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "idRestartMap",
+					'ActionName', T{1136, --[[XTemplate XIGMenu ActionName]] "Restart Map"},
+					'ActionToolbar', "mainmenu",
+					'OnAction', function (self, host, source)
 CreateRealTimeThread(function()
 	if WaitMarsQuestion(nil, T{1136, "Restart Map"}, T{1137, "Are you sure you want to restart the map?"}, T{1138, "Yes"}, T{1139, "No"}, "UI/Messages/space.tga") == "ok" then
 		LoadingScreenOpen("idLoadingScreen", "restart map")
@@ -139,12 +137,12 @@ CreateRealTimeThread(function()
 	end
 end)
 end,
-			}),
-			PlaceObj('XTemplateAction', {
-				'ActionId', "idMainMenu",
-				'ActionName', T{1140, --[[XTemplate XIGMenu ActionName]] "MAIN MENU"},
-				'ActionToolbar', "mainmenu",
-				'OnAction', function (self, host, source)
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "idMainMenu",
+					'ActionName', T{1010, --[[XTemplate XIGMenu ActionName]] "Main Menu"},
+					'ActionToolbar', "mainmenu",
+					'OnAction', function (self, host, source)
 CreateRealTimeThread(function()
 	if WaitMarsQuestion(nil, T{6779, "Warning"}, T{1141, "Exit to the main menu?"}, T{1138, "Yes"}, T{1139, "No"}, "UI/Messages/space.tga") == "ok" then
 		LoadingScreenOpen("idLoadingScreen", "main menu")
@@ -154,34 +152,35 @@ CreateRealTimeThread(function()
 	end
 end)
 end,
-			}),
-			PlaceObj('XTemplateAction', {
-				'ActionId', "idQuit",
-				'ActionName', T{1132, --[[XTemplate XIGMenu ActionName]] "QUIT"},
-				'ActionToolbar', "mainmenu",
-				'OnAction', function (self, host, source)
+				}),
+				PlaceObj('XTemplateAction', {
+					'ActionId', "idQuit",
+					'ActionName', T{11479, --[[XTemplate XIGMenu ActionName]] "Quit"},
+					'ActionToolbar', "mainmenu",
+					'OnAction', function (self, host, source)
 QuitGame()
 end,
-				'__condition', function (parent, context) return not Platform.console end,
-			}),
-			PlaceObj('XTemplateForEachAction', {
-				'toolbar', "mainmenu",
-				'run_after', function (child, context, action, n)
+					'__condition', function (parent, context) return not Platform.console end,
+				}),
+				PlaceObj('XTemplateForEachAction', {
+					'toolbar', "mainmenu",
+					'run_after', function (child, context, action, n)
 child:SetText(action.ActionName)
 child.action = action
 end,
-			}, {
-				PlaceObj('XTemplateTemplate', {
-					'__template', "MenuEntry",
+				}, {
+					PlaceObj('XTemplateTemplate', {
+						'__template', "MenuEntrySmall",
+						'TextStyle', "ListItem3",
+					}),
+					}),
 				}),
-				}),
+			PlaceObj('XTemplateTemplate', {
+				'__template', "ScrollbarNew",
+				'Id', "idScroll",
+				'Target', "idList",
 			}),
-		PlaceObj('XTemplateTemplate', {
-			'__template', "Scrollbar",
-			'Id', "idScroll",
-			'Margins', box(0, 25, 0, 0),
-			'Target', "idList",
-		}),
+			}),
 		}),
 })
 

@@ -11,173 +11,129 @@ PlaceObj('XTemplate', {
 		'VAlign', "top",
 		'MinWidth', 410,
 		'MaxWidth', 410,
-		'LayoutMethod', "VList",
 		'ContextUpdateOnOpen', true,
 		'FocusOnOpen', "",
 	}, {
 		PlaceObj('XTemplateWindow', {
-			'comment', "top",
+			'__class', "XSizeConstrainedWindow",
 			'LayoutMethod', "VList",
 		}, {
 			PlaceObj('XTemplateWindow', {
-				'Dock', "box",
-			}, {
-				PlaceObj('XTemplateWindow', {
-					'__class', "XImage",
-					'Dock', "top",
-					'Image', "UI/Infopanel/up.tga",
-					'ImageFit', "stretch-x",
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XImage",
-					'Dock', "bottom",
-					'Image', "UI/Infopanel/down.tga",
-					'ImageFit', "stretch-x",
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XImage",
-					'Image', "UI/Infopanel/pad_2.tga",
-					'ImageFit', "stretch",
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XFrame",
-					'Image', "UI/Infopanel/watermark_2.tga",
-					'TileFrame', true,
-				}),
-				}),
-			PlaceObj('XTemplateWindow', {
-				'comment', "title",
+				'comment', "top",
 				'__class', "XFrame",
 				'IdNode', false,
-				'Margins', box(2, 2, 2, 2),
-				'Image', "UI/Infopanel/title.tga",
+				'LayoutMethod', "VList",
+				'Image', "UI/CommonNew/ip.tga",
+				'FrameBox', box(35, 45, 35, 35),
 			}, {
-				PlaceObj('XTemplateTemplate', {
-					'__template', "InfopanelTitle",
-					'Id', "idTitle",
-					'Margins', box(0, 0, 0, 0),
-					'Padding', box(2, 8, 2, 8),
-					'HAlign', "stretch",
-					'MouseCursor', "UI/Cursors/Rollover.tga",
-					'Text', T{7411, --[[XTemplate Infopanel Text]] "<DisplayName>"},
-					'TextHAlign', "center",
-				}),
 				PlaceObj('XTemplateWindow', {
-					'Id', "idUpgrades",
-					'Margins', box(0, -18, 10, 0),
-					'Dock', "right",
-					'LayoutMethod', "HList",
-					'RelativeFocusOrder', "skip",
-				}),
-				PlaceObj('XTemplateFunc', {
-					'name', "OnMouseButtonDown(self, pos, button)",
-					'func', function (self, pos, button)
+					'comment', "title",
+					'MinHeight', 45,
+					'MaxHeight', 45,
+				}, {
+					PlaceObj('XTemplateTemplate', {
+						'__template', "InfopanelTitle",
+						'Id', "idTitle",
+						'Margins', box(0, 0, 0, 0),
+						'Padding', box(2, 8, 2, 8),
+						'HAlign', "stretch",
+						'MouseCursor', "UI/Cursors/Rollover.tga",
+						'Text', T{7411, --[[XTemplate Infopanel Text]] "<DisplayName>"},
+						'TextHAlign', "center",
+					}),
+					PlaceObj('XTemplateWindow', {
+						'Id', "idUpgrades",
+						'Margins', box(0, -18, 10, 0),
+						'Dock', "right",
+						'LayoutMethod', "HList",
+						'RelativeFocusOrder', "skip",
+					}),
+					PlaceObj('XTemplateFunc', {
+						'name', "OnMouseButtonDown(self, pos, button)",
+						'func', function (self, pos, button)
 if button == "L" then
 	ViewObjectMars(self:GetContext())
 	return "break"
 end
 return "continue"
 end,
-				}),
+					}),
+					}),
+				PlaceObj('XTemplateWindow', {
+					'Padding', box(18, 4, 18, 23),
+					'LayoutMethod', "VList",
+					'HandleMouse', true,
+				}, {
+					PlaceObj('XTemplateTemplate', {
+						'__context_of_kind', "CycleMember",
+						'__template', "InfopanelText",
+						'Id', "idCycleText",
+					}),
+					PlaceObj('XTemplateWindow', {
+						'comment', "buttons",
+						'Id', "idMainButtons",
+						'Margins', box(10, 5, 2, 10),
+						'LayoutMethod', "HList",
+					}),
+					PlaceObj('XTemplateTemplate', {
+						'__template', "InfopanelText",
+						'Id', "idDescription",
+						'Text', T{957712410031, --[[XTemplate Infopanel Text]] "<IPDescription>"},
+					}),
+					PlaceObj('XTemplateTemplate', {
+						'comment', "specialization",
+						'__context_of_kind', "Workplace",
+						'__condition', function (parent, context) return context.max_workers > 0 and context.specialist ~= "none" end,
+						'__template', "InfopanelText",
+						'Text', T{995212188397, --[[XTemplate Infopanel Text]] "Best workers<right><em><UISpecialization></em>"},
+					}),
+					PlaceObj('XTemplateForEach', {
+						'comment', "include InfopanelHeader",
+						'array', function (parent, context) return Presets.XTemplate.InfopanelHeader end,
+						'run_before', function (parent, context, item, i, n)
+item:Eval(parent, context)
+end,
+					}),
+					}),
 				}),
 			PlaceObj('XTemplateWindow', {
-				'Padding', box(18, 4, 18, 8),
+				'comment', "mid",
+				'Id', "idContent",
 				'LayoutMethod', "VList",
 			}, {
-				PlaceObj('XTemplateTemplate', {
-					'__context_of_kind', "CycleMember",
-					'__template', "InfopanelText",
-					'Id', "idCycleText",
-				}),
-				PlaceObj('XTemplateWindow', {
-					'comment', "buttons",
-					'Id', "idMainButtons",
-					'Margins', box(2, 0, 2, 0),
-					'LayoutMethod', "HList",
-				}),
-				PlaceObj('XTemplateTemplate', {
-					'__template', "InfopanelText",
-					'Id', "idDescription",
-					'Text', T{957712410031, --[[XTemplate Infopanel Text]] "<IPDescription>"},
-				}),
-				PlaceObj('XTemplateTemplate', {
-					'comment', "specialization",
-					'__context_of_kind', "Workplace",
-					'__condition', function (parent, context) return context.max_workers > 0 and context.specialist ~= "none" end,
-					'__template', "InfopanelText",
-					'Text', T{995212188397, --[[XTemplate Infopanel Text]] "Best workers<right><em><UISpecialization></em>"},
-				}),
 				PlaceObj('XTemplateForEach', {
-					'comment', "include InfopanelHeader",
-					'array', function (parent, context) return Presets.XTemplate.InfopanelHeader end,
+					'comment', "include InfopanelContent",
+					'array', function (parent, context) return Presets.XTemplate.InfopanelContent end,
 					'run_before', function (parent, context, item, i, n)
 item:Eval(parent, context)
 end,
 				}),
 				}),
-			}),
-		PlaceObj('XTemplateWindow', {
-			'comment', "mid",
-			'Id', "idContent",
-			'LayoutMethod', "VList",
-		}, {
 			PlaceObj('XTemplateWindow', {
-				'__class', "XImage",
-				'Margins', box(30, 0, 0, 0),
-				'Dock', "box",
-				'Image', "UI/Infopanel/pad.tga",
-				'ImageFit', "stretch",
-			}, {
-				PlaceObj('XTemplateWindow', {
-					'__class', "XFrame",
-					'Image', "UI/Infopanel/watermark.tga",
-					'TileFrame', true,
-				}),
-				}),
-			PlaceObj('XTemplateForEach', {
-				'comment', "include InfopanelContent",
-				'array', function (parent, context) return Presets.XTemplate.InfopanelContent end,
-				'run_before', function (parent, context, item, i, n)
-item:Eval(parent, context)
+				'comment', "bottom",
+				'__class', "XContextWindow",
+				'ContextUpdateOnOpen', true,
+				'OnContextUpdate', function (self, context, ...)
+local actionButtons = self:ResolveId("idActionButtons")
+actionButtons:SetVisible(#actionButtons > 1)
 end,
-			}),
-			}),
-		PlaceObj('XTemplateWindow', {
-			'comment', "bottom",
-			'__class', "XContextWindow",
-			'Margins', box(30, 0, 0, 0),
-			'ContextUpdateOnOpen', true,
-			'OnContextUpdate', function (self, context, ...)
-self.parent.idActionsFrame:SetVisible(#self.parent.idActionButtons > 1)
-end,
-		}, {
-			PlaceObj('XTemplateWindow', {
-				'__class', "XFrame",
-				'Id', "idActionsFrame",
-				'IdNode', false,
-				'Margins', box(-1, 0, 0, 0),
-				'Padding', box(24, 0, 0, 0),
-				'Dock', "right",
-				'FoldWhenHidden', true,
-				'Image', "UI/Infopanel/down_buttons.tga",
-				'FrameBox', box(24, 2, 0, 2),
 			}, {
 				PlaceObj('XTemplateWindow', {
 					'comment', "actions",
 					'Id', "idActionButtons",
+					'Margins', box(0, 3, 2, 0),
+					'HAlign', "right",
 					'LayoutMethod', "HList",
+					'LayoutHSpacing', 3,
 				}, {
-					PlaceObj('XTemplateWindow', {
-						'Visible', false,
-						'RelativeFocusOrder', "new-line",
-					}),
 					PlaceObj('XTemplateTemplate', {
 						'comment', "rename",
 						'__context_of_kind', "Renamable",
-						'__condition', function (parent, context) return context.rename_allowed end,
+						'__condition', function (parent, context) return (not context:IsKindOf("BaseBuilding") or context:GetUIInteractionState()) and context.rename_allowed end,
 						'__template', "InfopanelAction",
 						'RolloverText', T{4034, --[[XTemplate Infopanel RolloverText]] "Set a custom name."},
 						'RolloverTitle', T{4033, --[[XTemplate Infopanel RolloverTitle]] "Rename <display_name>"},
+						'Margins', box(-12, -12, -12, 0),
 						'RelativeFocusOrder', "next-in-line",
 						'OnContextUpdate', function (self, context, ...)
 local shortcuts = GetShortcuts("actionRenameSelected")
@@ -190,8 +146,9 @@ end,
 						'OnPress', function (self, gamepad)
 self.context:ShowRenameUI(gamepad)
 end,
-						'Image', "UI/Infopanel/rename.tga",
-						'Rows', 2,
+						'Icon', "UI/Infopanel/rename.tga",
+						'IconRows', 2,
+						'IconColumns', 2,
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'comment', "skin",
@@ -200,12 +157,14 @@ end,
 						'__template', "InfopanelAction",
 						'RolloverText', T{4041, --[[XTemplate Infopanel RolloverText]] "Cycle through all <count(Skins)> skins."},
 						'RolloverTitle', T{4042, --[[XTemplate Infopanel RolloverTitle]] "Change Skin"},
+						'Margins', box(-12, -12, -12, 0),
 						'RelativeFocusOrder', "next-in-line",
 						'OnPress', function (self, gamepad)
 self.context:CycleSkin()
 end,
-						'Image', "UI/Infopanel/infopanel_skin.tga",
-						'Rows', 2,
+						'Icon', "UI/Infopanel/infopanel_skin.tga",
+						'IconRows', 2,
+						'IconColumns', 2,
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'comment', "camera",
@@ -214,6 +173,7 @@ end,
 						'__template', "InfopanelAction",
 						'RolloverText', T{10116, --[[XTemplate Infopanel RolloverText]] "Activate a close-up camera that follows this unit."},
 						'RolloverTitle', T{10117, --[[XTemplate Infopanel RolloverTitle]] "Follow Camera"},
+						'Margins', box(-12, -12, -12, 0),
 						'RelativeFocusOrder', "next-in-line",
 						'OnContextUpdate', function (self, context, ...)
 local shortcuts = GetShortcuts("actionFollowCamera")
@@ -226,14 +186,16 @@ end,
 						'OnPress', function (self, gamepad)
 Camera3pFollow(self.context)
 end,
-						'Image', "UI/Infopanel/camera_follow.tga",
-						'Rows', 2,
+						'Icon', "UI/Infopanel/camera_follow.tga",
+						'IconRows', 2,
+						'IconColumns', 2,
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'comment', "pin",
 						'__context_of_kind', "PinnableObject",
 						'__condition', function (parent, context) return context.show_pin_toggle end,
 						'__template', "InfopanelAction",
+						'Margins', box(-12, -12, -12, 0),
 						'RelativeFocusOrder', "next-in-line",
 						'OnContextUpdate', function (self, context, ...)
 local shortcuts = GetShortcuts("actionTogglePin")
@@ -243,11 +205,11 @@ if shortcuts and (shortcuts[1] or shortcuts[2]) then
 end
 self:SetRolloverHint(T{10947, "<left_click><hint> Activate", hint = hint})
 if context:IsPinned() then
-	self:SetRow(2)
+	self.idIcon:SetRow(2)
 	self:SetRolloverTitle(T{4043, "Pinned"})
 	self:SetRolloverText(T{4044, "Unpin this item from the quick bar."})
 else
-	self:SetRow(1)
+	self.idIcon:SetRow(1)
 	self:SetRolloverTitle(T{4045, "Unpinned"})
 	self:SetRolloverText(T{4046, "Pin this item to the quick bar."})
 end
@@ -256,8 +218,9 @@ end,
 self.context:TogglePin()
 ObjModified(self.context)
 end,
-						'Image', "UI/Infopanel/pin.tga",
-						'Rows', 2,
+						'Icon', "UI/Infopanel/pin.tga",
+						'IconRows', 2,
+						'IconColumns', 2,
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'comment', "encyclopedia",
@@ -265,20 +228,26 @@ end,
 						'__template', "InfopanelAction",
 						'RolloverText', T{4032, --[[XTemplate Infopanel RolloverText]] "Open the corresponding Encyclopedia article."},
 						'RolloverTitle', T{7384, --[[XTemplate Infopanel RolloverTitle]] "Encyclopedia"},
+						'Margins', box(-12, -12, -12, 0),
 						'RelativeFocusOrder', "next-in-line",
 						'OnPress', function (self, gamepad)
 OpenEncyclopedia(self.context.encyclopedia_id)
 end,
-						'Image', "UI/Infopanel/encyclopedia.tga",
+						'Icon', "UI/Infopanel/encyclopedia.tga",
+						'IconColumns', 2,
+					}),
+					PlaceObj('XTemplateCode', {
+						'comment', "first button image",
+						'run', function (self, parent, context)
+local first_btn = rawget(parent, 1)
+if first_btn then
+	first_btn:SetRelativeFocusOrder("new-line")
+	first_btn:SetImage("UI/CommonNew/ip_button_1.tga")
+end
+end,
 					}),
 					}),
 				}),
-			PlaceObj('XTemplateWindow', {
-				'__class', "XImage",
-				'Dock', "top",
-				'Image', "UI/Common/message_choice_up.tga",
-				'ImageFit', "stretch-x",
-			}),
 			}),
 		}),
 	PlaceObj('XTemplateProperty', {

@@ -15,43 +15,26 @@ PlaceObj('XTemplate', {
 		'MouseCursor', "UI/Cursors/Rollover.tga",
 		'RelativeFocusOrder', "new-line",
 	}, {
-		PlaceObj('XTemplateFunc', {
-			'name', "OnSetRollover(self, rollover)",
-			'func', function (self, rollover)
-XWindow.OnSetRollover(self, rollover)
-self.idRollover2:SetVisible(self.idSectionTitle.visible and rollover)
-end,
-		}),
 		PlaceObj('XTemplateWindow', {
 			'comment', "section background",
+			'Margins', box(-5, 0, 0, -1),
 			'Dock', "box",
 			'HandleMouse', true,
 		}, {
 			PlaceObj('XTemplateWindow', {
-				'__class', "XImage",
+				'__class', "XFrame",
 				'Id', "idBackground",
-				'Margins', box(0, -2, 0, 0),
-				'VAlign', "top",
-				'Image', "UI/Infopanel/section.tga",
-				'ImageFit', "stretch-x",
+				'Margins', box(-10, -12, 0, -12),
+				'Image', "UI/CommonNew/ip_section_small.tga",
+				'FrameBox', box(12, 12, 0, 12),
+				'Columns', 2,
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XImage",
 				'Id', "idActive",
-				'Margins', box(0, -2, 0, 1),
 				'VAlign', "top",
 				'Visible', false,
 				'Image', "UI/Infopanel/section_light.tga",
-				'ImageFit', "stretch-x",
-			}),
-			PlaceObj('XTemplateWindow', {
-				'__class', "XImage",
-				'Id', "idRollover2",
-				'IdNode', false,
-				'Margins', box(0, 32, 0, -8),
-				'VAlign', "top",
-				'Visible', false,
-				'Image', "UI/Infopanel/section _shine.tga",
 				'ImageFit', "stretch-x",
 			}),
 			}),
@@ -60,7 +43,7 @@ end,
 			'Id', "idIcon",
 			'IdNode', false,
 			'ZOrder', 2,
-			'Margins', box(-28, -2, 0, 0),
+			'Margins', box(-28, 0, 0, 0),
 			'Shape', "InHHex",
 			'Dock', "left",
 			'VAlign', "top",
@@ -84,15 +67,24 @@ end,
 			}),
 		PlaceObj('XTemplateWindow', {
 			'Id', "idContent",
-			'Margins', box(2, 5, 20, 0),
+			'Margins', box(2, 0, 20, 0),
+			'Padding', box(5, 5, 0, 0),
 		}, {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelSectionTitle",
 				'Id', "idSectionTitle",
+				'HAlign', "center",
 				'FoldWhenHidden', true,
-				'TextColor', RGBA(220, 220, 220, 255),
+				'TextStyle', "ActiveSectionTitle",
 			}),
 			}),
+		PlaceObj('XTemplateFunc', {
+			'name', "OnSetRollover(self, rollover)",
+			'func', function (self, rollover)
+XSection.OnSetRollover(self, rollover)
+self.idSectionTitle:SetRollover(rollover)
+end,
+		}),
 		}),
 	PlaceObj('XTemplateProperty', {
 		'category', "General",

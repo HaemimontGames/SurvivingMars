@@ -126,17 +126,38 @@ DefineClass.RegolithExtractor =
 	
 	-- visualization
 	anim_obj = false,
+	AltVisualClasses = {},
 }
 
+function RegolithExtractor:CreateAnimObj()
+	local anim_obj_class = self.AltVisualClasses[self:GetEntity()] or "RegolithMineVisual"
+	local current_strip = self.anim_obj and self.anim_obj.current_strip
+	if IsValid(self.anim_obj) then
+		if self.anim_obj.class == anim_obj_class then
+			return
+		end
+		DoneObject(self.anim_obj)
+	end
+	local anim_obj = (self:GetAttaches(anim_obj_class) or empty_table)[1]
+	if not anim_obj then
+		anim_obj = PlaceObject(anim_obj_class)
+		anim_obj:SetPos(self:GetPos())
+		anim_obj:SetAngle(self:GetAngle())
+	end
+	anim_obj.mine = self
+	anim_obj.current_strip = current_strip
+	anim_obj:InitMineVisuals()
+	if self.working then
+		anim_obj:SetCommand("Work")
+	end
+	self.anim_obj = anim_obj
+end
+
 function RegolithExtractor:GameInit()
+	self:CreateAnimObj()
+	
 	local origin = self:GetPos()
 	local angle = self:GetAngle()
-
-	self.anim_obj = PlaceObject("RegolithMineVisual", {mine = self})
-	self.anim_obj:SetPos(origin)
-	self.anim_obj:SetAngle(angle)
-	self.anim_obj:InitMineVisuals()
-	
 	for i = 1, #OldMineLocations do
 		if origin:Equal2D(OldMineLocations[i].pos) and angle == OldMineLocations[i].angle then
 			self.anim_obj.current_depth = OldMineLocations[i].depth
@@ -151,30 +172,50 @@ function RegolithExtractor:GameInit()
 	end
 end
 
-function RegolithExtractor:SetPalette(palette)
-	Building.SetPalette(self, palette)
-	if self.anim_obj and self.anim_obj.ring then
-		Building.SetPalette(self.anim_obj.ring, palette)
+function RegolithExtractor:OnSkinChanged(skin, palette)
+	Building.OnSkinChanged(self, skin, palette)
+	self:CreateAnimObj()
+end
+
+function RegolithExtractor:SetPalette(cm1, cm2, cm3, cm4)
+	Building.SetPalette(self, cm1, cm2, cm3, cm4)
+	if IsValid(self.anim_obj) then
+		self.anim_obj:SetPaletteVisuals(cm1, cm2, cm3, cm4)
 	end
 end
 
 function RegolithExtractor:Done()
-	self:DeleteAnimObj()
+	local obj = self:LocationDone()
+	if obj then
+		DoneObject(obj)
+	end
 end
 
 function RegolithExtractor:OnDestroyed()
 	Mine.OnDestroyed(self)
-	local angle = IsValid(self.anim_obj) and (self.anim_obj.ring:GetVisualAngle() - self:GetAngle()) or 0
-	self:DeleteAnimObj()
-	-- attach a ring to fill the hole:
-	local ring = PlaceObject("RegolithExtractorRing", nil, const.cfComponentAttach)
-	ring:SetAttachAngle(angle)
-	self:Attach(ring, self:GetSpotBeginIndex("Origin"))
+	local obj = self:LocationDone()
+	if obj then
+		obj:OnDestroyed()
+	end
 end
 
 function RegolithExtractor:SetUIWorking(work)
 	OutsideBuildingWithShifts.SetUIWorking(self,work)
 	Mine.SetUIWorking(self, work)
+end
+
+function RegolithExtractor:LocationDone()
+	local obj = self.anim_obj
+	if not obj then
+		return
+	end
+	table.insert(OldMineLocations, {
+		pos = self:GetPos(),
+		angle = self:GetAngle(),
+		depth = obj.current_depth,
+	})
+	self.anim_obj = false
+	return obj
 end
 
 function RegolithExtractor:DeleteAnimObj()
@@ -311,13 +352,8 @@ function RegolithExtractor:GetDepositGrade(...)
 end
 
 function RegolithExtractor:SetDust(...)
-	local ring = self.anim_obj and self.anim_obj.ring
-	local digger = self.anim_obj and self.anim_obj.digger
-	if IsValid(ring) then
-		ring:SetDust(...)
-	end
-	if IsValid(digger) then
-		digger:SetDust(...)
+	if self.anim_obj then
+		self.anim_obj:SetDustVisuals(...)
 	end
 	Mine.SetDust(self, ...)
 end
@@ -367,7 +403,7 @@ function OnMsg.ConstructionSitePlaced(site)
 	end
 	
 	local building_class = site.building_class_proto
-	if IsKindOfClasses(building_class, "RegolithExtractor", "TheExcavator") then
+	if IsKindOfClasses(building_class, "RegolithExtractor", "ConcretePlant", "TheExcavator") then
 		DeleteThread(RegolithExtractorHintPopupThread)
 	end
 end
@@ -423,7 +459,13 @@ if Platform.developer then
 	assert(const.MaxPassableTerrainSlope * 60 > atan(RegolithMineVisual.delta_height, guim))
 end
 
-function RegolithMineVisual:InitMineVisuals()
+function RegolithMineVisual:SetPaletteVisuals(cm1, cm2, cm3, cm4)
+	if self.ring then
+		Building.SetPalette(self.ring, cm1, cm2, cm3, cm4)
+	end
+end
+
+function RegolithMineVisual:InitMineAttaches()
 	local ring = PlaceObject("RegolithExtractorRing")
 	ring:SetEnumFlags(const.efSelectable)
 	ring:SetPos(self:GetPos())
@@ -445,6 +487,10 @@ function RegolithMineVisual:InitMineVisuals()
 	rope:SetZClip(3*guim)
 	digger:Attach(rope, digger:GetSpotBeginIndex("Rope2"))
 	self.rope2 = rope
+end
+
+function RegolithMineVisual:InitMineVisuals()
+	self:InitMineAttaches()
 
 	local shape = GetEntityOutlineShape("Quarry")
 	local origin = self:GetPos()
@@ -481,7 +527,7 @@ function RegolithMineVisual:InitMineVisuals()
 			
 			local center = point(HexToWorld(tq, tr)):SetStepZ(5*guic)
 						
-			if IsKindOf(obj, "RegolithExtractor") and obj.anim_obj and obj.anim_obj ~= self then
+			if IsKindOf(obj, "RegolithExtractor") and IsValid(obj.anim_obj) and obj.anim_obj ~= self then
 				local quarry_bounds = obj.anim_obj.quarry_bounds
 				if quarry_bounds and quarry_bounds[tq] and quarry_bounds[tq][tr] then
 					-- todo: extend digging
@@ -511,11 +557,11 @@ function RegolithMineVisual:InitMineVisuals()
 	table.sort(self.strips, function(a, b) return a.rel_angle < b.rel_angle end)
 
 	self.current_depth = base_height - self.dig_height
-	self.current_strip = 1
+	self.current_strip = self.current_strip or 1
 	self.base_height = base_height
-	
-	if self.mine and self.mine.palette then
-		Building.SetPalette(ring, self.mine.palette)
+	if self.mine then
+		local cm1, cm2, cm3, cm4 = GetBuildingColors(GetCurrentColonyColorScheme(), self.mine)
+		self:SetPaletteVisuals(cm1, cm2, cm3, cm4)
 	end
 end
 
@@ -559,6 +605,23 @@ function RegolithMineVisual:Work()
 	self:PopAndCallDestructor()
 end
 
+function RegolithMineVisual:OnDestroyed()
+	local angle = self.ring:GetVisualAngle() - self.mine:GetAngle()
+	local ring = PlaceObject("RegolithExtractorRing", nil, const.cfComponentAttach)
+	ring:SetAttachAngle(angle)
+	self.mine:Attach(ring, self.mine:GetSpotBeginIndex("Origin"))
+	DoneObject(self)
+end
+
+function RegolithMineVisual:SetDustVisuals(...)
+	if IsValid(self.ring) then
+		self.ring:SetDust(...)
+	end
+	if IsValid(self.digger) then
+		self.digger:SetDust(...)
+	end
+end
+
 function RegolithMineVisual:StripDone()
 	local first = self.current_strip + 1	
 	self.current_strip = false
@@ -588,7 +651,6 @@ function RegolithMineVisual:DigAnimTick()
 	if not IsValid(self) then
 		return true
 	end
-	
 	local strip = self.strips[self.current_strip]
 	if not strip then
 		return true

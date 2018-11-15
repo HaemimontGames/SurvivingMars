@@ -7,6 +7,13 @@ PlaceObj('XTemplate', {
 		'__condition', function (parent, context) return context:IsKindOf("ResourceProducer") and context:GetResourceProduced() and not context:IsKindOfClasses("Mine", "Farm") end,
 		'__template', "InfopanelSection",
 		'RolloverText', T{241057577251, --[[XTemplate sectionResourceProducer RolloverText]] "<UISectionResourceProducerRollover>"},
+		'OnContextUpdate', function (self, context, ...)
+if context.producers then
+	for _, pr in ipairs(context.producers) do
+		ObjModified(pr)
+	end
+end
+end,
 		'Title', T{80, --[[XTemplate sectionResourceProducer Title]] "Production"},
 		'Icon', "UI/Icons/Sections/facility.tga",
 	}, {

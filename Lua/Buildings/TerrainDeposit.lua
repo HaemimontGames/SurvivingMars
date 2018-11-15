@@ -236,6 +236,16 @@ function TerrainDepositMarker:SpawnDeposit(rand)
 	return deposit
 end
 
+function TerrainDepositConcreteSetTerrainDig(center, radius)
+	local x = center:x()
+	local y = center:y()
+	local info = TerrainDepositsInfo["Concrete"]
+	local idx_1 = GetTerrainTextureIndex(info.terrain)
+	local idx_2 = GetTerrainTextureIndex(info.terrain2)
+	local dig_idx = GetTerrainTextureIndex("Dig")
+	ChangeTerrainTypesInCircle(center, radius, idx_1, idx_2, dig_idx)
+end
+
 GlobalVar("TerrainDepositCircles", {})
 
 function ToggleTerrainDepositGrid()
@@ -353,9 +363,7 @@ DefineClass.TerrainDeposit = {
 
 function TerrainDeposit:GameInit()
 	self:SetScale(g_CurrentDepositScale)
-	if self:IsValidZ() then
-		self:SetPos(self:GetPos():SetInvalidZ())
-	end
+	self:SetZ(terrain.GetHeight(self:GetPos()))
 end
 
 function TerrainDeposit:EditorGetRange()
@@ -367,10 +375,6 @@ function TerrainDeposit:GetAmount()
 		return 0
 	end
 	return self.amount or self.max_amount
-end
-
-local function deposit_weight(a)
-	return a:z()
 end
 
 function TerrainDeposit:GetRandDepositPos()
@@ -474,6 +478,9 @@ function TerrainDepositExtractor:CheckDeposit()
 end
 
 function TerrainDepositExtractor:OnDepositDepleted()
+	local deposit = self:GetDeposit()
+	assert(IsValid(deposit))
+	TerrainDepositConcreteSetTerrainDig(deposit:GetPos(), deposit.radius_max)
 	self.depleted = true
 end
 
@@ -492,11 +499,9 @@ function TerrainDepositExtractor:ExtractResource(amount)
 	
 	Msg("ResourceExtracted", self.exploitation_resource, extracted)
 	
-	if remaining == 0 then
+	if remaining == 0 and IsValid(deposit) then
 		self:OnDepositDepleted()
-		if IsValid(deposit) then
-			DoneObject(deposit)
-		end
+		DoneObject(deposit)
 	end
 	
 	if extracted == 0 and self.city:IsTechResearched("NanoRefinement") then

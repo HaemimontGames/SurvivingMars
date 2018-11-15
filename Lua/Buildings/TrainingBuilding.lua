@@ -366,3 +366,9 @@ end
 
 function TrainingBuilding:OnTrainingCompleted(unit)
 end
+
+function SavegameFixups.SetOccupationForExistingTrainingBuildings()
+	MapForEach("map", "TrainingBuilding", function(o)
+		o.occupation = #o.visitors[CurrentWorkshift]
+	end)
+end

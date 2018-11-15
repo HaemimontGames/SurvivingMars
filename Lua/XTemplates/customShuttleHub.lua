@@ -43,6 +43,19 @@ end,
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
+			'comment', "toggle transport mode",
+			'__template', "InfopanelButton",
+			'RolloverText', T{11499, --[[XTemplate customShuttleHub RolloverText]] "Set Shuttles from this Hub to transport resources, Colonists or both.<newline><newline>Current status: <UITransportModeCurrentStatus><em>"},
+			'RolloverTitle', T{11423, --[[XTemplate customShuttleHub RolloverTitle]] "Toggle Transport Mode"},
+			'RolloverHint', T{11501, --[[XTemplate customShuttleHub RolloverHint]] "<left_click> Toggle Transport Mode"},
+			'RolloverHintGamepad', T{11502, --[[XTemplate customShuttleHub RolloverHintGamepad]] "<ButtonA> Toggle Transport Mode"},
+			'OnPressParam', "ToggleTransportMode",
+			'OnPress', function (self, gamepad)
+self.context:ToggleTransportMode()
+end,
+			'Icon', "UI/Icons/IPButtons/shuttle_transport_all.tga",
+		}),
+		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelSection",
 			'OnContextUpdate', function (self, context, ...)
 self:SetVisible(context.queued_shuttles_for_construction ~= 0)
@@ -82,6 +95,14 @@ end,
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
 				'Text', T{8701, --[[XTemplate customShuttleHub Text]] "Global load <right><GlobalLoadText>"},
+			}),
+			PlaceObj('XTemplateTemplate', {
+				'__template', "InfopanelText",
+				'Text', T{11424, --[[XTemplate customShuttleHub Text]] "People transported last sol<right><count(people_flights)>"},
+			}),
+			PlaceObj('XTemplateTemplate', {
+				'__template', "InfopanelText",
+				'Text', T{11425, --[[XTemplate customShuttleHub Text]] "Cargo flights last sol<right><count(cargo_flights)>"},
 			}),
 			}),
 		}),

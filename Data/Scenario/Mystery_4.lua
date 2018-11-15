@@ -668,7 +668,7 @@ PlaceObj('Scenario', {
 			'State', "Researched",
 		}),
 		PlaceObj('SA_WaitMessage', {
-			'title', T{6151, --[[Scenario Mystery 4 title]] "Inner Light: Pyschometry"},
+			'title', T{6151, --[[Scenario Mystery 4 title]] "Inner Light: Psychometry"},
 			'voiced_text', T{7230, --[[voice:narrator]] "The Dreamer Brainwave project confirmed the hypothesis. "},
 			'text', T{6152, --[[Scenario Mystery 4 text]] "Indeed the Dreamers experience events which they perceive as real instead of mere hallucinations. We also discovered that they all “dream” the same sequence of events but play different roles in it. And what’s more astonishing, the actions of one affect all others.\n\nDuring routine medical checks of the tested population we accidentally discovered genetic correlation between the neural structures of the Dreamers. The facts suggest that the predisposition to become a Dreamer could be hereditary.\n\nMoreover, the creator of the Dreamer hypothesis which led us here has filed an application for acceptance on Mars.\n\n<hint>The number of Dreamers strengthens the Mirages.\n\n<hint>Children of Dreamers have a better chance to be born Dreamers.\n\n<effect>A Genius Colonist has been added to the Applicant pool."},
 			'log_entry', true,

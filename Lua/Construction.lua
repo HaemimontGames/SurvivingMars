@@ -40,6 +40,7 @@ ConstructionStatus = {
 	ResourceRequired =                { type = "error", priority = 95, text = T{862, "There is none of the required resource nearby."},short =  T{863, "Requires a deposit"} }, --no resource nearby.
 	ResourceTechnologyRequired =      { type = "error", priority = 95, text = T{864, "You lack the technology to exploit nearby resources."}, short = T{865, "Unexploitable deposits"}}, --no resource nearby.
 	DomeRequired =                    { type = "error", priority = 94, text = T{866, "Must be placed under a functioning Dome."}, short =  T{867, "Requires a Dome"} },
+	DomeCanNotInteract =              { type = "error", priority = 94, text = T{11235, "Construction in Rogue Domes is forbidden."}, short =  T{11236, "Rogue Dome"} },
 	NonBuildableInterior =            { type = "error", priority = 94, text = T{868, "Unbuildable area."}, short = T{7955, "Unbuildable area"}},
 	DomeProhibited =                  { type = "error", priority = 93, text = T{869, "Cannot be placed in a Dome."}, short =  T{870, "Outside building"}},
 	DomeCeilingTooLow =               { type = "error", priority = 93, text = T{871, "Cannot be placed at this location due to height constraints."}, short =  T{872, "Too tall"}},
@@ -55,6 +56,9 @@ ConstructionStatus = {
 	PassageAngleToSteep = 				 { type = "error", priority = 91, text = T{8930, "Too sharp curve."}, short = T{8931, "Sharp curve"}},
 	
 	DepositInfo =                     { type = "info",  priority = 97, text = T{877, "Available resource<right><resource><newline><left>Grade<right><grade><left>"} },
+	
+	BeautyDepositNearby =             { type = "warning", priority = 95, text = T{11586, "Vista - Comfort of residences will be boosted."}, short = T{11458, "Vista"} },
+	ResearchDepositNearby =           { type = "warning", priority = 95, text = T{11587, "Research Site - all Research will be boosted."}, short = T{11461, "Research Site"} },
 
 	-- tutorial-ralated
 	TooFarFromTarget = 		 		    { type = "error", priority = 90, text = T{8932, "Too far from target location."}, short = T{846, "Too far"}},
@@ -78,28 +82,27 @@ function SortConstructionStatuses(statuses)
 end
 
 function TryCloseAfterPlace(self)
-	if self.template and ClassTemplates.Building[self.template].wonder then
-		CloseModeDialog()
-	end
-	
-	local shift = Platform.desktop and terminal.IsKeyPressed(const.vkShift)
-	
-	local left_trigger
-	if GetUIStyleGamepad() then
-		local function CheckForGamepadState(state_idx)
-			local state = XInput.CurrentState[state_idx]
-			return type(state) == "table" and (state.LeftTrigger or 0) > 0
-		end
+	local shift, left_trigger
+	local is_wonder = self.template and ClassTemplates.Building[self.template].wonder
+	if not is_wonder then
+		shift = Platform.desktop and terminal.IsKeyPressed(const.vkShift)
 		
-		if Platform.desktop then
-			for i = 0, XInput.MaxControllers() - 1 do
-				if CheckForGamepadState(i) then
-					left_trigger = true
-					break
-				end
+		if GetUIStyleGamepad() then
+			local function CheckForGamepadState(state_idx)
+				local state = XInput.CurrentState[state_idx]
+				return type(state) == "table" and (state.LeftTrigger or 0) > 0
 			end
-		else
-			left_trigger = CheckForGamepadState(XPlayerActive)
+			
+			if Platform.desktop then
+				for i = 0, XInput.MaxControllers() - 1 do
+					if CheckForGamepadState(i) then
+						left_trigger = true
+						break
+					end
+				end
+			else
+				left_trigger = CheckForGamepadState(XPlayerActive)
+			end
 		end
 	end
 	
@@ -410,28 +413,34 @@ function CursorBuilding:Init()
 	end
 	self:ForEachAttach(AutoAttachObjectsToPlacementCursor)
 	AttachDoors(self, self.entity)
+
+	local cm1, cm2, cm3, cm4
+	if self.override_palette then
+		cm1, cm2, cm3, cm4 = DecodePalette(self.override_palette)
+	end
+	if self.dome_skin then
+		if Presets.DomeSkins[self.dome_skin] and next(Presets.DomeSkins[self.dome_skin].palette) then
+			cm1, cm2, cm3, cm4 = DecodePalette(Presets.DomeSkins[self.dome_skin].palette)
+		end
+	end
+	if not cm1 then
+		cm1, cm2, cm3, cm4 = GetBuildingColors(GetCurrentColonyColorScheme(), self.template)
+	end
 	
-	local palette = self.override_palette or self.dome_skin and self.dome_skin.palettes
-	
-	if not palette then
-		local palettes = BuildingPalettes[self.template.template_name] 
-		if palettes and palettes[1] and EntityPalettes[palettes[1]] then
-			palette = palettes[1]
+	Building.SetPalette(self, cm1, cm2, cm3, cm4)
+
+	if self.template:IsKindOf("SpireBase") then
+		local e = SpireBase.GetFrameEntity(self, self.template)
+		if e ~= "none" and IsValidEntity(e) then
+			local frame = PlaceObject("SpireFrame")
+			frame:ChangeEntity(e)
+			frame:SetAttachOffset( point(-1, 0, 4392) ) --Dome basic default frame offset
+			self:Attach(frame, self:GetSpotBeginIndex("Origin"))
 		end
 	end
 	
-	if palette then
-		Building.SetPalette(self, palette)
-	end
-	if self.template:IsKindOf("SpireBase") and self.template.spire_frame_entity ~= "none" and IsValidEntity(self.template.spire_frame_entity) then
-		local frame = PlaceObject("Shapeshifter")
-		frame:ChangeEntity(self.template.spire_frame_entity)
-		frame:SetAttachOffset( point(-1, 0, 4392) ) --Dome basic default frame offset
-		self:Attach(frame, self:GetSpotBeginIndex("Origin"))
-	end
-	
 	-- attach tiles
-	local shape = GetEntityOutlineShape(self.template.entity)
+	local shape = GetEntityOutlineShape(self.entity)
 	for i = 1, #shape do
 		local q, r = shape[i]:xy()
 		local x, y = HexToWorld(q, r)
@@ -507,7 +516,7 @@ function ChangeAlternativeEntity(cursor_bld, dir, controller)
 	end
 	
 	local current = cursor_bld:GetEntity()
-	local skins = GetBuildingSkins(t_n)
+	local skins, palettes = GetBuildingSkins(t_n)
 	local class = ClassTemplates.Building[cursor_bld.template.class]
 	local is_dome = IsKindOf(class, "Dome")
 	local idx = table.find(skins, is_dome and 1 or current, is_dome and current or nil)
@@ -519,11 +528,12 @@ function ChangeAlternativeEntity(cursor_bld, dir, controller)
 	if idx>count then idx = 1 end	
 	if idx<1     then idx = count end	
 	local new_ent = skins[idx]
+	local palette = palettes[idx]
 	if controller then
 		controller.dome_skin = is_dome and new_ent or false
 	end
-	new_ent = new_ent and is_dome and new_ent[1] or new_ent
-	return new_ent or current
+	new_ent = new_ent and is_dome and new_ent[1] or new_ent or current
+	return new_ent, palette
 end
 
 function CursorBuilding:SetColorModifier(clr)
@@ -619,17 +629,23 @@ function ConstructionController:Init()
 	self.rocks_underneath = {}
 end
 
-function ConstructionController:CreateCursorObj(alternative_entity, template_obj, override_palette)
+function ConstructionController:CreateCursorObj(alternative_entity_t, template_obj, override_palette)
 	local o
 	if template_obj or self.is_template then
+		template_obj = template_obj or self.template_obj
 		o = CursorBuilding:new{
-			template = template_obj or self.template_obj, 
-			entity = alternative_entity or self.dome_skin and self.dome_skin[1] or (template_obj or self.template_obj):GetEntity(), 
+			template = template_obj, 
+			entity = alternative_entity_t and alternative_entity_t.entity 
+						or IsKindOf(template_obj, "Dome") and self.dome_skin and self.dome_skin[1] 
+						or template_obj:GetEntity(), 
 			auto_attach_at_init = false,
-			override_palette = override_palette,
+			override_palette = alternative_entity_t and alternative_entity_t.palette or override_palette,
 			dome_skin = self.dome_skin,
 			rocket = self.rocket,
 		}
+		if template_obj and template_obj.starting_angle ~= 0 then
+			o:SetAngle(template_obj.starting_angle)
+		end
 	else
 		o = CursorSupply:new{template = self.template, auto_attach_at_init = false}
 	end
@@ -699,6 +715,7 @@ function ConstructionController:Activate(template,	params)
 	self.template_obj = template_obj
 	self.template_obj_points = template_obj:GetBuildShape()
 	self.flat_obj_points = template_obj:GetFlattenShape()
+	local rover_palette = false
 	
 	if IsKindOf(template_obj, "Dome") then
 		local def_skin = GetMissionSponsor().default_skin
@@ -709,9 +726,12 @@ function ConstructionController:Activate(template,	params)
 				self.dome_skin = skins[idx]
 			end
 		end
+	elseif IsKindOf(template_obj, "BaseRoverBuilding") then
+		local class = g_Classes[self.template_obj.rover_class]
+		rover_palette = class.palette
 	end
 
-	self.cursor_obj = self:CreateCursorObj(params and params.template, nil, params and params.override_palette)
+	self.cursor_obj = self:CreateCursorObj(params and params.template, nil, rover_palette or params and params.override_palette)
 	
 	if HintsEnabled then
 		local is_dome = IsKindOf(self.cursor_obj.template, "Dome")
@@ -788,7 +808,7 @@ end
 function RefreshConstructionCursor()
 	local construction = GetCurrentConstructionControllerDlg()
 	if construction and IsValid(construction.cursor_obj) then
-		construction:UpdateCursor(construction.cursor_obj:GetPos(), "force")
+		DelayedCall(0, construction.UpdateCursor, construction, construction.cursor_obj:GetPos(), "force")
 	end
 end
 
@@ -850,7 +870,7 @@ end
 function ConstructionController:ChangeCursorObj(dir)
 	local pos = self.cursor_obj:GetPos()
 	local angle = self.cursor_obj:GetAngle()
-	local new_entity = ChangeAlternativeEntity(self.cursor_obj, dir, self)
+	local new_entity, new_palette = ChangeAlternativeEntity(self.cursor_obj, dir, self)
 	if self.cursor_obj then 
 		PlayFX("ConstructionCursor", "end", self.cursor_obj, self.template_obj.class)
 		self.cursor_obj:delete()
@@ -858,7 +878,7 @@ function ConstructionController:ChangeCursorObj(dir)
 	self:ColorRocks({})
 	self:ClearColorFromAllConstructionObstructors()
 	self.construction_obstructors = false
-	self.cursor_obj = self:CreateCursorObj(new_entity)
+	self.cursor_obj = self:CreateCursorObj({entity = new_entity, palette = new_palette})
 	
 	self.cursor_obj.GetSelectionRadiusScale = self.template_obj:HasMember("GetSelectionRadiusScale") and self.template_obj:GetSelectionRadiusScale()
 	self.cursor_obj.GetDustRadius = self.template_obj:HasMember("GetDustRadius") and self.template_obj:GetDustRadius()
@@ -1216,12 +1236,13 @@ function ConstructionController:UpdateCursor(pos, force)
 					hex_world_pos = HexGetNearestCenter(dome:GetSpotPos(idx))
 					placed_on_spot = true
 					if self.template_obj.dome_spot == "Spire" then
-						if self.template_obj:IsKindOf("SpireBase") and self.template_obj.spire_frame_entity ~= "none" and IsValidEntity(self.template_obj.spire_frame_entity) then
-							assert(_G[self.template_obj.spire_frame_entity], "Specified Spire Frame Entity does not exist!")
-							local frame = self.cursor_obj:GetAttach("Shapeshifter")
-							local spot = dome:GetNearestSpot("idle", "Spireframe", self.cursor_obj)
-							local pos = dome:GetSpotPos(spot)
-							frame:SetAttachOffset(pos - hex_world_pos)
+						if self.template_obj:IsKindOf("SpireBase") then
+							local frame = self.cursor_obj:GetAttach("SpireFrame")
+							if frame then
+								local spot = dome:GetNearestSpot("idle", "Spireframe", self.cursor_obj)
+								local pos = dome:GetSpotPos(spot)
+								frame:SetAttachOffset(pos - hex_world_pos)
+							end
 						end
 					end
 				elseif self.template_obj.dome_spot == "Spire" then
@@ -1490,7 +1511,7 @@ end
 function ConstructionController:HasDepositUnderneath()
 	local force_extend_bb = self.template_obj:HasMember("force_extend_bb_during_placement_checks") and self.template_obj.force_extend_bb_during_placement_checks ~= 0 and self.template_obj.force_extend_bb_during_placement_checks or false
 	local excluded_resource = IsKindOf(self.template_obj, "DepositExploiter") and self.template_obj.exploitation_resource or false
-	return HexGetUnits(self.cursor_obj, self.template_obj:GetEntity(), nil, nil, true, function(o) return not IsKindOf(o, "SubsurfaceAnomaly") and excluded_resource ~= o.resource end, "Deposit", force_extend_bb)
+	return HexGetUnits(self.cursor_obj, self.template_obj:GetEntity(), nil, nil, true, function(o) return not IsKindOfClasses(o, "SubsurfaceAnomaly", "EffectDeposit") and excluded_resource ~= o.resource end, "Deposit", force_extend_bb)
 end
 
 ConstructionController.BlockingUnitClasses = {"Unit"}
@@ -1502,6 +1523,12 @@ function ConstructionController:AreThereBlockingUnitsUnderneath(shape_data, pos,
 	return HexGetUnits(self.cursor_obj, self.template_obj:GetEntity(),
 							pos or self.cursor_obj:GetVisualPos(), angle or self.cursor_obj:GetAngle(),
 							true, ConstructionController.BlockingUnitsFilter, ConstructionController.BlockingUnitClasses, force_extend_bb)
+end
+
+local function ConstructionEffects_ForEachFn(deposit, building, effects_set)
+	if deposit:CanAffectBuilding(building) and deposit.ConstructionStatusName then
+		effects_set[deposit.class] = true
+	end
 end
 
 function ConstructionController:UpdateConstructionStatuses(dont_finalize)
@@ -1629,13 +1656,23 @@ function ConstructionController:UpdateConstructionStatuses(dont_finalize)
 	if self.dome_with_obstructed_roads and not dome_forbidden and (not self.template_obj or self.template_obj.dome_spot == "none") then
 		self.construction_statuses[#self.construction_statuses + 1] = ConstructionStatus.NonBuildableInterior
 	end
-	
+	if dome and not dome:GetUIInteractionState() then
+		self.construction_statuses[#self.construction_statuses + 1] = ConstructionStatus.DomeCanNotInteract
+	end
 	if dome_required or dome_forbidden then
 		if dome_required and not dome then --dome.
 			self.construction_statuses[#self.construction_statuses + 1] = ConstructionStatus.DomeRequired
 		elseif dome_forbidden and dome then
 			self.construction_statuses[#self.construction_statuses + 1] = ConstructionStatus.DomeProhibited
 		end
+	end
+	
+	--find nearby effect deposits
+	local effects_set = { }
+	MapForEach(self.cursor_obj, "hex", GetBuildingAffectRange(self.template_obj), "EffectDeposit", ConstructionEffects_ForEachFn, self.template_obj, effects_set)
+	for classname in pairs(effects_set) do
+		local classdef = g_Classes[classname]
+		self.construction_statuses[#self.construction_statuses + 1] = ConstructionStatus[classdef.ConstructionStatusName]
 	end
 	
 	if self.is_template then
@@ -1833,7 +1870,7 @@ function ConstructionController:Place(external_template_name, pos, angle, param_
 			instance.orig_terrain1 = orig_terrain1
 			instance.orig_terrain2 = orig_terrain2
 			
-			bld = PlaceBuilding(template_name, instance, {alternative_entity = cursor_obj:GetEntity()})
+			bld = PlaceBuilding(template_name, instance, {alternative_entity_t = {entity = cursor_obj:GetEntity(), palette = cursor_obj.override_palette}})
 			bld:SetAngle(cursor_obj:GetAngle())
 			bld:SetPos(AdjustBuildPos(cursor_obj:GetPos()))
 			if dome then
@@ -1844,7 +1881,7 @@ function ConstructionController:Place(external_template_name, pos, angle, param_
 			RemoveUnderConstruction(bld)
 			Msg("ConstructionComplete", bld) --@@@msg ConstructionComplete, building - fired when the construction of a building is complete
 		else
-			local instance = is_external and param_t or {supplied = self.supplied, prefab = self.prefab, alternative_entity = cursor_obj:GetEntity()}
+			local instance = is_external and param_t or {supplied = self.supplied, prefab = self.prefab, alternative_entity_t = {entity = cursor_obj:GetEntity(), palette = cursor_obj.override_palette}}
 			instance.orig_terrain1 = orig_terrain1
 			instance.orig_terrain2 = orig_terrain2
 			blck_pass = #rocks == 0 and #stockpiles == 0
@@ -1953,7 +1990,7 @@ function ConstructionController:Getconstruction_statuses_property()
 			local domes = GetDomesInWalkableDistance(UICity, self.cursor_obj:GetPos())
 			items[#items+1] = T{7688, "<green>Domes in walkable distance: <number></color></shadowcolor>", number = #domes}
 		else
-			items[#items+1] = T{880, "<color 138 223 47>All Clear!</color>"}
+			items[#items+1] = T{880, "<green>All Clear!</green>"}
 		end
 	end
 	return table.concat(items, "\n")
@@ -2031,6 +2068,18 @@ end
 function ConstructionController:HasTemplateVariants()
 	return self.template_variants and next(self.template_variants)
 end
+
+function ConstructionController:AlignToLandingPad(cursor_obj, landing_pad)
+	local angle = landing_pad:GetAngle()
+	local pos = landing_pad:GetPos()
+	if self.template == "PodLandingSite" then
+		angle = angle - 60*60
+		pos = landing_pad:GetSpotLoc(landing_pad:GetSpotBeginIndex("Rocket"))
+	end 
+	cursor_obj:SetPos(pos)
+	cursor_obj:SetAngle(angle)
+end
+
 ------------------------------------------Demolish--------------------------------
 DefineClass.DemolishModeDialog = {
 	__parents = { "InterfaceModeDialog" },
@@ -2050,6 +2099,7 @@ function DemolishPropagate(obj)
 end
 
 function DemolishModeDialog:Init()
+	self:SetModal()
 	CreateRealTimeThread(OpenAllDomes)
 end
 
@@ -2117,7 +2167,6 @@ function DemolishModeDialog:OnMouseButtonDown(pt, button, obj)
 		obj = DemolishPropagate(obj)
 		if IsKindOf(obj, "Building") then
 			if obj:CanDemolish() then
-				SelectObj(obj)
 				obj:ToggleDemolish()
 			else
 				obj:DestroyedClear()
@@ -2352,15 +2401,15 @@ end
 function GridConstructionController:UpdateCursorObject(visible)
 	if visible and not self.visuals then
 		local entity
-		local palette
+		local cm1, cm2, cm3, cm4
 		local skin
 		if self.mode == "electricity_grid" then
 			entity = "CableHub"
-			palette = EntityPalettes.Cables
+			cm1, cm2, cm3, cm4 = GetCablesPalette()
 		elseif self.mode == "life_support_grid" then
 			skin = TubeSkins[self.skin_name]
 			entity = skin.TubeHub
-			palette = EntityPalettes.Pipes
+			cm1, cm2, cm3, cm4 = GetPipesPalette()
 		elseif self.mode == "passage_grid" then
 			entity = "PassageEntrance"
 		end
@@ -2379,8 +2428,8 @@ function GridConstructionController:UpdateCursorObject(visible)
 		
 		AutoAttachObjectsToPlacementCursor(self.cursor_obj)
 		
-		if palette then
-			palette:ApplyToObj(self.cursor_obj)
+		if cm1 then
+			SetObjectPaletteRecursive(self.cursor_obj, cm1, cm2, cm3, cm4)
 		end
 		self:SetTxtPosObj(self.cursor_obj)
 	elseif IsValid(self.cursor_obj) then
@@ -2625,7 +2674,7 @@ function GridConstructionController:InitVisuals(pt)
 	local pipe_non_hub_pillar = skin.TubePillar
 	local tube_joint_seam = skin.TubeJointSeam
 	local game_flags = 0
-	local palette
+	local cm1, cm2, cm3, cm4
 	local entrance_hexes
 	if self.mode == "electricity_grid" then
 		hub_entity = "CableHub"
@@ -2635,8 +2684,7 @@ function GridConstructionController:InitVisuals(pt)
 		chain_entity = "CableHanging"
 		pillar_entity = "CableTower"
 		plug_angle_correction = 0
-		game_flags = const.gofTerrainDistortedMesh
-		palette = EntityPalettes.Cables
+		cm1, cm2, cm3, cm4 = GetCablesPalette()
 	elseif self.mode == "life_support_grid" then
 		hub_entity = skin.TubeHub
 		connection_entity = skin.TubeHubPlug
@@ -2645,7 +2693,7 @@ function GridConstructionController:InitVisuals(pt)
 		chain_entity = skin.Tube
 		pillar_entity = skin.TubeHub
 		plug_angle_correction = 180*60
-		palette = EntityPalettes.Pipes
+		cm1, cm2, cm3, cm4 = GetPipesPalette()
 	elseif self.mode == "passage_grid" then
 		hub_entity = "PassageEntrance"
 		link_entity = "PassageCovered"
@@ -2672,8 +2720,8 @@ function GridConstructionController:InitVisuals(pt)
 	for j = 1, self.max_hex_distance_to_allow_build do
 		local e = self.mode == "passage_grid" and CursorAutoAttachGridElement:new{ entity = link_entity } or CursorGridElement:new { entity = link_entity }
 		e:SetGameFlags(game_flags)
-		if palette then
-			palette:ApplyToObj(e)
+		if cm1 then
+			SetObjectPaletteRecursive(e, cm1, cm2, cm3, cm4)
 		end
 		self.visuals.elements[j] = e
 	end
@@ -2683,11 +2731,11 @@ function GridConstructionController:InitVisuals(pt)
 		for j = 1, self.max_plugs do
 			local p = CursorGridElement:new { entity = connection_entity }
 			p:SetGameFlags(game_flags)
-			palette:ApplyToObj(p)
+			SetObjectPaletteRecursive(p, cm1, cm2, cm3, cm4)
 			self.visuals.plugs[j] = p
 			local joint = joint_entity ~= "" and CursorGridElement:new { entity = joint_entity } or nil
 			if joint then
-				palette:ApplyToObj(joint)
+				SetObjectPaletteRecursive(joint, cm1, cm2, cm3, cm4)
 			end
 			self.visuals.joints[j] = joint
 		end
@@ -3163,7 +3211,7 @@ function GridConstructionController:UpdateVisuals(pt)
 			angle = CalcOrientation(points[1], points[2])
 		end
 		
-		if clr ~= const.clrNoModifier or node.status < SupplyGridElementHexStatus.blocked then
+		if clr == g_PlacementStateToColor.Blocked or node.status < SupplyGridElementHexStatus.blocked then
 			x, y = HexToWorld(node.q, node.r)
 			local el = visuals.elements[visuals_idx]
 			
@@ -3178,7 +3226,7 @@ function GridConstructionController:UpdateVisuals(pt)
 			
 			--pick entity
 			local e = visuals.link_entity
-			local p = nil
+			local cm1, cm2, cm3, cm4
 			if is_electricity_grid then
 				if node.is_turn and not node.chunk_start and not node.chunk_end then
 					local a1 = CalcOrientation(points[1], self.starting_point)
@@ -3200,7 +3248,7 @@ function GridConstructionController:UpdateVisuals(pt)
 					e = visuals.pipe_non_hub_pillar
 				end
 			elseif is_passage_grid then
-				e, p = GetPassageEntity(node, passage_skin)
+				e, cm1, cm2, cm3, cm4 = GetPassageEntityAndPalette(node, passage_skin)
 				local a = GetPassageAngle(node)
 				if a ~= el:GetAngle() then
 					el:SetAngle(a)
@@ -3241,10 +3289,8 @@ function GridConstructionController:UpdateVisuals(pt)
 					end)
 				end
 			end
-			if p then
-				ApplyToObjAndAttaches(el, function(o)
-					p:ApplyToObj(o)
-				end)
+			if cm1 then
+				SetObjectPaletteRecursive(el, cm1, cm2, cm3, cm4)
 			end
 			if not is_passage_grid and e == visuals.hub_entity then
 				el:SetAngle(0)
@@ -3557,7 +3603,7 @@ function GridConstructionController:Getconstruction_statuses_property()
 			items[#items+1] = T{879, "<col><text></color>", col = ConstructionStatusColors[st.type].color_tag, text = st.text}
 		end
 	else
-		items[#items+1] = T{880, "<color 138 223 47>All Clear!</color>"}
+		items[#items+1] = T{880, "<green>All Clear!</green>"}
 	end
 	return table.concat(items, "\n")
 end
@@ -3765,12 +3811,12 @@ end
 function GridSwitchConstructionController:UpdateCursorObject(visible)
 	if visible then
 		local entity
-		local palette
+		local cm1, cm2, cm3, cm4
 		if self.mode == "electricity_switch" then
-			palette = EntityPalettes.Cables
+			cm1, cm2, cm3, cm4 = GetCablesPalette()
 			entity = "CableSwitch"
 		elseif self.mode == "lifesupport_switch" then
-			palette = EntityPalettes.Pipes
+			cm1, cm2, cm3, cm4 = GetPipesPalette()
 			entity = "TubeSwitch"
 		elseif self.mode == "passage_ramp" then
 			entity = "PassageRamp"
@@ -3783,8 +3829,8 @@ function GridSwitchConstructionController:UpdateCursorObject(visible)
 			self.cursor_obj:SetEnumFlags(const.efVisible)
 		end
 		
-		if palette then
-			palette:ApplyToObj(self.cursor_obj)
+		if cm1 then
+			SetObjectPaletteRecursive(self.cursor_obj, cm1, cm2, cm3, cm4)
 		end
 		
 		self:SetTxtPosObj(self.cursor_obj)

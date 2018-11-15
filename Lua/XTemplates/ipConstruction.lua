@@ -8,6 +8,7 @@ PlaceObj('XTemplate', {
 		'Description', T{10, --[[XTemplate ipConstruction Description]] "<Description>"},
 	}, {
 		PlaceObj('XTemplateTemplate', {
+			'comment', "construction cost",
 			'__condition', function (parent, context) return context:HasConstructionCost() and not IsGameRuleActive("FreeConstruction") end,
 			'__template', "InfopanelSection",
 			'RolloverText', T{900, --[[XTemplate ipConstruction RolloverText]] "All resources have to be delivered to the site by Drones."},
@@ -20,6 +21,7 @@ PlaceObj('XTemplate', {
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
+			'comment', "consumption",
 			'__condition', function (parent, context) return context:HasConsumption() end,
 			'__template', "InfopanelSection",
 			'RolloverText', T{903, --[[XTemplate ipConstruction RolloverText]] "Base resource consumption of the building."},
@@ -32,6 +34,7 @@ PlaceObj('XTemplate', {
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
+			'comment', "wind turbine terrain",
 			'__condition', function (parent, context) return context.template_obj:IsKindOf("WindTurbine") end,
 			'__template', "InfopanelSection",
 			'RolloverText', T{905, --[[XTemplate ipConstruction RolloverText]] "Wind Turbines produce more Power at higher elevation."},
@@ -44,6 +47,7 @@ PlaceObj('XTemplate', {
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
+			'comment', "status texts",
 			'__template', "InfopanelSection",
 			'RolloverText', T{907, --[[XTemplate ipConstruction RolloverText]] "Issues related to the placement of this building."},
 			'Title', T{49, --[[XTemplate ipConstruction Title]] "Status"},
@@ -74,6 +78,7 @@ PlaceObj('XTemplate', {
 					'Text', T{909, --[[XTemplate ipConstruction Text]] "<right_click> Cancel"},
 				}),
 				PlaceObj('XTemplateTemplate', {
+					'__condition', function (parent, context) return context.template_obj.can_rotate_during_placement end,
 					'__template', "InfopanelText",
 					'Text', T{910, --[[XTemplate ipConstruction Text]] "<middle_click> <em>(press)</em> / <em><ShortcutName('actionRotBuildingLeft')>, <ShortcutName('actionRotBuildingRight')></em> Rotate"},
 				}),
@@ -109,6 +114,7 @@ PlaceObj('XTemplate', {
 					'Text', T{915, --[[XTemplate ipConstruction Text]] "<ButtonB> Cancel"},
 				}),
 				PlaceObj('XTemplateTemplate', {
+					'__condition', function (parent, context) return context.template_obj.can_rotate_during_placement end,
 					'__template', "InfopanelText",
 					'Text', T{916, --[[XTemplate ipConstruction Text]] "<LB> Rotate <RB>"},
 				}),

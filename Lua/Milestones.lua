@@ -5,6 +5,8 @@ DefineClass.Milestone = {
 		{ id = "base_score", name = T{1154, "Base Score"}, editor = "number", default = 1000, },
 		{ id = "bonus_score", name = T{1155, "Bonus Score"}, editor = "number", default = 1000, },
 		{ id = "bonus_score_expiration", name = T{1156, "Bonus score expiration Sols"}, editor = "number", default = 10, },
+		{ id = "reward_research", name = T{11714, "Reward (RP)"}, editor = "number", default = 250, },
+		{ id = "trigger_fireworks", name = T{11412, "Trigger fireworks"}, editor = "bool", default = false, },
 		{ id = "Complete", name = T{1157, "Complete thread"}, editor = "func" },
 		{ id = "GetScore", name = T{1158, "Custom score"}, editor = "func", },
 	},
@@ -41,13 +43,18 @@ function Milestone:GetCompleteText()
 	local sol = self:CompleteSol()
 	if sol then
 		return  T{1159, "<display_name> - Sol <sol>", self, sol = sol}
+	elseif sol == false then
+		local enactor = MilestoneEnactors[self.id]
+		if enactor and enactor ~= UICity then
+			return T{11675, "<display_name> - <enactor>", self, enactor = enactor.display_name}
+		end
 	end
 	return self.display_name
 end
 
 GlobalVar("MilestoneCompleted", {})
 GlobalVar("MilestoneThreads", {})
-
+GlobalVar("MilestoneEnactors", {})
 GlobalVar("ChallengeRating", 100)
 
 function OnMsg.NewDay()
@@ -69,14 +76,20 @@ function MilestoneRestartThreads()
 				local milestone = Presets.Milestone.Default[id]
 				local res = milestone:Complete(UICity)
 				MilestoneThreads[id] = nil
-				if milestone then -- some milestones might have disappeared (loadgame after patch)
+				if milestone and MilestoneCompleted[id] ~= false then -- some milestones might have disappeared (loadgame after patch) or could have already been failed
 					all_milestones[id] = true
 					MilestoneCompleted[id] = res and GameTime() or false
+					MilestoneEnactors[id] = UICity
+					Msg("MilestoneCompleted", id)
 					if res then
 						AddOnScreenNotification("MilestoneComplete", function() OpenDialog("Milestones") end, {
 							display_name = milestone.display_name,
+							reward_research = milestone.reward_research,
 							score = milestone:GetScore()
 						})
+						if milestone.trigger_fireworks then
+							TriggerFireworks()
+						end
 						score_sum = score_sum + milestone:GetScore()
 						local sponsor = GetMissionSponsor()
 						local commander = GetCommanderProfile()
@@ -171,5 +184,15 @@ function Milestone_WorkshopWorkersPercent(city, percent)
 		if city and city:GetWorkshopWorkersPercent() >= percent then 
 			return true
 		end
+	end
+end
+
+function OnMsg.MilestoneCompleted(milestone_id)
+	local enactor = MilestoneEnactors[milestone_id]
+	local research = Presets.Milestone.Default[milestone_id].reward_research
+	if enactor == UICity then
+		GrantResearchPoints(research)
+	else
+		enactor.resources.research = enactor.resources.research + research
 	end
 end

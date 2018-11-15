@@ -32,18 +32,28 @@ end,
 				}),
 				}),
 			}),
+		PlaceObj('XTemplateWindow', {
+			'__class', "XFrame",
+			'IdNode', false,
+			'Margins', box(17, -12, 0, -13),
+			'Padding', box(0, 12, 0, 12),
+			'LayoutMethod', "VList",
+			'Image', "UI/CommonNew/ip_header.tga",
+			'FrameBox', box(12, 12, 0, 12),
+		}, {
+			PlaceObj('XTemplateTemplate', {
+				'__context_of_kind', "Sanatorium",
+				'__template', "InfopanelText",
+				'Margins', box(52, 0, 20, 4),
+				'Text', T{745754891525, --[[XTemplate sectionTraits Text]] "Lifetime cured<right><life_time_trained>"},
+			}),
+			PlaceObj('XTemplateTemplate', {
+				'__context_of_kind', "School",
+				'__template', "InfopanelText",
+				'Margins', box(52, 0, 20, 4),
+				'Text', T{186914304841, --[[XTemplate sectionTraits Text]] "Lifetime graduates<right><life_time_trained>"},
+			}),
+			}),
 		}),
-	PlaceObj('XTemplateTemplate', {
-		'__context_of_kind', "Sanatorium",
-		'__template', "InfopanelText",
-		'Margins', box(52, 0, 20, 4),
-		'Text', T{745754891525, --[[XTemplate sectionTraits Text]] "Lifetime cured<right><life_time_trained>"},
-	}),
-	PlaceObj('XTemplateTemplate', {
-		'__context_of_kind', "School",
-		'__template', "InfopanelText",
-		'Margins', box(52, 0, 20, 4),
-		'Text', T{186914304841, --[[XTemplate sectionTraits Text]] "Lifetime graduates<right><life_time_trained>"},
-	}),
 })
 

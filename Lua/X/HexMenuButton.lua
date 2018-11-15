@@ -9,6 +9,8 @@ DefineClass.HexButtonItem = {
 	IdNode =  true,
 	MinWidth =  260,
 	MaxWidth =  260,
+	MinHeight = 260,
+	MaxHeight = 260,
 	RolloverZoom =  1100,
 	RolloverDrawOnTop =  true,	
 	prefabs = false,
@@ -29,22 +31,22 @@ DefineClass.HexButtonItem = {
 
 function HexButtonItem:Init()
 	local top = self.ButtonAlign=="top"
+	local button_container = XWindow:new({ Dock = "box" }, self)
+	--hex glow behind the button
 	XImage:new( {
 		Id =  "idSelection",
-		Margins =  box(0, top and -55 or 0, 0, top and 0 or -55),
 		FadeInTime =  self.sel_fade_in,
 		FadeOutTime =  self.sel_fade_in,
-		Image =  "UI/Common/watermark_shine_half.tga",
-		Angle = top  and 180*60 or 0,
-		VAlign =  self.ButtonAlign,
+		Image =  "UI/Common/watermark_shine_full.tga",
 		HAlign =  "center",
-	},self)
+		VAlign =  "center",
+	},button_container)
 	--	"button",
 	XTextButton:new( {
 		Id =  "idButton",
 		Shape =  "InHHex",
 		HAlign =  "center",
-		VAlign =  "top",
+		VAlign =  "center",
 		MouseCursor =  "UI/Cursors/Rollover.tga",
 		FXMouseIn =  "MainMenuItemHover",
 		FXPress =  "MainMenuItemClick",
@@ -56,7 +58,18 @@ function HexButtonItem:Init()
 		SqueezeY =  true,
 		ColumnsUse =  "abbbb",
 		ScaleModifier = point(750, 750),
-	},self)
+	},button_container)
+	
+	-- lock image - idLockImage
+	XImage:new( {
+		Id =  "idLock",
+		Margins = box(0, 0, 95, 83),
+		FadeInTime =  100,
+		FadeOutTime =  100,
+		Image =  "UI/Icons/bmc_lock.tga",
+		HAlign =  "right",
+		VAlign =  "bottom",
+	},button_container)
 	-- button image
 	XImage:new( {
 		Id =  "idShine",
@@ -66,21 +79,6 @@ function HexButtonItem:Init()
 		Dock = "box",
 	},self.idButton)
 	
-	-- lock image - idLockImage
-	XImage:new( {
-		Id =  "idLock",
-		Margins = box(0, 0, 95, top and 0 or 70),
-		FadeInTime =  100,
-		FadeOutTime =  100,
-		Image =  "UI/Icons/bmc_lock.tga",
-		HAlign =  "right",
-		VAlign =  "bottom",
-		Dock = "box",
-	},self)
-	
-	local prefabs = self.prefabs and UICity:GetPrefabs(self.name)
- 	local locked = not self.enabled and not prefabs
-	self.idLock:SetVisible(locked, "true")
 	-- idNumPrefabs text & background
 	XImage:new( {
 		Id =  "idTextBkg",
@@ -90,49 +88,47 @@ function HexButtonItem:Init()
 		Image =  "UI/Common/pin_shadow.tga",
 		HAlign =  "center",
 		VAlign =  "bottom",
-		Dock = "box",
+		Dock = "box",	
 	},self.idButton)
-	
 	XText:new( {
 		Id =  "idNumPrefabs",
-		Padding =  box(2, 4, 2, 4),
+		Padding =  box(2, 0, 2, 0),
 		HAlign =  "center",
 		VAlign =  "bottom",
-		DisabledTextColor =  RGBA(128, 128, 128, 255),
 		Translate =  true,
-		TextFont = "BuildMenuBuilding",
-		TextColor = RGBA(255, 254, 171, 255),
-		Translate = true, 
+		TextStyle = "HexButtonLabel",
+		Translate = true,
 		Dock = "box",
+		ScaleModifier = point(1200,1200)
 	},self.idButton)
 	
-	local show_uses_text = (not not prefabs) and (not self.enabled or prefabs > 0)	
-	self.idButton.idNumPrefabs:SetVisible(show_uses_text, "true")
-	self.idButton.idTextBkg:SetVisible(show_uses_text,"true")
-	self.idButton.idNumPrefabs:SetText(Untranslated(prefabs))
-	-- button title text 
-	TextWithBkg:new({	
-		Id = "idText", 
-		image = "UI/Common/bm_name_shadow.tga", 
-		Margins = box(0,  top and 0 or -15, 0, not top and 0 or -15),
-	}, self)
 	-- functions
-	self.idButton.idShine:SetVisible(false, true)		
-	
+	self.idButton.idShine:SetVisible(false, true)
 	self.idButton.SetRollover = function (this, ...)
 		self:SetRollover(...)
 		self.idButton.idShine:SetRollover(...)
 		XTextButton.SetRollover(this, ...)
-	end		
-		
+	end	
+	
+	-- button title text
+	local title = XText:new({
+		Id = "idText",
+		image = "UI/Common/bm_name_shadow.tga",
+		Dock = top and "top" or "bottom",
+		TextStyle = "HexButtonLabel",
+		Translate = true,
+		HAlign = "center",
+		Margins = box(0,top and 0 or 130, 0, top and 130 or 0),
+		MaxWidth = 190,
+		MinHeight = 70,
+		MaxHeight = 130,
+		TextHAlign = "center",
+		TextVAlign = "center",
+		ScaleModifier = point(1200,1200)
+	}, self)
+	
 	-- align and settings
 	local valign = self.ButtonAlign
-	self:SetMargins(box(0, top and -28 or 0, 0, not top and -28 or 0))	
-	self:SetVAlign(valign)
-	self.idText:SetDock(valign)
-	self.idText:SetText(self:GetName("", self))
-	self.idButton:SetImage(self:GetIcon("", self))
-	self:SetEnabled(self.enabled)
 	self.idSelection:SetVisible(false, true)
 	local parent = GetDialog(self)
 	self.idButton.OnPress = function(this)
@@ -144,6 +140,23 @@ function HexButtonItem:Init()
 			parent:Close()
 		end
 	end
+	
+	self:UpdateContent()
+end
+
+function HexButtonItem:UpdateContent()
+	local prefabs = self.prefabs and UICity:GetPrefabs(self.name)
+ 	local locked = not self.enabled and not prefabs
+	self.idLock:SetVisible(locked, "true")
+	
+	local show_uses_text = (not not prefabs) and (not self.enabled or prefabs > 0)
+	self.idButton.idNumPrefabs:SetVisible(show_uses_text, "true")
+	self.idButton.idTextBkg:SetVisible(show_uses_text,"true")
+	self.idButton.idNumPrefabs:SetText(Untranslated(prefabs))
+	
+	self:SetEnabled(self.enabled)
+	self.idText:SetText(self:GetName("", self))
+	self.idButton:SetImage(self:GetIcon("", self))
 end
 
 function HexButtonItem:SetEnabled(bEnabled)
@@ -156,6 +169,15 @@ end
 
 function HexButtonItem:OnMouseEnter()
 	self:SelectButton()
+end
+
+function HexButtonItem:OnSetFocus()
+	--scroll to self
+	if IsKindOf(self.parent, "XScrollArea") then
+		self.parent:ScrollIntoView(self)
+	end
+	
+	ItemMenuDef.OnSetFocus(self)
 end
 
 function HexButtonItem:FillRollover()
@@ -248,7 +270,6 @@ function HexButtonResource:Init()
 	self.idText:SetScaleModifier(point(1350, 1350))
 	-- align and settings
 	local valign = self.ButtonAlign
-	self:SetMargins(box(0, top and -52 or 0, 0, not top and -54 or 0))	
 	
 	local parent = GetDialog(self)
 	self.idButton.OnPress = function(this, gamepad)
@@ -302,9 +323,8 @@ function HexButtonInfopanel:Init()
 	self.idButton.AltPress = true
 	local top = self.ButtonAlign=="top"
 	self.idLock.Image =  "UI/Icons/bmc_check.tga"
-	self.idLock.Margins = box(0, 0, 94, top and 0 or 95)
+	self.idLock.Margins = box(0, 0, 93, 48)
 	self.idText:SetScaleModifier(point(1350, 1350))
-	self:SetMargins(box(0, top and -52 or 0, 0, not top and -54 or 0))	
 	
 	local parent = GetDialog(self)
 	self.idButton.Press = function(this, alt, gamepad)	

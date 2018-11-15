@@ -19,6 +19,16 @@ local _slots = {
 			["A"] = true,
 		},
 		spots = {
+			"Visitbed",
+		},
+	},
+	{
+		flags_missing = 1,
+		goto_spot = "LeadToSpot",
+		groups = {
+			["A"] = true,
+		},
+		spots = {
 			"Visitlounge",
 			"Standidle",
 		},
@@ -48,7 +58,27 @@ local _slots = {
 		},
 	},
 	{
+		flags_missing = 1,
+		goto_spot = "LeadToSpot",
+		groups = {
+			["A"] = true,
+		},
+		spots = {
+			"Visittable",
+		},
+	},
+	{
 		attach = "BaseBlinds",
+		flags_missing = 1,
+		goto_spot = "LeadToSpot",
+		groups = {
+			["A"] = true,
+		},
+		spots = {
+			"Visitdesk",
+		},
+	},
+	{
 		flags_missing = 1,
 		goto_spot = "LeadToSpot",
 		groups = {

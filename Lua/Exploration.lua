@@ -648,7 +648,6 @@ function DisplayExplorationQueue(initial) -- create/update visuals
 		return
 	end
 	
-	local text_scale = 250 * GetUIScale() / 100
 	for i = 1, #g_ExplorationQueue do
 		local sector = g_ExplorationQueue[i]
 		if i == 1 then
@@ -661,10 +660,7 @@ function DisplayExplorationQueue(initial) -- create/update visuals
 			end
 		else
 			if not sector.queue_text then
-				sector.queue_text = PlaceObject("Text")
-				sector.queue_text:SetFontId(FontStyles.GetFontId("RolloverTitle", text_scale))
-				sector.queue_text:SetColor(RGB( 255, 250, 228))
-				sector.queue_text:SetShadowOffset(3)
+				sector.queue_text = PlaceObject("Text",{text_style = "ExplorationSector"})
 			end
 			sector.queue_text:SetText("" .. (i-1))
 			sector.queue_text:SetPos(sector.area:Center())
@@ -802,6 +798,13 @@ function InitSector(sector, eligible)
 						sector.exp_resources[#sector.exp_resources + 1] = resource
 						sector.exp_resources[resource] = true
 					end
+				elseif char.class == "PrefabFeatureChar_Effect" then
+					local deposit_class = char.EffectType
+					local classdef = g_Classes[deposit_class]
+					if not sector.exp_resources[deposit_class] and classdef.list_as_sector_expected then
+						sector.exp_resources[#sector.exp_resources + 1] = deposit_class
+						sector.exp_resources[deposit_class] = true
+					end
 				end
 			end
 		else -- deposit markers
@@ -838,13 +841,15 @@ function InitialReveal(eligible, trand)
 		local sector = eligible[i]
 		for j = 1, #sector.markers.surface do
 			local marker = sector.markers.surface[j]
-			local amount
-			if IsKindOf(marker, "SurfaceDepositMarker") then
-				amount = marker:GetEstimatedAmount()
-			else
-				amount = marker.max_amount
+			if DepositResources[marker.resource] then
+				local amount
+				if IsKindOf(marker, "SurfaceDepositMarker") then
+					amount = marker:GetEstimatedAmount()
+				else
+					amount = marker.max_amount
+				end
+				qtys[marker.resource] = (qtys[marker.resource] or 0) + amount
 			end
-			qtys[marker.resource] = (qtys[marker.resource] or 0) + amount
 		end
 		--[[
 		local text = "sector " .. sector.id .. ": "

@@ -6,18 +6,6 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateWindow', {
 		'__class', "XDialog",
 	}, {
-		PlaceObj('XTemplateFunc', {
-			'comment', "Disable hint",
-			'name', "OnDelete(self)",
-			'func', function (self)
-ContextAwareHintShow("HintResearch", false)
-local hintdlg = GetOnScreenHintDlg()
-if (HintsEnabled or g_Tutorial) and hintdlg then
-	hintdlg:SetParent(GetInGameInterface())
-	hintdlg:SetHiddenMinimized(false)
-end
-end,
-		}),
 		PlaceObj('XTemplateWindow', {
 			'Margins', box(0, 0, -90, 0),
 			'Background', RGBA(0, 0, 0, 255),
@@ -173,9 +161,7 @@ end,
 									'Dock', "left",
 									'VAlign', "center",
 									'MinWidth', 260,
-									'TextFont', "MarsMenuItemButton",
-									'TextColor', RGBA(119, 198, 255, 255),
-									'RolloverTextColor', RGBA(255, 255, 255, 255),
+									'TextStyle', "ResearchFieldTitle",
 									'Translate', true,
 									'Text', T{135513074411, --[[XTemplate ResearchDlg Text]] "<display_name>"},
 								}),
@@ -248,6 +234,7 @@ host:CreateThread("outsource", function()
 					choice2 = multiple_outsource_allowed and T{7877, "Outsource <ResearchPoints(points)> for <funding(price)> in the next <time(sols)>", points = g_Consts.OutsourceResearch * multiplier, price = g_Consts.OutsourceResearchCost * multiplier, sols = g_Consts.OutsourceResearchTime} or nil,
 					image = "UI/Messages/outsource.tga",
 					start_minimized = false,
+					no_ccc_button = true,
 				}
 				if multiple_outsource_allowed then
 					params.choice3 = T{1139, "No"}
@@ -306,7 +293,7 @@ end
 end,
 		}),
 		PlaceObj('XTemplateFunc', {
-			'comment', "save the scroll pos and focus",
+			'comment', "save the scroll pos and focus, disable hint",
 			'name', "OnDelete",
 			'func', function (self, ...)
 g_ResearchScroll = self.idArea.OffsetX
@@ -316,6 +303,16 @@ if focus_order and focus ~= self:GetRelativeFocus(focus_order, "exact") then
 	focus_order = nil
 end
 g_ResearchFocus = focus_order or point(1, 1)
+
+-- disable hint
+ContextAwareHintShow("HintResearch", false)
+local hintdlg = GetOnScreenHintDlg()
+if (HintsEnabled or g_Tutorial) and hintdlg then
+	hintdlg:SetParent(GetInGameInterface())
+	hintdlg:SetHiddenMinimized(false)
+end
+
+TechLastSeen = GameTime()
 end,
 		}),
 		PlaceObj('XTemplateTemplate', {
@@ -341,8 +338,7 @@ end,
 					'__class', "XText",
 					'HAlign', "right",
 					'HandleMouse', false,
-					'TextFont', "PGModAuthorDate",
-					'TextColor', RGBA(119, 198, 255, 255),
+					'TextStyle', "ScoreName",
 					'Translate', true,
 					'Text', T{4531, --[[XTemplate ResearchDlg Text]] "Available Funding <white><funding(Funding)>"},
 				}),
@@ -350,8 +346,7 @@ end,
 					'__class', "XText",
 					'HAlign', "right",
 					'HandleMouse', false,
-					'TextFont', "PGModAuthorDate",
-					'TextColor', RGBA(119, 198, 255, 255),
+					'TextStyle', "ScoreName",
 					'Translate', true,
 					'Text', T{4532, --[[XTemplate ResearchDlg Text]] "Research per Sol <white><ResearchPoints(EstimatedRP)>"},
 				}),
@@ -464,6 +459,7 @@ if item then
 	end
 	local cost = item:ResearchQueueCost(n)
 	child.idTechText:SetText(T{4543, "<FieldDisplayName><right><ResearchPoints(cost)>", cost = cost})
+	child:SetRolloverText(T{3921, "<description>\n\nResearch cost<right><ResearchPoints(cost)>", cost = cost})
 end
 child:SetFocusOrder(point(1000, n))
 end,
@@ -472,7 +468,6 @@ end,
 						'__condition', function (parent, context) return context end,
 						'__template', "InfopanelSection",
 						'RolloverTemplate', "Rollover",
-						'RolloverText', T{3921, --[[XTemplate ResearchDlg RolloverText]] "<description><newline><newline>Research cost<right><ResearchPoints(cost)>"},
 						'RolloverTitle', T{3917, --[[XTemplate ResearchDlg RolloverTitle]] "<display_name> (<FieldDisplayName>)"},
 						'RolloverHint', T{3922, --[[XTemplate ResearchDlg RolloverHint]] "<right_click> Remove from Research queue"},
 						'RolloverHintGamepad', T{3924, --[[XTemplate ResearchDlg RolloverHintGamepad]] "<ButtonX> Remove from research queue"},
@@ -480,6 +475,7 @@ end,
 						'InternalLeftRightNav', false,
 						'Title', T{460245435559, --[[XTemplate ResearchDlg Title]] "<display_name>"},
 						'TitleHAlign', "left",
+						'StretchFrameRight', true,
 					}, {
 						PlaceObj('XTemplateTemplate', {
 							'__template', "InfopanelText",
@@ -506,9 +502,11 @@ end,
 						'__condition', function (parent, context) return not context end,
 						'__template', "InfopanelSection",
 						'FoldWhenHidden', false,
+						'InternalLeftRightNav', false,
 						'Title', T{385959075356, --[[XTemplate ResearchDlg Title]] "Empty slot"},
 						'Icon', "UI/Icons/Research/rm_unknown.tga",
 						'TitleHAlign', "left",
+						'StretchFrameRight', true,
 					}, {
 						PlaceObj('XTemplateFunc', {
 							'name', "OnActivate(self, context)",
@@ -519,8 +517,7 @@ end,
 						}, {
 							PlaceObj('XTemplateCode', {
 								'run', function (self, parent, context)
-parent.idSectionTitle:SetTextColor(RGB(96, 135, 185))
-parent.idSectionTitle:SetRolloverTextColor(RGB(96, 135, 185))
+parent.idSectionTitle:SetTextStyle("ResearchQueue")
 end,
 							}),
 							}),

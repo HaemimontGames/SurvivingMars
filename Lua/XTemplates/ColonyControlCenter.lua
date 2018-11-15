@@ -18,9 +18,20 @@ g_CommandCenterOpen = false
 XDialog.Close(self, ...)
 end,
 		}),
+		PlaceObj('XTemplateLayer', {
+			'layer', "ScreenBlur",
+			'layer_id', "idBlur",
+		}),
+		PlaceObj('XTemplateLayer', {
+			'layer', "XPauseLayer",
+		}),
+		PlaceObj('XTemplateLayer', {
+			'layer', "XHideInfopanelLayer",
+		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XContentTemplate",
 			'Id', "idContent",
+			'HandleMouse', true,
 		}, {
 			PlaceObj('XTemplateMode', nil, {
 				PlaceObj('XTemplateTemplate', {
@@ -60,6 +71,20 @@ end,
 			}, {
 				PlaceObj('XTemplateTemplate', {
 					'__template', "TransportationOverview",
+				}),
+				}),
+			PlaceObj('XTemplateMode', {
+				'mode', "PowerGrids",
+			}, {
+				PlaceObj('XTemplateTemplate', {
+					'__template', "PowerGridsOverview",
+				}),
+				}),
+			PlaceObj('XTemplateMode', {
+				'mode', "ColorScheme",
+			}, {
+				PlaceObj('XTemplateTemplate', {
+					'__template', "ColorSchemeOverview",
 				}),
 				}),
 			}),

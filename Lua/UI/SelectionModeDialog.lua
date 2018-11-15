@@ -73,13 +73,7 @@ function SelectionModeDialog:OnMouseButtonDown(pt, button)
 				HintTrigger("HintVehicleOrders")
 			end
 			if g_RightClickOpensBuildMenu then
-				local dlg = GetDialog("XBuildMenu")
-				if dlg then
-					dlg:SelectParentCategory()
-				else
-					g_BuildMenuRightClicksCount = g_BuildMenuRightClicksCount + 1
-					OpenXBuildMenu(IsValid(UICity.selected_dome) and UICity.selected_dome or nil)
-				end
+				ToggleXBuildMenu(true, "back", IsValid(UICity.selected_dome) and UICity.selected_dome or nil)
 			end
 			result = "break"
 		end
@@ -104,5 +98,10 @@ function SelectionModeDialog:OnMouseButtonDoubleClick(pt, button)
 			end
 			SelectObj(obj)
 		end
+	elseif button == "R" then
+		if g_RightClickOpensBuildMenu then
+			ToggleXBuildMenu(true, "back", IsValid(UICity.selected_dome) and UICity.selected_dome or nil)
+		end
+		return "break"
 	end
 end

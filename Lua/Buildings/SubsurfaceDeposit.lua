@@ -214,9 +214,7 @@ function SubsurfaceDeposit:Init()
 end
 
 function SubsurfaceDeposit:GameInit()
-	if self:IsValidZ() then
-		self:SetPos(self:GetPos():SetInvalidZ())
-	end
+	self:SetZ(terrain.GetHeight(self:GetPos()))
 	self:SetScale(g_CurrentDepositScale)
 	self:UpdateEntity()
 	self:PickVisibilityState()
@@ -272,7 +270,9 @@ function SubsurfaceDeposit:GetDepth()
 	return self.depth_layer
 end
 
+GlobalVar("DepletedDeposits", 0)
 function SubsurfaceDeposit:OnDepleted()
+	DepletedDeposits = DepletedDeposits + 1
 	Msg("DepositDepleted", self)
 	if IsValid(self) then
 		DoneObject(self)

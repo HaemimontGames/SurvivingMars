@@ -31,7 +31,8 @@ end,
 			}),
 			PlaceObj('XTemplateWindow', {
 				'comment', "margins",
-				'Margins', box(0, 30, 100, 50),
+				'Margins', box(60, 68, 0, 25),
+				'Dock', "left",
 			}, {
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
@@ -39,6 +40,16 @@ end,
 XWindow.Open(self, ...)
 self:SetMargins(GetSafeMargins(self:GetMargins()))
 end,
+				}),
+				PlaceObj('XTemplateTemplate', {
+					'__template', "ActionBarNew",
+					'Margins', box(55, 0, 0, 0),
+					'MinWidth', 300,
+				}),
+				PlaceObj('XTemplateTemplate', {
+					'__template', "DialogTitleNew",
+					'Margins', box(55, 0, 0, 0),
+					'Title', T{1129, --[[XTemplate ModManager Title]] "MOD MANAGER"},
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XContentTemplate",
@@ -49,33 +60,27 @@ end,
 						'mode', "mods",
 					}, {
 						PlaceObj('XTemplateTemplate', {
-							'__condition', function (parent, context) return not GetDialogModeParam(parent) end,
-							'__template', "DialogTitle",
-						}),
-						PlaceObj('XTemplateTemplate', {
 							'__condition', function (parent, context) return GetDialogModeParam(parent) end,
-							'__template', "ModTagsTitle",
+							'__template', "DialogTitleSmall",
+							'Id', "idTitleSmall",
+							'Margins', box(55, 0, 0, 0),
 						}),
 						}),
 					PlaceObj('XTemplateMode', {
 						'mode', "tags",
 					}, {
 						PlaceObj('XTemplateTemplate', {
-							'__template', "DialogTitle",
+							'__template', "DialogTitleSmall",
+							'Id', "idTitleSmall",
+							'Margins', box(55, 0, 0, 0),
 						}),
 						}),
 					}),
-				PlaceObj('XTemplateTemplate', {
-					'__template', "ActionBar",
-					'MinWidth', 300,
-				}),
 				PlaceObj('XTemplateWindow', {
-					'Dock', "right",
+					'Padding', box(0, 0, 250, 0),
+					'Dock', "left",
 				}, {
-					PlaceObj('XTemplateWindow', {
-						'MinWidth', 500,
-						'MaxWidth', 500,
-					}, {
+					PlaceObj('XTemplateWindow', nil, {
 						PlaceObj('XTemplateWindow', {
 							'__class', "XContentTemplate",
 							'Id', "idTopContent",
@@ -87,10 +92,8 @@ end,
 								PlaceObj('XTemplateCode', {
 									'run', function (self, parent, context)
 local mode_param = GetDialogModeParam(parent)
-if not mode_param then
-	parent:ResolveId("idTitle"):SetTitle(T{1129, "MOD MANAGER"})
-else
-	parent:ResolveId("idTitle"):SetTitle(T{1125, "TAG: <tag>", tag = mode_param.display_name})
+if mode_param then
+	parent:ResolveId("idTitleSmall"):SetTitle(T{1125, "TAG: <tag>", tag = mode_param.display_name})
 end
 end,
 								}),
@@ -144,7 +147,7 @@ end,
 								PlaceObj('XTemplateCode', {
 									'run', function (self, parent, context)
 local host = GetDialog(parent)
-host.idTitle:SetTitle(T{5460, "FILTER"})
+host.idTitleSmall:SetTitle(T{5460, "FILTER"})
 host.idModInfo:SetVisible(false)
 end,
 								}),
@@ -164,9 +167,9 @@ end,
 							PlaceObj('XTemplateWindow', {
 								'__class', "XContentTemplateList",
 								'Id', "idList",
-								'Margins', box(0, 40, 0, 10),
+								'Margins', box(-20, 0, 20, 0),
 								'BorderWidth', 0,
-								'LayoutVSpacing', 6,
+								'Padding', box(0, 0, 0, 0),
 								'UniformRowHeight', true,
 								'Clip', false,
 								'Background', RGBA(0, 0, 0, 0),
@@ -190,7 +193,7 @@ end,
 child.idValue:SetText(item.title)
 if item.corrupted then
 	child.idCorrupted:SetVisible(true)
-	child.idValue:SetTextColor(RGBA(203,41,41,255))
+	child.idValue:SetTextStyle("PGListItemValueCorrupted")
 else
 	local found = table.find(AccountStorage.LoadMods, item.id)
 	child.idCheckbox:SetImage(GetCheckboxImage(found))
@@ -241,159 +244,164 @@ end,
 									}),
 								}),
 							PlaceObj('XTemplateTemplate', {
-								'__template', "Scrollbar",
+								'__template', "ScrollbarNew",
 								'Id', "idScroll",
-								'Margins', box(0, 40, 0, 20),
 								'Target', "idList",
 							}),
 							}),
 						}),
 					}),
+				}),
+			PlaceObj('XTemplateWindow', {
+				'Id', "idModInfo",
+				'Padding', box(0, 90, 0, 0),
+				'HAlign', "left",
+				'LayoutMethod', "VList",
+				'Visible', false,
+				'FadeInTime', 200,
+				'FadeOutTime', 200,
+			}, {
 				PlaceObj('XTemplateWindow', {
-					'Id', "idModInfo",
-					'Padding', box(0, 0, 0, 10),
-					'HAlign', "center",
-					'MinWidth', 950,
-					'MaxWidth', 950,
-					'LayoutMethod', "VList",
-					'Clip', "self",
-					'Visible', false,
+					'__class', "XImage",
+					'Id', "idImage",
+					'Padding', box(20, 20, 20, 10),
+					'Dock', "top",
+					'HAlign', "left",
+					'VAlign', "top",
+					'MaxHeight', 360,
+					'Image', "UI/Common/Placeholder.tga",
+					'ImageFit', "smallest",
+				}),
+				PlaceObj('XTemplateWindow', {
+					'__class', "XFrame",
+					'IdNode', false,
+					'Margins', box(5, 0, 0, 0),
+					'Padding', box(35, 18, 40, 10),
+					'Dock', "top",
+					'HAlign', "left",
+					'VAlign', "top",
+					'MaxHeight', 83,
+					'Image', "UI/CommonNew/pg_header_small.tga",
+					'FrameBox', box(31, 0, 74, 0),
+					'TileFrame', true,
+					'SqueezeY', false,
 				}, {
 					PlaceObj('XTemplateWindow', {
-						'Padding', box(30, 0, 0, 0),
-						'Dock', "top",
+						'__class', "XText",
+						'Id', "idModTitle",
+						'Padding', box(0, 0, 0, 0),
 						'HAlign', "center",
-						'LayoutMethod', "VList",
-					}, {
-						PlaceObj('XTemplateWindow', {
-							'__class', "XText",
-							'Id', "idModTitle",
-							'Dock', "top",
-							'HAlign', "center",
-							'VAlign', "center",
-							'HandleMouse', false,
-							'TextStyle', "ItemTitle",
-							'Translate', true,
-							'TextHAlign', "center",
-						}),
-						PlaceObj('XTemplateWindow', {
-							'__class', "XFrame",
-							'IdNode', false,
-							'Padding', box(20, 20, 20, 20),
-							'HAlign', "center",
-							'VAlign', "top",
-							'MaxHeight', 370,
-							'Image', "UI/Common/mod_image_shadow.tga",
-							'FrameBox', box(20, 20, 20, 20),
-						}, {
-							PlaceObj('XTemplateWindow', {
-								'__class', "XImage",
-								'Id', "idImage",
-								'Image', "UI/Common/Placeholder.tga",
-								'ImageFit', "smallest",
-							}),
-							}),
-						PlaceObj('XTemplateWindow', {
-							'Padding', box(20, 0, 20, 0),
-							'LayoutMethod', "HList",
-						}, {
-							PlaceObj('XTemplateWindow', {
-								'__class', "XText",
-								'Id', "idAuthor",
-								'Margins', box(0, 0, 80, 0),
-								'Dock', "left",
-								'HandleMouse', false,
-								'TextFont', "PGModAuthorDate",
-								'TextColor', RGBA(158, 158, 158, 255),
-								'ShadowType', "outline",
-								'ShadowSize', 1,
-								'ShadowColor', RGBA(32, 32, 32, 255),
-								'Translate', true,
-							}),
-							PlaceObj('XTemplateWindow', {
-								'__class', "XText",
-								'Id', "idLastUpdate",
-								'Dock', "right",
-								'HandleMouse', false,
-								'TextFont', "PGModAuthorDate",
-								'TextColor', RGBA(158, 158, 158, 255),
-								'ShadowType', "outline",
-								'ShadowSize', 1,
-								'ShadowColor', RGBA(32, 32, 32, 255),
-								'Translate', true,
-							}),
-							}),
-						}),
+						'VAlign', "center",
+						'MaxWidth', 800,
+						'HandleMouse', false,
+						'TextStyle', "ItemTitle",
+						'Translate', true,
+						'HideOnEmpty', true,
+					}),
+					}),
+				PlaceObj('XTemplateWindow', {
+					'__class', "XScrollArea",
+					'Id', "idDescriptionTextArea",
+					'IdNode', false,
+					'Margins', box(-30, 0, 0, 0),
+					'VAlign', "center",
+					'VScroll', "idModDescriptionScroller",
+					'MouseWheelStep', 40,
+				}, {
 					PlaceObj('XTemplateWindow', {
-						'Margins', box(0, 20, 0, 0),
-						'Dock', "top",
+						'__class', "XVerticalScroller",
+						'Id', "idModDescriptionScroller",
+						'Dock', "left",
+						'Target', "idDescriptionTextArea",
+					}),
+					PlaceObj('XTemplateWindow', {
+						'Margins', box(17, 0, 0, 0),
+						'HAlign', "left",
 						'LayoutMethod', "VList",
 					}, {
 						PlaceObj('XTemplateWindow', {
-							'__class', "XText",
-							'Id', "idWarning",
-							'Margins', box(60, 0, 0, 10),
-							'Dock', "top",
-							'HandleMouse', false,
-							'TextFont', "PGModWarning",
-							'TextColor', RGBA(203, 41, 41, 255),
-							'ShadowType', "outline",
-							'ShadowSize', 1,
-							'ShadowColor', RGBA(32, 32, 32, 255),
-							'Translate', true,
-							'HideOnEmpty', true,
-							'TextHAlign', "center",
-						}),
-						PlaceObj('XTemplateWindow', {
-							'Margins', box(0, 10, 0, 0),
 							'LayoutMethod', "HList",
 						}, {
 							PlaceObj('XTemplateWindow', {
-								'__class', "XScrollArea",
-								'Id', "idDescriptionTextArea",
-								'IdNode', false,
-								'VAlign', "center",
-								'VScroll', "idModDescriptionScroller",
-								'MouseWheelStep', 40,
+								'Padding', box(0, 0, 50, 0),
+								'LayoutMethod', "VList",
 							}, {
 								PlaceObj('XTemplateWindow', {
-									'__class', "XVerticalScroller",
-									'Id', "idModDescriptionScroller",
-									'Margins', box(0, 0, 10, 0),
-									'Dock', "left",
-									'Target', "idDescriptionTextArea",
+									'__class', "XText",
+									'Id', "idAuthor",
+									'HandleMouse', false,
+									'TextStyle', "SaveLoadDescr1",
+									'Translate', true,
 								}),
 								PlaceObj('XTemplateWindow', {
 									'__class', "XText",
-									'Id', "idDescription",
-									'VAlign', "center",
+									'Id', "idLastUpdate",
+									'HandleMouse', false,
+									'TextStyle', "SaveLoadDescr1",
+									'Translate', true,
+								}),
+								PlaceObj('XTemplateWindow', {
+									'__class', "XText",
+									'Id', "idTags",
 									'Clip', false,
 									'HandleMouse', false,
-									'TextFont', "PGMissionDescr",
-									'TextColor', RGBA(240, 235, 198, 255),
-									'ShadowType', "outline",
-									'ShadowSize', 1,
-									'ShadowColor', RGBA(32, 32, 32, 255),
+									'TextStyle', "SaveLoadDescr1",
 									'Translate', true,
+									'Shorten', true,
+									'HideOnEmpty', true,
+								}),
+								}),
+							PlaceObj('XTemplateWindow', {
+								'LayoutMethod', "VList",
+							}, {
+								PlaceObj('XTemplateWindow', {
+									'__class', "XText",
+									'Id', "idAuthorVal",
+									'MaxHeight', 600,
+									'HandleMouse', false,
+									'TextStyle', "SaveLoadDescr2",
+									'Translate', true,
+								}),
+								PlaceObj('XTemplateWindow', {
+									'__class', "XText",
+									'Id', "idLastUpdateVal",
+									'MaxHeight', 600,
+									'HandleMouse', false,
+									'TextStyle', "SaveLoadDescr2",
+									'Translate', true,
+								}),
+								PlaceObj('XTemplateWindow', {
+									'__class', "XText",
+									'Id', "idTagsVal",
+									'MaxHeight', 600,
+									'Clip', false,
+									'HandleMouse', false,
+									'TextStyle', "SaveLoadDescr2",
+									'Translate', true,
+									'Shorten', true,
 									'HideOnEmpty', true,
 								}),
 								}),
 							}),
 						PlaceObj('XTemplateWindow', {
 							'__class', "XText",
-							'Id', "idTags",
-							'Margins', box(60, 10, 0, 0),
-							'Dock', "bottom",
-							'MaxHeight', 80,
+							'Id', "idWarning",
+							'HAlign', "left",
+							'HandleMouse', false,
+							'TextStyle', "SaveLoadDescr1",
+							'Translate', true,
+							'HideOnEmpty', true,
+						}),
+						PlaceObj('XTemplateWindow', {
+							'__class', "XText",
+							'Id', "idDescription",
+							'Padding', box(2, 22, 2, 2),
+							'VAlign', "center",
+							'MaxWidth', 800,
 							'Clip', false,
 							'HandleMouse', false,
-							'TextFont', "PGModTags",
-							'TextColor', RGBA(158, 158, 158, 255),
-							'ShadowType', "outline",
-							'ShadowSize', 1,
-							'ShadowColor', RGBA(32, 32, 32, 255),
+							'TextStyle', "SaveLoadDescr2",
 							'Translate', true,
-							'Shorten', true,
 							'HideOnEmpty', true,
 						}),
 						}),

@@ -2,6 +2,7 @@ PopupPropagateShortcuts = {
 	["Ctrl-F1"] = true,
 	["F9"] = true,
 	["F11"] = true,
+	["-PrtScr"] = true,
 }
 
 DefineClass.XMarsMessageBox =
@@ -22,7 +23,7 @@ function XMarsMessageBox:Init()
 end
 
 function XMarsMessageBox:OnContextUpdate(context, ...)
-	self.idTitle:SetText(context.title or "")
+	self.idTitle:SetText(context.title ~= "" and context.title or T{11678, "Notification"})
 	if not context.popup_notification then
 		self.idDescription:SetText(context.text)
 	else
@@ -38,12 +39,21 @@ function XMarsMessageBox:OnContextUpdate(context, ...)
 end
 
 function XMarsMessageBox:Open(...)
+	-- grant more space for layout (equivalent to the image size) by subtracting from the margins
+	local margins = GetSafeMargins(box(0, 0, 0, 0))
+	self:SetMargins(box(margins:minx(), margins:miny() - 300, margins:maxx(), margins:maxy() - 50))
+
 	PlayFX("Popup", "start")
 	XDialog.Open(self, ...)
 	self:SetModal()
 	local context = self.context
-	if GetUIStyleGamepad() or (context and context.force_ui_style == "gamepad") then
-		self.idList:SetSelection(context.initial_focus or 1)
+	if (GetUIStyleGamepad() or (context and context.force_ui_style == "gamepad")) then
+		local list = self.idList
+		if context.initial_focus then
+			list:SetSelection(context.initial_focus)
+		elseif not list.focused_item then
+			list:SetInitialSelection("force_ui_style")
+		end
 	end
 	if not self.context.popup_notification then
 		g_OpenMessageBoxes[self] = true
@@ -51,6 +61,13 @@ function XMarsMessageBox:Open(...)
 	else
 		PopupNotificationBegin(self)
 	end
+	Msg("MessageBoxOpened")
+end
+
+function XMarsMessageBox:SetLayoutSpace(x, y, width, height)
+	-- align up from the bottom safe area margin if it doesn't fit (this will eat up space from the image on the top)
+	self.VAlign = self.measure_height > GetSafeAreaBox():sizey() and "bottom" or "center"
+	XWindow.SetLayoutSpace(self, x, y, width, height)
 end
 
 function XMarsMessageBox:Close(...)
@@ -62,11 +79,11 @@ function XMarsMessageBox:Close(...)
 		PopupNotificationEnd(self, ...)
 	end
 	XDialog.Close(self, ...)
+	Msg("MessageBoxClosed")
 end
 
 function XMarsMessageBox:PreventClose()
-	self.idBottomFrameWindow:SetVisible(false)
-	self.idBottomLine:SetVisible(false)
+	self.idList:SetVisible(false)
 	self.OnShortcut = function() end
 end
 
@@ -82,6 +99,7 @@ function CreateMarsMessageBox(caption, text, ok_text, parent, image, context, te
 		title = caption,
 		text = text,
 		image = image,
+		no_ccc_button = true,
 	})
 	local actions = {}
 	actions[#actions + 1] = XAction:new({
@@ -90,7 +108,8 @@ function CreateMarsMessageBox(caption, text, ok_text, parent, image, context, te
 		ActionShortcut = "Escape",
 		ActionShortcut2 = "Enter",
 		ActionGamepad = "ButtonA",
-		ActionIcon = "UI/Icons/message_ok.tga",
+		ActionIcon = "UI/CommonNew/message_box_ok.tga",
+		ActionToolbar = "MessageButtons",
 		OnActionEffect = "close",
 	})
 	local msg = XMarsMessageBox:new({actions = actions, template = template}, parent, subcontext)
@@ -129,6 +148,7 @@ function CreateMarsQuestionBox(caption, text, ok_text, cancel_text, parent, imag
 		title = caption,
 		text = text,
 		image = image,
+		no_ccc_button = true,
 	})
 	local actions = {}
 	actions[#actions + 1] = XAction:new({
@@ -136,7 +156,8 @@ function CreateMarsQuestionBox(caption, text, ok_text, cancel_text, parent, imag
 		ActionName = ok_text or T{6878, "OK"},
 		ActionShortcut = "Enter",
 		ActionShortcut2 = "1",
-		ActionIcon = "UI/Icons/message_1.tga",
+		ActionIcon = "UI/CommonNew/message_1.tga",
+		ActionToolbar = "MessageButtons",
 		OnAction = function(self, host, source)
 			host:Close("ok")
 		end
@@ -147,7 +168,8 @@ function CreateMarsQuestionBox(caption, text, ok_text, cancel_text, parent, imag
 		ActionShortcut = "Escape",
 		ActionShortcut2 = "2",
 		ActionGamepad = "ButtonB",
-		ActionIcon = "UI/Icons/message_2.tga",
+		ActionIcon = "UI/CommonNew/message_2.tga",
+		ActionToolbar = "MessageButtons",
 		OnAction = function(self, host, source)
 			host:Close("cancel")
 		end
@@ -186,7 +208,7 @@ local function RollBackDialogs()
 		for name,dlg in pairs(Dialogs) do
 			if type(name) == "string" then
 				--hints dlg can change its parent
-				if not dlg:IsWithin(igi) and dlg ~= igi.mode_dialog and name ~= "OnScreenHintDlg" and name ~= "MarsPauseDlg" then
+				if not dlg:IsWithin(igi) and dlg ~= igi.mode_dialog and name ~= "OnScreenHintDlg" and name ~= "MarsPauseDlg" and name ~= "OverviewMapCurtains" or name == "PlanetaryView" then
 					dlgs_to_close[#dlgs_to_close + 1] = dlg
 					--also remove popups, which are children to this dialog
 					for i = #g_PopupQueue, 1, -1 do

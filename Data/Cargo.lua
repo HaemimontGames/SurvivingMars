@@ -39,6 +39,7 @@ PlaceObj('Cargo', {
 	group = "Rovers",
 	icon = "UI/Icons/Payload/Drone.tga",
 	id = "Drone",
+	max = 20,
 	name = T{1681, --[[Cargo Drone name]] "Drone"},
 	price = 30000000,
 })
@@ -266,7 +267,7 @@ PlaceObj('Cargo', {
 	id = "LivingQuarters",
 	kg = 10000,
 	locked = true,
-	name = T{3532, --[[Cargo LivingQuarters name]] "Living Quarters"},
+	name = T{3532, --[[Cargo LivingQuarters name]] "Living Complex"},
 })
 
 PlaceObj('Cargo', {

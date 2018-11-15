@@ -49,6 +49,23 @@ function PGTitleObject:GetDifficultyBonus()
 end
 
 function PGTitleObject:GetCompletedChallenges()
+	return GetCompletedChallenges()
+end
+
+function PGTitleObject:GetTotalChallenges()
+	return GetTotalChallenges()
+end
+
+function PGTitleObject:RecalcMapChallengeRating()
+	self.map_challenge_rating = GetMapChallengeRating()
+end
+
+function PGTitleObjectCreate()
+	g_TitleObj = PGTitleObject:new()
+	return g_TitleObj
+end
+
+function GetCompletedChallenges()
 	local n = 0
 	ForEachPreset("Challenge", function(preset) 
 		if preset.id ~= "" and AccountStorage.CompletedChallenges and AccountStorage.CompletedChallenges[preset.id] then
@@ -58,7 +75,7 @@ function PGTitleObject:GetCompletedChallenges()
 	return n
 end
 
-function PGTitleObject:GetTotalChallenges()
+function GetTotalChallenges()
 	local n = 0
 	ForEachPreset("Challenge", function(preset) 
 		if preset.id ~= "" then
@@ -66,11 +83,6 @@ function PGTitleObject:GetTotalChallenges()
 		end
 	end)
 	return n
-end
-
-function PGTitleObjectCreate()
-	g_TitleObj = g_TitleObj or PGTitleObject:new()
-	return g_TitleObj
 end
 
 local function MissionParamCombo(id)
@@ -88,7 +100,7 @@ local function MissionParamCombo(id)
 			end
 			items[#items + 1] = {
 				value = v.id,
-				text = v.display_name,
+				text = T{11438, "<new_in(new_in)>", new_in = v.new_in} .. v.display_name,
 				rollover = rollover,
 				image = id == "idMissionLogo" and v.image,
 				item_type = id,
@@ -173,6 +185,13 @@ function PGMissionObject:SetProperty(prop_id, prop_val)
 	self.params[prop_id] = prop_val
 end
 
+function PGMissionObject:GetDifficultyBonus()
+	if g_TitleObj then
+		return g_TitleObj:GetDifficultyBonus()
+	end
+	return ""
+end
+
 function PGMissionObjectCreateAndLoad(obj)
 	local obj = PGMissionObject:new(obj)
 	obj.params = {}
@@ -183,7 +202,7 @@ function PGMissionObjectCreateAndLoad(obj)
 end
 
 function GetCargoSumTitle(name)
-	return T{4065, "<color 203 120 30><font PGLandingPosName><name></font></color><newline>", name = name}
+	return T{4065, "<style LandingPosName><name></style><newline>", name = name}
 end
 
 ------ RocketRenameObject
@@ -236,7 +255,7 @@ function RocketRenameObject:SetRocketName(rocket_name)
 end
 
 function RocketRenameObject:RenameRocket(host, func)
-	CreateMarsRenameControl(host, T{4069, "Rename Rocket"}, self:GetRocketName(), 
+	CreateMarsRenameControl(host, T{4069, "Rename"}, self:GetRocketName(), 
 		function(name) 
 			local prev = self:GetRocketName()			
 			self:SetRocketName(name) 
@@ -249,17 +268,11 @@ function RocketRenameObject:RenameRocket(host, func)
 end
 
 function RocketRenameObject:GetRocketHyperlink()
-	local base
-	--if UICity and UICity.launch_elevator_mode then
 	if UICity and UICity.launch_mode == "elevator" then
 		return BuildingTemplates.SpaceElevator.display_name
 	end
-	if GetUIStyleGamepad() then
-		base = T{7560, "<h RenameRocket Rename>",}
-	else
-		base = T{6898, "<h RenameRocket Rename>< image <img> 2000 > ", img = Untranslated(self.rename_image)}
-	end
-	return base .. T{self.rocket_name} .. T{4162, "</h>"}
+	local base = T{6898, "<h RenameRocket Rename>< image <img> 2000 > ", img = Untranslated(self.rename_image)}
+	return T{11250, "<base><name><end_link>", base = base, name = Untranslated(self.rocket_name), end_link = T{4162, "</h>"}}
 end
 
 function InitRocketRenameObject(pregame, new_instance)
@@ -273,16 +286,22 @@ end
 
 
 function ResupplyDialogOpen(host, ...)
-	local rockets = UICity and UICity.labels.SupplyRocket or ""
-	local available = 0
+	local rockets = UICity and UICity.labels.AllRockets or ""
+	local owned, available = 0, 0
 	local total = #rockets
 	for i = 1, total do
-		if rockets[i]:IsAvailable() then
-			available = available + 1
+		local supply_pod = rockets[i]:IsKindOf("SupplyPod")
+		if rockets[i].owned then
+			if not supply_pod then
+				owned = owned + 1
+			end
+			if rockets[i]:IsAvailable() and not supply_pod then
+				available = available + 1
+			end
 		end
 	end
 	g_UIAvailableRockets = available
-	g_UITotalRockets = total
+	g_UITotalRockets = owned
 		
 	if g_ActiveHints["HintResupply"] then
 		HintDisable("HintResupply")
@@ -338,7 +357,11 @@ function BuyRocket(host)
 end
 
 function SetupLaunchLabel(mode)
-	return "SupplyRocket"
+	local label = "SupplyRocket"
+	if mode == "pod" then
+		label = "SupplyPod"
+	end
+	return label
 end
 
 function LaunchCargoRocket(obj, func_on_launch)
@@ -499,7 +522,9 @@ function RocketPayloadObject:CanLoad(item)
 	if LaunchModeCargoExceeded(item) then
 		return false
 	end
-	return item and self:GetFunding() >= RocketPayload_GetItemPrice(item) and self:GetCapacity() >= RocketPayload_GetItemWeight(item)
+	local cargo = item and RocketPayload_GetCargo(item.id)
+	local loaded_amount = cargo and cargo.amount or 0
+	return item and loaded_amount < item.max and self:GetFunding() >= RocketPayload_GetItemPrice(item) and self:GetCapacity() >= RocketPayload_GetItemWeight(item)
 end
 
 function RocketPayloadObject:CanUnload(item)
@@ -541,7 +566,7 @@ function RocketPayloadObject:PassengerRocketDisabledRolloverTitle()
 	elseif not AreNewColonistsAccepted() then
 		return T{10446, "Colonization Temporarily Suspended"}
 	else
-		return ""
+		return T{1116, "Passenger Rocket"}
 	end
 end
 
@@ -592,6 +617,13 @@ function RocketPayloadObject:GetAmount(item)
 	return amount
 end
 
+function RocketPayloadObject:GetDifficultyBonus()
+	if g_TitleObj then
+		return g_TitleObj:GetDifficultyBonus()
+	end
+	return ""
+end
+
 function RocketPayload_GetPrefabsCount()
 	local prefab_count = 0
 	for k, item in ipairs(ResupplyItemDefinitions) do
@@ -612,14 +644,42 @@ function RocketPayloadObject:GetPrice(item)
 	return T{4075, "<funding(money)>", money = money}
 end
 
-function RocketPayloadObject:GetAdditionalPassengerText()
-	return ""
+function RocketPayloadObject:GetNumAvailablePods(label)
+	local n = 0
+	for _, pod in ipairs(UICity.labels[label] or empty_table) do
+		if pod:IsAvailable() then
+			n = n + 1
+		end
+	end
+	return n
+end
+
+function RocketPayloadObject:GetAvailableSupplyPods()
+	return self:GetNumAvailablePods("SupplyPod")
+end
+
+function RocketPayloadObject:GetTotalSupplyPods()
+	return table.count(UICity.labels.SupplyPod or {})
+end
+
+function RocketPayloadObject:GetAvailablePassengerPods()
+	return self:GetNumAvailablePods("PassengerPod")
+end
+
+function RefundPods(label)
+	local list = UICity.labels[label] or empty_table
+	for i = #list, 1, -1 do
+		if list[i].refund > 0 then
+			DoneObject(list[i])
+		end
+	end
 end
 
 function RefundPassenger()
 end
 
 function RefundSupply()
+	RefundPods("SupplyPod")
 end
 
 function RocketPayload_GetTotalItemPrice(item)
@@ -688,14 +748,22 @@ function RocketPayloadObject:GetRollover(id)
 	description = (description and description ~= "" and description .. "<newline><newline>") or ""
 	local icon = item.icon and Untranslated("<image "..item.icon.." 2000><newline><newline>") or ""
 	description = icon..description .. T{1114, "Weight: <value> kg<newline>Cost: <funding(cost)>", value = RocketPayload_GetItemWeight(item), cost = RocketPayload_GetItemPrice(item)}
-	if GameState.gameplay and Resources[item.id] and ResourceOverviewObj.data then
-		description = description .. T{8722, "<newline><newline>Available in the colony: <number>", number = FormatResource(ResourceOverviewObj, ResourceOverviewObj:GetAvailable(item.id), item.id)}
-	end
 	return {
 		title = display_name,
 		descr = description,
 		gamepad_hint = T{7580, "<DPadLeft> Change value <DPadRight>"},
 	}
+end
+
+function RocketPayloadObject:GetPodItemText()
+	local pod_class = GetMissionSponsor().pod_class
+	local template = pod_class and BuildingTemplates[pod_class]
+	local name = template and template.display_name or T{824938247285, "Supply Pod"}
+	
+	if self:GetNumAvailablePods("SupplyPod") > 0 then
+		return T{11439, "<new_in('gagarin')>"} .. name
+	end
+	return T{11439, "<new_in('gagarin')>"} .. T{10860, "<name> ($<cost> M)", name = name, cost = GetMissionSponsor().pod_price / (1000*1000)}
 end
 
 function RocketPayloadObjectCreateAndLoad(pregame)

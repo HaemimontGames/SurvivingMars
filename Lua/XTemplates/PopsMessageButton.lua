@@ -81,10 +81,7 @@ end,
 			'Id', "idNumber",
 			'HAlign', "left",
 			'VAlign', "center",
-			'TextFont', "ModsUISortText",
-			'TextColor', RGBA(0, 0, 0, 255),
-			'DisabledTextColor', RGBA(196, 196, 196, 255),
-			'ShadowSize', 0,
+			'TextStyle', "ModsUINumber",
 		}, {
 			PlaceObj('XTemplateFunc', {
 				'name', "CalcTextColor",
@@ -101,9 +98,7 @@ end,
 			'Padding', box(2, 0, 2, 0),
 			'HAlign', "left",
 			'VAlign', "center",
-			'TextFont', "HexChoice",
-			'TextColor', RGBA(0, 0, 0, 255),
-			'DisabledTextColor', RGBA(196, 196, 196, 255),
+			'TextStyle', "GenericChoice",
 			'Translate', true,
 		}, {
 			PlaceObj('XTemplateFunc', {

@@ -1,7 +1,7 @@
 DefineClass.InfopanelItems = {
  __parents = {"ItemMenuBase"},
  ScaleModifier = point(750,750),
- Margins = box(0,135,-30,0),
+ Margins = box(0,135,60,0),
  
  hide_single_category = true,
  rollover_anchor = "center-bottom",

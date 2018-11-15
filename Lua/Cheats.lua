@@ -9,13 +9,33 @@ function CheatMapExplore(status)
 	SuspendPassEdits("CheatMapExplore")
 	local old = IsDepositObstructed
 	IsDepositObstructed = empty_func
-	for x = 1, const.SectorCount do
-		for y = 1, const.SectorCount do
-			g_MapSectors[x][y]:Scan(status)
+	if status == "scan queued" then
+		while #g_ExplorationQueue > 0 do
+			local sector = g_ExplorationQueue[1]
+			sector.scan_progress = sector.scan_progress + sector.scan_time
+			UICity:ExplorationTick()
+		end
+	else
+		for x = 1, const.SectorCount do
+			for y = 1, const.SectorCount do
+				g_MapSectors[x][y]:Scan(status)
+			end
 		end
 	end
 	IsDepositObstructed = old
 	ResumePassEdits("CheatMapExplore")
+end
+
+function CheatSpawnPlanetaryAnomalies()
+	local lat, long
+	for i = 1, 20 do
+		lat, long = GenerateMarsScreenPoI("anomaly")
+		local obj = PlaceObject("PlanetaryAnomaly", {
+			display_name = T{11234, "Planetary Anomaly"},
+			longitude = long,
+			latitude = lat,            
+		})
+	end
 end
 
 local function GetCameraLookAtPassable()
@@ -77,7 +97,7 @@ end
 
 function CheatResearchCurrent()
 	if not UICity then return end
-	UICity:SetTechResearched()
+	UICity:SetTechResearched(false, "notify")
 end
 
 function CheatCompleteAllWiresAndPipes(list)

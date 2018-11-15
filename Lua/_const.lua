@@ -637,6 +637,13 @@ DefineConst{
 }
 DefineConst{
 	group = "Gameplay",
+	help = T{10142, --[[ConstDef Gameplay MaxColonistsPerPod help]] "Maximum number of Colonists that can arrive on Mars in a single Pod"},
+	id = "MaxColonistsPerPod",
+	name = T{10143, --[[ConstDef Gameplay MaxColonistsPerPod name]] "Colonists per Pod"},
+	value = 12,
+}
+DefineConst{
+	group = "Gameplay",
 	help = T{4593, --[[ConstDef Gameplay MaxColonistsPerRocket help]] "Maximum number of Colonists that can arrive on Mars in a single Rocket"},
 	id = "MaxColonistsPerRocket",
 	name = T{4594, --[[ConstDef Gameplay MaxColonistsPerRocket name]] "Colonists per Rocket"},
@@ -702,6 +709,13 @@ DefineConst{
 	id = "SponsorFundingPerInterval",
 	name = T{4602, --[[ConstDef Gameplay SponsorFundingPerInterval name]] "Additional Funding (M)"},
 	value = 0,
+}
+DefineConst{
+	group = "Gameplay",
+	help = T{750913549910, --[[ConstDef Gameplay SponsorGoalsCount help]] "Number of sponsor goals"},
+	id = "SponsorGoalsCount",
+	name = T{750913549910, --[[ConstDef Gameplay SponsorGoalsCount name]] "Number of sponsor goals"},
+	value = 5,
 }
 DefineConst{
 	group = "Gameplay",
@@ -1045,17 +1059,17 @@ DefineConst{
 }
 DefineConst{
 	group = "Stat",
-	help = T{8809, --[[ConstDef Stat WorkInWorkshopComfortBoost help]] "Workers in Workshops receive 10 Morale boost"},
+	help = T{8809, --[[ConstDef Stat WorkInWorkshopComfortBoost help]] "Workers in Workshop receive Comfort boost"},
 	id = "WorkInWorkshopComfortBoost",
-	name = T{8810, --[[ConstDef Stat WorkInWorkshopComfortBoost name]] "WorkInWorkshopComfortBoost"},
+	name = T{8809, --[[ConstDef Stat WorkInWorkshopComfortBoost name]] "Workers in Workshop receive Comfort boost"},
 	scale = "Stat",
 	value = 5000,
 }
 DefineConst{
 	group = "Stat",
-	help = T{8811, --[[ConstDef Stat WorkInWorkshopMoraleBoost help]] "Workers in Workshop building receive additional comfort boost at the end of their workshift "},
+	help = T{8811, --[[ConstDef Stat WorkInWorkshopMoraleBoost help]] "Workers in Workshop receive Morale boost"},
 	id = "WorkInWorkshopMoraleBoost",
-	name = T{8810, --[[ConstDef Stat WorkInWorkshopMoraleBoost name]] "WorkInWorkshopComfortBoost"},
+	name = T{8811, --[[ConstDef Stat WorkInWorkshopMoraleBoost name]] "Workers in Workshop receive Morale boost"},
 	scale = "Stat",
 	value = 10000,
 }
@@ -1074,6 +1088,38 @@ DefineConst{
 	name = T{4569, --[[ConstDef Stat WorkOvertimeSanityDecrease name]] "Heavy Workload Sanity Penalty"},
 	scale = "Stat",
 	value = 10000,
+}
+DefineConst{
+	group = "StoryBits",
+	help = T{939854144179, --[[ConstDef StoryBits MaxCooldown help]] "Each StoryBits category is assigned a random cooldown between MinCoolDown and MaxCoolDown when a StoryBit triggers"},
+	id = "MaxCooldown",
+	name = T{234981181428, --[[ConstDef StoryBits MaxCooldown name]] "Maximum Cooldown"},
+	scale = "sols",
+	value = 8640000,
+}
+DefineConst{
+	group = "StoryBits",
+	help = T{316584207221, --[[ConstDef StoryBits MinCooldown help]] "Each StoryBits category is assigned a random cooldown between MinCoolDown and MaxCoolDown when a StoryBit triggers"},
+	id = "MinCooldown",
+	name = T{136932901153, --[[ConstDef StoryBits MinCooldown name]] "Min Cooldown"},
+	scale = "sols",
+	value = 3600000,
+}
+DefineConst{
+	group = "StoryBits",
+	help = T{10865, --[[ConstDef StoryBits NotificationTimeout help]] "Time to wait for the player to click the StoryBit notification before the pop up is forced"},
+	id = "NotificationTimeout",
+	name = T{262180053685, --[[ConstDef StoryBits NotificationTimeout name]] "Notification Timeout"},
+	scale = "hours",
+	value = 240000,
+}
+DefineConst{
+	group = "StoryBits",
+	help = T{382207919709, --[[ConstDef StoryBits TickDuration help]] "Time duration between Tick triggers"},
+	id = "TickDuration",
+	name = T{942145509228, --[[ConstDef StoryBits TickDuration name]] "Tick Duration"},
+	scale = "hours",
+	value = 30000,
 }
 DefineConst{
 	group = "Traits",

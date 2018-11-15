@@ -368,8 +368,7 @@ function SA_DamageDrones:Exec(seq_player, ip, seq, registers)
 		end
 	else
 		for i,drone in pairs(affected) do
-			drone.dust = drone.dust_max + 10 
-			drone:SetCommand("Malfunction")
+			drone:AddDust(drone:GetDustMax())
 		end
 	end
 end
@@ -739,10 +738,6 @@ function SA_AddApplicants:Exec(seq_player, ip, seq, registers)
 	end
 end
 --------
-local ResearchTypes = {
-	{ text = "Specific tech", value = "specific tech" },
-	{ text = "Experimental",  value = "experimental"  },
-}
 
 DefineClass.SA_GrantResearchPts = {
 	__parents = {"SequenceAction"},
@@ -795,7 +790,7 @@ function SA_GrantTech:ShortDescription()
 end
 
 function SA_GrantTech:Exec(seq_player, ip, seq, registers)
-	UICity:SetTechResearched(self.Research)
+	UICity:SetTechResearched(self.Research, "notify")
 end
 
 --
@@ -826,7 +821,7 @@ function GrantWonderTech()
 	if not tech_id then
 		return
 	end
-	city:SetTechResearched(tech_id)
+	city:SetTechResearched(tech_id, "notify")
 	return tech_id
 end
 
@@ -1506,12 +1501,12 @@ function PositionFinder:TryFindRandomPos(class_def, building_shape, building_oth
 		tries = tries + 1
 		q, r = WorldToHex(point(r_w, r_h))
 		pt_hex_center = HexGetNearestCenter(point(r_w, r_h))
-		local angle_0 = city:Random(360*60)
+		local angle_0 = city:Random(6) * 60
 		angle = angle_0
 		while angle - angle_0 < 360 do
 			all_clear = self:TestPos(pt_hex_center, q, r, angle, class_def, building_shape, building_other_shape)
-			if not all_clear then
-				angle = angle + (#building_shape == 1 and 1000 or 60)
+			if not all_clear and #building_shape > 1 then
+				angle = angle + 60
 			else
 				break
 			end
@@ -2000,8 +1995,9 @@ function SA_PickRandomObject:Exec(seq_player, ip, seq, registers)
 	registers[self.store_obj] = self:PickObject(objects)
 end
 
---
-DefineClass.SA_SpawnAnomaly = {
+----
+
+DefineClass.SA_SpawnObjectAt = {
 	__parents = {"SequenceAction", "PositionFinder"},
 	properties = {
 		--placement
@@ -2015,28 +2011,15 @@ DefineClass.SA_SpawnAnomaly = {
 		{ id = "store_obj", name = T{3753, "Store spawned obj in register"}, editor = "text", default = "", help = "If diff from empty str, will store spawned object in this register."},
 		{ id = "store_obj_append", name = T{3754, "Append to register?"}, editor = "bool", default = false, help = "Check to append to register, leave unchecked to replace register contents."},
 		
-		--anomaly props
-		{ category = "Anomaly", name = T{1153, "Display Name"}, id = "display_name", editor = "text", default = "", translate = true},
-		{ category = "Anomaly", name = T{1000017, "Description"}, id = "description", editor = "text", default = "", translate = true},
-		
-		
-		{ category = "Anomaly", name = T{3774, "Generate Breakthrough Tech"}, id = "is_breakthrough", editor = "bool", default = false},
-		{ category = "Anomaly", name = T{3775, "Sequence List"}, 				id = "sequence_list", default = "",    editor = "dropdownlist", items = function() return table.map(DataInstances.Scenario, "name") end, },
-		{ category = "Anomaly", name = T{5, "Sequence"},                id = "sequence", editor = "dropdownlist", items = function(self) return self.sequence_list == "" and {} or table.map(DataInstances.Scenario[self.sequence_list], "name") end, default = "", help = "Sequence to start when the anomaly is scanned" },
-		{ category = "Anomaly", name = T{8696, "Expiration Time"},                id = "expiration_time", editor = "number", default = 0, scale = const.HourDuration, help = "If > 0 the anomaly will expire and disappear in this many hours." },
 		--dbg param
 		{ id = "show_me_spawned_obj", name = T{3757, "Show me spawned obj (dbg)"}, editor = "bool", default = false,},
 	},
-	
-	Menu = "Gameplay",
-	MenuName = "Place anomaly at",
-	MenuSection = "Mysteries",
 	
 	check_passability = true,
 	check_buildable = true,
 }
 
-function SA_SpawnAnomaly:WarningsCheck(seq_player, seq, registers)
+function SA_SpawnObjectAt:WarningsCheck(seq_player, seq, registers)
 	if not self.use_random_pos then
 		if self.register_placement_pos == "" and self.attach_to_obj_in_reg == "" and not terrain.IsPointInBounds(self.placement_pos) then
 			seq_player:Error(self, "Specified placement pos outside of terrain bounds!")
@@ -2044,11 +2027,7 @@ function SA_SpawnAnomaly:WarningsCheck(seq_player, seq, registers)
 	end
 end
 
-function SA_SpawnAnomaly:ShortDescription()
-	return string.format("Place anomaly %s at %s%s",_InternalTranslate(self.display_name), SA_PlaceObject.GetPosStr(self), SA_PlaceObject.GetChecksStr(self))
-end
-
-function SA_SpawnAnomaly:Exec(seq_player, ip, seq, registers)
+function SA_SpawnObjectAt:Exec(seq_player, ip, seq, registers)
 	local pos, angle, obj, q, r, pos_test_result, attach_to_obj
 	local class_def = g_Classes["SubsurfaceAnomaly"]
 	local outline, interior = GetEntityHexShapes(class_def:GetEntity())
@@ -2092,25 +2071,18 @@ function SA_SpawnAnomaly:Exec(seq_player, ip, seq, registers)
 		pos_test_result = true
 	end
 	if pos_test_result then
-		--SubsurfaceAnomaly				
-		obj = PlaceAnomaly{
-			display_name = self.display_name ~= "" and self.display_name or nil,
-			description = self.description ~= "" and self.description or nil,
-			tech_action = self.is_breakthrough and "breakthrough",
-			sequence = self.sequence,
-			sequence_list = self.sequence_list == "" and seq_player.seq_list.name or self.sequence_list,
-			expiration_time = self.expiration_time,
-			revealed = true,
-		}
-		if attach_to_obj then
-			local spot_idx = self.attach_obj_spot ~= "" and attach_to_obj:GetSpotBeginIndex(self.attach_obj_spot) or nil
-			if not spot_idx then
-				attach_to_obj:Attach(obj)
+		obj = self:SpawnObject()
+		if obj then
+			if attach_to_obj then
+				local spot_idx = self.attach_obj_spot ~= "" and attach_to_obj:GetSpotBeginIndex(self.attach_obj_spot) or nil
+				if not spot_idx then
+					attach_to_obj:Attach(obj)
+				else
+					attach_to_obj:Attach(obj, spot_idx)
+				end
 			else
-				attach_to_obj:Attach(obj, spot_idx)
+				obj:SetPos(pos)
 			end
-		else
-			obj:SetPos(pos)
 		end
 	else
 		seq_player:Error(self, "Could not find suitable location to place anomaly!")
@@ -2131,7 +2103,50 @@ function SA_SpawnAnomaly:Exec(seq_player, ip, seq, registers)
 		ShowMe(obj)
 	end
 end
---
+
+function SA_SpawnObjectAt:SpawnObject()
+end
+
+----
+
+DefineClass.SA_SpawnAnomaly = {
+	__parents = {"SA_SpawnObjectAt"},
+	properties = {
+		
+		--anomaly props
+		{ category = "Anomaly", name = T{1153, "Display Name"}, id = "display_name", editor = "text", default = "", translate = true},
+		{ category = "Anomaly", name = T{1000017, "Description"}, id = "description", editor = "text", default = "", translate = true},
+		
+		
+		{ category = "Anomaly", name = T{3774, "Generate Breakthrough Tech"}, id = "is_breakthrough", editor = "bool", default = false},
+		{ category = "Anomaly", name = T{3775, "Sequence List"}, 				id = "sequence_list", default = "",    editor = "dropdownlist", items = function() return table.map(DataInstances.Scenario, "name") end, },
+		{ category = "Anomaly", name = T{5, "Sequence"},                id = "sequence", editor = "dropdownlist", items = function(self) return self.sequence_list == "" and {} or table.map(DataInstances.Scenario[self.sequence_list], "name") end, default = "", help = "Sequence to start when the anomaly is scanned" },
+		{ category = "Anomaly", name = T{8696, "Expiration Time"},                id = "expiration_time", editor = "number", default = 0, scale = const.HourDuration, help = "If > 0 the anomaly will expire and disappear in this many hours." },
+	},
+	
+	Menu = "Gameplay",
+	MenuName = "Place anomaly at",
+	MenuSection = "Mysteries",
+}
+
+function SA_SpawnAnomaly:ShortDescription()
+	return string.format("Place anomaly %s at %s%s",_InternalTranslate(self.display_name), SA_PlaceObject.GetPosStr(self), SA_PlaceObject.GetChecksStr(self))
+end
+
+function SA_SpawnAnomaly:SpawnObject()
+	return PlaceAnomaly{
+		display_name = self.display_name ~= "" and self.display_name or nil,
+		description = self.description ~= "" and self.description or nil,
+		tech_action = self.is_breakthrough and "breakthrough",
+		sequence = self.sequence,
+		sequence_list = self.sequence_list == "" and seq_player.seq_list.name or self.sequence_list,
+		expiration_time = self.expiration_time,
+		revealed = true,
+	}
+end
+
+----
+
 local wait_types = {
 	"Hours",
 	"Sols",
@@ -2481,7 +2496,7 @@ function SA_CallTradeRocket:Exec(seq_player, ip, seq, registers)
 	
 	local cargo = false
 	if self.display_name ~= "" then
-		cargo = { rocket_name = self.display_name }
+		cargo = { rocket_name = _InternalTranslate(self.display_name) }
 	end
 	
 	if self.description ~= "" then
@@ -2600,7 +2615,7 @@ function SA_CallRefugeeRocket:Exec(seq_player, ip, seq, registers)
 	
 	local cargo = {}
 	if self.display_name ~= "" then
-		cargo.rocket_name = self.display_name
+		cargo.rocket_name = _InternalTranslate(self.display_name)
 	end
 	
 	if self.description ~= "" then

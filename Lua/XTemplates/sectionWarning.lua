@@ -14,7 +14,16 @@ end,
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelText",
-			'Text', T{584, --[[XTemplate sectionWarning Text]] "<center><UIWarning>"},
+			'HAlign', "left",
+			'Text', T{584, --[[XTemplate sectionWarning Text]] "<UIWarning>"},
+		}),
+		PlaceObj('XTemplateCode', {
+			'run', function (self, parent, context)
+local background = parent.parent.idBackground
+background:SetImage("UI/CommonNew/warning.tga")
+background:SetFrameBox(box(0,3,0,3))
+background:SetMargins(box(0,0,0,0))
+end,
 		}),
 		}),
 })

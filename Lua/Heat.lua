@@ -324,3 +324,7 @@ function ColdSensitive:GetFreezeStatus()
 		return self:IsFreezing() and T{3875, "Freezing"} or ""
 	end
 end
+
+function ColdSensitive:CheatUnfreeze()
+	self:SetFrozen(false)
+end

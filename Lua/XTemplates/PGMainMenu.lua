@@ -51,10 +51,20 @@ end,
 			'Id', "idContent",
 		}, {
 			PlaceObj('XTemplateMode', {
+				'mode', "Empty",
+			}),
+			PlaceObj('XTemplateMode', {
+				'mode', "Achievements",
+			}, {
+				PlaceObj('XTemplateTemplate', {
+					'__template', "Achievements",
+				}),
+				}),
+			PlaceObj('XTemplateMode', {
 				'mode', "Main",
 			}, {
 				PlaceObj('XTemplateTemplate', {
-					'__template', "PGMenu",
+					'__template', "PGMenuNew",
 				}),
 				PlaceObj('XTemplateLayer', {
 					'__condition', function (parent, context) return Platform.durango and Durango.IsPlayerSigned(XPlayerActive) end,
@@ -65,7 +75,7 @@ end,
 				'mode', "NewGame",
 			}, {
 				PlaceObj('XTemplateTemplate', {
-					'__template', "PGMenu",
+					'__template', "PGMenuNew",
 				}),
 				PlaceObj('XTemplateLayer', {
 					'__condition', function (parent, context) return Platform.durango and Durango.IsPlayerSigned(XPlayerActive) end,
@@ -105,8 +115,7 @@ end,
 				'mode', "Tutorial",
 			}, {
 				PlaceObj('XTemplateTemplate', {
-					'__template', "PGTutorial",
-					'HostInParent', true,
+					'__template', "PGTutorialNew",
 				}),
 				}),
 			PlaceObj('XTemplateMode', {

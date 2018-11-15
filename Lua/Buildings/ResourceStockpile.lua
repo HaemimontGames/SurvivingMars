@@ -1048,6 +1048,10 @@ function SharedStorageBaseVisualOnly:RearrangeCubes(removed_cube_idx)
 	end
 end
 
+function SharedStorageBaseVisualOnly:DoesAcceptResource(resource)
+	return table.find(self.storable_resources, resource)
+end
+
 SharedStorageBaseVisualOnly.AddDepotResource = SharedStorageBaseVisualOnly.AddResource
 SharedStorageBaseVisualOnly.AddResourceAmount = SharedStorageBaseVisualOnly.AddResource
 SharedStorageBaseVisualOnly.SetResourceAmount = false --not impl.
@@ -1296,14 +1300,19 @@ end
 
 DefineClass.ResourceStockpileLR = {
 	__parents = { "ResourceStockpile", "ShuttleLanding" },
+	user_include_in_lrt = true,
 }
 
 function ResourceStockpileLR:GameInit()
-	LRManagerInstance:AddBuilding(self)
+	if self.user_include_in_lrt then
+		LRManagerInstance:AddBuilding(self)
+	end
 end
 
 function ResourceStockpileLR:Done()
-	LRManagerInstance:RemoveBuilding(self)
+	if self.user_include_in_lrt then
+		LRManagerInstance:RemoveBuilding(self)
+	end
 end
 -------------------------------------------------------------------------------------------------------------
 --helper, brute forces a place to create a new stock
@@ -1327,13 +1336,16 @@ function TryFindStockpileDumpSpot(q, r, angle, p_shape, hex_getter_override, for
 	local classes = StockpileDumpQueryClasses
 	local dir = HexAngleToDirection(angle)
 	local initial_q, initial_r = q, r
-	for i = 1,#p_shape do
+	local orig_height = terrain.GetHeight(HexToWorld(q, r))
+	local tolerance = const.PathMaxZTolerance
+	
+	for i = 1, #p_shape do
 		local dq, dr = p_shape[i]:xy()
 		local r_q, r_r = HexRotate(dq, dr, dir)
 		q = initial_q + r_q
 		r = initial_r + r_r
 		local x, y = HexToWorld(q, r)
-		if terrain.IsPassable(x, y) and not hex_getter(q, r)
+		if abs(terrain.GetHeight(x, y) - orig_height) <= tolerance  and terrain.IsPassable(x, y) and not hex_getter(q, r)
 		and not HexGetUnits(nil, nil, point(x, y), 0, true, filter, classes) then
 			return true, q, r
 		end

@@ -65,7 +65,7 @@ local passage_entites = {
 			turn = "PassageTransparentTurnPack",
 		},
 		
-		palette = "PassagesPack",
+		palette = { "dome_base", "pipes_metal", "pipes_metal", "pipes_metal" },-- "PassagesPack",
 	},
 	
 	Angular = {
@@ -81,21 +81,9 @@ local passage_entites = {
 			turn = "PassageTransparentTurnPack",
 		},
 		
-		palette = "PassagePack_01",
+		palette = { "dome_base", "pipes_metal", "pipes_metal", "pipes_metal" }, -- "PassagePack_01",
 	},
 }
-
-local function fill_in_palettes()
-	for k, v in pairs(passage_entites) do
-		if v.palette and type(v.palette) == "string" then
-			v.palette = EntityPalettes[v.palette] or v.palette
-		end
-	end
-end
-
-OnMsg.DataLoaded = fill_in_palettes
-OnMsg.Autorun = fill_in_palettes
-OnMsg.ChangeMap = fill_in_palettes
 
 local passage_skin_aliasing = {
 	default = "GenericPassageSkinName1",
@@ -125,7 +113,7 @@ function IsSolidPassageElement(self)
 	return self.dome or self.adjacent_dome or HexGetPassageRamp(self.q, self.r)
 end
 
-function GetPassageEntity(self, skin)
+function GetPassageEntityAndPalette(self, skin)
 	--should be safe to call with cell data rather then obj
 	skin = skin or "default"
 	skin = passage_entites[skin] and skin or 
@@ -138,7 +126,7 @@ function GetPassageEntity(self, skin)
 		k2 = is_str and "straight" or "turn"
 	end
 	
-	return passage_entites[skin][k1][k2], passage_entites[skin].palette
+	return passage_entites[skin][k1][k2], DecodePalette(passage_entites[skin].palette)
 end
 
 function GetPassageAngle(self)
@@ -180,6 +168,13 @@ function TestDomeBuildabilityForPassage(q, r, check_edge, check_road)
 		end
 	end
 	
+	if not dome then
+		dome = HexGridGetObject(ObjectGrid, q, r, "DomeInterior")
+		if dome then
+			dome = dome.dome
+			assert(dome) --dome interior with no dome.
+		end
+	end
 	--check entrance spots and dome state
 	if dome then
 		if dome.destroyed then
@@ -201,13 +196,8 @@ function TestDomeBuildabilityForPassage(q, r, check_edge, check_road)
 		end
 	end
 	
-	dome = HexGridGetObject(ObjectGrid, q, r, "DomeInterior")
-	
 	--this part checks for roads
 	if check_road and dome then
-		--inside dome
-		dome = dome.dome
-		assert(dome) --dome interior with no dome.
 		local dome_shape_no_roads = GetEntityBuildShape(dome:GetEntity())
 		local dq, dr = WorldToHex(dome)
 		local offset = point(WorldToHex(point(HexToWorld(q, r)) - dome:GetPos()))
@@ -232,6 +222,7 @@ DefineClass.PassageGridElement = {
 	enum_flags = { efApplyToGrids = false },
 	entity = "InvisibleObject",
 	display_name = T{8798, "Passage piece"},
+	display_name_pl = T{11676, "Passage pieces"},
 	connections = false,
 	is_tall = false,
 	dome = false,
@@ -485,7 +476,7 @@ function PassageGridElement:GameInit()
 end
 
 function PassageGridElement:UpdateVisuals()
-	local e, p = GetPassageEntity(self, self.passage_obj.skin_id)
+	local e, cm1, cm2, cm3, cm4 = GetPassageEntityAndPalette(self, self.passage_obj.skin_id)
 	if e and e ~= self:GetEntity() then
 		self:DestroyAttaches()
 		self:ChangeEntity(e)
@@ -498,9 +489,7 @@ function PassageGridElement:UpdateVisuals()
 	end
 	
 	if p then
-		ApplyToObjAndAttaches(self, function(o)
-			p:ApplyToObj(o)
-		end)
+		SetObjectPaletteRecursive(self, cm1, cm2, cm3, cm4)
 	end
 	
 	local a = GetPassageAngle(self)
@@ -1215,18 +1204,21 @@ function Passage:UpdateVisualsForAllElements()
 	ResumePassEdits("Passage:UpdateVisualsForAllElements")
 end
 
+local default_passage_palette = { "none", "none", "none", "none" }
+
 function Passage:GetSkins()
-	local skins = {}
+	local skins, palettes = {}, {}
 	
 	if #self.elements_under_construction <= 0 then
 		for skin, skin_data in pairs(passage_entites) do
 			if IsDlcAvailable(skin_data.dlc) then
 				table.insert(skins, skin)
+				table.insert(palettes, skin.palette or default_passage_palette)
 			end
 		end
 	end
 	
-	return skins
+	return skins, palettes
 end
 
 function Passage:GetNextSkinIdx(skins)
@@ -1238,7 +1230,7 @@ function Passage:GetNextSkinIdx(skins)
 	return skin_idx
 end
 
-function Passage:ChangeSkin(skin)
+function Passage:ChangeSkin(skin, palette)
 	self.skin_id = skin
 	self:Notify("UpdateVisualsForAllElements")
 end
@@ -1661,6 +1653,7 @@ DefineClass.PassageConstructionSite = {
 	place_stockpile = false,
 	is_construction_site = true,
 	display_name = PassageGridElement.display_name,
+	display_name_pl = PassageGridElement.display_name_pl,
 	rename_allowed = false,
 	priority = 2,
 	

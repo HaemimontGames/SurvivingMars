@@ -7,43 +7,40 @@ DefineClass.XVignetteOverlay =
 
 function XVignetteOverlay:Init()
 	XImage:new({
-		Angle = 16200,
-		Id = "idTop",
-		Image = "UI/Vignette_Blue.tga",
-		HAlign = "center",
-		VAlign = "top",
-	}, self)
-	XImage:new({
-		Angle = 10800,
-		Id = "idLeft",
-		Image = "UI/Vignette_Blue.tga",
+		Id = "idBottomLeft",
+		Image = "UI/Onscreen/onscreen_gradient.tga",
 		HAlign = "left",
-		VAlign = "center",
-	}, self)
-	XImage:new({
-		Id = "idRight",
-		Image = "UI/Vignette_Blue.tga",
-		HAlign = "right",
-		VAlign = "center",
-	}, self)
-	XImage:new({
-		Angle = 5400,
-		Id = "idBottom",
-		Image = "UI/Vignette_Blue.tga",
-		HAlign = "center",
 		VAlign = "bottom",
 	}, self)
-	self.idTop:SetTransparency(100)
-	self.idLeft:SetTransparency(100)
-	self.idRight:SetTransparency(100)
-	self.idBottom:SetTransparency(100)
+	XImage:new({
+		Id = "idBottomRight",
+		Image = "UI/Onscreen/onscreen_gradient.tga",
+		HAlign = "right",
+		VAlign = "bottom",
+		FlipX = true,
+	}, self)
+	XImage:new({
+		Id = "idTopLeft",
+		Image = "UI/Onscreen/onscreen_gradient.tga",
+		HAlign = "left",
+		VAlign = "top",
+		FlipY = true,
+	}, self)
+	XImage:new({
+		Id = "idTopRight",
+		Image = "UI/Onscreen/onscreen_gradient.tga",
+		HAlign = "right",
+		VAlign = "top",
+		FlipX = true,
+		FlipY = true,
+	}, self)
 end
 
 function XVignetteOverlay:SetImage(image)
-	self.idTop:SetImage(image)
-	self.idLeft:SetImage(image)
-	self.idRight:SetImage(image)
-	self.idBottom:SetImage(image)
+	self.idBottomLeft:SetImage(image)
+	self.idBottomRight:SetImage(image)
+	self.idTopLeft:SetImage(image)
+	self.idTopRight:SetImage(image)
 end
 
 function XVignetteOverlay:Pulse(vignette_pulse_duration)

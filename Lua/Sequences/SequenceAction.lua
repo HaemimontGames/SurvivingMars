@@ -380,6 +380,7 @@ function SA_WaitMessage:Exec(seq_player, ip, seq, registers)
 end
 
 function SA_WaitMessage:PopMessage(context, registers)
+	PlayFX("UIMenuNotificationStoryBit", "start")
 	WaitPopupNotification(self.preset, context)
 end
 

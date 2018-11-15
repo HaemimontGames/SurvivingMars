@@ -106,7 +106,9 @@ function StirlingGenerator:ToggleOpenedState(broadcast)
 	if broadcast then
 		local list = self.city.labels[self.class] or empty_table
 		for i, obj in ipairs(list) do
-			obj:SetOpenState(opened)
+			if obj:GetUIInteractionState() then
+				obj:SetOpenState(opened)
+			end	
 		end		
 	else
 		self:SetOpenState(opened)
@@ -126,4 +128,12 @@ end
 function StirlingGenerator:GetAdditionalProduction()
 	local optimal_production = self.electricity_production * self.production_factor_interacted / 100
 	return optimal_production - self.electricity.production
+end
+
+function StirlingGenerator:OnSkinChanged(skin, palette)
+	Building.OnSkinChanged(self, skin, palette)
+	if self:IsOpened() then
+		PlayFX("StirlingGenerator", "close", self)
+		PlayFX("StirlingGenerator", "open_start", self)
+	end
 end

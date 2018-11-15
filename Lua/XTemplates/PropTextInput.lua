@@ -15,13 +15,11 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "PropName",
 			'Dock', "left",
-			'DisabledTextColor', RGBA(140, 156, 178, 255),
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "PropValue",
 			'Margins', box(20, 0, 0, 0),
 			'Clip', true,
-			'DisabledTextColor', RGBA(221, 215, 170, 255),
 			'Translate', false,
 		}),
 		PlaceObj('XTemplateFunc', {

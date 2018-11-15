@@ -81,8 +81,7 @@ DefineClass.RCRover =
 	can_pulse_recharge = false,
 	siege_destro_pushed = false,
 
-	palettes = { "RCRover" },
-
+	palette = {"rover_accent","rover_base","rover_dark","none"},
 	
 	Getavailable_drone_prefabs = Building.Getavailable_drone_prefabs,
 	exit_drones_thread = false,
@@ -320,7 +319,7 @@ function RCRover:DroneExit(drone, skip_visuals)
 	end
 end
 
-function RCRover:OnSkinChanged(skin)
+function RCRover:OnSkinChanged(skin, palette)
 	local drone = self.guided_drone
 	if not drone then return end
 	
@@ -446,8 +445,13 @@ function RCRover:Siege(do_not_halt) --wip name
 				if battery <= g_Consts.DroneEmergencyPower then
 					cmd = battery <= 0 and "NoBattery" or "EmergencyPower"
 				end
+
 				if not self.drone_charged:IsDisabled() then
-					self.drone_charged:SetCommand(cmd)
+					if cmd == "NoBattery" then
+						self.drone_charged:UseBattery(0) --so setnobattery command is in 1 place
+					else
+						self.drone_charged:SetCommand(cmd)
+					end
 				end
 			end
 			self.drone_charged = false
@@ -543,14 +547,14 @@ function SavegameFixups.CleanStuckGuidedDrones()
 end
 
 function RCRover:CleanupGuidedDrones()
-	if self.guided_drone and not table.find(self.drones, self.guided_drone) then
+	if self.guided_drone and self.guided_drone.command ~= "DespawnAtHub" and not table.find(self.drones, self.guided_drone) then
 		print("RCRover: Guided drone has failed to clear")
 		self.guided_drone = false
 	end
 	
 	for i = #self.embarking_drones, 1, -1 do
 		local d = self.embarking_drones[i]
-		if not table.find(self.drones, d) then
+		if d.command ~= "DespawnAtHub" and not table.find(self.drones, d) then
 			print("RCRover: embarking_drones drone has failed to clear")
 			table.remove(self.embarking_drones, i)
 		end
@@ -978,7 +982,24 @@ function RCRover:AbandonAllDrones()
 end
 
 RCRover.OnDead = RCRover.AbandonAllDrones
-RCRover.OnDisappear = RCRover.AbandonAllDrones
+function RCRover:OnPreDisappear()
+	--abandon only drones that are currently outside
+	for i = #self.drones, 1, -1 do
+		local drone = self.drones[i]
+		if drone:GetParent() == nil then
+			drone:SetCommandCenter(false)
+			if not drone:IsDisabled() then
+				drone:SetCommand("WaitingCommand")
+			end
+			SelectionArrowRemove(drone)
+		end
+	end
+end
+
+function RCRover:GotoAndEmbark(rocket)
+	self:Unsiege()
+	BaseRover.GotoAndEmbark(self, rocket)
+end
 
 ----------------------------------------------------------------------------
 --                        Info panel
@@ -1101,7 +1122,7 @@ end
 
 function OnMsg.SelectedObjChange(obj, prev)
 	if IsKindOf(prev, "RCRover") then
-		WorkRadiusShownForRoverReasons = {} --when rover looses selection clean all other reasons, needed for when button corresponding handler doesn't fire.
+		WorkRadiusShownForRoverReasons = {} -- when rover loses selection clean all other reasons, needed for when button corresponding handler doesn't fire.
 		prev:ShowWorkRadius(false, "selected_and_sieged")
 	end
 	

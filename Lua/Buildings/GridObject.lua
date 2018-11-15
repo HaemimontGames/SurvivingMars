@@ -64,6 +64,11 @@ GlobalVar("SupplyGridConnections", function()
 	}
 end)
 
+GlobalVar("OverlaySupplyGrid", function()
+	if HexMapWidth == 0 or HexMapHeight == 0 then return false end
+	return NewGrid(HexMapWidth, HexMapHeight, 8, 0)
+end)
+
 --[[@@@
 @class GridObject
 class overview...

@@ -3,12 +3,6 @@ CreditContents = {
 company_name = Untranslated [[Haemimont Games]],
 
 Untranslated [[
-CREATIVE DIRECTOR
-
-Gabriel Dobrev
-
-
-
 LEAD DESIGNERS
 
 Boyan "Chimera" Ivanov
@@ -16,9 +10,10 @@ Boian "Blizzard" Spasov
 
 
 
-LEAD PROGRAMMER
+LEAD PROGRAMMERS
 
 Ivan-Assen Ivanov
+Svetoslav Genchev
 
 
 
@@ -67,6 +62,7 @@ DESIGNERS
 
 Ivan Grozev
 Momchil Dilov
+Radomir "Gadina" Mirchev
 Vladimir Pachev]],
 
 Untranslated [[
@@ -74,8 +70,8 @@ SENIOR PROGRAMMERS
 
 Alexander "Feanor" Savchovsky
 Ivaylo Todorov
+Ivko Stanilov
 Konstantin Konstantinov
-Svetoslav Genchev
 
 
 
@@ -86,9 +82,11 @@ Danko Jordanov
 Dimitar Trendafilov
 Filip Chorbadzhiev
 Maria Stanilova
+Nikolay Dionisov
 Nikolay Karashtranov
 Ralitsa Dimitrova
 Stefan Monov
+Valeriya Dyulgerova
 Vihar Bozadzhiev
 Yana Karashtranova
 Yavor Krastyovski
@@ -98,8 +96,6 @@ Yavor Krastyovski
 ADDITIONAL PROGRAMMERS
 
 Georgi Rakidov
-Ivko Stanilov
-Nikolay Dionisov
 ]],
 
 Untranslated [[
@@ -242,12 +238,13 @@ Florian Schwarzer
 LEAD PRODUCER
 
 Robin Cederholm
+Nikhat Ali
 
 
 
 PRODUCER
 
-Nikhat Ali
+Nils Hallberg
 
 
 
@@ -260,8 +257,21 @@ Jakob Munthe
 PRODUCT MARKETING MANAGER
 
 Sebastian Forsström
+Jakob Jorstedt
 Anusha Nayar
 Daniela Sjunnesson
+
+
+
+UI/UX
+
+Viktor Blanke
+
+
+
+HEAD OF MUSIC
+
+Tobias Gustavsson
 
 
 
@@ -289,6 +299,12 @@ Tobias Viklund
 
 
 
+DATA SCIENTIST
+
+Kayle Sneed
+
+
+
 SENIOR COMMUNITY MANAGER
 
 Susie McBeth
@@ -305,6 +321,13 @@ Andreas Walther
 MARKETING PRODUCER
 
 Marcus Herbertsson
+Adam Skarin
+
+
+
+PERFORMANCE MARKETING
+
+Stefan Wallin
 
 
 
@@ -362,25 +385,19 @@ PARADOX INTERACTIVE MANAGEMENT
 
 CEO
 
-Fredrik Wester
+Ebba Ljungerud
 
 
 
 CFO
 
-Andras Vajlok
-
-
-
-COO
-
-Susana Meza Graham
+Alexander Bricca
 
 
 
 CPO
 
-Johan Sjöberg
+Mattias Lilja
 
 
 
@@ -390,86 +407,69 @@ John Hargelid
 
 
 
-MANAGER OF PARADOX STUDIO GROUP
-
-Mattias Lilja
-
-
-
-VICE PRESIDENT BUSINESS DEVELOPMENT
-
-Shams Jorjani
-
-
-
-CMO
-
-Daniela Sjunnesson
-
-
-PRODUCTS
-
-CHIEF PRODUCT OFFICER
-
-Johan Sjöberg
-
-
-
 PRODUCT MANAGEMENT TEAM
+
+VICE PRESIDENT PRODUCT MANAGEMENT
+
+Julien Wéra
+
+
 
 PRODUCT MANAGERS
 
 Marco Behrmann
 Bevan Davies
 Stefan Eld
-Tomas Härenstam
 Jakob Munthe
 Sandra Neudinger
-
-
-
-ASSOCIATE PRODUCT MANAGERS
-
+Florian Schwarzer
 Gustav Groth
 
 
 
 PRODUCTION TEAM
 
+VICE PRESIDENT PRODUCTION
+
+Jörgen Carlström
+
+
+
 PRODUCTION MANAGER
 
-Jörgen Björklund
+Robin Cederholm
 
 
 
 SENIOR PRODUCERS
 
 Staffan Berglén
-Florian Schwarzer
+Joseph Borthwick
 
 
 
 PRODUCERS
 
-Robin Cederholm
-Peter Cornelius
+Nikhat Ali
+Nils Hallberg
+Tristan Lefranc
 Niklas Lundström
 Ashkan Namousi
+Loke Norman
+Christian Schlütter
+Angelica Uhlan
 
 
 
 ASSOCIATE PRODUCERS
 
-Nikhat Ali
-Angelica Uhlan
+Roeland Weckx
 
 
 
-PRODUCT VERIFICATION
+RELEASE MANAGER
 
-VP PRODUCT VERIFICATION
-
-Doru Apreotesei
+Amelia White
 
 
 
@@ -481,30 +481,13 @@ Brett Scheinert
 
 
 
-USER RESEARCH TEAM
+TECH SPECIALIST
 
-USER RESEARCH TEAM LEAD
-
-Jean-Luc Potte
+Luiz Santos
 
 
 
-USER RESEARCHERS
-
-Jonathan Bonillas
-Henrik Edlund
-Hanna Löhman
-Tobias Viklund
-
-
-
-USER RESEARCH PARTICIPANT COORDINATOR
-
-Anna Ström
-
-
-
-QA TEAM
+QA TEAM 
 
 SENIOR QA MANAGER
 
@@ -512,96 +495,125 @@ Artur Foxander
 
 
 
-QA MANAGER
+SENIOR QA TESTERS
 
-Loke Norman
+Maciej Mazurek
 
 
 
 EXPERIENCED QA TESTERS
 
-Pontus Anehäll
 Niklas Ivarsson
-Maciej Mazurek
+Carlos Muñoz Diaz
+Kimberly Stinson
 
 
-
+ 
 QA TESTERS
 
 Emil Andersson
-Carlos Muñoz Díaz
-Jonathan Cole
 Erik Elgerot
-Kimberly Stinson
-Roeland Weckx
 
 
 
-MARKETING
+JUNIOR QA TESTER
 
-CHIEF MARKETING OFFICER
-
-Daniela Sjunnesson
+Anders Ekendahl
 
 
 
-CREATIVE DIRECTOR OF MARKETING
+QA COMPATIBILITY SPECIALIST
 
-Steven K Wells
-
-
-
-PRODUCT MARKETING MANAGERS
-
-Sebastian Forsström
-Sean Greaney
-Filip Sirc
-Malin Söderberg
+Jonathan Cole
 
 
 
-CONTENT & COMMUNICATIONS MANAGER
+MARKETING 
+
+VICE PRESIDENT MARKETING
 
 Daniel Goldberg
 
 
 
-CONTENT PRODUCERS
+PRODUCT MARKETING MANAGERS
 
+Filip Sirc
+Malin Söderberg
+Sebastian Forsström
+Sean Greaney
+Luca Kling
+Jakob Jorstedt
+Christian Daflos
+
+
+
+CREATIVE & CONTENT PRODUCTION 
+
+Steven K Wells
 Anders Carlsson
+Matias Civit
 Max Collin
 Marcus Herbertsson
+Niklas Johansson
 Adam Skarin
 
 
+ 
+EVENTS 
 
-EVENT PRODUCTION MANAGER
-
-Veronica Gunlycke
 Paula Thelin
+Veronica Gunlycke
 
 
 
-COMMUNITY MANAGERS
+PERFORMANCE MARKETING
 
-Zeke Lugmair
+Luciana Oliveira
+Michiel Van Loo
+Stefan Wallin
+Vilius Lampickas
+
+
+
+COMMUNITY MANAGEMENT
+
 Susie McBeth
+Dale Emasiri
+Zeke Lugmair
+Emma Kujansuu
+Björn Blomberg
+Rodrigue Delrue
 
 
 
-FORUM AND SUPPORT MANAGER
+CUSTOMER SUPPORT
 
-Christian Arvidsson
+Christian Arvidsson 
 
 
 
-COMMERCE MANAGER
+PUBLIC RELATIONS
+
+Jesse Henning
+
+
+
+CUSTOMER RELATIONSHIP MANAGEMENT & COMMERCE
+
+PRODUCT MANAGER - COMMERCE
 
 Mats Wall
 
 
 
-DIRECT SALES DEVELOPER
+PRODUCT MANAGER - CRM & LOYALTY
+
+Emma Jonnerhag
+
+
+
+CONTENT MANAGER
 
 Daniel Lagergren
 
@@ -613,94 +625,207 @@ David Zardini
 
 
 
-CRM & LOYALTY MANAGER
+PROJECT MANAGER
 
-Emma Jonnerhag
-
-
-
-CRM SPECIALIST
-
-Justyna Kaletka
+Katherine Traver
 
 
 
-USER ACQUISITION MANAGER
+DISTRIBUTION MANAGER
 
-Kenneth Mei
-Luciana Oliviera
-
+Anders Törlind
 
 
-PARTNER MANAGER
+
+MARKETING AUTOMATION SPECIALIST
+
+Alexander Nordkvist
+
+
+
+PRODUCT INSIGHTS
+
+PRODUCT INSIGHTS MANAGER
+
+Mathias von Plato
+
+
+
+USER RESEARCH MANAGER
+
+Jean-Luc Potte
+
+
+
+USER RESEARCHERS
+
+Henrik Edlund
+Tobias Viklund
+Jonathan Bonillas
+Hanna Löhman
+
+
+
+USER RESEARCH ADMINISTRATOR
+
+Anna Ström
+
+
+
+DATA SCIENTISTS
+
+Kamilla Csonka
+Alexander Hofverberg
+Steacy Mcilwham
+Kayle Sneed
+
+Viktor Stenström
+
+
+
+PARTNER MANAGEMENT 
+
+VICE PRESIDENT SALES
 
 Johan Bolin
 
 
 
-PARTNER ACCOUNT MANAGER
+PARTNER ACCOUNT MANAGERS
 
 Fang Chen
 Viktor Stadler
+Andreas Walther
+James Gardiner
+
+
+
+STORE COORDINATOR
+
+Josef Öst
+
+
+
+LEGACY SALES MANAGER
+
+Alan Mahmodian
 
 
 
 BUSINESS DEVELOPMENT
 
-BUSINESS DEVELOPER
+VICE PRESIDENT BUSINESS DEVELOPMENT
+
+Shams Jorjani
+
+
+
+BUSINESS DEVELOPERS 
+
+ACQUISITION
 
 Nils Brolin
+Robert Przybylski
+Maria Cornelius
+
+
+
+NEW BUSINESS
+
 Magnus Lysell
+Mats Karlöf
 
 
 
-ACQUISITION ASSOCIATE
+HEAD OF MUSIC 
 
-Hanna Lindell
-
-
-
-DEVOPS
-
-John Adolfsson
-Alexander Altanis
-Mikael Berg
-Simon Haggren
-Christian Rothe
-Anders Törlind
-Tomas Veršekys
-Anton Wermelin
+Tobias Gustavsson
 
 
 
-WEB DEVELOPER
+DEVOPS & DATA
 
-Johan Li
-
-
-
-PROJECT MANAGER
+PLATFORM DIRECTOR
 
 Kristian Laustsen
 
 
 
-ANALYTICS
+TECHNICAL DIRECTOR
 
-Magnus Eriksson
-Johanna Uddståhl-Friberg
-Alexander Hofverberg
-Steacy Mcilwham
-Niklas Nordansjö
+Enzo Martin
+
+
+
+DATA MANAGER
+
 Natalie Selin
-Mathias von Plato
 
 
 
-IT
+PROGRAMMING MANAGER
 
-Johannes Ek
+Ciaran Kelly
+
+
+
+PROJECT MANAGER
+
+Ida Hedberg
+
+
+
+SENIOR SOFTWARE ENGINEER
+
+Daan Broekhof
+Robert Brewitz
+Dirk de la Hunt
+
+
+
+SENIOR AUTOMATION ENGINEER
+
+Todd Daugherty
+Christian Rothe
+
+
+
+AUTOMATION ENGINEER
+
+Matthew Hines
+
+
+
+SOFTWARE ENGINEER
+
+John Adolfsson
+Alexander Altanis
+Ellen Andersson
+Ales Bolka
+Mikael Berg
+Virginia Carrasco
+William Goh
+Simon Haggren
+Oleg Lindvin
+Matthew Price
+Tomas Veršekys
+Anton Wermelin
+
+
+
+DATA SCIENTISTS
+
+Alessandro Festante
+Olof Lundberg
+Anabel Silva Rojas
+Per Spetz
+    
+
+
+IT 
+
 Thomas Ekholm
+Johannes Ek
 Richard Lindkvist
 Rick Wacey
 
@@ -712,13 +837,52 @@ FINANCE
 
 Gabriel Andersson
 Angelica Halme
-Sandra Ivarsson
 
 
 
 LEGAL
 
-Juliette Auverny-Bennetot]],
+Juliette Auverny-Bennetot
+Måns Byröd
+
+
+
+MOBILE & EXPERIMENT TEAM
+
+SENIOR VICE PRESIDENT MOBILE
+
+Kim Nordström
+
+
+
+PRODUCT MANAGERS MOBILE
+
+Simon Stackmann
+Kenneth Mei
+
+
+
+PRODUCT MANAGER EXPERIMENT
+
+Jörgen Björklund
+
+
+
+MOBILE PRODUCER
+
+Martin Park
+
+
+
+MOBILE MARKETING PRODUCER
+
+Simon Zickbauer
+
+
+
+JUNIOR USER ACQUISITION MANAGER MOBILE
+
+Julija Laskovska]],
 },
 
 {
@@ -850,7 +1014,17 @@ Maciej Rokita
 
 IT MANAGER
 
-Tomasz Dziedzic
+Tomasz Dziedzic]],
+},
+
+{
+company_name = Untranslated [[Localization By Most Games]],
+
+Untranslated [[
+Maria Purtova
+Alexey Kiselev
+Vladislav Ryzhkov
+Slava Erofeev
 
 
 

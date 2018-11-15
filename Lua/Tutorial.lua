@@ -143,6 +143,19 @@ function TutorialCleanup()
 	end
 end
 
+function CountCompletedTutorials()
+  local completed = AccountStorage and AccountStorage.CompletedTutorials 
+  local count = 0
+  for _, def in pairs(completed) do
+	count = count + 1
+  end
+  return count
+end
+
+function CountTotalTutorials()
+	return #Presets.TutorialPreset.Default
+end
+
 DefineClass.TutorialUIArrow = {
 	__parents = { "XPopup" },
 	Background = RGBA(0, 0, 0, 0),

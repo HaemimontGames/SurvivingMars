@@ -14,6 +14,8 @@ DefineClass.Cargo = {
 			editor = "number", default = 100000000, scale = "mil", step = 10000000, min = 0, },
 		{ id = "pack", name = "Pack", 
 			editor = "number", default = 1, min = 1, },
+		{ id = "max", name = "Max", 
+			editor = "number", default = 2147483647, },
 		{ id = "kg", name = "Weight (kg)", 
 			editor = "number", default = 1000, min = 0, },
 		{ id = "locked", name = "Locked", 
@@ -114,11 +116,109 @@ end
 function Challenge:GetCompletedText()
 	local completed = self:Completed()
 	if completed and completed.time < self.time_perfected then
-		return T{10919, "<newline>Perfected in <sols> Sols", sols = completed.time / const.DayDuration, score = completed.score }
+		return T{10919, "<newline>Perfected in <sols> Sols", sols = 1 + completed.time / const.DayDuration, score = completed.score }
 	elseif completed then
-		return T{10920, "<newline>Completed in <sols> Sols", sols = completed.time / const.DayDuration, score = completed.score }
+		return T{10920, "<newline>Completed in <sols> Sols", sols = 1 + completed.time / const.DayDuration, score = completed.score }
 	end
 	return ""
+end
+
+UndefineClass('ColonyColorScheme')
+DefineClass.ColonyColorScheme = {
+	__parents = { "Preset", },
+	properties = {
+		{ category = "Preset", id = "display_name", name = "Name", 
+			editor = "text", default = false, translate = true, },
+		{ category = "Outside", id = "outside_base", 
+			editor = "material", default = 2215649344, },
+		{ category = "Outside", id = "outside_metal", 
+			editor = "material", default = 2215649344, },
+		{ category = "Outside", id = "outside_dark", 
+			editor = "material", default = 2215649344, },
+		{ category = "Outside", id = "outside_accent_1", 
+			editor = "material", default = 2215649344, },
+		{ category = "Outside", id = "outside_accent_2", 
+			editor = "material", default = 2215649344, },
+		{ category = "Inside", id = "outside_accent_factory", 
+			editor = "material", default = 2215649344, },
+		{ category = "Mining", id = "mining_base", 
+			editor = "material", default = 2215649344, },
+		{ category = "Mining", id = "mining_accent_1", 
+			editor = "material", default = 2215649344, },
+		{ category = "Electro", id = "electro_base", 
+			editor = "material", default = 2215649344, },
+		{ category = "Electro", id = "cables_base", 
+			editor = "material", default = 2215649344, },
+		{ category = "Electro", id = "electro_accent_1", 
+			editor = "material", default = 2215649344, },
+		{ category = "Electro", id = "electro_accent_2", 
+			editor = "material", default = 2215649344, },
+		{ category = "Life", id = "life_base", 
+			editor = "material", default = 2215649344, },
+		{ category = "Life", id = "pipes_base", 
+			editor = "material", default = 2215649344, },
+		{ category = "Life", id = "pipes_metal", 
+			editor = "material", default = 2215649344, },
+		{ category = "Life", id = "life_accent_1", 
+			editor = "material", default = 2215649344, },
+		{ category = "Vehicles", id = "rover_base", 
+			editor = "material", default = 2215649344, },
+		{ category = "Vehicles", id = "rover_accent", 
+			editor = "material", default = 2215649344, },
+		{ category = "Vehicles", id = "rover_dark", 
+			editor = "material", default = 2215649344, },
+		{ category = "Vehicles", id = "rocket_base", 
+			editor = "material", default = 2215649344, },
+		{ category = "Vehicles", id = "rocket_accent", 
+			editor = "material", default = 2215649344, },
+		{ category = "Inside", id = "dome_base", 
+			editor = "material", default = 2215649344, },
+		{ category = "Inside", id = "inside_base", 
+			editor = "material", default = 2215649344, },
+		{ category = "Inside", id = "inside_metal", 
+			editor = "material", default = 2215649344, },
+		{ category = "Inside", id = "inside_accent_housing", 
+			editor = "material", default = 2215649344, },
+		{ category = "Inside", id = "inside_accent_medical", 
+			editor = "material", default = 2215649344, },
+		{ category = "Inside", id = "inside_accent_food", 
+			editor = "material", default = 2215649344, },
+		{ category = "Inside", id = "inside_wood", 
+			editor = "material", default = 2215649344, },
+		{ category = "Inside", id = "inside_accent_service", 
+			editor = "material", default = 2215649344, },
+		{ category = "Inside", id = "inside_accent_research", 
+			editor = "material", default = 2215649344, },
+		{ category = "Inside", id = "inside_accent_factory", 
+			editor = "material", default = 2215649344, },
+		{ category = "Inside", id = "inside_accent_1", 
+			editor = "material", default = 2215649344, },
+		{ category = "Inside", id = "inside_accent_2", 
+			editor = "material", default = 2215649344, },
+		{ category = "General", id = "none", 
+			editor = "material", default = 2215649344, read_only = true, no_edit = true, },
+	},
+	HasSortKey = true,
+	GlobalMap = "ColonyColorSchemes",
+	EditorMenubarName = "Colony Color Schemes",
+	EditorMenubar = "Editors.Art",
+}
+
+DefineModItemPreset("ColonyColorScheme")
+
+function ColonyColorScheme:OnEditorSetProperty(prop_id)
+	ReapplyPalettes()
+end
+
+function ColonyColorScheme:OnEditorSelect(selection)
+	OverrideColonyColorScheme(selection and self.id or false)
+end
+
+----- ColonyColorScheme 
+
+function ModItemColonyColorScheme:OnEditorSelect(...)
+	ModItem.OnEditorSelect(self, ...)
+	ColonyColorScheme.OnEditorSelect(self, ...)
 end
 
 UndefineClass('ColonyControlCenterCategory')
@@ -150,6 +250,8 @@ DefineClass.CommanderProfilePreset = {
 			editor = "number", default = 0, },
 		{ category = "General", id = "effect", name = "Description", 
 			editor = "text", default = false, translate = true, lines = 4, },
+		{ category = "General", id = "new_in", name = "New In", help = "The version, in which this commander profile was introduced", 
+			editor = "combo", default = false, items = function (self) return DlcComboItems() end, },
 		{ category = "General", id = "filter", name = "Filter", 
 			editor = "expression", default = function (self) return true end, },
 		{ category = "General", id = "anomaly_bonus_breakthrough", name = "Bonus Breakthrough Anomalies", 
@@ -309,6 +411,8 @@ DefineClass.GameRules = {
 			editor = "number", default = 0, },
 		{ category = "General", id = "param1_desc", 
 			editor = "text", default = false, },
+		{ category = "General", id = "new_in", name = "New In", help = "The version, in which this game rule was introduced", 
+			editor = "combo", default = false, items = function (self) return DlcComboItems() end, },
 	},
 	HasGroups = false,
 	HasSortKey = true,
@@ -327,14 +431,14 @@ DefineClass.MissionLogoPreset = {
 	properties = {
 		{ id = "entity_name", name = "Entity Name", 
 			editor = "text", default = "", },
-		{ id = "decal_entity", name = "Decal Mod Entity", 
-			editor = "text", default = "", },
 		{ id = "image", name = "UI File", 
 			editor = "text", default = "", },
 		{ id = "display_name", name = "Display Name", 
 			editor = "text", default = false, translate = true, },
 		{ id = "filter", name = "Filter", 
 			editor = "expression", default = function (self) return true end, },
+		{ category = "General", id = "new_in", name = "New In", help = "The version, in which this logo was introduced", 
+			editor = "combo", default = false, items = function (self) return DlcComboItems() end, },
 	},
 	HasGroups = false,
 	HasSortKey = true,
@@ -353,6 +457,8 @@ DefineClass.MissionSponsorPreset = {
 	properties = {
 		{ category = "General", id = "display_name", name = "Display Name", 
 			editor = "text", default = false, translate = true, },
+		{ id = "colony_color_scheme", name = "Colony Color Scheme", 
+			editor = "choice", default = "default", items = PresetsCombo("ColonyColorScheme"), },
 		{ category = "General", id = "challenge_mod", name = "Challenge Mod (%)", 
 			editor = "number", default = 0, },
 		{ category = "General", id = "funding", name = "Starting Funding (M)", 
@@ -369,6 +475,8 @@ DefineClass.MissionSponsorPreset = {
 			editor = "number", default = 2, },
 		{ category = "General", id = "rocket_price", name = "Rocket price (M)", help = "Specify 0 to disable buying", 
 			editor = "number", default = 3000000000, scale = "mil", min = 0, },
+		{ category = "General", id = "pod_price", name = "Pod price (M)", 
+			editor = "number", default = 100000000, scale = "mil", min = 0, },
 		{ category = "General", id = "applicants_price", name = "Applicants price (M)", help = "Specify 0 to disable buying", 
 			editor = "number", default = 0, scale = "mil", min = 0, },
 		{ category = "General", id = "initial_techs_unlocked", name = "Starting Techs to research", help = "Number of initially available Techs to research", 
@@ -451,12 +559,10 @@ end, },
 			editor = "combo", default = "", items = function (self) return TechCombo() end, },
 		{ category = "General", id = "difficulty", name = "Difficulty", 
 			editor = "text", default = T{424227828326, "Normal"}, translate = true, },
-		{ category = "Mission Goal (legacy)", id = "goal", name = "Goal", 
-			editor = "combo", default = "", items = function (self) return ClassDescendantsCombo("MissionGoal") end, },
-		{ category = "Mission Goal (legacy)", id = "goal_timeout", name = "Timeout (Sols)", 
-			editor = "number", default = 100, min = 1, },
-		{ category = "Mission Goal (legacy)", id = "goal_target", name = "Target", 
-			editor = "number", default = 0, },
+		{ category = "Rockets", id = "pod_class", name = "Pod Class", 
+			editor = "combo", default = false, items = function (self) return PodsComboItems end, },
+		{ category = "General", id = "new_in", name = "New In", help = "The version, in which this sponsor was introduced", 
+			editor = "combo", default = false, items = function (self) return DlcComboItems() end, },
 	},
 	HasGroups = false,
 	HasSortKey = true,
@@ -491,7 +597,18 @@ function MissionSponsorPreset:GetDynamicProperties(properties)
 			group = cargo.group,
 		}
 	end, self, properties)
-	
+	if not self:IsKindOf("ModItemMissionSponsorPreset") then
+		for i = 1, 5 do
+			local category = "Goal "..i
+			properties[#properties + 1] = { category = category, id = "sponsor_goal_"..i, name = T{10066, "Sponsor Goal <num>", num = i}, editor = "combo", default = i == 1 and "OldMissionEvaluation" or false, items = function (self) return SponsorGoalsCombo() end, }
+			properties[#properties + 1] = { category = category, id = string.format("goal_%d_param_1",i), name = T{3904, "Param 1"}, editor = "text", default = false, }
+			properties[#properties + 1] = { category = category, id = string.format("goal_%d_param_2",i), name = T{3906, "Param 2"}, editor = "text", default = false, }
+			properties[#properties + 1] = { category = category, id = string.format("goal_%d_param_3",i), name = T{3908, "Param 3"}, editor = "text", default = false, }
+			properties[#properties + 1] = { category = category, id = "goal_image_"..i, name = T{10067, "Goal Image"}, editor = "browse", default = "", }
+			properties[#properties + 1] = { category = category, id = "goal_pin_image_"..i, name = T{11654, "Goal Pin Image"}, editor = "browse", default = "", }
+			properties[#properties + 1] = { category = category, id = "reward_effect_"..i, name = T{10068, "Reward"}, editor = "nested_obj", base_class = "Effect", auto_expand = false, default = false, }
+		end
+	end
 	return properties
 end
 
@@ -618,6 +735,50 @@ function PhotoFilterPreset:GetShaderDescriptor()
 	}
 end
 
+UndefineClass('PlanetaryAnomalyDescription')
+DefineClass.PlanetaryAnomalyDescription = {
+	__parents = { "Preset", },
+	properties = {
+		{ id = "description", name = "Description Text", 
+			editor = "text", default = false, translate = true, },
+		{ id = "reward_type", name = "Reward", 
+			editor = "combo", default = "", items = function (self) return PlaneteryAnomalyRewardTypeCombo end, },
+		{ id = "requirement_type", name = "Requirement", 
+			editor = "combo", default = "", items = function (self) return PlaneteryAnomalyRequirementTypeCombo end, },
+		{ id = "reward_resource", name = "Reward Resource", 
+			editor = "combo", default = "", 
+			no_edit = function(self) return self.reward_type ~= "resources" end, items = function (self) return PlaneteryAnomalyRewardResourceCombo end, },
+		{ id = "req_specialization", name = "Required Specialization", 
+			editor = "combo", default = false, 
+			no_edit = function(self) return self.requirement_type ~= "specialists" end, items = function (self) return ColonistSpecializationCombo end, },
+		{ id = "condition", name = "Additional Condition", 
+			editor = "func", default = function (self, anomaly)
+return true
+end, params = "self, anomaly", },
+		{ id = "IsApplicable", 
+			editor = "func", default = function (self, anomaly)
+local a = anomaly
+local rt = self.reward_type
+if rt ~= "" and rt ~= a.reward then
+	return false
+end
+if rt == "resources" and self.reward_resource ~= "" and self.reward_resource ~= a.reward_resource then
+	return false
+end
+local rt, rs = self.requirement_type, self.req_specialization
+if rt ~= "" and rt ~= a.requirement_type then
+	return false
+end
+if rt == "specialists" and rs and rs ~= a.requirements.crew_specialization  then
+	return false 
+end
+return self:condition(a)
+end, dont_save = true, no_edit = true, params = "self, anomaly", },
+	},
+	EditorMenubarName = "",
+	EditorMenubar = "Editors.Game",
+}
+
 UndefineClass('PopupNotificationPreset')
 DefineClass.PopupNotificationPreset = {
 	__parents = { "Preset", },
@@ -636,6 +797,8 @@ DefineClass.PopupNotificationPreset = {
 			editor = "browse", default = "", folder = "UI", },
 		{ id = "start_minimized", 
 			editor = "bool", default = true, },
+		{ id = "no_ccc_button", 
+			editor = "bool", default = false, },
 		{ id = "validate_context", help = "Periodically validates the context of the OnScreenNotification (only used when start_minimized == true)", 
 			editor = "func", default = false, params = "context", },
 		{ id = "choice1", name = "Choice 1", 
@@ -714,6 +877,22 @@ DefineClass.RadioStationPreset = {
 function RadioStationPreset:GetTracksFolder()
 	return self.folder
 end
+
+UndefineClass('SponsorGoals')
+DefineClass.SponsorGoals = {
+	__parents = { "Preset", },
+	properties = {
+		{ id = "description", name = "Description", 
+			editor = "text", default = false, translate = true, lines = 2, },
+		{ category = "General", id = "Completed", name = "Completed", 
+			editor = "func", default = function (self, state,  param1, param2, param3)
+return true
+end, params = "self, state,  param1, param2, param3", },
+	},
+	GlobalMap = "SponsorGoalsMap",
+	EditorMenubarName = "Sponsor Goals",
+	EditorMenubar = "Editors.Game",
+}
 
 UndefineClass('TechFieldPreset')
 DefineClass.TechFieldPreset = {
@@ -981,12 +1160,16 @@ DefineClass.TutorialPreset = {
 	properties = {
 		{ id = "display_name", name = "Display Name", 
 			editor = "text", default = false, translate = true, },
+		{ id = "pregame_title", name = "PreGame menu title", 
+			editor = "text", default = false, translate = true, },
 		{ id = "description", name = "Description", 
 			editor = "text", default = false, translate = true, },
 		{ id = "map", name = "Map", 
 			editor = "text", default = false, },
 		{ id = "name", name = "Name", 
 			editor = "text", default = false, },
+		{ id = "image", name = "Image", help = "Pregame button image", 
+			editor = "browse", default = false, folder = "UI/CommonNew/", image_preview_size = 100, },
 	},
 	EditorMenubarName = "Tutorials",
 	EditorMenubar = "Editors.GameUI",

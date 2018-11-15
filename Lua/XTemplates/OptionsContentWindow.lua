@@ -5,19 +5,21 @@ PlaceObj('XTemplate', {
 	group = "PreGame",
 	id = "OptionsContentWindow",
 	PlaceObj('XTemplateWindow', {
-		'HAlign', "right",
+		'HAlign', "left",
 		'MinWidth', 550,
 		'MinHeight', 550,
 	}, {
 		PlaceObj('XTemplateWindow', {
-			'Margins', box(0, 40, 0, 40),
+			'Margins', box(60, 40, 0, 40),
 			'Dock', "top",
 		}, {
 			PlaceObj('XTemplateWindow', {
 				'__class', "XContentTemplateList",
 				'Id', "idList",
+				'Margins', box(39, 0, 0, 0),
 				'BorderWidth', 0,
-				'LayoutVSpacing', 16,
+				'Padding', box(0, 0, 0, 0),
+				'LayoutVSpacing', 10,
 				'UniformRowHeight', true,
 				'Clip', false,
 				'Background', RGBA(0, 0, 0, 0),
@@ -34,7 +36,7 @@ PlaceObj('XTemplate', {
 						'run', function (self, parent, context)
 local title = T{1131, --[[XTemplate OptionsDlg Title]] "OPTIONS"}
 if GameState.gameplay then
-	parent:ResolveId("idTitle"):SetText(title)
+	parent:ResolveId("idTitle"):SetTitle(title)
 else
 	parent:ResolveId("idTitle"):SetTitle(title)
 end
@@ -48,8 +50,6 @@ end,
 					}, {
 						PlaceObj('XTemplateTemplate', {
 							'__template', "MenuEntrySmall",
-							'Padding', box(0, 0, 0, 0),
-							'HAlign', "right",
 							'OnPress', function (self, gamepad)
 if self.context.run and type(self.context.run) == "function" then
 	self.context.run()
@@ -59,6 +59,7 @@ else
 	SetDialogMode(self, "properties", self.context)
 end
 end,
+							'TextStyle', "ListItem3",
 							'Text', T{526116656618, --[[XTemplate OptionsContentWindow Text]] "<display_name>"},
 						}),
 						}),
@@ -78,7 +79,7 @@ end,
 						'run', function (self, parent, context)
 local title = GetDialogModeParam(parent).caps_name
 if GameState.gameplay then
-	parent:ResolveId("idTitle"):SetText(title)
+	parent:ResolveId("idTitle"):SetTitle(title)
 else
 	parent:ResolveId("idTitle"):SetTitle(title)
 end
@@ -94,14 +95,17 @@ end,
 							'__template', "PropEntry",
 						}, {
 							PlaceObj('XTemplateWindow', {
-								'__class', "XImage",
+								'__class', "XFrame",
 								'Id', "idRollover",
 								'ZOrder', 0,
-								'Margins', box(-60, 0, -60, -6),
+								'Margins', box(-35, -15, 0, -5),
 								'Dock', "box",
+								'HAlign', "left",
+								'MinWidth', 448,
 								'Visible', false,
-								'Image', "UI/Common/bm_buildings_pad.tga",
-								'ImageFit', "stretch",
+								'Image', "UI/CommonNew/pg_selection.tga",
+								'FrameBox', box(50, 0, 178, 0),
+								'TileFrame', true,
 							}),
 							}),
 						}),
@@ -114,6 +118,7 @@ end,
 					}, {
 						PlaceObj('XTemplateTemplate', {
 							'__template', "PropValue",
+							'TextStyle', "ListItem3",
 						}),
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
@@ -121,14 +126,17 @@ parent.idValue:SetText(Platform.ps4 and T{7874, "Wireless Controller Layout"} or
 end,
 						}),
 						PlaceObj('XTemplateWindow', {
-							'__class', "XImage",
+							'__class', "XFrame",
 							'Id', "idRollover",
 							'ZOrder', 0,
-							'Margins', box(-60, 0, -60, -6),
+							'Margins', box(-35, -15, 0, -5),
 							'Dock', "box",
+							'HAlign', "left",
+							'MinWidth', 448,
 							'Visible', false,
-							'Image', "UI/Common/bm_buildings_pad.tga",
-							'ImageFit', "stretch",
+							'Image', "UI/CommonNew/pg_selection.tga",
+							'FrameBox', box(50, 0, 178, 0),
+							'TileFrame', true,
 						}),
 						PlaceObj('XTemplateFunc', {
 							'name', "OnMouseButtonDown(self, pos, button)",
@@ -156,6 +164,28 @@ end
 end,
 						}),
 						}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "cancelOptions",
+						'ActionName', T{5450, --[[XTemplate OptionsContentWindow ActionName]] "CANCEL"},
+						'ActionToolbar', "ActionBar",
+						'ActionShortcut', "Escape",
+						'ActionGamepad', "ButtonB",
+						'OnAction', function (self, host, source)
+CancelOptions(host)
+end,
+						'__condition', function (parent, context) return GetDialogModeParam(parent).id ~= "Display" end,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "cancelDisplayOptions",
+						'ActionName', T{5450, --[[XTemplate OptionsContentWindow ActionName]] "CANCEL"},
+						'ActionToolbar', "ActionBar",
+						'ActionShortcut', "Escape",
+						'ActionGamepad', "ButtonB",
+						'OnAction', function (self, host, source)
+CancelDisplayOptions(host)
+end,
+						'__condition', function (parent, context) return GetDialogModeParam(parent).id == "Display" end,
+					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "autoDetect",
 						'ActionName', T{5470, --[[XTemplate OptionsContentWindow ActionName]] "AUTO DETECT"},
@@ -213,28 +243,6 @@ ApplyDisplayOptions(host)
 end,
 						'__condition', function (parent, context) return GetDialogModeParam(parent).id == "Display" end,
 					}),
-					PlaceObj('XTemplateAction', {
-						'ActionId', "cancelOptions",
-						'ActionName', T{5450, --[[XTemplate OptionsContentWindow ActionName]] "CANCEL"},
-						'ActionToolbar', "ActionBar",
-						'ActionShortcut', "Escape",
-						'ActionGamepad', "ButtonB",
-						'OnAction', function (self, host, source)
-CancelOptions(host)
-end,
-						'__condition', function (parent, context) return GetDialogModeParam(parent).id ~= "Display" end,
-					}),
-					PlaceObj('XTemplateAction', {
-						'ActionId', "cancelDisplayOptions",
-						'ActionName', T{5450, --[[XTemplate OptionsContentWindow ActionName]] "CANCEL"},
-						'ActionToolbar', "ActionBar",
-						'ActionShortcut', "Escape",
-						'ActionGamepad', "ButtonB",
-						'OnAction', function (self, host, source)
-CancelDisplayOptions(host)
-end,
-						'__condition', function (parent, context) return GetDialogModeParam(parent).id == "Display" end,
-					}),
 					}),
 				PlaceObj('XTemplateMode', {
 					'mode', "items",
@@ -243,7 +251,7 @@ end,
 						'run', function (self, parent, context)
 local title = GetDialogModeParam(parent).name
 if GameState.gameplay then
-	parent:ResolveId("idTitle"):SetText(title)
+	parent:ResolveId("idTitle"):SetTitle(title)
 else
 	parent:ResolveId("idTitle"):SetTitle(title)
 end
@@ -257,14 +265,12 @@ end,
 					}, {
 						PlaceObj('XTemplateTemplate', {
 							'__template', "MenuEntrySmall",
-							'Padding', box(0, 0, 0, 0),
-							'HAlign', "right",
 							'OnPress', function (self, gamepad)
 local prop_meta = GetDialogModeParam(self)
 SetProperty(GetDialogContext(self), prop_meta.id, self.context.value)
 SetBackDialogMode(self)
 end,
-							'TextColor', RGBA(221, 215, 170, 255),
+							'TextStyle', "ListItem3",
 							'Text', T{730563403228, --[[XTemplate OptionsContentWindow Text]] "<text>"},
 						}),
 						}),
@@ -279,9 +285,8 @@ end,
 					}),
 				}),
 			PlaceObj('XTemplateTemplate', {
-				'__template', "Scrollbar",
+				'__template', "ScrollbarNew",
 				'Id', "idScroll",
-				'Margins', box(0, 0, 0, 25),
 				'Target', "idList",
 			}),
 			}),

@@ -147,9 +147,9 @@ end
 
 function GetNumberOfSensorTowers()
 	local towers = 0
-	local a_sol_ago = GameTime() - const.SensorTowerPredictionAddTime
+	local prediction_add_time_ago = Max(GameTime() - const.SensorTowerPredictionAddTime, 0)
 	for _, tower in ipairs(UICity.labels.SensorTower or empty_table) do
-		if tower.working or ( a_sol_ago > 0 and ((tower.turn_off_time - a_sol_ago) > 0) ) then
+		if tower.working or (tower.turn_off_time and tower.turn_off_time - prediction_add_time_ago > 0) then
 			towers = towers + 1
 		end
 	end
@@ -188,8 +188,8 @@ function ShowDisasterDescription(disaster_type)
 	g_DisasterDscrShown[disaster_type] = true
 end
 
-function AddDisasterNotification(id, params, disaster_type)
-	assert(not IsDisasterPredicted())
+function AddDisasterNotification(id, params, extended)
+	assert(not IsDisasterPredicted() or extended)
 	g_DisastersPredicted[id] = true
 	AddOnScreenNotification(id, nil, params)
 end

@@ -6,6 +6,7 @@ PlaceObj('XTemplate', {
 	id = "PropKeybinding",
 	PlaceObj('XTemplateWindow', {
 		'__class', "XPropControl",
+		'LayoutMethod', "HList",
 		'RolloverOnFocus', true,
 		'MouseCursor', "UI/Cursors/Rollover.tga",
 		'FXMouseIn', "MenuItemHover",
@@ -14,11 +15,13 @@ PlaceObj('XTemplate', {
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "PropName",
+			'MinWidth', 400,
+			'MaxWidth', 400,
+			'TextStyle', "ListItem3",
 		}),
 		PlaceObj('XTemplateWindow', {
-			'HAlign', "right",
-			'MinWidth', 300,
-			'MaxWidth', 300,
+			'MinWidth', 400,
+			'MaxWidth', 400,
 			'LayoutMethod', "Grid",
 			'UniformColumnWidth', true,
 		}, {
@@ -26,9 +29,7 @@ PlaceObj('XTemplate', {
 				'__class', "XText",
 				'Id', "idBinding1",
 				'HAlign', "center",
-				'TextFont', "MarsOptionsKeybind",
-				'TextColor', RGBA(221, 215, 170, 255),
-				'RolloverTextColor', RGBA(255, 255, 255, 255),
+				'TextStyle', "ListItem2",
 				'Translate', true,
 				'Shorten', true,
 			}, {
@@ -63,9 +64,7 @@ end,
 				'Id', "idBinding2",
 				'HAlign', "center",
 				'GridX', 2,
-				'TextFont', "MarsOptionsKeybind",
-				'TextColor', RGBA(221, 215, 170, 255),
-				'RolloverTextColor', RGBA(255, 255, 255, 255),
+				'TextStyle', "ListItem2",
 				'Translate', true,
 				'Shorten', true,
 			}, {

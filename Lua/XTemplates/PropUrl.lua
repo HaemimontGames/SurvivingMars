@@ -14,7 +14,6 @@ PlaceObj('XTemplate', {
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "PropValue",
-			'DisabledTextColor', RGBA(140, 156, 178, 255),
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnPropUpdate(self, context, prop_meta, value)",

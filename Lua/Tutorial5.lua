@@ -478,15 +478,21 @@ g_TutorialScenarios.Tutorial5 = function()
 		WaitObjectSelected(extractor)
 	end
 	local up_arrow = TutorialUIArrow:new({
-		AnchorType = "center-bottom",
+		AnchorType = "left",
 		FindTarget = function(self)
 			if self.button_pressed then return false end
 			local dlg = GetDialog("Infopanel")
-			return dlg and dlg.idUpgrades[1] or false
+			return dlg and dlg.idContent[1] or false
 		end,
 		OnAttachToTarget = function(self, target)
-			local old_OnPress = target.OnPress
-			target.OnPress = function(...)
+			local old_OnPress = target.OnActivate
+			local old_altPress = target.OnAltActivate
+			target.OnAltActivate = function(...)
+				self.button_pressed = not self.button_pressed
+				TutorialNextHint("Tutorial_5_UpgradeExtractor_2")
+				return old_altPress(...)
+			end
+			target.OnActivate = function(...)
 				self.button_pressed = not self.button_pressed
 				TutorialNextHint("Tutorial_5_UpgradeExtractor_2")
 				return old_OnPress(...)

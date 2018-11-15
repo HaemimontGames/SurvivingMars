@@ -63,6 +63,8 @@ DefineClass.Drone =
 	
 	unreachable_buildings = false,
 	unreachable_buildings_count = 0,
+	
+	fx_actor_base_class = "Drone",
 }
 
 GlobalGameTimeThread("OrphanedDronesNotif", function()
@@ -140,6 +142,7 @@ end
 function Drone:RemoveFromLabels()
 	self.city:RemoveFromLabel("Unit", self)
 	self.city:RemoveFromLabel("Drone", self)
+	assert(not table.find(self.city.labels.Drones, self), "drone still in label after removal")
 	if self.rogue then
 		self.city:RemoveFromLabel("RogueDrones", self)
 		UpdateRogueNotification()
@@ -148,6 +151,7 @@ end
 
 function Drone:AddToLabels()
 	self.city:AddToLabel("Unit", self)
+	assert(not table.find(self.city.labels.Drones, self), "drone double adding to label")
 	self.city:AddToLabel("Drone", self)
 	if self.rogue then
 		self.city:AddToLabel("RogueDrones", self)
@@ -211,7 +215,7 @@ function Drone:GetCommandCenter()
 	return self.command_center
 end
 
-function Drone:SetCommandCenter(command_center)
+function Drone:SetCommandCenter(command_center, do_not_orphan)
 	local should_change_cmd = command_center and not self.command_center and self.command == "WaitingCommand"
 	if command_center and not command_center[true] then -- when loading
 		self.command_center = command_center
@@ -227,7 +231,7 @@ function Drone:SetCommandCenter(command_center)
 	self.command_center = command_center
 	if command_center then
 		table.insert(command_center.drones, self)
-	elseif not self:IsDead() then --dead drones cannot be orphans.
+	elseif not self:IsDead() and not do_not_orphan then --dead drones cannot be orphans.
 		--just became orphan.
 		self.is_orphan = true
 		table.insert(g_OrphanedDrones, self)
@@ -487,7 +491,6 @@ function Drone:RogueAttack(target)
 	
 		PlayFX("DroneExplode", "start", self)
 		DestroyBuildingImmediate(target)
-		table.insert(g_AIDestroyedBuildings, target)
 		self:SetCommand("Dead")
 	end
 end
@@ -957,7 +960,7 @@ function Drone:CreateDumpingStockpile()
 		--waste rock piles are special and block construction.
 		stock = PlaceObject("WasteRockStockpileUngrided", {init_with_amount = self.amount, has_demand_request = true, apply_to_grids = true, has_platform = false, snap_to_grid = true, additional_demand_flags = const.rfSpecialDemandPairing})
 		stock:SetPos(pos)
-	else
+	elseif self.resource then
 		--create a special non waste rock pile with demand req.
 		local did_create_new_stock
 		stock, did_create_new_stock = PlaceResourceStockpile_Instant(pos, self.resource, self.amount, 0, true)
@@ -1141,6 +1144,7 @@ function Drone:EmergencyPower(input_recharger)
 		
 		self.going_to_recharger = false
 		self.target = nil
+		self:SetState("idle")
 		
 		while IsValid(recharger) and IsValid(recharger.drone_charged) and not recharger.drone_charged:IsDisabled() do
 			Sleep(1000 + self:Random(1000))
@@ -1172,6 +1176,9 @@ function Drone:Charge(recharger)
 	end)
 	
 	recharger:LeadIn(self)
+	if not IsValid(recharger) then
+		self:SetCommand("Idle")
+	end
 	self:PlayFXMoment("hooking")
 	if recharger:HasMember("SetPlatformState") then recharger:SetPlatformState("chargingIdle") end
 	
@@ -1196,7 +1203,7 @@ function Drone:Charge(recharger)
 	end
 	
 	for i = 1, time do
-		if not recharger:IsRechargerWorking() then
+		if not IsValid(recharger) or not recharger:IsRechargerWorking() then
 			self:SetCommand("Idle")
 		end
 		local charge = MulDivTrunc(i, battery_charge, time)
@@ -1367,7 +1374,11 @@ function Drone:UseBattery(amount)
 			and cur_command ~= "Dead" --derp..
 			and (command == "NoBattery" or cur_command ~= "RecallToRover") --don't interrupt recalltorover with emergency powr.
 		then
-			self:SetCommand(command)
+			if command == "NoBattery" then
+				self:SetDisablingCommand(command)
+			else
+				self:SetCommand(command)
+			end
 		end
 	end
 end
@@ -1529,7 +1540,7 @@ function Drone:ShouldDeliverResourcesToBld(bld, resource, amount) --check if we 
 	elseif TestReq(bld.consumption_resource_request, resource, amount) then
 		--consumption resource
 		return bld.consumption_resource_request
-	elseif IsKindOfClasses(bld, "UniversalStorageDepot", "WasteRockDumpSite", "BlackCubeDumpSite") and TestReq(bld.demand[resource], resource, amount) then
+	elseif bld:HasMember("demand") and bld.demand and IsKindOfClasses(bld, "UniversalStorageDepot", "WasteRockDumpSite", "BlackCubeDumpSite") and TestReq(bld.demand[resource], resource, amount) then
 		return bld.demand[resource]
 	end
 	
@@ -1661,6 +1672,7 @@ function Drone:DespawnAtHub()
 			if hub.guided_drone == self then
 				hub.guided_drone = false
 			end
+			assert(not table.find(hub.embarking_drones, self))
 		end
 		if IsValid(self) then
 			DoneObject(self)
@@ -1774,10 +1786,155 @@ local function CanPickupResourceFrom(o, resource)
 end
 
 ResourceSources_func = function(o, resource, amount)
-	if IsKindOf(o, "SharedStorageBaseVisualOnly") then return false end
+	if IsKindOfClasses(o, "SharedStorageBaseVisualOnly", "ConsumptionResourceStockpile") then return false end
 	if not CanPickupResourceFrom(o, resource) then return end
 	local req = GetSupplyReq(o, resource)
 	return req and req:CanAssignUnit() and req:GetActualAmount() >= amount
+end
+
+function Drone:InteractionObjTest_Construct(obj)
+	return IsKindOf(obj, "ConstructionSite")
+end
+
+local function parse_cs_reqs_and_find_source(self, obj)
+	local next_req, source
+	for res, req in pairs(obj.construction_resources) do
+		if TestReq(req, nil, 1) then
+			next_req = req
+			break
+		end
+	end
+	if next_req then
+		local resource = next_req:GetResource()
+		source = MapFindNearest(self, self, Drone_AutoFindResourceRadius,
+									"ResourceStockpile", "ResourcePile", "SurfaceDeposit", "StorageDepot", 
+									ResourceSources_func, resource,
+									Min(DroneResourceUnits[resource], next_req:GetTargetAmount()))
+	end
+	return next_req, source
+end
+
+function Drone:InteractionObjCheck_Construct(obj)
+	obj = obj.construction_group and obj.construction_group[1] or obj
+	local construct = obj.construction_started and obj.construct_request:GetActualAmount() > 0 and obj.construct_request:CanAssignUnit()
+	local deliver = not obj.construction_started and obj:IsBlockerClearenceComplete()
+	local clean = not obj.construction_started and not obj:IsBlockerClearenceComplete()
+	local txt
+	local ret = true
+	if construct then
+		txt = T{4398, "<UnitMoveControl('ButtonA',interaction_mode)>: Work on this construction", self}
+	elseif deliver then
+		local next_req, source = parse_cs_reqs_and_find_source(self, obj)
+		
+		if not next_req then
+			txt = T{4399, "<red>Too many Drones are already constructing this building</red>"}
+			ret = false
+		elseif not source then
+			txt = T{11248, "Can't find the required resources"}
+			ret = false
+		else
+			txt = T{4398, "<UnitMoveControl('ButtonA',interaction_mode)>: Work on this construction", self}
+		end
+	elseif clean then
+		--check if it can assign? it can probably assign..
+		txt = T{4398, "<UnitMoveControl('ButtonA',interaction_mode)>: Work on this construction", self}
+	else
+		txt = T{4399, "<red>Too many Drones are already constructing this building</red>"}
+		ret = false
+	end
+	
+	return ret, txt
+end
+
+function Drone:Interaction_Construct(obj)
+	obj = obj.construction_group and obj.construction_group[1] or obj
+	local construct = obj.construction_started and obj.construct_request:GetActualAmount() > 0 and obj.construct_request:CanAssignUnit()
+	local deliver = not obj.construction_started and obj:IsBlockerClearenceComplete()
+	local clean = not obj.construction_started and not obj:IsBlockerClearenceComplete()
+	
+	if construct then
+		local r = obj.construct_request
+		self:SetCommandUserInteraction("Work", r, "construct", Min(DroneResourceUnits.construct, r:GetActualAmount()))
+	elseif deliver then
+		local next_req, source = parse_cs_reqs_and_find_source(self, obj)
+		if source and next_req then
+			local resource = next_req:GetResource()
+			local s_req = FindSupplyReq(source, resource)
+			self:SetCommandUserInteraction("PickUp", s_req, next_req, resource, Min(DroneResourceUnits[resource], s_req:GetTargetAmount(), next_req:GetActualAmount()))
+		end
+	elseif clean then
+		local wst = obj.waste_rocks_underneath
+		local wr
+		for i = 1, #(wst or empty_table) do
+			if TestReq(wst[i].work_req, nil, 1) then
+				wr = wst[i].work_req
+				break
+			end
+		end
+		if wr then
+			local resource = wr:GetResource()
+			self:SetCommandUserInteraction("Work", wr, resource, Min(DroneResourceUnits[resource], wr:GetActualAmount()))
+			return
+		end
+		local sr
+		local st = obj.stockpiles_underneath
+		for i = 1, #(st or empty_table) do
+			if TestReq(st[i].supply_request, nil, 1) then
+				sr = st[i].supply_request
+				break
+			end
+		end
+		if sr then
+			local resource = sr:GetResource()
+			self:SetCommandUserInteraction("PickUp", sr, nil, resource, Min(DroneResourceUnits[resource], sr:GetTargetAmount()))
+		end
+	end
+end
+
+function Drone:InteractionObjTest_PickupFromRCTransport(obj)
+	return not self:GetCarriedResource() and IsKindOf(obj, "RCTransport")
+end
+
+function Drone:InteractionObjCheck_PickupFromRCTransport(obj)
+	local result
+	local txt
+	if obj.command == "Dead" then
+		result = false
+		txt = T{11605, "<red>Transport Destroyed</red>"}
+	elseif obj.command == "LoadingComplete" or not obj.auto_connect then
+		result = false
+		txt = T{11606, "<red>Resources Reserved</red>"}
+	elseif obj:GetStoredAmount() <= 0 then
+		result = false
+		txt = T{11249, "<red>Transport Empty</red>"}
+	else
+		result = true
+		txt = T{4397, "<UnitMoveControl('ButtonA',interaction_mode)>: Get resources", self}
+	end
+	
+	return result, txt
+end
+
+function Drone:Interaction_PickupFromRCTransport(obj)
+	local stocked_types = 0
+	local t = obj.stockpiled_amount
+	local last = false
+	for r, a in pairs(t) do
+		if a > 0 then
+			stocked_types = stocked_types + 1
+			last = r
+		end
+	end
+	
+	if stocked_types == 1 and last then
+		local sreq = obj.resource_requests[last]
+		self:SetCommandUserInteraction("PickUp", sreq, nil, last, Min(DroneResourceUnits[last], sreq:GetTargetAmount()), "dontchain")
+	elseif stocked_types > 1 then
+		OpenResourceSelector(self, {target = obj})
+		return true
+	else
+		return false
+	end
 end
 
 function Drone:InteractionObjTest_RepairSupplyGridElement(obj)
@@ -1819,8 +1976,10 @@ function Drone:CanInteractWithObject(obj)
 
 		local carrying_resource = self:GetCarriedResource()
 		local resource_demand_req = self:ShouldDeliverResourcesToBld(obj, self.resource)
-
-		if IsKindOf(obj, "Tunnel") then
+		
+		if resource_demand_req then --we are carrying a resource and this bld needs it, or is a storage depot that accepts it
+			return true, T{4396, "<UnitMoveControl('ButtonA',interaction_mode)>: Deliver <resource(amount, resource)>", amount = self.amount, resource = self.resource, self}
+		elseif IsKindOf(obj, "Tunnel") then
 			if obj.working then
 				return true, T{9629, "<UnitMoveControl('ButtonA',interaction_mode)>:  Use Tunnel", self}--UseTunnel
 			end
@@ -1833,17 +1992,21 @@ function Drone:CanInteractWithObject(obj)
 				return false, T{7589, "<red>Too many Drones are repairing this vehicle</red>"}, true
 			end
 		elseif (IsKindOf(obj, "RechargeStation") or
-				(IsKindOf(obj, "RechargeStationBase") and obj == self.command_center)) --if we select our own command center go charge there
+				(IsKindOfClasses(obj, "RechargeStationBase", "DroneHub") and obj == self.command_center)) --if we select our own command center go charge there
 				and obj.working then 
-			return true, T{4395, "<UnitMoveControl('ButtonA',interaction_mode)>: Recharge", self}
-		elseif obj ~= self.command_center and IsKindOf(obj, "DroneControl") and obj:CanHaveMoreDrones() then
-			return true, T{9630, "<UnitMoveControl('ButtonY',interaction_mode)>: Assign Here", self}
+			return true, T{9633, "<UnitMoveControl('ButtonA',interaction_mode)>: Recharge self", self}
+		elseif obj ~= self.command_center and IsKindOf(obj, "DroneControl") and obj.can_control_drones then
+			if not obj:CanHaveMoreDrones() then
+				return false, T{4401, "<red>At full capacity</red>"}, true
+			else
+				return true, T{9632, "<UnitMoveControl('ButtonY',interaction_mode)>: Assign to this command center",self}
+			end
 		elseif self:InteractionObjTest_RepairSupplyGridElement(obj) then
 			return self:InteractionCheck_RepairSupplyGridElement(obj)
 		elseif IsKindOf(obj, "Building") and (obj.maintenance_phase or obj.accumulated_maintenance_points > 0) then
 			local phase = obj.maintenance_phase or "demand"
 			local d_req = obj.maintenance_resource_request
-			if not d_req:CanAssignUnit() or d_req:GetTargetAmount() <= 0 then
+			if d_req and (not d_req:CanAssignUnit() or d_req:GetTargetAmount() <= 0) then
 				--don't show as interactable, if other drone is already working on it and the interaction itself does not interrupt it.
 				return false
 			end
@@ -1856,18 +2019,6 @@ function Drone:CanInteractWithObject(obj)
 				end
 			end
 			return true, T{9631, "<UnitMoveControl('ButtonB',interaction_mode)>: Repair this building", self}
-		elseif resource_demand_req then --we are carrying a resource and this bld needs it, or is a storage depot that accepts it
-			return true, T{4396, "<UnitMoveControl('ButtonA',interaction_mode)>: Deliver <resource(amount, resource)>", amount = self.amount, resource = self.resource, self}
-		elseif obj ~= self.command_center and IsKindOf(obj, "DroneControl") and obj.can_control_drones then
-			if not obj:CanHaveMoreDrones() then
-				return false, T{4401, "<red>At full capacity</red>"}, true
-			else
-				return true, T{9632, "<UnitMoveControl('ButtonY',interaction_mode)>: Assign to this command center",self}
-			end
-		elseif (IsKindOf(obj, "RechargeStation") or
-				(IsKindOf(obj, "RechargeStationBase") and obj == self.command_center)) --if we select our own command center go charge there
-				and obj.working then 
-			return true, T{9633, "<UnitMoveControl('ButtonA',interaction_mode)>: Recharge self", self}
 		elseif not carrying_resource and IsKindOfClasses(obj,"ResourceStockpileBase", "StorageDepot", "ResourcePile") and not IsKindOfClasses(obj,"Unit") and obj:GetStoredAmount() > 0 then
 			if IsKindOf(obj, "WasteRockDumpSite") and not g_WasteRockLiquefaction then
 				return false --wasterock dumps don't have wasterock supply req so we cant pickup anything other then concrete when researched
@@ -1875,13 +2026,6 @@ function Drone:CanInteractWithObject(obj)
 			local resource = type(obj.resource) == "table" and obj.resource[1] or obj.resource
 			 if FindSupplyReq(obj, resource) then
 				return true, T{4397, "<UnitMoveControl('ButtonA',interaction_mode)>: Get resources", self}
-			end	
-		elseif IsKindOf(obj, "ConstructionSite") then
-			local request = obj.construction_group and obj.construction_group[1].construct_request or obj.construct_request
-			if TestReq(request, "construct", 1) then
-				return true, T{4398, "<UnitMoveControl('ButtonA',interaction_mode)>: Work on this construction", self}
-			elseif request and request:GetTargetAmount() > 0 and not request:CanAssignUnit() then
-				return false, T{4399, "<red>Too many Drones are already constructing this building</red>"}, true
 			end
 		elseif IsKindOf(obj, "SurfaceDeposit") and TestReq(obj.transport_request, nil, 1) then
 			return true, T{4402, "<UnitMoveControl('ButtonA',interaction_mode)>: Gather", self}
@@ -1894,7 +2038,11 @@ function Drone:CanInteractWithObject(obj)
 				return true, T{9720, "<UnitMoveControl('ButtonA',interaction_mode)>: Repair", self}
 			end	
 			return false
-		end		
+		elseif self:InteractionObjTest_PickupFromRCTransport(obj) then
+			return self:InteractionObjCheck_PickupFromRCTransport(obj)
+		elseif self:InteractionObjTest_Construct(obj) then
+			return self:InteractionObjCheck_Construct(obj)
+		end	
 		return false, GetUIStyleGamepad() and  T{4339, "<UnitMoveControl('ButtonA',interaction_mode)>: Move",self} or false
 	elseif self.interaction_mode == "reassign" or self.interaction_mode == "reassign_all" then
 		if obj ~= self.command_center and IsKindOf(obj, "DroneControl") and obj.can_control_drones then
@@ -1915,7 +2063,7 @@ function Drone:CanInteractWithObject(obj)
 				return true, T{4396, "<UnitMoveControl('ButtonA',interaction_mode)>: Deliver <resource(amount, resource)>", amount = self.amount, resource = self.resource, self}
 			else
 				local d_req = obj.maintenance_resource_request
-				if not d_req:CanAssignUnit() or d_req:GetTargetAmount() <= 0 then
+				if d_req and (not d_req:CanAssignUnit() or d_req:GetTargetAmount() <= 0) then
 					--don't show as interactable, if other drone is already working on it and the interaction itself does not interrupt it.
 					return false
 				end
@@ -1988,8 +2136,11 @@ function Drone:InteractWithObject(obj, interaction_mode)
 			local request = obj.repair_work_request
 			self:SetCommandUserInteraction("Work", request, "repair", Min(DroneResourceUnits.repair, request:GetTargetAmount()))
 		elseif (IsKindOf(obj, "RechargeStation") or
-				(IsKindOf(obj, "RechargeStationBase") and obj == self.command_center)) --if we select our command center go charge there
+				(IsKindOfClasses(obj, "RechargeStationBase", "DroneHub") and obj == self.command_center)) --if we select our command center go charge there
 				and obj.working then 
+			if IsKindOf(obj, "DroneHub") then
+				obj = FindNearestObject(obj:GetAttaches("RechargeStationBase"), self:GetPos())
+			end
 			self:SetCommandUserInteraction("EmergencyPower", obj)
 		elseif obj ~= self.command_center and IsKindOf(obj, "DroneControl") and obj:CanHaveMoreDrones() then
 			drop_resource = true
@@ -2050,12 +2201,6 @@ function Drone:InteractWithObject(obj, interaction_mode)
 					self:SetCommandUserInteraction("PickUp", request, false, resource, Min(DroneResourceUnits[resource], not interrupted and request:GetTargetAmount() or request:GetActualAmount()), true)
 				end
 			end
-		elseif IsKindOf(obj, "ConstructionSite") then
-			local request = obj.construction_group and obj.construction_group[1].construct_request or obj.construct_request
-			if TestReq(request, "construct", 1) then
-				drop_resource = true
-				self:SetCommandUserInteraction("Work", request, "construct", Min(request:GetTargetAmount(), DroneResourceUnits.construct))
-			end
 		elseif IsKindOf(obj, "SurfaceDeposit") and TestReq(obj.transport_request, nil, 1) then
 			drop_resource = true
 			local request = obj.transport_request
@@ -2068,6 +2213,10 @@ function Drone:InteractWithObject(obj, interaction_mode)
 			end
 			self:SetCommand("RepairDrone", obj, g_Consts.DroneEmergencyPower)
 			self:SetInteractionState(false)
+		elseif self:InteractionObjTest_PickupFromRCTransport(obj) then
+			return self:Interaction_PickupFromRCTransport(obj)
+		elseif self:InteractionObjTest_Construct(obj) then
+			return self:Interaction_Construct(obj)
 		end
 	elseif self.interaction_mode == "reassign" then
 		-- "Reassign" - assign to target hub/rover
@@ -2305,6 +2454,7 @@ local DroneCommands = {
 	UseTunnel = T{6723, "Going through a tunnel"},
 	Dismantle = T{8106, "Dismantling target"},
 	DespawnAtHub = T{8663, "Returning to Drone Hub to be dismantled into a Drone Prefab"},
+	GotoAndEmbark =  T{11216, "Boarding Rocket"},
 }
 
 function Drone:GetSRequestResource()
@@ -2386,6 +2536,8 @@ function Drone:SetCommand(command, ...)
 	DroneBase.SetCommand(self, command, ...)
 end
 
+Drone.SetDisablingCommand = Drone.SetCommand
+
 function Drone:Getui_command()
 	if self:IsDeadUI() then
 		return DroneCommands.Dead
@@ -2441,17 +2593,17 @@ function Drone:GetDisplayName()
 	return Untranslated(self.name)
 end
 
-function Drone:ChangeSkin(skin)
-	self:OnSkinChanged(skin)
+function Drone:ChangeSkin(skin, palette)
+	self:OnSkinChanged(skin, palette)
 	local cc = self.command_center
 	for _, drone in ipairs(cc and cc.drones or empty_table) do
 		if drone ~= self then
-			drone:OnSkinChanged(skin)
+			drone:OnSkinChanged(skin, palette)
 		end
 	end
 end
 
-function Drone:OnSkinChanged(skin)
+function Drone:OnSkinChanged(skin, palette)
 	self:ChangeEntity(skin)
 	self:NightLightDisable()
 	self:NightLightEnable()

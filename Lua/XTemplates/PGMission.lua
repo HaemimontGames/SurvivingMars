@@ -36,8 +36,10 @@ self:CreateThread("FadeThread", function(self, ...)
 end, self, ...)
 end,
 		}),
-		PlaceObj('XTemplateLayer', {
-			'layer', "TitleLayer",
+		PlaceObj('XTemplateCode', {
+			'run', function (self, parent, context)
+PGTitleObjectCreate()
+end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XContentTemplate",

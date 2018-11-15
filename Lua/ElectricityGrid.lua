@@ -36,6 +36,10 @@ for k, v in pairs(custom_cable_connections) do
 	table.insert(all_cable_connection_classes, v)
 end
 
+function GetAllCableConnectionClassesTable()
+	return all_cable_connection_classes
+end
+
 DefineClass.ElectricityGrid = {
 	__parents = { "SupplyGridFragment" },
 	supply_resource = "electricity",
@@ -216,7 +220,9 @@ function ElectricityGridObject:MoveInside(dome)
 	local grid = self.electricity.grid
 	grid:RemoveElement(self.electricity)
 	local el_connection_grid = SupplyGridConnections["electricity"]
-	local connections = SupplyGridRemoveBuilding(el_connection_grid, self, self:GetShapePoints())
+	local shape = self:GetSupplyGridConnectionShapePoints("electricity")
+	ApplyIDToOverlayGrid(OverlaySupplyGrid, self, shape, 240, "band")
+	local connections = SupplyGridRemoveBuilding(el_connection_grid, self, shape)
 	-- destroy connections
 	for i = 1, #(connections or ""), 2 do
 		local pt, other_pt = connections[i], connections[i + 1]
@@ -253,7 +259,6 @@ DefineClass.ElectricityGridElement = { -- cables
 	pillar = false,
 	chain = false,
 	unbuildable_chunk_dir = false, --el pillars can only conn in one dir, this keeps that dir
-	sloped = false,
 	force_hub = false,
 	
 	--construction
@@ -263,6 +268,7 @@ DefineClass.ElectricityGridElement = { -- cables
 	--construction ui
 	description = T{935, "Power Cable"},
 	display_name = T{935, "Power Cable"},
+	display_name_pl = T{881, "Power Cables"},
 	display_icon = "UI/Icons/Buildings/power_cables.tga", --pin dialog icon during construction
 	
 	construction_connections = -1,
@@ -337,9 +343,6 @@ function ElectricityGridElement:UpdateVisuals()
 				second = second or first and dir
 				first = first or dir
 				cable_count = cable_count + 1
-				if c:GetGameFlags(const.gofTerrainDistortedMesh) == 0 and self.sloped and not c.sloped then --propagate flag up to 1 non sloped cable away
-					c:SetHierarchyGameFlags(const.gofTerrainDistortedMesh)
-				end
 			end
 			
 			total_count = total_count + 1
@@ -347,7 +350,7 @@ function ElectricityGridElement:UpdateVisuals()
 	end
 	self:DestroyAttaches(AllPossiblePlugs)
 	
-	local palette = EntityPalettes.Cables
+	local cm1, cm2, cm3, cm4 = GetCablesPalette()
 	
 	local is_turn = not second or not first or second - first ~= 3 --any other entity is a turn
 	if self.pillar then
@@ -376,7 +379,6 @@ function ElectricityGridElement:UpdateVisuals()
 					plug:SetAttachAngle(dir * 60 * 60 - self:GetAngle())
 				end
 				plug:SetEnumFlags(const.efSelectable)
-				palette:ApplyToObj(plug)
 								
 				if is_constr_colored then
 					plug:SetGameFlags(const.gofWhiteColored)
@@ -391,7 +393,7 @@ function ElectricityGridElement:UpdateVisuals()
 			self:SetChainParams(self.chain.delta, self.chain.index, self.chain.length)
 		else
 			local idx = second - first
-			if self:GetGameFlags(const.gofTerrainDistortedMesh) ~= 0 and idx == 3 then --str8
+			if idx == 3 then --str8
 				idx = idx + 3
 			end
 			self:ChangeEntity(ElectricGridCableDirectionRelationToEntity[idx])
@@ -412,15 +414,11 @@ function ElectricityGridElement:UpdateVisuals()
 				if is_constr_colored then
 					plug:SetGameFlags(const.gofWhiteColored)
 				end
-				palette:ApplyToObj(plug)
 			end
 		end
 	end
-	EntityPalettes.Cables:ApplyToObj(self)
+	SetObjectPaletteRecursive(self, cm1, cm2, cm3, cm4)
 	
-	if self:GetGameFlags(const.gofTerrainDistortedMesh) ~= 0 or self.sloped then
-		self:SetHierarchyGameFlags(const.gofTerrainDistortedMesh)
-	end
 	self:AddDust(0) --refresh dust visuals
 	
 	return true
@@ -813,7 +811,6 @@ function PlaceCableLine(city, start_q, start_r, dir, steps, test, elements_requi
 		local pos = point(HexToWorld(q, r))
 		if cell_data.override_z then
 			pos = pos:SetZ(cell_data.override_z)
-			params.sloped = cell_data.override_z
 		end
 		local cs = PlaceConstructionSite(city, "ElectricityGridElement", pos, angle, params, nil, chain or cell_data.override_z)
 		if not chain then --chain cables are in unbuildable places so drones might not be able to cleanup
@@ -824,7 +821,7 @@ function PlaceCableLine(city, start_q, start_r, dir, steps, test, elements_requi
 		return cs
 	end
 	
-	local palette = EntityPalettes.Cables
+	local cm1, cm2, cm3, cm4 = GetCablesPalette()
 	local InvalidZ = const.InvalidZ
 	local place_cable = function(data_idx, pillar, chain, connect_dir)
 		local cell_data = data[data_idx]
@@ -832,7 +829,7 @@ function PlaceCableLine(city, start_q, start_r, dir, steps, test, elements_requi
 		if c then return c end
 		local q = cell_data.q
 		local r = cell_data.r
-		local el = ElectricityGridElement:new{ city = city, connect_dir = connect_dir, pillar = pillar, chain = chain, unbuildable_chunk_dir = connect_dir, sloped = cell_data.override_z }
+		local el = ElectricityGridElement:new{ city = city, connect_dir = connect_dir, pillar = pillar, chain = chain, unbuildable_chunk_dir = connect_dir }
 		local x, y = HexToWorld(q, r)
 		el:SetPos(x, y, cell_data.override_z or InvalidZ)
 		el:SetAngle(angle)
@@ -840,7 +837,7 @@ function PlaceCableLine(city, start_q, start_r, dir, steps, test, elements_requi
 		if not chain and not cell_data.override_z then
 			FlattenTerrainInBuildShape(nil, el)
 		end
-		palette:ApplyToObj(el)
+		SetObjectPaletteRecursive(el, cm1, cm2, cm3, cm4)
 		cell_data.cable = el
 		return el
 	end

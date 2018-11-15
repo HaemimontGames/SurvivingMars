@@ -369,8 +369,11 @@ end
 
 function SelectionPropagate(obj)
 	local topmost = GetTopmostParent(obj)
+	local prev = topmost
 	while IsValid(topmost) and topmost:HasMember("SelectionPropagate") do
 		topmost = topmost:SelectionPropagate()
+		if prev == topmost then break end
+		prev = topmost or prev
 	end
-	return topmost
+	return prev
 end

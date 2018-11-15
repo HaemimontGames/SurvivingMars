@@ -34,7 +34,7 @@ DefineClass.BaseRover = {
 	GossipName = function(self, ...) Unit.GossipName(self, ...) end,
 	ip_template = "ipRover",
 	
-	palettes = false,
+	palette = false,
 	
 	work_spot_task = "Workrover",
 	recharging_other_rover = false,
@@ -133,8 +133,8 @@ function BaseRover:GetRefundResources()
 end
 
 function BaseRover:AddDust(dust)
-	self.dust = Max(Min(self.dust_max, self.dust + dust), 0)
 	local dust_max = self.dust_max * (100 + g_Consts.DroneMaxDustBonus) / 100
+	self.dust = Max(Min(dust_max, self.dust + dust), 0)
 	local normalized_dust = MulDivRound(self.dust, 255, dust_max)
 	self:SetDust(normalized_dust, const.DustMaterialExterior)
 end
@@ -217,6 +217,8 @@ function BaseRover:Repair()
 	self:SetState("idle")
 	self:AddDust(-self.dust_max)
 	
+	Msg("Repaired", self)
+	
 	--hacky command exit
 	self.command = "" --so we get around BaseRover:SetCommand's "Malfunction" early out.
 	self:SetCommand("Idle")
@@ -245,7 +247,6 @@ function BaseRover:GetMalfunctionRepairProgress()
 	return self.command == "Malfunction" and 100 - MulDivRound(self.repair_work_request:GetActualAmount(), 100, self.repair_work_amount_on_malfunction) or 0
 end
 
-local grid_recharge_tolerance = 1
 function BaseRover:SetCommand(command, ...)
 	if command == "Malfunction" and self.command == "Malfunction" then
 		return
@@ -256,6 +257,7 @@ function BaseRover:SetCommand(command, ...)
 	DroneBase.SetCommand(self, command, ...)
 end
 
+BaseRover.SetDisablingCommand = BaseRover.SetCommand
 BaseRover.OnDead = empty_func
 
 function BaseRover:Dead()
@@ -435,6 +437,7 @@ RoverCommands = {
 	Roam = T{6724, "Roaming"},
 	Attack = T{6725, "Attacking"},
 	Reload = T{6726, "Reloading"},
+	GotoAndEmbark =  T{11216, "Boarding Rocket"},
 }
 
 function BaseRover:Getui_command()
@@ -449,7 +452,8 @@ end
 
 local function SelectRover(dir)
 	local igi = GetInGameInterface()
-	if igi and igi:GetVisible() then
+	local dlg = GetHUD()
+	if igi and dlg and dlg:GetVisible() and igi:GetVisible() then
 		local rovers = UICity.labels.Rover or {}
 		local idx = table.find(rovers, SelectedObj)
 		local rover = idx and rovers[idx + dir] or rovers[dir == 1 and 1 or #rovers]
@@ -475,35 +479,17 @@ function PlaceRover()
 end
 
 function SetPaletteFromClassMember(obj)
-	if obj.palettes then
-		local palette_name = obj.palettes[1]
-		if palette_name then
-			local palette = EntityPalettes[palette_name]
-			if palette then
-				SetObjectPalette(obj, palette)
-			end
-		end
-	end
-end
-
-function ReapplyAllVehiclePalettes()
-	DelayedCall(100, function()
-		MapForEach("map", "BaseRover", "CargoShuttle" , SetPaletteFromClassMember)
-	end)
-end
-
-function GedOpReapplyAllColorization(socket, preset)
-	ReapplyAllVehiclePalettes()
-	ReapplyAllBuildingPalettes()
+	local cm1, cm2, cm3, cm4 = DecodePalette(obj.palette)
+	SetObjectPaletteRecursive(obj, cm1, cm2, cm3, cm4)
 end
 
 function BaseRover:GetSkins()
 	local trailblazer_entity = g_TrailblazerSkins[self.class]
 	local entity = g_Classes[self.class].entity
 	if entity and trailblazer_entity then
-		return { entity, trailblazer_entity }
+		return { entity, trailblazer_entity }, { self.palette, self.palette }
 	end
-	return empty_table
+	return empty_table, empty_table
 end
 
 --ui hyper links use this
@@ -527,14 +513,31 @@ end
 end
 
 --TODO: remove after saves prior lua rev 233621 stop being supported:
-function BaseRover:ApplyBatteryChange()
-	--avoid asserts from destro calls n such
+BaseRover.ApplyBatteryChange = empty_func
+BaseRover.StopBatteryThread = empty_func
+BaseRover.SetSupply = empty_func
+BaseRover.TryRechargeFromRoute = empty_func
+
+DefineClass.NotifyMeOnCableDeath = {
+	__parents = {"Object"},
+	entity = "InvisibleObject",
+	parent_rover = false,
+}
+
+function NotifyMeOnCableDeath:Dispose()
+	if IsValid(self) then
+		self.parent_rover = nil
+		DoneObject(self)
+	end
 end
 
-function BaseRover:StopBatteryThread()
-	--avoid asserts from destro calls n such
+function NotifyMeOnCableDeath:Done()
+	if self.parent_rover then
+		self.parent_rover:OnChargingCableDestroyed()
+		self.parent_rover = nil
+	end
 end
-
+--end: TODO: remove after saves prior lua rev 233621 stop being supported:
 function BaseRover:Work(request, resource, amount)
 	if not request:AssignUnit(amount) then
 		return
@@ -611,6 +614,41 @@ function BaseRover:GetUnreachableObjectsTable()
 	return self.unreachable_objects
 end
 
+function BaseRover:GotoAndEmbark(rocket)
+	self:PushDestructor(function(self)
+		self.control_override = nil
+		self.embark_target = nil
+	end, self)
+	self.control_override = true
+	self.embark_target = rocket
+
+	local pos, angle = rocket:GetSpotLoc(rocket:GetSpotBeginIndex("Roverout"))
+	self:Goto(pos)
+	self:SetPos(pos, 250)
+	self:SetAngle(angle, 250)
+
+	if not IsValid(rocket) or not rocket:IsValidPos() or not rocket:IsBoardingAllowed() then 
+		self:PopAndCallDestructor()
+		return 
+	end
+
+	table.insert(rocket.boarding, self)
+	self:PushDestructor(function(self)
+		table.remove_value(rocket.boarding, self)
+		rocket.expedition.rover = self
+	end)
+	
+	self:SetAnim(1, "disembarkLoad2")
+	Sleep(self:TimeToAnimEnd())
+
+	self:PopAndCallDestructor()
+	
+	if not IsValid(rocket) then return end
+
+	self:SetHolder(rocket)
+	self:SetCommand("Disappear", "keep in holder")
+end
+
 function OnMsg.PFTunnelChanged()
 	MapForEach("map", "BaseRover", function(r)
 		if r.has_auto_mode then
@@ -618,3 +656,11 @@ function OnMsg.PFTunnelChanged()
 		end
 	end)
 end
+
+---- gagarin stubs
+
+DefineClass.RCConstructor = { __parents = {  "Object", }, }
+DefineClass.RCDriller = { __parents = {  "Object", }, }
+DefineClass.RCHarvester = { __parents = {  "Object", }, }
+DefineClass.RCSensor = { __parents = {  "Object", }, }
+DefineClass.RCSolar = { __parents = {  "Object", }, }

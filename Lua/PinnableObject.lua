@@ -33,36 +33,32 @@ function PinnableObject:GameInit()
 			self:TogglePin()
 		end
 	end 
---so far founders were not set up as pin_on_start type of colonist soo have to check separately for them.
-	if #g_PinnedObjs < AccountStorage.Options.AutoPinMaxNum and AccountStorage.Options.AutoPinFounders and
-			not self.is_pinned and self:IsKindOf("Colonist") and self.traits.Founder then
-		self:TogglePin()
-	end
 end
 
 function PinnableObject:AutoPinAvailable()
 	local options = AccountStorage.Options
-	local pin_it = true
+	local pin_it = false
 
-	if #g_PinnedObjs >= AccountStorage.Options.AutoPinMaxNum then 
-		return false
+	if #g_PinnedObjs > AccountStorage.Options.AutoPinMaxNum then 
+		return pin_it
 	end
 	
-	if ( self:IsKindOf("Dome") and not options.AutoPinDomes ) or
-		( self:IsKindOf("DroneHub") and not options.AutoPinDroneHubs ) or 
-		( self:IsKindOf("BaseRover") and not options.AutoPinRovers ) then  
-			pin_it = false
+	if ( self:IsKindOf("Dome") and options.AutoPinDomes ) or
+		( self:IsKindOf("DroneHub") and options.AutoPinDroneHubs ) or 
+		( self:IsKindOf("BaseRover") and options.AutoPinRovers ) then  
+			pin_it = true
 	elseif self:IsKindOf("Colonist") then
 		local colonist_traits = self.traits
-		if colonist_traits.Founder and not options.AutoPinFounders then
-			pin_it = false
-		elseif not options.AutoPinRareColonists then
-			for _, trait in pairs(colonist_traits) do
-				if g_RareTraits[trait] then
-					pin_it = false
+		if colonist_traits.Founder and options.AutoPinFounders then
+			pin_it = true
+		end
+		if options.AutoPinRareColonists then
+			for trait_id, _ in pairs(self.traits) do
+				if g_RareTraits[trait_id] then
+					pin_it = true
 					break
-				end
-			end						
+				end	
+			end
 		end
 	end
 	return pin_it

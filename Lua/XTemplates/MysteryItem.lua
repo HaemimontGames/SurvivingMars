@@ -7,8 +7,6 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateWindow', {
 		'__class', "XTextButton",
 		'RolloverTemplate', "Rollover",
-		'Padding', box(0, 2, 0, 2),
-		'HAlign', "right",
 		'MaxHeight', 50,
 		'Background', RGBA(0, 0, 0, 0),
 		'MouseCursor', "UI/Cursors/Rollover.tga",
@@ -26,26 +24,24 @@ SetBackDialogMode(self)
 end,
 		'RolloverBackground', RGBA(0, 0, 0, 0),
 		'PressedBackground', RGBA(0, 0, 0, 0),
-		'TextFont', "PGListItem",
-		'TextColor', RGBA(140, 156, 178, 255),
-		'RolloverTextColor', RGBA(255, 255, 255, 255),
-		'DisabledTextColor', RGBA(114, 114, 114, 255),
+		'TextStyle', "PGListItemName",
 		'Translate', true,
 	}, {
 		PlaceObj('XTemplateWindow', {
 			'__class', "XImage",
 			'Id', "idRollover",
 			'ZOrder', 0,
-			'Margins', box(-60, 0, -60, -6),
+			'Margins', box(-45, -4, 0, -4),
 			'Dock', "box",
+			'HAlign', "left",
+			'MaxHeight', 32,
 			'Visible', false,
-			'Image', "UI/Common/bm_buildings_pad.tga",
-			'ImageFit', "stretch",
+			'Image', "UI/CommonNew/pg_selection.tga",
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XImage",
-			'Dock', "right",
-			'HAlign', "right",
+			'Margins', box(-33, 0, 3, 0),
+			'Dock', "left",
 			'Image', "UI/Common/mission_yes.tga",
 		}, {
 			PlaceObj('XTemplateCode', {
@@ -57,26 +53,24 @@ end,
 		PlaceObj('XTemplateWindow', {
 			'__class', "XText",
 			'Id', "idName",
-			'Padding', box(0, 2, 0, 2),
-			'Dock', "right",
+			'Padding', box(0, 0, 0, 0),
 			'Clip', false,
 			'RolloverOnFocus', true,
 			'FXMouseIn', "MenuItemHover",
 			'FXPress', "MenuItemClick",
 			'FXPressDisabled', "UIDisabledButtonPressed",
-			'TextFont', "PGListItem",
-			'TextColor', RGBA(221, 215, 170, 255),
-			'RolloverTextColor', RGBA(255, 255, 255, 255),
-			'DisabledTextColor', RGBA(114, 114, 114, 255),
+			'TextStyle', "PGListItemName",
 			'Translate', true,
 			'Text', T{714247552511, --[[XTemplate MysteryItem Text]] "<text>"},
 			'Shorten', true,
+			'TextVAlign', "center",
 		}, {
 			PlaceObj('XTemplateFunc', {
 				'name', "CalcTextColor",
 				'func', function (self, ...)
+local list = GetDialog(self):ResolveId("idList")
 return self.enabled and 
-			((self.parent.rollover or GetDialog(self).idList.focused_item == self.context.number)
+			((self.parent.rollover or (list and list.focused_item == ResolveValue(self.context, "number")))
 				and self.RolloverTextColor or self.TextColor)
 				or self.DisabledTextColor
 end,

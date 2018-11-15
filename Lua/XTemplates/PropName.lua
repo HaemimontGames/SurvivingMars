@@ -1,16 +1,22 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 PlaceObj('XTemplate', {
-	__is_kind_of = "XLabel",
+	__is_kind_of = "XText",
 	group = "PreGame",
 	id = "PropName",
 	PlaceObj('XTemplateWindow', {
-		'__class', "XLabel",
+		'__class', "XText",
 		'Id', "idName",
-		'TextFont', "PGListItem",
-		'TextColor', RGBA(140, 156, 178, 255),
-		'RolloverTextColor', RGBA(255, 255, 255, 255),
+		'Padding', box(0, 0, 0, 0),
+		'HAlign', "left",
+		'MinWidth', 250,
+		'MaxWidth', 250,
+		'MaxHeight', 35,
+		'HandleMouse', false,
+		'TextStyle', "PGListItemName",
 		'Translate', true,
+		'Shorten', true,
+		'TextVAlign', "center",
 	}, {
 		PlaceObj('XTemplateFunc', {
 			'name', "CalcTextColor",

@@ -1,3 +1,5 @@
+const.AutosavePeriod = const.DayDuration * 5 --save compat with rev 225026 saves
+
 function GetSavegameScreenshotParams()
 	local screen_sz = UIL.GetScreenSize()
 	local screen_w, screen_h = screen_sz:x(), screen_sz:y()
@@ -15,7 +17,7 @@ function WaitCaptureSavegameScreenshot(path)
 	local _, filename, ext = SplitPath(Savegame.ScreenshotName)
 	local file_path = string.format("%s%s%dx%d%s", path, filename, width, height, ext)
 	table.change(hr, "Savegame_BackgroundBlur", {
-		EnablePostProcVogelBlur = 0
+		EnablePostProcScreenBlur = 0
 	})
 	WaitNextFrame(2)
 	local err = WaitCaptureScreenshot(file_path, {interface = false, width = width, height = height, src = src})
@@ -272,6 +274,8 @@ function Autosave()
 		Sleep(1000)
 	end
 	
+	Msg("AutosaveStart")
+	
 	LoadingScreenOpen("idAutosaveScreen", "save savegame")
 	SetNextAutosaveSol()
 	--make sure the ingame interface is in a UnitDirection Mode before saving
@@ -298,6 +302,8 @@ function Autosave()
 	-- 2. Save
 	err = SaveAutosaveGame(display_name)
 	-- ATTN: delay closing the saving screen until we delete the old autosaves
+	
+	Msg("AutosaveEnd")
 	
 	if err then
 		LoadingScreenClose("idAutosaveScreen", "save savegame")

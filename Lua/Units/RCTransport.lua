@@ -51,7 +51,7 @@ DefineClass.RCTransport = {
 	pin_rollover = T{4462, "<Description><newline><newline><left>Concrete<right><concrete(Stored_Concrete)><newline><left>Metals<right><metals(Stored_Metals)><newline><left>Polymers<right><polymers(Stored_Polymers)><newline><left>Food<right><food(Stored_Food)><newline><left>Electronics<right><electronics(Stored_Electronics)><newline><left>Machine Parts<right><machineparts(Stored_MachineParts)><newline><left>Rare Metals<right><preciousmetals(Stored_PreciousMetals)><newline><left>Fuel<right><fuel(Stored_Fuel)>"},
 	encyclopedia_id = "RCTransport",
 
-	palettes = { "RCTransport" },
+	palette = {"rover_accent","rover_base","rover_dark","none"} ,
 	
 	to_load = false,
 	resource_requests = false,
@@ -752,7 +752,7 @@ function RCTransport:Automation_Gather()
 												return grp and not unreachable_objects[grp] or not grp and not unreachable_objects[d]
 											end)
 	if deposit then
-		if pf.HasPath(self:GetPos(), self.pfclass, deposit:GetPos()) then
+		if self:HasPath(deposit, self.work_spot_deposit) then
 			local grp = deposit:GetDepositGroup()
 			if grp then
 				grp.auto_rovers = (grp.auto_rovers or 0) + 1
@@ -791,7 +791,7 @@ function RCTransport:Automation_Unload()
 	end
 	
 	if depot then
-		if pf.HasPath(self:GetPos(), self.pfclass, depot:GetPos()) then
+		if self:HasPath(depot, self.work_spot_task) then
 			if command == "TransferAllResources" then
 				self:SetCommand(command, IsKindOf(depot, "MechanizedDepot") and depot.stockpiles[1] or depot, "unload", empty_table, self.stockpiled_amount)
 			else
@@ -953,10 +953,11 @@ function RCTransport:PickupResource(request, pile, goto_loading_complete, force_
 		local space_available = self:GetEmptyStorage(resource)
 		self:Gossip("PickupResource", building:GossipName(), building.handle, resource)
 		if space_available == 0 or not building:DroneApproach(self, resource) then
+			local uo = self:GetUnreachableObjectsTable()
 			if IsKindOf(building, "SurfaceDeposit") then
-				self.unreachable_objects[building:GetDepositGroup() or building] = true
+				uo[building:GetDepositGroup() or building] = true
 			else
-				self.unreachable_objects[building] = true
+				uo[building] = true
 			end
 			if start_automation_counters then
 				self:PopAndCallDestructor()
@@ -1015,7 +1016,7 @@ function RCTransport:TransferResources(storage_depot, interaction_type, resource
 		return "nothing to do"
 	end
 	if not storage_depot:DroneApproach(self, resource) then
-		self.unreachable_objects[storage_depot] = true
+		self:GetUnreachableObjectsTable()[storage_depot] = true
 		Sleep(1000)
 		return "approach failed"
 	end
@@ -1051,6 +1052,10 @@ function RCTransport:TransferResources(storage_depot, interaction_type, resource
 		storage_depot:RoverWork(self, arg_req1, resource, amount, arg_req2, interaction_type, amount_to_transfer)
 	end
 	
+	if IsKindOf(storage_depot, "SupplyRocket") then
+		storage_depot:WakeFromWaitingForResources()
+	end
+	
 	RebuildInfopanel(self)
 	
 	if allow_set_command and interaction_type == "load" then
@@ -1069,6 +1074,7 @@ function RCTransport:TransferAllResources(storage_depot, interaction_type, resou
 		storage_depot.auto_rovers = storage_depot.auto_rovers - 1
 	end)
 	local passed = {}
+	self.amount_transfered_last_ct = 0
 	
 	local function functor(self, storage_depot, res, passed, amount, expects_ret)
 		if passed[res] then return end
@@ -1364,6 +1370,24 @@ function RCTransport:GetSelectorItems(dataset)
 					end
 				end
 			})
+			if IsKindOf(self, "RCConstructor") then
+				table.insert(items, {
+				name = "all_construction",
+				icon = "UI/Icons/Buildings/res_all.tga",
+				display_name = T{10418, "Construction Resources"},
+				description  = T{10419, "Order the transport to load all construction resources"},
+				action = function(dataset, is_meta_pressed)
+					if is_meta_pressed then return end
+					self.transport_resource = construction_resources
+					if transport_mode ~= "route" then
+						SetUnitControlInteractionMode(self, false)
+						exit_with_all = true
+						exit_with_construction = true
+						self:SetCommand("TransferAllResources", dataset.target, "load", construction_resources)
+					end
+				end
+			})
+			end
 		end
 	elseif transport_mode == "unload" then
 		for i=1, #self.storable_resources do

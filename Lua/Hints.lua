@@ -135,7 +135,7 @@ end
 
 function HintsGetHighlightedID(dialog)
 	local hints_dlg = GetDialog("OnScreenHintDlg")
-	if not hints_dlg or not hints_dlg.idHintPad:GetVisible() then return end
+	if not hints_dlg then return end
 	
 	local current_hint_id = hints_dlg:CurrentHintId()
 	if not current_hint_id then return end

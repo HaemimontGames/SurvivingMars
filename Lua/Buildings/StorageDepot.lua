@@ -45,10 +45,12 @@ DefineClass.StorageDepot = {
 	OnAddedByControl = Building.OnAddedByControl,
 	OnRemovedByControl = Building.OnRemovedByControl,
 	Select = Building.Select,
+	
+	user_include_in_lrt = true,
 }
 
 function StorageDepot:GameInit()
-	if not self.exclude_from_lr_transportation then
+	if not self.exclude_from_lr_transportation and self.user_include_in_lrt then
 		LRManagerInstance:AddBuilding(self)
 	end
 end
@@ -167,7 +169,7 @@ function StorageDepot:ReturnStockpiledResources()
 end
 
 function StorageDepot:Done() --should this be in building::returnresources?
-	if not self.exclude_from_lr_transportation then
+	if not self.exclude_from_lr_transportation and self.user_include_in_lrt then
 		LRManagerInstance:RemoveBuilding(self)
 	end
 	self:ReturnStockpiledResources()
@@ -233,6 +235,37 @@ function StorageDepot:GetMaxStorage(resource)
 			t = t + self["GetMaxAmount_"..res](self)
 		end
 		return t
+	end
+end
+
+function StorageDepot:SetLRTService(val)
+	self.user_include_in_lrt = not val
+	self:ToggleLRTService()
+end
+
+function StorageDepot:ToggleLRTService(broadcast)
+	if broadcast then
+		BroadcastAction(self, "SetLRTService", not self.user_include_in_lrt)
+		return
+	end
+	if self.exclude_from_lr_transportation then return end
+	self.user_include_in_lrt = not self.user_include_in_lrt
+	if self.user_include_in_lrt then
+		LRManagerInstance:AddBuilding(self)
+	else
+		LRManagerInstance:RemoveBuilding(self)
+	end
+end
+
+function StorageDepot:GetBroadcastLabel()
+	return self.template_name
+end
+
+function StorageDepot:ToggleLRTService_Update(button)
+	if not self.user_include_in_lrt then
+		button:SetIcon("UI/Icons/IPButtons/shuttle_forbidden.tga")
+	else
+		button:SetIcon("UI/Icons/IPButtons/shuttle_allowed.tga")
 	end
 end
 
@@ -451,7 +484,9 @@ function UniversalStorageDepot:ToggleAcceptResource(res_id, broadcast)
 		local depos = MapGet("map", "UniversalStorageDepot", function(obj)	return table.iequals(obj.resource, self.resource)	end) 
 		local is_storing = self:IsStoring(res_id)
 		for _, storage in ipairs(depos or empty_table) do
-			storage:SetAcceptResource(res_id, false, not is_storing)
+			if storage:GetUIInteractionState() then
+				storage:SetAcceptResource(res_id, false, not is_storing)
+			end
 		end
 	else
 		self:SetAcceptResource(res_id, true)
@@ -469,7 +504,7 @@ function UniversalStorageDepot:SetAcceptResource(res_id, toggle, to_store)
 	assert(req)
 	local is_storing = self:IsStoring(res_id)
 	local task_requests = self.task_requests
-	if not self.exclude_from_lr_transportation then
+	if not self.exclude_from_lr_transportation and self.user_include_in_lrt then
 		LRManagerInstance:RemoveBuilding(self)
 	end
 	if is_storing and (toggle or not to_store) then
@@ -484,7 +519,7 @@ function UniversalStorageDepot:SetAcceptResource(res_id, toggle, to_store)
 		s_req:ClearFlags(const.rfPostInQueue)
 		s_req:AddFlags(const.rfStorageDepot)
 	end
-	if not self.exclude_from_lr_transportation then
+	if not self.exclude_from_lr_transportation and self.user_include_in_lrt then
 		LRManagerInstance:AddBuilding(self)
 	end	
 	self:ConnectToCommandCenters()
@@ -655,6 +690,43 @@ DefineClass.MechanizedDepot = {
 	
 	is_unloading = false,
 }
+
+function MechanizedDepot:ToggleLRTService(broadcast)
+	local io_stockpile = self.stockpiles[1]
+	if not io_stockpile then return end
+	if broadcast then
+		BroadcastAction(self, "SetLRTService", not io_stockpile.user_include_in_lrt)
+		return
+	end
+	io_stockpile.user_include_in_lrt = not io_stockpile.user_include_in_lrt
+	if io_stockpile.user_include_in_lrt then
+		LRManagerInstance:AddBuilding(io_stockpile)
+	else
+		LRManagerInstance:RemoveBuilding(io_stockpile)
+	end
+end
+
+function MechanizedDepot:SetLRTService(val)
+	local io_stockpile = self.stockpiles[1]
+	if not io_stockpile then return end
+	io_stockpile.user_include_in_lrt = not val
+	self:ToggleLRTService()
+end
+
+function MechanizedDepot:GetBroadcastLabel()
+	return self.template_name
+end
+
+function MechanizedDepot:ToggleLRTService_Update(button)
+	local io_stockpile = self.stockpiles[1]
+	if not io_stockpile then return end
+	button:SetRolloverText(T{11233, "Storages with forbidden Shuttle Access are never serviced by Shuttles.<newline><newline>Current status: <em><on_off(user_include_in_lrt)></em>", io_stockpile})
+	if not io_stockpile.user_include_in_lrt then
+		button:SetIcon("UI/Icons/IPButtons/shuttle_forbidden.tga")
+	else
+		button:SetIcon("UI/Icons/IPButtons/shuttle_allowed.tga")
+	end
+end
 
 function MechanizedDepot:GetEmptyStorage(resource)
 	if self.resource == resource then
@@ -1322,7 +1394,9 @@ function MechanizedDepot:ToggleAcceptResource(res_id, broadcast)
 		local storages = MapGet("map", "MechanizedDepot", function(obj) return obj.resource == self.resource end )
 		local is_storing = self:IsStoring()
 		for _, storage in ipairs(storages or empty_table) do
-			storage:SetAcceptResource(res_id, false, not is_storing)
+			if storage:GetUIInteractionState() then
+				storage:SetAcceptResource(res_id, false, not is_storing)
+			end
 		end
 	else
 		self:SetAcceptResource(res_id, true)
@@ -1358,7 +1432,9 @@ function MechanizedDepot:SetAcceptResource(res_id, toggle, to_store)
 	local req = io_stockpile.demand[resource]
 	local task_requests = io_stockpile.task_requests
 	local is_storing = table.find(task_requests, req)
-	LRManagerInstance:RemoveBuilding(io_stockpile)
+	if not io_stockpile.user_include_in_lrt then
+		LRManagerInstance:RemoveBuilding(io_stockpile)
+	end
 	if is_storing and (toggle or not to_store) then
 		io_stockpile:InterruptDrones(nil,function(drone) return drone.d_request==req and drone end)
 		io_stockpile:DisconnectFromCommandCenters()
@@ -1373,7 +1449,9 @@ function MechanizedDepot:SetAcceptResource(res_id, toggle, to_store)
 		s_req:AddFlags(const.rfStorageDepot)
 		self.is_unloading = false
 	end
-	LRManagerInstance:AddBuilding(io_stockpile)
+	if not io_stockpile.user_include_in_lrt then
+		LRManagerInstance:AddBuilding(io_stockpile)
+	end
 	io_stockpile:ConnectToCommandCenters()
 end
 

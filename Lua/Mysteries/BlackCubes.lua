@@ -364,6 +364,17 @@ function TestBlackCube(pos)
 	UICity.mystery.can_destroy_cubes = true
 end
 
+function PlaceBlackCubeOnDestroyedRegolithExtractorPos(pos, init_with_amount)
+	local obj = PlaceObject("BlackCubeStockpile", {init_with_amount = init_with_amount})
+	if MapGet(pos, 0, "TerrainDeposit") then
+		local q, r = WorldToHex(pos)
+		local x, y = HexToWorld(q + 1, r)
+		pos = point(x, y)
+	end
+	obj:SetPos(pos)
+	return pos
+end
+
 ----------------------------------------------------------------------------------
 --                   BlackCubeMonolith
 -----------------------------------------------------------------------------------

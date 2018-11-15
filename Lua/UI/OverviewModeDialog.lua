@@ -465,9 +465,17 @@ function OverviewModeDialog:GenerateSectorRolloverContext(sector, forced)
 			local desc = Resources[res]
 			local name = desc and desc.display_name
 			
-			if name and (not scanned or desc.deep_available) then
-				expected[#expected + 1] = name
-				exp_shown[res] = true
+			if name then
+				if (not scanned or desc.deep_available) then
+					expected[#expected + 1] = name
+					exp_shown[res] = true
+				end
+			else
+				local classdef = g_Classes[res]
+				if IsKindOf(classdef, "EffectDeposit") then
+					expected[#expected + 1] = classdef.sector_expected_name
+					exp_shown[res] = true
+				end
 			end
 		end
 		
@@ -792,4 +800,12 @@ function OverviewModeDialog:ScaleSmallObjects(time, direction)
 			end
 		end
 	end )
+end
+
+function SavegameFixups.UpdateSectorNumberTextStyle()
+	for i = 2, #g_ExplorationQueue do
+		if g_ExplorationQueue[i].queue_text then
+			g_ExplorationQueue[i].queue_text:SetTextStyle("ExplorationSector")
+		end
+	end
 end

@@ -12,7 +12,7 @@ function SkinChangeable:GetSkins()
 end
 
 function SkinChangeable:CycleSkin()
-	local skins = self:GetSkins()
+	local skins, palettes = self:GetSkins()
 	if not skins or #skins <= 1 then return end
 
 	-- process the units inside building before changing entity ( changing entity will destroy attaches. Units attached to any attach would be deleted )
@@ -32,7 +32,8 @@ function SkinChangeable:CycleSkin()
 	end
 	local skin_idx = self:GetNextSkinIdx(skins)
 	local skin = skins[skin_idx]
-	self:ChangeSkin(skin)
+	local palette = palettes and palettes[skin_idx]
+	self:ChangeSkin(skin, palette)
 end
 
 function SkinChangeable:GetNextSkinIdx(skins)
@@ -43,10 +44,10 @@ function SkinChangeable:GetNextSkinIdx(skins)
 	return skin_idx
 end
 
-function SkinChangeable:ChangeSkin(skin)
+function SkinChangeable:ChangeSkin(skin, palette)
 	self:ChangeEntity(skin)
-	self:OnSkinChanged(skin)
+	self:OnSkinChanged(skin, palette)
 end
 
-function SkinChangeable:OnSkinChanged(skin)
+function SkinChangeable:OnSkinChanged(skin, palette)
 end

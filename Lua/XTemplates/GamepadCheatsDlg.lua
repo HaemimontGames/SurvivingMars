@@ -61,7 +61,6 @@ end,
 					'OnPress', function (self, gamepad)
 self.context.func()
 end,
-					'TextColor', RGBA(221, 215, 170, 255),
 					'Text', T{867595017482, --[[XTemplate GamepadCheatsDlg Text]] "<display_name>"},
 				}),
 				}),

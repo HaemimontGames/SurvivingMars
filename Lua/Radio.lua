@@ -6,7 +6,7 @@
 	SetMusicPlaylist("Radio")
 end]]
 
-local function PlayTrack(track_list, index, silence)
+function PlayTrack(track_list, index, silence)
 	local track = track_list[index]
 	index = 1 + index % Max(#track_list, 1)
 	if track then
@@ -20,7 +20,7 @@ local function PlayTrack(track_list, index, silence)
 	return index
 end
 
-local function PlayTracks(count, track_list, index, silence)
+function PlayTracks(count, track_list, index, silence)
 	for i = 1, count do
 		index = PlayTrack(track_list, index, silence)
 	end

@@ -5,10 +5,10 @@ PlaceObj('XTemplate', {
 	id = "PGMissionSponsor",
 	PlaceObj('XTemplateWindow', {
 		'__class', "XDialog",
-		'Padding', box(0, 65, 100, 50),
+		'Padding', box(60, 68, 0, 25),
 		'ContextUpdateOnOpen', true,
 		'InitialMode', "properties",
-		'InternalModes', "properties,items",
+		'InternalModes', "properties,items,rivalslots",
 	}, {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
@@ -25,7 +25,7 @@ end,
 			'func', function (self, context)
 local prop_meta = GetDialogModeParam(self)
 if not prop_meta or prop_meta.id == "idMissionLogo" then
-	local logo = g_TitleObj.replace_param == "idMissionLogo" and g_TitleObj.replace_value or context:GetProperty("idMissionLogo")
+	local logo = g_TitleObj and g_TitleObj.replace_param == "idMissionLogo" and g_TitleObj.replace_value or context:GetProperty("idMissionLogo")
 	local data = Presets.MissionLogoPreset.Default[logo] or Presets.MissionLogoPreset.Default[1]
 	if data then
 		self.idLogo:SetImage(data.image)
@@ -33,60 +33,38 @@ if not prop_meta or prop_meta.id == "idMissionLogo" then
 end
 end,
 		}),
+		PlaceObj('XTemplateWindow', {
+			'__class', "XImage",
+			'Id', "idLogo",
+			'Margins', box(650, -38, 0, 0),
+			'Dock', "box",
+			'HAlign', "left",
+			'VAlign', "top",
+			'MinWidth', 230,
+			'MinHeight', 230,
+			'MaxWidth', 230,
+			'MaxHeight', 230,
+			'Image', "CommonAssets/UI/Controls/Image.tga",
+			'ImageFit', "stretch",
+		}),
 		PlaceObj('XTemplateTemplate', {
-			'__template', "ActionBar",
-			'MinWidth', 550,
+			'__template', "ActionBarNew",
+			'Margins', box(55, 0, 0, 0),
 		}),
 		PlaceObj('XTemplateWindow', {
-			'HAlign', "right",
-			'MinWidth', 610,
-			'MaxWidth', 610,
+			'HAlign', "left",
 		}, {
-			PlaceObj('XTemplateWindow', {
-				'__class', "XImage",
-				'Id', "idLogo",
-				'Dock', "top",
-				'HAlign', "center",
-				'MinWidth', 230,
-				'MinHeight', 230,
-				'MaxWidth', 230,
-				'MaxHeight', 230,
-				'Image', "CommonAssets/UI/Controls/Image.tga",
-				'ImageFit', "stretch",
+			PlaceObj('XTemplateTemplate', {
+				'__template', "DialogTitleNew",
+				'Margins', box(55, 0, 0, 0),
+				'Title', T{602846722069, --[[XTemplate PGMissionSponsor Title]] "MISSION SETUP"},
+				'Subtitle', T{774720837511, --[[XTemplate PGMissionSponsor Subtitle]] "Difficulty Challenge <percent(DifficultyBonus)>"},
+			}),
+			PlaceObj('XTemplateTemplate', {
+				'__template', "PGMissionSubtitle",
 			}),
 			PlaceObj('XTemplateWindow', {
-				'__class', "XFrame",
-				'Margins', box(-280, 20, -40, -126),
-				'Dock', "top",
-				'Image', "UI/Common/pm_pad_large.tga",
-				'FrameBox', box(320, 0, 40, 0),
-				'SqueezeY', false,
-				'FlipY', true,
-			}),
-			PlaceObj('XTemplateWindow', {
-				'__class', "XContentTemplate",
-				'Dock', "top",
-				'RespawnOnContext', false,
-			}, {
-				PlaceObj('XTemplateMode', {
-					'mode', "items",
-				}, {
-					PlaceObj('XTemplateWindow', {
-						'__class', "XLabel",
-						'Id', "idTitle",
-						'HAlign', "right",
-						'TextFont', "PGMissionDescrTitle",
-						'TextColor', RGBA(96, 135, 185, 255),
-						'Translate', true,
-					}),
-					PlaceObj('XTemplateCode', {
-						'run', function (self, parent, context)
-parent.idTitle:SetText(GetDialogModeParam(parent).title)
-end,
-					}),
-					}),
-				}),
-			PlaceObj('XTemplateWindow', {
+				'Margins', box(0, 15, 0, 20),
 				'Dock', "top",
 				'MaxWidth', 10000,
 				'MaxHeight', 10000,
@@ -94,13 +72,19 @@ end,
 			}, {
 				PlaceObj('XTemplateWindow', {
 					'__class', "XContentTemplateList",
-					'Id', "idPropertiesList",
+					'Id', "idList",
+					'Margins', box(39, 0, 0, 0),
 					'BorderWidth', 0,
-					'LayoutVSpacing', 6,
+					'Padding', box(0, 0, 0, 0),
+					'HAlign', "left",
+					'LayoutVSpacing', 8,
+					'UniformRowHeight', true,
 					'Clip', false,
 					'Background', RGBA(0, 0, 0, 0),
 					'FocusedBackground', RGBA(0, 0, 0, 0),
+					'VScroll', "idScroll",
 					'ShowPartialItems', false,
+					'MouseScroll', true,
 					'RespawnOnContext', false,
 				}, {
 					PlaceObj('XTemplateMode', {
@@ -122,27 +106,32 @@ end
 end,
 						}, {
 							PlaceObj('XTemplateTemplate', {
-								'__template', "PropEntry",
+								'__template', "PGMissionPropChoice",
 								'RolloverTemplate', "Rollover",
 							}, {
 								PlaceObj('XTemplateWindow', {
-									'__class', "XImage",
+									'__class', "XFrame",
 									'Id', "idRollover",
 									'ZOrder', 0,
-									'Margins', box(-60, 0, -60, -6),
+									'Margins', box(-35, -15, 0, -5),
 									'Dock', "box",
+									'HAlign', "left",
+									'MinWidth', 448,
 									'Visible', false,
-									'Image', "UI/Common/bm_buildings_pad.tga",
-									'ImageFit', "stretch",
+									'Image', "UI/CommonNew/pg_selection.tga",
+									'FrameBox', box(50, 0, 178, 0),
+									'TileFrame', true,
 								}),
 								}),
 							}),
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-g_TitleObj.replace_param = false
-g_TitleObj.replace_value = false
-ObjModified(g_TitleObj)
-ObjModified(context)
+if g_TitleObj then
+	g_TitleObj.replace_param = false
+	g_TitleObj.replace_value = false
+	ObjModified(g_TitleObj)
+	ObjModified(context)
+end
 end,
 						}),
 						PlaceObj('XTemplateAction', {
@@ -174,28 +163,12 @@ end,
 							'OnActionParam', "payload",
 						}),
 						}),
-					}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XContentTemplateList",
-					'Id', "idList",
-					'Margins', box(60, 0, 0, 0),
-					'BorderWidth', 0,
-					'LayoutVSpacing', 6,
-					'UniformRowHeight', true,
-					'Clip', false,
-					'Background', RGBA(0, 0, 0, 0),
-					'FocusedBackground', RGBA(0, 0, 0, 0),
-					'VScroll', "idScroll",
-					'ShowPartialItems', false,
-					'MouseScroll', true,
-					'RespawnOnContext', false,
-				}, {
 					PlaceObj('XTemplateMode', {
 						'mode', "items",
 					}, {
 						PlaceObj('XTemplateForEach', {
 							'comment', "item",
-							'array', function (parent, context) return GetDialogModeParam(parent).items() end,
+							'array', function (parent, context) local param = GetDialogModeParam(parent) return param and param.items() end,
 							'__context', function (parent, context, item, i, n) return item end,
 							'run_after', function (child, context, item, i, n)
 if item.rollover then
@@ -216,7 +189,7 @@ end,
 									'func', function (self, rollover)
 XTextButton.OnSetRollover(self, rollover)
 local prop_meta = GetDialogModeParam(self)
-if prop_meta then
+if prop_meta and g_TitleObj then
 	local obj = GetDialogContext(self)
 	g_TitleObj.replace_param = prop_meta.id
 	g_TitleObj.replace_value = self.context.value
@@ -236,9 +209,12 @@ end,
 							'OnActionEffect', "back",
 						}),
 						}),
+					PlaceObj('XTemplateTemplate', {
+						'__template', "PGMissionAdditionalModes",
+					}),
 					}),
 				PlaceObj('XTemplateTemplate', {
-					'__template', "Scrollbar",
+					'__template', "ScrollbarNew",
 					'Id', "idScroll",
 					'Target', "idList",
 				}),
@@ -251,31 +227,20 @@ end,
 				PlaceObj('XTemplateMode', {
 					'mode', "properties",
 				}, {
-					PlaceObj('XTemplateWindow', {
-						'__class', "XFrame",
-						'Margins', box(-280, 20, -40, -126),
-						'Dock', "top",
-						'Image', "UI/Common/pm_pad_large.tga",
-						'FrameBox', box(320, 0, 40, 0),
-						'SqueezeY', false,
-						'FlipY', true,
+					PlaceObj('XTemplateTemplate', {
+						'__template', "DialogTitleSmall",
+						'Margins', box(55, 0, 0, 0),
+						'Title', T{4265, --[[XTemplate PGMissionSponsor Title]] "EFFECTS"},
 					}),
 					PlaceObj('XTemplateWindow', {
-						'__class', "XLabel",
-						'Margins', box(40, 0, 0, 0),
-						'Dock', "top",
-						'TextFont', "PGMissionDescrTitle",
-						'TextColor', RGBA(96, 135, 185, 255),
-						'Translate', true,
-						'Text', T{4265, --[[XTemplate PGMissionSponsor Text]] "EFFECTS"},
-					}),
-					PlaceObj('XTemplateWindow', {
+						'Padding', box(0, 10, 0, 20),
 						'LayoutMethod', "HList",
 					}, {
 						PlaceObj('XTemplateWindow', {
 							'__class', "XScrollArea",
 							'Id', "idEffectsTextArea",
 							'Margins', box(40, 0, 0, 0),
+							'MaxWidth', 610,
 							'LayoutMethod', "VList",
 							'VScroll', "idTextScroll",
 							'MouseWheelStep', 40,
@@ -283,15 +248,13 @@ end,
 							PlaceObj('XTemplateWindow', {
 								'__class', "XText",
 								'Clip', false,
-								'TextFont', "PGMissionEffectsHint",
-								'TextColor', RGBA(118, 163, 222, 255),
-								'RolloverTextColor', RGBA(118, 163, 222, 255),
+								'TextStyle', "PGMissionEffects",
 								'Translate', true,
 								'Text', T{350571528070, --[[XTemplate PGMissionSponsor Text]] "<Effects>"},
 							}),
 							}),
 						PlaceObj('XTemplateTemplate', {
-							'__template', "Scrollbar",
+							'__template', "ScrollbarNew",
 							'Id', "idTextScroll",
 							'Target', "idEffectsTextArea",
 						}),

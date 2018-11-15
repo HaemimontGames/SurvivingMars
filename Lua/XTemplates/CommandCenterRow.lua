@@ -7,10 +7,10 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateWindow', {
 		'__class', "XContextControl",
 		'RolloverTemplate', "Rollover",
-		'RolloverAnchor', "left",
+		'RolloverAnchor', "right",
 		'RolloverTitle', T{7412, --[[XTemplate CommandCenterRow RolloverTitle]] "<DisplayName>"},
-		'RolloverHint', T{115984499466, --[[XTemplate CommandCenterRow RolloverHint]] "<left_click> View <left_click><left_click> Select"},
-		'RolloverHintGamepad', T{764097870353, --[[XTemplate CommandCenterRow RolloverHintGamepad]] "<ButtonA> View <ButtonX> Select"},
+		'RolloverHint', T{11626, --[[XTemplate CommandCenterRow RolloverHint]] "<left_click> View <left_click> Select"},
+		'RolloverHintGamepad', T{11627, --[[XTemplate CommandCenterRow RolloverHintGamepad]] "<ButtonA> View <ButtonX> Select"},
 		'Id', "idRow",
 		'MinHeight', 46,
 		'MaxHeight', 46,
@@ -21,37 +21,6 @@ PlaceObj('XTemplate', {
 		'FXMouseIn', "MenuItemHover",
 		'FXPress', "MenuItemClick",
 	}, {
-		PlaceObj('XTemplateFunc', {
-			'name', "OnSetRollover(self, rollover)",
-			'func', function (self, rollover)
---delay this a bit so that idRollover2 is measured
-CreateRealTimeThread(function()
-	if self.window_state ~= "destroying" then
-		XContextControl.OnSetRollover(self, rollover)
-		self.idRollover2:SetVisible(rollover)
-		local b = self.idRollover2.box
-		self.idRollover2:AddInterpolation{
-			type = const.intRect,
-			duration = self.idRollover2:GetFadeInTime(),
-			startRect = b,
-			endRect = sizebox(b:minx(), b:miny(), 40, b:sizey()),
-			flags = const.intfInverse,
-			autoremove = true,
-		}
-	end
-end)
-end,
-		}),
-		PlaceObj('XTemplateFunc', {
-			'name', "OnMouseButtonDown(self, pos, button)",
-			'func', function (self, pos, button)
-if button == "L" then
-	self:PlayFX(self.FXPress, "start")
-	ViewObjectMars(self.context)
-	return "break"
-end
-end,
-		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnMouseButtonDoubleClick(self, pos, button)",
 			'func', function (self, pos, button)
@@ -73,9 +42,6 @@ end,
 			'name', "OnShortcut(self, shortcut, source)",
 			'func', function (self, shortcut, source)
 if shortcut == "ButtonA" then
-	self:OnMouseButtonDown(nil, "L")
-	return "break"
-elseif shortcut == "ButtonX" then
 	self:OnMouseButtonDoubleClick(nil, "L")
 	return "break"
 elseif XShortcutToRelation[shortcut] == "right" or XShortcutToRelation[shortcut] == "left" then
@@ -98,27 +64,15 @@ return XContextControl.OnShortcut(self, shortcut, source)
 end,
 		}),
 		PlaceObj('XTemplateWindow', {
-			'__class', "XImage",
-			'Id', "idRollover2",
+			'comment', "background",
+			'__class', "XFrame",
+			'Id', "idBackground",
 			'IdNode', false,
 			'ZOrder', 0,
-			'Margins', box(0, 0, 0, -8),
-			'Padding', box(25, 0, 0, 0),
+			'Margins', box(10, -12, 0, -12),
 			'Dock', "box",
-			'Visible', false,
-			'FadeInTime', 150,
-			'Image', "UI/Common/message_choice_shine.tga",
-			'ImageFit', "stretch",
-		}),
-		PlaceObj('XTemplateWindow', {
-			'__class', "XImage",
-			'IdNode', false,
-			'ZOrder', 0,
-			'Margins', box(0, 0, 0, -6),
-			'Padding', box(25, 0, 0, 0),
-			'Dock', "box",
-			'Image', "UI/Infopanel/section.tga",
-			'ImageFit', "stretch",
+			'Image', "UI/CommonNew/ccc_row.tga",
+			'FrameBox', box(13, 40, 40, 13),
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XImage",

@@ -84,6 +84,7 @@ function ReloadCommanderProfiles()
 end
 
 const.TagLookupTable["sponsor_name"] = function() return GetMissionSponsor().display_name end
+const.TagLookupTable["commander_name"] = function() return GetCommanderProfile().display_name end
 
 function ReloadMissionParams(override)
 	if not override and not DataLoaded then
@@ -267,7 +268,8 @@ end
 
 function GetMissionSponsor(name)
 	name = name or g_CurrentMissionParams.idMissionSponsor
-	local sponsor = name and Presets.MissionSponsorPreset.Default[name] or GetDefaultMissionSponsor()
+	local presets = Presets.MissionSponsorPreset
+	local sponsor = name and presets and presets.Default[name] or GetDefaultMissionSponsor()
 	if not rawget(sponsor, "name") then
 		rawset(sponsor, "name", sponsor.id) --backward compatibility for mods
 	end
@@ -280,7 +282,8 @@ end
 
 function GetCommanderProfile(name)
 	name = name or g_CurrentMissionParams.idCommanderProfile
-	local commander = name and Presets.CommanderProfilePreset.Default[name] or GetDefaultCommanderProfile()
+	local presets = Presets.CommanderProfilePreset
+	local commander = name and presets and presets.Default[name] or GetDefaultCommanderProfile()
 	if not rawget(commander, "name") then
 		rawset(commander, "name", commander.id) --backward compatibility for mods
 	end
@@ -377,8 +380,10 @@ end
 
 local function ModifyResupplyDef(def, param, percent)
 	local orig_def = def and CargoPreset[def.id]
-	assert(orig_def)
 	if not orig_def then
+		-- asserts olny if all dlcs are available and cannot find the cargo preset
+		-- otherwise the preset may be in disabled dlc and return is enough 
+		assert(DbgAreDlcsMissing(), "No such cargo preset " .. tostring(def and def.id))
 		return
 	end
 	if param == "price" then
@@ -469,10 +474,13 @@ directlyModifiableConsts = {
 	{local_id = "funding_per_interval", global_id = "SponsorFundingPerInterval"},
 }
 
-function IsConstDirectlyModified(label)
-	for _, const_pair in pairs(directlyModifiableConsts) do
-		if const_pair.global_id == label then
-			return true
+function DirectlyModifiedConsValue(label, base_value)
+	local sponsor = GetMissionSponsor()
+	if sponsor then
+		for _, const_pair in pairs(directlyModifiableConsts) do
+			if const_pair.global_id == label and sponsor[const_pair.local_id] ~= base_value then
+				return sponsor[const_pair.local_id]
+			end
 		end
 	end
 	return false
@@ -798,6 +806,9 @@ function StartNewGame(host, mode, rules)
 		end	
 		InitNewGameMissionParams()
 		LoadingScreenOpen("idLoadingScreen", "pre_game")
+		if host.window_state ~= "destroying" then
+			host:SetMode("Empty")
+		end
 		ChangeMap("PreGame")
 		if host.window_state ~= "destroying" then
 			g_CurrentMissionParams.idGameRules = rules or {}

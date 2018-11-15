@@ -65,9 +65,8 @@ function UnitDirectionModeDialog:Close(...)
 		self.route_visuals = false
 	end
 	
-	if self.created_route and self.unit then
-		self.unit.ui_data_propagate = self.created_route
-	end
+	self.created_route = false
+	self:UpdateCursorObj()
 
 	XDialog.Close(self, ...)
 end
@@ -209,10 +208,14 @@ function UnitDirectionModeDialog:UpdateCursorText()
 		txt = gamepad and "\n"..hint or hint		
 	elseif self.unit and self.unit:CanBeControlled() then
 		if self.interaction_mode == "route" then
-			if not (self.created_route and self.created_route.from) then
-				txt = interaction_mode_cursor_text.load
-			else
-				txt = interaction_mode_cursor_text.unload
+			local res_dlg = GetDialog("ResourceItems")
+			local choosing_res = res_dlg and res_dlg.context and IsKindOf(res_dlg.context.object, "RCTransport")
+			if not choosing_res then
+				if not (self.created_route and self.created_route.from) then
+					txt = interaction_mode_cursor_text.load
+				else
+					txt = interaction_mode_cursor_text.unload
+				end
 			end
 		else
 			txt = interaction_mode_cursor_text[self.interaction_mode]
@@ -384,7 +387,7 @@ function UnitDirectionModeDialog:UpdateInteractionObj(obj, pos)
 	
 	local h1, h2
 	if IsValid(obj) then
-		interaction_obj, h1, block_goto = ctrl:CanInteractWithObject(obj, false)
+		interaction_obj, h1, block_goto = ctrl:CanInteractWithObject(obj, self.interaction_mode)
 		interaction_obj = interaction_obj and obj
 	else
 		interaction_obj = interaction_obj or false
@@ -392,7 +395,7 @@ function UnitDirectionModeDialog:UpdateInteractionObj(obj, pos)
 	end
 	
 	if not interaction_obj and other_obj and other_obj ~= obj then
-		interaction_obj, h2, block_goto = ctrl:CanInteractWithObject(other_obj, false)
+		interaction_obj, h2, block_goto = ctrl:CanInteractWithObject(other_obj, self.interaction_mode)
 		interaction_obj = interaction_obj and other_obj
 	end
 	
@@ -599,8 +602,6 @@ function UnitDirectionModeDialog:CreateRoute(terrain_pt)
 		end
 		CityUnitController[UICity]:InteractWithObject(self.interaction_obj, self.interaction_mode)
 		self:SetTransportRoutePoint("from", terrain_pt or GetTerrainCursor())
-		ShowMouseCursor("InGameInterface")
-		ShowGamepadCursor("construction")
 	else
 		self:SetTransportRoutePoint("to", terrain_pt or GetTerrainCursor())
 	end

@@ -10,10 +10,12 @@ PrgAmbientLife["WorkMetalsExtractor"] = function(unit, bld)
 
 	unit:SetOutsideVisuals(true)
 	elevator = PrgGetNearestAttach(IsCloser, "Passenger", unit, bld, "MetalsExtractorElevator")
-	elevator:Use(unit, 1)
-	if unit.visit_restart then unit:PopAndCallDestructor() return end
-	spot = bld:GetNearestSpot("Elevator", unit)
-	slot, slotname = PrgGetSlotBySpot(bld, spot)
+	if elevator then
+		elevator:Use(unit, 1)
+		if unit.visit_restart then unit:PopAndCallDestructor() return end
+		spot = bld:GetNearestSpot("Elevator", unit)
+		slot, slotname = PrgGetSlotBySpot(bld, spot)
+	end
 	PrgVisitHolder(unit, bld, bld, 1000)
 	if unit.visit_restart then unit:PopAndCallDestructor() return end
 	while true do
@@ -27,8 +29,13 @@ PrgAmbientLife["WorkMetalsExtractor"] = function(unit, bld)
 	end
 	PrgChangeSpotFlags(bld, bld, spot, 1, 0, slotname, slot)
 	unit:SetOutsideVisuals(true)
-	elevator:Use(unit, 2)
-	if unit.visit_restart then unit:PopAndCallDestructor() return end
+	if elevator then
+		elevator:Use(unit, 2)
+		if unit.visit_restart then unit:PopAndCallDestructor() return end
+	else
+		PrgLeadToExit(unit, bld)
+		if unit.visit_restart then unit:PopAndCallDestructor() return end
+	end
 
 	unit:PopAndCallDestructor()
 end

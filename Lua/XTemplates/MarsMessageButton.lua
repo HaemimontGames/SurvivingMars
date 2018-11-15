@@ -8,8 +8,7 @@ PlaceObj('XTemplate', {
 		'__class', "XTextButton",
 		'RolloverTemplate', "Rollover",
 		'RolloverAnchor', "bottom",
-		'Padding', box(25, 0, 0, 0),
-		'MaxHeight', 45,
+		'MinHeight', 70,
 		'Background', RGBA(0, 0, 0, 0),
 		'MouseCursor', "UI/Cursors/Rollover.tga",
 		'RelativeFocusOrder', "new-line",
@@ -43,53 +42,20 @@ end
 end,
 		}),
 		PlaceObj('XTemplateFunc', {
-			'name', "OnSetRollover(self, rollover)",
-			'func', function (self, rollover)
---delay this a bit so that idRollover2 is measured
-CreateRealTimeThread(function()
-	if self.window_state ~= "destroying" then
-		XTextButton.OnSetRollover(self, rollover)
-		self.idRollover2:SetVisible(rollover)
-		local b = self.idRollover2.box
-		self.idRollover2:AddInterpolation{
-			type = const.intRect,
-			duration = self.idRollover2:GetFadeInTime(),
-			startRect = b,
-			endRect = sizebox(b:minx(), b:miny(), 40, b:sizey()),
-			flags = const.intfInverse,
-			autoremove = true,
-		}
-	end
-end)
+			'name', "IsSelectable",
+			'func', function (self, ...)
+return self:GetEnabled()
 end,
-		}),
-		PlaceObj('XTemplateWindow', {
-			'__class', "XImage",
-			'Id', "idRollover2",
-			'IdNode', false,
-			'ZOrder', 0,
-			'Margins', box(0, 0, 0, -6),
-			'Dock', "box",
-			'Visible', false,
-			'FadeInTime', 150,
-			'Image', "UI/Common/message_choice_shine.tga",
-			'ImageFit', "stretch",
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XImage",
 			'Id', "idButtonIcon",
 			'IdNode', false,
 			'ZOrder', 2,
-			'Margins', box(-25, 0, 0, 0),
-			'Shape', "InHHex",
+			'Shape', "InEllipse",
 			'Dock', "left",
-			'MinWidth', 50,
-			'MinHeight', 43,
-			'MaxWidth', 50,
-			'MaxHeight', 43,
 			'HandleMouse', true,
-			'Image', "UI/Common/message_button.tga",
-			'ImageFit', "smallest",
+			'Image', "UI/CommonNew/message_1.tga",
 		}, {
 			PlaceObj('XTemplateWindow', {
 				'__class', "XImage",
@@ -98,8 +64,7 @@ end,
 				'Margins', box(-3, -3, -3, -3),
 				'Dock', "box",
 				'Visible', false,
-				'Image', "UI/Common/Hex_small_shine_2.tga",
-				'ImageFit', "smallest",
+				'Image', "UI/CommonNew/message_number_highlight.tga",
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XImage",
@@ -108,10 +73,8 @@ end,
 				'Dock', "box",
 				'HAlign', "center",
 				'VAlign', "center",
-				'MaxWidth', 30,
-				'MaxHeight', 30,
+				'ScaleModifier', point(450, 450),
 				'Visible', false,
-				'ImageFit', "smallest",
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XImage",
@@ -120,29 +83,25 @@ end,
 				'Dock', "box",
 				'HAlign', "center",
 				'VAlign', "center",
-				'MaxWidth', 30,
-				'MaxHeight', 30,
+				'ScaleModifier', point(450, 450),
 				'Visible', false,
-				'ImageFit', "smallest",
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XImage",
 				'Id', "idButtonSelectedIcon",
 				'IdNode', false,
 				'Visible', false,
-				'Image', "UI/Common/message_button.tga",
+				'Image', "UI/CommonNew/message_1.tga",
 			}),
 			}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XText",
 			'Id', "idText",
-			'Padding', box(2, 0, 2, 0),
+			'Margins', box(-5, 0, 20, 0),
+			'Padding', box(0, 10, 10, 10),
 			'HAlign', "left",
 			'VAlign', "center",
-			'TextFont', "HexChoice",
-			'TextColor', RGBA(254, 237, 122, 255),
-			'RolloverTextColor', RGBA(255, 255, 255, 255),
-			'DisabledTextColor', RGBA(196, 196, 196, 255),
+			'TextStyle', "MessageChoice",
 			'Translate', true,
 		}, {
 			PlaceObj('XTemplateFunc', {

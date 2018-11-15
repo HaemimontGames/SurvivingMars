@@ -79,12 +79,14 @@ DefineClass.City = {
 	
 	rand_state = false,
 	
-	mission_goal = false,
 	cur_sol_died = 0,
 	last_sol_died = 0,
 	dead_notification_shown = false,
 	
 	drone_prefabs = 0,
+	
+	next_anomaly_day = false,
+	next_anomaly_interval = 20, -- sols
 	
 	-- time series logs for bar graphs in CCC
 	ts_colonists = false,
@@ -161,6 +163,8 @@ function City:Init()
 			self.queued_resupply = {}
 			Sleep(1) -- wait for rocket GameInits
 			assert(self.labels.SupplyRocket and #self.labels.SupplyRocket > 0)
+			cargo.rocket_name = g_CurrentMapParams.rocket_name
+			MarkNameAsUsed("Rocket",g_CurrentMapParams.rocket_name_base) 
 			self:OrderLanding(cargo, 0, true)
 		else
 			-- cleanup saved rockets
@@ -219,7 +223,7 @@ function City:Init()
 	--lock mystery resource depot from the build menu
 	LockBuilding("StorageMysteryResource")
 	LockBuilding("MechanizedDepotMysteryResource")
-	
+	LockBuilding("TradePad")
 	self:InitTimeSeries()
 end
 
@@ -254,6 +258,16 @@ function City:CreateMapRand(...)
 	local gen = GetRandomMapGenerator()
 	local seed = gen and gen.Seed or AsyncRand()
 	return CreateRand(true, seed, ...)
+end
+
+function City:CreateResearchRand(...)
+	if IsGameRuleActive("ChaosTheory") then
+		return AsyncRand
+	elseif IsGameRuleActive("TechVariety") then
+		return self:CreateSessionRand(...)
+	else
+		return self:CreateMapRand(...)
+	end
 end
 
 function City:IsUpgradeUnlocked(id)
@@ -312,10 +326,51 @@ function City:ChangeGlobalConsts()
 	end
 end
 
+GlobalVar("SponsorGoalProgress", {}) -- goal_id, target, progress, state, GetTargetText, GetProgressText
+
+function AreAllSponsorGoalsCompleted()
+	for _, goal_res in ipairs(SponsorGoalProgress) do
+		local state = goal_res.state
+		if not state or state == "fail" then
+			return false
+		end
+	end
+	return true
+end
+
 function City:SetGoals()
 	local sponsor = GetMissionSponsor()
-	if sponsor.goal ~= "" then
-		self.mission_goal = PlaceObject(sponsor.goal)
+	for i = 1, g_Consts.SponsorGoalsCount do
+		local id = sponsor:GetProperty("sponsor_goal_"..i)
+		if id then
+			SponsorGoalProgress[i] = {goal_id = id, state = false, GetTargetText = function(self) return self.target or "" end, GetProgressText = function(self) return self.progress or "" end}
+			CreateGameTimeThread(function(id)
+				local goal = Presets.SponsorGoals.Default[id]
+				if not goal then return end
+				local param1 = sponsor:GetProperty(string.format("goal_%d_param_1", i))
+				local param2 = sponsor:GetProperty(string.format("goal_%d_param_2", i))
+				local param3 = sponsor:GetProperty(string.format("goal_%d_param_3", i))
+				local res = goal:Completed(SponsorGoalProgress[i], param1, param2, param3, i)
+				if goal then
+					SponsorGoalProgress[i].state = res and GameTime() or "fail"
+					if res then
+						SponsorGoalProgress[i].progress = SponsorGoalProgress[i].target
+						param1 = ConvertParam(param1)
+						param2 = ConvertParam(param2, type(param1)=="number" and param1>0)
+						param3 = ConvertParam(param3, type(param2)=="number" and param2>0)
+						local context = {param1 = param1, param2 = param2, param3 = param3}
+						local reward = sponsor:GetProperty("reward_effect_"..i)
+						reward:Execute()
+						AddOnScreenNotification("GoalCompleted", OpenMissionProfileDlg, {reward_description = T{reward.Description, reward}, context = context, rollover_title = T{4773, "<em>Goal:</em> "}, rollover_text = goal.description})
+						Msg("GoalComplete", goal)
+						if AreAllSponsorGoalsCompleted() then
+							Msg("MissionEvaluationDone")
+						end
+						return 
+					end
+				end
+			end, id)
+		end
 	end
 end
 
@@ -534,6 +589,7 @@ function City:DailyUpdate(day)
 	self:GatheredResourcesOnDailyUpdate()
 	self:CalcRenegades()
 	self:UpdateTimeSeries()
+	self:UpdatePlanetaryAnomalies(day)
 	
 	self.last_sol_died = self.cur_sol_died
 	self.cur_sol_died = 0
@@ -546,6 +602,40 @@ function City:DailyUpdate(day)
 	
 	self.funding_gain_sol = self.funding_gain
 	self.funding_gain = false
+end
+
+function OnMsg.CityStart()
+	if g_Tutorial then return end
+	for _, city in ipairs(Cities) do
+		city.next_anomaly_day = 10 + city:Random(2)
+	end
+end
+
+function City:UpdatePlanetaryAnomalies(day)
+	if g_Tutorial or not self.next_anomaly_day or day < self.next_anomaly_day then
+		return
+	end
+	
+	self.next_anomaly_day = day + self.next_anomaly_interval + self:Random(5)
+	self.next_anomaly_interval = Min(100, self.next_anomaly_interval + 20)
+		
+	local num = 2 + self:Random(3) -- todo: stable somehow
+	local lat, long
+	for i = 1, num do
+		lat, long = GenerateMarsScreenPoI("anomaly")
+		local obj = PlaceObject("PlanetaryAnomaly", {
+			display_name = T{11234, "Planetary Anomaly"},
+			longitude = long,
+			latitude = lat,			
+		})
+	end
+	local function CenterOnSpawnedAnomaly()
+		MarsScreenMapParams.latitude = lat
+		MarsScreenMapParams.longitude = long
+		OpenPlanetaryView()
+	end
+
+	AddOnScreenNotification("NewPlanetaryAnomalies", CenterOnSpawnedAnomaly, {count = num})
 end
 
 function City:ElectricityToResearch(amount, hours)
@@ -758,7 +848,16 @@ function City:SetGameSpeed(factor)
 end
 
 ---- Construction cost modifications
-function City:ModifyConstructionCost(action, building, resource, percent, amount)
+GlobalVar("g_StoryBitConstructionCostModifications", {}) --[building_name] = {[resource] = {[amount] = number, [percent] = number}
+local function GetStoryBitConstructionCostModsFor(building_name, resource)
+	local data = g_StoryBitConstructionCostModifications
+	data[building_name] = data[building_name] or {}
+	data = data[building_name]
+	data[resource] = data[resource] or {}
+	return data[resource]
+end
+
+function City:ModifyConstructionCost(action, building, resource, percent, amount, id)
 	--extract the building name
 	local building_name = building
 	if type(building) == "table" then
@@ -787,6 +886,14 @@ function City:ModifyConstructionCost(action, building, resource, percent, amount
 		building_costs_amount[resource] = 0
 	end
 	
+	if id == "StoryBit" then
+		if action == "add" or action == "remove" then
+			local data = GetStoryBitConstructionCostModsFor(building_name, resource)
+			data.amount = (data.amount or 0) + amount * (action == "remove" and -1 or 1)
+			data.percent = (data.percent or 0) + percent * (action == "remove" and -1 or 1)
+		end
+	end
+	
 	if action == "add" then
 		building_costs_percent[resource] = building_costs_percent[resource] + (percent or 0)
 		building_costs_amount[resource] = building_costs_amount[resource] + (amount or 0)
@@ -794,8 +901,14 @@ function City:ModifyConstructionCost(action, building, resource, percent, amount
 		building_costs_percent[resource] = building_costs_percent[resource] - (percent or 0)
 		building_costs_amount[resource] = building_costs_amount[resource] - (amount or 0)
 	elseif action == "reset" then
-		building_costs_percent[resource] = 100
-		building_costs_amount[resource] = 0
+		if id == "StoryBit" then
+			local data = GetStoryBitConstructionCostModsFor(building_name, resource)
+			building_costs_percent[resource] = building_costs_percent[resource] - (data.percent or 0)
+			building_costs_amount[resource] = building_costs_amount[resource] - (data.amount or 0)
+		else
+			building_costs_percent[resource] = 100
+			building_costs_amount[resource] = 0
+		end
 	else
 		error("Incorrect cost modification action")
 	end
@@ -1304,7 +1417,7 @@ end
 
 GlobalVar("g_InsufficientMaintenanceResources", {})
 GlobalGameTimeThread("InsufficientMaintenanceResourcesNotif", function()
-	HandleNewObjsNotif(g_InsufficientMaintenanceResources, "InsufficientMaintenanceResources", nil, CalcInsufficientResourcesNotifParams, false)
+	HandleNewObjsNotif(g_InsufficientMaintenanceResources, "InsufficientMaintenanceResources", nil, CalcInsufficientResourcesNotifParams, false, nil, true)
 end)
 
 function OnMsg.NewHour(hour)
@@ -1602,6 +1715,15 @@ function City:UpdateTimeSeries()
 	end
 end
 
+function City:GetAverageStat(stat)
+	local list = self.labels.Colonist or empty_table
+	local sum = 0
+	for _, colonist in ipairs(list) do
+		sum = sum + colonist:GetStat(stat)
+	end
+	return #list > 0 and (sum / #list) or 0
+end
+
 function OnMsg.ConstructionComplete(bld)
 	UICity.constructions_completed_today = (UICity.constructions_completed_today or 0) + 1
 end
@@ -1665,4 +1787,12 @@ function TimeSeries_GetGraphValueHeights(desc, day, n, height, axis_divisions)
 		end
 	end
 	return values, axis_step / scale
+end
+
+function testquake()
+    local q = Marsquake:new()
+    q.Epicenter = "SolarPanel"
+    q.Radius = 20
+    q.TargetsCount = 10
+    q:Execute()
 end

@@ -749,6 +749,11 @@ PlaceObj('Scenario', {
 			'wait_type', "Sols",
 			'duration', 36000000,
 		}),
+		PlaceObj('SA_WaitResearch', {
+			'Field', "Mysteries",
+			'Research', "WildfireCure",
+			'State', "Researched",
+		}),
 		PlaceObj('SA_WaitMessage', {
 			'title', T{8335, --[[Scenario Mystery 8 title]] "Wildfire: Dawn of Earth"},
 			'voiced_text', T{8336, --[[voice:narrator]] "We've received a radio transmission! From Earth! We thought we were the last humans and now this! Amazing news!"},

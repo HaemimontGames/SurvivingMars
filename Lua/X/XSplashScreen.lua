@@ -25,9 +25,7 @@ function SplashScreen:Init()
 		FocusedBackground = RGBA(0, 0, 0, 0),
 		RolloverBackground = RGBA(0, 0, 0, 0),
 		PressedBackground = RGBA(0, 0, 0, 0),
-		TextFont = "InfopanelTitle",
-		TextColor = RGBA(255, 239, 164, 255),
-		RolloverTextColor = RGBA(255, 255, 255, 255),
+		TextStyle = "SkipHint",
 		Translate = true,
 		OnPress = function()
 			self:Close()
@@ -45,8 +43,7 @@ function SplashScreen:Init()
 	else
 		local label = XLabel:new({
 			ZOrder = 0,
-			TextColor = RGBA(158,158,158,255),
-			TextFont = "Version",
+			TextStyle = "SplashScreenHint",
 			VAlign = "center",
 			Translate = true,
 		}, button)

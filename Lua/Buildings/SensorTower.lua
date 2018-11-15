@@ -1,11 +1,7 @@
 DefineClass.SensorTowerBase = {
 	__parents = { "Object" },
-	turn_off_time = 0,
+	turn_off_time = false,
 }
-
-function SensorTowerBase:GameInit()
-	self.turn_off_time = GameTime()
-end
 
 function SensorTowerBase:OnSetWorking(working)
 	if not working then
@@ -13,6 +9,26 @@ function SensorTowerBase:OnSetWorking(working)
 	elseif HintsEnabled then
 		HintTrigger("HintScanningSectors")
 	end
+end
+
+function SensorTowerBase:GetSensorTowerWorking()
+	return self.working and T{11230, "Working"} or T{7326, "Not Working"}
+end
+
+function SensorTowerBase:GetWorkingSensorTowersCount()
+	local towers = UICity.labels["SensorTower"]
+	local count = 0
+	for i = 1, #towers do
+		if towers[i].working then
+			count = count + 1
+		end
+	end
+	return T{11231, "Working Sensor Towers:<right><count>", count = count}
+end
+
+function SensorTowerBase:GetCurrentPredictionTime()
+	local warn_time = GetDisasterWarningTime()
+	return T{11232, "Disaster Early Warning:<right><time>", time = GetEarlyWarningText(warn_time)}
 end
 
 DefineClass.SensorTower = {

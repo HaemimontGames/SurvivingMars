@@ -197,7 +197,17 @@ function DroneControl:GatherOrphanedDrones()
 	end
 end
 
+function SavegameFixups.DisableInteractionWithDestroyedDroneControllers()
+	MapForEach("map", "DroneControl", function(o)
+		if o.destroyed then
+			o:Finalize()
+		end
+	end)
+end
+
 function DroneControl:Finalize()
+	self.can_control_drones = false
+	
 	if self.are_requesters_connected then
 		self:DisconnectTaskRequesters()
 	end
@@ -212,6 +222,7 @@ function DroneControl:Finalize()
 		SelectionArrowRemove(drone)
 	end
 	DeleteThread(self.update_constructions_thread)
+	self.city:RemoveFromLabel("DroneControl", self)
 end
 
 function DroneControl:Done()
@@ -242,12 +253,27 @@ end
 	end
 end]]
 
+--zz so it fires last and expected containers are initialized
+function SavegameFixups.zzConstructionSiteCleanupReconnectTaskRequesters()
+	--bug: 137698
+	MapForEach("map", "DroneControl", DroneControl.ReconnectTaskRequesters)
+end
+
 function DroneControl:ConnectTaskRequesters()
 	if self.are_requesters_connected then return end
 	local resource_search = function (building, center)
 		--SetConstructionSiteSign(building, false, "SignNoPower")
 		if building.auto_connect and not GameInitThreads[building] then
 			building:AddCommandCenter(center)
+		elseif not building.auto_connect and IsKindOf(building, "ConstructionSite") and building.working then
+			local l = building.waste_rocks_underneath or ""
+			for i = 1, #l do
+				l[i]:AddCommandCenter(center)
+			end
+			l = building.waste_rocks_underneath or ""
+			for i = 1, #l do
+				l[i]:AddCommandCenter(center)
+			end
 		end
 	end
 	MapForEach(self, "hex", self.work_radius , "TaskRequester", resource_search, self)
@@ -774,10 +800,10 @@ function DroneControl:OnSelected()
 	SelectionArrowAdd(drones)
 end
 
-function DroneControl:AbandonAllDrones()
+function DroneControl:AbandonAllDrones(do_not_orphan)
 	for i = #self.drones, 1, -1 do
 		local drone = self.drones[i]
-		drone:SetCommandCenter(false)
+		drone:SetCommandCenter(false, do_not_orphan)
 		if not drone:IsDisabled() then
 			drone:SetCommand("WaitingCommand")
 		end
@@ -860,11 +886,14 @@ function DroneHub:Init()
 	self.charging_stations = {}
 end
 
-function DroneHub:GameInit()
+function DroneHub:InitAttaches()
 	local station_template = ClassTemplates.Building.RechargeStation
 	local platforms = self:GetAttaches("RechargeStationPlatform")
-	local p_p = BuildingPalettes["RechargeStation"]
-	p_p = p_p and p_p[1] or false
+
+	local ccs = GetCurrentColonyColorScheme()
+	local cm1, cm2, cm3, cm4 = GetBuildingColors(ccs, station_template)
+	
+	local i = 1
 	for _, platform in ipairs(platforms or empty_table) do
 		platform:SetEnumFlags(const.efSelectable) --so we can select the command center through the recharge station
 	
@@ -877,19 +906,28 @@ function DroneHub:GameInit()
 		spot_obj:SetAttachAngle(platform:GetAttachAngle())
 		spot_obj.platform = platform
 		spot_obj.hub = self
-		self.charging_stations[#self.charging_stations+1] = spot_obj
-		if p_p then
-			Building.SetPalette(platform, p_p)
+		assert(not IsValid(self.charging_stations[i]))
+		self.charging_stations[i] = spot_obj
+		i = i + 1
+		if cm1 then
+			Building.SetPalette(platform, cm1, cm2, cm3, cm4)
 		end
 	end
 	
 	local c = self:GetAttaches("CableHardLeft")
-	local c_p = EntityPalettes.Cables
+	cm1, cm2, cm3, cm4 = GetCablesPalette()
 	for i = 1, #(c or "") do
-		c_p:ApplyToObj(c[i])
+		c[i]:SetColorizationMaterial4(cm1, cm2, cm3, cm4)
 	end
-	
-	
+end
+
+function DroneHub:OnSkinChanged(skin, palette)
+	Building.OnSkinChanged(self, skin, palette)
+	self:InitAttaches()
+end
+
+function DroneHub:GameInit()
+	self:InitAttaches()
 	self:GatherOrphanedDrones()
 end
 

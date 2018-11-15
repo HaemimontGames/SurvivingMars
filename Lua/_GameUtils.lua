@@ -135,6 +135,9 @@ function FormatResourceValueMaxResource(context_obj, value, max, resource)
 		end
 		max = false
 	end
+	if resource == "funding" then
+		return TFormat.funding(context_obj, value)
+	end
 	
 	local force_integer = ForcedIntegerResources[resource]
 	local Tmax, Tresource = "", ""
@@ -152,10 +155,18 @@ function FormatResourceValueMaxResource(context_obj, value, max, resource)
 	if resource then
 		Tresource = TLookupTag("<icon_" .. resource .. ">")
 	end
-	
+
+	local frac 
+	if value~=0 and value_int==0 then
+		if value<(rs/100) then
+			frac = Untranslated("00".. tostring(value%rs))
+		elseif value<(rs/10) then
+			frac = Untranslated("0".. tostring(MulDivRound(value, 100, 10)/10))
+		end	
+	end
 	local Tvalue = force_integer and T{4844, "<int>", int = value} 
-		or (value_frac == 0) and T{4844, "<int>", int = value_int} 
-		or T{4845, "<int>.<frac>", int = value_int, frac = value_frac } 
+		or (value_frac == 0 and not frac) and T{4844, "<int>", int = value_int} 
+		or T{4845, "<int>.<frac>", int = value_int, frac = frac or Untranslated(value_frac) } 
 	if value_sign < 0 then
 		Tvalue = T{6981, "-"} .. Tvalue
 	end
@@ -259,8 +270,12 @@ function FormatIndex(index, context_obj)
 end
 
 FormattableResources = {}
+FormattableResourcesWithoutRP = {}
 
 local function FormatResourceFn(format_id, resource)
+	if resource ~= "Research" then
+		FormattableResourcesWithoutRP[#FormattableResourcesWithoutRP + 1] = { text = resource, value = format_id }
+	end
 	FormattableResources[#FormattableResources + 1] = { text = resource, value = format_id }
 	TFormat[format_id] = function(context_obj, value, max)
 		return FormatResourceValueMaxResource(context_obj, value, max, resource)
@@ -380,10 +395,17 @@ TFormat.FormatFunding = function(...)
 end
 
 TFormat.display_name = function(context_obj, presets_table, value, field)
-	value = value and _InternalTranslate(value or "", context_obj, false)
+	if type(value) ~= "string" then return "" end
 	presets_table = Presets[presets_table] and Presets[presets_table].Default or rawget(_G, presets_table)
 	local preset = presets_table[value]
-	return preset and preset[field or "display_name"] or value
+	return preset and preset[field or "display_name"]
+end
+
+TFormat.new_in = function(context_obj, version)
+	if version == const.GameNewFeaturesNotificationVersion then
+		return T{11446, "<em>NEW!</em> "}
+	end
+	return ""
 end
 
 ------------------------------------------------------------------------------------------
@@ -442,6 +464,12 @@ function BuildingsCombo(first_entry)
 	return items
 end
 
+function PrefabsCombo(first_entry)
+	local items =  BuildingsCombo(first_entry)
+	table.insert(items, 2, {value = "DronePrefab", text = T{11189, "Drone Prefab"}})
+	return items
+end
+
 function TechCombo()
 	local items = {}
 	for id, tech in pairs(TechDef) do
@@ -452,16 +480,19 @@ function TechCombo()
 	return items
 end
 
-function ResearchFieldsCombo()
+function ResearchFieldsCombo(extra_entry, ...)
+	extra_entry = extra_entry or ""
 	local fields = table.keys(TechFields)
 	table.sort(fields)
-	table.insert(fields, 1, "")
+	for i, entry in ipairs{extra_entry, ...} do
+		table.insert(fields, i, entry)
+	end
 	return fields
 end
 
-function ResearchTechsCombo(object, first)
+function ResearchTechsCombo(object, first, ...)
 	first = first or { value = "", text = "" }
-	local techs = { first }
+	local techs = { first, ... }
 	if not object:HasMember("Field") or not TechFields[object.Field] then
 		return techs
 	end

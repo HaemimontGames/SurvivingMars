@@ -1,6 +1,15 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 PlaceObj('GameRules', {
+	SortKey = 100070,
+	description = T{696412726077, --[[GameRules StoryBitsDisabled description]] "Disables all random Events (except Anomalies)"},
+	display_name = T{337618274876, --[[GameRules StoryBitsDisabled display_name]] "No Events"},
+	flavor = T{323117615670, --[[GameRules StoryBitsDisabled flavor]] '<grey>"Boredom always precedes a period of great creativity."\n<right>Robert M. Pirsig</grey><left>'},
+	group = "Default",
+	id = "StoryBitsDisabled",
+})
+
+PlaceObj('GameRules', {
 	SortKey = 100080,
 	challenge_mod = -50,
 	description = T{257728034290, --[[GameRules ChaosTheory description]] "Tech fields are fully randomized"},
@@ -175,6 +184,17 @@ PlaceObj('GameRules', {
 	flavor = T{354566377512, --[[GameRules RichCoffers flavor]] '<grey>"Simplicity is the ultimate sophistication."\n<right>Leonardo Da Vinci</grey><left>'},
 	group = "Default",
 	id = "RichCoffers",
+})
+
+PlaceObj('GameRules', {
+	SortKey = 101000,
+	description = T{861684992572, --[[GameRules TechVariety description]] "Tech fields are randomized during different playthroughs on the same map. Unlike with Chaos Theory, some technologies are guaranteed to appear early or late"},
+	display_name = T{607602869305, --[[GameRules TechVariety display_name]] "Tech Variety"},
+	exclusionlist = "ChaosTheory",
+	flavor = T{868791037406, --[[GameRules TechVariety flavor]] '<grey>"In fact, the mere act of opening the box will determine the state of the cat, although in this case there were three determinate states the cat could be in: these being Alive, Dead, and Bloody Furious."\n<right>Terry Pratchett</grey><left>'},
+	group = "Default",
+	id = "TechVariety",
+	new_in = "gagarin",
 })
 
 PlaceObj('GameRules', {

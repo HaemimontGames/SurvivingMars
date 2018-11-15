@@ -41,7 +41,6 @@ DefineClass.BakedTerrainDecalOutsideLarge =
 DefineClass.AnimatedTextureObject = 
 {
 	__parents = { "ComponentCustomData", "ClassTemplateObject" },
-	game_flags = { gofFrameAnimatedTexture = true },
 }
 
 function AnimatedTextureObject:Init()

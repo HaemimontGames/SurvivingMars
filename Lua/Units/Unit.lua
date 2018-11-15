@@ -754,3 +754,211 @@ function dbg_ShowMeAllSpots(obj, ss)
 		ShowMe(obj:GetSpotPos(i))
 	end
 end
+
+function Vehicle:Dead()
+end
+
+function Vehicle:Destroy()
+	if self.disappeared then
+		self:Appear("Destroy")
+	else
+		self:SetCommand("Dead")
+	end
+end
+
+----
+
+AppearLocationPresets = {
+	[false] = {
+		text = "Same Pos",
+		resolve = empty_func,
+	},
+	RandomPass = {
+		text = "Random Passable",
+		resolve = function(unit)
+			local pos = GetRandomPassable()
+			if pos then
+				local x, y = pos:xy()
+				x, y = FindDropPos(x, y, unit and unit.pfclass)
+				if x then
+					return point(x, y)
+				end
+			end
+		end
+	},
+	MapBorder = {
+		text = "Map Border",
+		resolve = function(unit)
+			local sectors = {}
+			for x=1,10 do
+				for y=1,10 do
+					if x == 1 or x == 10 or y == 1 or y == 10 then
+						sectors[#sectors + 1] = g_MapSectors[x][y]
+					end
+				end
+			end
+			while true do
+				local sector, idx = table.rand(sectors)
+				if not sector then
+					assert(false, "Failed to find a passable point at the border!")
+					return AppearLocationPresets.RandomPass(unit)
+				end
+				table.remove(sectors, idx)
+				local center, radius = sector.area:GetBSphere()
+				local pos = GetRandomPassableAround(center, radius)
+				if pos then
+					local x, y = pos:xy()
+					x, y = FindDropPos(x, y, unit and unit.pfclass, radius)
+					if x then
+						return point(x, y)
+					end
+				end
+			end
+		end
+	},
+	Destroy = {
+		text = "Destroy",
+		resolve = function(self)
+			if IsValid(self) then
+				DoneObject(self)
+			end
+		end,
+	},
+}
+
+function AppearLocationCombo()
+	local items = {}
+	for value, info in pairs(AppearLocationPresets) do
+		items[#items + 1] = {value = value, text = info.text}
+	end
+	table.sort(items, function(a, b) return a.text < b.text end)
+	return items
+end
+
+Unit.disappeared = false
+Unit.appear_location = false
+
+function Unit:OnDisappear()
+end
+
+function Unit:OnPreDisappear()
+end
+
+function Unit:OnAppear()
+end
+
+function Unit:Disappear(keep_in_holder)
+	self:OnPreDisappear()
+	if SelectedObj == self then
+		SelectObj(false)
+	end
+	local pinned
+	if self:IsPinned() then
+		pinned = true
+		self:TogglePin()
+	end
+	
+	local holder = self.holder
+	if not keep_in_holder then
+		self:SetHolder(false)
+	end
+	
+	if self == CameraFollowObj then
+		UnfollowObjAndCloseModeDialog()
+	end
+	
+	if IsKindOf(self, "Demolishable") and self:IsDemolishing() then
+		self:ToggleDemolish()
+	end
+	
+	local pos = self:GetPos()
+	self:DetachFromMap()
+	local dome = self.current_dome
+	self.current_dome = nil
+	self.dome_version = nil
+	self.disappeared = true
+	self.appear_location = nil
+	self:OnDisappear()
+	self:RemoveFromLabels()
+	self.city:AddToLabel("Disappeared", self)
+	
+	self:SetCommand("WaitToAppear", holder, pos, dome, pinned)
+end
+
+function Unit:WaitToAppear(holder, pos, dome, pinned)
+	self:PushDestructor(function(self)
+		if self.command and self.disappeared then
+			assert(false, "Disappeared unit's command changed: " .. self.command)
+		end
+	end)
+	self:PushDestructor(function(self)
+		while self.disappeared do
+			WaitWakeup()
+			if not IsValid(self) or IsBeingDestructed(self) then
+				return
+			end
+		end
+		
+		self.city:RemoveFromLabel("Disappeared", self)
+		if self.holder then
+			self:AddToLabels()
+			self:OnAppear()
+			self.disappeared = nil
+			self.appear_location = nil
+			if pinned then
+				self:TogglePin()
+			end
+			self:UpdateCurrentDome()
+			return
+		end
+		
+		local preset = AppearLocationPresets[self.appear_location]
+		local location = preset and preset.resolve(self) or holder or pos
+		if not IsValid(self) or IsBeingDestructed(self) then
+			return
+		end
+		
+		self:AddToLabels()
+		self:OnAppear()
+		self.disappeared = nil
+		self.appear_location = nil
+		if pinned then
+			self:TogglePin()
+		end
+
+		if IsValid(location) then
+			self:SetHolder(location)
+		elseif IsPoint(location) and location ~= InvalidPos() then
+			self:SetPos(location)
+		elseif dome then
+			self:GoToRandomPosInDome(dome)
+		else
+			self:SetPos(GetRandomPassable())
+		end
+		self:UpdateCurrentDome()
+	end)
+	self:PopAndCallDestructor()
+	self:PopDestructor()
+end
+
+function Unit:Appear(location)
+	if not self.disappeared then
+		return
+	end
+	self.disappeared = nil
+	self.appear_location = location
+	Wakeup(self.thread_running_destructors or self.command_thread)
+end
+
+function SavegameFixups.UndisappearStuckDrones()
+	MapForEach("map", "Drone", function(o)
+		if o:IsValidPos() and o.thread_running_destructors and o.command_thread ~= o.thread_running_destructors 
+			and table.find(UICity.labels.Disappeared, o) then
+			if o.disappeared then
+				o:Appear()
+			else
+				Wakeup(o.thread_running_destructors)
+			end
+		end
+	end)
+end

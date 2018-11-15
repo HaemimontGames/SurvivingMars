@@ -5,89 +5,86 @@ PlaceObj('XTemplate', {
 	group = "CCC",
 	id = "Graph",
 	PlaceObj('XTemplateWindow', {
-		'IdNode', true,
-		'HAlign', "right",
-		'LayoutMethod', "VList",
+		'__class', "XFrame",
+		'Padding', box(12, 12, 12, 12),
+		'HAlign', "left",
+		'Image', "UI/CommonNew/ccc_graph.tga",
+		'FrameBox', box(57, 30, 30, 47),
 	}, {
 		PlaceObj('XTemplateWindow', {
-			'__class', "XLabel",
-			'Margins', box(38, 0, 0, 5),
+			'comment', "title",
+			'__class', "XText",
+			'Id', "idTitle",
+			'Margins', box(30, 20, 0, 5),
 			'HAlign', "left",
 			'VAlign', "top",
-			'TextFont', "InfopanelTitle",
-			'TextColor', RGBA(119, 198, 255, 255),
+			'TextStyle', "OverviewItemSection",
 			'Translate', true,
 			'Text', T{857640145534, --[[XTemplate Graph Text]] "<caption>"},
 		}),
 		PlaceObj('XTemplateWindow', {
-			'MinWidth', 738,
-			'MinHeight', 364,
-			'MaxWidth', 738,
-			'MaxHeight', 364,
+			'comment', "graph elements",
+			'MinWidth', 999,
+			'MinHeight', 357,
+			'MaxWidth', 999,
+			'MaxHeight', 357,
 			'LayoutMethod', "HList",
 		}, {
 			PlaceObj('XTemplateWindow', {
-				'__class', "XImage",
+				'comment', "graph lines",
+				'Margins', box(102, 0, 0, 34),
 				'Dock', "box",
-				'Image', "UI/Common/diagram.tga",
-			}),
-			PlaceObj('XTemplateWindow', {
-				'Margins', box(37, 0, 0, 59),
-				'Dock', "box",
-				'LayoutMethod', "VList",
-				'LayoutVSpacing', 52,
 			}, {
 				PlaceObj('XTemplateWindow', {
 					'__class', "XImage",
-					'Margins', box(0, 0, 0, 42),
+					'Margins', box(0, 0, 0, 57),
 					'Dock', "bottom",
-					'Image', "UI/Common/diagram_line.tga",
+					'HAlign', "left",
+					'MinWidth', 842,
+					'MaxWidth', 842,
+					'Image', "UI/CommonNew/ccc_graph_line.tga",
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XImage",
-					'Margins', box(0, 0, 0, 42),
+					'Margins', box(0, 0, 0, 57),
 					'Dock', "bottom",
-					'Image', "UI/Common/diagram_line.tga",
+					'HAlign', "left",
+					'MinWidth', 842,
+					'MaxWidth', 842,
+					'Image', "UI/CommonNew/ccc_graph_line.tga",
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XImage",
-					'Margins', box(0, 0, 0, 42),
+					'Margins', box(0, 0, 0, 57),
 					'Dock', "bottom",
-					'Image', "UI/Common/diagram_line.tga",
+					'HAlign', "left",
+					'MinWidth', 842,
+					'MaxWidth', 842,
+					'Image', "UI/CommonNew/ccc_graph_line.tga",
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XImage",
-					'Margins', box(0, 0, 0, 42),
+					'Margins', box(0, 0, 0, 57),
 					'Dock', "bottom",
-					'Image', "UI/Common/diagram_line.tga",
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XImage",
-					'Margins', box(0, 0, 0, 42),
-					'Dock', "bottom",
-					'Image', "UI/Common/diagram_line.tga",
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XImage",
-					'Margins', box(0, 0, 0, 42),
-					'Dock', "bottom",
-					'Image', "UI/Common/diagram_line.tga",
+					'HAlign', "left",
+					'MinWidth', 842,
+					'MaxWidth', 842,
+					'Image', "UI/CommonNew/ccc_graph_line.tga",
 				}),
 				}),
 			PlaceObj('XTemplateWindow', {
+				'comment', "graph Y numbers",
 				'__class', "XContextWindow",
 				'IdNode', true,
-				'Margins', box(0, 0, 0, 59),
+				'Margins', box(23, 0, 0, 59),
 				'Dock', "box",
 				'HAlign', "left",
 				'VAlign', "bottom",
 				'MinWidth', 39,
 				'MaxWidth', 39,
-				'LayoutMethod', "VList",
-				'LayoutVSpacing', 30,
 				'ContextUpdateOnOpen', true,
 				'OnContextUpdate', function (self, context, ...)
-for i = 1, 6 do
+for i = 1, 4 do
 	self["idScale" .. i]:SetText(tostring(context.unit * i))
 end
 end,
@@ -95,72 +92,49 @@ end,
 				PlaceObj('XTemplateWindow', {
 					'__class', "XLabel",
 					'Id', "idScale1",
-					'Padding', box(0, 0, 0, 30),
+					'Margins', box(0, 0, 0, 40),
 					'Dock', "bottom",
 					'HAlign', "center",
 					'VAlign', "center",
-					'TextFont', "Version",
-					'TextColor', RGBA(140, 156, 178, 255),
+					'TextStyle', "GraphScale",
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XLabel",
 					'Id', "idScale2",
-					'Padding', box(0, 0, 0, 22),
+					'Margins', box(0, 0, 0, 37),
 					'Dock', "bottom",
 					'HAlign', "center",
 					'VAlign', "center",
-					'TextFont', "Version",
-					'TextColor', RGBA(140, 156, 178, 255),
+					'TextStyle', "GraphScale",
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XLabel",
 					'Id', "idScale3",
-					'Padding', box(0, 0, 0, 22),
+					'Margins', box(0, 0, 0, 37),
 					'Dock', "bottom",
 					'HAlign', "center",
 					'VAlign', "center",
-					'TextFont', "Version",
-					'TextColor', RGBA(140, 156, 178, 255),
+					'TextStyle', "GraphScale",
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XLabel",
 					'Id', "idScale4",
-					'Padding', box(0, 0, 0, 22),
+					'Margins', box(0, 0, 0, 37),
 					'Dock', "bottom",
 					'HAlign', "center",
 					'VAlign', "center",
-					'TextFont', "Version",
-					'TextColor', RGBA(140, 156, 178, 255),
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XLabel",
-					'Id', "idScale5",
-					'Padding', box(0, 0, 0, 22),
-					'Dock', "bottom",
-					'HAlign', "center",
-					'VAlign', "center",
-					'TextFont', "Version",
-					'TextColor', RGBA(140, 156, 178, 255),
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XLabel",
-					'Id', "idScale6",
-					'Padding', box(0, 0, 0, 22),
-					'Dock', "bottom",
-					'HAlign', "center",
-					'VAlign', "center",
-					'TextFont', "Version",
-					'TextColor', RGBA(140, 156, 178, 255),
+					'TextStyle', "GraphScale",
 				}),
 				}),
 			PlaceObj('XTemplateWindow', {
+				'comment', "bars list",
 				'__class', "XList",
 				'Id', "idList",
-				'Margins', box(39, 0, 0, 27),
+				'Margins', box(102, 0, 0, 34),
 				'BorderWidth', 0,
 				'Padding', box(0, 0, 0, 0),
-				'MinWidth', 700,
-				'MaxWidth', 700,
+				'MinWidth', 842,
+				'MaxWidth', 842,
 				'LayoutMethod', "HOverlappingList",
 				'UniformColumnWidth', true,
 				'BorderColor', RGBA(0, 0, 0, 0),
@@ -174,14 +148,13 @@ end,
 if XShortcutToRelation[shortcut] == "down" or XShortcutToRelation[shortcut] == "up" then
 	local dir = XShortcutToRelation[shortcut]
 	local dlg = GetDialog(self)
-	local scroll_area = dlg.idContent.idScrollArea
+	local content = dlg.idContent
 	local parent_graph = self.parent.parent
-	local idx = table.find(scroll_area, parent_graph)
+	local idx = table.find(content, parent_graph)
 	local next_id = dir == "down" and idx + 1 or idx - 1
-	if scroll_area[next_id] then
+	if content[next_id] then
 		rawset(dlg, "focused_graph", next_id)
-		local graph = scroll_area[next_id]
-		scroll_area:ScrollIntoView(graph)
+		local graph = content[next_id]
 		graph.idList:SetFocus()
 		graph.idList:SetSelection(self.focused_item or 1)
 	end
@@ -191,21 +164,29 @@ return XList.OnShortcut(self, shortcut, source)
 end,
 				}),
 				PlaceObj('XTemplateForEach', {
+					'comment', "single bars",
 					'array', function (parent, context) return context.data end,
 					'condition', function (parent, context, item, i) return context.columns == 1 end,
 					'run_after', function (child, context, item, i, n)
-child.idBar:SetMinHeight(item[1])
-child.idBar:SetMaxHeight(item[1])
+local value = item[1]
+local height = Max(5, value)
+child.idBar:SetMinHeight(height)
+child.idBar:SetMaxHeight(height)
+if value < 5 then
+	child.idBar:SetScaleModifier(point(1000, MulDivRound(1000, value, 5)))
+end
+
 child:SetRolloverText(T{8985, "Sol <sol>: <value>", sol = item[5], value = item[2]})
 end,
 				}, {
 					PlaceObj('XTemplateWindow', {
 						'RolloverTemplate', "GraphRollover",
 						'RolloverAnchor', "center-top",
+						'RolloverAnchorId', "idBar",
 						'IdNode', true,
 						'VAlign', "bottom",
-						'MinWidth', 14,
-						'MaxWidth', 14,
+						'MinWidth', 17,
+						'MaxWidth', 17,
 						'RolloverOnFocus', true,
 						'HandleMouse', true,
 					}, {
@@ -213,9 +194,9 @@ end,
 							'name', "OnSetRollover(self, rollover)",
 							'func', function (self, rollover)
 if rollover then
-	self.idBar:SetImage("UI/Common/diagram_column_shine.tga")
+	self.idBar:SetImage("UI/CommonNew/ccc_graph_indicator_blue1.tga")
 else
-	self.idBar:SetImage("UI/Common/diagram_column.tga")
+	self.idBar:SetImage("UI/CommonNew/ccc_graph_indicator_blue.tga")
 end
 XWindow.OnSetRollover(self, rollover)
 PlayFX("MenuItemHover", "start", self)
@@ -229,26 +210,38 @@ self:SetFocus(selected)
 end,
 						}),
 						PlaceObj('XTemplateWindow', {
-							'__class', "XImage",
+							'__class', "XFrame",
 							'Id', "idBar",
-							'HAlign', "left",
+							'HAlign', "center",
 							'VAlign', "bottom",
-							'MinWidth', 14,
-							'MaxWidth', 14,
-							'Image', "UI/Common/diagram_column.tga",
-							'ImageFit', "stretch",
+							'MinWidth', 8,
+							'MaxWidth', 8,
+							'Image', "UI/CommonNew/ccc_graph_indicator_blue.tga",
+							'FrameBox', box(0, 5, 0, 0),
 						}),
 						}),
 					}),
 				PlaceObj('XTemplateForEach', {
+					'comment', "colored bars",
 					'array', function (parent, context) return context.data end,
 					'condition', function (parent, context, item, i) return context.columns == 2 end,
 					'run_after', function (child, context, item, i, n)
-child.idBarLeft:SetMinHeight(item[1])
-child.idBarLeft:SetMaxHeight(item[1])
+local value = item[1]
+local height = Max(5, value)
+child.idBarLeft:SetMinHeight(height)
+child.idBarLeft:SetMaxHeight(height)
+if value < 5 then
+	child.idBarLeft:SetScaleModifier(point(1000, MulDivRound(1000, value, 5)))
+end
 
-child.idBarRight:SetMinHeight(item[3])
-child.idBarRight:SetMaxHeight(item[3])
+local value = item[3]
+local height = Max(5, value)
+child.idBarRight:SetMinHeight(height)
+child.idBarRight:SetMaxHeight(height)
+if value < 5 then
+	child.idBarRight:SetScaleModifier(point(1000, MulDivRound(1000, value, 5)))
+end
+
 child:SetRolloverText(T{8986, "Sol <sol>: <value1>/<value2>", sol = item[5], value1 = item[2], value2 = item[4]})
 end,
 				}, {
@@ -257,8 +250,8 @@ end,
 						'RolloverAnchor', "center-top",
 						'IdNode', true,
 						'VAlign', "bottom",
-						'MinWidth', 14,
-						'MaxWidth', 14,
+						'MinWidth', 17,
+						'MaxWidth', 17,
 						'LayoutMethod', "HList",
 						'RolloverOnFocus', true,
 						'HandleMouse', true,
@@ -267,11 +260,11 @@ end,
 							'name', "OnSetRollover(self, rollover)",
 							'func', function (self, rollover)
 if rollover then
-	self.idBarLeft:SetImage("UI/Common/diagram_column_shine_2.tga")
-	self.idBarRight:SetImage("UI/Common/diagram_column_shine.tga")
+	self.idBarLeft:SetImage("UI/CommonNew/ccc_graph_indicator_green1.tga")
+	self.idBarRight:SetImage("UI/CommonNew/ccc_graph_indicator_blue1.tga")
 else
-	self.idBarLeft:SetImage("UI/Common/diagram_column_2.tga")
-	self.idBarRight:SetImage("UI/Common/diagram_column.tga")
+	self.idBarLeft:SetImage("UI/CommonNew/ccc_graph_indicator_green.tga")
+	self.idBarRight:SetImage("UI/CommonNew/ccc_graph_indicator_blue.tga")
 end
 XWindow.OnSetRollover(self, rollover)
 PlayFX("MenuItemHover", "start", self)
@@ -285,63 +278,51 @@ self:SetFocus(selected)
 end,
 						}),
 						PlaceObj('XTemplateWindow', {
-							'__class', "XImage",
+							'__class', "XFrame",
 							'Id', "idBarLeft",
-							'HAlign', "left",
 							'VAlign', "bottom",
-							'MinWidth', 7,
-							'MaxWidth', 7,
-							'Image', "UI/Common/diagram_column_2.tga",
-							'ImageFit', "stretch",
+							'MinWidth', 8,
+							'MaxWidth', 8,
+							'Image', "UI/CommonNew/ccc_graph_indicator_green.tga",
+							'FrameBox', box(0, 5, 0, 0),
 						}),
 						PlaceObj('XTemplateWindow', {
-							'__class', "XImage",
+							'__class', "XFrame",
 							'Id', "idBarRight",
-							'HAlign', "left",
 							'VAlign', "bottom",
-							'MinWidth', 7,
-							'MaxWidth', 7,
-							'Image', "UI/Common/diagram_column.tga",
-							'ImageFit', "stretch",
+							'MinWidth', 8,
+							'MaxWidth', 8,
+							'Image', "UI/CommonNew/ccc_graph_indicator_blue.tga",
+							'FrameBox', box(0, 5, 0, 0),
 						}),
 						}),
 					}),
 				}),
 			PlaceObj('XTemplateWindow', {
-				'__class', "XText",
-				'Id', "idLegend",
-				'Margins', box(39, 0, 0, 0),
-				'Padding', box(0, 0, 0, 0),
-				'Dock', "bottom",
-				'HAlign', "left",
-				'VAlign', "center",
-				'MinHeight', 29,
-				'MaxHeight', 29,
-				'HandleMouse', false,
-				'TextFont', "Version",
-				'TextColor', RGBA(140, 156, 178, 255),
-				'Translate', true,
-				'Text', T{357591184896, --[[XTemplate Graph Text]] "<legend>"},
-				'TextVAlign', "center",
-			}),
-			PlaceObj('XTemplateWindow', {
+				'comment', "graph X numbers",
 				'__class', "XContextWindow",
 				'IdNode', true,
-				'Margins', box(0, 0, 0, 1),
+				'Margins', box(20, 0, 0, 15),
 				'Dock', "box",
 				'VAlign', "bottom",
 				'LayoutHSpacing', 53,
 				'ContextUpdateOnOpen', true,
 				'OnContextUpdate', function (self, context, ...)
 local sol = UICity.day
-sol = Max(sol - 5, 46)
-for i = 10, 1, -1 do
-	self["idLegend" .. i]:SetText(tostring(sol))
-	sol = sol - 5
+sol = Max(sol - 1, 50)
+for i = 3, 1, -1 do
+	local label = self["idLegend" .. i]
+	local text = tostring(sol)
+	label:SetText(text)
+	local circle = self["idLegendCircle" .. i]
+	local spacing = 
+	circle:SetMargins(box(40 + (i - 1) * 447, 0, 0, 0))
+	sol = sol - 25
 end
 end,
 			}, {
 				PlaceObj('XTemplateWindow', {
+					'comment', "units text",
 					'__class', "XText",
 					'Padding', box(0, 0, 0, 0),
 					'HAlign', "left",
@@ -349,102 +330,68 @@ end,
 					'MinWidth', 39,
 					'MaxWidth', 39,
 					'HandleMouse', false,
-					'TextFont', "Version",
-					'TextColor', RGBA(140, 156, 178, 255),
+					'TextStyle', "GraphScale",
 					'Translate', true,
 					'Text', T{774267355675, --[[XTemplate Graph Text]] "Sol"},
 					'TextHAlign', "center",
 				}),
 				PlaceObj('XTemplateWindow', {
-					'__class', "XLabel",
-					'Id', "idLegend1",
-					'Margins', box(39, 0, 0, 0),
-					'Padding', box(0, 0, 0, 0),
-					'VAlign', "center",
-					'TextFont', "Version",
-					'TextColor', RGBA(140, 156, 178, 255),
-				}),
+					'__class', "XImage",
+					'Id', "idLegendCircle1",
+					'IdNode', false,
+					'HAlign', "left",
+					'MinWidth', 32,
+					'MinHeight', 32,
+					'MaxWidth', 32,
+					'MaxHeight', 32,
+					'Image', "UI/CommonNew/ccc_graph_circle.tga",
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XLabel",
+						'Id', "idLegend1",
+						'HAlign', "center",
+						'VAlign', "center",
+						'TextStyle', "GraphScale",
+					}),
+					}),
 				PlaceObj('XTemplateWindow', {
-					'__class', "XLabel",
-					'Id', "idLegend2",
-					'Margins', box(109, 0, 0, 0),
-					'Padding', box(0, 0, 0, 0),
-					'VAlign', "center",
-					'TextFont', "Version",
-					'TextColor', RGBA(140, 156, 178, 255),
-				}),
+					'__class', "XImage",
+					'Id', "idLegendCircle2",
+					'IdNode', false,
+					'HAlign', "left",
+					'MinWidth', 32,
+					'MinHeight', 32,
+					'MaxWidth', 32,
+					'MaxHeight', 32,
+					'Image', "UI/CommonNew/ccc_graph_circle.tga",
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XLabel",
+						'Id', "idLegend2",
+						'HAlign', "center",
+						'VAlign', "center",
+						'TextStyle', "GraphScale",
+					}),
+					}),
 				PlaceObj('XTemplateWindow', {
-					'__class', "XLabel",
-					'Id', "idLegend3",
-					'Margins', box(179, 0, 0, 0),
-					'Padding', box(0, 0, 0, 0),
-					'VAlign', "center",
-					'TextFont', "Version",
-					'TextColor', RGBA(140, 156, 178, 255),
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XLabel",
-					'Id', "idLegend4",
-					'Margins', box(249, 0, 0, 0),
-					'Padding', box(0, 0, 0, 0),
-					'VAlign', "center",
-					'TextFont', "Version",
-					'TextColor', RGBA(140, 156, 178, 255),
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XLabel",
-					'Id', "idLegend5",
-					'Margins', box(319, 0, 0, 0),
-					'Padding', box(0, 0, 0, 0),
-					'VAlign', "center",
-					'TextFont', "Version",
-					'TextColor', RGBA(140, 156, 178, 255),
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XLabel",
-					'Id', "idLegend6",
-					'Margins', box(389, 0, 0, 0),
-					'Padding', box(0, 0, 0, 0),
-					'VAlign', "center",
-					'TextFont', "Version",
-					'TextColor', RGBA(140, 156, 178, 255),
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XLabel",
-					'Id', "idLegend7",
-					'Margins', box(459, 0, 0, 0),
-					'Padding', box(0, 0, 0, 0),
-					'VAlign', "center",
-					'TextFont', "Version",
-					'TextColor', RGBA(140, 156, 178, 255),
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XLabel",
-					'Id', "idLegend8",
-					'Margins', box(529, 0, 0, 0),
-					'Padding', box(0, 0, 0, 0),
-					'VAlign', "center",
-					'TextFont', "Version",
-					'TextColor', RGBA(140, 156, 178, 255),
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XLabel",
-					'Id', "idLegend9",
-					'Margins', box(599, 0, 0, 0),
-					'Padding', box(0, 0, 0, 0),
-					'VAlign', "center",
-					'TextFont', "Version",
-					'TextColor', RGBA(140, 156, 178, 255),
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XLabel",
-					'Id', "idLegend10",
-					'Margins', box(669, 0, 0, 0),
-					'Padding', box(0, 0, 0, 0),
-					'VAlign', "center",
-					'TextFont', "Version",
-					'TextColor', RGBA(140, 156, 178, 255),
-				}),
+					'__class', "XImage",
+					'Id', "idLegendCircle3",
+					'IdNode', false,
+					'HAlign', "left",
+					'MinWidth', 32,
+					'MinHeight', 32,
+					'MaxWidth', 32,
+					'MaxHeight', 32,
+					'Image', "UI/CommonNew/ccc_graph_circle.tga",
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XLabel",
+						'Id', "idLegend3",
+						'HAlign', "center",
+						'VAlign', "center",
+						'TextStyle', "GraphScale",
+					}),
+					}),
 				}),
 			}),
 		}),

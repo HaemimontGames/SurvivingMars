@@ -11,6 +11,7 @@ DefineClass.AIUprisingMystery = {
 	state = "not started",  -- not started, running, ended
 }
 
+-- savegame compatibility:
 GlobalVar("g_AIDestroyedBuildings", {})
 GlobalGameTimeThread("AIDestroyedBuildingsNotif", function()
 	HandleNewObjsNotif(g_AIDestroyedBuildings, "Mystery5DestoyedBuildings", nil, nil, nil, "keep destroyed")

@@ -149,6 +149,14 @@ function SurfaceDeposit:GameInit()
 	end
 	group[#group + 1] = self
 	group[self] = true
+	if IsValid(group.holder) then
+		group.holder:UpdateDimension()
+		group.holder:UpdateMaxAmount()
+		if group.holder == SelectedObj then
+			SelectObj(false)
+			SelectObj(group.holder)
+		end
+	end
 end
 
 function SurfaceDeposit:Done()
@@ -310,12 +318,7 @@ DefineClass.SurfaceDepositGroup = {
 
 function SurfaceDepositGroup:Init()
 	self:UpdateDimension()
-	local group = self.group
-	local max_amount = 0
-	for i=1,#group do
-		max_amount = max_amount + group[i].max_amount
-	end
-	self.max_amount = max_amount
+	self:UpdateMaxAmount()
 end
 
 function SurfaceDepositGroup:UpdateDimension()
@@ -326,6 +329,15 @@ function SurfaceDepositGroup:UpdateDimension()
 		self.radius_max = radius
 		--DbgAddCircle(pos, radius)
 	end
+end
+
+function SurfaceDepositGroup:UpdateMaxAmount()
+	local group = self.group
+	local max_amount = 0
+	for i=1,#group do
+		max_amount = max_amount + group[i].max_amount
+	end
+	self.max_amount = max_amount
 end
 
 function SurfaceDepositGroup:GetAmount()

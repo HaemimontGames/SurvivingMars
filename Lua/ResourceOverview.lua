@@ -167,7 +167,7 @@ end
 function ResourceOverview:GatherPerDomeInfo()
 	if not self.city then return end
 	local domes = self.city.labels.Dome or {}
-	local celebrity_count, renegades, martianborn, earthborn = 0, 0, 0, 0
+	local celebrity_count, renegades, martianborn, earthborn, tourists = 0, 0, 0, 0, 0
 	local children, adults, youths, middleageds, seniors = 0,0,0,0,0
 	for _, dome in ipairs(domes) do
 		local labels = dome.labels
@@ -179,6 +179,7 @@ function ResourceOverview:GatherPerDomeInfo()
 		middleageds = middleageds + (labels["Middle Aged"] and #labels["Middle Aged"] or 0)
 		seniors     = seniors     + (labels.Senior and #labels.Senior or 0)
 		martianborn = martianborn + (labels.Martianborn and #labels.Martianborn or 0)
+		tourists    = tourists    + (labels.Tourist and #labels.Tourist or 0)
 	end	
 	self.data.celebrity_count = celebrity_count
 	self.data.renegades       = renegades
@@ -188,7 +189,9 @@ function ResourceOverview:GatherPerDomeInfo()
 	self.data.middleageds     = middleageds
 	self.data.seniors         = seniors
 	self.data.martianborn     = martianborn
+	self.data.tourists    		= tourists
 	self.data.earthborn       = #(self.city.labels.Colonist or empty_table) - martianborn
+	self.data.temporaryill = #(table.filter(self.city.labels.Colonist or {}, function(idx, c) return c:IsTemporaryIll() end))
 end
 
 function ResourceOverview:GetLastExportStr()
@@ -261,9 +264,47 @@ function ResourceOverview:GetFunding()
 	return self.city and self.city:GetFunding() or 0
 end
 
+function ResourceOverview:GetAvailableRockets(label)
+	local rockets = UICity.labels[label or "SupplyRocket"] or empty_table
+	local available = 0
+	for i = 1, #rockets do
+		if rockets[i]:IsAvailable() then
+			available = available + 1
+		end
+	end
+	return available
+end
+
+function ResourceOverview:GetAvailablePods()
+	return self:GetAvailableRockets("SupplyPod")
+end
+
+function ResourceOverview:GetBuildingsCount(label)
+	return #(UICity.labels[label or "Building"] or empty_table)
+end
+
+function ResourceOverview:GetDomesCount()
+	return self:GetBuildingsCount("Dome")
+end
+
+function ResourceOverview:GetPowerProducersCount()
+	local buildings = UICity.labels["Building"] or empty_table
+	local count = 0
+	for i=1,#buildings do
+		if IsKindOf(buildings[i], "ElectricityProducer") then
+			count = count + 1
+		end
+	end
+	return count
+end
+
+function ResourceOverview:GetProductionBuildingsCount()
+	return self:GetBuildingsCount("Production")
+end
+
 function ResourceOverview:GetResearchProgress()
 	local city = self.city
-	local queue = city:GetResearchQueue()
+	local queue = city and city:GetResearchQueue() or empty_table
 	if not next(queue) then
 		return T{9765, "n/a"}
 	else
@@ -295,6 +336,30 @@ end
 
 function ResourceOverview:GetResearchRollover()
 	local ret = self:GetResearchRolloverItems()
+	return table.concat(ret, "<newline><left>")
+end
+
+function ResourceOverview:GetElectricityGridRollover()
+	local ret = {
+		T{3619, "Power, Water and Oxygen are distributed via Power and Life Support grids.<newline>"} ,
+		T{3620, "Power production<right><power(TotalProducedPower)>", self}, 
+		T{3621, "Power demand<right><power(TotalRequiredPower)>", self}, 
+		T{3622, "Stored Power<right><power(TotalStoredPower)>", self}, 
+	}
+	return table.concat(ret, "<newline><left>")
+end
+
+function ResourceOverview:GetLifesupportGridRollover()
+	local ret = {
+		T{3619, "Power, Water and Oxygen are distributed via Power and Life Support grids.<newline>"} ,
+		T{3623, "Oxygen production<right><air(TotalProducedAir)>", self}, 
+		T{3624, "Oxygen demand<right><air(TotalRequiredAir)>", self}, 
+		T{3625, "Stored Oxygen<right><air(TotalStoredAir)>", self}, 
+		T{316, "<newline>"},
+		T{3626, "Water production<right><water(TotalProducedWater)>", self}, 
+		T{3627, "Water demand<right><water(TotalRequiredWater)>", self}, 
+		T{3628, "Stored Water<right><water(TotalStoredWater)>", self}, 
+	}
 	return table.concat(ret, "<newline><left>")
 end
 
@@ -524,6 +589,10 @@ function ResourceOverview:GetColonistCount()
 	return #(self.city.labels.Colonist or empty_table)
 end
 
+function ResourceOverview:GetDronesCount()
+	return #(self.city.labels.Drone or empty_table)
+end
+
 function ResourceOverview:GetFreeLivingSpace(count_children)
 	return GetFreeLivingSpace(self.city, count_children)
 end
@@ -550,6 +619,10 @@ end
 function ResourceOverview:GetUnemployedColonists()
 	local city_labels = self.city.labels
 	return city_labels.Unemployed and #city_labels.Unemployed or 0
+end
+
+function ResourceOverview:GetDetrimentalColonistsCount()
+	return #GetDetrimentalStatusColonists(UICity)
 end
 
 function ResourceOverview:GetEmploymentMessage()
@@ -591,19 +664,10 @@ function ResourceOverview:GetHomelessBtnEnabled()
 	return city_labels.Homeless and #city_labels.Homeless>0 or false
 end
 
-function ResourceOverview:GetAverageStat(stat)
-	local list = self.city.labels.Colonist or empty_table
-	local sum = 0
-	for _, colonist in ipairs(list) do
-		sum = sum + colonist:GetStat(stat)
-	end
-	return #list > 0 and (sum / #list) or 0
-end
-
-function ResourceOverview:GetAverageHealth() return self:GetAverageStat("Health") end
-function ResourceOverview:GetAverageSanity() return self:GetAverageStat("Sanity") end
-function ResourceOverview:GetAverageComfort() return self:GetAverageStat("Comfort") end
-function ResourceOverview:GetAverageMorale() return self:GetAverageStat("Morale") end
+function ResourceOverview:GetAverageHealth() return UICity:GetAverageStat("Health") end
+function ResourceOverview:GetAverageSanity() return UICity:GetAverageStat("Sanity") end
+function ResourceOverview:GetAverageComfort() return UICity:GetAverageStat("Comfort") end
+function ResourceOverview:GetAverageMorale() return UICity:GetAverageStat("Morale") end
 
 function ResourceOverview:GetJobsText()
 	local city_labels = self.city.labels
@@ -663,43 +727,74 @@ function ResourceOverview:GetColonistsRollover()
 		self:GatherPerDomeInfo()
 	end
 	
-	local ui_on_vacant, ui_off_vacant = GetFreeWorkplaces(self.city)
-	local free_all = self:GetFreeLivingSpace(true)
-	local free_adult = self:GetFreeLivingSpace()
-	local closed_slots = self:GetClosedLivingSpace()
-	local city_labels = self.city.labels
-	local renegades = rawget(self.data, "renegades")
-	if not renegades then
-		renegades = 0
-		for _, dome in ipairs(city_labels.Dome) do
-			renegades = renegades + (dome.labels.Renegade and #dome.labels.Renegade or 0)
-		end
-	end
-	
+	local city_labels = self.city.labels	
 	local texts = {
-		T{7622, "<center><em>Jobs</em>"},
-		T{548, "Unemployed, seeking work<right><unemployed(number)>", number = city_labels.Unemployed and #city_labels.Unemployed or 0 },
-		T{549, "Vacant work slots<right><work(number)>",        number = ui_on_vacant },
-		T{550, "Disabled work slots<right><work(number)>",      number = ui_off_vacant },
-		T{7346, "Renegades<right><colonist(number)>",               number = renegades },
-		
-		T{7623, "<newline><center><em>Living space</em>"},
-		T{552, "Vacant residential slots<right><home(number)>", number = free_adult },
-		T{7624, "Vacant nursery slots<right><home(number)>",    number = free_all - free_adult },
-		T{551, "Homeless<right><homeless(number)>",                 number = city_labels.Homeless and #city_labels.Homeless or 0 },
-		T{10532, "Disabled residential slots<right><homeless(number)>", number = closed_slots },
-		
-		T{553, "<newline><center><em>Age Groups</em>"},
+		T{553, "<newline><center><em>Age Groups</em>", newline = ""},
 		T{554, "Children<right><colonist(number)>",    number = data.children },
 		T{555, "Youth<right><colonist(number)>",       number = data.youths },
 		T{556, "Adults<right><colonist(number)>",      number = data.adults },
 		T{557, "Middle Aged<right><colonist(number)>", number = data.middleageds },
-		T{558, "Senior<right><colonist(number)>",      number = data.seniors },
-		
+		T{558, "Senior<right><colonist(number)>",      number = data.seniors },		
 		T{9768, "<newline><center><em>Origin</em>"},
 		T{8035, "Martianborn<right><colonist(number)>", number = data.martianborn},
 		T{8036, "Earthborn<right><colonist(number)>",   number = data.earthborn},
 	}
+	return table.concat(texts, "<newline><left>")
+end
+
+function ResourceOverview:GetHomesRollover()
+	local free_all = self:GetFreeLivingSpace(true)
+	local free_adult = self:GetFreeLivingSpace()
+	local closed_slots = self:GetClosedLivingSpace()
+	local 	city_labels = self.city.labels
+	
+	local texts = {	
+		T{7623, "<newline><center><em>Living space</em>", newline = ""},
+		T{552, "Vacant residential slots<right><home(number)>", number = free_adult },
+		T{7624, "Vacant nursery slots<right><home(number)>",    number = free_all - free_adult },
+		T{551, "Homeless<right><homeless(number)>",                 number = city_labels.Homeless and #city_labels.Homeless or 0 },
+		T{10532, "Disabled residential slots<right><homeless(number)>", number = closed_slots },
+	}
+	return table.concat(texts, "<newline><left>")
+end
+
+function ResourceOverview:GetJobsRollover()
+	local data = self.data
+	local ui_on_vacant, ui_off_vacant = GetFreeWorkplaces(self.city)
+	local city_labels = self.city.labels
+	local tourists = rawget(self.data, "tourists")
+	local temporaryill= rawget(self.data, "temporaryill")
+	local renegades = rawget(self.data, "renegades")
+	if not renegades or not tourists then
+		renegades = 0
+		tourists = 0
+		for _, dome in ipairs(city_labels.Dome) do
+			renegades = renegades + (dome.labels.Renegade and #dome.labels.Renegade or 0)
+			tourists = tourists + (dome.labels.Tourist and #dome.labels.Tourist or 0)
+		end
+	end
+	if not temporaryill then
+		temporaryill = #(table.filter(city_label.Colonist or {}, function(idx, c) return c:IsTemporaryIll() end))
+	end
+	
+	local texts = {	
+		T{11711, "<center><em>Jobs</em>"},
+		T{548, "Unemployed, seeking work<right><unemployed(number)>", number = city_labels.Unemployed and #city_labels.Unemployed or 0 },
+		T{549, "Vacant work slots<right><work(number)>",        number = ui_on_vacant },
+		T{550, "Disabled work slots<right><work(number)>",      number = ui_off_vacant },
+		T{7346, "Renegades<right><colonist(number)>",               number = renegades },
+		T{11700, "Earthsick<right><colonist(number)>", number = #g_EarthSickColonists},
+		T{11701, "Tourists<right><colonist(number)>", number = tourists },
+		T{11702, "Temporary ill<right><colonist(number)>", number = temporaryill},
+		T{316, "<newline>"},
+		T{7622, "<center><em>Specialization</em>"},		
+	}
+	texts[#texts+1] = T{7858, "<specialization><right><colonist(number)>", specialization = const.ColonistSpecialization["none"].display_name_plural, number = #(self.city.labels["none"] or empty_table)}
+	for  id, spec in sorted_pairs(const.ColonistSpecialization) do
+		if id~="none" then
+			texts[#texts+1] = T{7858, "<specialization><right><colonist(number)>", specialization = spec.display_name_plural, number = #(self.city.labels[id] or empty_table)}
+		end
+	end
 	return table.concat(texts, "<newline><left>")
 end
 

@@ -37,7 +37,7 @@ end,
 			}),
 			PlaceObj('XTemplateWindow', {
 				'comment', "margins",
-				'Margins', box(0, 30, 100, 50),
+				'Margins', box(0, 68, 0, 25),
 			}, {
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
@@ -47,11 +47,13 @@ self:SetMargins(GetSafeMargins(self:GetMargins()))
 end,
 				}),
 				PlaceObj('XTemplateTemplate', {
-					'__template', "DialogTitle",
+					'__template', "DialogTitleNew",
+					'Margins', box(115, 0, 0, 0),
+					'SmallImage', true,
 				}),
 				PlaceObj('XTemplateTemplate', {
-					'__template', "ActionBar",
-					'MinWidth', 300,
+					'__template', "ActionBarNew",
+					'Margins', box(115, 0, 0, 0),
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'__template', "OptionsContentWindow",
@@ -62,7 +64,7 @@ end,
 	PlaceObj('XTemplateTemplate', {
 		'__context', function (parent, context) OptionsObj = OptionsObj or OptionsCreateAndLoad() return OptionsObj end,
 		'__condition', function (parent, context) return GameState.gameplay end,
-		'__template', "OverlayDlg",
+		'__template', "NewOverlayDlg",
 		'HandleMouse', true,
 		'InitialMode', "options",
 		'InternalModes', "options,properties,items",
@@ -74,34 +76,10 @@ OptionsObj = false
 OptionsObjOriginal = false
 end,
 		}),
-		PlaceObj('XTemplateFunc', {
-			'name', "Open",
-			'parent', function (parent, context) return GetDialog(parent) end,
-			'func', function (self, ...)
-XDialog.Open(self, ...)
-local pad = self.idFrame:GetPadding()
-self.idFrame:SetPadding(box(pad:minx() + 90, pad:miny(), pad:maxx(), pad:maxy()))
-local margins = self.idToolbarFrame:GetMargins()
-self.idToolbarFrame:SetMargins(box(margins:minx()-90, margins:miny(), margins:maxx(), margins:maxy()))
-end,
-		}),
-		PlaceObj('XTemplateWindow', {
-			'__class', "XLabel",
-			'Id', "idTitle",
-			'Dock', "top",
-			'HAlign', "right",
-			'TextStyle', "OverlayTitle",
-			'Translate', true,
-		}),
-		PlaceObj('XTemplateWindow', {
-			'__class', "XFrame",
-			'Margins', box(-170, 6, -155, -100),
-			'Dock', "top",
-			'VAlign', "top",
-			'Transparency', 100,
-			'Image', "UI/Common/bm_pad_small.tga",
-			'FrameBox', box(170, 0, 165, 0),
-			'SqueezeY', false,
+		PlaceObj('XTemplateTemplate', {
+			'__template', "DialogTitleNew",
+			'Margins', box(115, 0, 0, 0),
+			'SmallImage', true,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "OptionsContentWindow",

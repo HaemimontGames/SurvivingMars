@@ -109,8 +109,8 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 		end
 		return "break"
 	elseif shortcut == "ButtonY" and cursor then
-		if not GetDialog("XBuildMenu") and GetInGameInterfaceMode() == "selection" then
-			OpenXBuildMenu()
+		if GetInGameInterfaceMode() == "selection" then
+			ToggleXBuildMenu(false, "close")
 		end
 		return "break"
 		
@@ -165,15 +165,13 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 	elseif shortcut == "DPadRight" then --Speed up
 		ChangeGameSpeedState(1)
 		return "break"
-	elseif shortcut == "DPadUp" then --Pause/unpause (opposite to DPadDown)
+	elseif shortcut == "DPadUp" then
 		UpdateInfobarVisibility("force")
-		GetDialog("Infobar").idPad.idGridResources:SetFocus()
+		GetDialog("Infobar").idPad.idElectricity:SetFocus()
 		return "break"
-	elseif shortcut == "DPadDown" then --Pause/unpause (opposite to DPadUp)
+	elseif shortcut == "DPadDown" then
 		return "break"
-		
-	--Object cycling using thumb-stick clicks
-	elseif shortcut == "LeftThumbClick" then
+	elseif shortcut == "LeftThumbClick" then --Object cycling using thumb-stick clicks
 		CycleDomes()
 		return "break"
 	elseif shortcut == "RightThumbClick" then

@@ -128,15 +128,36 @@ end
 function OnMsg.NewMapLoaded()
 	if not mapdata.GameLogic then return end
 	g_DontBuildHere = DontBuildHere:new{}
-	MapForEach(true, "PrefabFeatureMarker",function(marker)
-		local features = PrefabFeatures[marker.FeatureType] or ""
-		for j = 1, #features do
-			local char = features[j]
-			if char.class == "PrefabFeatureChar_Geyser" then
-				CreateGameTimeThread(GeyserLogic, marker, char)
-			end
-		end
-	end)
+end
+
+DefineClass.PrefabFeatureChar_Geyser =
+{
+	__parents = { "PrefabFeatureChar" },
+	properties =
+	{
+		{ category = "Geyser",	name = T{3598, "Dormant Min"},				id = "dormant_min",		editor = "number",	default = 72 * const.HourDuration,	scale = const.HourDuration,	help = "Min duration of the dormant phase, in hours" },
+		{ category = "Geyser",	name = T{3599, "Dormant Max"},				id = "dormant_max",		editor = "number",	default = 192 * const.HourDuration,	scale = const.HourDuration,	help = "Max duration of the dormant phase, in hours" },
+		{ category = "Geyser",	name = T{3600, "Active Min"},				id = "active_min",		editor = "number",	default = 24 * const.HourDuration,	scale = const.HourDuration,	help = "Min duration of the active phase, in hours" },
+		{ category = "Geyser",	name = T{3601, "Active Max"},				id = "active_max",		editor = "number",	default = 72 * const.HourDuration,	scale = const.HourDuration,	help = "Max duration of the active phase, in hours" },
+		{ category = "Geyser",	name = T{3602, "Warning Min"},				id = "warning_min",		editor = "number",	default = 10 * const.HourDuration,	scale = const.HourDuration,	help = "Min duration of the warning phase, in hours" },
+		{ category = "Geyser",	name = T{3603, "Warning Max"},				id = "warning_max",		editor = "number",	default = 12 * const.HourDuration,	scale = const.HourDuration,	help = "Max duration of the warning phase, in hours" },
+		{ category = "Geyser",	name = T{3604, "Warm Opacity"},				id = "warm_opacity",	editor = "number",	default = 100	,	help = "Opacity level for spider/dust decals after warming has finished" },
+		{ category = "Geyser",	name = T{3605, "Dust Opacity Time"},		id = "dust_op_time",	editor = "number",	default = 25000,	help = "Time for reaching warm opacity for dust decals" },
+		{ category = "Geyser",	name = T{3606, "Cool Down Opacity Time"},id = "cool_op_time",	editor = "number",	default = 24 * const.HourDuration,	scale = const.HourDuration,	help = "Time for cooling opacity down for spider/dust decals" },
+		{ category = "Geyser",	name = T{3607, "Sanity/Sec Damage"},		id = "damage_sanity",	editor = "number",	default = 1000,	help = "How fast colonists lose sanity" },
+		{ category = "Geyser",	name = T{8495, "Dust/Sec"},		                id = "target_dust",	editor = "number",	default = 50,	help = "Dust accumulation per sec" },
+	},
+	CanBePlaced = false,
+	damage_battery = 0,
+}
+
+function PrefabFeatureChar_Geyser:GetDescription()
+	local hd = const.HourDuration
+	return string.format("Geyser (%dh,%dh)-(%dh,%dh)", self.dormant_min / hd, self.dormant_max / hd, self.active_min / hd, self.active_max / hd)
+end
+
+function PrefabFeatureChar_Geyser:GameLogic(marker)
+	CreateGameTimeThread(GeyserLogic, marker, self)
 end
 
 DefineClass.GeyserObject = { __parents = { "Object" } }

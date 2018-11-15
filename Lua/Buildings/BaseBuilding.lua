@@ -30,6 +30,7 @@ DefineClass.BaseBuilding = {
 	track_multiple_hit_thread = false,
 
 	force_fx_work_target = false,
+	ui_interaction_state = true,
 
 	--used by UpdateConsumption to avoid iskindof checks
 	is_electricity_consumer = false,
@@ -142,6 +143,16 @@ end
 function BaseBuilding:Setexceptional_circumstances(disabled)
 	self.exceptional_circumstances = disabled	
 	self:SetWorking(not disabled)
+	self:AttachSign(disabled, "SignNotWorking")
+end
+
+function BaseBuilding:SetUIInteractionState(bState)
+	self.ui_interaction_state = bState
+	RebuildInfopanel(self)
+end
+
+function BaseBuilding:GetUIInteractionState()
+	return self.ui_interaction_state
 end
 
 function BaseBuilding:DoesHaveConsumption()
@@ -179,7 +190,7 @@ function BroadcastAction(building, action, ...)
 	assert(table.find(list, building), "Object isn't present in its broadcast list!")
 	local eval = type(action) == "string"
 	for _, obj in ipairs(list) do
-		if building:BroadcastVerify(obj) then
+		if obj:GetBroadcastLabel() == label and building:BroadcastVerify(obj) and obj:GetUIInteractionState() then
 			local func = eval and obj[action] or action
 			func(obj, ...)
 		end
@@ -595,6 +606,10 @@ function BaseBuilding:ChangeWorkingStateAnim(working)
 	elseif not fx_target then
 		fx_target = self:GetEntity()
 	end
+	if type(fx_target) == "table" and self.force_fx_work_target ~= fx_target and not IsKindOf(fx_target, "Object") then
+		--unpersistable target, ref it so gc does not kill it and hang the particle
+		self.force_fx_work_target = fx_target
+	end
 	PlayFX("Working", working and "start" or "end", self, fx_target ~= self and fx_target or nil)
 	--play breakdown sound
 	if not working and self:IsWorkPermitted() and not self:IsWorkPossible() then
@@ -625,6 +640,10 @@ function BaseBuilding:TrackMultipleHitMoments(obj, actionFXClass, max, override_
 	self.track_multiple_hit_thread = CreateGameTimeThread(function(self, obj)
 		local anim = obj:GetAnim(1)
 		local number_of_hits = obj:GetAnimMomentsCount(anim, "Hit")
+		if number_of_hits == 0 then
+			print("<color 103 252 3>Trying to track multiple hit moments for obj " .. obj.class .. ", that does not have multiple hit moments!!!</color>")
+			return
+		end
 		local i = 1
 		local hit_moment_table = override_hit_moments or hit_moments
 		while max == nil or i <= max do

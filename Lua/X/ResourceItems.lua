@@ -12,12 +12,14 @@ function ResourceItems:Init()
 	self:SetModal()
 	PlayFX("ItemSelectorIn", "start")
 	UICity:Gossip("ItemSelector", "open")
+	ShowMouseCursor("ResourceItems")
 end
 
 function ResourceItems:Close()
 	ItemMenuBase.Close(self)
 	PlayFX("ItemSelectorOut", "start")
 	UICity:Gossip("ItemSelector", "close")
+	HideMouseCursor("ResourceItems")
 	if self.context.on_close_callback then
 		self.context.on_close_callback()
 	end
@@ -84,7 +86,7 @@ function ResourceItems:OpenItemsInterpolation(bFirst, set_focus)
 	ItemMenuBase.OpenItemsInterpolation(self, bFirst, set_focus)
 	self:CreateThread(function()
 		local items = self.items
-		local offs = self.idBottomBackWnd.box:miny() - self.idTopBackWnd.box:maxy()
+		local offs = self.idBackground.box:miny() - self.idBackground.box:maxy()
 		local item_pop_time = self.lines_stretch_time_init/#items
 		local duration = item_pop_time 
 		for i = 1, #items do
@@ -99,6 +101,22 @@ function ResourceItems:OpenItemsInterpolation(bFirst, set_focus)
 		end
 		self:SetInitFocus(set_focus)
 	end)
+end
+
+function ResourceItems:CancelMenu()
+	self:SelectParentCategory()
+	local obj = self.context and self.context.object
+	if obj then 
+		obj:SetInteractionMode(obj.interaction_mode)
+	end	
+end
+
+function ResourceItems:OnKbdKeyDown(virtual_key)
+	if virtual_key == const.vkEsc then
+		self:CancelMenu()
+		return "break"
+	end
+	return ItemMenuBase.OnKbdKeyDown(self, virtual_key)
 end
 
 function ResourceItems:OnXButtonDown(button, source)
@@ -118,18 +136,17 @@ function ResourceItems:OnXButtonDown(button, source)
 			end
 		end
 		return "break"
+	elseif button == "ButtonB" then
+		self:CancelMenu()
+		return "break"
 	end
 	
 	return ItemMenuBase.OnXButtonDown(self, button, source)
 end
 
 function ResourceItems:OnMouseButtonDown(pt, button)
-	if button=="R" then
-		self:SelectParentCategory()
-		local obj = self.context and self.context.object
-		if obj then 
-			obj:SetInteractionMode(obj.interaction_mode)
-		end	
+	if button == "R" then
+		self:CancelMenu()
 		return "break"
 	end
 	return ItemMenuBase:OnMouseButtonDown(pt, button)

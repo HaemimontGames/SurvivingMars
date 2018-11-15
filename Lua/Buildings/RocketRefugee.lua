@@ -6,14 +6,16 @@ DefineClass.RefugeeRocket = {
 	fx_actor_class = "SupplyRocket",
 	show_service_area = false,
 	allow_export = false,
+	owned = false,
 	
 	launch_fuel = 0,
 	launch_after_unload = true,
 
-	rocket_palette = "RocketTrade",
+	rocket_palette = { "rocket_base", "rocket_base", "outside_dark", "outside_dark" }, --"RocketTrade",
 	show_logo = false,
 	rename_allowed = false,
 	can_fly_colonists = false,
+	category = "refugee",
 }
 
 GlobalVar("g_RefugeeOutcome", {})
@@ -21,6 +23,10 @@ GlobalVar("g_RefugeeOutcome", {})
 function RefugeeRocket:GameInit()
 	self.fx_actor_class = "SupplyRocket"
 	g_RefugeeOutcome[self.custom_id] = nil
+end
+
+function RefugeeRocket:SetCategory()
+	-- don't change for mystery-related rockets
 end
 
 function RefugeeRocket:CanHaveMoreDrones()

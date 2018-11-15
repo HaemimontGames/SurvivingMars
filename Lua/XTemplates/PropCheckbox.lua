@@ -16,9 +16,7 @@ PlaceObj('XTemplate', {
 			'__class', "XText",
 			'Id', "idName",
 			'HandleMouse', false,
-			'TextFont', "PGListItem",
-			'TextColor', RGBA(140, 156, 178, 255),
-			'RolloverTextColor', RGBA(255, 255, 255, 255),
+			'TextStyle', "PGListItemName",
 			'Translate', true,
 		}, {
 			PlaceObj('XTemplateFunc', {

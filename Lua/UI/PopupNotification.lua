@@ -1,12 +1,16 @@
 
 DefineClass.PopupNotification = {
 	__parents = {"XMarsMessageBox"},
+	Dock = "box",
+	dont_pause = false,
 }
 
 function PopupNotification:Init()
 	XCameraLockLayer:new(nil, self)
 	XSuppressInputLayer:new(nil, self)
-	XPauseLayer:new(nil, self)
+	if not self.dont_pause then
+		XPauseLayer:new(nil, self)
+	end
 end
 
 GlobalVar("LogEntryNumber", 1)
@@ -23,7 +27,7 @@ function _GetPopupNotificationContext(preset_name, params, bPersistable)
 		local preset = PopupNotificationPresets[preset_name]
 		if preset then
 			table.set_defaults(context, preset)
-		else
+		elseif preset_name ~= "" then
 			print("No such popup:", preset_name)
 		end
 	end
@@ -44,6 +48,13 @@ function PopupNotificationBegin(self)
 	else
 		GetInGameInterface().mode_dialog:SelectSector()
 	end
+
+	-- adopt the infobar without moving it, so the user can interact with it over the modal popup
+	local infobar = GetDialog("Infobar")
+	if infobar then
+		infobar:DockInPopupNotification(self, true)
+	end
+
 	Msg("PopupNotificationBegin")
 	HideGamepadCursor("Popup")
 	--call this in a thread to handle the case when photo mode or 
@@ -54,6 +65,11 @@ function PopupNotificationBegin(self)
 end
 
 function PopupNotificationEnd(self, reason)
+	local infobar = GetDialog("Infobar")
+	if infobar then
+		infobar:DockInPopupNotification(self)
+	end
+
 	ShowGamepadCursor("Popup")
 	if g_Voice:IsPlaying() and g_Voice:GetPlayingVoiceType() == "Voiceover" then
 		g_Voice:Stop()
@@ -88,7 +104,7 @@ local function OpenPopupNotification(parent, context)
 	end
 	
 	local choices = {}
-	for i = 1, 4 do
+	for i = 1, 8 do
 		local choice = context["choice" .. i]
 		choices[i] = (choice and choice ~= "") and T{choice, context.params, context} or nil
 		assert(not (i > 1 and choices[i] and not choices[i - 1]))
@@ -106,20 +122,21 @@ local function OpenPopupNotification(parent, context)
 		local hint = hint1 and hint2 and table.concat({hint1, hint2}, "    ") or hint1 or hint2
 		
 		local prop_name = "choice" .. i .. "_img"
-		local image = context[prop_name] and context[prop_name] ~= "" and context[prop_name] or (choice_count == 1 and "UI/Icons/message_ok.tga") or "UI/Icons/message_" .. i .. ".tga"
+		local image = context[prop_name] and context[prop_name] ~= "" and context[prop_name] or (choice_count == 1 and "UI/CommonNew/message_box_ok.tga") or "UI/CommonNew/message_" .. i .. ".tga"
 		actions[#actions + 1] = XAction:new({
 			ActionId = "idChoice" .. i,
 			ActionName = choice,
 			ActionShortcut = tostring(i),
-			ActionShortcut2 = choice_count == i and "Escape" or "",
-			ActionGamepad = choice_count == i and "ButtonB" or "",
+			ActionShortcut2 = choice_count == i and not context.disallow_escape and "Escape" or "",
+			ActionGamepad = choice_count == i and not context.disallow_escape and "ButtonB" or "",
 			ActionIcon = image,
 			OnAction = function(self, host, source)
 				host:Close(i)
 			end,
-			ActionState = function(host)
+			ActionState = function(self, host)
 				return disabled and disabled[i] and "disabled"
 			end,
+			ActionToolbar = "MessageButtons",
 			RolloverTitle = context["choice" .. i .. "_rollover_title"] or "",
 			RolloverText = context["choice" .. i .. "_rollover"] or "",
 			RolloverHint = hint or "",
@@ -127,19 +144,38 @@ local function OpenPopupNotification(parent, context)
 		})
 	end
 	
-	local dlg = PopupNotification:new({actions = actions}, parent, context)
+	local dlg = PopupNotification:new({actions = actions, dont_pause = context.dont_pause}, parent, context)
 	dlg.OnShortcut = function(self, shortcut, source)
 		local res = XDialog.OnShortcut(self, shortcut, source)
+		local shortcuts = GetShortcuts('actionColonyControlCenter')
+		if dlg:HasMember("idCommandControlCenter") and (shortcuts and shortcut == shortcuts[1] or shortcut == "ButtonY") then
+			dlg.idCommandControlCenter:OnPress()
+			return "break"
+		end
 		return not PopupPropagateShortcuts[shortcut] and not shortcut:starts_with("+") and "break" or res
 	end
 	
-	dlg.OnMouseWheelBack = function()
-		return "break" --prevent going in and out of overview while a popup is shown
+	dlg.idList.OnShortcut = function(self, shortcut, source)
+		local infobar = GetDialog("Infobar")
+		if infobar then
+			if shortcut == "DPadUp" and self:GetSelection()[1] == 1 then
+				infobar.idPad.idElectricity:SetFocus()
+				return "break"
+			elseif shortcut == "DPadLeft" or shortcut == "DPadRight" then
+				return "break"
+			end
+			
+			local result = XList.OnShortcut(self, shortcut, source)
+			infobar:UpdateGamepadHint()
+			return result
+		end
+		
+		return XList.OnShortcut(self, shortcut, source)
 	end
 	
-	dlg.OnMouseWheelForward = function()
-		return "break" --prevent going in and out of overview while a popup is shown
-	end
+	-- prevent going in and out of overview while a popup is shown
+	dlg.OnMouseWheelBack    = function() return "break" end
+	dlg.OnMouseWheelForward = function() return "break" end
 	
 	-- register in Dialogs manually
 	local id = "PopupNotification"

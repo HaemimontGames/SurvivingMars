@@ -194,7 +194,7 @@ function PhotoModeTake()
 		local dlg = GetDialog("PhotoMode")
 		if g_PhotoModeChallengeId then
 			GalleryTakeScreenshot()
-			if dlg then
+			if dlg and dlg.window_state ~= "destroying" then
 				dlg:BlinkFilePath(_InternalTranslate(T{1000015, "Success"}))
 			end
 		else
@@ -215,8 +215,12 @@ function PhotoModeTake()
 			MovieWriteScreenshot(folder .. proposed_name, 0, 32, false, width, height)
 			UnlockCamera("Screenshot")
 			g_PhotoModeShotNum = g_PhotoModeShotNum + 1
-			if dlg then
-				dlg:BlinkFilePath(ConvertToOSPath(folder .. proposed_name))
+			local file_path = ConvertToOSPath(folder .. proposed_name)
+			if dlg and dlg.window_state ~= "destroying" then
+				dlg:BlinkFilePath(file_path)
+			end
+			if Platform.steam and IsSteamAvailable() then
+				SteamAddScreenshotToLibrary(file_path, "", width, height)
 			end
 		end
 	end)

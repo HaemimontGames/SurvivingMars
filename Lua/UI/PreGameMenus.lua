@@ -198,8 +198,6 @@ function DurangoTitleScreen:Init()
 		HAlign = "center",
 		VAlign = "center",
 		TextStyle = "TitleScreen",
-		TextFont = "PGModWarning",
-		TextColor = RGBA(255, 255, 255, 255),
 		Translate = true,
 	}, self)
 	label:SetText(T{4263, "Press any button"})

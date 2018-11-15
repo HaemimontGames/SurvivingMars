@@ -168,9 +168,40 @@ function Residence:GetFreeSpace()
 	return self.capacity - self.closed - (#self.reserved + #self.colonists)
 end
 
-function Residence:OnModifiableValueChanged(prop)
-	if prop == "capacity" and self.parent_dome then
-		self.parent_dome:RecalcFreeSpace()
+function Residence:OnModifiableValueChanged(prop, old_value, new_value)
+	if prop == "capacity"  then
+		local dome  = self.parent_dome 
+		if dome then
+			dome:RecalcFreeSpace()
+		end
+		if old_value > new_value then
+			local ncolonists = #self.colonists	
+			local empty = old_value - ncolonists
+			local change = old_value - new_value
+			local to_remove = change - empty
+			self.closed = Max(0, self.closed-change) 
+			
+			-- cancel reserved
+			local reserved = #self.reserved
+			local to_cancel = Min(to_remove, reserved)
+			if to_cancel>0 then
+				for i = reserved, reserved-to_cancel+1, -1 do
+					local unit = self.reserved[i]
+					unit:CancelResidenceReservation()
+				end
+			end
+			to_remove = to_remove - to_cancel
+			-- kick some inhabitants
+			if to_remove >0  then
+				local count = Min(ncolonists, to_remove)
+				for i = ncolonists, ncolonists-count+1, -1  do
+					self.colonists[i]:SetResidence(false)
+				end
+			end		
+		end
+		if SelectedObj == self then
+			ReopenSelectionXInfopanel()
+		end
 	end
 end
 
@@ -376,7 +407,11 @@ DefineClass.LivingBase =
 	living_attaches = false,
 }
 
-DefineClass("LivingQuartersHouseBase", "WaypointsObj")
+DefineClass.LivingQuartersHouseBase = 
+{
+	__parents = { "WaypointsObj", "NightLightObject" },
+}
+--DefineClass("LivingQuartersHouseBase", "WaypointsObj")
 --DefineClass("LivingQuartersHouse_01", "LivingQuartersHouseBase")
 --DefineClass("LivingQuartersHouse_02", "LivingQuartersHouseBase")
 --DefineClass("SmartHomeHouse_01", "LivingQuartersHouseBase")
@@ -409,3 +444,8 @@ DefineClass.Nursery = {
 	__parents = { "LivingBase", "WaypointsObj" },
 	enum_flags = { efWalkable = true },
 }
+function SavegameFixups.SetOccupationForExistingResidences()
+	MapForEach("map", "Residence", function(o)
+		o.occupation = #o.colonists
+	end)
+end

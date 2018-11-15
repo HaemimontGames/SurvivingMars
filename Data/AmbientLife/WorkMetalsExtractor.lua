@@ -15,23 +15,27 @@ PlaceObj('AmbientLife', {
 		'target', "unit",
 		'var_obj', "elevator",
 	}),
-	PlaceObj('XPrgUseObject', {
-		'obj', "elevator",
-		'param1', "unit",
-		'param2', "1",
-	}),
-	PlaceObj('XPrgNearestSpot', {
-		'obj', "bld",
-		'spot_type', "Elevator",
-		'target', "unit",
-		'var_spot', "spot",
-	}),
-	PlaceObj('XPrgGetSlotFromSpot', {
-		'obj', "bld",
-		'spot', "spot",
-		'var_slotname', "slotname",
-		'var_slot', "slot",
-	}),
+	PlaceObj('XPrgCheckExpression', {
+		'expression', "elevator",
+	}, {
+		PlaceObj('XPrgUseObject', {
+			'obj', "elevator",
+			'param1', "unit",
+			'param2', "1",
+		}),
+		PlaceObj('XPrgNearestSpot', {
+			'obj', "bld",
+			'spot_type', "Elevator",
+			'target', "unit",
+			'var_spot', "spot",
+		}),
+		PlaceObj('XPrgGetSlotFromSpot', {
+			'obj', "bld",
+			'spot', "spot",
+			'var_slotname', "slotname",
+			'var_slot', "slot",
+		}),
+		}),
 	PlaceObj('XPrgVisitSlot', {
 		'unit', "unit",
 		'bld', "bld",
@@ -73,10 +77,24 @@ PlaceObj('AmbientLife', {
 	PlaceObj('XPrgExitOutside', {
 		'unit', "unit",
 	}),
-	PlaceObj('XPrgUseObject', {
-		'obj', "elevator",
-		'param1', "unit",
-		'param2', "2",
-	}),
+	PlaceObj('XPrgCheckExpression', {
+		'expression', "elevator",
+	}, {
+		PlaceObj('XPrgUseObject', {
+			'obj', "elevator",
+			'param1', "unit",
+			'param2', "2",
+		}),
+		}),
+	PlaceObj('XPrgCheckExpression', {
+		'form', "else-if",
+		'expression', "",
+	}, {
+		PlaceObj('XPrgLeadTo', {
+			'loc', "Exit",
+			'unit', "unit",
+			'spot_obj', "bld",
+		}),
+		}),
 })
 

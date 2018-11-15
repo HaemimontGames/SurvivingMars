@@ -7,6 +7,8 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateTemplate', {
 		'__template', "CommandCenterRow",
 		'RolloverText', T{749348081133, --[[XTemplate DomeOverviewRow RolloverText]] "<OverviewInfo>"},
+		'RolloverHint', T{115984499466, --[[XTemplate DomeOverviewRow RolloverHint]] "<left_click><left_click> Select"},
+		'RolloverHintGamepad', T{764097870353, --[[XTemplate DomeOverviewRow RolloverHintGamepad]] "<ButtonA> Select"},
 		'OnContextUpdate', function (self, context, ...)
 UpdateUICommandCenterRow(self, context, "dome")
 XContextControl.OnContextUpdate(self, context, ...)
@@ -20,9 +22,7 @@ end,
 			'VAlign', "center",
 			'MinWidth', 250,
 			'MaxWidth', 250,
-			'TextFont', "InfopanelTitle",
-			'TextColor', RGBA(255, 248, 233, 255),
-			'RolloverTextColor', RGBA(255, 248, 233, 255),
+			'TextStyle', "OverviewItemName",
 			'Translate', true,
 			'Text', T{7412, --[[XTemplate DomeOverviewRow Text]] "<DisplayName>"},
 			'Shorten', true,
@@ -44,23 +44,12 @@ end,
 				'ContextUpdateOnOpen', true,
 			}, {
 				PlaceObj('XTemplateWindow', {
-					'__class', "XImage",
-					'Id', "idImage",
-					'Margins', box(0, 0, 3, 0),
-					'VAlign', "center",
-					'MinWidth', 27,
-					'MaxWidth', 27,
-					'ImageFit', "smallest",
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XLabel",
+					'__class', "XText",
 					'Id', "idLabel",
 					'Padding', box(0, 0, 0, 0),
 					'HAlign', "center",
 					'VAlign', "center",
-					'TextFont', "InfopanelTitle",
-					'TextColor', RGBA(255, 255, 255, 255),
-					'RolloverTextColor', RGBA(255, 255, 255, 255),
+					'TextStyle', "OverviewItemValue",
 				}),
 				}),
 			}),
@@ -72,9 +61,7 @@ end,
 			'VAlign', "center",
 			'MinWidth', 90,
 			'MaxWidth', 90,
-			'TextFont', "InfopanelTitle",
-			'TextColor', RGBA(255, 255, 255, 255),
-			'RolloverTextColor', RGBA(255, 255, 255, 255),
+			'TextStyle', "OverviewItemValue",
 			'WordWrap', false,
 			'TextHAlign', "center",
 			'TextVAlign', "center",
@@ -87,9 +74,7 @@ end,
 			'VAlign', "center",
 			'MinWidth', 120,
 			'MaxWidth', 120,
-			'TextFont', "InfopanelTitle",
-			'TextColor', RGBA(255, 255, 255, 255),
-			'RolloverTextColor', RGBA(255, 255, 255, 255),
+			'TextStyle', "OverviewItemValue",
 			'WordWrap', false,
 			'TextHAlign', "center",
 			'TextVAlign', "center",
@@ -102,31 +87,32 @@ end,
 			'VAlign', "center",
 			'MinWidth', 100,
 			'MaxWidth', 100,
-			'TextFont', "InfopanelTitle",
-			'TextColor', RGBA(255, 255, 255, 255),
-			'RolloverTextColor', RGBA(255, 255, 255, 255),
+			'TextStyle', "OverviewItemValue",
 			'WordWrap', false,
 			'TextHAlign', "center",
 			'TextVAlign', "center",
 		}),
-		PlaceObj('XTemplateWindow', {
-			'__class', "XTextButton",
-			'RolloverTemplate', "Rollover",
-			'RolloverAnchor', "left",
-			'RolloverAnchorId', "node",
-			'RolloverTitle', T{8728, --[[XTemplate DomeOverviewRow RolloverTitle]] "Birth Control Policy"},
-			'ZOrder', 100000,
-			'VAlign', "center",
-			'MinWidth', 49,
-			'MinHeight', 42,
-			'MaxWidth', 49,
-			'MaxHeight', 42,
-			'LayoutHSpacing', 0,
-			'Background', RGBA(0, 0, 0, 0),
-			'Transparency', 50,
-			'MouseCursor', "UI/Cursors/Rollover.tga",
-			'RelativeFocusOrder', "next-in-line",
-			'OnContextUpdate', function (self, context, ...)
+		PlaceObj('XTemplateGroup', {
+			'__condition', function (parent, context) return context:GetUIInteractionState() end,
+		}, {
+			PlaceObj('XTemplateWindow', {
+				'__class', "XTextButton",
+				'RolloverTemplate', "Rollover",
+				'RolloverAnchor', "right",
+				'RolloverAnchorId', "node",
+				'RolloverTitle', T{8728, --[[XTemplate DomeOverviewRow RolloverTitle]] "Birth Control Policy"},
+				'ZOrder', 100000,
+				'VAlign', "center",
+				'MinWidth', 49,
+				'MinHeight', 42,
+				'MaxWidth', 49,
+				'MaxHeight', 42,
+				'LayoutHSpacing', 0,
+				'Background', RGBA(0, 0, 0, 0),
+				'Transparency', 50,
+				'MouseCursor', "UI/Cursors/Rollover.tga",
+				'RelativeFocusOrder', "next-in-line",
+				'OnContextUpdate', function (self, context, ...)
 local dome = ResolvePropObj(context)
 local accept = dome.allow_birth
 if accept then
@@ -148,60 +134,60 @@ end
 texts[#texts + 1]  = dome:GetBirthText()	
 self:SetRolloverText(table.concat(texts, "<newline><left>"))
 end,
-			'FXMouseIn', "MenuItemHover",
-			'FocusedBackground', RGBA(0, 0, 0, 0),
-			'OnPress', function (self, gamepad)
+				'FXMouseIn', "MenuItemHover",
+				'FocusedBackground', RGBA(0, 0, 0, 0),
+				'OnPress', function (self, gamepad)
 self.context:ToggleAcceptBirth(not gamepad and IsMassUIModifierPressed())
 end,
-			'AltPress', true,
-			'OnAltPress', function (self, gamepad)
+				'AltPress', true,
+				'OnAltPress', function (self, gamepad)
 if gamepad then
 	self.context:ToggleAcceptBirth(true)
 end
 end,
-			'RolloverBackground', RGBA(0, 0, 0, 0),
-			'PressedBackground', RGBA(0, 0, 0, 0),
-		}, {
-			PlaceObj('XTemplateWindow', {
-				'__class', "XImage",
-				'Id', "idButtonIcon",
-				'IdNode', false,
-				'ZOrder', 2,
-				'Shape', "InHHex",
-				'Dock', "left",
-				'HandleMouse', true,
-				'ImageFit', "smallest",
+				'RolloverBackground', RGBA(0, 0, 0, 0),
+				'PressedBackground', RGBA(0, 0, 0, 0),
 			}, {
 				PlaceObj('XTemplateWindow', {
 					'__class', "XImage",
-					'Id', "idRollover",
+					'Id', "idButtonIcon",
 					'IdNode', false,
-					'Margins', box(-3, -3, -3, -3),
-					'Dock', "box",
-					'Visible', false,
-					'Image', "UI/Common/Hex_small_shine_2.tga",
+					'ZOrder', 2,
+					'Shape', "InHHex",
+					'Dock', "left",
+					'HandleMouse', true,
 					'ImageFit', "smallest",
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XImage",
+						'Id', "idRollover",
+						'IdNode', false,
+						'Margins', box(-3, -3, -3, -3),
+						'Dock', "box",
+						'Visible', false,
+						'Image', "UI/Common/Hex_small_shine_2.tga",
+						'ImageFit', "smallest",
+					}),
+					}),
 				}),
-				}),
-			}),
-		PlaceObj('XTemplateWindow', {
-			'__class', "XTextButton",
-			'RolloverTemplate', "Rollover",
-			'RolloverAnchor', "left",
-			'RolloverAnchorId', "node",
-			'RolloverTitle', T{8887, --[[XTemplate DomeOverviewRow RolloverTitle]] "Use Passages for work"},
-			'ZOrder', 100000,
-			'VAlign', "center",
-			'MinWidth', 49,
-			'MinHeight', 42,
-			'MaxWidth', 49,
-			'MaxHeight', 42,
-			'LayoutHSpacing', 0,
-			'Background', RGBA(0, 0, 0, 0),
-			'Transparency', 50,
-			'MouseCursor', "UI/Cursors/Rollover.tga",
-			'RelativeFocusOrder', "next-in-line",
-			'OnContextUpdate', function (self, context, ...)
+			PlaceObj('XTemplateWindow', {
+				'__class', "XTextButton",
+				'RolloverTemplate', "Rollover",
+				'RolloverAnchor', "right",
+				'RolloverAnchorId', "node",
+				'RolloverTitle', T{8887, --[[XTemplate DomeOverviewRow RolloverTitle]] "Use Passages for work"},
+				'ZOrder', 100000,
+				'VAlign', "center",
+				'MinWidth', 49,
+				'MinHeight', 42,
+				'MaxWidth', 49,
+				'MaxHeight', 42,
+				'LayoutHSpacing', 0,
+				'Background', RGBA(0, 0, 0, 0),
+				'Transparency', 50,
+				'MouseCursor', "UI/Cursors/Rollover.tga",
+				'RelativeFocusOrder', "next-in-line",
+				'OnContextUpdate', function (self, context, ...)
 local dome = ResolvePropObj(context)
 	local accept = dome.allow_work_in_connected
 	if accept then
@@ -219,60 +205,60 @@ local dome = ResolvePropObj(context)
 		self:SetRolloverHintGamepad(T{8892, "<ButtonA> Allow for this Dome<newline><ButtonX> Allow for all Domes"})
 	end
 end,
-			'FXMouseIn', "MenuItemHover",
-			'FocusedBackground', RGBA(0, 0, 0, 0),
-			'OnPress', function (self, gamepad)
+				'FXMouseIn', "MenuItemHover",
+				'FocusedBackground', RGBA(0, 0, 0, 0),
+				'OnPress', function (self, gamepad)
 self.context:ToggleWorkInConnected(not gamepad and IsMassUIModifierPressed())
 end,
-			'AltPress', true,
-			'OnAltPress', function (self, gamepad)
+				'AltPress', true,
+				'OnAltPress', function (self, gamepad)
 if gamepad then
 	self.context:ToggleWorkInConnected(true)
 end
 end,
-			'RolloverBackground', RGBA(0, 0, 0, 0),
-			'PressedBackground', RGBA(0, 0, 0, 0),
-		}, {
-			PlaceObj('XTemplateWindow', {
-				'__class', "XImage",
-				'Id', "idButtonIcon",
-				'IdNode', false,
-				'ZOrder', 2,
-				'Shape', "InHHex",
-				'Dock', "left",
-				'HandleMouse', true,
-				'ImageFit', "smallest",
+				'RolloverBackground', RGBA(0, 0, 0, 0),
+				'PressedBackground', RGBA(0, 0, 0, 0),
 			}, {
 				PlaceObj('XTemplateWindow', {
 					'__class', "XImage",
-					'Id', "idRollover",
+					'Id', "idButtonIcon",
 					'IdNode', false,
-					'Margins', box(-3, -3, -3, -3),
-					'Dock', "box",
-					'Visible', false,
-					'Image', "UI/Common/Hex_small_shine_2.tga",
+					'ZOrder', 2,
+					'Shape', "InHHex",
+					'Dock', "left",
+					'HandleMouse', true,
 					'ImageFit', "smallest",
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XImage",
+						'Id', "idRollover",
+						'IdNode', false,
+						'Margins', box(-3, -3, -3, -3),
+						'Dock', "box",
+						'Visible', false,
+						'Image', "UI/Common/Hex_small_shine_2.tga",
+						'ImageFit', "smallest",
+					}),
+					}),
 				}),
-				}),
-			}),
-		PlaceObj('XTemplateWindow', {
-			'__class', "XTextButton",
-			'RolloverTemplate', "Rollover",
-			'RolloverAnchor', "left",
-			'RolloverAnchorId', "node",
-			'RolloverTitle', T{8895, --[[XTemplate DomeOverviewRow RolloverTitle]] "Use Passages for services"},
-			'ZOrder', 100000,
-			'VAlign', "center",
-			'MinWidth', 49,
-			'MinHeight', 42,
-			'MaxWidth', 49,
-			'MaxHeight', 42,
-			'LayoutHSpacing', 0,
-			'Background', RGBA(0, 0, 0, 0),
-			'Transparency', 50,
-			'MouseCursor', "UI/Cursors/Rollover.tga",
-			'RelativeFocusOrder', "next-in-line",
-			'OnContextUpdate', function (self, context, ...)
+			PlaceObj('XTemplateWindow', {
+				'__class', "XTextButton",
+				'RolloverTemplate', "Rollover",
+				'RolloverAnchor', "right",
+				'RolloverAnchorId', "node",
+				'RolloverTitle', T{8895, --[[XTemplate DomeOverviewRow RolloverTitle]] "Use Passages for services"},
+				'ZOrder', 100000,
+				'VAlign', "center",
+				'MinWidth', 49,
+				'MinHeight', 42,
+				'MaxWidth', 49,
+				'MaxHeight', 42,
+				'LayoutHSpacing', 0,
+				'Background', RGBA(0, 0, 0, 0),
+				'Transparency', 50,
+				'MouseCursor', "UI/Cursors/Rollover.tga",
+				'RelativeFocusOrder', "next-in-line",
+				'OnContextUpdate', function (self, context, ...)
 local dome = ResolvePropObj(context)
 	local accept = dome.allow_service_in_connected
 	if accept then
@@ -290,60 +276,60 @@ local dome = ResolvePropObj(context)
 		self:SetRolloverHintGamepad(T{8892, "<ButtonA> Allow for this Dome<newline><ButtonX> Allow for all Domes"})
 	end
 end,
-			'FXMouseIn', "MenuItemHover",
-			'FocusedBackground', RGBA(0, 0, 0, 0),
-			'OnPress', function (self, gamepad)
+				'FXMouseIn', "MenuItemHover",
+				'FocusedBackground', RGBA(0, 0, 0, 0),
+				'OnPress', function (self, gamepad)
 self.context:ToggleServiceInConnected(not gamepad and IsMassUIModifierPressed())
 end,
-			'AltPress', true,
-			'OnAltPress', function (self, gamepad)
+				'AltPress', true,
+				'OnAltPress', function (self, gamepad)
 if gamepad then
 	self.context:ToggleServiceInConnected(true)
 end
 end,
-			'RolloverBackground', RGBA(0, 0, 0, 0),
-			'PressedBackground', RGBA(0, 0, 0, 0),
-		}, {
-			PlaceObj('XTemplateWindow', {
-				'__class', "XImage",
-				'Id', "idButtonIcon",
-				'IdNode', false,
-				'ZOrder', 2,
-				'Shape', "InHHex",
-				'Dock', "left",
-				'HandleMouse', true,
-				'ImageFit', "smallest",
+				'RolloverBackground', RGBA(0, 0, 0, 0),
+				'PressedBackground', RGBA(0, 0, 0, 0),
 			}, {
 				PlaceObj('XTemplateWindow', {
 					'__class', "XImage",
-					'Id', "idRollover",
+					'Id', "idButtonIcon",
 					'IdNode', false,
-					'Margins', box(-3, -3, -3, -3),
-					'Dock', "box",
-					'Visible', false,
-					'Image', "UI/Common/Hex_small_shine_2.tga",
+					'ZOrder', 2,
+					'Shape', "InHHex",
+					'Dock', "left",
+					'HandleMouse', true,
 					'ImageFit', "smallest",
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XImage",
+						'Id', "idRollover",
+						'IdNode', false,
+						'Margins', box(-3, -3, -3, -3),
+						'Dock', "box",
+						'Visible', false,
+						'Image', "UI/Common/Hex_small_shine_2.tga",
+						'ImageFit', "smallest",
+					}),
+					}),
 				}),
-				}),
-			}),
-		PlaceObj('XTemplateWindow', {
-			'__class', "XTextButton",
-			'RolloverTemplate', "Rollover",
-			'RolloverAnchor', "left",
-			'RolloverAnchorId', "node",
-			'RolloverTitle', T{364, --[[XTemplate DomeOverviewRow RolloverTitle]] "Immigration Policy"},
-			'ZOrder', 100000,
-			'VAlign', "center",
-			'MinWidth', 49,
-			'MinHeight', 42,
-			'MaxWidth', 49,
-			'MaxHeight', 42,
-			'LayoutHSpacing', 0,
-			'Background', RGBA(0, 0, 0, 0),
-			'Transparency', 50,
-			'MouseCursor', "UI/Cursors/Rollover.tga",
-			'RelativeFocusOrder', "next-in-line",
-			'OnContextUpdate', function (self, context, ...)
+			PlaceObj('XTemplateWindow', {
+				'__class', "XTextButton",
+				'RolloverTemplate', "Rollover",
+				'RolloverAnchor', "right",
+				'RolloverAnchorId', "node",
+				'RolloverTitle', T{364, --[[XTemplate DomeOverviewRow RolloverTitle]] "Immigration Policy"},
+				'ZOrder', 100000,
+				'VAlign', "center",
+				'MinWidth', 49,
+				'MinHeight', 42,
+				'MaxWidth', 49,
+				'MaxHeight', 42,
+				'LayoutHSpacing', 0,
+				'Background', RGBA(0, 0, 0, 0),
+				'Transparency', 50,
+				'MouseCursor', "UI/Cursors/Rollover.tga",
+				'RelativeFocusOrder', "next-in-line",
+				'OnContextUpdate', function (self, context, ...)
 local dome = ResolvePropObj(context)
 	local accept = dome.accept_colonists
 	local overpopulated = dome.overpopulated
@@ -373,41 +359,63 @@ local dome = ResolvePropObj(context)
 		end
 	end
 end,
-			'FXMouseIn', "MenuItemHover",
-			'FocusedBackground', RGBA(0, 0, 0, 0),
-			'OnPress', function (self, gamepad)
+				'FXMouseIn', "MenuItemHover",
+				'FocusedBackground', RGBA(0, 0, 0, 0),
+				'OnPress', function (self, gamepad)
 self.context:ToggleAcceptColonists(not gamepad and IsMassUIModifierPressed())
 end,
-			'AltPress', true,
-			'OnAltPress', function (self, gamepad)
+				'AltPress', true,
+				'OnAltPress', function (self, gamepad)
 if gamepad then
 	self.context:ToggleAcceptColonists(true)
 end
 end,
-			'RolloverBackground', RGBA(0, 0, 0, 0),
-			'PressedBackground', RGBA(0, 0, 0, 0),
-		}, {
-			PlaceObj('XTemplateWindow', {
-				'__class', "XImage",
-				'Id', "idButtonIcon",
-				'IdNode', false,
-				'ZOrder', 2,
-				'Shape', "InHHex",
-				'Dock', "left",
-				'HandleMouse', true,
-				'ImageFit', "smallest",
+				'RolloverBackground', RGBA(0, 0, 0, 0),
+				'PressedBackground', RGBA(0, 0, 0, 0),
 			}, {
 				PlaceObj('XTemplateWindow', {
 					'__class', "XImage",
-					'Id', "idRollover",
+					'Id', "idButtonIcon",
 					'IdNode', false,
-					'Margins', box(-3, -3, -3, -3),
-					'Dock', "box",
-					'Visible', false,
-					'Image', "UI/Common/Hex_small_shine_2.tga",
+					'ZOrder', 2,
+					'Shape', "InHHex",
+					'Dock', "left",
+					'HandleMouse', true,
 					'ImageFit', "smallest",
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XImage",
+						'Id', "idRollover",
+						'IdNode', false,
+						'Margins', box(-3, -3, -3, -3),
+						'Dock', "box",
+						'Visible', false,
+						'Image', "UI/Common/Hex_small_shine_2.tga",
+						'ImageFit', "smallest",
+					}),
+					}),
 				}),
-				}),
+			}),
+		PlaceObj('XTemplateWindow', {
+			'__condition', function (parent, context) return not context:GetUIInteractionState() end,
+			'MinWidth', 200,
+			'MaxWidth', 200,
+		}, {
+			PlaceObj('XTemplateWindow', {
+				'__condition', function (parent, context) return not context:GetUIInteractionState() end,
+				'__class', "XText",
+				'Margins', box(0, 5, 0, 0),
+				'Padding', box(0, 0, 0, 0),
+				'HAlign', "center",
+				'VAlign', "center",
+				'HandleMouse', false,
+				'TextStyle', "OverviewItemName",
+				'Translate', true,
+				'Text', T{922380859639, --[[XTemplate DomeOverviewRow Text]] "Gone Rogue"},
+				'WordWrap', false,
+				'TextHAlign', "center",
+				'TextVAlign', "center",
+			}),
 			}),
 		}),
 })

@@ -25,14 +25,7 @@ PlaceObj('XTemplate', {
 			'__template', "InfopanelSection",
 			'Title', T{494, --[[XTemplate sectionStorage Title]] "Basic Resources"},
 			'Icon', "",
-		}, {
-			PlaceObj('XTemplateFunc', {
-				'name', "Open",
-				'func', function (self, ...)
-self.parent.Margins = box(0, 0, 0, -10)
-end,
-			}),
-			}),
+		}),
 		PlaceObj('XTemplateTemplate', {
 			'__context', function (parent, context) return SubContext(context, {res = "Metals"}) end,
 			'__template', "sectionStorageRow",
@@ -66,14 +59,7 @@ end,
 			'__template', "InfopanelSection",
 			'Title', T{347750586259, --[[XTemplate sectionStorage Title]] "Advanced Resources"},
 			'Icon', "",
-		}, {
-			PlaceObj('XTemplateFunc', {
-				'name', "Open",
-				'func', function (self, ...)
-self.parent.Margins = box(0, 0, 0, -10)
-end,
-			}),
-			}),
+		}),
 		PlaceObj('XTemplateTemplate', {
 			'__context', function (parent, context) return SubContext(context, {res = "Polymers"}) end,
 			'__template', "sectionStorageRow",

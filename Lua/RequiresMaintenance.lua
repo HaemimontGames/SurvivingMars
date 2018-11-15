@@ -54,6 +54,7 @@ DefineClass.RequiresMaintenance = {
 	show_dust_visuals = true, --uses dust visuals to represent maintenance pnts, 0-70% dust visual = 0-100% mnt pnts, 100% dust vis = malfunction
 	
 	UpdateConsumption = __empty_function__,
+	maintenance_request_is_highest_prio = false, --save compat with rev 225026 saves
 }
 --[[
 --use this override for sync repairing - accumulated_maintenance_points will update as soon as the drone repairing ticks.
@@ -295,7 +296,10 @@ function RequiresMaintenance:Repair()
 		self:SetModifier("maintenance_resource_amount", "exceptional_circumstances_maintenance",0, 0 )
 		self:Setexceptional_circumstances(false)
 		self.maintenance_resource_type = nil
+		self:CreateResourceRequest()
 	end	
+	
+	Msg("Repaired", self)
 	
 	RebuildInfopanel(self)
 end
@@ -373,7 +377,28 @@ function RequiresMaintenance:RequestMaintenance()
 	end
 end
 
+function SavegameFixups.RestoreMaintenanceResourceRequests()
+	MapForEach("map", "RequiresMaintenance", function(o)
+		o:CreateResourceRequest()
+		o:AccumulateMaintenancePoints()
+	end)
+end
+
+function RequiresMaintenance:CreateResourceRequest()
+	if self:DoesMaintenanceRequireResources() and not self.maintenance_resource_request then
+		self:DisconnectFromCommandCenters()
+		local resource_unit_count = 1 + (self.maintenance_resource_amount / (const.ResourceScale * 10)) --1 per 10
+		local r_req = self:AddDemandRequest(self.maintenance_resource_type, 0, 0, resource_unit_count)
+		self.maintenance_resource_request = r_req
+		self.maintenance_request_lookup[r_req] = true
+		self:ConnectToCommandCenters()
+	end
+end
+
 function RequiresMaintenance:SetExceptionalCircumstancesMaintenance(resource, amount)
+	if resource == "default" then -- does not change resource or amount
+		return 
+	end
 	local old_resource = self.maintenance_resource_type
 	self.exceptional_circumstances_maintenance = true
 	self:SetModifier("maintenance_resource_amount", "exceptional_circumstances_maintenance",amount, -100 )
@@ -391,8 +416,21 @@ function RequiresMaintenance:SetExceptionalCircumstancesMaintenance(resource, am
 				end)
 		end								
 		self:DisconnectFromCommandCenters()
-		self.maintenance_resource_request:ChangeResource(resource)
-		self.maintenance_resource_request:SetAmount(self.maintenance_resource_amount)
+		if resource == "no_resource" then
+			table.remove_entry(self.task_requests, self.maintenance_resource_request)
+			self.maintenance_request_lookup[self.maintenance_resource_request] = nil
+			self.maintenance_resource_request = nil
+			if self.maintenance_phase == "demand" then
+				self:StartWorkPhase()
+			end
+			if SelectedObj == self then
+				SelectObj(false)
+				SelectObj(self)
+			end
+		else
+			self.maintenance_resource_request:ChangeResource(resource)
+			self.maintenance_resource_request:SetAmount(self.maintenance_resource_amount)
+		end
 		self:ConnectToCommandCenters()
 	end
 	

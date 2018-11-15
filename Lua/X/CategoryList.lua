@@ -9,31 +9,34 @@ function CategoryList:Init()
 		LayoutMethod = "VList",
 	},self) 
 	--category title
-	local title = XWindow:new({Margins = box(0,0,0,-1)},ctrl)
-	XImage:new({
+	local title = XFrame:new({
 		Id = "idCatBkg",
-		Image =  "UI/Common/bm_category_title.tga",
-	}, title)
+		Image =  "UI/CommonNew/bm_categories.tga",
+		Padding = box(100, 5, 100, 5),
+		MinWidth = 400,
+		HAlign = "center",
+		IdNode = false,
+	}, ctrl)
 	XLabel:new({
 		Id = "idSelectedCat",
 		HAlign = "center",
 		VAlign = "center",
 		HandleKeyboard = false,
-		TextFont = "BuildMenuCategory",
-		TextColor = RGBA(129, 202, 233, 255),
+		TextStyle = "CategoryTitle",
 		Text = "idSelectedCat",
 		Translate = true,
 	}, title)
 	self.idSelectedCat:SetText(Untranslated("idSelectedCat"))
 	--categories list
-	local list = XWindow:new({},ctrl) 
-	XImage:new({
+	local list = XWindow:new({
+		HAlign = "center",
+	}, ctrl)
+	XFrame:new({
 		Id = "idCategoriesPad",
-		Image = "UI/Common/bm_pad.tga",
-	}, list)
-	XImage:new({
-		Id = "idCategoriesWatermark",
-		Image = "UI/Common/bm_pad_watermark.tga",
+		Image = "UI/CommonNew/bm_categories.tga",
+		Margins = box(-150, 0, -150, 0),
+		FrameBox = box(295, 0, 295, 0),
+		IdNode = false,
 	}, list)
 	XWindow:new({
 		Id = "idCategoriesList",
@@ -42,4 +45,19 @@ function CategoryList:Init()
 		HAlign =  "center",
 		VAlign =  "center",
 	}, list)
+	
+	if GetUIStyleGamepad() then
+		XImage:new({
+			Id = "idGamepadHintLeft",
+			Dock = "left",
+			VAlign = "center",
+			Image = GetPlatformSpecificImagePath("LB"),
+		}, list)
+		XImage:new({
+			Id = "idGamepadHintRight",
+			Dock = "right",
+			VAlign = "center",
+			Image = GetPlatformSpecificImagePath("RB"),
+		}, list)
+	end
 end

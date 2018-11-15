@@ -9,9 +9,7 @@ PlaceObj('XTemplate', {
 		'Margins', box(30, 0, 10, 0),
 		'HAlign', "center",
 		'VAlign', "center",
-		'TextFont', "InfopanelTitle",
-		'TextColor', RGBA(244, 228, 117, 255),
-		'RolloverTextColor', RGBA(244, 228, 117, 255),
+		'TextStyle', "SectionTitle",
 		'Translate', true,
 	}),
 })

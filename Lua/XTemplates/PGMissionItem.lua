@@ -8,9 +8,6 @@ PlaceObj('XTemplate', {
 		'__condition', function (parent, context) return context.item_type ~= "idGameRules" and context.item_type ~= "idMystery" end,
 		'__template', "MenuEntrySmall",
 		'RolloverTemplate', "Rollover",
-		'Margins', box(0, 0, 5, 0),
-		'Padding', box(0, 0, 0, 0),
-		'HAlign', "right",
 		'OnPress', function (self, gamepad)
 local prop_meta = GetDialogModeParam(self)
 local obj = GetDialogContext(self)
@@ -53,18 +50,15 @@ if change_mission_sponsor then
 end
 SetBackDialogMode(self)
 end,
-		'TextColor', RGBA(221, 215, 170, 255),
 		'Text', T{714247552511, --[[XTemplate PGMissionItem Text]] "<text>"},
 	}),
 	PlaceObj('XTemplateTemplate', {
 		'__condition', function (parent, context) return context.item_type == "idMystery" end,
 		'__template', "MysteryItem",
-		'Margins', box(0, 0, 5, 0),
 	}),
 	PlaceObj('XTemplateTemplate', {
 		'__condition', function (parent, context) return context.item_type == "idGameRules" end,
 		'__template', "GameRuleItem",
-		'Margins', box(0, 0, 5, 0),
 	}),
 })
 

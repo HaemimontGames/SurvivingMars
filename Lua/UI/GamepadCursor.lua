@@ -7,7 +7,7 @@ function ShowGamepadCursor(reason)
 		HideGamepadCursorReasons[reason] = nil
 	end
 	
-	if GetUIStyleGamepad() and not ChangingMap and GetInGameInterface() and
+	if GetUIStyleGamepad() and not ChangingMap and GetInGameInterface() and g_GamepadObjects and
 	   (not HideGamepadCursorReasons or not next(HideGamepadCursorReasons))
 	then
 		OpenDialog("GamepadCursorDlg", GetInGameInterface())

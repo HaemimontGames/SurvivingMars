@@ -23,6 +23,9 @@ DefineClass.MapSettings_ColdWave =
 
 GlobalVar("g_ColdWave", false)
 GlobalVar("g_ColdWaves", 0)
+GlobalVar("g_ColdWaveStartTime", false)
+GlobalVar("g_ColdWaveEndTime", false)
+GlobalVar("g_ColdWaveExtend", false)
 
 local hour_duration = const.HourDuration
 local day_duration = const.DayDuration
@@ -39,12 +42,25 @@ local function GetColdWaveDescr()
 	return cold_wave and not cold_wave.forbidden and cold_wave
 end
 
+function ExtendColdWave(time)
+	if g_ColdWave and g_ColdWaveStartTime and g_ColdWaveEndTime then
+		g_ColdWaveEndTime = g_ColdWaveEndTime + time
+		AddDisasterNotification("ColdWaveDuration", {start_time = g_ColdWaveStartTime, expiration = g_ColdWaveEndTime - g_ColdWaveStartTime}, "extended")
+		g_ColdWaveExtend = true
+		Msg("ColdWaveCancel")
+	end
+end
+
 function StartColdWave(settings, endless)
 	local cold_wave = ColdWaveInstance:new{
 		settings = settings,
 		temp_drop = UICity:Random(settings.min_temp_drop, settings.max_temp_drop),
 	}
 	local duration = not endless and UICity:Random(settings.min_duration, settings.max_duration)
+	if not endless then
+		g_ColdWaveStartTime = GameTime()
+		g_ColdWaveEndTime = g_ColdWaveStartTime + duration
+	end
 	if g_ColdWave then
 		g_ColdWave:ApplyHeat(false)
 	else
@@ -54,18 +70,32 @@ function StartColdWave(settings, endless)
 	Msg("ColdWave")
 	RemoveDisasterNotifications()
 	local preset = duration and "ColdWaveDuration" or "ColdWaveEndless"
-	AddDisasterNotification(preset, {start_time = GameTime(), expiration = duration})
+	
+	AddDisasterNotification(preset, {start_time = g_ColdWaveStartTime or 0, expiration = duration})
 	ShowDisasterDescription("ColdWave")
 	for i = #g_DustDevils, 1, -1 do
 		g_DustDevils[i]:delete()
 	end
 	cold_wave:ApplyHeat(true)
-	WaitMsg("ColdWaveCancel", duration)
+	while true do
+		if WaitMsg("ColdWaveCancel", duration) then
+			if g_ColdWaveExtend then
+				duration = g_ColdWaveEndTime - GameTime()
+				g_ColdWaveExtend = false
+			else
+				break
+			end
+		else
+			break
+		end
+	end
 	cold_wave:ApplyHeat(false)
 	RemoveOnScreenNotification(preset)
 	if g_ColdWave == cold_wave then
 		PlayFX("ColdWave", "end")
 		g_ColdWave = false
+		g_ColdWaveStartTime = false
+		g_ColdWaveEndTime = false
 		Msg("ColdWaveEnded")
 	end
 end

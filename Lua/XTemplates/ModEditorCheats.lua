@@ -25,6 +25,14 @@ end,
 host:Op("GedOpTriggerCheat", "root", "CheatMapExplore", "deep scanned")
 end,
 		}),
+		PlaceObj('XTemplateAction', {
+			'ActionId', "SpawnPlanetaryAnomalies",
+			'ActionTranslate', false,
+			'ActionName', "Spawn Planetary Anomalies",
+			'OnAction', function (self, host, source)
+host:Op("GedOpTriggerCheat", "root", "CheatSpawnPlanetaryAnomalies")
+end,
+		}),
 		}),
 	PlaceObj('XTemplateAction', {
 		'ActionId', "TriggerDisasters",

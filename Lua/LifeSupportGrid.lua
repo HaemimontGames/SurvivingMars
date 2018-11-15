@@ -159,7 +159,7 @@ function WaterGrid:GetUISectionWaterGridRollover()
 	{
 		T{537, "Life support grid parameters. Water and Oxygen are consumed only when demanded.<newline>"},
 		T{330, "Max production<right><water(production)>", self},
-		T{331, "Water consumption<right><water(current_consumption)>", self},
+		T{331, "Water consumption<right><water(current_consumption)>", current_consumption = self.current_consumption},
 	}
 
 	if self.production > self.consumption then
@@ -178,7 +178,7 @@ function AirGridFragment:GetUISectionAirGridRollover()
 	{
 		T{537, "Life support grid parameters. Water and Oxygen are consumed only when demanded.<newline>"},
 		T{325, "Max production<right><air(production)>", self},
-		T{538, "Oxygen consumption<right><air(current_consumption)>", self},
+		T{538, "Oxygen consumption<right><air(current_consumption)>", current_consumption = self.current_consumption},
 	}
 
 	if self.production > self.consumption then
@@ -261,7 +261,9 @@ function LifeSupportGridObject:MoveInside(dome)
 	grid:RemoveElement(self.water)
 	
 	local ls_connection_grid = SupplyGridConnections["water"]
-	local connections = SupplyGridRemoveBuilding(ls_connection_grid, self, self:GetShapePoints())
+	local shape = self:GetSupplyGridConnectionShapePoints("water")
+	ApplyIDToOverlayGrid(OverlaySupplyGrid, self, shape, 15, "band")
+	local connections = SupplyGridRemoveBuilding(ls_connection_grid, self, shape)
 	-- destroy connections
 	for i = 1, #(connections or ""), 2 do
 		local pt, other_pt = connections[i], connections[i + 1]
@@ -294,13 +296,13 @@ function LifeSupportGridObject:GetPipeConnLookup()
 	return ret
 end
 
-function LifeSupportGridObject:PlacePipeConnection(pipe, i, palette)
-	palette = palette or EntityPalettes.Pipes
+function LifeSupportGridObject:PlacePipeConnection(pipe, i)
+	local cm1, cm2, cm3, cm4 = GetPipesPalette()
 	self.connections = self.connections or {}
 
 	local obj = PlaceObject(pipe[4])
-	palette:ApplyToObj(obj)
 	self:Attach(obj, pipe[3])
+	SetObjectPaletteRecursive(obj, cm1, cm2, cm3, cm4)
 	self.connections[i] = {obj}
 	
 	if pipe[5] then
@@ -328,7 +330,7 @@ function LifeSupportGridObject:PlacePipeConnection(pipe, i, palette)
 		end
 		
 		dec_obj:SetAttachAngle(obj:GetAttachAngle())
-		palette:ApplyToObj(dec_obj)
+		SetObjectPaletteRecursive(dec_obj, cm1, cm2, cm3, cm4)
 		table.insert(self.connections[i], dec_obj)
 	end
 end
@@ -338,7 +340,6 @@ function LifeSupportGridObject:ConnectPipe(src_pt, pt)
 	local q, r = WorldToHex(self)
 	local src = point(HexRotate(src_pt:x() - q, src_pt:y() - r, - self_dir)) -- remove the object rotation
 	local dir = (6 + HexGetDirection(src_pt, pt) - self_dir) % 6
-	local palette = EntityPalettes.Pipes
 
 	for i, pipe in ipairs(self:GetPipeConnections()) do
 		if pipe[1] == src and pipe[2] == dir then
@@ -347,7 +348,7 @@ function LifeSupportGridObject:ConnectPipe(src_pt, pt)
 				break
 			end
 			
-			self:PlacePipeConnection(pipe, i, palette)
+			self:PlacePipeConnection(pipe, i)
 			break
 		end
 	end
@@ -384,7 +385,6 @@ end
 function LifeSupportGridObject:RecreatePipeConnections()
 	local conns = self.connections or empty_table
 	local pcs = self:GetPipeConnections()
-	local palette = EntityPalettes.Pipes
 	
 	for i, t in pairs(conns) do
 		for j = #t, 1, -1 do
@@ -394,7 +394,7 @@ function LifeSupportGridObject:RecreatePipeConnections()
 		end
 		assert(pcs[i], "Skin " .. self:GetGridSkinName() .. " does not have all pipe connections defined for building " .. self.template_name .. "!")
 		if pcs[i] then
-			self:PlacePipeConnection(pcs[i], i, palette)
+			self:PlacePipeConnection(pcs[i], i)
 		end
 	end
 	
@@ -471,6 +471,7 @@ DefineClass.LifeSupportGridElement = {
 	--construction ui
 	description = T{3972, "Transport Water and Oxygen."},
 	display_name = T{1064, "Life Support Pipe"},
+	display_name_pl = T{11674, "Life Support Pipes"},
 	display_icon = "UI/Icons/Buildings/pipes.tga", --pin dialog icon during construction
 	
 	enum_flags = { efApplyToGrids = false },
@@ -500,14 +501,16 @@ function LifeSupportGridElement:GetSkinFromGrid(str)
 end
 
 function LifeSupportGridElement:GetSkins()
-	local s = {}
+	local skins, palettes = {}, {}
+	local palette = {GetPipesPalette()}
 	for k, v in pairs(TubeSkins) do
 		if IsDlcAvailable(v.dlc) then
-			table.insert(s, k)
+			table.insert(skins, k)
+			table.insert(palettes, palette)
 		end
 	end
 	
-	return s
+	return skins, palettes
 end
 
 function LifeSupportGridElement:GetNextSkinIdx(skins)
@@ -696,11 +699,11 @@ function LifeSupportGridElement:UpdateVisuals(supply_resource)
 			self:SetChainParams(self.chain.delta, self.chain.index, self.chain.length)
 		end
 		
-		EntityPalettes.Pipes:ApplyToObj(self)
+		local cm1, cm2, cm3, cm4 = GetPipesPalette()
+		SetObjectPaletteRecursive(self, cm1, cm2, cm3, cm4)
 		return false
 	end
 	
-	local palette = EntityPalettes.Pipes
 	local count, first, second = self:GetNumberOfConnections()
 	self:DestroyAttaches(PlugsAndSeams)
 	local is_ubuildable_chunk_pillar = type(self.pillar) == "number" and self.pillar == max_int
@@ -731,9 +734,8 @@ function LifeSupportGridElement:UpdateVisuals(supply_resource)
 				plug:SetEnumFlags(const.efSelectable)
 				self:Attach(plug)
 				plug:SetAttachAngle(180 * 60 + dir * 60 * 60)
-				palette:ApplyToObj(plug)
 				
-				if pipe and pipe.chain then
+				if pipe and pipe.chain and pipe.chain.delta ~= 0 then
 					local tube_joint = PlaceObject(skin.TubeJoint, nil, const.cfComponentAttach)
 					plug:Attach(tube_joint, plug:GetSpotBeginIndex("Joint"))
 					tube_joint:SetAttachAxis(axis_y)
@@ -750,7 +752,6 @@ function LifeSupportGridElement:UpdateVisuals(supply_resource)
 						tube_joint:SetGameFlags(const.gofUnderConstruction)
 					end
 					tube_joint:SetEnumFlags(const.efSelectable)
-					palette:ApplyToObj(tube_joint)
 				end
 			end
 		end
@@ -761,7 +762,8 @@ function LifeSupportGridElement:UpdateVisuals(supply_resource)
 		QueueForEnableBlockPass(self)
 	end
 	
-	palette:ApplyToObj(self)
+	local cm1, cm2, cm3, cm4 = GetPipesPalette()
+	SetObjectPaletteRecursive(self, cm1, cm2, cm3, cm4)
 	self:AddDust(0) --refresh dust visuals
 
 	return true
@@ -1227,7 +1229,7 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 		return cs
 	end
 
-	local palette = EntityPalettes.Pipes
+	local cm1, cm2, cm3, cm4 = GetPipesPalette()
 	local place_pipe = function(data_idx, pillar, chain)
 		local cell_data = data[data_idx]
 		local c = proc_placed_pipe(data_idx, cell_data, pillar, chain)
@@ -1242,7 +1244,7 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 		if not chain then
 			FlattenTerrainInBuildShape(nil, el)
 		end
-		palette:ApplyToObj(el)
+		SetObjectPaletteRecursive(el, cm1, cm2, cm3, cm4)
 		
 		cell_data.pipe = el
 		return el
@@ -1972,3 +1974,11 @@ DefineClass.OxygenTank = {
 	indicated_resource = "air",
 	indicator_class = "AirTankArrow",
 }
+
+DefineClass.OxygenTankLarge = {
+	__parents = { "OxygenTank" },
+}
+
+function OxygenTankLarge:GetEntityNameForPipeConnections(grid_skin_name)
+	return grid_skin_name ~= "Default" and "Moxie" .. grid_skin_name or "Moxie"
+end

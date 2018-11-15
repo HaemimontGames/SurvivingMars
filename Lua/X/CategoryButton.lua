@@ -7,7 +7,6 @@ DefineClass.MenuCategoryButton = {
 	
 	MaxWidth = 200,
 	MaxHeight = 200,
-	Margins = box(0, -20, 0, 0),
 	
 	HandleMouse = false,
 }
@@ -44,6 +43,7 @@ function MenuCategoryButton:Init()
 		Columns = 2,
 		ColumnsUse = "abbba",
 		MouseCursor =  "UI/Cursors/Rollover.tga",
+		FXMouseIn = "UIButtonMouseIn",
 	},self.idButton)
 	XImage:new({
 		Id = "idCategoryHighlight",

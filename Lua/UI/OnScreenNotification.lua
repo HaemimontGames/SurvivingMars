@@ -2,18 +2,19 @@
 DefineClass.OnScreenNotification =
 {
 	__parents = {"XDrawCacheDialog"},
-	LayoutMethod = "HList",
 	FocusOnOpen = "",
 	RolloverOnFocus = true,
 	RolloverTemplate = "Rollover",
 	RolloverAnchorId = "idButton",
 	RelativeFocusOrder = "new-line",
+	ScaleModifier = point(900,900),
+	Margins = box(0,-8,0,-8),
 	
-	default_icon = "UI/Icons/Notifications/placeholder.tga",
-	background_image = "UI/Common/notification_pad.tga",
+	default_icon = "UI/Icons/Notifications/New/placeholder.tga",
+	background_image = "UI/CommonNew/notication_blue.tga",
 	title_style = "OnScreenTitle",
 	text_style = "OnScreenText",
-	button_shine = "UI/Common/Hex_small_shine_2.tga",
+	button_shine = "UI/Icons/Notifications/New/select.tga",
 	
 	notification_id = false,
 	dismissable = false,
@@ -24,7 +25,7 @@ DefineClass.OnScreenNotification =
 	game_time_press_thread = false,
 	preset = false,
 	show_vignette = false,
-	vignette_image = "UI/Vignette_Red.tga",
+	vignette_image = "UI/Onscreen/onscreen_gradient_red.tga",
 	vignette_pulse_duration = 2000,
 	vignette_thread = false,
 	can_be_activated = false,
@@ -42,11 +43,9 @@ function OnScreenNotification:Init()
 	local button = XBlinkingButton:new({
 		Id = "idButton",
 		ZOrder = 2,
-		Shape = "InHHex",
-		Dock = "left",
-		HAlign = "center",
+		Shape = "InEllipse",
+		HAlign = "left",
 		VAlign = "center",
-		ScaleModifier = point(850,850),
 		LayoutMethod = "Box",
 		Background = RGBA(0,0,0,0),
 		FocusedBackground = RGBA(0,0,0,0),
@@ -66,24 +65,27 @@ function OnScreenNotification:Init()
 	}, self)
 	XImage:new({
 		Id = "idRollover",
-		Margins = box(-7,-7,-7,-7),
 		Visible = false,
 		FadeInTime = 100,
 		FadeOutTime = 100,
 		Image = self.button_shine,
-		ImageFit = "stretch",
+		HAlign = "left",
 	}, self.idButton)
 	self.idButton.idRollover:SetVisible(false, true)
-	local background = XImage:new({
+	local background = XFrame:new({
 		IdNode = false,
-		Margins = box(-20,-9,0,0),
+		Margins = box(42,8,0,8),
+		Padding = box(42,0,0,0),
+		MinWidth = 400,
+		MaxWidth = 400,
+		HAlign = "left",
+		VAlign = "stretch",
 		ChildrenHandleMouse = false,
 		Image = self.background_image,
 	}, self)
 	local text_win = XWindow:new({
-		Padding = box(25,0,0,0),
+		HAlign = "stretch",
 		VAlign = "center",
-		MaxWidth = 350,
 		LayoutMethod = "VList",
 		LayoutVSpacing = -3,
 	}, background)
@@ -91,7 +93,7 @@ function OnScreenNotification:Init()
 		Id = "idTitle",
 		Translate = true,
 		Shorten = true,
-		Margins = box(0,3,0,0),
+		Margins = box(0,-3,0,0),
 		Padding = box(0,0,0,0),
 		HandleMouse = false,
 		TextStyle = self.title_style,
@@ -100,7 +102,6 @@ function OnScreenNotification:Init()
 	XText:new({
 		Id = "idText",
 		Translate = true,
-		Shorten = true,
 		Padding = box(0,0,0,0),
 		MaxHeight = 45,
 		HandleMouse = false,
@@ -114,7 +115,9 @@ end
 function OnScreenNotification:OnSetRollover(rollover)
 	if self.window_state ~= "destroying" then
 		XDialog.OnSetRollover(self, rollover)
-		self.idButton:OnSetRollover(rollover)
+		if self.idButton.rollover ~= rollover then
+			self.idButton:SetRollover(rollover)
+		end
 	end
 end
 
@@ -182,7 +185,7 @@ function OnScreenNotification:SetTexts(preset, params)
 			self:SetContext(params.context)
 		end
 		self:SetRolloverTitle(params.rollover_title or "")
-		self:SetRolloverText(params.rollover_text or "")
+		self:SetRolloverText(T{params.rollover_text, params} or "")
 		self:SetRolloverHint(params.rollover_hint or "")
 		self:SetRolloverHintGamepad(params.rollover_hint_gamepad or "")
 	end
@@ -194,7 +197,7 @@ local hour_duration = const.HourDuration
 function OnScreenNotification:FillData(preset, callback, params, cycle_objs)
 	self.preset = preset
 	local id = preset.id
-	self.notification_id = id
+	self.notification_id = params.override_id or id
 	self.show_vignette = preset.ShowVignette
 	self.vignette_image = preset.VignetteImage
 	self.vignette_pulse_duration = preset.VignettePulseDuration
@@ -206,7 +209,10 @@ function OnScreenNotification:FillData(preset, callback, params, cycle_objs)
 	local popup_preset = preset.popup_preset
 	local popup_notification = params.popup_notification
 	local encyclopedia_id = preset.encyclopedia_id
-	self.can_be_activated = encyclopedia_id ~= "" or popup_preset ~= "" or (cycle_objs and not not next(cycle_objs)) or (not not callback) or preset.close_on_read
+	local has_id = encyclopedia_id and encyclopedia_id ~= ""
+	local can_cycle = cycle_objs and not not next(cycle_objs)
+	local has_callback = not not callback
+	self.can_be_activated = has_id or popup_preset ~= "" or can_cycle or has_callback or preset.close_on_read
 	self.idButton.OnPress = function()
 		if self:IsThreadRunning("press_btn") then return end
 		self:CreateThread("press_btn", function()
@@ -375,11 +381,11 @@ end
 DefineClass.OnScreenNotificationImportant =
 {
 	__parents = { "OnScreenNotification" },
-	default_icon = "UI/Icons/Notifications/placeholder_2.tga",
-	background_image = "UI/Common/notification_pad_2.tga",
+	default_icon = "UI/Icons/Notifications/New/placeholder_2.tga",
+	background_image = "UI/CommonNew/notication_red.tga",
 	title_style = "OnScreenTitleImportant",
 
-	button_shine = "UI/Common/Hex_2_shine_2.tga",
+	button_shine = "UI/Icons/Notifications/New/select_red.tga",
 }
 
 DefineClass.OnScreenNotificationCritical =
@@ -387,7 +393,7 @@ DefineClass.OnScreenNotificationCritical =
 	__parents = { "OnScreenNotificationImportant" },
 	show_vignette = true,
 	
-	background_image = "UI/Common/notification_pad_3.tga",
+	background_image = "UI/CommonNew/notication_red.tga",
 	title_style = "OnScreenTitleCritical",
 	text_style = "OnScreenTextCritical",
 }
@@ -414,87 +420,51 @@ function OnScreenNotificationsDlg:Init()
 		LayoutVSpacing = 10,
 		IdNode = true,
 	}, self)
-	local rollover = XWindow:new({
-		Id = "idRolloverWindow",
-		Margins = box(0,20,0,0),
+	local gamepad_controls = XWindow:new({
+		Id = "idGamepadControls",
 		Dock = "bottom",
-		BorderWidth = 0,
 		MinWidth = 450,
 		MaxWidth = 450,
-		HAlign = "left",
+		FoldWhenHidden = true,
 	}, self)
+	local rollover = XFrame:new({
+		Id = "idRolloverWindow",
+		Margins = box(0,20,0,0),
+		Padding = box(24, 0, 24, 20),
+		BorderWidth = 0,
+		VAlign = "top",
+		HAlign = "left",
+		Image = "UI/CommonNew/rollover.tga",
+		FrameBox = box(35, 45, 35, 33),
+		LayoutMethod = "VList",
+		IdNode = false,
+	}, gamepad_controls)
 	rollover:SetVisible(false)
 	XImage:new({
 		Id = "idGamepadHint",
-		Dock = "bottom",
 		Image = GetPlatformSpecificImagePath("LB"),
 		ImageScale = point(800, 800),
+		VAlign = "top",
 		HAlign = "left",
-		FoldWhenHidden = true,
-	}, self)
-	local background_frame = XWindow:new({
-		Dock = "box",
-	}, rollover)
-	XImage:new({
-		Dock = "top",
-		Image = "UI/Common/rollover_up_a.tga",
-		ImageFit = "stretch-x",
-	}, background_frame)
-	XImage:new({
-		Dock = "bottom",
-		Image = "UI/Common/rollover_down_a.tga",
-		ImageFit = "stretch-x",
-	}, background_frame)
-	XImage:new({
-		Dock = "box",
-		Image = "UI/Common/rollover_middle_a.tga",
-		ImageFit = "stretch",
-	}, background_frame)
-	local background_watermark = XWindow:new({
-		Dock = "box",
-	}, rollover)
-	XImage:new({
-		Dock = "top",
-		Image = "UI/Common/rollover_watermark_2.tga",
-		ImageFit = "stretch-x",
-	}, background_watermark)
-	XImage:new({
-		Dock = "bottom",
-		Image = "UI/Common/rollover_watermark_2.tga",
-		ImageFit = "stretch-x",
-		Angle = 180 * 60,
-	}, background_watermark)
-	XFrame:new({
-		Dock = "box",
-		Image = "UI/Common/rollover_watermark.tga",
-		TileFrame = true,
-	}, background_watermark)
-	local content_window = XWindow:new({
-		Margins = box(24,6,24,6),
-		LayoutMethod = "VList",
-	}, rollover)
+	}, gamepad_controls)
 	XText:new({
 		Id = "idTitle",
 		Translate = true,
-		TextFont = "RolloverTitle",
-		TextColor = RGBA(255,188,59,255),
-		RolloverTextColor = RGBA(255,188,59,255),
+		TextStyle = "RolloverTitleStyle",
 		TextHAlign = "center",
-	}, content_window)
-	XImage:new({
-		Image = "UI/Common/rollover_line.tga",
-		ImageFit = "stretch-x",
-	}, content_window)
+		TextVAlign = "center",
+		Dock = "top",
+		MinHeight = 45,
+		MaxHeight = 45,
+	}, rollover)
 	XText:new({
 		Id = "idText",
-		Translate = true,
+		Margins = box(0,5,0,0),
 		MinHeight = 100,
-		TextFont = "RolloverText",
-		TextColor = RGBA(233,242,255,255),
-		RolloverTextColor = RGBA(233,242,255,255),
+		Translate = true,
+		TextStyle = "RolloverTextStyle",
 		ShadowColor = RGBA(0,0,0,0),
-		TextVAlign = "center",
-	}, content_window)
+	}, rollover)
 end
 
 function OnScreenNotificationsDlg:UpdateRollover()
@@ -705,10 +675,11 @@ end
 
 function OnScreenNotificationsDlg:UpdateGamepadHint()
 	if #self.idNotifications == 0 or not GetUIStyleGamepad() then
-		self.idGamepadHint:SetVisible(false)
+		self.idGamepadControls:SetVisible(false)
 		return
 	end
 	
+	self.idGamepadControls:SetVisible(true)
 	local focus = self.desktop:GetKeyboardFocus()
 	if IsKindOfClasses(focus, "SelectionModeDialog", "OverviewModeDialog", "InGameInterface") then
 		self.idGamepadHint:SetVisible(true)
@@ -738,7 +709,7 @@ function OnScreenNotificationsDlg:RecalculateMargins()
 	self:SetMargins(OnScreenNotificationsDlg.Margins + GetSafeMargins())
 end
 
-function HandleNewObjsNotif(container, notif_id, bExpire, params_func, contains_objects, keep_destroyed)
+function HandleNewObjsNotif(container, notif_id, bExpire, params_func, contains_objects, keep_destroyed, cycle_prevent)
 	contains_objects = (contains_objects ~= false) and true or false
 	local duration = 60000
 	local expiration = 0
@@ -762,7 +733,11 @@ function HandleNewObjsNotif(container, notif_id, bExpire, params_func, contains_
 		if change then
 			displayed_in_notif = table.copy(container)
 			local params = params_func and type(params_func) == "function" and params_func(displayed_in_notif) or {count = #displayed_in_notif}
-			AddOnScreenNotification(notif_id, nil, params, displayed_in_notif)
+			if cycle_prevent then
+				AddOnScreenNotification(notif_id, nil, params, nil)
+			else
+				AddOnScreenNotification(notif_id, nil, params, displayed_in_notif)
+			end
 		end
 		Sleep(1000)
 		if bExpire and (expiration > 0 and expiration < GameTime()) or not bExpire and #container == 0 then
@@ -801,11 +776,13 @@ function AddOnScreenNotification(id, callback, params, cycle_objs)
 			close_on_read = true,
 			priority = "Critical",
 			ShowVignette = true,
-			VignetteImage = "UI/Vignette_Red.tga",
+			VignetteImage = "UI/Onscreen/onscreen_gradient_red.tga",
 			VignettePulseDuration = 2000,
 		}
 	else
-		preset = OnScreenNotificationPresets[id]
+		preset = OnScreenNotificationPresets[params.preset_id or id]
+		params.preset_id = params.preset_id or id
+		id = params.override_id or id
 	end
 	if not preset then
 		-- may happen in older savegames

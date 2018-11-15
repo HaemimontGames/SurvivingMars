@@ -14,6 +14,12 @@ PlaceObj('AmbientLife', {
 	}),
 	PlaceObj('XPrgDefineSlot', {
 		'groups', "A",
+		'spot_type', "Visitbed",
+		'goto_spot', "LeadToSpot",
+		'flags_missing', 1,
+	}),
+	PlaceObj('XPrgDefineSlot', {
+		'groups', "A",
 		'spot_type', "Visitlounge,Standidle",
 		'goto_spot', "LeadToSpot",
 		'flags_missing', 1,
@@ -36,8 +42,20 @@ PlaceObj('AmbientLife', {
 	}),
 	PlaceObj('XPrgDefineSlot', {
 		'groups', "A",
+		'spot_type', "Visittable",
+		'goto_spot', "LeadToSpot",
+		'flags_missing', 1,
+	}),
+	PlaceObj('XPrgDefineSlot', {
+		'groups', "A",
 		'spot_type', "Visitdesk",
 		'attach', "BaseBlinds",
+		'goto_spot', "LeadToSpot",
+		'flags_missing', 1,
+	}),
+	PlaceObj('XPrgDefineSlot', {
+		'groups', "A",
+		'spot_type', "Visitdesk",
 		'goto_spot', "LeadToSpot",
 		'flags_missing', 1,
 	}),

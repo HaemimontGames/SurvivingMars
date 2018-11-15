@@ -107,7 +107,13 @@ end
 
 function InfopanelDlg:RecalculateMargins()
 	local margins = GetSafeMargins()
-	margins = box(margins:minx(), margins:miny() + 58, margins:maxx(), margins:maxy())
+	local bottom_margin = 0
+	local pins = GetDialog("PinsDlg")
+	if pins then
+		local igi = GetInGameInterface()
+		bottom_margin = igi.box:maxy() - pins.box:miny() - margins:maxy()
+	end
+	margins = box(margins:minx(), margins:miny() + 58, margins:maxx(), margins:maxy() + bottom_margin)
 	self:SetMargins(margins)
 end
 
@@ -139,7 +145,9 @@ function InfopanelDlg:ShowIPRollover()
 			items[#items + 1] = T{7559, "<GamepadShortcutName(shortcut)>    <name>", shortcut = action.ActionGamepad, name = action.ActionName }
 		end
 	end
-	XCreateRolloverWindow(self, true, true, { RolloverText = table.concat(items, "<newline><left>") })
+	local rollover_win = XCreateRolloverWindow(self, true, true, { RolloverText = table.concat(items, "<newline><left>") })
+	local margins = rollover_win:GetMargins()
+	rollover_win:SetMargins(box(margins:minx(), 0, margins:maxx(), margins:maxy()))
 end
 
 function InfopanelDlg:OnSetFocus()

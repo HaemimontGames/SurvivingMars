@@ -16,7 +16,7 @@ g_TutorialScenarios.Tutorial3 = function()
 	local arrow, obj_arrow
 	
 	for _, panel in ipairs(UICity.labels.SolarPanel or empty_table) do
-		DestroyBuildingImmediate(panel, false)
+		DestroyBuildingImmediate(panel, false, "dont_notify")
 	end
 	
 	-- store cables to be deleted in a far away step
@@ -238,6 +238,10 @@ g_TutorialScenarios.Tutorial3 = function()
 		FindTarget = function() 
 			if not Dialogs.Resupply then 
 				return false 
+			end
+			if UICity.funding < 2000*1000*1000 then
+				UICity:ChangeFunding(2000*1000*1000)
+				ObjModified(Dialogs.Resupply.context)
 			end
 			if Dialogs.Resupply.Mode == "categories" then
 				return Dialogs.Resupply.idTemplate.idCategories.idList.idCargo

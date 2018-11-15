@@ -660,9 +660,24 @@ function Workplace:FindFreeSlotForced(shift)
 			shift = shift + 1
 			shift = shift > 3 and shift % 3 or shift
 		end
+		
+		for i = 1, 3 do
+			if self:HasOpenWorkSlots(shift) then
+				break
+			end
+			
+			shift = shift + 1
+			shift = shift > 3 and shift % 3 or shift
+		end
 	else
 		shift = self.active_shift
 	end
+	
+	if not self:HasOpenWorkSlots(shift) then
+		--shift is closed
+		return
+	end
+	
 	local to_kick
 	to_kick, shift = self:GetWorstWorker(nil, shift)
 	if to_kick then

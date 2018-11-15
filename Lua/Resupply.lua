@@ -317,6 +317,8 @@ end
 DefineClass.AdvancedOrbitalProbe = {
 	__parents = { "OrbitalProbe" },
 
+	pin_rollover = T{11413, "Immediately scans a Sector and the four adjacent Sectors for deposits and anomalies.<DeepScanWarning><newline><newline>Available Orbital Probes<right><NumProbes>"},
+
 	properties = {
 		{ id = "display_name", default = T{10087, "Advanced Orbital Probe"} },
 		{ id = "display_icon", default = "UI/Icons/Buildings/orbital_probe.tga" },

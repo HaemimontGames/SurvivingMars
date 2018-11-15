@@ -20,7 +20,7 @@ DefineClass.ConstructionSite = {
 	on_complete_functor = false, --called after building is placed with both construction site and building alive
 	building_class_proto = false, --class definition of the object being constructed.
 	forced_entity = false, --force the entity of the construction site
-	alternative_entity = false,
+	alternative_entity_t = false,
 	construction_bbox = false, -- keeps a bbox needed for construction visualization
 	
 	supplied = false,
@@ -59,7 +59,16 @@ DefineClass.ConstructionSite = {
 	
 	dome_skin = false,
 	SetSuspended = __empty_function__,
+	is_locked_by_story_bit = false,
 }
+
+function ConstructionSite:GetFrameEntity()
+	if IsKindOf(self.building_class_proto, "SpireBase") then
+		return SpireBase.GetFrameEntity(self, self.building_class_proto)
+	else
+		return "none"
+	end
+end
 
 local function nanite_class_filter(o)
 	return not IsKindOfClasses(o, "SharedStorageBaseVisualOnly", "Unit", "SpaceElevator")
@@ -96,6 +105,9 @@ function ConstructionSite:StartNaniteThread()
 	
 	if IsValidThread(self.nanite_thread) then return end
 	if self.construction_group and self.construction_group[1] ~= self then return end --only group leader
+	self:DestroyWasteRockUnderneath()
+	self:MoveStockpilesUnderneathOutside()
+	self:TestBlockerClearenceProgress()
 	if not self:IsWaitingResources() then return end --off during blockers, on after blockers, off when resources are collected
 	if not self.working then return end
 	self.nanite_thread = CreateGameTimeThread(function(self, class_f)
@@ -335,6 +347,7 @@ function ConstructionSite:SetBuildingClass(building_class)
 	self.building_class_proto = class
 	self.shape = class.shape
 	self.display_name = class.display_name
+	self.display_name_pl = class.display_name_pl
 	self.is_tall = class.is_tall
 	self.rename_allowed = class.rename_allowed
 	if class:HasMember("can_demolish") then --no member, stay default, which is true
@@ -608,19 +621,28 @@ function ConstructionSite:PickEntity()
 	end
 	
 	local class = self.building_class_proto
-	local e = class.construction_entity
-	return e or self.alternative_entity or class.entity
+	if class.construction_entity then 
+		return class.construction_entity 
+	end
+	if self.alternative_entity_t then
+		if self.alternative_entity_t.palette then
+			return self.alternative_entity_t.entity, DecodePalette(self.alternative_entity_t.palette)
+		else
+			return self.alternative_entity_t.entity
+		end
+	end
+	return class.entity
 end
 
 function ConstructionSite:SetConstructionSiteEntity()
-	local entity = self:PickEntity()
+	local entity, cm1, cm2, cm3, cm4 = self:PickEntity()
 	self:ChangeEntity(entity)
 	AttachDoors(self, entity)
-	local palettes = self.dome_skin and self.dome_skin.palettes or BuildingPalettes[self.building_class_proto.template_name]
-	palettes = type(palettes) == "table" and palettes[1] or palettes
-	
-	if palettes and EntityPalettes[palettes] then
-		CreateGameTimeThread(Building.SetPalette, self, palettes)
+	if not cm1 then
+		cm1, cm2, cm3, cm4 = GetBuildingColors(GetCurrentColonyColorScheme(), self.building_class_proto)
+	end
+	if cm1 then
+		CreateGameTimeThread(Building.SetPalette, self, cm1, cm2, cm3, cm4)
 	end
 end
 
@@ -659,6 +681,7 @@ function ConstructionSite:CreateResourceRequests()
 end
 
 function ConstructionSite:GetWorkNotPossibleReason()
+	return self:IsHalted() and "Halted"
 end
 
 function ConstructionSite:GameInit()
@@ -695,6 +718,10 @@ function ConstructionSite:GameInit()
 	end
 	if IsKindOf(class, "Dome") then
 		g_DomeVersion = g_DomeVersion + 1
+	end
+	
+	if IsKindOf(self.building_class_proto, "SpireBase") then
+		SpireBase.UpdateFrame(self)
 	end
 end
 
@@ -860,8 +887,6 @@ function ConstructionSite:Initialize()
 		self:StartConstructionPhase()
 	end
 	
-	self:StartNaniteThread()
-	
 	self:ScatterUnitsUnderneath()
 	
 	if self.can_complete_during_init and not self:IsWaitingResources() and self:IsConstructed() then
@@ -879,6 +904,7 @@ function ConstructionSite:Initialize()
 end
 
 function ConstructionSite:CreateResourceStockpile()
+	if self.resource_stockpile then return end
 	assert(self.construction_resources and self.place_stockpile) --demand requests have been created.
 	--figure out the possible resources
 	local storable_resources = {}
@@ -900,7 +926,7 @@ function ConstructionSite:BootVisualStockpileAmounts()
 		local supplied = self.supplied
 		for resource, request in pairs(self.construction_resources) do
 			local amount = costs_at_start[resource]
-			local amount_to_stock = amount - (supplied and 0 or request:GetActualAmount())
+			local amount_to_stock = (amount - (supplied and 0 or request:GetActualAmount())) - (stock.stockpiled_amount and stock.stockpiled_amount[resource] or 0)
 			stock:AddResource(amount_to_stock, resource)
 		end
 	end
@@ -1225,18 +1251,46 @@ end
 
 --use when quick building, so that no weird state objects remain
 function ConstructionSite:DestroyWasteObjsUnderneath()
+	self:DestroyWasteRockUnderneath()
+	self:DestroyStockpilesUnderneath()
+end
+
+function ConstructionSite:DestroyWasteRockUnderneath()
 	local waste_rocks_underneath = self.waste_rocks_underneath
 	if waste_rocks_underneath then
 		for i = #waste_rocks_underneath, 1, -1 do
 			local o = waste_rocks_underneath[i]
 			table.remove_entry(o.parent_construction, self) --remove so destructor doesn't call us, because we'll be dead
+			table.remove_value(waste_rocks_underneath, o)
 			DoneObject(o)
 		end
 	end
+end
+
+function ConstructionSite:DestroyStockpilesUnderneath()
 	local stockpiles_underneath = self.stockpiles_underneath
 	if stockpiles_underneath then
 		for i = #stockpiles_underneath, 1, -1 do
 			DoneObject(stockpiles_underneath[i]) --stock destructor cleans itself from this array.
+		end
+	end
+end
+
+function ConstructionSite:MoveStockpilesUnderneathOutside(interval)
+	local stockpiles_underneath = self.stockpiles_underneath
+	if stockpiles_underneath then
+		for i = #stockpiles_underneath, 1, -1 do
+			local q, r = WorldToHex(self:GetPos())
+			local result
+			result, q, r = TryFindStockpileDumpSpot(q, r, self:GetAngle(), GetEntityPeripheralHexShape(self:GetEntity()))
+			if result then
+				local x, y = HexToWorld(q, r)
+				if interval then
+					Sleep(interval)
+				end
+				stockpiles_underneath[i]:SetPos(point(x, y))
+				self:OnBlockingStockpileCleared(stockpiles_underneath[i])
+			end
 		end
 	end
 end
@@ -1250,6 +1304,14 @@ function ConstructionSite:OnQuickBuild()
 	DelayedCall(0, QuickBuildWarning)
 end
 
+function SavegameFixups.FixConstructionSiteAltEntities()
+	MapForEach("map", "ConstructionSite", function(o)
+		if not o.alternative_entity_t and IsKindOf(o.building_class_proto, "Dome") then
+			o.alternative_entity_t = {entity = o.dome_skin and o.dome_skin[1] or
+											o.building_class_proto.entity}
+		end
+	end)
+end
 
 function ConstructionSite:Complete(quick_build) --quick_build - cheat build
 	if not IsValid(self) then return end -- happens when the user spams quick build and manages to complete the same site twice.
@@ -1280,7 +1342,9 @@ function ConstructionSite:Complete(quick_build) --quick_build - cheat build
 		orig_terrain2 = self.orig_terrain2 or nil,
 	}
 	local params = {
-		alternative_entity = self.alternative_entity or self:GetEntity(),
+		alternative_entity_t = {entity = self.alternative_entity_t and self.alternative_entity_t.entity
+			or self:GetEntity(), 
+			palette = self.alternative_entity_t and self.alternative_entity_t.palette or {self:GetColorizationMaterial4()} },
 	}
 
 	local bld = PlaceBuilding(self.building_class, instance, params)
@@ -1304,6 +1368,10 @@ function ConstructionSite:Complete(quick_build) --quick_build - cheat build
 	self:MarkSpentResources(bld)
 	if IsKindOf(bld, "PinnableObject") and self:IsPinned() then
 		bld:TogglePin()
+	end
+	local multiselect_range_att = self:GetAttaches("RangeHexMultiSelectRadius")
+	if multiselect_range_att and #multiselect_range_att > 0 then
+		ShowBuildingHexes(bld, bld == SelectedObj and "RangeHexMovableRadius" or "RangeHexMultiSelectRadius", RangeHexRadius.bind_to)
 	end
 	DoneObject(self)
 	if self.clean_cables_on_place then
@@ -1345,7 +1413,7 @@ function ConstructionSite:Complete(quick_build) --quick_build - cheat build
 		bld:Notify("QuickBuildSetup")
 	end
 
-	Msg("ConstructionComplete", bld)
+	Msg("ConstructionComplete", bld, dome)
 
 	ResumePassEdits("ConstructionSite.Complete")
 	ResumeTerrainInvalidations("ConstructionSite.Complete")
@@ -1466,16 +1534,18 @@ function ConstructionSite:ScatterUnitsUnderneath()
 	local units_underneath = self:GetUnitsUnderneath()
 	for i = 1, #units_underneath do
 		local u = units_underneath[i]
-		if u:IsDead() then --gracefull delete drone
-			if IsValid(u) then --not deleted
-				if u.command == "DespawnAtHub" then --moving, stop moving and die
-					u:SetCommand("DieNow")
-				else
-					DoneObject(u) --safe to del
+		if not u:IsKindOf("RCConstructor") or u.command ~= "Construct" or u.construction_clearing ~= self then
+			if u:IsDead() then --gracefull delete drone
+				if IsValid(u) then --not deleted
+					if u.command == "DespawnAtHub" then --moving, stop moving and die
+						u:SetCommand("DieNow")
+					else
+						DoneObject(u) --safe to del
+					end
 				end
+			else			
+				u:SetCommand("ExitImpassable")
 			end
-		else			
-			u:SetCommand("ExitImpassable")
 		end
 	end
 
@@ -1542,6 +1612,58 @@ end
 function ConstructionSite:GetConstructionGroupLeader()
 	return self.construction_group and self.construction_group[1] or self
 end
+
+function ConstructionSite:IsHalted()
+	return self.is_locked_by_story_bit
+end
+
+function ConstructionSite:SetHalted(val)
+	if self.is_locked_by_story_bit ~= val then
+		self.is_locked_by_story_bit = val
+		self:AttachSign(val, "SignHalted")
+		self:UpdateWorking()
+	end
+end
+
+function ConstructionSite:GetUIWarning()
+	if self:IsHalted() then
+		return NotWorkingWarning.Halted
+	elseif self.exceptional_circumstances then
+		return NotWorkingWarning["ExceptionalCircumstancesDisabled"]
+	elseif self.ui_working and self:IsOutsideCommandRange() then
+		return NotWorkingWarning["NoCommandCenter"]
+	end
+end
+
+function ConstructionSite:ShouldShowNoCCSign()
+	local r = Building.ShouldShowNoCCSign(self)
+	if r then
+		return not self:IsHalted() and not self.exceptional_circumstances
+	end
+	return r
+end
+
+function ConstructionSetState(construction, state)
+	--state is Disable, Enable, Destroy, Complete
+	assert(IsValid(construction))
+	local ret = construction
+	state = state or "Destroy"
+	if state == "Disable" or state == "Lock" then
+		construction:SetHalted(true)
+	elseif state == "Enable" or state == "Unlock" then
+		construction:SetHalted(false)
+	elseif state == "Destroy" then
+		DoneObject(construction)
+	elseif state == "Complete" then
+		ret = construction:Complete()
+	else
+		assert(false, "Unrecognized state!")
+	end
+	
+	return ret
+end
+
+----
 
 DefineClass.ConstructionSiteWithHeightSurfaces = {
 	__parents = { "ConstructionSite" },
@@ -1659,16 +1781,6 @@ function PlaceConstructionSite(city, class_name, pos, angle, params, no_block_pa
 	if dome then
 		DeleteUnattachedRoads(site, dome)
 		UpdateCoveredGrass(site, dome, "build")
-		
-		if building_proto_class:IsKindOf("SpireBase") and building_proto_class.spire_frame_entity ~= "none" and IsValidEntity(building_proto_class.spire_frame_entity) then
-			assert(_G[building_proto_class.spire_frame_entity], "Specified Spire Frame Entity does not exist!")
-			local frame = PlaceObject("Shapeshifter")
-			frame:ChangeEntity(building_proto_class.spire_frame_entity)
-			local spot = dome:GetNearestSpot("idle", "Spireframe", site)
-			local pos = dome:GetSpotPos(spot)
-			frame:SetAttachOffset( pos - site:GetPos() )
-			site:Attach(frame, site:GetSpotBeginIndex("Origin"))
-		end
 	elseif not no_flatten then
 		FlattenTerrainInBuildShape(building_proto_class:GetFlattenShape(), site)
 	end
@@ -1720,6 +1832,7 @@ DefineClass.PipeConstructionSite = {
 	is_tall = LifeSupportGridElement.is_tall,
 	GetDisplayName = BreakableSupplyGridElement.GetDisplayName,
 	display_name = LifeSupportGridElement.display_name,
+	display_name_pl = LifeSupportGridElement.display_name_pl,
 	ApplyToGrids = LifeSupportGridElement.ApplyToGrids,
 	RemoveFromGrids = LifeSupportGridElement.RemoveFromGrids,
 	description = LifeSupportGridElement.description,
@@ -1836,6 +1949,7 @@ DefineClass.CableConstructionSite = {
 	is_tall = ElectricityGridElement.is_tall,
 	GetDisplayName = BreakableSupplyGridElement.GetDisplayName,
 	display_name = ElectricityGridElement.display_name,
+	display_name_pl = ElectricityGridElement.display_name_pl,
 	PickEntity = __empty_function__,
 	SetConstructionSiteEntity = __empty_function__,
 	MoveInside = __empty_function__,
@@ -1875,7 +1989,6 @@ function CableConstructionSite:Complete(quick_build, current, total)
 		is_switch = self.is_switch,
 		switch_state = self.switch_state,
 	}
-	bld.sloped = self.sloped
 	bld:SetAngle(self:GetAngle())
 	bld:SetPos(self:GetPos())
 	if self.chain then
@@ -1935,6 +2048,28 @@ DefineClass.ConstructionGroupLeader = {
 	ApplyToGrids = __empty_function__,
 	RemoveFromGrids = __empty_function__,
 }
+
+function ConstructionGroupLeader:DestroyWasteRockUnderneath()
+	local cg = self.construction_group
+	for i = 2, #cg do
+		local arr = ConstructionSite.DestroyWasteRockUnderneath(cg[i])
+	end
+end
+
+function ConstructionGroupLeader:MoveStockpilesUnderneathOutside(interval)
+	local cg = self.construction_group
+	for i = 2, #cg do
+		local arr = ConstructionSite.MoveStockpilesUnderneathOutside(cg[i], interval)
+	end
+end
+
+function ConstructionGroupLeader:DestroyStockpilesUnderneath()
+	local cg = self.construction_group
+	for i = 2, #cg do
+		local arr = ConstructionSite.DestroyStockpilesUnderneath(cg[i])
+	end
+end
+
 function ConstructionGroupLeader:UpdateSignsVisibility(...)
 	--use one of our controlled construnctions because we are invisible
 	local obj = (self.construction_group or empty_table)[2]
@@ -1997,6 +2132,14 @@ function ConstructionGroupLeader:ConnectToCommandCenters()
 	end
 end
 
+function SavegameFixups.FixStuckConstructions()
+	MapForEach("map", "ConstructionGroupLeader", function(o)
+		if not o.construction_started and not o:IsWaitingResources() then
+			o:OnBlockerClearenceComplete()
+		end
+	end)
+end
+
 function ConstructionGroupLeader:OnBlockerClearenceComplete()
 	if IsValid(self) and self:IsBlockerClearenceComplete() then
 		--we get notification from each member, so check if there is still waste rock underneath the group
@@ -2005,11 +2148,12 @@ function ConstructionGroupLeader:OnBlockerClearenceComplete()
 			--instant power cbles should be non-instant power cables if there is waste rock underneath and only then!
 			--i.e. we should 100% pass from here
 			self:Complete()
-		elseif not self.auto_connect then
+		elseif not self.auto_connect
+				or (self.supplied or not self:IsWaitingResources() and not self.construction_started) then --auto connect may have flipped before callback fired
 			if not self.construction_resources then --late adds to the group may cause it to disconnect, in which case requests are already built
 				self:GatherConstructionResources()
 			end
-			if self.ui_working then
+			if not self.auto_connect and self.ui_working then
 				self:SetAutoConnect(true)
 				self:ConnectToCommandCenters()
 			end
@@ -2185,8 +2329,8 @@ DefineClass.GridSwitchConstructionSite = {
 	rename_allowed = false,
 }
 
-local function steal_attaches(self, o, supply_resource, update_visuals_func)
-	if update_visuals_func(o, supply_resource) then
+local function steal_attaches(self, o, supply_resource)
+	if g_Classes[o.class].UpdateVisuals(o, supply_resource) then
 		self:DestroyAttaches()
 		
 		o:ForEachAttach(function(attach)
@@ -2197,6 +2341,14 @@ local function steal_attaches(self, o, supply_resource, update_visuals_func)
 		
 		self:UpdateConstructionVisualization()
 	end
+end
+
+function SavegameFixups.RestoreSwitchUpdateVisualsFunction()
+	MapForEach("map", "ElectricityGridElement", "LifeSupportGridElement", function(o)
+					if o.is_switch then
+						o.UpdateVisuals = nil
+					end
+				end)
 end
 
 function GridSwitchConstructionSite:GameInit()
@@ -2210,9 +2362,8 @@ function GridSwitchConstructionSite:GameInit()
 		o.switch_cs = self
 		o.force_hub = true
 		o:ClearEnumFlags(const.efVisible)
-		local func = g_Classes[o.class].UpdateVisuals
 		o.UpdateVisuals = function(o, supply_resource)
-			steal_attaches(self, o, supply_resource, func)
+			steal_attaches(self, o, supply_resource)
 		end
 		o.conn = nil --force update visuals to not early out
 		o:UpdateVisuals()
@@ -2222,7 +2373,7 @@ end
 function GridSwitchConstructionSite:RestoreObjToTurnIntoSwitch()
 	if IsValid(self.obj_to_turn_into_switch) and self.obj_to_turn_into_switch.force_hub then
 		local o = self.obj_to_turn_into_switch
-		o.UpdateVisuals = g_Classes[o.class].UpdateVisuals
+		o.UpdateVisuals = nil
 		o.force_hub = nil
 		o.switch_cs = nil
 		o:SetEnumFlags(const.efVisible)
@@ -2390,11 +2541,6 @@ function ConstructionSite:IsOutsideCommandRange(ignore_cg)
 	end
 end
 
-function ConstructionSite:GetUIWarning()
-	if self.ui_working and self:IsOutsideCommandRange() then
-		return NotWorkingWarning["NoCommandCenter"]
-	end
-end
 
 function OnMsg.GatherFXActors(list)
 	list[#list + 1] = "ConstructionSite"

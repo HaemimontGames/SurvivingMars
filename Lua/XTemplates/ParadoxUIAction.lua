@@ -12,11 +12,7 @@ PlaceObj('XTemplate', {
 		'FocusedBackground', RGBA(0, 0, 0, 0),
 		'RolloverBackground', RGBA(0, 0, 0, 0),
 		'PressedBackground', RGBA(0, 0, 0, 0),
-		'TextFont', "ModsUIAction",
-		'TextColor', RGBA(255, 255, 255, 255),
-		'RolloverTextColor', RGBA(255, 255, 255, 255),
-		'DisabledTextColor', RGBA(155, 155, 155, 255),
-		'DisabledRolloverTextColor', RGBA(173, 173, 173, 255),
+		'TextStyle', "ModsUIAction",
 		'ShowGamepadShortcut', true,
 	}),
 })

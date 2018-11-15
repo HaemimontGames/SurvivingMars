@@ -7,16 +7,19 @@ function City:GetColonyStatsButtons()
 			on_icon = "UI/Icons/ColonyControlCenter/colonist_on.tga",
 			off_icon = "UI/Icons/ColonyControlCenter/colonist_off.tga",
 			{
-				caption = T{547, "Colonists"},
-				legend = function()
-					return T{8959, "<graph_right>Colonists</graph_right> <colonists>", colonists = #(self.labels.Colonist or "")}
+				caption = function()
+					return T{8959, "<graph_right>Colonists</graph_right> <em>(<colonists>)</em>",
+						colonists = #(self.labels.Colonist or ""),
+					}
 				end,
 				data = { self.ts_colonists, }
 			},
 			{
-				caption = T{8960, "Unemployed and Homeless"},
-				legend = function()
-					return T{8961, "<graph_left>Unemployed</graph_left> <unemployed>      <graph_right>Homeless</graph_right> <homeless>", unemployed = #(self.labels.Unemployed or ""), homeless = #(self.labels.Homeless or "")}
+				caption = function()
+					return T{8961, "<graph_left>Unemployed</graph_left> <em>(<unemployed>)</em> and <graph_right>Homeless</graph_right> <em>(<homeless>)</em>",
+						unemployed = #(self.labels.Unemployed or ""),
+						homeless = #(self.labels.Homeless or ""),
+					}
 				end,
 				data = { self.ts_colonists_unemployed, self.ts_colonists_homeless, },
 			},
@@ -28,16 +31,18 @@ function City:GetColonyStatsButtons()
 			on_icon = "UI/Icons/ColonyControlCenter/drones_on.tga",
 			off_icon = "UI/Icons/ColonyControlCenter/drones_off.tga",
 			{
-				caption = T{517, "Drones"},
-				legend = function()
-					return T{8962, "<graph_right>Drones</graph_right> <drones>", drones = #(self.labels.Drone or "")}
+				caption  = function()
+					return T{8962, "<graph_right>Drones</graph_right> <em>(<drones>)</em>",
+						drones = #(self.labels.Drone or ""),
+					}
 				end,
 				data = { self.ts_drones, }
 			},
 			{
-				caption = T{745, "Shuttles"},
-				legend = function()
-					return T{8963, "<graph_right>Shuttles</graph_right> <shuttles>", shuttles = self:CountShuttles() }
+				caption = function()
+					return T{8963, "<graph_right>Shuttles</graph_right> <em>(<shuttles>)</em>",
+						shuttles = self:CountShuttles(),
+					}
 				end,
 				data = { self.ts_shuttles, },
 			},
@@ -49,20 +54,21 @@ function City:GetColonyStatsButtons()
 			on_icon = "UI/Icons/ColonyControlCenter/buildings_on.tga",
 			off_icon = "UI/Icons/ColonyControlCenter/buildings_off.tga",
 			{
-				caption = T{3980, "Buildings"},
-				legend = function()
-					return T{8964, "<graph_right>Buildings</graph_right> <buildings>", buildings = self:CountBuildings()}
+				caption = function()
+					return T{8964, "<graph_right>Buildings</graph_right> <em>(<buildings>)</em>",
+						buildings = self:CountBuildings(),
+					}
 				end,
 				data = { self.ts_buildings, }
 			},
 			{
-				caption = T{8965, "Completed Constructions per Sol"},
-				legend = function()
-					return T{8966, "<graph_right>Completed Constructions Today</graph_right> <constructions>", constructions = (self.constructions_completed_today or 0)}
+				caption = function()
+					return T{8966, "<graph_right>Completed Constructions per Sol</graph_right> <em>(<constructions>)</em>",
+						constructions = (self.constructions_completed_today or 0),
+					}
 				end,
 				data = { self.ts_constructions_completed, },
 			},
-			margin_right = 40,
 			id = "buildings",
 		},
 		{
@@ -71,16 +77,19 @@ function City:GetColonyStatsButtons()
 			on_icon = "UI/Icons/ColonyControlCenter/power_on.tga",
 			off_icon = "UI/Icons/ColonyControlCenter/power_off.tga",
 			{
-				caption = T{945, "Stored Power"},
-				legend = function()
-					return T{8967, "<graph_right>Power</graph_right> <power>", power = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalStoredPower())}
+				caption = function()
+					return T{8967, "<graph_right>Stored Power</graph_right> <em>(<power>)</em>",
+						power = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalStoredPower()),
+					}
 				end,
 				data = { self.ts_resources_grid.electricity.stored, scale = const.ResourceScale, }
 			},
 			{
-				caption = T{8968, "Produced and Demanded Power (average per hour)"},
-				legend = function()
-					return T{8969, "<graph_left>Production</graph_left> <produced>      <graph_right>Demand</graph_right> <demand>", produced = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalProducedPower()), demand = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalRequiredPower())}
+				caption = function()
+					return T{11519, "<graph_left>Produced</graph_left> <em>(<produced>)</em> and <graph_right>Demanded</graph_right> <em>(<demand>)</em> Power (average per hour)",
+						produced = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalProducedPower()),
+						demand = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalRequiredPower())
+					}
 				end,
 				data = { self.ts_resources_grid.electricity.production, self.ts_resources_grid.electricity.consumption, scale = const.ResourceScale}
 			},
@@ -92,16 +101,19 @@ function City:GetColonyStatsButtons()
 			on_icon = "UI/Icons/ColonyControlCenter/oxygen_on.tga",
 			off_icon = "UI/Icons/ColonyControlCenter/oxygen_off.tga",
 			{
-				caption = T{8970, "Stored Oxygen"},
-				legend = function()
-					return T{8971, "<graph_right>Oxygen</graph_right> <air>", air = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalStoredAir())}
+				caption = function()
+					return T{8971, "<graph_right>Stored Oxygen</graph_right> <em>(<air>)</em>",
+						air = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalStoredAir()),
+					}
 				end,
 				data = { self.ts_resources_grid.air.stored, scale = const.ResourceScale, }
 			},
 			{
-				caption = T{8972, "Produced and Demanded Oxygen (average per hour)"},
-				legend = function()
-					return T{8969, "<graph_left>Production</graph_left> <produced>      <graph_right>Demand</graph_right> <demand>", produced = FormatResourceValueMaxResource(resource_overview_obj,resource_overview_obj:GetTotalProducedAir()), demand = FormatResourceValueMaxResource(resource_overview_obj,resource_overview_obj:GetTotalRequiredAir())}
+				caption = function()
+					return T{11520, "<graph_left>Produced</graph_left> <em>(<produced>)</em> and <graph_right>Demanded</graph_right> <em>(<demand>)</em> Oxygen (average per hour)",
+						produced = FormatResourceValueMaxResource(resource_overview_obj,resource_overview_obj:GetTotalProducedAir()),
+						demand = FormatResourceValueMaxResource(resource_overview_obj,resource_overview_obj:GetTotalRequiredAir()),
+					}
 				end,
 				data = { self.ts_resources_grid.air.production, self.ts_resources_grid.air.consumption, scale = const.ResourceScale}
 			},
@@ -113,20 +125,22 @@ function City:GetColonyStatsButtons()
 			on_icon = "UI/Icons/ColonyControlCenter/water_on.tga",
 			off_icon = "UI/Icons/ColonyControlCenter/water_off.tga",
 			{
-				caption = T{33, "Stored Water"},
-				legend = function()
-					return T{8973, "<graph_right>Water</graph_right> <water>", water = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalStoredWater())}
+				caption = function()
+					return T{8973, "<graph_right>Stored Water</graph_right> <em>(<water>)</em>",
+						water = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalStoredWater()),
+					}
 				end,
 				data = { self.ts_resources_grid.water.stored, scale = const.ResourceScale, }
 			},
 			{
-				caption = T{8974, "Produced and Demanded Water (average per hour)"},
-				legend = function()
-					return T{8969, "<graph_left>Production</graph_left> <produced>      <graph_right>Demand</graph_right> <demand>", produced = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalProducedWater()), demand = FormatResourceValueMaxResource(resource_overview_obj:GetTotalRequiredWater())}
+				caption = function()
+					return T{11521, "<graph_left>Produced</graph_left> <em>(<produced>)</em> and <graph_right>Demanded</graph_right> <em>(<demand>)</em> Water (average per hour)",
+						produced = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalProducedWater()),
+						demand = FormatResourceValueMaxResource(resource_overview_obj, resource_overview_obj:GetTotalRequiredWater()),
+					}
 				end,
 				data = { self.ts_resources_grid.water.production, self.ts_resources_grid.water.consumption, scale = const.ResourceScale}
 			},
-			margin_right = 40,
 			id = "water",
 		},
 	}
@@ -138,16 +152,20 @@ function City:GetColonyStatsButtons()
 			on_icon = "UI/Icons/ColonyControlCenter/" .. id:lower() .. "_on.tga",
 			off_icon = "UI/Icons/ColonyControlCenter/" .. id:lower() .. "_off.tga",
 			{
-				caption = T{8976, "Stockpiled <resource>", resource = resource_name},
-				legend = function()
-					return T{8977, "<graph_right><resource></graph_right> <amount>", resource = resource_name, amount = resource_overview_obj["GetAvailable" .. id](resource_overview_obj) / const.ResourceScale}
+				caption = function()
+					return T{8977, "<graph_right>Stockpiled <resource></graph_right> <em>(<amount>)</em>",
+						resource = resource_name,
+						amount = resource_overview_obj["GetAvailable" .. id](resource_overview_obj) / const.ResourceScale,
+					}
 				end,
 				data = { self.ts_resources[id].stockpile, scale = const.ResourceScale}
 			},
 			{
-				caption = T{8978, "Produced and Consumed (per Sol)", resource = resource_name},
-				legend = function()
-					return T{8979, "<graph_left>Production</graph_left> <produced>      <graph_right>Consumption</graph_right> <consumed>", produced = resource_overview_obj["Get" .. id .. "ProducedYesterday"](resource_overview_obj) / const.ResourceScale, consumed = resource_overview_obj["Get" .. id .. "ConsumedByConsumptionYesterday"](resource_overview_obj) / const.ResourceScale}
+				caption = function()
+					return T{8979, "<graph_left>Produced</graph_left> <em>(<produced>)</em> and <graph_right>Consumed</graph_right> <em>(<consumed>)</em> (per Sol)",
+						produced = resource_overview_obj["Get" .. id .. "ProducedYesterday"](resource_overview_obj) / const.ResourceScale,
+						consumed = resource_overview_obj["Get" .. id .. "ConsumedByConsumptionYesterday"](resource_overview_obj) / const.ResourceScale,
+					}
 				end,
 				data = { self.ts_resources[id].produced, self.ts_resources[id].consumed, scale = const.ResourceScale}
 			},
@@ -156,6 +174,46 @@ function City:GetColonyStatsButtons()
 		}
 	end
 	return t
+end
+
+function CommandCenterChooseGridBuilding(grid)
+	--choose biggest consumer
+	if #grid.consumers > 0 then
+		local max_consumption, max_consumer = 0, false
+		for i,consumer in ipairs(grid.consumers) do
+			if max_consumption < consumer.consumption then
+				max_consumption = consumer.consumption
+				max_consumer = consumer
+			end
+		end		
+		if max_consumer and max_consumer.building then
+			return max_consumer.building
+		end
+	end
+	
+	--choose biggest producer
+	if #grid.producers > 0 then
+		local max_production, max_producer = 0, false
+		for i,producer in ipairs(grid.producers) do
+			if max_production < producer.production then
+				max_production = producer.production
+				max_producer = producer
+			end
+		end		
+		if max_producer and max_producer.building then
+			return max_producer.building
+		end
+	end
+	
+	--choose just the first element
+	local first_element = grid.elements[1]
+	return first_element and first_element.building
+end
+
+local function FilterColonistByTrait(colonist, trait)
+	if not trait then return end
+	local trait_id = trait.id
+	return not colonist.traits[trait_id]
 end
 
 function GetCommandCenterColonists(context)
@@ -183,8 +241,12 @@ function GetCommandCenterColonists(context)
 	for i = #colonists, 1, -1 do
 		local colonist = colonists[i]
 		local removed
-		local trait = context.trait and context.trait.id
-		if trait and not colonist.traits[trait] then
+		if FilterColonistByTrait(colonist, context["trait_Age Group"]) or
+			FilterColonistByTrait(colonist, context["trait_Negative"]) or
+			FilterColonistByTrait(colonist, context["trait_Specialization"]) or
+			FilterColonistByTrait(colonist, context["trait_other"]) or
+			FilterColonistByTrait(colonist, context["trait_Positive"])
+		then
 			table.remove(colonists, i)
 			removed = true
 		end
@@ -219,24 +281,62 @@ function GetCommandCenterColonists(context)
 	return colonists
 end
 
+function SpawnTraitsPopup(button, traits_group)
+	local dlg = GetDialog(button)
+	local popup = XTemplateSpawn("CommandCenterPopup", dlg)
+	popup.context = button
+	popup:SetAnchor(button.box)
+	local list = popup.idContainer
+	
+	local entry = XTemplateSpawn("CommandCenterPopupItem", list)
+	entry:SetText(T{11679, "No filter"})
+	entry.OnPress = function(self, gamepad)
+		dlg.context["trait_" .. traits_group] = nil
+		dlg.idContent:RespawnContent()
+		if popup.window_state ~= "destroying" then
+			popup:Close()
+		end
+	end
+	
+	local traits = GetTSortedTraits(traits_group)
+	for i,trait in ipairs(traits) do
+		local entry = XTemplateSpawn("CommandCenterPopupItem", list, trait)
+		entry:SetText(trait.display_name)
+		entry.OnPress = function(self, gamepad)
+			dlg.context["trait_" .. traits_group] = self.context
+			dlg.idContent:RespawnContent()
+			if popup.window_state ~= "destroying" then
+				popup:Close()
+			end
+		end
+	end
+	
+	popup:Open()
+end
+
+function CommandCenterHidePopup(win)
+	local dlg = GetDialog(win or "ColonyControlCenter")
+	local popup = dlg:ResolveId("idPopup")
+	if popup and popup.window_state ~= "destroying" then
+		popup:Close()
+	end
+end
+
 function Colonist:UICommandCenterStatUpdate(win, stat)
-	local id = 3
 	local v = self:GetProperty(stat)
+	local tv
 	if stat == "Morale" and self.traits.Renegade then
-		id = 1
 		win.idLabel:SetVisible(false)
 		win.idNoStat:SetVisible(true)
 	else
 		local low = g_Consts.LowStatLevel / const.Scale.Stat
-		local high = g_Consts.HighStatLevel / const.Scale.Stat
 		if v < low then
-			id = 1
-		elseif v < high then
-			id = 2
+			tv = T{4194, "<red><value></red>", value = v}
+		else
+			tv = Untranslated(v)
 		end
 	end
-	win.idImage:SetImage("UI/Icons/ColonyControlCenter/conditions_" .. stat:lower() .. id .. ".tga")
-	win.idLabel:SetText(tostring(v))
+	win.idLabel:SetText(tv)
 end
 
 function Colonist:GetOverviewInfo()
@@ -256,6 +356,34 @@ function Colonist:GetOverviewInfo()
 		rows[#rows + 1] = warning
 	end
 	return table.concat(rows, "<newline><left>")
+end
+
+function GetCommandCenterPowerGrids(context)
+	local result = { }
+	local all_grids = UICity.electricity
+	for i, grid in ipairs(all_grids) do
+		--exclude grids containing only autonomous consumers and nothing else
+		--also exclude empty grids (only cables)
+		
+		if #grid.storages > 0 or #grid.producers > 0 then
+			table.insert(result, grid)
+		elseif #grid.consumers > 0 then
+			local only_autonomous = true
+			for j,consumer in ipairs(grid.consumers) do
+				--autonomous consumers have this flag set to 1
+				if consumer.building.disable_electricity_consumption == 0 then
+					only_autonomous = false
+					break
+				end
+			end
+			
+			if not only_autonomous then
+				table.insert(result, grid)
+			end
+		end
+	end
+	
+	return result
 end
 
 local function IsBuildingOther(building)
@@ -282,18 +410,25 @@ function GetCommandCenterBuildings(context)
 	else
 		buildings = table.icopy(UICity.labels.Building) or empty_table
 	end
+	local any_filter = context.decorations or
+		context.power_producers ~= false or
+		context.production_buildings ~= false or
+		context.services ~= false or
+		context.residential or
+		context.other
+		
 	for i = #buildings, 1, -1 do
 		local building = buildings[i]
 		if (not building.count_as_building and not IsKindOfClasses(building, "UniversalStorageDepot", "WasteRockDumpSite")) or
 			IsKindOfClasses(building, "PassageRamp", "PassageGridElement", "Passage", "ConstructionSite") or
-			context.inside_buildings == false and building.parent_dome or
-			context.outside_buildings == false and not building.parent_dome or
-			not context.decorations and building.build_category == "Decorations" or
-			context.power_producers == false and IsKindOf(building, "ElectricityProducer") or
-			context.production_buildings == false and IsKindOfClasses(building, "ResourceProducer", "WaterProducer", "AirProducer", "DroneFactory") or
-			context.services == false and (IsKindOf(building, "Service") or IsKindOf(building, "Workshop")) and (building.build_category ~= "Decorations" or not context.decorations) or
-			not context.residential and IsKindOf(building, "Residence") or
-			not context.other and IsBuildingOther(building) or
+			context.inside_buildings == false and context.outside_buildings ~= false and building.parent_dome or
+			context.outside_buildings == false and context.inside_buildings ~= false and not building.parent_dome or
+			any_filter and not context.decorations and building.build_category == "Decorations" or
+			any_filter and context.power_producers == false and IsKindOf(building, "ElectricityProducer") or
+			any_filter and context.production_buildings == false and IsKindOfClasses(building, "ResourceProducer", "WaterProducer", "AirProducer", "DroneFactory") or
+			any_filter and context.services == false and (IsKindOf(building, "Service") or IsKindOf(building, "Workshop")) and (building.build_category ~= "Decorations" or not context.decorations) or
+			any_filter and not context.residential and IsKindOf(building, "Residence") or
+			any_filter and not context.other and IsBuildingOther(building) or
 			building.destroyed or building.bulldozed then
 				table.remove(buildings, i)
 		end
@@ -669,6 +804,41 @@ function GetCommandCenterDomesList()
 	return domes
 end
 
+function SpawnDomesPopup(button)
+	local dlg = GetDialog(button)
+	local popup = XTemplateSpawn("CommandCenterPopup", dlg)
+	popup.context = button
+	popup:SetAnchor(button.box)
+	local list = popup.idContainer
+	
+	local entry = XTemplateSpawn("CommandCenterPopupItem", list)
+	entry:SetText(T{596159635934, "Entire Colony"})
+	entry.OnPress = function(self, gamepad)
+		dlg.context.dome = nil
+		button:OnContextUpdate(dlg.context)
+		dlg.idContent:RespawnContent()
+		if popup.window_state ~= "destroying" then
+			popup:Close()
+		end
+	end
+	
+	local domes = GetCommandCenterDomesList()
+	for i,dome in ipairs(domes) do
+		local entry = XTemplateSpawn("CommandCenterPopupItem", list, dome)
+		entry:SetText(T{7305, "<DisplayName>"})
+		entry.OnPress = function(self, gamepad)
+			dlg.context.dome = self.context
+			button:OnContextUpdate(dlg.context)
+			dlg.idContent:RespawnContent()
+			if popup.window_state ~= "destroying" then
+				popup:Close()
+			end
+		end
+	end
+	
+	popup:Open()
+end
+
 function GetCommandCenterNextDome(cur_dome, dir)
 	local domes = GetCommandCenterDomesList()
 	local idx = cur_dome and table.find(domes, cur_dome)
@@ -682,6 +852,9 @@ function SelectCommandCenterNextDome(host, dir)
 	local context = host.context or {}
 	local dome = context.dome
 	dome = GetCommandCenterNextDome(dome, dir)
+	while dome and not dome:GetUIInteractionState() do
+		dome = GetCommandCenterNextDome(dome, dir)		
+	end
 	context.dome = dome
 	host.context = context
 	local list = host.idList
@@ -724,15 +897,38 @@ local function add_separator(text, ...)
 	return text
 end
 
+function GetTransportationFilterRollover(context, description)
+	local rows = {}
+	if context.drone_hubs ~= false then table.insert(rows, T{5048, "Drone Hubs"}) end
+	if context.drone_assemblers    then table.insert(rows, T{5046, "Drone Assemblers"}) end
+	if context.rovers ~= false     then table.insert(rows, T{951182332337, "RC Rovers"}) end
+	if context.shuttle_hubs        then table.insert(rows, T{5260, "Shuttle Hubs"}) end
+	
+	local res
+	if #rows > 0 then
+		res = T{9667, "<center><em>Active Filters</em>"} .. "<newline><left>- " .. table.concat(rows, "<newline>- ")
+	end
+	
+	if description then
+		return table.concat({description, res}, "<newline><newline>")
+	else
+		return res
+	end
+end
+
 function GetColonistsFilterRollover(context, description)
 	local rows = {}
 	local dome_name = context.dome and (T{9773, "Dome: "} .. context.dome:GetDisplayName()) or T{596159635934, "Entire Colony"}
-	rows[#rows + 1] = context.trait and context.trait.display_name or T{652319561018, "All Traits"}
-	local able_to_work = context.able_to_work ~= false and T{9673, "Able to Work"}
-	local unable_to_work = context.unable_to_work and T{731124482973, "Unable to Work"}
-	able_to_work = add_separator(able_to_work, unable_to_work)
-	if able_to_work or unable_to_work then
-		rows[#rows + 1] = T{9664, "<able_to_work><unable_to_work>", able_to_work = able_to_work or "", unable_to_work = unable_to_work or ""}
+	
+	rows[#rows + 1] = context["trait_Age Group"]      and context["trait_Age Group"].display_name or nil
+	rows[#rows + 1] = context["trait_Negative"]       and context["trait_Negative"].display_name or nil
+	rows[#rows + 1] = context["trait_Specialization"] and context["trait_Specialization"].display_name or nil
+	rows[#rows + 1] = context["trait_other"]          and context["trait_other"].display_name or nil
+	rows[#rows + 1] = context["trait_Positive"]       and context["trait_Positive"].display_name or nil
+	
+	if (context.able_to_work ~= false) ~= (context.unable_to_work ~= false) then
+		rows[#rows + 1] = (context.able_to_work ~= false) and T{9673, "Able to Work"} or nil
+		rows[#rows + 1] = (context.unable_to_work ~= false) and T{731124482973, "Unable to Work"} or nil
 	end
 	if context.homeless then
 		rows[#rows + 1] = T{9665, "Homeless colonists"}
@@ -743,7 +939,11 @@ function GetColonistsFilterRollover(context, description)
 	if context.problematic_colonists then
 		rows[#rows + 1] = T{7934, "Problematic colonists"}
 	end
-	local res = T{9667, "<center><em>Active Filters</em>"} .. "<newline><left>- " .. dome_name .. "<newline>- " .. table.concat(rows, "<newline>- ")
+	
+	local res = T{9667, "<center><em>Active Filters</em>"} .. "<newline><left>- " .. dome_name
+	if #rows > 0 then
+		res = res .. "<newline>- " .. table.concat(rows, "<newline>- ")
+	end
 	if description then
 		return table.concat({description, res}, "<newline><newline>")
 	else
@@ -782,7 +982,12 @@ function GetBuildingsFilterRollover(context, description)
 			production_buildings = production_buildings or "", services = services or "",
 			residential = residential or "", other = other or "",}
 	end
-	local res = T{9667, "<center><em>Active Filters</em>"} .. "<newline><left>- " .. dome_name .. "<newline>- " .. table.concat(rows, "<newline>- ")
+	
+	local res = T{9667, "<center><em>Active Filters</em>"} .. "<newline><left>- " .. dome_name
+	if #rows > 0 then
+		res = res .. "<newline>- " .. table.concat(rows, "<newline>- ")
+	end
+	
 	if description then
 		return table.concat({description, res}, "<newline><newline>")
 	else
@@ -810,17 +1015,15 @@ end
 
 function Dome:UICommandCenterStatUpdate(win, stat)
 	local stat_scale = const.Scale.Stat
-	local low = g_Consts.LowStatLevel / stat_scale
-	local high = g_Consts.HighStatLevel / stat_scale
-	local id = 3
 	local v = self:GetAverageStat(stat) / stat_scale
+	local tv
+	local low = g_Consts.LowStatLevel / stat_scale
 	if v < low then
-		id = 1
-	elseif v < high then
-		id = 2
+		tv = Untranslated(string.format("<red>%d</red>", v))
+	else
+		tv = Untranslated(v)
 	end
-	win.idImage:SetImage("UI/Icons/ColonyControlCenter/conditions_" .. stat:lower() .. id .. ".tga")
-	win.idLabel:SetText(tostring(v))
+	win.idLabel:SetText(v)
 end
 
 function Dome:UICommandCenterGetJobsHomes()
@@ -875,22 +1078,6 @@ function ToggleCommandCenterFilter(button, name, valid_nil)
 	local dlg = GetDialog(button)
 	local context = dlg.context
 	local value = valid_nil and context[name] ~= false or context[name]
-	--colonists group
-	if name == "unable_to_work" and value and context.able_to_work == false or
-		name == "able_to_work" and value and not context.unable_to_work then
-		return
-	end
-	--buildings groups
-	if name == "inside_buildings" and value and context.outside_buildings == false or
-		name == "outside_buildings" and value and context.inside_buildings == false or
-		name == "decorations" and value and context.power_producers == false and context.production_buildings == false and context.services == false and not context.residential and not context.other or
-		name == "power_producers" and value and not context.decorations and context.production_buildings == false and context.services == false and not context.residential and not context.other or
-		name == "production_buildings" and value and not context.decorations and context.power_producers == false and context.services == false and not context.residential and not context.other or
-		name == "services" and value and not context.decorations and context.production_buildings == false and context.power_producers == false and not context.residential and not context.other or
-		name == "residential" and value and not context.decorations and context.production_buildings == false and context.services == false and context.power_producers == false and not context.other or
-		name == "other" and value and not context.decorations and context.production_buildings == false and context.services == false and not context.residential and context.power_producers == false then
-		return
-	end
 	context[name] = not value
 	local list = button:ResolveId("idList")
 	list:OnContextUpdate()
@@ -899,15 +1086,24 @@ function ToggleCommandCenterFilter(button, name, valid_nil)
 	XUpdateRolloverWindow(button)
 end
 
-function GetCommandCenterTransportsList()
+function GetCommandCenterTransportsList(context)
 	local labels = UICity.labels
 	local list = {}
-	local rc_rovers = labels.RCRover
-	local rockets = labels.AllRockets
-	local drone_hubs = labels.DroneHub
-	local shuttle_hubs = labels.ShuttleHub
-	local assemblers = labels.DroneFactory
-	local rc_transports = labels.RCTransport
+	
+	local no_filters = not (
+		context.drone_hubs ~= false or
+		context.drone_assemblers or
+		context.shuttle_hubs or
+		context.rockets or
+		context.rovers ~= false)
+	
+	local drone_hubs =    (no_filters or context.drone_hubs ~= false) and labels.DroneHub     or empty_table
+	local assemblers =    (no_filters or context.drone_assemblers)    and labels.DroneFactory or empty_table
+	local rockets =       (no_filters or context.rockets)             and labels.AllRockets   or empty_table
+	
+	local rc_rovers = (no_filters or context.rovers ~= false) and labels.Rover or empty_table
+	
+	local shuttle_hubs = (no_filters or context.shuttle_hubs) and labels.ShuttleHub   or empty_table
 	
 	local sort_func = function(a,b) return a.name < b.name end
 	if #(drone_hubs or "") > 0 then
@@ -920,35 +1116,15 @@ function GetCommandCenterTransportsList()
 		table.stable_sort(h, sort_func)
 		table.append(list, h)
 	end
-	if #(rc_rovers or "") > 0 then
-		local r = {}
-		for _, rover in ipairs(rc_rovers) do
-			if not rover.destroyed then
-				r[#r + 1] = rover
+	if #(assemblers or "") > 0 then
+		local a = {}
+		for _, assembler in ipairs(assemblers) do
+			if not assembler.destroyed and not assembler.bulldozed then
+				a[#a + 1] = assembler
 			end
 		end
-		table.stable_sort(r, sort_func)
-		table.append(list, r)
-	end
-	if #(rc_transports or "") > 0 then
-		local t = {}
-		for _, transport in ipairs(rc_transports) do
-			if not transport.destroyed then
-				t[#t + 1] = transport
-			end
-		end
-		table.stable_sort(t, sort_func)
-		table.append(list, t)
-	end
-	if #(rockets or "") > 0 then
-		local r = {}
-		for _, rocket in ipairs(rockets) do
-			if rocket.landed then
-				r[#r + 1] = rocket
-			end
-		end
-		table.stable_sort(r, sort_func)
-		table.append(list, r)
+		table.stable_sort(a, sort_func)
+		table.append(list, a)
 	end
 	if #(shuttle_hubs or "") > 0 then
 		local s = {}
@@ -960,16 +1136,28 @@ function GetCommandCenterTransportsList()
 		table.stable_sort(s, sort_func)
 		table.append(list, s)
 	end
-	if #(assemblers or "") > 0 then
-		local a = {}
-		for _, assembler in ipairs(assemblers) do
-			if not assembler.destroyed and not assembler.bulldozed then
-				a[#a + 1] = assembler
+	if #(rockets or "") > 0 then
+		local r = {}
+		for _, rocket in ipairs(rockets) do
+			if rocket.landed then
+				r[#r + 1] = rocket
 			end
 		end
-		table.stable_sort(a, sort_func)
-		table.append(list, a)
+		table.stable_sort(r, sort_func)
+		table.append(list, r)
 	end
+	
+	if #(rc_rovers or empty_table) > 0 then
+		local r = {}
+		for _, rover in ipairs(rc_rovers) do
+			if not rover.destroyed then
+				r[#r + 1] = rover
+			end
+		end
+		table.stable_sort(r, sort_func)
+		table.append(list, r)
+	end
+	
 	return list
 end
 
@@ -1052,7 +1240,10 @@ end
 
 function OpenCommandCenter(context, mode)
 	g_CommandCenterOpen = true
-	GetInGameInterface():SetMode("selection") --make sure there is no other dialog mode open
+	local ui = GetInGameInterface()
+	if ui.mode ~= "selection" and ui.mode ~= "overview" then
+		ui:SetMode("selection") -- make sure there is no other dialog mode open
+	end
 	local dlg = OpenDialog("ColonyControlCenter", nil, context or g_CommandCenterSavedContext or {})
 	mode = mode or g_CommandCenterSavedMode
 	if mode and mode ~= "" then
@@ -1060,10 +1251,12 @@ function OpenCommandCenter(context, mode)
 	end
 	local mode_dlg = GetInGameInterfaceModeDlg()
 	mode_dlg:SetParent(dlg)
+	return dlg
 end
 
 function CloseCommandCenter()
 	CloseDialog("ColonyControlCenter")
+	Msg("CommandCenterClosed")
 end
 
 function OnMsg.PopupNotificationBegin()
@@ -1159,15 +1352,13 @@ end
 function CCC_ButtonListOnShortcut(self, shortcut, source)
 	local rel = XShortcutToRelation[shortcut]
 	if rel == "up" or rel == "down" then
-		return "break"
-	elseif rel == "left" or rel == "right" then
 		local focus = self.desktop:GetKeyboardFocus()
 		local idx = table.find(self, focus)
 		if idx then
-			if rel == "left" and idx == 1 then
+			if rel == "up" and idx == 1 then
 				self[#self]:SetFocus()
 				return "break"
-			elseif rel == "right" and idx == #self then
+			elseif rel == "down" and idx == #self then
 				self[1]:SetFocus()
 				return "break"
 			end

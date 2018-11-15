@@ -3,6 +3,30 @@ DefineClass.Arcology =
 	__parents = { "ElectricityConsumer", "SpireBase", "Residence" },
 }
 
+function Arcology:OnSkinChanged(skin, palette)
+	local frame = self:GetAttaches("SpireFrame")[1]
+	if frame:GetEntity() == "ArcologyCP3Frame" and self.working then
+		PlayFX("Working", "end", frame)
+	end
+	SpireBase.OnSkinChanged(self, skin, palette)
+	frame = self:GetAttaches("SpireFrame")[1]
+	if frame:GetEntity() == "ArcologyCP3Frame" and self.working then
+		PlayFX("Working", "start", frame)
+	end
+end
+
+function Arcology:OnSetWorking(working)
+	Building.OnSetWorking(self, working)
+	local frame = self:GetAttaches("SpireFrame")[1]
+	if frame:GetEntity() == "ArcologyCP3Frame" then
+		if working then
+			PlayFX("Working", "start", frame)		
+		else
+			PlayFX("Working", "end", frame)
+		end
+	end
+end
+
 function Arcology:BuildingUpdate()
 	self:ApplyHiveMindBonus()
 end

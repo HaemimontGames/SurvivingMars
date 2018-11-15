@@ -6,9 +6,7 @@ PlaceObj('XTemplate', {
 	id = "RolloverText",
 	PlaceObj('XTemplateWindow', {
 		'__class', "XText",
-		'TextFont', "RolloverText",
-		'TextColor', RGBA(233, 242, 255, 255),
-		'ShadowColor', RGBA(0, 0, 0, 0),
+		'TextStyle', "RolloverTextStyle",
 		'Translate', true,
 	}),
 })

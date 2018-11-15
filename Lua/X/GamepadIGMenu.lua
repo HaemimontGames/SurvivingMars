@@ -12,24 +12,12 @@ function IsHUDResearchEnabled()
 	return (not g_Tutorial or g_Tutorial.EnableResearch) and true or false
 end
 
-local fnaction = function(content_data, item)
-	local hud = GetHUD()
-	if hud then
-		local ctrl = hud[item.name]
-		if ctrl then
-			ctrl:Press()
-		end
-	else
-		HUD.button_definitions[item.name].callback(this.idButton)
-	end
-end
-
 GamepadIGMenu_game_items = {
 	{ --build menu
 		name = "idBuild",
 		display_name = T{4237, "Build Menu"},
 		icon = "UI/Icons/console_build.tga",
-		action = fnaction,
+		action = function() HUD.idBuildOnPress() end,
 		description = "",
 		close_parent = false,
 	},
@@ -37,7 +25,7 @@ GamepadIGMenu_game_items = {
 		name = "idOverview",
 		display_name = T{3996, "Map Overview"},
 		icon = "UI/Icons/console_overview.tga",
-		action = fnaction,
+		action = function() HUD.idOverviewOnPress() end,
 		description = "",
 		close_parent = false,
 	},
@@ -46,7 +34,7 @@ GamepadIGMenu_game_items = {
 		display_name = T{3997, "Resupply"},
 		icon = "UI/Icons/console_resupply.tga",
 		enabled_fn = IsHUDResupplyEnabled,
-		action = fnaction,
+		action = function() HUD.idResupplyOnPress() end,
 		description = "",
 	},
 	{ --researh
@@ -54,7 +42,23 @@ GamepadIGMenu_game_items = {
 		display_name = T{311, "Research"},
 		icon = "UI/Icons/console_research.tga",
 		enabled_fn = IsHUDResearchEnabled,
-		action = fnaction,
+		action = function() HUD.idResearchOnPress() end,
+		description = "",
+	},
+	{ --mars screen
+		name = "idMarsScreen",
+		display_name = T{11030, "Planetary View"},
+		icon = "UI/Icons/console_mars_screen.tga",
+		enabled_fn = function () return not g_Tutorial end,
+		action = function() HUD.idPlanetaryViewOnPress() end,
+		description = "",
+	},
+	{ --goals
+		name = "idGoals",
+		display_name = T{10092, "Mission Profile"},
+		icon = "UI/Icons/console_goals.tga",
+		enabled_fn = function () return not g_Tutorial end,
+		action = function() HUD.idGoalsOnPress() end,
 		description = "",
 	},
 	
@@ -62,22 +66,22 @@ GamepadIGMenu_game_items = {
 		name = "idColonyControlCenter",
 		display_name = T{137542936955, "Command Center"},
 		icon = "UI/Icons/console_command_center.tga",
-		action = fnaction,
+		action = function() HUD.idColonyControlCenterOnPress() end,
 		description = "",
 		close_parent = false,
 	},
 	{ --markers
-		name = "idMarkers",
+		name = "idMilestones",
 		display_name = T{973748367669, "Milestones"},
 		icon = "UI/Icons/console_markers.tga",
-		action = fnaction,
+		action = function() HUD.idMilestonesOnPress() end,
 		description = "",
 	},
 	{ --radio
 		name = "idRadio",
 		display_name = T{796804896133, "Radio"},
 		icon = "UI/Icons/console_radio.tga",
-		action = fnaction,
+		action = function() HUD.idRadioOnPress() end,
 		description = "",
 	},
 	{ --encyclopedia
@@ -95,6 +99,7 @@ GamepadIGMenu_game_items = {
 function GamepadIGMenu:Init()
 	SelectObj(false)
 	CloseInfopanelItems()
+	self.idContainer:SetScaleModifier(point(750,750))
 end
 
 function GamepadIGMenu:Open(...)
@@ -155,6 +160,12 @@ function OpenXGamepadMainMenu()
 	--Don't open this one while the build menu is opened
 	if GetDialog("XBuildMenu") then
 		return 
+	end
+	
+	--The hud needs to be visible
+	local hud = GetDialog("HUD")
+	if not hud or not hud:GetVisible() then
+		return
 	end
 	
 	return GetDialog("GamepadIGMenu") or 

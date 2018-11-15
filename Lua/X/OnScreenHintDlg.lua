@@ -24,6 +24,11 @@ DefineDataInstance("OnScreenHint",
 
 GlobalVar("g_ShownOnScreenHints", {})
 
+function co()
+	CloseDialog("OnScreenHintDlg")
+	OpenDialog("OnScreenHintDlg")
+end
+
 DefineClass.OnScreenHintDlg =
 {
 	__parents = { "XDialog" },
@@ -45,23 +50,12 @@ function OnScreenHintDlg:Init()
 		LayoutMethod = "VList",
 	}, self)
 	min_win:SetVisible(false)
-	XImage:new({
-		Id = "idMinimizedPad",
-		Margins = box(0,-455,0,0),
-		Image = "UI/Common/hint_pad.tga",
-		HAlign = "center",
-		VAlign = "top",
-	}, min_win)
 	XTextButton:new({
 		Id = "idMinimized",
-		Image = "UI/Common/hint_buton_minimize.tga",
+		Image = "UI/CommonNew/hint_small.tga",
 		ColumnsUse = "abaa",
 		HAlign = "center",
 		LayoutMethod = "VList",
-		TextColor = RGBA(244,228,117,255),
-		RolloverTextColor = RGBA(244,228,117,255),
-		TextFont = "HUDButton",
-		Translate = true,
 		MouseCursor = "UI/Cursors/Rollover.tga",
 		Press = function(this)
 			OpenEncyclopedia(LastDisabledHint or "HintGameStart")
@@ -69,54 +63,32 @@ function OnScreenHintDlg:Init()
 	}, min_win)
 	XText:new({
 		Id = "idActualText",
+		Margins = box(0, 5, 0, 0),
 		HAlign = "center",
-		TextColor = RGBA(244,228,117,255),
-		RolloverTextColor = RGBA(244,228,117,255),
-		TextFont = "HUDButton",
+		TextStyle = "OnScreenHintTitle",
 		Translate = true,
 	}, self.idMinimized)
 	self.idMinimized.idActualText:SetText(GetUIStyleGamepad() and T{8983, "<Back> Hints"} or T{4248, "Hints"})
 	-------- maximized controls
-	local maximized_win = XWindow:new({
+	local maximized_win = XFrame:new({
 		Id = "idMaximizedControls",
+		Margins = box(0, 5, 0, 0),
+		MinWidth = 550,
+		Image = "UI/CommonNew/hint_multiple.tga",
+		FrameBox = box(45, 45, 45, 60),
 		FoldWhenHidden = true,
-		LayoutMethod = "VList",
+		IdNode = false,
+		HandleMouse = true,
 	}, self)
 	maximized_win:SetVisible(false)
-	-------- background images
-	local background_win = XWindow:new({
-		Margins = box(0,-232,0,0),
-		Dock = "box",
-		HAlign = "center",
-		VAlign = "bottom",
-		LayoutMethod = "VList",
-	}, maximized_win)
-	XImage:new({
-		Id = "idHintPad",
-		Image = "UI/Common/hint_pad.tga",
-	}, background_win)
-	XImage:new({
-		Id = "idWatermark",
-		Margins = box(0,0,0,30),
-		Dock = "box",
-		HAlign = "center",
-		VAlign = "bottom",
-		Image = "UI/Common/hint_pad_watermark.tga",
-	}, background_win)
 	-------- bottom navigation
 	local bottom_buttons = XWindow:new({
-		HAlign = "center",
-	}, background_win)
-	XImage:new({
-		Id = "idDown",
-		HAlign = "center",
-		Image = "UI/Common/hint_buton_pad.tga",
-	}, bottom_buttons)
+		Dock = "bottom",
+	}, maximized_win)
 	XTextButton:new({
 		Id = "idPrev",
-		Image = "UI/Common/hint_buton_left.tga",
+		Image = "UI/CommonNew/hint_button_left.tga",
 		HAlign = "left",
-		VAlign = "center",
 		ColumnsUse = "abaa",
 		MouseCursor = "UI/Cursors/Rollover.tga",
 		Press = function(this)
@@ -125,9 +97,8 @@ function OnScreenHintDlg:Init()
 	}, bottom_buttons)
 	XTextButton:new({
 		Id = "idNext",
-		Image = "UI/Common/hint_buton_right.tga",
+		Image = "UI/CommonNew/hint_button_right.tga",
 		HAlign = "right",
-		VAlign = "center",
 		ColumnsUse = "abaa",
 		MouseCursor = "UI/Cursors/Rollover.tga",
 		Press = function(this)
@@ -137,80 +108,25 @@ function OnScreenHintDlg:Init()
 	XText:new({
 		Id = "idPage",
 		Translate = true,
-		TextFont = "Help",
-		TextColor = RGBA(244,228,117,255),
+		TextStyle = "OnScreenHintPage",
 		HAlign = "center",
 		TextHAlign = "center",
 		TextVAlign = "center",
 		HandleMouse = false,
 	}, bottom_buttons)
-	-------- title and buttons
-	local win = XWindow:new({
-		Margins = box(0,20,0,0),
-		MinWidth = 710,
-		MaxWidth = 710,
-		HAlign = "center",
-	}, maximized_win)
-	XText:new({
-		Id = "idTitle",
-		Translate = true,
-		Dock = "box",
-		TextFont = "RolloverTitle",
-		TextColor = RGBA(244, 228, 117, 255),
-		TextHAlign = "center",
-		TextVAlign = "center",
+	-------- gamepad button
+	local gamepad_close_win = XWindow:new({
+		Dock = "bottom",
+		Margins = box(25, 0, 25, 0),
 		HandleMouse = false,
-	}, win)
-	local button_window = XWindow:new({
-		LayoutMethod = "HList",
-		LayoutHSpacing = 10,
-		Dock = "box",
-		HAlign = "right",
-	}, win)
-	XTextButton:new({
-		Id = "idEncyclopediaBtn",
-		HAlign = "right",
-		VAlign = "center",
-		Image = "UI/Common/hint_encyclopedia.tga",
-		ColumnsUse = "abaa",
-		MouseCursor = "UI/Cursors/Rollover.tga",
-		Press = function(this)
-			CloseDialog("Resupply")
-			OpenEncyclopedia("HintGameStart")
-		end,
-	}, button_window)
-	XTextButton:new({
-		Id = "idClose",
-		HAlign = "right",
-		VAlign = "center",
-		Image = "UI/Common/hint_close.tga",
-		ColumnsUse = "abaa",
-		MouseCursor = "UI/Cursors/Rollover.tga",
-		Press = function(this)
-			HintDisable(self:CurrentHintId())
-		end,
-	}, button_window)
-	-------- text
-	XText:new({
-		Id = "idText",
-		Translate = true,
-		MinHeight = 135,
-		MinWidth = 660,
-		MaxWidth = 660,
-		TextFont = "HelpHint",
-		TextColor = RGBA(255,255,255,255),
-		HAlign = "center",
-		TextHAlign = "center",
-		TextVAlign = "center",
-		HandleMouse = false,
+		FoldWhenHidden = true,
 	}, maximized_win)
 	local transparent = RGBA(0, 0, 0, 0)
 	local gamepad_close_btn = XButton:new({
 		Id = "idGamepadDismissButton",
 		IdNode = false,
-		Margins = box(0,0,0,35),
-		Padding = box(0, 0, 0, 0),
 		HAlign = "center",
+		Padding = box(0, 0, 0, 0),
 		MouseCursor = "UI/Cursors/Rollover.tga",
 		OnPress = function(this)
 			HintDisable(self:CurrentHintId())
@@ -222,19 +138,72 @@ function OnScreenHintDlg:Init()
 		FocusedBorderColor = transparent,
 		PressedBackground = transparent,
 		RolloverBackground = transparent,
-	}, maximized_win)
+	}, gamepad_close_win)
 	XText:new({
 		Id = "idGamepadHint",
 		Translate = true,
-		TextFont = "RolloverHint",
-		TextColor = RGBA(181,182,192,255),
+		TextStyle = "OnScreenHintTitle",
+		HandleMouse = false,
+	}, gamepad_close_btn)
+	self.idGamepadHint:SetText(T{7586, --[[hint]] "<Back> Dismiss hint"})
+	-------- title and buttons
+	local win = XWindow:new({
+		Dock = "top",
+	}, maximized_win)
+	XText:new({
+		Id = "idTitle",
+		Margins = box(45, 0, 15, 0),
+		VAlign = "top",
+		MinHeight = 45,
+		MaxHeight = 45,
+		Translate = true,
+		TextStyle = "OnScreenHintTitle",
 		TextHAlign = "center",
 		TextVAlign = "center",
 		HandleMouse = false,
-	}, gamepad_close_btn)
-	self.idGamepadHint:SetText(T{7586, --[[hint]] "<center><Back> Dismiss hint"})
+	}, win)
+	local button_window = XWindow:new({
+		LayoutMethod = "HList",
+		Margins = box(0, -5, 45 - 10, 0),
+		LayoutHSpacing = -15,
+		Dock = "right",
+		HAlign = "right",
+	}, win)
+	XTextButton:new({
+		Id = "idEncyclopediaBtn",
+		Image = "UI/CommonNew/encyclopedia_button.tga",
+		ColumnsUse = "abaa",
+		MouseCursor = "UI/Cursors/Rollover.tga",
+		Press = function(this)
+			CloseDialog("Resupply")
+			OpenEncyclopedia("HintGameStart")
+		end,
+	}, button_window)
+	XTextButton:new({
+		Id = "idClose",
+		Image = "UI/CommonNew/X.tga",
+		ColumnsUse = "abaa",
+		MouseCursor = "UI/Cursors/Rollover.tga",
+		Press = function(this)
+			HintDisable(self:CurrentHintId())
+		end,
+	}, button_window)
+	-------- text
+	XText:new({
+		Id = "idText",
+		Translate = true,
+		Margins = box(25, 15, 25, 15),
+		MinHeight = 70,
+		MaxWidth = 600,
+		TextStyle = "OnScreenHintText",
+		HAlign = "center",
+		TextHAlign = "center",
+		TextVAlign = "center",
+		HandleMouse = false,
+	}, maximized_win)
 	
 	self.current_page = self.current_page or #g_ShownOnScreenHints
+	self:UpdateVisuals()
 end
 
 function OnScreenHintDlg:Open(...)
@@ -328,10 +297,6 @@ function OnScreenHintDlg:RemoveMultipleHints(hint_ids_set)
 	return true
 end
 
-local minimizedCtrls = {
-	idMinimized = true,
-	idMinimizedPad = true,
-}
 function OnScreenHintDlg:SetMinimized(minimized)
 	if self.minimized == minimized then
 		self:UpdateVisuals()

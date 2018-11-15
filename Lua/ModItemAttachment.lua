@@ -413,11 +413,9 @@ function ModItemAttachment:Visualize(enable)
 				AutoAttachObjectsToShapeshifter(parent)
 				AttachAttaches(parent, classdef.configurable_attaches)
 				ClearSurfFlags(parent)
-				local palettes = string.split(template.palettes, ",")
-				local palette = palettes and palettes[1] and EntityPalettes[palettes[1]]
-				if palette then
-					SetObjectPalette(parent, palette)
-				end
+				local ccs = GetCurrentColonyColorScheme()
+				local cm1, cm2, cm3, cm4 = GetBuildingColors(ccs, template)
+				SetObjectPaletteRecursive(parent, cm1, cm2, cm3, cm4)
 				local pt, shape
 				if self.last_state then
 					local axis, angle
@@ -478,14 +476,15 @@ function ModItemAttachment:Visualize(enable)
 		for mode_i, info_i in pairs(modes) do
 			local btn = info_i.btn
 			local status = info_i.status
+			local old_SetToggled = btn.SetToggled
 			btn.SetToggled = function(btn, value)
-				HUDButton.SetToggled(btn, value)
+				old_SetToggled(btn, value)
 				dlg.idStatus:SetText("")
 				if value then
 					for mode_j, info_j in pairs(modes) do
 						local btn_i = info_j.btn
 						if btn_i ~= btn then
-							HUDButton.SetToggled(btn_i, false)
+							old_SetToggled(btn_i, false)
 						end
 					end
 					dlg.idStatus:SetText(status)
@@ -493,20 +492,20 @@ function ModItemAttachment:Visualize(enable)
 			end
 		end
 		local help = {
-			T{7956, "Hold <sharp_yellow><keyboard_key></sharp_yellow> key to activate X-axis of the object", keyboard_key = KeyNames[modes.X.key]},
-			T{7957, "Hold <sharp_yellow><keyboard_key></sharp_yellow> key to activate Y-axis of the object", keyboard_key = KeyNames[modes.Y.key]},
-			T{7958, "Hold <sharp_yellow><keyboard_key></sharp_yellow> key to activate Z-axis of the object", keyboard_key = KeyNames[modes.Z.key]},
-			T{7959, "Hold <sharp_yellow><keyboard_key></sharp_yellow> key to control the parent object", keyboard_key = KeyNames[modes.O.key]},
+			T{7956, "Hold <em><keyboard_key></em> key to activate X-axis of the object", keyboard_key = KeyNames[modes.X.key]},
+			T{7957, "Hold <em><keyboard_key></em> key to activate Y-axis of the object", keyboard_key = KeyNames[modes.Y.key]},
+			T{7958, "Hold <em><keyboard_key></em> key to activate Z-axis of the object", keyboard_key = KeyNames[modes.Z.key]},
+			T{7959, "Hold <em><keyboard_key></em> key to control the parent object", keyboard_key = KeyNames[modes.O.key]},
 			"",
 			T{7960, "Use the toggle buttons in the bottom right corner to lock one of the above modes"},
 			"",
-			T{7961, "Click <sharp_yellow><mouse_button></sharp_yellow> button to move the object", mouse_button = T{1000595, "Left"}},
-			T{7962, "Click <sharp_yellow><mouse_button></sharp_yellow> button to rotate the object", mouse_button = T{1000596, "Right"}},
+			T{7961, "Click <em><mouse_button></em> button to move the object", mouse_button = T{1000595, "Left"}},
+			T{7962, "Click <em><mouse_button></em> button to rotate the object", mouse_button = T{1000596, "Right"}},
 			"",
-			T{7964, "Click <blue><mouse_button></blue> button to control the camera", mouse_button = T{7963, "Middle"}},
-			T{7965, "Hold <blue><keyboard_key></blue> key to move the camera", keyboard_key = KeyNames[const.vkControl]},
-			T{7966, "Hold <blue><keyboard_key></blue> key to rotate the camera", keyboard_key = KeyNames[const.vkAlt]},
-			T{7967, "Use mouse <blue><mouse_scroll></blue> to zoom in / out", mouse_scroll = T{1000095, "Scroll"}},
+			T{7964, "Click <em><mouse_button></em> button to control the camera", mouse_button = T{7963, "Middle"}},
+			T{7965, "Hold <em><keyboard_key></em> key to move the camera", keyboard_key = KeyNames[const.vkControl]},
+			T{7966, "Hold <em><keyboard_key></em> key to rotate the camera", keyboard_key = KeyNames[const.vkAlt]},
+			T{7967, "Use mouse <em><mouse_scroll></em> to zoom in / out", mouse_scroll = T{1000095, "Scroll"}},
 		}
 		dlg.idHelpText:SetText(table.concat(help, "\n"))
 		dlg.TrackPos = function(self, ...)

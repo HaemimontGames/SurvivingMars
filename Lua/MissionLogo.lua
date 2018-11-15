@@ -3,13 +3,12 @@
 local function folder_fn(obj)
 	return {
 		{ obj.mod.content_path, os_path = true },
-		{ "UI", game_path = true },
 	}
 end
 
 DefineModItemPreset("MissionLogoPreset", {
 	properties = {
-		{ category = "General", id = "image", name = T{3794, "Image"}, editor = "browse", default = "", folder = folder_fn, os_path = true, filter = "Image files|*.tga" },
+		{ category = "General", id = "image", name = T{3794, "Image"}, editor = "browse", default = "", folder = folder_fn, os_path = true, filter = "Image files|*.png" },
 	},
 	EditorName = "Mission Logo",
 })
@@ -24,9 +23,6 @@ end
 
 function ModItemMissionLogoPreset:OnEditorSetProperty(prop_id, old_value, ged)
 	ModItemDataInstance.OnEditorSetProperty(self, prop_id, old_value, ged)
-	if prop_id == "decal_entity" then
-		self.entity_name = self.decal_entity
-	end
 	ReloadMissionLogos()
 end
 

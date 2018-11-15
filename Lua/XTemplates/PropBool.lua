@@ -6,6 +6,7 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateWindow', {
 		'__class', "XPropControl",
 		'RolloverAnchor', "left",
+		'LayoutMethod', "HList",
 		'RolloverOnFocus', true,
 		'MouseCursor', "UI/Cursors/Rollover.tga",
 		'FXMouseIn', "MenuItemHover",
@@ -13,17 +14,22 @@ PlaceObj('XTemplate', {
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "PropName",
+			'MinWidth', 400,
+			'MaxWidth', 400,
+			'TextStyle', "ListItem3",
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "PropValue",
 			'Id', "idOn",
 			'FoldWhenHidden', true,
+			'TextStyle', "ListItem4",
 			'Text', T{498175633247, --[[XTemplate PropBool Text]] "On"},
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "PropValue",
 			'Id', "idOff",
 			'FoldWhenHidden', true,
+			'TextStyle', "ListItem4",
 			'Text', T{222832671596, --[[XTemplate PropBool Text]] "Off"},
 		}),
 		PlaceObj('XTemplateFunc', {

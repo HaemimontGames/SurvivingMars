@@ -6,8 +6,11 @@ PlaceObj('XTemplate', {
 	id = "PropApplicant",
 	PlaceObj('XTemplateWindow', {
 		'__class', "XPropControl",
-		'RolloverAnchor', "left",
-		'Padding', box(20, 0, 0, 0),
+		'RolloverTemplate', "Rollover",
+		'RolloverAnchor', "right",
+		'RolloverAnchorId', "idRightList",
+		'MinWidth', 300,
+		'MaxWidth', 300,
 		'RolloverOnFocus', true,
 		'MouseCursor', "UI/Cursors/Rollover.tga",
 		'FXMouseIn', "MenuItemHover",
@@ -15,7 +18,10 @@ PlaceObj('XTemplate', {
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "PropName",
+			'HAlign', "right",
 			'VAlign', "center",
+			'MinWidth', 0,
+			'MaxWidth', 1000000,
 		}, {
 			PlaceObj('XTemplateFunc', {
 				'name', "CalcTextColor",
@@ -33,46 +39,56 @@ return self.enabled and
 end,
 			}),
 			}),
-		PlaceObj('XTemplateTemplate', {
-			'__template', "PropCheckBoxValue",
-			'Id', "idPositive",
-			'Margins', box(0, 0, 5, 0),
-			'HandleMouse', true,
-			'Image', "UI/Icons/traits_approve_disable.tga",
-		}, {
-			PlaceObj('XTemplateFunc', {
-				'name', "OnMouseButtonDown(self, pos, button)",
-				'func', function (self, pos, button)
-if button == "L" then
-	local obj = ResolvePropObj(self.parent.context)
-	local prop_meta = self.parent.prop_meta
-	obj:ToggleApplicant(self, prop_meta)
-	return "break"
-end
-end,
-			}),
-			}),
+		PlaceObj('XTemplateWindow', {
+			'__class', "XImage",
+			'Id', "idArrow",
+			'Margins', box(0, 0, -30, 0),
+			'Dock', "box",
+			'HAlign', "right",
+			'VAlign', "center",
+			'Visible', false,
+			'Image', "UI/Infopanel/arrow_add.tga",
+		}),
+		PlaceObj('XTemplateWindow', {
+			'__class', "XFrame",
+			'Id', "idRollover",
+			'ZOrder', 0,
+			'Margins', box(-20, -12, -20, -12),
+			'Dock', "box",
+			'Visible', false,
+			'Image', "UI/CommonNew/re_candidate_rollover.tga",
+			'FrameBox', box(25, 0, 25, 0),
+			'SqueezeY', false,
+		}),
 		PlaceObj('XTemplateFunc', {
-			'name', "OnPropUpdate(self, context, prop_meta, value)",
-			'func', function (self, context, prop_meta, value)
-self.idPositive:SetImage(prop_meta.approved_for_flight  and "UI/Icons/traits_approve.tga" or "UI/Icons/traits_approve_disable.tga")
+			'name', "Open",
+			'func', function (self, ...)
+XPropControl.Open(self, ...)
+local rollover = self.prop_meta.rollover
+self:SetRolloverTitle(rollover.title)
+self:SetRolloverText(rollover.descr)
+self:SetRolloverHint(rollover.hint)
+self:SetRolloverHintGamepad(rollover.gamepad_hint)
 end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnMouseButtonDown(self, pos, button)",
 			'func', function (self, pos, button)
-return self.idPositive:OnMouseButtonDown(pos, button)
+if button == "L" then
+	local obj = ResolvePropObj(self.context)
+	local prop_meta = self.prop_meta
+	obj:ApproveApplicant(prop_meta.applicant)
+	return "break"
+end
 end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnShortcut(self, shortcut, source)",
 			'func', function (self, shortcut, source)
 if shortcut == "ButtonA" then
-  self:OnMouseButtonDown(nil, "L")
-elseif shortcut == "DPadLeft" or shortcut == "LeftThumbLeft" or
-	shortcut == "DPadRight" or shortcut == "LeftThumbRight" then
-	return self.idPositive:OnMouseButtonDown(nil, "L")
+	return self:OnMouseButtonDown(nil, "L")
 end
+return XPropControl.OnShortcut(self, shortcut, source)
 end,
 		}),
 		PlaceObj('XTemplateFunc', {
@@ -80,6 +96,16 @@ end,
 			'func', function (self, selected)
 if GetUIStyleGamepad() then
 	self:SetFocus(selected)
+end
+end,
+		}),
+		PlaceObj('XTemplateFunc', {
+			'name', "OnSetRollover(self, rollover)",
+			'func', function (self, rollover)
+XPropControl.OnSetRollover(self, rollover)
+local arrow = self:ResolveId("idArrow")
+if arrow then
+	arrow:SetVisible(rollover)
 end
 end,
 		}),

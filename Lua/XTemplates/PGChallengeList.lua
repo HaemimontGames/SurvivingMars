@@ -21,6 +21,13 @@ PlaceObj('XTemplate', {
 			'ImageFit', "stretch",
 		}),
 		PlaceObj('XTemplateWindow', {
+			'__class', "XImage",
+			'Dock', "box",
+			'Image', "UI/CommonNew/menu_background.tga",
+			'ImageFit', "stretch",
+			'ImageColor', RGBA(255, 255, 255, 96),
+		}),
+		PlaceObj('XTemplateWindow', {
 			'Id', "idFade",
 			'Dock', "box",
 			'Visible', false,
@@ -38,111 +45,81 @@ PlaceObj('XTemplate', {
 			'OnActionParam', "landing",
 		}),
 		PlaceObj('XTemplateWindow', {
-			'Dock', "right",
-			'MinWidth', 800,
+			'Margins', box(60, 68, 0, 25),
+			'HAlign', "left",
 		}, {
-			PlaceObj('XTemplateWindow', {
-				'comment', "list background",
-				'__class', "XImage",
-				'Margins', box(0, -2, 0, -2),
-				'Dock', "box",
-				'Image', "UI/CommonNew/menu_background.tga",
-				'ImageFit', "stretch",
-				'Angle', 10800,
-			}),
-			PlaceObj('XTemplateWindow', {
-				'HAlign', "right",
-			}, {
-				PlaceObj('XTemplateFunc', {
-					'name', "Open",
-					'func', function (self, ...)
+			PlaceObj('XTemplateFunc', {
+				'name', "Open",
+				'func', function (self, ...)
 XWindow.Open(self, ...)
 self:SetMargins(GetSafeMargins(self:GetMargins()))
 end,
+			}),
+			PlaceObj('XTemplateWindow', nil, {
+				PlaceObj('XTemplateTemplate', {
+					'__template', "DialogTitleNew",
+					'Margins', box(55, 0, 0, 0),
+					'Title', T{761033847359, --[[XTemplate PGChallengeList Title]] "CHALLENGES"},
+					'Subtitle', T{545701017966, --[[XTemplate PGChallengeList Subtitle]] "Completed <CompletedChallenges>/<TotalChallenges>"},
 				}),
 				PlaceObj('XTemplateWindow', {
-					'Margins', box(0, 0, 0, 20),
-					'Dock', "top",
-					'MinHeight', 100,
-					'MaxHeight', 100,
+					'Margins', box(0, 10, 0, 10),
 				}, {
 					PlaceObj('XTemplateWindow', {
-						'__class', "XImage",
-						'Dock', "box",
-						'Image', "UI/CommonNew/title_pad.tga",
-						'ImageFit', "stretch",
-						'Angle', 10800,
-					}),
-					PlaceObj('XTemplateWindow', {
-						'__class', "XText",
-						'Id', "idChallenges",
-						'Margins', box(42, 0, 0, 20),
+						'__class', "XList",
+						'Id', "idChallengeList",
+						'Margins', box(10, 0, 20, 0),
+						'BorderWidth', 0,
 						'Padding', box(0, 0, 0, 0),
 						'HAlign', "left",
-						'VAlign', "bottom",
+						'UniformRowHeight', true,
 						'Clip', false,
-						'RolloverOnFocus', true,
-						'TextStyle', "OverlayTitle",
-						'Translate', true,
-						'Text', T{761033847359, --[[XTemplate PGChallengeList Text]] "CHALLENGES"},
-						'Shorten', true,
-					}),
-					}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XList",
-					'Id', "idChallengeList",
-					'Margins', box(0, 0, 20, 0),
-					'BorderWidth', 0,
-					'Padding', box(0, 0, 0, 0),
-					'LayoutVSpacing', 6,
-					'UniformRowHeight', true,
-					'Clip', false,
-					'Background', RGBA(0, 0, 0, 0),
-					'FocusedBackground', RGBA(0, 0, 0, 0),
-					'VScroll', "idScroll",
-					'ShowPartialItems', false,
-				}, {
-					PlaceObj('XTemplateForEach', {
-						'array', function (parent, context) return Presets.Challenge.Default end,
-						'__context', function (parent, context, item, i, n) return item end,
-						'run_after', function (child, context, item, i, n)
+						'Background', RGBA(0, 0, 0, 0),
+						'FocusedBackground', RGBA(0, 0, 0, 0),
+						'VScroll', "idScroll",
+						'ShowPartialItems', false,
+					}, {
+						PlaceObj('XTemplateForEach', {
+							'array', function (parent, context) return Presets.Challenge.Default end,
+							'__context', function (parent, context, item, i, n) return item end,
+							'run_after', function (child, context, item, i, n)
 local completed = item:Completed()
 if completed and completed.time <= item.time_perfected then
 	child.idStar:SetImage("UI/Common/star_gold.tga")
 end
 child.idStar:SetVisible(not not completed)
 end,
-					}, {
-						PlaceObj('XTemplateTemplate', {
-							'__template', "ChallengeListItem",
-							'RolloverTemplate', "Rollover",
-							'OnPress', function (self, gamepad)
+						}, {
+							PlaceObj('XTemplateTemplate', {
+								'__template', "ChallengeListItem",
+								'RolloverTemplate', "Rollover",
+								'OnPress', function (self, gamepad)
 GetDialog(self):SetMode("landing")
 GetDialog(self).context.select_spot = self.context.id
 end,
-						}, {
-							PlaceObj('XTemplateFunc', {
-								'name', "OnSetRollover(self, rollover)",
-								'func', function (self, rollover)
+							}, {
+								PlaceObj('XTemplateFunc', {
+									'name', "OnSetRollover(self, rollover)",
+									'func', function (self, rollover)
 XTextButton.OnSetRollover(self, rollover)
 if rollover and GalleryList then
 	local item = table.find_value(GalleryList, "displayname", self.context.id)
 	RequestGalleryScreenshotLoad(self:ResolveId("node"):ResolveId("node"), item and item.savename)
 end
 end,
-							}),
+								}),
+								}),
 							}),
 						}),
+					PlaceObj('XTemplateTemplate', {
+						'__template', "ScrollbarNew",
+						'Id', "idScroll",
+						'Target', "idChallengeList",
+					}),
 					}),
 				PlaceObj('XTemplateTemplate', {
-					'__template', "ScrollbarNew",
-					'Id', "idScroll",
-					'Margins', box(0, 0, 10, 0),
-					'Target', "idChallengeList",
-				}),
-				PlaceObj('XTemplateTemplate', {
 					'__template', "ActionBarNew",
-					'Margins', box(0, 0, 100, 50),
+					'Margins', box(55, 0, 0, 0),
 				}),
 				}),
 			}),

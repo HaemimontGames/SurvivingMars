@@ -2,7 +2,7 @@ DefineClass.OnScreenIndication = {
 	__parents = { "XDialog" },
 	mode = "no_mode",
 	temp_icon_remove = 0,
-	Margins = box(80,0,0,110),
+	Margins = box(80,0,0,80),
 	FocusOnOpen = "",
 }
 
@@ -98,12 +98,6 @@ function MarsPauseDlg:Init()
 	XVignetteOverlay:new({}, self)
 end
 
-function MarsPauseDlg:ShowBottomLine(bShow)
-	local igi = GetInGameInterface()
-	local b = igi and igi:GetVisible()
-	self.idVignetteOverlay.idBottom:SetVisible(bShow and not b)
-end
-
 function MarsPauseDlg:Close()
 	XWindow.Close(self)
 end
@@ -117,7 +111,15 @@ function MarsPauseDlg:ForceDelete()
 	self:delete()
 end
 
-DialogsHidingPauseDlg = {["Resupply"] = true}
+DialogsHidingPauseDlg = {
+	["Resupply"] = true,
+	["PlanetaryView"] = true,
+	["MissionProfileDlg"] = true,
+	["IGMainMenu"] = true,
+	["Milestones"] = true,
+	["RadioStationDlg"] = true,
+	["ColonyControlCenter"] = true,
+}
 
 local function ShouldHidePauseDlg()
 	local hide = false
@@ -140,10 +142,7 @@ function ShowPauseDialog(bShow, force)
 			end
 			dlg = OpenMarsPauseDlg()
 		elseif dlg and ShouldHidePauseDlg() then
-			dlg:SetParent(GetInGameInterface())
-		end
-		if dlg then
-			dlg:ShowBottomLine(bShow)
+			dlg:SetVisible(false)
 		end
 	else
 		if IsEditorActive() or force then
@@ -152,12 +151,8 @@ function ShowPauseDialog(bShow, force)
 			Msg("MarsResume")
 		else
 			local dlg = GetMarsPauseDlg()
-			local desktop = terminal.desktop
-			if dlg then
-				if dlg:GetParent() ~= desktop then
-					dlg:SetParent(desktop)
-				end
-				dlg:ShowBottomLine(bShow)
+			if dlg and not ShouldHidePauseDlg() then
+				dlg:SetVisible(true)
 			end
 		end
 	end
@@ -165,7 +160,7 @@ end
 
 function OpenMarsPauseDlg()
 	if not ShouldHidePauseDlg() and GameState.gameplay then
-		return OpenDialog("MarsPauseDlg")
+		return OpenDialog("MarsPauseDlg", GetInGameInterface() or terminal.desktop)
 	end
 end
 

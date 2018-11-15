@@ -4,6 +4,7 @@ DefineClass.ItemMenuBase = {
 	show_sel_cat_name_lag = 200,
 	Margins = box(0,0,0,0),
 	category = false,
+	category_id = false,
 	selected_category_name = false,
 	parent_category = false,
 	items = false,
@@ -28,7 +29,7 @@ function ItemMenuBase:Init()
 	self.selected_category_name = false
 	
 	LockHRXboxLeftThumb(self.class)
-	XSuppressInputLayer:new(nil, self)
+	XSuppressInputLayer:new({ SuppressTime = 1 }, self)
 
 	self:InitButtonsUI()
 	local first_category = table.find_value(self.cat_items, "Id", self.context and self.context.first_category)
@@ -38,115 +39,108 @@ end
 function ItemMenuBase:InitButtonsUI()
 	-- buttons container
 	XWindow:new({
-		Margins  = box(0, 0, 0, self.hide_single_category and 40 or 160),
-		HAlign =  "center",
-		VAlign =  "bottom",
+		Margins = box(-90, 0, -90, self.hide_single_category and 40 or 145),
+		HAlign = "center",
+		VAlign = "bottom",
 		Id = "idContainer",
+		MinHeight = 230,
 		RolloverTemplate = "Rollover",
 		RolloverAnchor = self.rollover_anchor,
 		IdNode = false,
 		Background = RGBA(255, 255, 255, 0),
-		}, self)
+	}, self)
 
 	--background
-	XWindow:new({		
-		--HAlign = "center"
-		Margins = box(-104, 0,-104,0),
-		VAlign  =  "center",
-		LayoutMethod = "VList",
-		LayoutVSpacing = 43,
+	XFrame:new({
 		Id = "idBackground",
-		IdNode = false,
+		Image = "UI/CommonNew/bm.tga",
+		Margins = box(0, -20, 0, -20),
+		FrameBox = box(155, 0, 155, 0),
 	}, self.idContainer)
-			
-	XWindow:new({VAlign="top",Id = "idTopBackWnd"}, self.idBackground)
-			
-		--upper watermark
-		XFrame:new({
-			VAlign = "bottom",
-			Image = "UI/Common/bm_buildings_watermark_A.tga",
-			TileFrame = true,
-			SqueezeY = false,
-			FrameBox = box(280, 0, 280, 0),
-		},self.idTopBackWnd)
-		
-		--upper line
-		XFrame:new({ 
-			VAlign = "bottom",
-			Image = "UI/Common/bm_buildings_pad.tga",
-			ImageFit = "stretch-x",
-			ImageScale = point(600, 600),
-			SqueezeY = false,
-		}, self.idTopBackWnd)
-		
-	XWindow:new({Id = "idBottomBackWnd"}, self.idBackground)
 	
-	--lower watermark
-	XFrame:new({
-		VAlign = "top",
-		Image = "UI/Common/bm_buildings_watermark_A.tga",
-		TileFrame = true,
-		FrameBox = box(280, 0, 280, 0),
-		SqueezeY = false,
-		FlipY = true,
-	},self.idBottomBackWnd)	
-	
-	--lower line
-	XFrame:new({
-		VAlign = "top",
-		Image = "UI/Common/bm_buildings_pad.tga",
-		ImageFit = "stretch-x",
-		ImageScale = point(600, 600),
-		SqueezeY = false,
-		FlipY = true,
-	},self.idBottomBackWnd)
-		
 	--	buttons list
-	XWindow:new( {
-		HAlign =  "center",
+	local buttons_list = XScrollArea:new( {
 		VAlign =  "center",
-		Margins = box(-168, 0,0,0),
-		MinHeight =  220,
+		Margins = box(50, 0, 50, 0),
 		LayoutMethod =  "HList",
-		LayoutHSpacing =  -168,
-		UniformColumnWidth =  true,
-		Dock = "box",
+		LayoutHSpacing =  -142,
 		Id = "idButtonsList",
+		HScroll = "idButtonsListScroll",
+		IdNode = false,
+		MouseWheelStep = 60,
 	}, self.idContainer)
+	function buttons_list:OnMouseWheelForward()
+		local max = Max(0, self.scroll_range_x - self.content_box:sizex())
+		self:ScrollTo(Clamp(self.OffsetX - self.MouseWheelStep, 0, max), self.PendingOffsetY)
+		return "break"
+	end
+	function buttons_list:OnMouseWheelBack()
+		local max = Max(0, self.scroll_range_x - self.content_box:sizex())
+		self:ScrollTo(Clamp(self.OffsetX + self.MouseWheelStep, 0, max), self.PendingOffsetY)
+		return "break"
+	end
+	
+	local buttons_scroll = XScrollThumb:new({
+		Id = "idButtonsListScroll",
+		Margins = box(100, -5, 100, 0),
+		Padding = box(0,5,0,5),
+		Dock = "bottom",
+		MinHeight = 20,
+		MaxHeight = 20,
+		FoldWhenHidden = false,
+		MouseCursor = "UI/Cursors/Rollover.tga",
+		FullPageAtEnd = true,
+		SnapToItems = false,
+		AutoHide = true,
+		MinThumbSize = 30,
+		FixedSizeThumb = false,
+		Horizontal = true,
+		Target = "idButtonsList",
+	}, self.idContainer)
+	XFrame:new({
+		Dock = "box",
+		Image = "UI/CommonNew/bm_scrollbar_line.tga",
+		FrameBox = box(5, 0, 5, 0),
+	}, buttons_scroll)
+	XFrame:new({
+		Id = "idThumb",
+		Image = "UI/CommonNew/bm_scrollbar.tga",
+		FrameBox = box(4, 3, 4, 3),
+		SqueezeY = false,
+	}, buttons_scroll)
 end
 
-local function stretch_close(ctrl, duration, invert)
+function ItemMenuBase:StretchCloseAnimation(ctrl, start_time, duration, invert)
 	ctrl:AddInterpolation{
 		id = "stretch",
 		type = const.intRect,
 		duration = duration or const.InterfaceAnimDuration,
+		start = start_time or GetPreciseTicks(),
 		startRect = ctrl.box,
 		endRect = box(ctrl.box:minx() + ctrl.box:sizex() / 2, ctrl.box:miny(), ctrl.box:minx() + ctrl.box:sizex() / 2, ctrl.box:maxy()),
-		autoremove = true,
+		autoremove = not not invert,
 		flags = invert and const.intfInverse or nil,
+		easing = const.Easing.CubicIn,
 	}
+end
+
+function ItemMenuBase:Done()
+	if GetDialog("XBuildMenu") then return end
+	local dlg = GetDialog("XHideNonEssentialUILayer")
+	local pins_dlg = GetDialog("PinsDlg")
+	if dlg and dlg.window_state ~= "destroying" and pins_dlg then
+		dlg:SetVisibleState(pins_dlg, true)
+		return
+	end
+	if pins_dlg then pins_dlg:SetVisible(true) end
 end
 
 function ItemMenuBase:Close()
 	UnlockHRXboxLeftThumb(self.class)
-	local pins_dlg = GetDialog("PinsDlg")
-	if pins_dlg then pins_dlg:SetVisible(true, "instant") end
-	self:CreateThread(function()
-		if not self.hide_single_category then
-			EdgeAnimation(false, self.idCategoryList, 0, self.box:sizey() - self.idCategoryList.idCatBkg.box:miny())
-		end	
-		stretch_close(self.idTopBackWnd)
-		stretch_close(self.idBottomBackWnd)
-		
-		Sleep(const.InterfaceAnimDuration)
-		
-		--Remove building buttons and everything else
-		if not self.hide_single_category then
-			self.idCategoryList:SetVisible(false, "instant")
-		end
-		
-		XDialog.Close(self)		
-	end)		
+	self:CloseItemsInterpolation()
+	if RolloverControl == self.idContainer then
+		XDestroyRolloverWindow()
+	end
 end
 
 function ItemMenuBase:OnSetFocus()
@@ -175,51 +169,56 @@ function ItemMenuBase:CreateCategoryItems(all_categories)
 end
 
 function ItemMenuBase:SetInitFocus(set_focus)
-	if not set_focus then return end		
-	self.idContainer:SetRollover(true)
-	set_focus:SetFocus()
-	set_focus:FillRollover()
-	XCreateRolloverWindow(self.idContainer, true, self.context)
-	set_focus:SelectButton()
+	if not set_focus then return end
+	
+	if GetUIStyleGamepad() then
+		self.idContainer:SetRollover(true)
+		set_focus:SetVisible(true)
+		set_focus:SetFocus()
+		set_focus:FillRollover()
+		XCreateRolloverWindow(self.idContainer, true, self.context)
+		set_focus:SelectButton()
+	else
+		self.idButtonsList:ScrollIntoView(set_focus)
+	end
 end
 
-function  ItemMenuBase:OpenItemsInterpolation(bFirst, set_focus)
+function ItemMenuBase:OpenItemsInterpolation(bFirst, set_focus)
+	self.idButtonsList:SetMargins(self.idButtonsList:GetMargins())
+	self:SetFocus()
 	self:CreateThread(function()
-		if bFirst then		
-				self.idTopBackWnd:SetVisible(false, "instant")
-				self.idBottomBackWnd:SetVisible(false, "instant")
-
-				local ctrl = self.idTopBackWnd
+		if bFirst then
+			local ctrl = self.idBackground
+			ctrl:SetVisible(false, "instant")
+			ctrl:SetVisible(true)
+			self:StretchCloseAnimation(ctrl, false, self.lines_stretch_time_init, "invert")
+			local ctrl = self.idButtonsListScroll
+			if ctrl:ShouldShow() then
 				ctrl:SetVisible(true)
-				stretch_close(ctrl,self.lines_stretch_time_init, "invert")
-				ctrl = self.idBottomBackWnd
-				ctrl:SetVisible(true)
-				stretch_close(ctrl,self.lines_stretch_time_init, "invert")
-				
-				--Sleep(self.lines_stretch_time_init)
-		else
-		--[[	self.idTopBackWnd:AddInterpolation{
-				id = "stretch",
-				type = const.intRect,
-				duration = self.lines_stretch_time,
-				startRect = self.idTopBackWnd.box,
-				endRect = start_rect_up,
-				flags = const.intfInverse,
-				autoremove = true,
-			}
-			self.idBottomBackWnd:AddInterpolation{
-				id = "stretch",
-				type = const.intRect,
-				duration = self.lines_stretch_time,
-				startRect = self.idBottomBackWnd.box,
-				endRect = start_rect_down,
-				flags = const.intfInverse,
-				autoremove = true,
-			}--]]
+			end
 		end
 		if set_focus and set_focus:GetParent() then
 			self:SetInitFocus(set_focus)	
 		end
+	end)
+end
+
+function ItemMenuBase:CloseItemsInterpolation()
+	self:CreateThread(function()
+		if not self.hide_single_category then
+			EdgeAnimation(false, self.idCategoryList, 0, self.box:sizey() - self.idCategoryList.idCatBkg.box:miny())
+		end	
+		self:StretchCloseAnimation(self.idBackground)
+		self.idButtonsListScroll:SetVisible(false)
+		
+		Sleep(const.InterfaceAnimDuration)
+		
+		--Remove building buttons and everything else
+		if not self.hide_single_category then
+			self.idCategoryList:SetVisible(false, "instant")
+		end
+		
+		XDialog.Close(self)
 	end)
 end
 
@@ -230,6 +229,7 @@ function ItemMenuBase:SelectCategory(category, bFirst)
 	end
 	category = category or self:DefaultCategory() or self.cat_items[1]
 	self.category = category and category.id
+	self.category_id = category and category.id
 	self.selected_category_name = category and category.name
 	self.parent_category = false
 	
@@ -255,6 +255,7 @@ function ItemMenuBase:SelectSubCategory(category, parent_category)
 		parent_category = table.find_value(self.cat_items, "Id", parent_category)
 	end
 	--parent_category = parent_category or self:DefaultCategory() or self.cat_items[1]
+	self.category_id = category and category.name
 	self.category = parent_category and parent_category.id
 	self.selected_category_name = category and category.display_name
 	self.parent_category = parent_category
@@ -291,7 +292,7 @@ function ItemMenuBase:FillCategoryItems(category_id, bFirst)
 		local button = buttons[i]
 		self.items[#self.items+1] = button
 		button:SetFocusOrder(point(i, 0))
-		if not set_focus and GetUIStyleGamepad() then
+		if not set_focus then
 			if bFirst and first_selected_item then
 				if first_selected_item == button.name then
 					set_focus = button
@@ -301,7 +302,7 @@ function ItemMenuBase:FillCategoryItems(category_id, bFirst)
 			end
 		end
 	end
-	if not set_focus and GetUIStyleGamepad() then
+	if not set_focus then
 		set_focus = self.items[1]
 	end
 	self:OpenItemsInterpolation(bFirst, set_focus)	
@@ -355,6 +356,7 @@ function ItemMenuBase:OnXButtonDown(button, source)
 			if focus then
 				focus:DeselectButton()
 			end
+			new_focus:SetVisible(true)
 			new_focus:SetFocus(true)
 			new_focus:FillRollover()
 			XCreateRolloverWindow(self.idContainer, true, self.context)
@@ -401,15 +403,8 @@ end
 
 function ItemMenuBase:OnMouseButtonDown(pt, button)
 	if button=="R" then
-		if self.parent_category then
-			self:SelectCategory(self.parent_category)
-			return "break"
-		end	
-		local ptx = pt:x()
-		local pty = pt:y()
-		if not self.hide_single_category and pt:InBox(self.idCategoryList.idCategoriesList.box) then 
-			return "break" 
-		end
+		self:SelectParentCategory()
+		return "break"
 	elseif button=="L" then
 		local mode_dialog = GetInGameInterfaceModeDlg()
 		return mode_dialog and mode_dialog:OnMouseButtonDown(pt, button)
@@ -518,10 +513,11 @@ function ItemMenu:Init()
 	CloseInfopanelItems()
 	SelectObj(false)
 	local pins_dlg = GetDialog("PinsDlg")
-	if pins_dlg then pins_dlg:SetVisible(false, "instant") end
+	if pins_dlg then pins_dlg:SetVisible(false) end
 	PlayFX("BuildMenuIn", "start")
 end
 
-function ItemMenu:Done()
+function ItemMenu:Close()
 	PlayFX("BuildMenuOut", "start")
+	ItemMenuBase.Close(self)
 end

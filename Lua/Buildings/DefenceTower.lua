@@ -158,7 +158,6 @@ function RocketProjectile:HitTarget(target)
 		local pos = target:GetPos()
 		if DestroyBuildingImmediate(target) then
 			PlayFX("MeteorDestruction", "start", target, nil, pos)
-			table.insert_unique(g_AIDestroyedBuildings, target)
 		end
 	elseif IsKindOf(target, "AttackRover") then
 		PlayFX("MeteorDestruction", "start", target)

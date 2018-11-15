@@ -5,7 +5,7 @@ PlaceObj('XTemplate', {
 	id = "ColonistsOverview",
 	PlaceObj('XTemplateTemplate', {
 		'__context', function (parent, context) return context or {} end,
-		'__template', "OverlayDlg",
+		'__template', "NewOverlayDlg",
 		'MinWidth', 500,
 		'InitialMode', "colonists",
 		'InternalModes', "colonists, domes, traits",
@@ -35,29 +35,36 @@ end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "CommandCenterTitle",
-			'Id', "idTitle",
 			'Title', T{106988210968, --[[XTemplate ColonistsOverview Title]] "COLONISTS"},
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__context', function (parent, context) return context or {} end,
 			'__class', "XContentTemplate",
+			'Id', "idContent",
 			'IdNode', false,
-			'LayoutMethod', "VList",
 		}, {
 			PlaceObj('XTemplateMode', {
 				'mode', "colonists",
 			}, {
+				PlaceObj('XTemplateTemplate', {
+					'__template', "ScrollbarNew",
+					'Id', "idButtonsScroll",
+					'ZOrder', 0,
+					'Margins', box(87, 0, 0, 0),
+					'Target', "idButtonsScrollArea",
+				}),
 				PlaceObj('XTemplateWindow', {
-					'Dock', "top",
-					'LayoutMethod', "VList",
+					'__class', "XScrollArea",
+					'Id', "idButtonsScrollArea",
+					'IdNode', false,
+					'Dock', "left",
+					'VScroll', "idButtonsScroll",
 				}, {
 					PlaceObj('XTemplateWindow', {
 						'__class', "XContextWindow",
 						'Id', "idButtons",
-						'Padding', box(50, 0, 0, 0),
-						'HAlign', "left",
-						'VAlign', "top",
-						'LayoutMethod', "HList",
+						'Margins', box(12, 0, 0, 0),
+						'LayoutMethod', "VList",
 						'OnContextUpdate', function (self, context, ...)
 for _, child in ipairs(self) do
 	child:OnContextUpdate(context, ...)
@@ -73,101 +80,13 @@ end,
 						}),
 						PlaceObj('XTemplateTemplate', {
 							'__template', "CommandCenterDomeFilter",
-							'RolloverAnchorId', "idButtons",
+							'Margins', box(-12, 0, 0, 10),
 						}),
-						PlaceObj('XTemplateWindow', {
-							'__class', "XTextButton",
-							'RolloverTemplate', "Rollover",
-							'RolloverAnchor', "left",
-							'RolloverAnchorId', "idButtons",
-							'RolloverTitle', T{3720, --[[XTemplate ColonistsOverview RolloverTitle]] "Trait"},
-							'RolloverHint', T{294970758448, --[[XTemplate ColonistsOverview RolloverHint]] "<left_click> Set filter"},
-							'Margins', box(0, 0, 20, 0),
-							'VAlign', "center",
-							'ScaleModifier', point(700, 700),
-							'LayoutMethod', "Box",
-							'Background', RGBA(0, 0, 0, 0),
-							'RolloverZoom', 1100,
-							'RolloverDrawOnTop', true,
-							'MouseCursor', "UI/Cursors/Rollover.tga",
-							'RelativeFocusOrder', "next-in-line",
-							'OnContextUpdate', function (self, context, ...)
-XTextButton.OnContextUpdate(self, context, ...)
-self:SetRolloverText(GetColonistsFilterRollover(context, T{9672, "Filter by Trait."}))
-local hint_gamepad = T{507431830973, "<ButtonA> Set filter"} .. " " .. T{9802, "<RB> Inspect"}
-self:SetRolloverHintGamepad(hint_gamepad)
-end,
-							'FXMouseIn', "MenuItemHover",
-							'FXPress', "MenuItemClick",
-							'FXPressDisabled', "UIDisabledButtonPressed",
-							'FocusedBackground', RGBA(0, 0, 0, 0),
-							'OnPress', function (self, gamepad)
-local dlg = GetDialog(self)
-dlg:SetMode("traits")
-end,
-							'RolloverBackground', RGBA(0, 0, 0, 0),
-							'PressedBackground', RGBA(0, 0, 0, 0),
-						}, {
-							PlaceObj('XTemplateWindow', {
-								'__class', "XImage",
-								'Id', "idButtonIcon",
-								'IdNode', false,
-								'ZOrder', 2,
-								'Shape', "InHHex",
-								'Dock', "left",
-								'MinWidth', 72,
-								'MinHeight', 84,
-								'MaxWidth', 72,
-								'MaxHeight', 84,
-								'HandleMouse', true,
-								'Image', "UI/Icons/ColonyControlCenter/filter_by_trait.tga",
-								'ImageFit', "smallest",
-							}, {
-								PlaceObj('XTemplateWindow', {
-									'__class', "XImage",
-									'Id', "idRollover",
-									'Margins', box(-6, -6, -6, -6),
-									'Dock', "box",
-									'Visible', false,
-									'Image', "UI/Common/Hex_small_shine.tga",
-									'ImageFit', "smallest",
-								}),
-								}),
-							PlaceObj('XTemplateWindow', {
-								'__class', "XText",
-								'Margins', box(6, 0, 0, 0),
-								'Padding', box(0, 0, 0, 0),
-								'VAlign', "center",
-								'MinWidth', 150,
-								'MaxWidth', 150,
-								'MaxHeight', 40,
-								'ScaleModifier', point(1450, 1450),
-								'TextFont', "PGLogo",
-								'TextColor', RGBA(255, 255, 255, 255),
-								'ContextUpdateOnOpen', true,
-								'OnContextUpdate', function (self, context, ...)
-self:SetText(context.trait and context.trait.display_name or T{652319561018, "All Traits"})
-XLabel.OnContextUpdate(self, context, ...)
-end,
-								'Translate', true,
-								'Shorten', true,
-							}),
-							}),
-						PlaceObj('XTemplateWindow', {
+						PlaceObj('XTemplateTemplate', {
 							'comment', "able to work",
-							'__class', "XTextButton",
-							'RolloverTemplate', "Rollover",
-							'RolloverAnchor', "left",
-							'RolloverAnchorId', "idButtons",
+							'__template', "CommandCenterButton",
 							'RolloverTitle', T{9673, --[[XTemplate ColonistsOverview RolloverTitle]] "Able to Work"},
-							'VAlign', "center",
-							'ScaleModifier', point(700, 700),
-							'LayoutMethod', "Box",
-							'Background', RGBA(0, 0, 0, 0),
-							'RolloverZoom', 1100,
-							'RolloverDrawOnTop', true,
-							'MouseCursor', "UI/Cursors/Rollover.tga",
-							'RelativeFocusOrder', "next-in-line",
+							'Margins', box(-12, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
 local dlg = GetDialog(self)
 local able_to_work = dlg.context.able_to_work
@@ -177,47 +96,19 @@ self:SetRolloverHint(able_to_work ~= false and T{9787, "<left_click> Hide filter
 local hint_gamepad = able_to_work ~= false and T{9789, "<ButtonA> Hide filtered objects"} or T{9790, "<ButtonA> Show filtered objects"}
 hint_gamepad = hint_gamepad .. " " .. T{9802, "<RB> Inspect"}
 self:SetRolloverHintGamepad(hint_gamepad)
+self:SetToggled(not not able_to_work)
 end,
-							'FXMouseIn', "MenuItemHover",
-							'FXPress', "MenuItemClick",
-							'FXPressDisabled', "UIDisabledButtonPressed",
-							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
 ToggleCommandCenterFilter(self, "able_to_work", true)
 end,
-							'RolloverBackground', RGBA(0, 0, 0, 0),
-							'PressedBackground', RGBA(0, 0, 0, 0),
-						}, {
-							PlaceObj('XTemplateWindow', {
-								'__class', "XImage",
-								'Id', "idRollover",
-								'Margins', box(-6, -6, -6, -6),
-								'Visible', false,
-								'FadeInTime', 100,
-								'FadeOutTime', 100,
-								'FXMouseIn', "MenuItemHovers",
-								'FXPress', "MenuItemClick",
-								'FXPressDisabled', "UIDisabledButtonPressed",
-								'Image', "UI/Common/Hex_small_shine.tga",
-								'ImageFit', "stretch",
-							}),
-							}),
-						PlaceObj('XTemplateWindow', {
+							'Icon', "UI/Icons/ColonyControlCenter/working_age_off.tga",
+							'Text', T{9673, --[[XTemplate ColonistsOverview Text]] "Able to Work"},
+						}),
+						PlaceObj('XTemplateTemplate', {
 							'comment', "unable to work",
-							'__class', "XTextButton",
-							'RolloverTemplate', "Rollover",
-							'RolloverAnchor', "left",
-							'RolloverAnchorId', "idButtons",
+							'__template', "CommandCenterButton",
 							'RolloverTitle', T{731124482973, --[[XTemplate ColonistsOverview RolloverTitle]] "Unable to Work"},
-							'Margins', box(0, 0, 40, 0),
-							'VAlign', "center",
-							'ScaleModifier', point(700, 700),
-							'LayoutMethod', "Box",
-							'Background', RGBA(0, 0, 0, 0),
-							'RolloverZoom', 1100,
-							'RolloverDrawOnTop', true,
-							'MouseCursor', "UI/Cursors/Rollover.tga",
-							'RelativeFocusOrder', "next-in-line",
+							'Margins', box(-12, 0, 0, 10),
 							'OnContextUpdate', function (self, context, ...)
 local dlg = GetDialog(self)
 local unable_to_work = dlg.context.unable_to_work
@@ -227,47 +118,19 @@ self:SetRolloverHint(unable_to_work and T{9787, "<left_click> Hide filtered obje
 local hint_gamepad = unable_to_work and T{9789, "<ButtonA> Hide filtered objects"} or T{9790, "<ButtonA> Show filtered objects"}
 hint_gamepad = hint_gamepad .. " " .. T{9802, "<RB> Inspect"}
 self:SetRolloverHintGamepad(hint_gamepad)
+self:SetToggled(not not unable_to_work)
 end,
-							'FXMouseIn', "MenuItemHover",
-							'FXPress', "MenuItemClick",
-							'FXPressDisabled', "UIDisabledButtonPressed",
-							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
 ToggleCommandCenterFilter(self, "unable_to_work")
 end,
-							'RolloverBackground', RGBA(0, 0, 0, 0),
-							'PressedBackground', RGBA(0, 0, 0, 0),
-						}, {
-							PlaceObj('XTemplateWindow', {
-								'__class', "XImage",
-								'Id', "idRollover",
-								'Margins', box(-6, -6, -6, -6),
-								'Visible', false,
-								'FadeInTime', 100,
-								'FadeOutTime', 100,
-								'FXMouseIn', "MenuItemHovers",
-								'FXPress', "MenuItemClick",
-								'FXPressDisabled', "UIDisabledButtonPressed",
-								'Image', "UI/Common/Hex_small_shine.tga",
-								'ImageFit', "stretch",
-							}),
-							}),
-						PlaceObj('XTemplateWindow', {
+							'Icon', "UI/Icons/ColonyControlCenter/unable_to_work_off.tga",
+							'Text', T{731124482973, --[[XTemplate ColonistsOverview Text]] "Unable to Work"},
+						}),
+						PlaceObj('XTemplateTemplate', {
 							'comment', "homeless",
-							'__class', "XTextButton",
-							'RolloverTemplate', "Rollover",
-							'RolloverAnchor', "left",
-							'RolloverAnchorId', "idButtons",
+							'__template', "CommandCenterButton",
 							'RolloverTitle', T{9665, --[[XTemplate ColonistsOverview RolloverTitle]] "Homeless colonists"},
-							'Margins', box(0, 0, 40, 0),
-							'VAlign', "center",
-							'ScaleModifier', point(700, 700),
-							'LayoutMethod', "Box",
-							'Background', RGBA(0, 0, 0, 0),
-							'RolloverZoom', 1100,
-							'RolloverDrawOnTop', true,
-							'MouseCursor', "UI/Cursors/Rollover.tga",
-							'RelativeFocusOrder', "next-in-line",
+							'Margins', box(-12, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
 local dlg = GetDialog(self)
 local homeless = dlg.context.homeless
@@ -277,47 +140,19 @@ self:SetRolloverHint(homeless and T{9787, "<left_click> Hide filtered objects"} 
 local hint_gamepad = homeless and T{9789, "<ButtonA> Hide filtered objects"} or T{9790, "<ButtonA> Show filtered objects"}
 hint_gamepad = hint_gamepad .. " " .. T{9802, "<RB> Inspect"}
 self:SetRolloverHintGamepad(hint_gamepad)
+self:SetToggled(not not homeless)
 end,
-							'FXMouseIn', "MenuItemHover",
-							'FXPress', "MenuItemClick",
-							'FXPressDisabled', "UIDisabledButtonPressed",
-							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
 ToggleCommandCenterFilter(self, "homeless")
 end,
-							'RolloverBackground', RGBA(0, 0, 0, 0),
-							'PressedBackground', RGBA(0, 0, 0, 0),
-						}, {
-							PlaceObj('XTemplateWindow', {
-								'__class', "XImage",
-								'Id', "idRollover",
-								'Margins', box(-6, -6, -6, -6),
-								'Visible', false,
-								'FadeInTime', 100,
-								'FadeOutTime', 100,
-								'FXMouseIn', "MenuItemHovers",
-								'FXPress', "MenuItemClick",
-								'FXPressDisabled', "UIDisabledButtonPressed",
-								'Image', "UI/Common/Hex_small_shine.tga",
-								'ImageFit', "stretch",
-							}),
-							}),
-						PlaceObj('XTemplateWindow', {
+							'Icon', "UI/Icons/ColonyControlCenter/homeless_off.tga",
+							'Text', T{9665, --[[XTemplate ColonistsOverview Text]] "Homeless colonists"},
+						}),
+						PlaceObj('XTemplateTemplate', {
 							'comment', "unemployed",
-							'__class', "XTextButton",
-							'RolloverTemplate', "Rollover",
-							'RolloverAnchor', "left",
-							'RolloverAnchorId', "idButtons",
+							'__template', "CommandCenterButton",
 							'RolloverTitle', T{9666, --[[XTemplate ColonistsOverview RolloverTitle]] "Unemployed colonists"},
-							'Margins', box(0, 0, 40, 0),
-							'VAlign', "center",
-							'ScaleModifier', point(700, 700),
-							'LayoutMethod', "Box",
-							'Background', RGBA(0, 0, 0, 0),
-							'RolloverZoom', 1100,
-							'RolloverDrawOnTop', true,
-							'MouseCursor', "UI/Cursors/Rollover.tga",
-							'RelativeFocusOrder', "next-in-line",
+							'Margins', box(-12, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
 local dlg = GetDialog(self)
 local unemployed = dlg.context.unemployed
@@ -327,46 +162,19 @@ self:SetRolloverHint(unemployed and T{9787, "<left_click> Hide filtered objects"
 local hint_gamepad = unemployed and T{9789, "<ButtonA> Hide filtered objects"} or T{9790, "<ButtonA> Show filtered objects"}
 hint_gamepad = hint_gamepad .. " " .. T{9802, "<RB> Inspect"}
 self:SetRolloverHintGamepad(hint_gamepad)
+self:SetToggled(not not unemployed)
 end,
-							'FXMouseIn', "MenuItemHover",
-							'FXPress', "MenuItemClick",
-							'FXPressDisabled', "UIDisabledButtonPressed",
-							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
 ToggleCommandCenterFilter(self, "unemployed")
 end,
-							'RolloverBackground', RGBA(0, 0, 0, 0),
-							'PressedBackground', RGBA(0, 0, 0, 0),
-						}, {
-							PlaceObj('XTemplateWindow', {
-								'__class', "XImage",
-								'Id', "idRollover",
-								'Margins', box(-6, -6, -6, -6),
-								'Visible', false,
-								'FadeInTime', 100,
-								'FadeOutTime', 100,
-								'FXMouseIn', "MenuItemHovers",
-								'FXPress', "MenuItemClick",
-								'FXPressDisabled', "UIDisabledButtonPressed",
-								'Image', "UI/Common/Hex_small_shine.tga",
-								'ImageFit', "stretch",
-							}),
-							}),
-						PlaceObj('XTemplateWindow', {
-							'comment', "problematic_colonists",
-							'__class', "XTextButton",
-							'RolloverTemplate', "Rollover",
-							'RolloverAnchor', "left",
-							'RolloverAnchorId', "idButtons",
+							'Icon', "UI/Icons/ColonyControlCenter/unemployed_off.tga",
+							'Text', T{9666, --[[XTemplate ColonistsOverview Text]] "Unemployed colonists"},
+						}),
+						PlaceObj('XTemplateTemplate', {
+							'comment', "problematic colonists",
+							'__template', "CommandCenterButton",
 							'RolloverTitle', T{7934, --[[XTemplate ColonistsOverview RolloverTitle]] "Problematic colonists"},
-							'VAlign', "center",
-							'ScaleModifier', point(700, 700),
-							'LayoutMethod', "Box",
-							'Background', RGBA(0, 0, 0, 0),
-							'RolloverZoom', 1100,
-							'RolloverDrawOnTop', true,
-							'MouseCursor', "UI/Cursors/Rollover.tga",
-							'RelativeFocusOrder', "next-in-line",
+							'Margins', box(-12, 0, 0, 10),
 							'OnContextUpdate', function (self, context, ...)
 local dlg = GetDialog(self)
 local problematic = dlg.context.problematic_colonists
@@ -376,81 +184,330 @@ self:SetRolloverHint(problematic and T{9787, "<left_click> Hide filtered objects
 local hint_gamepad = problematic and T{9789, "<ButtonA> Hide filtered objects"} or T{9790, "<ButtonA> Show filtered objects"}
 hint_gamepad = hint_gamepad .. " " .. T{9802, "<RB> Inspect"}
 self:SetRolloverHintGamepad(hint_gamepad)
+self:SetToggled(not not problematic)
 end,
-							'FXMouseIn', "MenuItemHover",
-							'FXPress', "MenuItemClick",
-							'FXPressDisabled', "UIDisabledButtonPressed",
-							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
 ToggleCommandCenterFilter(self, "problematic_colonists")
 end,
-							'RolloverBackground', RGBA(0, 0, 0, 0),
-							'PressedBackground', RGBA(0, 0, 0, 0),
+							'Icon', "UI/Icons/ColonyControlCenter/problematic_colonists_off.tga",
+							'Text', T{7934, --[[XTemplate ColonistsOverview Text]] "Problematic colonists"},
+						}),
+						PlaceObj('XTemplateTemplate', {
+							'__template', "CommandCenterButton",
+							'RolloverTitle', T{11607, --[[XTemplate ColonistsOverview RolloverTitle]] "Age Group"},
+							'Id', "idAge",
+							'Margins', box(-12, 0, 0, -14),
+							'OnContextUpdate', function (self, context, ...)
+XTextButton.OnContextUpdate(self, context, ...)
+self:SetRolloverText(GetColonistsFilterRollover(context, T{9672, "Filter by Age Group."}))
+local hint_gamepad = T{507431830973, "<ButtonA> Set filter"} .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverHintGamepad(hint_gamepad)
+end,
+							'OnPress', function (self, gamepad)
+SpawnTraitsPopup(self, "Age Group")
+end,
+							'Image', "UI/CommonNew/ccc_categories_small.tga",
 						}, {
 							PlaceObj('XTemplateWindow', {
-								'__class', "XImage",
-								'Id', "idRollover",
-								'Margins', box(-6, -6, -6, -6),
-								'Visible', false,
-								'FadeInTime', 100,
-								'FadeOutTime', 100,
-								'FXMouseIn', "MenuItemHovers",
-								'FXPress', "MenuItemClick",
-								'FXPressDisabled', "UIDisabledButtonPressed",
-								'Image', "UI/Common/Hex_small_shine.tga",
-								'ImageFit', "stretch",
+								'__class', "XText",
+								'Id', "idText",
+								'Margins', box(15, 0, 0, 0),
+								'VAlign', "center",
+								'TextStyle', "CCCFilterItem",
+								'ContextUpdateOnOpen', true,
+								'OnContextUpdate', function (self, context, ...)
+local trait = self.context["trait_Age Group"]
+local trait_name = trait and trait.display_name or T{11679, "No filter"}
+self:SetText(T{11608, "AGE GROUP: <em><trait></em>", trait = trait_name})
+end,
+								'Translate', true,
+							}),
+							}),
+						PlaceObj('XTemplateTemplate', {
+							'__template', "CommandCenterButton",
+							'RolloverTitle', T{11609, --[[XTemplate ColonistsOverview RolloverTitle]] "Specialization"},
+							'Id', "idSpec",
+							'Margins', box(-12, 0, 0, -14),
+							'OnContextUpdate', function (self, context, ...)
+XTextButton.OnContextUpdate(self, context, ...)
+self:SetRolloverText(GetColonistsFilterRollover(context, T{11610, "Filter by Specialization."}))
+local hint_gamepad = T{507431830973, "<ButtonA> Set filter"} .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverHintGamepad(hint_gamepad)
+end,
+							'OnPress', function (self, gamepad)
+SpawnTraitsPopup(self, "Specialization")
+end,
+							'Image', "UI/CommonNew/ccc_categories_small.tga",
+						}, {
+							PlaceObj('XTemplateWindow', {
+								'__class', "XText",
+								'Id', "idText",
+								'Margins', box(15, 0, 0, 0),
+								'VAlign', "center",
+								'TextStyle', "CCCFilterItem",
+								'ContextUpdateOnOpen', true,
+								'OnContextUpdate', function (self, context, ...)
+local trait = self.context.trait_Specialization
+local trait_name = trait and trait.display_name or T{11679, "No filter"}
+self:SetText(T{11611, "SPECIALIZATION: <em><trait></em>", trait = trait_name})
+end,
+								'Translate', true,
+							}),
+							}),
+						PlaceObj('XTemplateTemplate', {
+							'__template', "CommandCenterButton",
+							'RolloverTitle', T{11612, --[[XTemplate ColonistsOverview RolloverTitle]] "Perks"},
+							'Id', "idPerk",
+							'Margins', box(-12, 0, 0, -14),
+							'OnContextUpdate', function (self, context, ...)
+XTextButton.OnContextUpdate(self, context, ...)
+self:SetRolloverText(GetColonistsFilterRollover(context, T{11613, "Filter by Perks."}))
+local hint_gamepad = T{507431830973, "<ButtonA> Set filter"} .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverHintGamepad(hint_gamepad)
+end,
+							'OnPress', function (self, gamepad)
+SpawnTraitsPopup(self, "Positive")
+end,
+							'Image', "UI/CommonNew/ccc_categories_small.tga",
+						}, {
+							PlaceObj('XTemplateWindow', {
+								'__class', "XText",
+								'Id', "idText",
+								'Margins', box(15, 0, 0, 0),
+								'VAlign', "center",
+								'TextStyle', "CCCFilterItem",
+								'ContextUpdateOnOpen', true,
+								'OnContextUpdate', function (self, context, ...)
+local trait = self.context.trait_Positive
+local trait_name = trait and trait.display_name or T{11679, "No filter"}
+self:SetText(T{11614, "PERK: <em><trait></em>", trait = trait_name})
+end,
+								'Translate', true,
+							}),
+							}),
+						PlaceObj('XTemplateTemplate', {
+							'__template', "CommandCenterButton",
+							'RolloverTitle', T{11615, --[[XTemplate ColonistsOverview RolloverTitle]] "Quirk"},
+							'Id', "idQuirk",
+							'Margins', box(-12, 0, 0, -14),
+							'OnContextUpdate', function (self, context, ...)
+XTextButton.OnContextUpdate(self, context, ...)
+self:SetRolloverText(GetColonistsFilterRollover(context, T{11616, "Filter by Quirk."}))
+local hint_gamepad = T{507431830973, "<ButtonA> Set filter"} .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverHintGamepad(hint_gamepad)
+end,
+							'OnPress', function (self, gamepad)
+SpawnTraitsPopup(self, "other")
+end,
+							'Image', "UI/CommonNew/ccc_categories_small.tga",
+						}, {
+							PlaceObj('XTemplateWindow', {
+								'__class', "XText",
+								'Id', "idText",
+								'Margins', box(15, 0, 0, 0),
+								'VAlign', "center",
+								'TextStyle', "CCCFilterItem",
+								'ContextUpdateOnOpen', true,
+								'OnContextUpdate', function (self, context, ...)
+local trait = self.context.trait_other
+local trait_name = trait and trait.display_name or T{11679, "No filter"}
+self:SetText(T{11617, "QUIRK: <em><trait></em>", trait = trait_name})
+end,
+								'Translate', true,
+							}),
+							}),
+						PlaceObj('XTemplateTemplate', {
+							'__template', "CommandCenterButton",
+							'RolloverText', T{372599874431, --[[XTemplate ColonistsOverview RolloverText]] "Filter by Flaw"},
+							'RolloverTitle', T{583453649364, --[[XTemplate ColonistsOverview RolloverTitle]] "Flaw"},
+							'Id', "idFlaw",
+							'Margins', box(-12, 0, 0, -14),
+							'OnContextUpdate', function (self, context, ...)
+XTextButton.OnContextUpdate(self, context, ...)
+self:SetRolloverText(GetColonistsFilterRollover(context, T{11618, "Filter by Flaw."}))
+local hint_gamepad = T{507431830973, "<ButtonA> Set filter"} .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverHintGamepad(hint_gamepad)
+end,
+							'OnPress', function (self, gamepad)
+SpawnTraitsPopup(self, "Negative")
+end,
+							'Image', "UI/CommonNew/ccc_categories_small.tga",
+						}, {
+							PlaceObj('XTemplateWindow', {
+								'__class', "XText",
+								'Id', "idText",
+								'Margins', box(15, 0, 0, 0),
+								'VAlign', "center",
+								'TextStyle', "CCCFilterItem",
+								'ContextUpdateOnOpen', true,
+								'OnContextUpdate', function (self, context, ...)
+local trait = self.context.trait_Negative
+local trait_name = trait and trait.display_name or T{11679, "No filter"}
+self:SetText(T{11619, "FLAW: <em><trait></em>", trait = trait_name})
+end,
+								'Translate', true,
 							}),
 							}),
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
 if GetUIStyleGamepad() then
-	parent[1]:SetFocus()
+	local first = parent[1]
+	CreateRealTimeThread(function(first)
+		if first.window_state ~= "destroying" then
+			first:SetFocus()
+		end
+	end, first)
 end
 end,
 						}),
 						}),
+					}),
+				}),
+			PlaceObj('XTemplateWindow', {
+				'__class', "XSizeConstrainedWindow",
+			}, {
+				PlaceObj('XTemplateTemplate', {
+					'__template', "ScrollbarNew",
+					'Id', "idScroll",
+					'Target', "idList",
+				}),
+				PlaceObj('XTemplateMode', {
+					'mode', "colonists",
+				}, {
+					PlaceObj('XTemplateAction', {
+						'ActionId', "back",
+						'ActionName', T{4254, --[[XTemplate ColonistsOverview ActionName]] "BACK"},
+						'ActionToolbar', "ActionBar",
+						'ActionShortcut', "Escape",
+						'ActionGamepad', "ButtonB",
+						'OnActionEffect', "back",
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "prev",
+						'ActionName', T{129795472601, --[[XTemplate ColonistsOverview ActionName]] "PREVIOUS DOME"},
+						'ActionToolbar', "ActionBar",
+						'ActionGamepad', "LeftTrigger",
+						'OnAction', function (self, host, source)
+SelectCommandCenterNextDome(host, -1)
+end,
+						'__condition', function (parent, context) return #(GetCommandCenterDomesList()) > 1 end,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "next",
+						'ActionName', T{9679, --[[XTemplate ColonistsOverview ActionName]] "NEXT DOME"},
+						'ActionToolbar', "ActionBar",
+						'ActionGamepad', "RightTrigger",
+						'OnAction', function (self, host, source)
+SelectCommandCenterNextDome(host, 1)
+end,
+						'__condition', function (parent, context) return #(GetCommandCenterDomesList()) > 1 end,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "interests",
+						'ActionName', T{663581795644, --[[XTemplate ColonistsOverview ActionName]] "INTERESTS"},
+						'ActionToolbar', "ActionBar",
+						'ActionGamepad', "ButtonY",
+						'ActionState', function (self, host)
+return host.context.interests and "hidden"
+end,
+						'OnAction', function (self, host, source)
+ToggleColonistsTraitsInterests(host)
+host:UpdateActionViews(host.idActionBar)
+end,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "traits",
+						'ActionName', T{265445412858, --[[XTemplate ColonistsOverview ActionName]] "TRAITS"},
+						'ActionToolbar', "ActionBar",
+						'ActionGamepad', "ButtonY",
+						'ActionState', function (self, host)
+return not host.context.interests and "hidden"
+end,
+						'OnAction', function (self, host, source)
+ToggleColonistsTraitsInterests(host)
+host:UpdateActionViews(host.idActionBar)
+end,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "reset",
+						'ActionName', T{550362230354, --[[XTemplate ColonistsOverview ActionName]] "RESET FILTERS"},
+						'ActionToolbar', "ActionBar",
+						'ActionGamepad', "ButtonX",
+						'OnAction', function (self, host, source)
+host.context.dome = nil
+host.context.able_to_work = nil
+host.context.unable_to_work = nil
+host.context.homeless = nil
+host.context.unemployed = nil
+host.context.problematic_colonists = nil
+host.context["trait_Age Group"] = nil
+host.context["trait_Negative"] = nil
+host.context["trait_Specialization"] = nil
+host.context["trait_other"] = nil
+host.context["trait_Positive"] = nil
+host:ResolveId("idContent"):RespawnContent()
+end,
+					}),
 					PlaceObj('XTemplateWindow', {
-						'Padding', box(63, 7, 0, 0),
+						'comment', "column titles",
+						'Margins', box(83, 0, 0, 15),
+						'Dock', "top",
 						'LayoutMethod', "HList",
 					}, {
 						PlaceObj('XTemplateWindow', {
-							'__class', "XFrame",
-							'Margins', box(-63, -7, -60, -70),
-							'Dock', "box",
-							'VAlign', "top",
-							'Image', "UI/Common/pm_pad_small.tga",
-							'FrameBox', box(205, 0, 30, 0),
-							'SqueezeY', false,
-							'FlipX', true,
-						}),
-						PlaceObj('XTemplateWindow', {
+							'comment', "name",
 							'__class', "XText",
 							'Padding', box(0, 0, 0, 0),
 							'MinWidth', 200,
 							'MaxWidth', 200,
 							'HandleMouse', false,
-							'TextFont', "InfopanelTitle",
-							'TextColor', RGBA(119, 198, 255, 255),
+							'TextStyle', "OverviewItemSection",
 							'Translate', true,
 							'Text', T{547, --[[XTemplate ColonistsOverview Text]] "Colonists"},
 							'TextVAlign', "center",
 						}),
 						PlaceObj('XTemplateWindow', {
-							'__class', "XText",
-							'Padding', box(0, 0, 0, 0),
-							'HAlign', "left",
-							'VAlign', "top",
-							'MinWidth', 240,
-							'MaxWidth', 240,
-							'HandleMouse', false,
-							'TextFont', "InfopanelTitle",
-							'TextColor', RGBA(119, 198, 255, 255),
-							'Translate', true,
-							'Text', T{517499996306, --[[XTemplate ColonistsOverview Text]] "Stats"},
-							'TextHAlign', "center",
-							'TextVAlign', "center",
+							'comment', "stats: health",
+							'__class', "XImage",
+							'MinWidth', 60,
+							'MinHeight', 34,
+							'MaxWidth', 60,
+							'MaxHeight', 34,
+							'Image', "UI/Icons/Sections/health.tga",
+							'ImageFit', "smallest",
 						}),
 						PlaceObj('XTemplateWindow', {
+							'comment', "stats: stress",
+							'__class', "XImage",
+							'MinWidth', 60,
+							'MinHeight', 34,
+							'MaxWidth', 60,
+							'MaxHeight', 34,
+							'Image', "UI/Icons/Sections/stress.tga",
+							'ImageFit', "smallest",
+						}),
+						PlaceObj('XTemplateWindow', {
+							'comment', "stats: comfort",
+							'__class', "XImage",
+							'MinWidth', 60,
+							'MinHeight', 34,
+							'MaxWidth', 60,
+							'MaxHeight', 34,
+							'Image', "UI/Icons/Sections/comfort.tga",
+							'ImageFit', "smallest",
+						}),
+						PlaceObj('XTemplateWindow', {
+							'comment', "stats: morale",
+							'__class', "XImage",
+							'MinWidth', 60,
+							'MinHeight', 34,
+							'MaxWidth', 60,
+							'MaxHeight', 34,
+							'Image', "UI/Icons/Sections/morale.tga",
+							'ImageFit', "smallest",
+						}),
+						PlaceObj('XTemplateWindow', {
+							'comment', "traits",
 							'__class', "XText",
 							'Id', "idTraitsTitle",
 							'Margins', box(30, 0, 0, 0),
@@ -461,8 +518,7 @@ end,
 							'MaxWidth', 370,
 							'FoldWhenHidden', true,
 							'HandleMouse', false,
-							'TextFont', "InfopanelTitle",
-							'TextColor', RGBA(119, 198, 255, 255),
+							'TextStyle', "OverviewItemSection",
 							'ContextUpdateOnOpen', true,
 							'OnContextUpdate', function (self, context, ...)
 self:SetVisible(not context.interests)
@@ -474,6 +530,7 @@ end,
 							'TextVAlign', "center",
 						}),
 						PlaceObj('XTemplateWindow', {
+							'comment', "interests",
 							'__class', "XText",
 							'Id', "idInterestsTitle",
 							'Margins', box(30, 0, 0, 0),
@@ -484,8 +541,7 @@ end,
 							'MaxWidth', 370,
 							'FoldWhenHidden', true,
 							'HandleMouse', false,
-							'TextFont', "InfopanelTitle",
-							'TextColor', RGBA(119, 198, 255, 255),
+							'TextStyle', "OverviewItemSection",
 							'ContextUpdateOnOpen', true,
 							'OnContextUpdate', function (self, context, ...)
 self:SetVisible(context.interests)
@@ -497,190 +553,127 @@ end,
 							'TextVAlign', "center",
 						}),
 						}),
-					}),
-				}),
-			PlaceObj('XTemplateTemplate', {
-				'__template', "Scrollbar",
-				'Id', "idScroll",
-				'Target', "idList",
-			}),
-			PlaceObj('XTemplateMode', {
-				'mode', "colonists",
-			}, {
-				PlaceObj('XTemplateAction', {
-					'ActionId', "prev",
-					'ActionName', T{129795472601, --[[XTemplate ColonistsOverview ActionName]] "PREVIOUS DOME"},
-					'ActionToolbar', "ActionBar",
-					'ActionGamepad', "LeftTrigger",
-					'OnAction', function (self, host, source)
-SelectCommandCenterNextDome(host, -1)
-end,
-					'__condition', function (parent, context) return #(GetCommandCenterDomesList()) > 1 end,
-				}),
-				PlaceObj('XTemplateAction', {
-					'ActionId', "next",
-					'ActionName', T{9679, --[[XTemplate ColonistsOverview ActionName]] "NEXT DOME"},
-					'ActionToolbar', "ActionBar",
-					'ActionGamepad', "RightTrigger",
-					'OnAction', function (self, host, source)
-SelectCommandCenterNextDome(host, 1)
-end,
-					'__condition', function (parent, context) return #(GetCommandCenterDomesList()) > 1 end,
-				}),
-				PlaceObj('XTemplateAction', {
-					'ActionId', "interests",
-					'ActionName', T{663581795644, --[[XTemplate ColonistsOverview ActionName]] "INTERESTS"},
-					'ActionToolbar', "ActionBar",
-					'ActionGamepad', "ButtonY",
-					'ActionState', function (self, host)
-return host.context.interests and "hidden"
-end,
-					'OnAction', function (self, host, source)
-ToggleColonistsTraitsInterests(host)
-host:UpdateActionViews(host.idActionBar)
-end,
-				}),
-				PlaceObj('XTemplateAction', {
-					'ActionId', "traits",
-					'ActionName', T{265445412858, --[[XTemplate ColonistsOverview ActionName]] "TRAITS"},
-					'ActionToolbar', "ActionBar",
-					'ActionGamepad', "ButtonY",
-					'ActionState', function (self, host)
-return not host.context.interests and "hidden"
-end,
-					'OnAction', function (self, host, source)
-ToggleColonistsTraitsInterests(host)
-host:UpdateActionViews(host.idActionBar)
-end,
-				}),
-				PlaceObj('XTemplateAction', {
-					'ActionId', "back",
-					'ActionName', T{4254, --[[XTemplate ColonistsOverview ActionName]] "BACK"},
-					'ActionToolbar', "ActionBar",
-					'ActionShortcut', "Escape",
-					'ActionGamepad', "ButtonB",
-					'OnActionEffect', "back",
-				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XContentTemplateList",
-					'Id', "idList",
-					'BorderWidth', 0,
-					'Padding', box(0, 0, 0, 0),
-					'MinWidth', 903,
-					'MaxWidth', 903,
-					'LayoutVSpacing', 1,
-					'UniformRowHeight', true,
-					'Clip', false,
-					'Background', RGBA(0, 0, 0, 0),
-					'FocusedBackground', RGBA(0, 0, 0, 0),
-					'VScroll', "idScroll",
-					'ShowPartialItems', false,
-					'MouseScroll', true,
-					'GamepadInitialSelection', false,
-					'OnContextUpdate', function (self, context, ...)
+					PlaceObj('XTemplateWindow', {
+						'__class', "XContentTemplateList",
+						'Id', "idList",
+						'Margins', box(4, 0, 0, 0),
+						'BorderWidth', 0,
+						'Padding', box(0, 0, 0, 0),
+						'MinWidth', 1013,
+						'MaxWidth', 1013,
+						'UniformRowHeight', true,
+						'Clip', false,
+						'Background', RGBA(0, 0, 0, 0),
+						'FocusedBackground', RGBA(0, 0, 0, 0),
+						'VScroll', "idScroll",
+						'ShowPartialItems', false,
+						'MouseScroll', true,
+						'GamepadInitialSelection', false,
+						'OnContextUpdate', function (self, context, ...)
 XContentTemplateList.OnContextUpdate(self, context, ...)
 self:ResolveId("idNoResults"):SetVisible(#self == 0)
 end,
-					'RespawnOnDialogMode', false,
-				}, {
-					PlaceObj('XTemplateMode', {
-						'mode', "colonists",
+						'RespawnOnDialogMode', false,
 					}, {
-						PlaceObj('XTemplateForEach', {
-							'comment', "colonists",
-							'array', function (parent, context) local colonists = GetCommandCenterColonists(context); parent:ResolveId("idTitle"):SetTitle(T{9811, "<color 255 248 233><count></color> COLONISTS", count = #colonists}) return colonists end,
-							'__context', function (parent, context, item, i, n) return item end,
-							'run_before', function (parent, context, item, i, n)
-NewXVirtualContent(parent, context, "ColonistOverviewRow", 903, 46)
+						PlaceObj('XTemplateMode', {
+							'mode', "colonists",
+						}, {
+							PlaceObj('XTemplateForEach', {
+								'comment', "colonists",
+								'array', function (parent, context) local colonists = GetCommandCenterColonists(context); parent:ResolveId("idTitle"):SetTitle(T{9811, "<white><count></white> COLONISTS", count = #colonists}) return colonists end,
+								'__context', function (parent, context, item, i, n) return item end,
+								'run_before', function (parent, context, item, i, n)
+NewXVirtualContent(parent, context, "ColonistOverviewRow", 1013, 46)
 end,
+							}),
+							}),
 						}),
-						}),
+					PlaceObj('XTemplateWindow', {
+						'__class', "XText",
+						'Id', "idNoResults",
+						'Dock', "box",
+						'HAlign', "center",
+						'VAlign', "center",
+						'Visible', false,
+						'HandleMouse', false,
+						'TextStyle', "InGameTitle",
+						'Translate', true,
+						'Text', T{9763, --[[XTemplate ColonistsOverview Text]] "No objects matching current filters."},
 					}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XText",
-					'Id', "idNoResults",
-					'Dock', "box",
-					'HAlign', "center",
-					'VAlign', "center",
-					'Visible', false,
-					'HandleMouse', false,
-					'TextFont', "PGLogo",
-					'TextColor', RGBA(255, 255, 255, 255),
-					'Translate', true,
-					'Text', T{9763, --[[XTemplate ColonistsOverview Text]] "No objects matching current filters."},
-				}),
-				PlaceObj('XTemplateCode', {
-					'run', function (self, parent, context)
+					PlaceObj('XTemplateCode', {
+						'run', function (self, parent, context)
 local list = parent:ResolveId("idList")
 parent:ResolveId("idNoResults"):SetVisible(#list == 0)
 end,
-				}),
-				}),
-			PlaceObj('XTemplateMode', {
-				'mode', "domes",
-			}, {
-				PlaceObj('XTemplateTemplate', {
-					'__template', "CommandCenterDomeList",
-				}),
-				}),
-			PlaceObj('XTemplateMode', {
-				'mode', "traits",
-			}, {
-				PlaceObj('XTemplateWindow', {
-					'__class', "XContentTemplateList",
-					'Id', "idList",
-					'BorderWidth', 0,
-					'Padding', box(0, 0, 0, 0),
-					'LayoutVSpacing', 16,
-					'UniformRowHeight', true,
-					'Clip', false,
-					'Background', RGBA(0, 0, 0, 0),
-					'FocusedBackground', RGBA(0, 0, 0, 0),
-					'VScroll', "idScroll",
-					'ShowPartialItems', false,
-					'MouseScroll', true,
+					}),
+					}),
+				PlaceObj('XTemplateMode', {
+					'mode', "domes",
 				}, {
 					PlaceObj('XTemplateTemplate', {
-						'__template', "MenuEntrySmall",
-						'Padding', box(0, 0, 0, 0),
-						'HAlign', "right",
-						'OnPress', function (self, gamepad)
-local dlg = GetDialog(self)
-dlg.context.trait = nil
-SetBackDialogMode(self)
-end,
-						'Text', T{652319561018, --[[XTemplate ColonistsOverview Text]] "All Traits"},
+						'__template', "CommandCenterDomeList",
 					}),
-					PlaceObj('XTemplateForEach', {
-						'comment', "traits",
-						'array', function (parent, context) return GetTSortedTraits() end,
-						'__context', function (parent, context, item, i, n) return item end,
-						'run_after', function (child, context, item, i, n)
-child:SetRolloverTitle(item.display_name)
-child:SetRolloverText(item.description)
-end,
+					}),
+				PlaceObj('XTemplateMode', {
+					'mode', "traits",
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XContentTemplateList",
+						'Id', "idList",
+						'BorderWidth', 0,
+						'Padding', box(0, 0, 0, 0),
+						'LayoutVSpacing', 16,
+						'UniformRowHeight', true,
+						'Clip', false,
+						'Background', RGBA(0, 0, 0, 0),
+						'FocusedBackground', RGBA(0, 0, 0, 0),
+						'VScroll', "idScroll",
+						'ShowPartialItems', false,
+						'MouseScroll', true,
 					}, {
 						PlaceObj('XTemplateTemplate', {
 							'__template', "MenuEntrySmall",
-							'RolloverTemplate', "Rollover",
-							'RolloverAnchor', "left",
-							'Padding', box(0, 0, 0, 0),
-							'HAlign', "right",
 							'OnPress', function (self, gamepad)
 local dlg = GetDialog(self)
-dlg.context.trait = self.context
+dlg.context["trait_" .. dlg.mode_param.trait_group] = nil
 SetBackDialogMode(self)
 end,
-							'Text', T{583679719179, --[[XTemplate ColonistsOverview Text]] "<display_name>"},
+							'Text', T{652319561018, --[[XTemplate ColonistsOverview Text]] "All Traits"},
+						}),
+						PlaceObj('XTemplateForEach', {
+							'comment', "traits",
+							'array', function (parent, context) local dlg = GetDialog(parent); return GetTSortedTraits(dlg.mode_param and dlg.mode_param.trait_group) end,
+							'__context', function (parent, context, item, i, n) return item end,
+							'run_after', function (child, context, item, i, n)
+child:SetRolloverTitle(item.display_name)
+child:SetRolloverText(item.description)
+end,
+						}, {
+							PlaceObj('XTemplateTemplate', {
+								'__template', "MenuEntrySmall",
+								'RolloverTemplate', "Rollover",
+								'RolloverAnchor', "left",
+								'OnPress', function (self, gamepad)
+local dlg = GetDialog(self)
+dlg.context["trait_" .. dlg.mode_param.trait_group] = self.context
+SetBackDialogMode(self)
+end,
+								'Text', T{583679719179, --[[XTemplate ColonistsOverview Text]] "<display_name>"},
+							}),
+							}),
+						PlaceObj('XTemplateAction', {
+							'ActionId', "back",
+							'ActionName', T{4254, --[[XTemplate ColonistsOverview ActionName]] "BACK"},
+							'ActionToolbar', "ActionBar",
+							'ActionShortcut', "Escape",
+							'ActionGamepad', "ButtonB",
+							'OnActionEffect', "back",
 						}),
 						}),
-					PlaceObj('XTemplateAction', {
-						'ActionId', "back",
-						'ActionName', T{4254, --[[XTemplate ColonistsOverview ActionName]] "BACK"},
-						'ActionToolbar', "ActionBar",
-						'ActionShortcut', "Escape",
-						'ActionGamepad', "ButtonB",
-						'OnActionEffect', "back",
+					PlaceObj('XTemplateCode', {
+						'run', function (self, parent, context)
+parent:ResolveId("idScroll"):SetMargins(box(99,0,0,0))
+end,
 					}),
 					}),
 				}),

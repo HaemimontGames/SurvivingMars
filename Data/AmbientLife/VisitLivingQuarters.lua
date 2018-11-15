@@ -7,7 +7,7 @@ PlaceObj('AmbientLife', {
 	param2 = "bld",
 	PlaceObj('XPrgDefineSlot', {
 		'groups', "A",
-		'spot_type', "Visitlounge, Visittable",
+		'spot_type', "Visitlounge, Visittable, Visitchair1, Visitchair2",
 		'attach', "LivingQuartersHouseBase",
 		'move_start', "GoToExitSpot",
 		'goto_spot', "LeadToSpot",

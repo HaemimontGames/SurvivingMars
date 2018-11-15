@@ -3,67 +3,124 @@
 PlaceObj('XTemplate', {
 	group = "Infopanel Sections",
 	id = "sectionUpgrades",
-	PlaceObj('XTemplateTemplate', {
-		'__context_of_kind', "UpgradableBuilding",
-		'__template', "InfopanelSection",
-		'OnContextUpdate', function (self, context, ...)
-local upgrades = context.upgrades_under_construction
-local show
-for i = 1, 3 do
-	local id = context:GetUpgradeID(i)
-	show = show or upgrades and upgrades[id] and not upgrades[id].canceled
-end
-self:SetVisible(show)
+	PlaceObj('XTemplateForEach', {
+		'array', function (parent, context) return nil, 1, 3 end,
+		'map', function (parent, context, array, i) return i end,
+		'condition', function (parent, context, item, i) return UICity:IsUpgradeUnlocked(context:GetUpgradeID(i)) end,
+		'item_in_context', "i",
+		'run_after', function (child, context, item, i, n)
+local obj = ResolvePropObj(context)
+local id = obj:GetUpgradeID(item)
+local display_name = obj:GetUpgradeDisplayName(item)
+local description = obj:GetUpgradeDescription(item)
+
+UISetupUpgradeButtonRollover(child, obj, i)
+child:SetTitle(T{11444, "Upgrade: <name>", name = display_name})
 end,
-		'Title', T{962812330186, --[[XTemplate sectionUpgrades Title]] "Upgrade Construction"},
-		'Icon', "UI/Icons/Sections/facility.tga",
 	}, {
-		PlaceObj('XTemplateCode', {
-			'run', function (self, parent, context)
-UICreateUpgradeButtons(GetActionsHost(parent).idUpgrades, context)
+		PlaceObj('XTemplateTemplate', {
+			'__template', "InfopanelActiveSection",
+			'OnContextUpdate', function (self, context, ...)
+local on
+local icon = context:GetUpgradeIcon(context.i)
+if icon and icon:sub(-6, -1) == "01.tga" then
+	icon = icon:sub(1, -7)
+else
+	icon = "UI/Icons/Upgrades/amplify_"
+end
+local id = context:GetUpgradeID(self.context.i)
+if context:HasUpgrade(id) then
+	if context:IsUpgradeOn(id) then
+		self:SetIcon(icon .. "02.tga")
+		on = true
+	else
+		self:SetIcon(icon .. "03.tga")
+	end
+elseif context:IsUpgradeBeingConstructed(id) then
+	self:SetIcon(icon .. "04.tga")
+else
+	self:SetIcon(icon .. "01.tga")
+end
+self.idActive:SetVisible(on)
 end,
-		}),
-		PlaceObj('XTemplateForEach', {
-			'array', function (parent, context) return nil, 1, 3 end,
-			'map', function (parent, context, array, i) return context:GetUpgradeID(i) end,
-			'condition', function (parent, context, item, i) return item end,
-			'item_in_context', "upgrade",
-			'run_before', function (parent, context, item, i, n)
-context.i = i
-end,
-			'run_after', function (child, context, item, i, n)
-child.idProgress:SetBindTo("UpgradeConstructionProgress"..i)
-end,
+			'TitleHAlign', "left",
 		}, {
-			PlaceObj('XTemplateWindow', {
-				'__class', "XContextControl",
-				'FoldWhenHidden', true,
-				'OnContextUpdate', function (self, context, ...)
-local uinfo = context.upgrades_under_construction and context.upgrades_under_construction[context.upgrade]
-	local show_upgrade = uinfo and not uinfo.canceled
-	self:SetVisible(show_upgrade)
-	self.idCost:SetVisible(uinfo and not uinfo.construction_start_ts)
-	self.idProgress:SetVisible(uinfo and uinfo.construction_start_ts)
+			PlaceObj('XTemplateFunc', {
+				'name', "OnActivate(self, context, gamepad)",
+				'parent', function (parent, context) return parent.parent end,
+				'func', function (self, context, gamepad)
+self:ProcessUpgrade(context, not gamepad and IsMassUIModifierPressed())
 end,
-			}, {
-				PlaceObj('XTemplateTemplate', {
-					'__template', "InfopanelText",
-					'Dock', "left",
-					'Text', T{622222701550, --[[XTemplate sectionUpgrades Text]] "<GetUpgradeDisplayName(i)>"},
-				}),
-				PlaceObj('XTemplateTemplate', {
-					'__template', "InfopanelText",
-					'Id', "idCost",
-					'HAlign', "right",
-					'FoldWhenHidden', true,
-					'Text', T{395198263790, --[[XTemplate sectionUpgrades Text]] "<UpgradeCosts(i)>"},
-				}),
-				PlaceObj('XTemplateTemplate', {
-					'__template', "InfopanelProgress",
-					'HAlign', "right",
-					'FoldWhenHidden', true,
-				}),
-				}),
+			}),
+			PlaceObj('XTemplateFunc', {
+				'name', "OnAltActivate(self, context, gamepad)",
+				'parent', function (parent, context) return parent.parent end,
+				'func', function (self, context, gamepad)
+if not gamepad then return end
+self:ProcessUpgrade(context, true)
+end,
+			}),
+			PlaceObj('XTemplateFunc', {
+				'name', "ProcessUpgrade(self, context, broadcast)",
+				'parent', function (parent, context) return parent.parent end,
+				'func', function (self, context, broadcast)
+local obj = ResolvePropObj(context)
+local id = obj:GetUpgradeID(context.i)
+if broadcast then
+	local enable, construct
+	if obj:HasUpgrade(id) then
+		enable = not obj.upgrade_on_off_state[id]
+	else
+		construct = not obj:IsUpgradeBeingConstructed(id)
+	end
+	BroadcastAction(obj, function(bld)
+		if not bld:GetUpgradeTier(id) then --upgrade id not present for this bld
+			return
+		elseif bld:HasUpgrade(id) then
+			if enable ~= nil and bld.upgrade_on_off_state[id] ~= enable then
+				bld:ToggleUpgradeOnOff(id)
+			end
+		else
+			if construct ~= nil and construct ~= bld:IsUpgradeBeingConstructed(id) then
+				bld:ConstructUpgrade(id)
+			end
+		end
+		ObjModified(bld)
+	end)
+else
+	if obj:HasUpgrade(id) then
+		obj:ToggleUpgradeOnOff(id)
+	else
+		obj:ConstructUpgrade(id)
+	end
+end
+
+RebuildInfopanel(obj)
+ObjModified(obj)
+end,
+			}),
+			PlaceObj('XTemplateTemplate', {
+				'__template', "InfopanelText",
+				'Id', "idUpgradeProgress",
+				'Dock', "bottom",
+				'FoldWhenHidden', true,
+				'ContextUpdateOnOpen', true,
+				'OnContextUpdate', function (self, context, ...)
+local i = self.context.i
+local id = context:GetUpgradeID(i)
+if context:HasUpgrade(id) then
+	self:SetVisible(false)
+	return
+end
+local visible = context:IsUpgradeBeingConstructed(id)
+self:SetVisible(visible)
+
+if visible then
+	local obj = ResolvePropObj(context)
+	self:SetText(T{11445, --[[Infopanel upgrade under construction cost]] "Upgrade cost<right><cost>", cost = obj:UpgradeCosts(i)})
+end
+end,
+			}),
 			}),
 		}),
 })

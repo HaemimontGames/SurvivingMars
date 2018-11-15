@@ -4,52 +4,44 @@ PlaceObj('XTemplate', {
 	group = "CCC",
 	id = "ColonyStats",
 	PlaceObj('XTemplateTemplate', {
-		'__template', "OverlayDlg",
+		'__template', "NewOverlayDlg",
 		'HostInParent', true,
 		'InternalModes', "graph",
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "CommandCenterTitle",
-			'Title', T{9680, --[[XTemplate ColonyStats Title]] "COLONY STATS"},
+			'Title', T{282240748525, --[[XTemplate ColonyStats Title]] "GRAPHS"},
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XContentTemplate",
+			'Id', "idContent",
 		}, {
 			PlaceObj('XTemplateWindow', {
 				'__class', "XDialog",
-				'Margins', box(30, 0, 0, 0),
 				'InternalModes', "graph",
 			}, {
 				PlaceObj('XTemplateCode', {
 					'run', function (self, parent, context)
 parent:CreateThread("DailyUpdate", function(dlg, day)
-	while true do
-		if day ~= UICity.day then
-			day = UICity.day
-			dlg:SetMode(dlg.Mode, dlg.mode_param)
-		end
-		for _, win in ipairs(dlg.idContent.idScrollArea) do
-			win.idLegend:SetText(win.idLegend:GetText())
-		end
-		Sleep(1000)
+	for _, win in ipairs(dlg.idContent) do
+		win.idTitle:SetText(win.idTitle:GetText())
 	end
 end, parent, UICity.day)
 local dlg = GetDialog(parent)
 if dlg then
 	dlg.OnShortcut = function(dlg, shortcut, source)
 		if shortcut == "RightShoulder" then
-			local scroll_area = dlg.idContent.idScrollArea
-			if not scroll_area:IsFocused(true) then
-				local graph = scroll_area[rawget(dlg, "focused_graph") or 1]
-				scroll_area:ScrollIntoView(graph)
+			local content = dlg.idContent
+			if not content:IsFocused(true) then
+				local graph = content[rawget(dlg, "focused_graph") or 1]
 				graph.idList:SetFocus()
 				graph.idList:SetSelection(rawget(dlg, "last_list_focus") or 1)
 				return "break"
 			end
-		elseif shortcut == "LeftShoulder" and rawget(dlg, "idButtons") then
+		elseif (shortcut == "LeftShoulder" or shortcut == "ButtonB") and rawget(dlg, "idButtons") then
 			local buttons = dlg.idButtons
 			if not buttons:IsFocused(true) then
-				rawset(dlg, "last_list_focus", dlg.idContent.idScrollArea[rawget(dlg, "focused_graph") or 1].idList.focused_item)
+				rawset(dlg, "last_list_focus", dlg.idContent[rawget(dlg, "focused_graph") or 1].idList.focused_item)
 				local item
 				local mode_param = dlg.mode_param
 				if mode_param then
@@ -64,30 +56,40 @@ if dlg then
 end
 end,
 				}),
+				PlaceObj('XTemplateTemplate', {
+					'__template', "ScrollbarNew",
+					'Id', "idButtonsScroll",
+					'ZOrder', 0,
+					'Margins', box(87, 0, 0, 0),
+					'Target', "idButtonsScrollArea",
+				}),
 				PlaceObj('XTemplateWindow', {
-					'Id', "idButtons",
-					'IdNode', true,
-					'ZOrder', 2,
-					'Dock', "top",
-					'HAlign', "center",
-					'VAlign', "top",
-					'LayoutMethod', "HList",
+					'__class', "XScrollArea",
+					'Id', "idButtonsScrollArea",
+					'IdNode', false,
+					'Dock', "left",
+					'VScroll', "idButtonsScroll",
 				}, {
-					PlaceObj('XTemplateFunc', {
-						'name', "OnShortcut(self, shortcut, source)",
-						'func', function (self, shortcut, source)
+					PlaceObj('XTemplateWindow', {
+						'Id', "idButtons",
+						'IdNode', true,
+						'ZOrder', 2,
+						'Margins', box(12, 0, 0, 0),
+						'LayoutMethod', "VList",
+					}, {
+						PlaceObj('XTemplateFunc', {
+							'name', "OnShortcut(self, shortcut, source)",
+							'func', function (self, shortcut, source)
 return CCC_ButtonListOnShortcut(self, shortcut, source)
 end,
-					}),
-					PlaceObj('XTemplateForEach', {
-						'array', function (parent, context) return UICity:GetColonyStatsButtons() end,
-						'__context', function (parent, context, item, i, n) return item end,
-						'run_after', function (child, context, item, i, n)
-if item.margin_right then
-	child:SetMargins(box(0,0,item.margin_right, 0))
-end
+						}),
+						PlaceObj('XTemplateForEach', {
+							'array', function (parent, context) return UICity:GetColonyStatsButtons() end,
+							'__context', function (parent, context, item, i, n) return item end,
+							'run_after', function (child, context, item, i, n)
 child:SetId("idButton" .. i)
 if item.button_caption then
+	child:SetText(item.button_caption)
 	child:SetRolloverTitle(item.button_caption)
 	child:SetRolloverText(item.button_text)
 end
@@ -108,27 +110,11 @@ local hint_gamepad = child.RolloverHintGamepad
 hint_gamepad = hint_gamepad .. " " .. T{9802, "<RB> Inspect"}
 child:SetRolloverHintGamepad(hint_gamepad)
 end,
-					}, {
-						PlaceObj('XTemplateWindow', {
-							'__class', "XTextButton",
-							'RolloverTemplate', "Rollover",
-							'RolloverAnchor', "left",
-							'RolloverAnchorId', "node",
-							'RolloverHint', T{549700209969, --[[XTemplate ColonyStats RolloverHint]] "<left_click> Show Graphs"},
-							'RolloverHintGamepad', T{968517701277, --[[XTemplate ColonyStats RolloverHintGamepad]] "<ButtonA> Show Graphs"},
-							'VAlign', "center",
-							'ScaleModifier', point(700, 700),
-							'LayoutMethod', "Box",
-							'Background', RGBA(0, 0, 0, 0),
-							'RolloverZoom', 1200,
-							'RolloverDrawOnTop', true,
-							'MouseCursor', "UI/Cursors/Rollover.tga",
-							'RelativeFocusOrder', "next-in-line",
-							'FXMouseIn', "MenuItemHover",
-							'FXPress', "MenuItemClick",
-							'FXPressDisabled', "UIDisabledButtonPressed",
-							'FocusedBackground', RGBA(0, 0, 0, 0),
-							'OnPress', function (self, gamepad)
+						}, {
+							PlaceObj('XTemplateTemplate', {
+								'__template', "CommandCenterButton",
+								'Margins', box(-12, 0, 0, -14),
+								'OnPress', function (self, gamepad)
 local dlg = GetDialog(self)
 local context = self.context
 dlg:SetContext(context)
@@ -141,51 +127,41 @@ dlg:SetMode("graph", {pressed = self.Id})
 self:SetIcon(context.on_icon)
 local parent_dlg = GetDialog(dlg.parent)
 parent_dlg.context.graph_id = context.id
+
+for i=1,#self.parent do
+	if IsKindOf(self.parent[i], "XToggleButton") then
+		self.parent[i]:SetToggled(false)
+	end
+end
+XToggleButton.OnPress(self)
 end,
-							'RolloverBackground', RGBA(0, 0, 0, 0),
-							'PressedBackground', RGBA(0, 0, 0, 0),
-						}, {
-							PlaceObj('XTemplateWindow', {
-								'__class', "XImage",
-								'Id', "idRollover",
-								'Margins', box(-6, -6, -6, -6),
-								'Visible', false,
-								'FadeInTime', 100,
-								'FadeOutTime', 100,
-								'FXMouseIn', "MenuItemHovers",
-								'FXPress', "MenuItemClick",
-								'FXPressDisabled', "UIDisabledButtonPressed",
-								'Image', "UI/Common/Hex_small_shine.tga",
-								'ImageFit', "stretch",
-							}),
+							}, {
+								PlaceObj('XTemplateFunc', {
+									'name', "OnSetFocus",
+									'func', function (self, ...)
+self:Press()
+XToggleButton.OnSetFocus(self, ...)
+end,
+								}),
+								}),
 							}),
 						}),
 					}),
 				PlaceObj('XTemplateWindow', {
-					'__class', "XContentTemplate",
-					'Id', "idContent",
+					'__class', "XSizeConstrainedWindow",
 				}, {
-					PlaceObj('XTemplateMode', {
-						'mode', "graph",
+					PlaceObj('XTemplateWindow', {
+						'__class', "XContentTemplate",
+						'Id', "idContent",
+						'Padding', box(16, 0, 0, 0),
+						'LayoutMethod', "VList",
 					}, {
-						PlaceObj('XTemplateTemplate', {
-							'__template', "Scrollbar",
-							'Id', "idScroll",
-							'Margins', box(10, 0, 0, 0),
-							'Target', "idScrollArea",
-						}),
-						PlaceObj('XTemplateWindow', {
-							'__class', "XScrollArea",
-							'Id', "idScrollArea",
-							'Margins', box(0, 15, 0, 0),
-							'Padding', box(90, 0, 90, 0),
-							'VAlign', "center",
-							'LayoutMethod', "VList",
-							'VScroll', "idScroll",
+						PlaceObj('XTemplateMode', {
+							'mode', "graph",
 						}, {
 							PlaceObj('XTemplateForEach', {
 								'array', function (parent, context) return GetDialog(parent).context end,
-								'__context', function (parent, context, item, i, n) local data, unit = TimeSeries_GetGraphValueHeights(item.data, UICity.day, 50, 270, 6); return SubContext(item, {data = data, unit = unit, columns = #(item.data)}) end,
+								'__context', function (parent, context, item, i, n) local data, unit = TimeSeries_GetGraphValueHeights(item.data, UICity.day, 50, 240, 4); return SubContext(item, {data = data, unit = unit, columns = #(item.data)}) end,
 								'run_after', function (child, context, item, i, n)
 if i ~= 1 then
 	child:SetMargins(box(0,15,0,0))
@@ -194,6 +170,7 @@ end,
 							}, {
 								PlaceObj('XTemplateTemplate', {
 									'__template', "Graph",
+									'Margins', box(0, -12, 0, 0),
 								}),
 								}),
 							}),

@@ -52,7 +52,7 @@ DefineClass.AttackRover = {
 	
 	attack_look_for_target = false,
 
-	palettes = { "AttackRoverBlue" },
+	palette = {"outside_dark","rover_base","outside_accent_1","rover_base"},
 	land_decal_name = "DecRocketSplatter",
 	
 	pin_summary1 = "",
@@ -156,10 +156,7 @@ function AttackRover:Spawn()
 		-- launch a meteor 
 		local pos = spawn_pos + dir
 		local rover = PlaceObject("FakeAttackRover")
-		local palette = self.palettes and EntityPalettes[self.palettes[1]]
-		if palette then
-			SetObjectPalette(rover, palette)
-		end
+		CopyColorizationMaterial(self, rover)
 		rover:SetPos(pos)
 		PlayFX("Meteor", "start", rover, nil, nil, dir)
 		spawn_pos = terrain.GetIntersection(pos, spawn_pos)
@@ -392,7 +389,7 @@ function AttackRover:Repair()
 	self.is_repair_request_initialized = false
 	if city.mystery.reclaim_repaired_rovers then
 		self.reclaimed = true
-		self.palettes = { "AttackRoverRed" }
+		self.palette = {"outside_dark","rover_base","outside_accent_2","rover_base"}
 		SetPaletteFromClassMember(self)
 		city:AddToLabel("Rover", self)
 		CommandObject.SetCommand(self, "Idle")
@@ -403,6 +400,7 @@ function AttackRover:Repair()
 		self:SetCommand("Roam")
 	end
 	Msg("AttackRoverRepaired", self)
+	Msg("Repaired", self)
 	ObjModified(self)
 end
 

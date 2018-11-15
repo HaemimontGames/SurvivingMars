@@ -6,11 +6,8 @@ PlaceObj('XTemplate', {
 	id = "InfopanelSectionTitle",
 	PlaceObj('XTemplateWindow', {
 		'__class', "XText",
-		'HAlign', "center",
 		'VAlign', "center",
-		'TextFont', "InfopanelSectionTitle",
-		'TextColor', RGBA(244, 228, 117, 255),
-		'RolloverTextColor', RGBA(244, 228, 117, 255),
+		'TextStyle', "SectionTitle",
 		'Translate', true,
 		'HideOnEmpty', true,
 	}),

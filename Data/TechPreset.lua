@@ -1,6 +1,118 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 PlaceObj('TechPreset', {
+	description = T{207831279529, --[[TechPreset AnomalousGenomeResequencing description]] "Discover the reason behind the unexpected overnight gene re-writing of your colonists."},
+	display_name = T{11400, --[[TechPreset AnomalousGenomeResequencing display_name]] "Anomalous Genome Resequencing"},
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "AnomalousGenomeResequencing",
+})
+
+PlaceObj('TechPreset', {
+	description = T{243039926162, --[[TechPreset Cure4Cancer description]] "Dedicate your research towards the initiative for discovering a Cure for cancer."},
+	display_name = T{11062, --[[TechPreset Cure4Cancer display_name]] "Cancer Research Initiative"},
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "Cure4Cancer",
+})
+
+PlaceObj('TechPreset', {
+	description = T{113438988242, --[[TechPreset DustSicknessCure description]] "The Dust Sickness is affecting more and more colonists we need to find a cure as soon as possible. Once the cure is found afflicted colonists will lose the Dust Sickness trait."},
+	display_name = T{11401, --[[TechPreset DustSicknessCure display_name]] "Dust Sickness Cure"},
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "DustSicknessCure",
+})
+
+PlaceObj('TechPreset', {
+	description = T{914208702775, --[[TechPreset GeneForging description]] "Increases the chance that a Colonist will have or gain a <em>rare trait</em>."},
+	display_name = T{11402, --[[TechPreset GeneForging display_name]] "Gene Forging"},
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "GeneForging",
+	param1 = 50,
+	param1comment = "bonus chance for rare traits",
+})
+
+PlaceObj('TechPreset', {
+	description = T{786770300927, --[[TechPreset MOXIE_2 description]] "Redesign the MOXIE unit from the ground up to remove all design flaws and patchworks and increase air production by <param1>."},
+	display_name = T{11212, --[[TechPreset MOXIE_2 display_name]] "MOXIE 2.0"},
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "MOXIE_2",
+	param1 = 2,
+	param1comment = "air production",
+	PlaceObj('Effect_ModifyLabel', {
+		Amount = 2,
+		Label = "MOXIE",
+		Prop = "air_production",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	display_name = T{11213, --[[TechPreset Nero_Antidote display_name]] "Nero Antidote"},
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "Nero_Antidote",
+})
+
+PlaceObj('TechPreset', {
+	description = T{435746095458, --[[TechPreset RogueNaniteDeactivation description]] "Deactivate the Rogue Nanites to stop their destructive effect on your Colony."},
+	display_name = T{11403, --[[TechPreset RogueNaniteDeactivation display_name]] "Rogue Nanite Deactivation"},
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "RogueNaniteDeactivation",
+})
+
+PlaceObj('TechPreset', {
+	description = T{217591992579, --[[TechPreset RogueNanitesAnalysis description]] "Analyze the abnormal behavior of the Rogue Nanites and the reasons for the glitch."},
+	display_name = T{11404, --[[TechPreset RogueNanitesAnalysis display_name]] "Rogue Nanites Analysis"},
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "RogueNanitesAnalysis",
+})
+
+PlaceObj('TechPreset', {
+	description = T{200121853016, --[[TechPreset SurveyOffer description]] "Complete this research to immediately discover several new metal and rare metal deposits."},
+	display_name = T{11063, --[[TechPreset SurveyOffer display_name]] "Geo-Crust Scanner"},
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "SurveyOffer",
+})
+
+PlaceObj('TechPreset', {
+	description = T{857507799905, --[[TechPreset TheCypher description]] "Decipher the secret contents of a strange message discovered in a strange probe on the surface of Mars."},
+	display_name = T{11405, --[[TechPreset TheCypher display_name]] "The Cypher"},
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "TheCypher",
+})
+
+PlaceObj('TechPreset', {
+	description = T{857527054258, --[[TechPreset TheIncident description]] "Investigate the reason behind the critical malfunction of one of our Fusion Reactors. You won't be able to construct new Fusion Reactors until this tech has been researched."},
+	display_name = T{11064, --[[TechPreset TheIncident display_name]] "The Incident"},
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "TheIncident",
+})
+
+PlaceObj('TechPreset', {
+	description = T{485387209053, --[[TechPreset ViolentUrges description]] "Investigates the inexplicable crimes committed by Arcology residents."},
+	display_name = T{11406, --[[TechPreset ViolentUrges display_name]] "Violent Urges"},
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "ViolentUrges",
+})
+
+PlaceObj('TechPreset', {
+	description = T{917722138254, --[[TechPreset WindTurbineRedesign description]] "Our initial design for Wind Turbines is underperforming. We need a better one taking into account the real Martian conditions."},
+	display_name = T{11099, --[[TechPreset WindTurbineRedesign display_name]] "Wind Turbine Redesign"},
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "WindTurbineRedesign",
+})
+
+PlaceObj('TechPreset', {
 	SortKey = 1,
 	description = T{6321, --[[TechPreset HygroscopicVaporators description]] "Moisture Vaporator Upgrade (<em>Hygroscopic Coating</em>) - Water production increased by <param1>%.\n\n<grey>With its mechanical simplicity and applicability to any point on Mars's surface, the Water-Vapor Adsorption Reactor technology can extract water directly from the Martian atmosphere.</grey>"},
 	display_name = T{6320, --[[TechPreset HygroscopicVaporators display_name]] "Hygroscopic Vaporators"},
@@ -327,7 +439,7 @@ PlaceObj('TechPreset', {
 PlaceObj('TechPreset', {
 	SortKey = 1,
 	description = T{6522, --[[TechPreset ConstructionNanites description]] "<em>Buildings</em> construct themselves slowly without Drones. Nanites will seek out resources from nearby resource depots.\n\n<grey>With a payload of several molecules and an electronic instrument used for both navigating and knowing its purpose, Construction Nanites form slightly saturated winds which to the casual observer would seem to erect buildings as if by magic.</grey>"},
-	display_name = T{6521, --[[TechPreset ConstructionNanites display_name]] "Construction Nanites "},
+	display_name = T{6521, --[[TechPreset ConstructionNanites display_name]] "Construction Nanites"},
 	group = "Breakthroughs",
 	icon = "UI/Icons/Research/construction_nanites.tga",
 	id = "ConstructionNanites",
@@ -419,7 +531,7 @@ PlaceObj('TechPreset', {
 PlaceObj('TechPreset', {
 	SortKey = 9,
 	description = T{6537, --[[TechPreset HiveMind description]] 'Residents in the <em>Arcology</em> get a bonus to work performance based on the number of unique perks and specializations of colonists living in the Arcology.\n\n<grey>"The tools that a society uses to create and maintain itself are as central to human life as a hive is to bee life. Though the hive is not part of any individual bee, it is part of the colony, both shaped by and shaping the lives of its inhabitants."\n<right>Clay Shirky</grey><left>'},
-	display_name = T{6536, --[[TechPreset HiveMind display_name]] "Hive Mind "},
+	display_name = T{6536, --[[TechPreset HiveMind display_name]] "Hive Mind"},
 	group = "Breakthroughs",
 	icon = "UI/Icons/Research/hive_mind.tga",
 	id = "HiveMind",
@@ -766,7 +878,7 @@ PlaceObj('TechPreset', {
 
 PlaceObj('TechPreset', {
 	SortKey = 34,
-	description = T{6590, --[[TechPreset HypersensitivePhotovoltaics description]] "Solar Panels and Large Solar Panels <em>Power production</em> increased by <param1>%.\n\n<grey>An abundance of field experience has culminated in our engineers creating the perfect solar cells made specifically for the Martian atmosphere dust consistency.</grey>"},
+	description = T{6590, --[[TechPreset HypersensitivePhotovoltaics description]] "<if_all(has_dlc('gagarin'),is_sponsor('SpaceY'))>Solar Arrays, </if>Solar Panels and Large Solar Panels <em>Power production</em> increased by <param1>%.\n\n<grey>An abundance of field experience has culminated in our engineers creating the perfect solar cells made specifically for the Martian atmosphere dust consistency.</grey>"},
 	display_name = T{6589, --[[TechPreset HypersensitivePhotovoltaics display_name]] "Hypersensitive Photovoltaics"},
 	group = "Breakthroughs",
 	icon = "UI/Icons/Research/hypersensitive_photovoltaics.tga",
@@ -775,6 +887,11 @@ PlaceObj('TechPreset', {
 	param1comment = "Production Bonus",
 	PlaceObj('Effect_ModifyLabel', {
 		Label = "SolarPanel",
+		Percent = 100,
+		Prop = "electricity_production",
+	}),
+	PlaceObj('Effect_ModifyLabel', {
+		Label = "SolarArray",
 		Percent = 100,
 		Prop = "electricity_production",
 	}),
@@ -798,8 +915,9 @@ PlaceObj('TechPreset', {
 
 PlaceObj('TechPreset', {
 	SortKey = 36,
-	description = T{6593, --[[TechPreset ZeroSpaceComputing description]] "Research Lab & Hawking Institute Upgrade (<em>Zero-Space Computing</em>) - Research points production increased.\n\n<grey>Thinking outside the box, Martian mathematicians have begun developing a new mathematical apparatus which will open the doors to new scientific models and theories.</grey>"},
+	description = T{10511, --[[TechPreset ZeroSpaceComputing description]] "<if_all(has_dlc('gagarin'),is_sponsor('ESA'))>Low-G Lab, </if>Research Lab & Hawking Institute Upgrade (<em>Zero-Space Computing</em>) - Research points production increased.\n\n<grey>Thinking outside the box, Martian mathematicians have begun developing a new mathematical apparatus which will open the doors to new scientific models and theories.</grey>"},
 	display_name = T{5232, --[[TechPreset ZeroSpaceComputing display_name]] "Zero-Space Computing"},
+	dlc = "gagarin",
 	group = "Breakthroughs",
 	icon = "UI/Icons/Research/zero-space_computing.tga",
 	id = "ZeroSpaceComputing",
@@ -808,6 +926,9 @@ PlaceObj('TechPreset', {
 	}),
 	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "ScienceInsitiute_ZeroSpace",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "LowGLab_ZeroSpace",
 	}),
 })
 
@@ -843,6 +964,12 @@ PlaceObj('TechPreset', {
 	}),
 	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "WaterExtractor_MagneticExtraction",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "AutomaticMetalsExtractor_MagneticExtraction",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "ConcretePlant_MagneticExtraction",
 	}),
 })
 
@@ -978,6 +1105,9 @@ PlaceObj('TechPreset', {
 	PlaceObj('Effect_UnlockResupplyItem', {
 		Item = "HangingGardens",
 	}),
+	PlaceObj('Effect_UnlockResupplyItem', {
+		Item = "Temple",
+	}),
 })
 
 PlaceObj('TechPreset', {
@@ -1030,13 +1160,25 @@ PlaceObj('TechPreset', {
 		Upgrade = "Spacebar_ServiceBots",
 	}),
 	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "SpacebarSmall_ServiceBots",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "ShopElectronics_ServiceBots",
 	}),
 	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "ShopFood_ServiceBots",
 	}),
 	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "ShopFoodSmall_ServiceBots",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "ShopJewelry_ServiceBots",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "ShopJewelrySmall_ServiceBots",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "MegaMall_ServiceBots",
 	}),
 })
 
@@ -1044,6 +1186,7 @@ PlaceObj('TechPreset', {
 	SortKey = 49,
 	description = T{7927, --[[TechPreset OverchargeAmplification description]] '<em>Amplify</em> upgrades grant a bigger boost to production.\n\n<grey>"Power! Unlimited Power!"\n<right>Sheev</grey><left>'},
 	display_name = T{7926, --[[TechPreset OverchargeAmplification display_name]] "Overcharge Amplifications"},
+	dlc = "gagarin",
 	group = "Breakthroughs",
 	icon = "UI/Icons/Research/overcharge_amplifications.tga",
 	id = "OverchargeAmplification",
@@ -1056,6 +1199,11 @@ PlaceObj('TechPreset', {
 		Percent = 20,
 		Prop = "production_per_day1",
 		Upgrade = "MachinePartsFactory_Amplify",
+	}),
+	PlaceObj('Effect_ModifyUpgrade', {
+		Percent = 20,
+		Prop = "production_per_day1",
+		Upgrade = "MachinePartsFactorySmall_Amplify",
 	}),
 	PlaceObj('Effect_ModifyUpgrade', {
 		Percent = 20,
@@ -1084,6 +1232,11 @@ PlaceObj('TechPreset', {
 	}),
 	PlaceObj('Effect_ModifyUpgrade', {
 		Percent = 20,
+		Prop = "production_per_day1",
+		Upgrade = "ElectronicsFactorySmall_Amplify",
+	}),
+	PlaceObj('Effect_ModifyUpgrade', {
+		Percent = 20,
 		Prop = "ResearchPointsPerDay",
 		Upgrade = "ResearchLab_Amplify",
 	}),
@@ -1102,6 +1255,36 @@ PlaceObj('TechPreset', {
 		Prop = "performance",
 		Upgrade = "NetworkNode_Amplify",
 	}),
+	PlaceObj('Effect_ModifyUpgrade', {
+		Percent = 20,
+		Prop = "production_per_day1",
+		Upgrade = "AutomaticMetalsExtractor_Amplify",
+	}),
+	PlaceObj('Effect_ModifyUpgrade', {
+		Percent = 20,
+		Prop = "production_per_day1",
+		Upgrade = "ConcretePlant_Amplify",
+	}),
+	PlaceObj('Effect_ModifyUpgrade', {
+		Percent = 20,
+		Prop = "ResearchPointsPerDay",
+		Upgrade = "LowGLab_Amplify",
+	}),
+	PlaceObj('Effect_ModifyUpgrade', {
+		Percent = 20,
+		Prop = "production_per_day1",
+		Upgrade = "MetalsRefinery_Amplify",
+	}),
+	PlaceObj('Effect_ModifyUpgrade', {
+		Percent = 20,
+		Prop = "production_per_day",
+		Upgrade = "RareMetalsRefinery_Amplify",
+	}),
+	PlaceObj('Effect_ModifyUpgrade', {
+		Percent = 20,
+		Prop = "production_per_day",
+		Upgrade = "WasteRockProcessor_Amplify",
+	}),
 })
 
 PlaceObj('TechPreset', {
@@ -1113,6 +1296,9 @@ PlaceObj('TechPreset', {
 	id = "PlutoniumSynthesis",
 	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "StirlingGenerator_PlutoniumCore",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "AdvancedStirlingGenerator_PlutoniumCore",
 	}),
 })
 
@@ -1187,10 +1373,16 @@ PlaceObj('TechPreset', {
 		Upgrade = "ElectronicsFactory_Automation",
 	}),
 	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "ElectronicsFactorySmall_Automation",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "PolymerPlant_Automation",
 	}),
 	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "MachinePartsFactory_Automation",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "MachinePartsFactorySmall_Automation",
 	}),
 })
 
@@ -1320,6 +1512,11 @@ PlaceObj('TechPreset', {
 		Prop = "air_capacity",
 	}),
 	PlaceObj('Effect_ModifyLabel', {
+		Label = "OxygenTank_Large",
+		Percent = 50,
+		Prop = "air_capacity",
+	}),
+	PlaceObj('Effect_ModifyLabel', {
 		Label = "Battery_WaterFuelCell",
 		Percent = 50,
 		Prop = "capacity",
@@ -1394,11 +1591,14 @@ PlaceObj('TechPreset', {
 	PlaceObj('Effect_TechUnlockBuilding', {
 		Building = "ElectronicsFactory",
 	}),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "ElectronicsFactory_Small",
+	}),
 })
 
 PlaceObj('TechPreset', {
 	SortKey = 12,
-	description = T{8861, --[[TechPreset MegaStorage description]] "New Building: <em>Large Water Tank</em> (<buildinginfo('LargeWaterTank')>) - stores very large amounts of water.\n\n<grey>\"If there's magic on this planet, it is contained in water.\"\n<right>Loren Eiseley</grey><left>"},
+	description = T{8861, --[[TechPreset MegaStorage description]] "New Building: <em>Large Water Tank</em> (<buildinginfo('LargeWaterTank')>) - stores very large amounts of water.\n<if(has_dlc('contentpack3'))>New Building: <em>Large Oxygen Tank</em> (<buildinginfo('OxygenTank_Large')>) - stores very large amounts of oxygen.</if>\n\n<grey>\"If there's magic on this planet, it is contained in water.\"\n<right>Loren Eiseley</grey><left>"},
 	display_name = T{8860, --[[TechPreset MegaStorage display_name]] "Mega Storage"},
 	group = "Engineering",
 	icon = "UI/Icons/Research/mega_storage.tga",
@@ -1406,6 +1606,9 @@ PlaceObj('TechPreset', {
 	position = range(6, 12),
 	PlaceObj('Effect_TechUnlockBuilding', {
 		Building = "LargeWaterTank",
+	}),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "OxygenTank_Large",
 	}),
 })
 
@@ -1531,12 +1734,15 @@ PlaceObj('TechPreset', {
 
 PlaceObj('TechPreset', {
 	SortKey = 19,
-	description = T{7671, --[[TechPreset WasteRockLiquefaction description]] 'Drones can extract concrete from <em>Waste Rock</em> stored in Dumping Sites.\n\n<grey>The utilization of lots of waste rock by reprocessing it into becoming concrete-grade regolith as part of our "Nothing Is Wasted" efficiency policy.</grey>'},
+	description = T{7671, --[[TechPreset WasteRockLiquefaction description]] "New Building: <em>Waste Rock Processor</em> (<buildinginfo('WasteRockProcessor')>) - slowly converts Waste Rock into Concrete.\n\n<grey>The utilization of lots of waste rock by reprocessing it into becoming concrete-grade regolith as part of our \"Nothing Is Wasted\" efficiency policy.</grey>"},
 	display_name = T{6393, --[[TechPreset WasteRockLiquefaction display_name]] "Waste Rock Liquefaction"},
 	group = "Engineering",
 	icon = "UI/Icons/Research/waste_rock_liquefaction.tga",
 	id = "WasteRockLiquefaction",
 	position = range(14, 19),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "WasteRockProcessor",
+	}),
 })
 
 PlaceObj('TechPreset', {
@@ -1745,7 +1951,7 @@ end,
 
 PlaceObj('TechPreset', {
 	SortKey = 1,
-	description = T{6441, --[[TechPreset ExtractorAmplification description]] 'Extractor Upgrade (<em>Amplify</em>) - Increases production by <param1>% but also increases Power consumption by <power(param2)>.\n\n<grey>"From the first day to this, sheer greed was the driving spirit of civilization."\n<right>Friedrich Engels</grey><left>'},
+	description = T{10512, --[[TechPreset ExtractorAmplification description]] "<if_all(has_dlc('gagarin'),is_sponsor('Roscosmos'))>Concrete Plant & </if>Extractors Upgrade (<em>Amplify</em>) - Increases production by <param1>% but also increases Power consumption by <power(param2)>.\n\n<grey>\"From the first day to this, sheer greed was the driving spirit of civilization.\"\n<right>Friedrich Engels</grey><left>"},
 	display_name = T{6440, --[[TechPreset ExtractorAmplification display_name]] "Extractor Amplification"},
 	group = "Physics",
 	icon = "UI/Icons/Research/extractor_amplification.tga",
@@ -1766,6 +1972,12 @@ PlaceObj('TechPreset', {
 	}),
 	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "WaterExtractor_Amplify",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "AutomaticMetalsExtractor_Amplify",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "ConcretePlant_Amplify",
 	}),
 })
 
@@ -1815,6 +2027,9 @@ PlaceObj('TechPreset', {
 	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "WindTurbine_PolymerBlades",
 	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "WindTurbineLarge_PolymerBlades",
+	}),
 })
 
 PlaceObj('TechPreset', {
@@ -1827,6 +2042,10 @@ PlaceObj('TechPreset', {
 	position = range(1, 5),
 	PlaceObj('Effect_ModifyResupplyParam', {
 		Item = "OrbitalProbe",
+		Percent = -50,
+	}),
+	PlaceObj('Effect_ModifyResupplyParam', {
+		Item = "AdvancedOrbitalProbe",
 		Percent = -50,
 	}),
 })
@@ -1871,7 +2090,7 @@ PlaceObj('TechPreset', {
 
 PlaceObj('TechPreset', {
 	SortKey = 9,
-	description = T{6455, --[[TechPreset FactoryAmplification description]] "Factory Upgrade (<em>Amplify</em>) - Increases production by <param1>% but also increases Power consumption by <power(param2)>.\n\n<grey>Scaling power production to meet the needs of manufacturing is a challenge on Mars.</grey>"},
+	description = T{10513, --[[TechPreset FactoryAmplification description]] "Refineries & Factories Upgrade (<em>Amplify</em>) - Increases production by <param1>% but also increases Power consumption by <power(param2)>.\n\n<grey>Scaling power production to meet the needs of manufacturing is a challenge on Mars.</grey>"},
 	display_name = T{6454, --[[TechPreset FactoryAmplification display_name]] "Factory Amplification"},
 	group = "Physics",
 	icon = "UI/Icons/Research/factory_amplification.tga",
@@ -1885,13 +2104,28 @@ PlaceObj('TechPreset', {
 		Upgrade = "ElectronicsFactory_Amplify",
 	}),
 	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "ElectronicsFactorySmall_Amplify",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "FuelFactory_Amplify",
 	}),
 	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "MachinePartsFactory_Amplify",
 	}),
 	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "MachinePartsFactorySmall_Amplify",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "PolymerPlant_Amplify",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "MetalsRefinery_Amplify",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "RareMetalsRefinery_Amplify",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "WasteRockProcessor_Amplify",
 	}),
 })
 
@@ -2000,7 +2234,7 @@ PlaceObj('TechPreset', {
 
 PlaceObj('TechPreset', {
 	SortKey = 17,
-	description = T{6471, --[[TechPreset ResearchAmplification description]] "Research Labs, Hawking Institutes and the Network Node Upgrade (<em>Amplify</em>) - Increases production by <param1>% but also increases Power consumption.\n\n<grey>The speed of the calculations and research efficiency grows with the amount of power invested.</grey>"},
+	description = T{10514, --[[TechPreset ResearchAmplification description]] "<if_all(has_dlc('gagarin'),is_sponsor('ESA'))>Low-G Lab, </if> Research Lab, Hawking Institute & Network Node Upgrade (<em>Amplify</em>) - Increases production by <param1>% but also increases Power consumption.\n\n<grey>The speed of the calculations and research efficiency grows with the amount of power invested.</grey>"},
 	display_name = T{6470, --[[TechPreset ResearchAmplification display_name]] "Research Amplification"},
 	group = "Physics",
 	icon = "UI/Icons/Research/research_amplification.tga",
@@ -2016,6 +2250,9 @@ PlaceObj('TechPreset', {
 	}),
 	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "NetworkNode_Amplify",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "LowGLab_Amplify",
 	}),
 })
 
@@ -2270,6 +2507,9 @@ PlaceObj('TechPreset', {
 	PlaceObj('Effect_TechUnlockBuilding', {
 		Building = "MachinePartsFactory",
 	}),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "MachinePartsFactory_Small",
+	}),
 })
 
 PlaceObj('TechPreset', {
@@ -2287,7 +2527,7 @@ PlaceObj('TechPreset', {
 
 PlaceObj('TechPreset', {
 	SortKey = 12,
-	description = T{6409, --[[TechPreset FueledExtractors description]] 'Extractor Upgrade (<em>Fueled Extractor</em>) - Production increased by <param1>% as long as the building is supplied with Fuel.\n\n<grey>"We should not just consume hydrocarbon fuel but use it to develop nuclear energy, hydro power and renewable energy sources."\n<right>Vladimir Putin<left></grey>'},
+	description = T{10515, --[[TechPreset FueledExtractors description]] "Extractors Upgrade (<em>Fueled Extractor</em>) - Production increased by <param1>% as long as the building is supplied with Fuel.\n\n<grey>'We should not just consume hydrocarbon fuel but use it to develop nuclear energy, hydro power and renewable energy sources.'\n<right>Vladimir Putin<left></grey>"},
 	display_name = T{6408, --[[TechPreset FueledExtractors display_name]] "Fueled Extractors"},
 	group = "Robotics",
 	icon = "UI/Icons/Research/fueled_extractors.tga",
@@ -2307,11 +2547,14 @@ PlaceObj('TechPreset', {
 	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "WaterExtractor_FueledExtractor",
 	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "AutomaticMetalsExtractor_FueledExtractor",
+	}),
 })
 
 PlaceObj('TechPreset', {
 	SortKey = 13,
-	description = T{6418, --[[TechPreset FactoryAI description]] "Factory Upgrade (<em>Factory AI</em>) - performance increased by <param1>%.\n\n<grey>After extensive trials and the allocation of many resources to the program, a work-safe AI has been developed to optimize various Factory operations.</grey>"},
+	description = T{10516, --[[TechPreset FactoryAI description]] "Refineries & Factories Upgrade (<em>Factory AI</em>) - performance increased by <param1>%.\n\n<grey>After extensive trials and the allocation of many resources to the program, a work-safe AI has been developed to optimize various Factory operations.</grey>"},
 	display_name = T{5054, --[[TechPreset FactoryAI display_name]] "Factory AI"},
 	group = "Robotics",
 	icon = "UI/Icons/Research/factory_ai.tga",
@@ -2323,13 +2566,28 @@ PlaceObj('TechPreset', {
 		Upgrade = "ElectronicsFactory_FactoryAI",
 	}),
 	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "ElectronicsFactorySmall_FactoryAI",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "MachinePartsFactory_FactoryAI",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "MachinePartsFactorySmall_FactoryAI",
 	}),
 	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "PolymerPlant_FactoryAI",
 	}),
 	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "FuelFactory_FactoryAI",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "MetalsRefinery_FactoryAI",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "RareMetalsRefinery_FactoryAI",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "WasteRockProcessor_FactoryAI",
 	}),
 })
 
@@ -2368,6 +2626,26 @@ PlaceObj('TechPreset', {
 	}),
 	PlaceObj('Effect_TechUnlockBuilding', {
 		Building = "RCExplorerBuilding",
+		HideBuilding = true,
+	}),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "RCSensorBuilding",
+		HideBuilding = true,
+	}),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "RCSolarBuilding",
+		HideBuilding = true,
+	}),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "RCDrillerBuilding",
+		HideBuilding = true,
+	}),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "RCHarvesterBuilding",
+		HideBuilding = true,
+	}),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "RCConstructorBuilding",
 		HideBuilding = true,
 	}),
 })
@@ -2710,6 +2988,9 @@ PlaceObj('TechPreset', {
 	}),
 	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "LivingQuarters_HomeCollective",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "LivingQuartersSmall_HomeCollective",
 	}),
 	PlaceObj('Effect_UnlockUpgrade', {
 		Upgrade = "SmartHome_HomeCollective",

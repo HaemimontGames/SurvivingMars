@@ -307,21 +307,26 @@ if Platform.developer then
 		end
 		local hex_rad = const.GridSpacing / 2
 		for _, slot in ipairs(bld.landing_slots or empty_table) do
-			local pos = point(FindDropPos(slot.pos:xy()))
-			local close = IsCloser2D(pos, slot.pos, hex_rad)
-			local color = close and green or red
-			DbgAddVector(pos, 100*guim)
-			DbgAddCircle(slot.pos, hex_rad, color)
-			if not close then
-				DbgAddVector(pos, slot.pos - pos, color)
+			local x, y = FindDropPos(slot.pos:xy())
+			if x then
+				local pos = point(x, y)
+				local close = IsCloser2D(pos, slot.pos, hex_rad)
+				local color = close and green or red
+				DbgAddVector(pos, 100*guim)
+				DbgAddCircle(slot.pos, hex_rad, color)
+				if not close then
+					DbgAddVector(pos, slot.pos - pos, color)
+				end
 			end
 		end
 	end
 	function ShowDropPosition(pos)
 		pos = pos or GetTerrainCursor()
 		DbgClearVectors()
-		local pos = point(FindDropPos(pos:xy()))
-		DbgAddVector(pos, 100*guim)
+		local x, y = FindDropPos(pos:xy())
+		if x then
+			DbgAddVector(point(x, y), 100*guim)
+		end
 	end
 end
 
@@ -394,7 +399,7 @@ DefineClass.CargoShuttle = {
 		{ id = "move_speed", default = 30*guim, name = T{6765, "Max Shuttle speed"}, modifiable = true, editor = "number" , no_edit = true},
 	},
 	
-	storable_resources = {"Concrete", "Metals", "Polymers", "Food", "Electronics", "MachineParts", "PreciousMetals", "Fuel", "Colonist", "MysteryResource", "BlackCube"},
+	storable_resources = {"Concrete", "Metals", "Polymers", "Food", "Electronics", "MachineParts", "PreciousMetals", "Fuel", "Colonist", "MysteryResource", "BlackCube", "WasteRock"},
 	max_x = 2,
 	max_y = 2,
 	max_z = 5,
@@ -426,8 +431,10 @@ DefineClass.CargoShuttle = {
 	fx_actor_class = "Shuttle",
 	encyclopedia_id = "Shuttle",
 	
-	palettes = { "Shuttle" },
+	palette = { "outside_accent_1", "outside_base", "outside_dark", "outside_base" },
 	max_land_dist = 8 * guim,
+	
+	history_entry = false,
 }
 
 function CargoShuttle:Init()
@@ -529,7 +536,7 @@ end
 
 function FindDropPos(x, y, pfclass, err_dist)
 	pfclass = pfclass or 0
-	if terrain.IsPassable(x, y, pfclass) then
+	if terrain.IsPassable(x, y, pfclass) and IsBuildableZone(x, y) then
 		return x, y
 	end
 	local HexGridGetObject = HexGridGetObject
@@ -559,7 +566,7 @@ function FindDropPos(x, y, pfclass, err_dist)
 	end, max_depth)
 	if not found then
 		assert(false, "No landing pos found!")
-		return x, y
+		return
 	end
 	assert(not err_dist or IsCloser2D(x, y, px, py, err_dist))
 	return px, py
@@ -622,6 +629,7 @@ function CargoShuttle:TransportColonist()
 			self:LeaveColonist(colonist)
 		end
 		
+		self:RegisterHistoryEntryWithHub(self.transport_task.state == "done")
 		self.transport_task.shuttle = false
 		self.transport_task = false
 		
@@ -849,6 +857,7 @@ function CargoShuttle:PickUp()
 	self:PushDestructor(function(self)
 		if state == "approach_supply" or state == "load" then
 			--we have failed to properly load resources
+			self:RegisterHistoryEntryWithHub(false)
 			self.transport_task = false
 			supply_request:UnassignUnit(amount, state == "load")
 			demand_request:UnassignUnit(amount, false)
@@ -935,6 +944,7 @@ function CargoShuttle:Deliver()
 	--unload destro
 	self:PushDestructor(function(self)
 		if state == "approach_demand" or state == "unload" then
+			self:RegisterHistoryEntryWithHub(false)
 			self.transport_task = false
 			if self.assigned_to_d_req then
 				local did_finish = state == "unload"
@@ -981,6 +991,7 @@ function CargoShuttle:Deliver()
 	self:SetCarriedResource(resource, -amount)
 	self:PopDestructor() --clean load, nothing to revert.
 	state = "done"
+	self:RegisterHistoryEntryWithHub(true)
 	demand_request:UnassignUnit(amount, true)
 	self.assigned_to_d_req = false
 	self.transport_task = false
@@ -1009,6 +1020,24 @@ function CargoShuttle:SetCount(new_count)
 	self.count = new_count/const.ResourceScale --this is a hack. It assumes that the shuttle will always carry one type of resource, and is here so that getstoredamount funcs that use count work correctly.
 end
 
+function CargoShuttle:RegisterHistoryEntryWithHub(success)
+	local he = self.history_entry
+	self.history_entry = false
+	local hub = self.hub
+	if not IsValid(hub) or not he then return end
+	he[1] = GameTime()
+	he[2] = success
+	table.insert(#he <= 5 and hub.people_flights or hub.cargo_flights, he)
+end
+
+function CargoShuttle:HistoryEntryFromTask(task)
+	if IsKindOf(task, "ColonistTransportTask") then
+		return { GameTime(), false, task.source_dome, task.dest_dome, task.colonist }
+	else
+		local amount = Min(self.max_shared_storage, task[2] and task[2]:GetTargetAmount() or max_int, task[3]:GetTargetAmount())
+		return { GameTime(), false, task[2] and task[2]:GetBuilding(), task[3]:GetBuilding(), task[4], amount }
+	end
+end
 --task maintenance
 function CargoShuttle:SetTransportTask(task)
 	task = task or false
@@ -1032,6 +1061,7 @@ function CargoShuttle:SetTransportTask(task)
 		end
 	end
 	self.transport_task = task
+	self.history_entry = self:HistoryEntryFromTask(task)
 	
 	if IsKindOf(task, "ColonistTransportTask") then
 		self.is_colonist_transport_task = true
@@ -1146,7 +1176,7 @@ function CargoShuttle:Idle()
 			end
 		else
 			--check for full transport tasks.
-			local task = LRManagerInstance:FindTransportTask(self, nil, nil, capacity)
+			local task = LRManagerInstance:FindTransportTask(self, nil, nil, capacity, self.hub.transport_mode)
 			if task then
 				self:SetTransportTask(task)
 				self:SetCommand("Transport")
@@ -1285,11 +1315,71 @@ DefineClass.ShuttleHub = {
 	landing_spot_name = "In",
 	launched = false,
 	shuttle_class = "CargoShuttle",
+	--flight history
+	people_flights = false, --entry = {ts, state, source bld, dest bld, colonist}
+	cargo_flights = false, --entry = {ts, state, source bld, dest bld, resource type, amount}
+	
+	transport_mode = "all", --all, cargo, people
 }
 
+local all_transport_modes = {
+	"all",
+	"cargo",
+	"people",
+}
+
+function ShuttleHub:ToggleTransportMode()
+	local i = table.find(all_transport_modes, self.transport_mode)
+	i = i % 3 + 1
+	self.transport_mode = all_transport_modes[i]
+end
+
+local mode_to_img = "UI/Icons/IPButtons/shuttle_transport_%s.tga"
+function ShuttleHub:ToggleTransportMode_Update(button)
+	local img = string.gsub(mode_to_img, "%%s", self.transport_mode)
+	if button:GetIcon() ~= img then
+		button:SetIcon(img)
+	end
+end
+
+function ShuttleHub:GetUITransportModeCurrentStatus()
+	return self.transport_mode == "all" and T{11507, "Transport everything"} or self.transport_mode == "people" and T{11508, "Transport Colonists"} or T{11509, "Transport resources"}
+end
+
+local skin_to_landing_info = {
+	CargoShuttle = {
+		ShuttleHub = {
+			land_spot = "In",
+			land_anim = "landing",
+			take_off_spot = "Out",
+			take_off_anim = "takeOff",
+		},
+		ShuttleHubCP3 = {
+			land_spot = "In",
+			land_anim = "landing2",
+			take_off_spot = "Out",
+			take_off_anim = "takeOff2",
+		},
+	},
+	JumperShuttle = {
+		JumperShuttleHub = {
+			land_spot = "In",
+			land_anim = "landing",
+			take_off_spot = "Out",
+			take_off_anim = "takeOff",
+		},
+		ShuttleHubCP3 = {
+			land_spot = "In2",
+			land_anim = "landing",
+			take_off_spot = "Out2",
+			take_off_anim = "takeOff",
+		},
+	},
+}
 
 function ShuttleHub:ShuttleLeadIn(shuttle)
-	local spot_idx = self:GetSpotBeginIndex(self.landing_spot_name)
+	local data = skin_to_landing_info[self.shuttle_class][self:GetEntity()] or skin_to_landing_info.ShuttleHub
+	local spot_idx = self:GetSpotBeginIndex(data.land_spot)
 	local spot_pos = self:GetSpotPos(spot_idx)
 	local middle_pos = (shuttle:GetVisualPos() + spot_pos) / 2
 	local t = 1000
@@ -1308,16 +1398,17 @@ function ShuttleHub:ShuttleLeadIn(shuttle)
 	shuttle:OnMoveEnd()
 	self:Attach(shuttle, spot_idx)
 	shuttle:PlayFX("ShuttleHubEnter", "start", self)
-	shuttle:SetAnim(1, "landing",  const.eDontCrossfade)
+	shuttle:SetAnim(1, data.land_anim,  const.eDontCrossfade)
 	TrackAllMoments(shuttle, "ShuttleHubEnter", shuttle, self)
 	Sleep(shuttle:TimeToAnimEnd())
 	shuttle:PlayFX("ShuttleHubEnter", "end", self)
 end
 
 function ShuttleHub:ShuttleLeadOut(shuttle)
-	local spot_idx = self:GetSpotBeginIndex("Out")
+	local data = skin_to_landing_info[self.shuttle_class][self:GetEntity()] or skin_to_landing_info[self.shuttle_class].ShuttleHub
+	local spot_idx = self:GetSpotBeginIndex(data.take_off_spot)
 	self:Attach(shuttle, spot_idx)
-	shuttle:SetAnim(1, "takeOff")
+	shuttle:SetAnim(1, data.take_off_anim)
 	shuttle:SetEnumFlags(const.efVisible)
 	shuttle:PlayFX("ShuttleHubExit", "start", self)
 	TrackAllMoments(shuttle, "ShuttleHubExit", shuttle, self)
@@ -1328,8 +1419,47 @@ function ShuttleHub:ShuttleLeadOut(shuttle)
 	shuttle:SetPos(self:GetSpotPos(spot_idx))
 end
 
+function ShuttleHub:CleanHistoryEntriesOlderThan(list, duration)
+	if #list <= 0 then return end
+	local idx = 0
+	local now = GameTime()
+	for i = 1, #list do
+		local ts = list[i][1]
+		if now - ts < duration then
+			idx = i
+			break
+		end
+	end
+	
+	if idx ~= 1 then
+		idx = idx ~= 0 and idx - 1 or idx
+		for j = idx + 1, #list do
+			list[j - idx] = list[j]
+			list[j] = nil
+		end
+	end
+	
+	
+	return list
+end
+
+function ShuttleHub:CleanHistory()
+	self:CleanHistoryEntriesOlderThan(self.people_flights, const.DayDuration)
+	self:CleanHistoryEntriesOlderThan(self.cargo_flights, const.DayDuration)
+end
+
+function ShuttleHub:InitFlightHistoryTables()
+	if self.people_flights then return end
+	self.people_flights = {}
+	self.cargo_flights = {}
+end
+
+function SavegameFixups.InitShuttleHubHistoryTables()
+	MapForEach("map", "ShuttleHub", ShuttleHub.InitFlightHistoryTables)
+end
 
 function ShuttleHub:GameInit()
+	self:InitFlightHistoryTables()
 	self.shuttle_infos = {}
 	
 	assert(self.starting_shuttles <= self.max_shuttles)
@@ -1474,6 +1604,7 @@ function ShuttleHub:BuildingUpdate(dt, day, hour)
 	end
 	self:UpdateNoFuelNotification()
 	self:UpdateHeavyLoadNotification()
+	self:CleanHistory()
 end
 
 function ShuttleHub:RefuelShuttle(sinfo)
@@ -1554,7 +1685,7 @@ function ShuttleHub:SendOutShuttles()
 	end
 	for _, s_i in pairs(self.shuttle_infos) do
 		if s_i:CanLaunch() then
-			local task = LRManagerInstance:FindTransportTask(self, nil, nil, GetMaxCargoShuttleCapacity())
+			local task = LRManagerInstance:FindTransportTask(self, nil, nil, GetMaxCargoShuttleCapacity(), self.transport_mode)
 			if task then
 				--we got shuttles and tasks!
 				self.launched = s_i:CreateShuttle(task)

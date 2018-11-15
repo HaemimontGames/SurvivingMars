@@ -29,10 +29,10 @@ end,
 	local accept = dome.allow_birth
 	if accept then
 		self:SetIcon("UI/Icons/Sections/birth_on.tga")
-		self:SetTitle(T{8726, "<em>Births are allowed</em>"})
+		self:SetTitle(T{8726, "Births are allowed"})
 	else
 		self:SetIcon("UI/Icons/Sections/birth_off.tga")
-		self:SetTitle( T{8727, "<em>Births are forbidden</em>"})
+		self:SetTitle( T{8727, "Births are forbidden"})
 	end
 	rawset(self, "ProcessToggle", function(self, context, broadcast)
 		local building = ResolvePropObj(context)
@@ -70,10 +70,10 @@ local dome = ResolvePropObj(context)
 	local accept = dome.allow_work_in_connected
 	if accept then
 		self:SetIcon("UI/Icons/Sections/work_in_connected_domes_on.tga")
-		self:SetTitle(T{8885, "<em>Use Passages for work</em>"})
+		self:SetTitle(T{8885, "Use Passages for work"})
 	else
 		self:SetIcon("UI/Icons/Sections/work_in_connected_domes_off.tga")
-		self:SetTitle( T{8885, "<em>Use Passages for work</em>"})
+		self:SetTitle( T{8885, "Use Passages for work"})
 	end
 	rawset(self, "ProcessToggle", function(self, context, broadcast)
 		local building = ResolvePropObj(context)
@@ -107,10 +107,10 @@ local dome = ResolvePropObj(context)
 	local accept = dome.allow_service_in_connected
 	if accept then
 		self:SetIcon("UI/Icons/Sections/service_in_connected_domes_on.tga")
-		self:SetTitle(T{8893, "<em>Use Passages for services</em>"})
+		self:SetTitle(T{8893, "Use Passages for services"})
 	else
 		self:SetIcon("UI/Icons/Sections/service_in_connected_domes_off.tga")
-		self:SetTitle( T{8893, "<em>Use Passages for services</em>"})
+		self:SetTitle( T{8893, "Use Passages for services"})
 	end
 	rawset(self, "ProcessToggle", function(self, context, broadcast)
 		local building = ResolvePropObj(context)
@@ -147,10 +147,10 @@ local dome = ResolvePropObj(context)
 		self:SetIcon(overpopulated 
 						and "UI/Icons/Sections/Overpopulated.tga" 
 						or "UI/Icons/Sections/accept_colonists_on.tga")
-		self:SetTitle(overpopulated and T{10460, "<em>Overpopulated Dome</em>"} or T{8735, "<em>Accepts Colonists</em>"})
+		self:SetTitle(overpopulated and T{10460, "Overpopulated Dome"} or T{8735, "Accepts Colonists"})
 	else
 		self:SetIcon("UI/Icons/Sections/accept_colonists_off.tga")
-		self:SetTitle( T{8736, "<em>Quarantined</em>"})
+		self:SetTitle( T{8736, "Quarantined"})
 	end
 	rawset(self, "ProcessToggle", function(self, context, broadcast)
 		local building = ResolvePropObj(context)

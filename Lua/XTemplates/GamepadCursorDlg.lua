@@ -30,7 +30,7 @@ end,
 				'func', function (self, ...)
 XImage.Open(self, ...)
 self:OnContextUpdate(self.parent.context)
---Thread to update and cursor size depending on camera angle
+-- Thread to update and cursor size depending on camera angle
 self:CreateThread("UpdateThread", function(self)
 	while true do
 		WaitMsg("OnRender")
@@ -45,7 +45,7 @@ end,
 			PlaceObj('XTemplateFunc', {
 				'name', "OnContextUpdate(self, context)",
 				'func', function (self, context)
-self:SetImage(GetPlatformSpecificImagePath(context:GetCursorStateImage()))
+	self:SetImage(GetPlatformSpecificImagePath(context:GetCursorStateImage()))
 end,
 			}),
 			}),

@@ -158,21 +158,77 @@ function UpgradableBuilding:GetUpgradeIcon(upgrade_tier)
 	return self[string.format("upgrade%s_icon", tostring(upgrade_tier))]
 end
 
+function UISetupUpgradeButtonRollover(button, obj, upgrade_tier)
+	local upgrade_id = obj:GetUpgradeID(upgrade_tier)
+	local name = obj:GetUpgradeDisplayName(upgrade_tier)
+	button:SetRolloverTitle(name)
+	button.GetRolloverText = function(self)
+		local status = ""
+		
+		if not UICity:IsUpgradeUnlocked(upgrade_id) then
+			status = T{7513, "Locked by research."}
+		elseif obj:HasUpgrade(upgrade_id) then
+			status = T{7514, "Upgrade already constructed. Current status: <working>", 
+				working = obj:IsUpgradeOn(upgrade_id) and T{6772, "<green>ON</green>"} or T{6771, "<red>OFF</red>"}}
+		elseif obj:IsUpgradeBeingConstructed(upgrade_id) then
+			status = T{7515, "Upgrade is under construction."}
+		else
+			local costs, available = obj:GetCostsTArray(upgrade_id, obj:IsUpgradeBeingConstructedAndCanceled(upgrade_id))
+			if costs ~= "" then
+				status = T{7516, "Upgrade construction cost: "} .. costs
+				status = status .. "\n" .. T{11433, "Available resources: "} .. available
+			end
+		end
+		return T{7517, "<description><newline><newline><status>", description = obj:GetUpgradeDescription(upgrade_tier), status = status}
+	end
+	button.GetRolloverHint = function(self, shortcut, mass_shortcut)
+		if not UICity:IsUpgradeUnlocked(upgrade_id) then
+			return ""
+		end
+		shortcut = shortcut or T{7519, "<left_click>"}
+		mass_shortcut = mass_shortcut or T{7367, "<em>Ctrl + <left_click></em>"}
+		if obj:HasUpgrade(upgrade_id) then
+			if obj:IsUpgradeOn(upgrade_id) then
+				return T{7520, "<shortcut> Turn off<newline><shortcut2> Turn off in all <display_name_pl>", shortcut = shortcut, shortcut2 = mass_shortcut}
+			else
+				return T{7521, "<shortcut> Turn on<newline><shortcut2> Turn on in all <display_name_pl>", shortcut = shortcut, shortcut2 = mass_shortcut}
+			end
+		elseif obj:IsUpgradeBeingConstructed(upgrade_id) then
+			return T{7522, "<shortcut> Cancel construction<newline><shortcut2>Cancel construction in all <display_name_pl>", shortcut = shortcut, shortcut2 = mass_shortcut}
+		else
+			return T{7523, "<shortcut> Start construction<newline><shortcut2>Start construction in all <display_name_pl>", shortcut = shortcut, shortcut2 = mass_shortcut}
+		end
+	end
+	button.GetRolloverHintGamepad = function(self)
+		return self:GetRolloverHint(T{7518, "<ButtonA>"}, T{7618, "<ButtonX>"})
+	end
+end
+
 function UICreateUpgradeButtons(parent, obj, notify)
+	if not obj:GetUIInteractionState() then	
+		local text = XTemplateSpawn("XText", parent)
+		text:SetTranslate(true)
+		text:SetText(T{922380859639, "Gone Rogue"})
+		text:SetTextStyle("OverviewItemName")
+		text:SetMargins(box(0,5,0,0))
+		text:SetScaleModifier(point(1500,1500))
+		text:SetTextHAlign("center")
+		text:SetTextVAlign("center")
+		return 
+	end
+	
 	for i = 1, 3 do
 		local id = obj:GetUpgradeID(i) or ""
 		if id ~= "" and UICity:IsUpgradeUnlocked(id) then
 			local context = SubContext(obj, {i = i})
-			local button = XTemplates["InfopanelUpgrade"]:Eval(parent, context)
+			local button = XTemplates["ColonistOverviewRowUpgrade"]:Eval(parent, context)
 			local icon = obj:GetUpgradeIcon(i)
 			if icon and icon:sub(-6, -1) == "01.tga" then
 				icon = icon:sub(1, -7)
 			else
 				icon = "UI/Icons/Upgrades/amplify_"
 			end
-			local name = obj:GetUpgradeDisplayName(i)
 			button:SetFocusOrder(point(i + 1000, 0))
-			button:SetRolloverTitle(name)
 			button.OnContextUpdate = function (self, context)
 				if obj:HasUpgrade(id) then
 					if obj:IsUpgradeOn(id) then
@@ -187,45 +243,7 @@ function UICreateUpgradeButtons(parent, obj, notify)
 				end
 				return XTextButton.OnContextUpdate(self, context)
 			end
-			button.GetRolloverText = function(self)
-				local status = ""
-				
-				if not UICity:IsUpgradeUnlocked(id) then
-					status = T{7513, "Locked by research."}
-				elseif obj:HasUpgrade(id) then
-					status = T{7514, "Upgrade already constructed. Current status: <working>", 
-						working = obj:IsUpgradeOn(id) and T{6772, "<green>ON</green>"} or T{6771, "<red>OFF</red>"}}
-				elseif obj:IsUpgradeBeingConstructed(id) then
-					status = T{7515, "Upgrade is under construction."}
-				else
-					local costs = obj:GetCostsTArray(id, obj:IsUpgradeBeingConstructedAndCanceled(id))
-					if costs ~= "" then
-						status = T{7516, "Upgrade construction cost: "} .. costs
-					end
-				end
-				return T{7517, "<description><newline><newline><status>", description = obj:GetUpgradeDescription(i), status = status}
-			end
-			button.GetRolloverHint = function(self, shortcut, mass_shortcut)
-				if not UICity:IsUpgradeUnlocked(id) then
-					return ""
-				end
-				shortcut = shortcut or T{7519, "<left_click>"}
-				mass_shortcut = mass_shortcut or T{7367, "<em>Ctrl + <left_click></em>"}
-				if obj:HasUpgrade(id) then
-					if obj:IsUpgradeOn(id) then
-						return T{7520, "<shortcut> Turn off<newline><shortcut2> Turn off in all <display_name_pl>", shortcut = shortcut, shortcut2 = mass_shortcut}
-					else
-						return T{7521, "<shortcut> Turn on<newline><shortcut2> Turn on in all <display_name_pl>", shortcut = shortcut, shortcut2 = mass_shortcut}
-					end
-				elseif obj:IsUpgradeBeingConstructed(id) then
-					return T{7522, "<shortcut> Cancel construction<newline><shortcut2>Cancel construction in all <display_name_pl>", shortcut = shortcut, shortcut2 = mass_shortcut}
-				else
-					return T{7523, "<shortcut> Start construction<newline><shortcut2>Start construction in all <display_name_pl>", shortcut = shortcut, shortcut2 = mass_shortcut}
-				end
-			end
-			button.GetRolloverHintGamepad = function(self)
-				return self:GetRolloverHint(T{7518, "<ButtonA>"}, T{7618, "<ButtonX>"})
-			end
+			UISetupUpgradeButtonRollover(button, obj, i)
 			rawset(button, "ProcessUpgrade", function(self, broadcast)
 				if broadcast then
 					local enable, construct

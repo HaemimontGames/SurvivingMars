@@ -25,7 +25,15 @@ PlaceObj('XTemplate', {
 				'Columns', 30,
 				'Animate', true,
 				'FPS', 12,
-			}),
+			}, {
+				PlaceObj('XTemplateFunc', {
+					'name', "Open",
+					'func', function (self, ...)
+XImage.Open(self, ...)
+self:SetMargins(GetSafeMargins(self:GetMargins()))
+end,
+				}),
+				}),
 			}),
 		}),
 })

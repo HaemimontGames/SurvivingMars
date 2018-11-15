@@ -44,3 +44,21 @@ PlaceObj('ColonyControlCenterCategory', {
 	title = T{190822094857, --[[ColonyControlCenterCategory Default Transportation title]] "TRANSPORTATION"},
 })
 
+PlaceObj('ColonyControlCenterCategory', {
+	SortKey = 6000,
+	display_name = T{677039288774, --[[ColonyControlCenterCategory Default PowerGrids display_name]] "Power Grids"},
+	group = "Default",
+	id = "PowerGrids",
+	template_name = "PowerGridsOverview",
+	title = T{104060381704, --[[ColonyControlCenterCategory Default PowerGrids title]] "POWER GRIDS"},
+})
+
+PlaceObj('ColonyControlCenterCategory', {
+	SortKey = 7000,
+	display_name = T{11591, --[[ColonyControlCenterCategory Default ColorScheme display_name]] "Building Colors"},
+	group = "Default",
+	id = "ColorScheme",
+	template_name = "ColorSchemeOverview",
+	title = T{208980427650, --[[ColonyControlCenterCategory Default ColorScheme title]] "BUILDING COLORS"},
+})
+

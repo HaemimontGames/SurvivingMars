@@ -14,10 +14,10 @@ PlaceObj('XTemplate', {
 		'OnContextUpdate', function (self, context, ...)
 if context[1]:IsResourceEnabled(context.res) then
 	self:SetIcon("UI/Icons/Sections/resource_accept.tga")
-	self.idSectionTitle:SetTextColor(RGBA(233, 242, 255, 255))
+	self.idSectionTitle:SetTextStyle("InfopanelResourceAccept")
 else
 	self:SetIcon("UI/Icons/Sections/resource_no_accept.tga")
-	self.idSectionTitle:SetTextColor(RGBA(255, 69, 38, 255))
+	self.idSectionTitle:SetTextStyle("InfopanelResourceNoAccept")
 end
 end,
 		'Title', T{615073837286, --[[XTemplate sectionStorageRow Title]] "<resource(res)><right><resource(GetStoredAmount(res),GetMaxStorage(res),res)>"},

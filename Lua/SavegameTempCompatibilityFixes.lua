@@ -316,7 +316,7 @@ function SavegameFixups.pre_fixup(metadata, lua_revision)
 	
 	if lua_revision < 226100 then
 		local c = UICity.labels.RCTransport
-		for i, rover in ipairs(c) do
+		for i, rover in ipairs(c or empty_table) do
 			if rover.resource_requests == false then
 				local reconnect = false
 				if #rover.command_centers > 0 then
@@ -483,7 +483,7 @@ function SavegameFixups.pre_fixup(metadata, lua_revision)
 	end
 	
 	if lua_revision < 228185 then
-		if g_RoverCommandResearched then
+		if rawget(_G, "g_RoverCommandResearched") then
 			Msg("TechResearched", "RoverCommandAI", UICity)
 		end
 	end
@@ -806,13 +806,6 @@ function SavegameFixups.FixIrradiation()
 	MapForEach("map", "Colonist", function(col) col:Affect("StatusEffect_Irradiated", false) end)
 end
 
-function SavegameFixups.FixGameEventsThread()
-	if rawget(_G, "GameEventsTickThread") then
-		DeleteThread(GameEventsTickThread)
-		GameEventsTickThread = nil
-	end
-end
-
 function SavegameFixups.RemoveRoverBattery()
 	local t = rawget(_G, "VehiclesLowBatteryNotif")
 	if IsValidThread(t) then
@@ -826,19 +819,24 @@ function SavegameFixups.RemoveRoverBattery()
 			o:SetCommand("Idle")
 		end
 		
-		local t = rawget(o, "battery_thread")
-		if IsValidThread(t) then
-			DeleteThread(t)
-		end
+		CreateGameTimeThread(function(o)
+			Sleep(1) --make sure destros fire before removing members.
+			if not IsValid(o) then return end
+			local t = rawget(o, "battery_thread")
+			if IsValidThread(t) then
+				DeleteThread(t)
+			end
+			
+			rawset(o, "battery_thread", nil)
+			rawset(o, "battery_thread_data", nil)
+			rawset(o, "battery_cable_used_for_recharge", nil)
+			local cdn = rawget(o, "cable_death_notifier")
+			if IsValid(cdn) then
+				DoneObject(cdn)
+			end
+			rawset(o, "cable_death_notifier", nil)
+		end)
 		
-		rawset(o, "battery_thread", nil)
-		rawset(o, "battery_thread_data", nil)
-		rawset(o, "battery_cable_used_for_recharge", nil)
-		local cdn = rawget(o, "cable_death_notifier")
-		if IsValid(cdn) then
-			DoneObject(cdn)
-		end
-		rawset(o, "cable_death_notifier", nil)
 	end)
 end
 
@@ -853,4 +851,101 @@ function SavegameFixups.RocketLoadWait()
 			rocket.waiting_resources = true
 		end
 	end)
+end
+
+function SavegameFixups.AddPlanetaryPOIs()
+	InitMarsScreenData()
+end
+
+function SavegameFixups.AutomatedRocketFlightPermissions()
+	for _, rocket in ipairs(UICity.labels.SupplyRocket or empty_table) do
+		if rocket:IsLandAutomated() and rocket.command == "WaitInOrbit" and rocket:IsFlightPermitted() then
+			rocket:SetCommand("LandOnMars", rocket.landing_site)
+		end
+	end
+end
+
+function SavegameFixups.DroneControlLabelCleanup()
+	local list = UICity.labels.DroneControl or empty_table
+	for i = #list, 1, -1 do
+		if not IsValid(list[i]) then
+			table.remove(list, i)
+		end
+	end
+end
+
+function SavegameFixups.SponsorGoalInit()
+	--goals already set up
+	if #SponsorGoalProgress > 0 then return end
+	--on goals on these maps
+	if g_Tutorial or CurrentMap == "Mod" then return end
+	
+	UICity:SetGoals()
+end
+
+function SavegameFixups.ResupplyItemDefinitions()
+	local sponsor = g_CurrentMissionParams and g_CurrentMissionParams.idMissionSponsor or ""
+	local mods = GetSponsorModifiers(sponsor)
+	local locks = GetSponsorLocks(sponsor)
+	local idx = 0
+	ForEachPreset("Cargo", function(item, group, self, props)
+		local find = table.find(ResupplyItemDefinitions, "id", item.id)
+		if not find then
+			local def = setmetatable({}, {__index = item})		
+			local mod = mods[def.id] or 0
+			if mod ~= 0 then
+				ModifyResupplyDef(def, "price", mod)
+			end
+			local lock = locks[def.id]
+			if lock ~= nil then
+				def.locked = lock
+			end
+			if type(def.verifier) == "function" then 
+				def.locked = def.locked or not def.verifier(def, sponsor)
+			end
+			idx =  idx +1
+			table.insert(ResupplyItemDefinitions, idx, def)
+		end
+	end)
+end
+
+function SavegameFixups.SposorGoals()
+	g_ScannedAnomaly = #MapGet("map", "SubsurfaceAnomalyMarker") - #MapGet("map", "SubsurfaceAnomaly")
+	DeepSectorsScanned = #MapGet("map", "MapSector", function(sector) return sector.status == "deep scanned" end)
+end
+
+function SavegameFixups.ExpeditionRocketFuelGetter()
+	for _, rocket in ipairs(UICity.labels.RocketExpedition or empty_table) do
+		rocket:CreateGetters()
+	end
+end
+
+function SavegameFixups.SposorGoalTexts()
+	for idx, goal in ipairs(SponsorGoalProgress) do
+		if not goal.GetTargetText then
+			goal.GetTargetText = function(self) return self.target or "" end
+		end	
+		if not goal.GetProgressText then
+			goal.GetProgressText = function(self) return self.progress or "" end
+		end
+		goal.target_text = nil
+		goal.progress_text = nil
+	end
+end
+
+function SavegameFixups.RocketWaitingRefurbish()
+	for _, rocket in ipairs(UICity.labels.SupplyRocket or empty_table) do
+		if rocket.command == "WaitingRefurbish" then
+			rocket:SetWorking(false)
+		end
+	end
+end
+
+function SavegameFixups.MysteryRocketCategory()
+	for _, rocket in ipairs(UICity.labels.TradeRocket or empty_table) do
+		rocket.category = "trade"
+	end
+	for _, rocket in ipairs(UICity.labels.RefugeeRocket or empty_table) do
+		rocket.category = "refugee"
+	end
 end

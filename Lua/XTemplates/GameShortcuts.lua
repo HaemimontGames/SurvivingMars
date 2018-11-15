@@ -190,16 +190,15 @@ end,
 					}),
 					}),
 				}),
-			}),
-		PlaceObj('XTemplateAction', {
-			'comment', " (Ctrl-Alt-M)",
-			'RolloverText', " (Ctrl-Alt-M)",
-			'ActionId', "MapSettingsEditor",
-			'ActionTranslate', false,
-			'ActionName', "Map Settings",
-			'ActionIcon', "CommonAssets/UI/Menu/default.tga",
-			'ActionShortcut', "Ctrl-Alt-M",
-			'OnAction', function (self, host, source)
+			PlaceObj('XTemplateAction', {
+				'comment', " (Ctrl-Alt-M)",
+				'RolloverText', " (Ctrl-Alt-M)",
+				'ActionId', "MapSettingsEditor",
+				'ActionTranslate', false,
+				'ActionName', "Map Settings",
+				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+				'ActionShortcut', "Ctrl-Alt-M",
+				'OnAction', function (self, host, source)
 			local _, window_id = PropEditor_GetFirstWindow("MapSettingsEditor")
 			if not window_id then
 				local class_names = ClassDescendantsList("MapSettings")
@@ -216,8 +215,9 @@ end,
 				PropEditorActivateWindow(window_id)
 			end
 end,
-			'replace_matching_id', true,
-		}),
+				'replace_matching_id', true,
+			}),
+			}),
 		}),
 	PlaceObj('XTemplateAction', {
 		'ActionId', "Debug",
@@ -605,8 +605,8 @@ end,
 			'ActionGamepad', "DPadDown",
 			'ActionBindable', true,
 			'OnAction', function (self, host, source)
-local igi = GetInGameInterface()
-if igi and igi:GetVisible() or GetCommandCenterDialog() then
+local dlg = GetHUD()
+if dlg and dlg:GetVisible() then
 	if PauseReasons.Debug then Resume("Debug") else TogglePause() end
 end
 end,
@@ -620,8 +620,8 @@ end,
 			'ActionGamepad', "DPadRight",
 			'ActionBindable', true,
 			'OnAction', function (self, host, source)
-local igi = GetInGameInterface()
-if not igi or (not igi:GetVisible() and not GetCommandCenterDialog()) then return end
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 if Platform.developer then
 	local factor = GetTimeFactor() * 12 / 10
 	SetTimeFactor(Clamp(factor, 0, 100000), "sync")
@@ -642,8 +642,8 @@ end,
 			'ActionGamepad', "DPadLeft",
 			'ActionBindable', true,
 			'OnAction', function (self, host, source)
-local igi = GetInGameInterface()
-if not igi or (not igi:GetVisible() and not GetCommandCenterDialog()) then return end
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 if Platform.developer then
 	local current_factor = GetTimeFactor()
 	local new_factor = current_factor * 10 / 12
@@ -667,8 +667,8 @@ end,
 			'ActionShortcut', "Numpad *",
 			'ActionBindable', true,
 			'OnAction', function (self, host, source)
-local igi = GetInGameInterface()
-if not igi or (not igi:GetVisible() and not GetCommandCenterDialog()) then return end
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 if UICity then
 	if GetTimeFactor() ~= const.DefaultTimeFactor then
 		UICity:SetGameSpeed(1)
@@ -736,13 +736,9 @@ end,
 			'ActionBindable', true,
 			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
-if igi and igi:GetVisible() and igi.mode == "selection" then
-	if not GetDialog("XBuildMenu") then
-		g_BuildMenuRightClicksCount = g_BuildMenuRightClicksCount + 1
-		OpenXBuildMenu()
-	else
-		CloseXBuildMenu()
-	end
+local dlg = GetHUD()
+if igi and dlg and igi:GetVisible() and dlg:GetVisible() and igi.mode == "selection" then
+	ToggleXBuildMenu(true, "close")
 end
 end,
 			'IgnoreRepeated', true,
@@ -756,7 +752,7 @@ end,
 if not g_PhotoMode then
 	local igi = GetInGameInterface()
 	local dlg = GetHUD()
-	if igi and igi:GetVisible() and dlg and dlg.window_state ~= "destroying" then
+	if igi and igi:GetVisible() and dlg and dlg:GetVisible() and dlg.window_state ~= "destroying" then
 		dlg.idOverview:Press()
 	end
 	if Platform.developer and not igi then
@@ -804,7 +800,7 @@ end,
 			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 local dlg = GetHUD()
-if igi and dlg and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
+if igi and dlg and dlg:GetVisible() and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
 	dlg.idRadio:Press()
 else
 	CloseDialog("RadioStationDlg")
@@ -815,12 +811,12 @@ end,
 		PlaceObj('XTemplateAction', {
 			'ActionId', "actionResupplyScreen",
 			'ActionName', T{970807214544, --[[XTemplate GameShortcuts ActionName]] "Resupply Screen"},
-			'ActionShortcut', "P",
+			'ActionShortcut', "Tab",
 			'ActionBindable', true,
 			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 local dlg = GetHUD()
-if igi and dlg and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
+if igi and dlg and dlg:GetVisible() and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
 	dlg.idResupply:Press()
 else
 	CloseDialog("Resupply")
@@ -836,10 +832,42 @@ end,
 			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 local dlg = GetHUD()
-if igi and dlg and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
+if igi and dlg and dlg:GetVisible() and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
 	dlg.idResearch:Press()
 else
 	CloseResearchDialog()
+end
+end,
+			'IgnoreRepeated', true,
+		}),
+		PlaceObj('XTemplateAction', {
+			'ActionId', "actionMissionProfile",
+			'ActionName', T{10092, --[[XTemplate GameShortcuts ActionName]] "Mission Profile"},
+			'ActionShortcut', "O",
+			'ActionBindable', true,
+			'OnAction', function (self, host, source)
+local igi = GetInGameInterface()
+local dlg = GetHUD()
+if igi and dlg and dlg:GetVisible() and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
+	dlg.idGoals:Press()
+else
+	CloseDialog("MissionProfileDlg")
+end
+end,
+			'IgnoreRepeated', true,
+		}),
+		PlaceObj('XTemplateAction', {
+			'ActionId', "actionPlanetaryView",
+			'ActionName', T{805731420530, --[[XTemplate GameShortcuts ActionName]] "Planetary View"},
+			'ActionShortcut', "P",
+			'ActionBindable', true,
+			'OnAction', function (self, host, source)
+local igi = GetInGameInterface()
+local dlg = GetHUD()
+if igi and dlg and dlg:GetVisible() and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
+	dlg.idPlanetaryView:Press()
+else
+	CloseDialog("PlanetaryView")
 end
 end,
 			'IgnoreRepeated', true,
@@ -852,7 +880,7 @@ end,
 			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 local dlg = GetHUD()
-if igi and dlg and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
+if igi and dlg and dlg:GetVisible() and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
 	dlg.idColonyControlCenter:Press()
 else
 	CloseCommandCenter()
@@ -868,8 +896,8 @@ end,
 			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 local dlg = GetHUD()
-if igi and dlg and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
-	dlg.idMarkers:Press()
+if igi and dlg and dlg:GetVisible() and dlg.window_state ~= "destroying" and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
+	dlg.idMilestones:Press()
 else
 	 CloseDialog("Milestones")
 end
@@ -882,10 +910,11 @@ end,
 			'ActionShortcut', ";",
 			'ActionBindable', true,
 			'OnAction', function (self, host, source)
+if not GameState.gameplay then return end
 local igi = GetInGameInterface()
 local dlg = GetDialog("Achievements")
-if (GameState.gameplay and igi and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog")) or
-	(not GameState.gameplay and not dlg) then
+local hud = GetHUD()
+if igi and hud and hud:GetVisible() and igi:GetVisible() and igi.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
 	OpenDialog("Achievements")
 else
 	CloseDialog("Achievements")
@@ -960,6 +989,8 @@ end,
 return SelectedObj and IsKindOfClasses(SelectedObj, "Demolishable", "LifeSupportGridElement", "ElectricityGridElement") or "disabled"
 end,
 			'OnAction', function (self, host, source)
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 FocusInfopanel = false
 if SelectedObj and IsKindOf(SelectedObj, "Demolishable") and not (g_Tutorial and IsKindOf(SelectedObj, "ConstructionSite")) then
 	SelectedObj:ToggleDemolish()
@@ -980,7 +1011,8 @@ end,
 			'ActionBindable', true,
 			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
-if igi and igi:GetVisible() and igi.mode == "selection" then
+local dlg = GetHUD()
+if igi and dlg and dlg:GetVisible() and igi:GetVisible() and igi.mode == "selection" then
 	local obj = SelectedObj
 	if obj and IsKindOf(obj, "CameraFollowObject") then
 		Camera3pFollow(obj)
@@ -997,6 +1029,8 @@ end,
 return SelectedObj and IsKindOf(SelectedObj, "PinnableObject") or "disabled"
 end,
 			'OnAction', function (self, host, source)
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 FocusInfopanel = false
 if SelectedObj and IsKindOf(SelectedObj, "PinnableObject") then
 	SelectedObj:TogglePin()
@@ -1012,7 +1046,11 @@ end,
 			'ActionBindable', true,
 			'ActionToggled', function (self, host)  end,
 			'ActionState', function (self, host)  end,
-			'OnAction', function (self, host, source) UnpinAll() end,
+			'OnAction', function (self, host, source)
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
+UnpinAll()
+end,
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "actionRenameSelected",
@@ -1023,8 +1061,12 @@ end,
 return SelectedObj and IsKindOf(SelectedObj, "Renamable") or "disabled"
 end,
 			'OnAction', function (self, host, source)
-FocusInfopanel = false
-if SelectedObj and IsKindOf(SelectedObj, "Renamable") then
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
+	FocusInfopanel = false
+if SelectedObj and IsKindOf(SelectedObj, "Renamable") and SelectedObj.rename_allowed
+	and (not SelectedObj:IsKindOf("BaseBuilding") or SelectedObj:GetUIInteractionState()) 
+then
 	SelectedObj:ShowRenameUI(source == "gamepad")
 end
 end,
@@ -1040,6 +1082,8 @@ end,
 return SelectedObj and IsKindOf(SelectedObj, "DroneBase") or "disabled"
 end,
 			'OnAction', function (self, host, source)
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 FocusInfopanel = false
 if not SelectedObj or not IsKindOf(SelectedObj, "DroneBase") then return end
 local igi = GetInGameInterface()
@@ -1061,6 +1105,8 @@ end,
 return SelectedObj and IsKindOf(SelectedObj, "SupplyRocket") or "disabled"
 end,
 			'OnAction', function (self, host, source)
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 if SelectedObj and IsKindOf(SelectedObj, "SupplyRocket") then
 	SelectedObj:UILaunch()
 end
@@ -1076,6 +1122,8 @@ end,
 return SelectedObj and IsKindOf(SelectedObj, "RCTransport") or "disabled"
 end,
 			'OnAction', function (self, host, source)
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 FocusInfopanel = false
 if not SelectedObj or not IsKindOf(SelectedObj, "RCTransport") then return end
 local igi = GetInGameInterface()
@@ -1098,6 +1146,8 @@ end,
 return SelectedObj and IsKindOf(SelectedObj, "RCTransport") or "disabled"
 end,
 			'OnAction', function (self, host, source)
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 FocusInfopanel = false
 if not SelectedObj or not IsKindOf(SelectedObj, "RCTransport") then return end
 local igi = GetInGameInterface()
@@ -1120,6 +1170,8 @@ end,
 return SelectedObj and IsKindOf(SelectedObj, "Drone") or "disabled"
 end,
 			'OnAction', function (self, host, source)
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 FocusInfopanel = false
 if not SelectedObj or not IsKindOf(SelectedObj, "Drone") then return end
 local igi = GetInGameInterface()
@@ -1142,8 +1194,10 @@ end,
 return IsKindOf(SelectedObj, "Colonist") or "disabled"
 end,
 			'OnAction', function (self, host, source)
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 FocusInfopanel = false
-if not IsKindOf(SelectedObj, "Colonist") then return end
+if not IsKindOf(SelectedObj, "Colonist") or SelectedObj.traits.Renegade then return end
 local igi = GetInGameInterface()
 if igi and igi:GetVisible() then
 	SelectedObj:ToggleInteraction()
@@ -1164,8 +1218,10 @@ end,
 return IsKindOf(SelectedObj, "Building") and SelectedObj.prio_button or "disabled"
 end,
 			'OnAction', function (self, host, source)
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 FocusInfopanel = false
-if not IsKindOf(SelectedObj, "Building") or not SelectedObj.prio_button then return end
+if not IsKindOf(SelectedObj, "Building") or not SelectedObj.prio_button or not SelectedObj:GetUIInteractionState()  then return end
 SelectedObj:TogglePriority(1)
 RebuildInfopanel(SelectedObj)
 end,
@@ -1177,7 +1233,7 @@ end,
 			'ActionGamepad', "RightTrigger-ButtonY",
 			'ActionBindable', true,
 			'ActionState', function (self, host)
-	if IsKindOf(SelectedObj, "Building") and SelectedObj.on_off_button then
+if IsKindOf(SelectedObj, "Building") and SelectedObj.on_off_button and SelectedObj:GetUIInteractionState() then
 		if not (IsKindOf(SelectedObj, "ConstructionSite") and SelectedObj.building_class == "BlackCubeMonolith") then
 			return SelectedObj.on_off_button
 		end			
@@ -1185,8 +1241,10 @@ end,
 	return "disabled"
 end,
 			'OnAction', function (self, host, source)
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 FocusInfopanel = false
-if not IsKindOf(SelectedObj, "Building") or not SelectedObj.on_off_button or (IsKindOf(SelectedObj, "ConstructionSite") and SelectedObj.building_class== "BlackCubeMonolith") then return end
+if not IsKindOf(SelectedObj, "Building") or not SelectedObj.on_off_button or (IsKindOf(SelectedObj, "ConstructionSite") and SelectedObj.building_class== "BlackCubeMonolith") or not SelectedObj:GetUIInteractionState() then return end
 SelectedObj:ToggleWorking()
 RebuildInfopanel(SelectedObj)
 end,
@@ -1202,8 +1260,10 @@ end,
 return IsKindOf(SelectedObj, "Dome") or "disabled"
 end,
 			'OnAction', function (self, host, source)
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 FocusInfopanel = false
-if not IsKindOf(SelectedObj, "Dome") then return end
+if not IsKindOf(SelectedObj, "Dome") or not SelectedObj:GetUIInteractionState() then return end
 SelectedObj:OpenFilterTraits()
 end,
 			'IgnoreRepeated', true,
@@ -1216,6 +1276,8 @@ end,
 			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 if not igi or not igi:GetVisible() then return end
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 local dlg = GetDialog("OnScreenNotificationsDlg")
 local notifications = dlg and dlg.idNotifications
 if dlg and #notifications > 0 then
@@ -1232,6 +1294,8 @@ end,
 			'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 if not igi or not igi:GetVisible() then return end
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 local bld = UICity and UICity.LastConstructedBuilding
 if bld then
 	if IsValid(bld) then
@@ -1250,6 +1314,8 @@ end,
 if g_Tutorial and g_Tutorial.BuildMenuWhitelist and not g_Tutorial.BuildMenuWhitelist.PowerCables then return end
 local igi = GetInGameInterface()
 if not igi or not igi:GetVisible() then return end
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 local require_construction = not(g_Consts and g_Consts.InstantCables ~= 0)
 igi:SetMode("electricity_grid", {grid_elements_require_construction = require_construction})
 end,
@@ -1264,6 +1330,8 @@ end,
 if g_Tutorial and g_Tutorial.BuildMenuWhitelist and not g_Tutorial.BuildMenuWhitelist.Pipes then return end
 local igi = GetInGameInterface()
 if not igi or not igi:GetVisible() then return end
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 local require_construction = not(g_Consts and g_Consts.InstantPipes ~= 0)
 igi:SetMode("life_support_grid", {grid_elements_require_construction = require_construction})
 end,
@@ -1283,7 +1351,9 @@ end,
 			'ActionIcon', "CommonAssets/UI/Menu/default.tga",
 			'ActionShortcut', "F1",
 			'OnAction', function (self, host, source)
-				ShowLastHint()
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
+ShowLastHint()
 end,
 			'replace_matching_id', true,
 		}),
@@ -1294,10 +1364,12 @@ end,
 			'ActionIcon', "CommonAssets/UI/Menu/default.tga",
 			'ActionShortcut', "-Ctrl",
 			'OnAction', function (self, host, source)
-				if IsValid(SelectedObj) and IsKindOfClasses(SelectedObj, "DroneBase") and not GetDialog("ResourceItems") then
-					SelectedObj:SetControlMode(false)
-					return "break"
-				end
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
+if IsValid(SelectedObj) and IsKindOfClasses(SelectedObj, "DroneBase") and not GetDialog("ResourceItems") then
+	SelectedObj:SetControlMode(false)
+	return "break"
+end
 end,
 			'replace_matching_id', true,
 		}),
@@ -1308,17 +1380,19 @@ end,
 			'ActionIcon', "CommonAssets/UI/Menu/default.tga",
 			'ActionShortcut', "Ctrl",
 			'OnAction', function (self, host, source)
-				if IsValid(SelectedObj) and IsKindOfClasses(SelectedObj, "DroneBase") and not GetDialog("ResourceItems") then
-					SelectedObj:SetControlMode(true)
-					return "break"
-				end
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
+if IsValid(SelectedObj) and IsKindOfClasses(SelectedObj, "DroneBase") and not GetDialog("ResourceItems") then
+	SelectedObj:SetControlMode(true)
+	return "break"
+end
 end,
 			'replace_matching_id', true,
 		}),
 		PlaceObj('XTemplateForEach', {
 			'comment', "buildings",
 			'array', function (parent, context) local t = table.values(BuildingTemplates or empty_table) TSort(t, "display_name") return t end,
-			'condition', function (parent, context, item, i) return item.build_category ~= "Hidden" end,
+			'condition', function (parent, context, item, i) return item.key_bindable and item.build_category ~= "Hidden" end,
 			'run_after', function (child, context, item, i, n)
 child.OnActionParam = item.id
 child.ActionName = item.display_name
@@ -1334,6 +1408,8 @@ end,
 				'OnAction', function (self, host, source)
 local igi = GetInGameInterface()
 if not igi or not igi:GetVisible() then return end
+local dlg = GetHUD()
+if not dlg or not dlg:GetVisible() then return end
 local id = self.OnActionParam
 if id == "Passage" then
 	if not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.Passage then
@@ -1401,6 +1477,32 @@ end,
 					'OnAction', function (self, host, source)
 				if not CheatsEnabled() then return end
 				CheatMapExplore("deep scanned")
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'comment', "Scan queued sectors",
+					'RolloverText', "Scan queued sectors",
+					'ActionId', "MapExplorationScanQueued",
+					'ActionTranslate', false,
+					'ActionName', "Scan Queued",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatMapExplore("scan queued")
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'comment', "Spawn Planetary Anomalies",
+					'RolloverText', "Reveal all deposits level 1 and above",
+					'ActionId', "CheatSpawnPlanetaryAnomalies",
+					'ActionTranslate', false,
+					'ActionName', "Spawn Planetary Anomalies",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				CheatSpawnPlanetaryAnomalies()
 end,
 					'replace_matching_id', true,
 				}),
@@ -1975,6 +2077,85 @@ end,
 				}),
 				}),
 			PlaceObj('XTemplateAction', {
+				'ActionId', "Cheats.StoryBits",
+				'ActionTranslate', false,
+				'ActionName', "Story Bits ...",
+				'ActionIcon', "CommonAssets/UI/Menu/folder.tga",
+				'OnActionEffect', "popup",
+				'replace_matching_id', true,
+			}, {
+				PlaceObj('XTemplateAction', {
+					'comment', "Clear Category Cooldowns",
+					'RolloverText', "Clear StoryBit Category Cooldowns",
+					'ActionId', "G_CheatClearSBCategoryCooldowns",
+					'ActionTranslate', false,
+					'ActionName', "Clear Category Cooldowns",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				StoryBitCategoryState.ClearCooldowns()
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'comment', "Interrupt StoryBit Supression Times",
+					'RolloverText', "Interrupt StoryBit Supression Times",
+					'ActionId', "G_InterruptStoryBitSupressionTimes",
+					'ActionTranslate', false,
+					'ActionName', "Interrupt StoryBit Supression Times",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+if not CheatsEnabled() then return end
+				InterruptStoryBitSupressionTimes()
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'comment', "Clear Category Cooldowns",
+					'RolloverText', "Clear StoryBit Category Cooldowns",
+					'ActionId', "G_CheatClearSBCategoryCooldowns",
+					'ActionTranslate', false,
+					'ActionName', "Clear Category Cooldowns",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+				if not CheatsEnabled() then return end
+				StoryBitCategoryState.ClearCooldowns()
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'comment', "Toggle StoryBit Testing",
+					'RolloverText', "Toggle StoryBit Testing",
+					'ActionId', "G_ToggleStorybitTesting",
+					'ActionTranslate', false,
+					'ActionName', "Toggle Testing",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'ActionToggle', true,
+					'ActionToggled', function (self, host)
+return g_StoryBitTesting
+end,
+					'ActionToggledIcon', "CommonAssets/UI/Menu/checked.tga",
+					'OnAction', function (self, host, source)
+if not CheatsEnabled() then return end
+ToggleStoryBitTesting()
+end,
+					'replace_matching_id', true,
+				}),
+				PlaceObj('XTemplateAction', {
+					'comment', "Delete StoryBit Testing Backlog",
+					'RolloverText', "Toggle StoryBit Testing",
+					'ActionId', "G_DeleteStoryBitTestingBacklog",
+					'ActionTranslate', false,
+					'ActionName', "Delete Testing Backlog",
+					'ActionIcon', "CommonAssets/UI/Menu/default.tga",
+					'OnAction', function (self, host, source)
+if not CheatsEnabled() then return end
+DeleteStoryBitTestingBacklog()
+end,
+					'replace_matching_id', true,
+				}),
+				}),
+			PlaceObj('XTemplateAction', {
 				'ActionId', "Cheats.Start Mystery",
 				'ActionTranslate', false,
 				'ActionName', "Start Mystery ...",
@@ -2211,10 +2392,7 @@ end,
 				'ActionTranslate', false,
 				'ActionName', "Complete wires\\pipes",
 				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
-				'OnAction', function (self, host, source)
-				if not CheatsEnabled() then return end
-				CheatCompleteAllWiresAndPipes()
-end,
+				'OnAction', function (self, host, source)  end,
 				'replace_matching_id', true,
 			}),
 			PlaceObj('XTemplateAction', {
@@ -2292,13 +2470,13 @@ end,
 				'replace_matching_id', true,
 			}),
 			PlaceObj('XTemplateAction', {
-				'comment', " (Ctrl-I)",
-				'RolloverText', " (Ctrl-I)",
+				'comment', " (Ctrl-Alt-I)",
+				'RolloverText', " (Ctrl-Alt-I)",
 				'ActionId', "G_ToggleInGameInterface",
 				'ActionTranslate', false,
 				'ActionName', "Toggle InGame Interface",
 				'ActionIcon', "CommonAssets/UI/Menu/default.tga",
-				'ActionShortcut', "Ctrl-I",
+				'ActionShortcut', "Ctrl-Alt-I",
 				'OnAction', function (self, host, source)
 				hr.RenderUIL = hr.RenderUIL == 0 and 1 or 0
 end,

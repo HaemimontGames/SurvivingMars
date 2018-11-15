@@ -1,6 +1,20 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 PlaceObj('PropertyCategory', {
+	SortKey = 0,
+	display_name = T{895720039818, --[[PropertyCategory Preset display_name]] "Preset"},
+	group = "Default",
+	id = "Preset",
+})
+
+PlaceObj('PropertyCategory', {
+	SortKey = 500,
+	display_name = T{526475445251, --[[PropertyCategory Component Object display_name]] "Component Object"},
+	group = "Default",
+	id = "Component Object",
+})
+
+PlaceObj('PropertyCategory', {
 	SortKey = 1000,
 	display_name = T{1000107, --[[PropertyCategory Mod display_name]] "Mod"},
 	group = "Default",

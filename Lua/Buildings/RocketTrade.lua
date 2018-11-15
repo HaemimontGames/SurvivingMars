@@ -9,15 +9,22 @@ DefineClass.TradeRocket = {
 	fx_actor_base_class = "FXRocket",
 	fx_actor_class = "SupplyRocket",
 	show_service_area = false,
+	owned = false,
 	
-	rocket_palette = "RocketTrade",
+	rocket_palette = { "rocket_base", "rocket_base", "outside_dark", "outside_dark" },--"RocketTrade",
 	show_logo = false,
 	rename_allowed = false,
 	can_fly_colonists = false,
+	category = "trade",
+	story_bit_on_launch_funding = false,
 }
 
 function TradeRocket:GameInit()
 	self.fx_actor_class = "SupplyRocket"
+end
+
+function TradeRocket:SetCategory()
+	-- don't change for mystery-related rockets
 end
 
 function TradeRocket:CreateExportRequests()
@@ -52,6 +59,10 @@ function TradeRocket:UpdateStatus(status)
 end
 
 function TradeRocket:FlyToEarth()
+	local export_funding = (self.story_bit_on_launch_funding or 0)
+	if export_funding > 0 then
+		self.city:ChangeFunding(export_funding, "Export")
+	end
 	DoneObject(self)
 end
 
@@ -113,3 +124,6 @@ function TradeRocket:LeaveForever()
 		RebuildInfopanel(self)
 	end
 end
+
+
+

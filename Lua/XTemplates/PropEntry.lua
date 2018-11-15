@@ -14,7 +14,7 @@ PlaceObj('XTemplate', {
 	}),
 	PlaceObj('XTemplateTemplate', {
 		'__condition', function (parent, context) return context.prop_meta.editor == "dropdown" or context.prop_meta.editor == "choice" end,
-		'__template', "PropChoice",
+		'__template', "PropChoiceOptions",
 	}),
 	PlaceObj('XTemplateTemplate', {
 		'__condition', function (parent, context) return context.prop_meta.editor == "checkbox" end,

@@ -306,7 +306,12 @@ DefineClass.SupplyGridFragment = {
 	grid_subtype = false,
 	--pipe skins
 	element_skin = "Default",
+	overlay_id = false,
 }
+
+GlobalVar("OverlayGridIdCounters", function()
+				return {water = 1, electricity = 1}
+			end)
 
 function SupplyGridFragment:Init()
 	InitGridId(self)
@@ -331,6 +336,14 @@ function SupplyGridFragment:Init()
 	end, self)
 	local grid_list = self.city[self.supply_resource]
 	grid_list[#grid_list + 1] = self
+	self:AssignOverlayID()
+end
+
+function SupplyGridFragment:AssignOverlayID()
+	if not self.overlay_id and OverlayGridIdCounters[self.supply_resource] then
+		self.overlay_id = OverlayGridIdCounters[self.supply_resource]
+		OverlayGridIdCounters[self.supply_resource] = OverlayGridIdCounters[self.supply_resource] % 8 + 1
+	end
 end
 
 function SupplyGridFragment:Done()
@@ -982,11 +995,12 @@ function SupplyGridObject:SupplyGridConnectElement(element, grid_class, new_grid
 	local is_switched_switch = IsSwitchedSwitch(element)
 	local is_construction = IsKindOf(self, "ConstructionSite")
 	local grid_type = is_construction and "construction_grid" or is_switched_switch and "switch_grid" or false
-
+	
+	local shape = self:GetSupplyGridConnectionShapePoints(supply_resource)
 	local potential_neighbours = SupplyGridApplyBuilding(
 		SupplyGridConnections[supply_resource], 
 		self,
-		self:GetSupplyGridConnectionShapePoints(supply_resource), 
+		shape, 
 		self:GetShapeConnections(supply_resource), nil, is_construction)
 
 	local grids_merged = false
@@ -1112,7 +1126,6 @@ function SupplyGridObject:SupplyGridConnectElement(element, grid_class, new_grid
 		grids_merged:ChangeElementSkin(new_grid_skin, nil, true) --propagate through other grids, use second argument to change buildings
 	end
 	
-	
 	for i = 1, #built_connections do
 		local other_grid, adjascent_element = table.unpack(built_connections[i])
 		if create_connection_call_data[i] then
@@ -1126,6 +1139,23 @@ function SupplyGridObject:SupplyGridConnectElement(element, grid_class, new_grid
 	if construction_connections ~= 0 then
 		--we need these only once, when we get constructed.
 		 self.construction_connections = -1
+	end
+	
+	if not grid.grid_subtype then
+		if grids_merged then
+			CreateGameTimeThread(function(OverlaySupplyGrid, ConnGrid, grids_merged)
+				--supply tunnels may not be up yet
+				if #grids_merged.elements > 0 then
+					CopySupplyFragmentToOverlayGrid(OverlaySupplyGrid, ConnGrid, grids_merged)
+				end
+			end, OverlaySupplyGrid, SupplyGridConnections[supply_resource], grids_merged)
+		else
+			local id = GetGridOverlayIndex(grid)
+			if supply_resource == "water" then
+				id = shift(id, 4)
+			end
+			ApplyIDToOverlayGrid(OverlaySupplyGrid, self, shape, id)
+		end
 	end
 end
 
@@ -1150,6 +1180,8 @@ end
 
 local ConstructionMask = 64
 local SwitchMask = 16384
+local OverlayRemWaterMask = 15
+local OverlayRemElectricityMask = shift(15, 4)
 
 function SupplyGridObject:SupplyGridDisconnectElement(element, grid_class, force_no_new_connections)
 	if not element then return end
@@ -1174,8 +1206,14 @@ function SupplyGridObject:SupplyGridDisconnectElement(element, grid_class, force
 		element.parent_dome = false
 		return
 	end
+	local shape = self:GetSupplyGridConnectionShapePoints(supply_resource)
+	local connections = SupplyGridRemoveBuilding(supply_grid, self, shape)
+	local grid_subtype = grid.grid_subtype
 	
-	local connections = SupplyGridRemoveBuilding(supply_grid, self, self:GetSupplyGridConnectionShapePoints(supply_resource))
+	if not grid_subtype then
+		local mask = supply_resource == "water" and OverlayRemWaterMask or OverlayRemElectricityMask
+		ApplyIDToOverlayGrid(OverlaySupplyGrid, self, shape, mask, "band")
+	end
 	
 	if #grid_elements == 0 then
 		grid:delete()
@@ -1257,7 +1295,14 @@ function SupplyGridObject:SupplyGridDisconnectElement(element, grid_class, force
 				end
 			end
 		end
-	end
+		
+		if not grid_subtype and new_grid ~= grid then
+			local grid_to_mark = new_grid
+			CreateGameTimeThread(function(OverlaySupplyGrid, supply_grid, grid_to_mark)
+				CopySupplyFragmentToOverlayGrid(OverlaySupplyGrid, supply_grid, grid_to_mark)
+			end, OverlaySupplyGrid, supply_grid, grid_to_mark)
+		end
+	end	
 	
 	--postprocess new connections so we know which grid has been disconnected from which
 	for i = 1, #(connections_to_build or ""), 2 do
@@ -1306,6 +1351,10 @@ function MergeGrids(new_grid, grid) --merges grid into new_grid
 	
 	assert(#grid.elements == 0)
 	grid:delete()
+	
+	CreateGameTimeThread(function(OverlaySupplyGrid, ConnGrid, new_grid)
+				CopySupplyFragmentToOverlayGrid(OverlaySupplyGrid, ConnGrid, new_grid)
+		end, OverlaySupplyGrid, SupplyGridConnections[new_grid.supply_resource], new_grid)
 end
 
 function GetChainParams(pos, length, dir, chunk_data, is_catenary)
@@ -1569,7 +1618,7 @@ local function HandleLeakDetectedNotif()
 			elseif #pipe_leaks > 0 then
 				text = T{10983, "<air(air)> <water(water)>", air = air_lost, water = water_lost}
 			end
-			local rollover = T{10984, "Cable faults: <cables> <newline> Pipe Leaks: <pipes>", cables = #cable_faults, pipes = #pipe_leaks}
+			local rollover = T{10984, "Cable faults: <cables><newline>Pipe leaks: <pipes>", cables = #cable_faults, pipes = #pipe_leaks}
 			AddOnScreenNotification("LeakDetected", nil, { leaks = text, rollover_title = T{522588249261, "Leak Detected"}, rollover_text = rollover }, displayed_in_notif)
 		end
 	end
@@ -1751,6 +1800,7 @@ function BreakableSupplyGridElement:Repair()
 	--presentation
 	self:Presentation()
 	
+	Msg("Repaired", self)
 	
 	if SelectedObj == self then
 		SelectObj(false)
@@ -1794,7 +1844,7 @@ function TestSupplyGridUpdateThreads()
 	do_work(UICity.water)
 	print("<green>total grids", total, "</green>")
 	print("<red>dead update threads", dead, "</red>")
-	print("<blue>ele production thread", IsValidThread(UICity.electricity.production_thread) and "alive" or "dead", "water p thread",  IsValidThread(UICity.water.production_thread) and "alive" or "dead", "air p thread", IsValidThread(UICity.air.production_thread)and "alive" or "dead", "</blue>")
+	print("<em>ele production thread", IsValidThread(UICity.electricity.production_thread) and "alive" or "dead", "water p thread",  IsValidThread(UICity.water.production_thread) and "alive" or "dead", "air p thread", IsValidThread(UICity.air.production_thread)and "alive" or "dead", "</blue>")
 end
 
 GlobalVar("g_SplitSupplyGridPositions", function() return { electricity = {}, water = {} } end)
@@ -1806,3 +1856,227 @@ end)
 GlobalGameTimeThread("SplitLifeSupportGridNotif", function()
 	HandleNewObjsNotif(g_SplitSupplyGridPositions.water, "SplitLifeSupportGrid", nil, nil, false)
 end)
+
+
+
+------------------------------------------------------------------------------------------------
+--overlays
+------------------------------------------------------------------------------------------------
+local OverlayColors = {
+	electricity = {
+		0,
+		RGBA(0, 255, 0, 128),
+		RGBA(0, 0, 255, 128),
+		RGBA(0, 255, 255, 128),
+		RGBA(255, 255, 122, 128),
+		RGBA(200, 60, 255, 128),
+		RGBA(153, 255, 255, 128),
+		RGBA(255, 0, 255, 128),
+		RGBA(255, 0, 0, 128),
+	},
+	water = {
+		0,
+		RGBA(0, 255, 0, 128),
+		RGBA(0, 0, 255, 128),
+		RGBA(0, 255, 255, 128),
+		RGBA(255, 255, 122, 128),
+		RGBA(200, 60, 255, 128),
+		RGBA(153, 255, 255, 128),
+		RGBA(255, 0, 255, 128),
+		RGBA(255, 0, 0, 128),
+	},
+}
+					
+GlobalVar("OverlaySupplyPallettes", function()
+	if HexMapWidth == 0 or HexMapHeight == 0 then return false end
+	return {
+		electricity = false,
+		water = false,
+		custom = false,
+	}
+end)
+
+function GetGridOverlayIndex(grid)
+	return grid.overlay_id
+end
+
+function Lua_BuildOverlaySupplyGrid()
+	BuildOverlaySupplyGrid(OverlaySupplyGrid, SupplyGridConnections.electricity, SupplyGridConnections.water)
+end
+
+function RebuildOverlaySupplyPalettes()
+	OverlaySupplyPallettes.electricity = {}
+	local e = OverlaySupplyPallettes.electricity
+	local ce = OverlayColors.electricity
+	OverlaySupplyPallettes.water = {}
+	local w = OverlaySupplyPallettes.water
+	local cw = OverlayColors.water
+	--[[
+	OverlaySupplyPallettes.all = {}
+	local a = OverlaySupplyPallettes.all
+
+	local function MixRGBA(col_1, col_2)
+		local r1, g1, b1, a1 = GetRGBA(col_1)
+		local r2, g2, b2, a2 = GetRGBA(col_2)
+		return RGBA((r1 + r2) / 2,
+					  (g1 + g2) / 2,
+					  (b1 + b2) / 2,
+					  (a1 + a2) / 2)
+	end
+	]]
+	for i = 1, 256 do
+		e[i] = ce[band(i - 1, 15) % #ce + 1]
+		w[i] = cw[shift(i - 1, -4) % #cw + 1]
+		--a[i] = MixRGBA(e[i], w[i])
+	end
+end
+
+function GetOverlaySupplyGridValAtTerrainCursor()
+	local p = GetTerrainCursor()
+	local q, r = WorldToHex(p:x(), p:y())
+	return OverlaySupplyGrid:get(q+r/2, r)
+end
+
+local show_electricity_overlay = false
+local show_water_overlay = false
+local show_custom_overlay = false
+local overlay_grid_dirty = false
+
+function RefreshSupplyGridOverlay_Exec()
+	if show_water_overlay or show_electricity_overlay or show_custom_overlay then
+		if overlay_grid_dirty then
+			SetOverlayGrid(show_water_overlay and OverlaySupplyPallettes.water or show_custom_overlay and OverlaySupplyPallettes.custom or
+								OverlaySupplyPallettes.electricity, OverlaySupplyGrid)
+		end
+		if hr.RenderOverlayGrid == 0 then
+			hr.RenderOverlayGrid = 1
+		end
+	elseif hr.RenderOverlayGrid == 1 then
+		hr.RenderOverlayGrid = 0
+	end
+	
+	overlay_grid_dirty = false
+end
+
+function RefreshSupplyGridOverlay()
+	overlay_grid_dirty = true
+	DelayedCall(0, RefreshSupplyGridOverlay_Exec)
+end
+
+function ShowWaterOverlay()
+	show_water_overlay = true
+	show_electricity_overlay = false
+	show_custom_overlay = false
+	RefreshSupplyGridOverlay()
+end
+
+function HideWaterOverlay()
+	show_water_overlay = false
+	RefreshSupplyGridOverlay()
+end
+
+function ShowElectricityOverlay()
+	show_electricity_overlay = true
+	show_water_overlay = false
+	show_custom_overlay = false
+	RefreshSupplyGridOverlay()
+end
+
+function HideElectrictyOverlay()
+	show_electricity_overlay = false
+	RefreshSupplyGridOverlay()
+end
+
+function ToggleElectricityOverlay()
+	if show_electricity_overlay then
+		HideElectrictyOverlay()
+	else
+		ShowElectricityOverlay()
+	end
+end
+
+function ToggleWaterOverlay()
+	if show_water_overlay then
+		HideWaterOverlay()
+	else
+		ShowWaterOverlay()
+	end
+end
+
+function HideAllSupplyOverlays()
+	show_water_overlay = false
+	show_electricity_overlay = false
+	show_custom_overlay = false
+	RefreshSupplyGridOverlay()
+end
+
+function OnMsg.OverlaySupplyGridChanged()
+	RefreshSupplyGridOverlay()
+end
+
+function OnMsg.NewMap() 
+	RebuildOverlaySupplyPalettes()
+	HideAllSupplyOverlays()
+end
+
+local last_sel_obj = false
+local function ClearLastSelObj()
+	last_sel_obj = false
+end
+function OnMsg.SelectionChange()
+	if hr.RenderOverlayGrid then
+		if SelectedObj and SelectedObj ~= last_sel_obj then
+			last_sel_obj = SelectedObj
+			HideAllSupplyOverlays()
+		elseif not SelectedObj then
+			DelayedCall(1000, ClearLastSelObj)
+		end
+	end
+end
+
+function AssignOverlayIDsToAllGrids()
+	local c = UICity.electricity
+	for i = 1, #c do
+		c[i]:AssignOverlayID()
+	end
+	c = UICity.water
+	for i = 1, #c do
+		c[i]:AssignOverlayID()
+	end
+end
+
+function SavegameFixups.BuildOverlayGridsFromScratch()
+	RebuildOverlaySupplyPalettes()
+	AssignOverlayIDsToAllGrids()
+	Lua_BuildOverlaySupplyGrid()
+end
+
+local last_custom_grid = false
+function ShowOverlayForSupplyGrid(supply_type, overlay_id, color)
+	local arg_hash = xxhash(supply_type, overlay_id, color)
+	if last_custom_grid ~= arg_hash then
+		OverlaySupplyPallettes.custom = {}
+		local c = OverlaySupplyPallettes.custom
+		for i = 1, 256 do
+			c[i] = 0
+		end
+		
+		overlay_id = supply_type == "water" and shift(overlay_id, 4) or overlay_id
+		local sft = supply_type == "water" and 0 or 4
+		for i = 0, 8 do
+			c[bor(overlay_id, shift(i, sft)) + 1] = color
+		end
+		
+		last_custom_grid = arg_hash
+	end
+	
+	show_custom_overlay = true
+	show_water_overlay = false
+	show_electricity_overlay = false
+	RefreshSupplyGridOverlay()
+end
+
+function HideCusomOverlay()
+	show_custom_overlay = false
+	RefreshSupplyGridOverlay()
+end

@@ -7,19 +7,22 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateWindow', {
 		'Id', "idActionBar",
 		'Dock', "bottom",
-		'HAlign', "right",
+		'HAlign', "left",
 	}, {
 		PlaceObj('XTemplateWindow', {
 			'__class', "XFrame",
-			'Margins', box(-20, 0, -60, 0),
-			'Image', "UI/CommonNew/action_bar.tga",
+			'Margins', box(-350, 0, -100, 0),
+			'MinWidth', 618,
+			'Image', "UI/CommonNew/pg_action_bar.tga",
+			'FrameBox', box(42, 0, 341, 0),
+			'TileFrame', true,
 			'SqueezeY', false,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XToolBar",
 			'Id', "idToolBar",
-			'HAlign', "right",
-			'VAlign', "bottom",
+			'HAlign', "left",
+			'VAlign', "center",
 			'LayoutHSpacing', 60,
 			'Background', RGBA(0, 0, 0, 0),
 			'Toolbar', "ActionBar",

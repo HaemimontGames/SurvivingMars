@@ -17,18 +17,19 @@ AutoResolveMethods.InitConstruction = true
 AutoResolveMethods.RoverWork = true
 
 BuildCategories = {
-	{ id = "Infrastructure", name = T{78, "Infrastructure"},              img = "UI/Icons/bmc_infrastructure.tga",     highlight_img = "UI/Icons/bmc_infrastructure_shine.tga" },
-	{ id = "Power",          name = T{79, "Power"},                       img = "UI/Icons/bmc_power.tga",              highlight_img = "UI/Icons/bmc_power_shine.tga" },
-	{ id = "Production",     name = T{80, "Production"},                  img = "UI/Icons/bmc_building_resources.tga", highlight_img = "UI/Icons/bmc_building_resources_shine.tga" },
-	{ id = "Life-Support",   name = T{81, "Life Support"},                img = "UI/Icons/bmc_life_support.tga",       highlight_img = "UI/Icons/bmc_life_support_shine.tga" },
-	{ id = "Storages",       name = T{82, "Storages"},                    img = "UI/Icons/bmc_building_storages.tga",  highlight_img = "UI/Icons/bmc_building_storages_shine.tga" },
-	{ id = "Domes",          name = T{83, "Domes"},                       img = "UI/Icons/bmc_domes.tga",              highlight_img = "UI/Icons/bmc_domes_shine.tga" },
-	{ id = "Habitats",       name = T{84, "Homes, Education & Research"}, img = "UI/Icons/bmc_habitats.tga",           highlight_img = "UI/Icons/bmc_habitats_shine.tga" },	
-	{ id = "Dome Services",  name = T{85, "Dome Services"},               img = "UI/Icons/bmc_dome_buildings.tga",     highlight_img = "UI/Icons/bmc_dome_buildings_shine.tga" },
-	{ id = "Dome Spires",    name = T{86, "Dome Spires"},                 img = "UI/Icons/bmc_dome_spires.tga",        highlight_img = "UI/Icons/bmc_dome_spires_shine.tga" },
-	{ id = "Decorations",    name = T{87, "Decorations"},                 img = "UI/Icons/bmc_decorations.tga",        highlight_img = "UI/Icons/bmc_decorations_shine.tga" },
-	{ id = "Wonders",        name = T{88, "Wonders"},                     img = "UI/Icons/bmc_wonders.tga",            highlight_img = "UI/Icons/bmc_wonders_shine.tga" },
-	{ id = "Hidden",         name = T{1000155, "Hidden"},                 img = "UI/Icons/bmc_placeholder.tga",        highlight_img = "UI/Icons/bmc_placeholder_shine.tga" },
+	{ id = "Infrastructure",      name = T{78, "Infrastructure"},              image = "UI/Icons/bmc_infrastructure.tga",     highlight = "UI/Icons/bmc_infrastructure_shine.tga" },
+	{ id = "Power",               name = T{79, "Power"},                       image = "UI/Icons/bmc_power.tga",              highlight= "UI/Icons/bmc_power_shine.tga" },
+	{ id = "Production",          name = T{80, "Production"},                  image = "UI/Icons/bmc_building_resources.tga", highlight= "UI/Icons/bmc_building_resources_shine.tga" },
+	{ id = "Life-Support",        name = T{81, "Life Support"},                image = "UI/Icons/bmc_life_support.tga",       highlight= "UI/Icons/bmc_life_support_shine.tga" },
+	{ id = "Storages",            name = T{82, "Storages"},                    image = "UI/Icons/bmc_building_storages.tga",  highlight= "UI/Icons/bmc_building_storages_shine.tga" },
+	{ id = "Domes",               name = T{83, "Domes"},                       image = "UI/Icons/bmc_domes.tga",              highlight= "UI/Icons/bmc_domes_shine.tga" },
+	{ id = "Habitats",            name = T{84, "Homes, Education & Research"}, image = "UI/Icons/bmc_habitats.tga",           highlight= "UI/Icons/bmc_habitats_shine.tga" },	
+	{ id = "Dome Services",       name = T{85, "Dome Services"},               image = "UI/Icons/bmc_dome_buildings.tga",     highlight= "UI/Icons/bmc_dome_buildings_shine.tga" },
+	{ id = "Dome Spires",         name = T{86, "Dome Spires"},                 image = "UI/Icons/bmc_dome_spires.tga",        highlight= "UI/Icons/bmc_dome_spires_shine.tga" },
+	{ id = "Decorations",         name = T{87, "Decorations"},                 image = "UI/Icons/bmc_decorations.tga",        highlight= "UI/Icons/bmc_decorations_shine.tga" },
+	{ id = "Outside Decorations", name = T{11408, "Outside Decorations"},      image = "UI/Icons/bmc_outside_decorations.tga",highlight= "UI/Icons/bmc_outside_decorations_shine.tga" },
+	{ id = "Wonders",             name = T{88, "Wonders"},                     image = "UI/Icons/bmc_wonders.tga",            highlight= "UI/Icons/bmc_wonders_shine.tga" },
+	{ id = "Hidden",              name = T{1000155, "Hidden"},                 image = "UI/Icons/bmc_placeholder.tga",        highlight= "UI/Icons/bmc_placeholder_shine.tga" },
 }
 
 invalid_entity = "Hex1_Placeholder"
@@ -94,20 +95,10 @@ DefineClass.Building = {
 		{ template = true, name = T{160, "Encyclopedia Text"},    id = "encyclopedia_text",    category = "Encyclopedia",  editor = "multi_line_text",default = "", translate = true, },
 		{ template = true, name = T{161, "Encyclopedia Image"},   id = "encyclopedia_image",   category = "Encyclopedia",  editor = "browse",       default = "", folder = "UI" },
 		--
+		{ template = true, name = T{11469, "Keybinding allowed"}, id = "key_bindable", category = "Shortcuts", editor = "bool", default = true, },
 		{ template = true, name = T{7615, "Build Shortcut"},    id = "build_shortcut1", category = "Shortcuts",  editor = "text",default = "", },
 		{ template = true, name = T{7616, "Build Shortcut 2"},    id = "build_shortcut2", category = "Shortcuts",  editor = "text",default = "", },
 		{ template = true, name = T{7617, "Gamepad Shortcut"},    id = "build_shortcut_gamepad", category = "Shortcuts",  editor = "text",default = "", },
-		--
-		{ template = true, name = T{162, "Alternative Entity 2"}, id = "entity2", category = "Alternative Entities",  editor = "dropdownlist", default = "", items = function() return GetBuildingEntities("") end},
-		{ template = true, name = T{8515, "Alternative Entity 2 DLC"}, id = "entitydlc2", category = "Alternative Entities",  editor = "text", default = "", },
-		{ template = true, name = T{163, "Alternative Entity 3"}, id = "entity3", category = "Alternative Entities",  editor = "dropdownlist", default = "", items = function() return GetBuildingEntities("") end},
-		{ template = true, name = T{8516, "Alternative Entity 3 DLC"}, id = "entitydlc3", category = "Alternative Entities",  editor = "text", default = "", },
-		{ template = true, name = T{164, "Alternative Entity 4"}, id = "entity4", category = "Alternative Entities",  editor = "dropdownlist", default = "", items = function() return GetBuildingEntities("") end},
-		{ template = true, name = T{8517, "Alternative Entity 4 DLC"}, id = "entitydlc4", category = "Alternative Entities",  editor = "text", default = "", },
-		{ template = true, name = T{165, "Alternative Entity 5"}, id = "entity5", category = "Alternative Entities",  editor = "dropdownlist", default = "", items = function() return GetBuildingEntities("") end},
-		{ template = true, name = T{8518, "Alternative Entity 5 DLC"}, id = "entitydlc5", category = "Alternative Entities",  editor = "text", default = "", },
-		{ template = true, name = T{166, "Alternative Entity 6"}, id = "entity6", category = "Alternative Entities",  editor = "dropdownlist", default = "", items = function() return GetBuildingEntities("") end},
-		{ template = true, name = T{8519, "Alternative Entity 6 DLC"}, id = "entitydlc6", category = "Alternative Entities",  editor = "text", default = "", },
 		--
 		{ template = true, name = T{167, "Label 1"},       id = "label1",    category = "Custom Labels",  editor = "text",         default = "" },
 		{ template = true, name = T{168, "Label 2"},       id = "label2",    category = "Custom Labels",  editor = "text",         default = "" },
@@ -120,9 +111,12 @@ DefineClass.Building = {
 		{ name = T{173, "Salvage Modifier"},    id = "salvage_modifier",    category = "General", editor = "number", default = 100, ui = "number", min = 0, max = 100, modifiable = true, },
 		--
 		{ template = true, name = T{174, "Color Modifier"},       id = "color_modifier",    category = "General",  editor = "color",        default = const.clrNoModifier },
-		{ 				 name = T{7684, "Palette"},       id = "palette",    category = "General",  editor = "text",        default = "" },
-		{ template = true, name = T{7685, "Available Palettes"},       id = "palettes",    category = "General",  editor = "combo", items = PresetsCombo("EntityPalette"),        default = "", buttons = {{"Reapply", "ReapplyAllBuildingPalettes"}} },
-
+		
+		{ template = true, name = T{11561, "Palette color 1"}, id = "palette_color1", category = "General", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+		{ template = true, name = T{11562, "Palette color 2"}, id = "palette_color2", category = "General", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+		{ template = true, name = T{11563, "Palette color 3"}, id = "palette_color3", category = "General", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+		{ template = true, name = T{11564, "Palette color 4"}, id = "palette_color4", category = "General", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+		
 		{ template = true, category = "Demolish", name = T{157, "Indestructible"}, 		        id = "indestructible", 	          editor = "bool",   default = false, help = "Specify if the building can be destroyed at all (by demolishing, by explosions, by meteors, etc)."},
 		{ template = true, category = "Demolish", name = T{175, "Use demolished state?"},       id = "use_demolished_state",      editor = "bool",   default = true, object_update = true, help = "If true, the building will transofrm into ruins, instead of disappearing after destruction."},
 		{ template = true, category = "Demolish", name = T{7332, "Demolish sinking (%)"},       id = "demolish_sinking",          editor = "range",  default = range(15, 30), min = 0, max = 50, help = "Building part sinking into the ground in demolished state. Valid only for buildings without terrain modification surfaces.", no_edit = function(obj) return not obj.use_demolished_state end, },
@@ -176,6 +170,12 @@ DefineClass.Building = {
 	auto_attach_at_init = false,
 }
 
+function OnMsg.DataLoaded()
+	DataInstances.BuildingTemplate = BuildingTemplates -- savegame compatibility
+end
+
+MaxAltEntityIdx = 7
+
 do
 	local status_items = {
 		{value = false, text = ""},
@@ -186,6 +186,17 @@ do
 	for i=1,3 do
 		properties[#properties + 1] = { template = true, category = "Sponsor Condition", id = "sponsor_name" .. i,  name = T{9829, "Sponsor <number>", number = i}, editor = "combo",    default = "", items = SponsorCombo() }
 		properties[#properties + 1] = { template = true, category = "Sponsor Condition", id = "sponsor_status" .. i, name = T{8692, "Status <number>", number = i}, editor = "dropdownlist", default = false, items = status_items}
+	end
+	for i=2,MaxAltEntityIdx do
+		table.append(properties, {
+			{ template = true, name = T{11217, "Alternative Entity <number>", number = i},          id = "entity" .. i,    category = "Alternative Entities", editor = "dropdownlist", default = "", items = function() return GetBuildingEntities("") end},
+			{ template = true, name = T{11218, "Alternative Entity <number> DLC", number = i},      id = "entitydlc" .. i, category = "Alternative Entities", editor = "text", default = "", },
+			{ template = true, name = T{11219, "Alternative Entity <number> Palette Color 1", number = i}, id = "palette" .. i .. "_color1", category = "Alternative Entities", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+			{ template = true, name = T{11565, "Alternative Entity <number> Palette Color 2", number = i}, id = "palette" .. i .. "_color2", category = "Alternative Entities", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+			{ template = true, name = T{11566, "Alternative Entity <number> Palette Color 3", number = i}, id = "palette" .. i .. "_color3", category = "Alternative Entities", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+			{ template = true, name = T{11567, "Alternative Entity <number> Palette Color 4", number = i}, id = "palette" .. i .. "_color4", category = "Alternative Entities", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+		
+		})
 	end
 end
 
@@ -388,6 +399,10 @@ function Building:GossipName()
 	return (self.template_name == "" and self.class or self.template_name)
 end
 
+function Building:GetInfopanelTemplate()
+	return not self:GetUIInteractionState() and "ipRogue" or self.ip_template
+end
+
 function Building:CanWorkInTurnedOffDome()
 end
 
@@ -480,64 +495,30 @@ function Building:SetDome(dome)
 	end
 end
 
-if FirstLoad then
-	BuildingPalettes = {}
-end
-
-function ReloadBuildingPalettes()
-	for template_name, template in pairs(ClassTemplates.Building) do
-		if template.palettes ~= "" then
-			BuildingPalettes[template_name] = string.split(template.palettes, ",")
-		end
-	end
-end
-
-OnMsg.DataLoaded = ReloadBuildingPalettes
-
-function ReapplyAllBuildingPalettes()
-	ReloadBuildingPalettes()
-	DelayedCall(100, function()
-		MapForEach("map", "Building", function(obj)
-			if obj:IsKindOf("Building") then
-				local palettes = BuildingPalettes[obj.template_name]
-				if palettes and palettes[1] then
-					obj:SetPalette(palettes[1])
-				end
-			end
-		end)
-	end)
-end
-
-function SetObjectPalette(obj, palette)
-	if obj:GetGameFlags(const.gofUIAttach) ~= 0 then return end
-	palette:ApplyToObj(obj)
-	obj:ForEachAttach("ColorizableObject", SetObjectPalette, palette)
-end
-
-function Building:SetPalette(palette)
-	self.palette = palette
-	palette = EntityPalettes[palette]
-	if palette then
-		SetObjectPalette(self, palette)
-		if IsKindOf(self, "LifeSupportGridObject") then
-			local pipes = self:GetPipeConnLookup()
-			local pipe_palette = EntityPalettes.Pipes
-			for p, _ in pairs(pipes) do
-				pipe_palette:ApplyToObj(p)
-			end
+function Building:SetPalette(cm1, cm2, cm3, cm4)
+	SetObjectPaletteRecursive(self, cm1, cm2, cm3, cm4)
+	if IsKindOf(self, "LifeSupportGridObject") then
+		local pipes = self:GetPipeConnLookup()
+		cm1, cm2, cm3, cm4 = GetPipesPalette()
+		for p, _ in pairs(pipes) do
+			p:SetColorizationMaterial4(cm1, cm2, cm3, cm4)
 		end
 	end
 end
 
 function Building:Settemplate_name(template_name, params)
 	ClassTemplateObject.Settemplate_name(self, template_name)
-	local entity = params and params.alternative_entity or self.entity
+	local entity = params and params.alternative_entity_t and params.alternative_entity_t.entity or self.entity
 	self:ChangeEntity(entity)
 	AutoAttachObjectsToShapeshifter(self)
-	local palettes = BuildingPalettes[template_name] 
-	if palettes and palettes[1] and EntityPalettes[palettes[1]] then
-		self:SetPalette(palettes[1])
+	local cm1, cm2, cm3, cm4
+	if params and params.alternative_entity_t and params.alternative_entity_t.palette then
+		cm1, cm2, cm3, cm4 = DecodePalette(params.alternative_entity_t.palette)
+	else
+		cm1, cm2, cm3, cm4 = GetBuildingColors(GetCurrentColonyColorScheme(), self)
 	end
+	self:SetPalette(cm1, cm2, cm3, cm4)
+	
 	self:AttachConfigurableAttaches()
 	self:InitMaintenanceRequests()
 	self:InitConsumptionRequest()
@@ -545,12 +526,22 @@ end
 
 function Building:GetSkins(ignore_destroyed_state)
 	if ignore_destroyed_state or not self.destroyed then
-		local skins = GetBuildingSkins(self.template_name)
+		local skins, palettes = GetBuildingSkins(self.template_name)
 		if next(skins) then
-			return skins
+			return skins, palettes
 		end
 	end
 	return false
+end
+
+function Building:GetCurrentSkin()
+	local skins, palettes = self:GetSkins()
+	if skins and next(skins) then
+		local skin_idx = table.find(skins, self:GetEntity()) or 1
+		return skins[skin_idx], palettes[skin_idx]
+	else
+		return self:GetEntity(), { self.palette_color1, self.palette_color2, self.palette_color3, self.palette_color4 }
+	end
 end
 
 function AttachAttaches(obj, attaches)
@@ -609,7 +600,7 @@ function Building:IsOutsideCommandRange(ignore_cg)
 end
 
 function Building:ShouldShowNoCCSign()
-	if not self:DoesHaveConsumption() and not self:DoesRequireMaintenance() 
+	if not self:DoesHaveConsumption() and not self:DoesRequireMaintenance() and not self.exceptional_circumstances
 		and (not IsKindOfClasses(self, "StorageDepot", "ConstructionSite") or IsKindOfClasses(self, "SupplyRocket")) then
 		return false
 	end
@@ -661,7 +652,7 @@ function Building:OnDemolish()
 end
 
 function Building:CanDemolish()
-	return self.can_demolish and not self.destroyed and not self.indestructible
+	return self.can_demolish and not self.destroyed and not self.indestructible and self.ui_interaction_state
 end
 
 function Building:AddRefundResource(tbl, res, amnt)
@@ -1124,9 +1115,17 @@ end
 function Building:OnDestroyed()
 end
 
-function DestroyBuildingImmediate(bld, return_resources)
+GlobalVar("g_DestroyedBuildings", {})
+GlobalGameTimeThread("DestroyedBuildingsNotif", function()
+	HandleNewObjsNotif(g_DestroyedBuildings, "DestoyedBuildings", nil, nil, nil, "keep destroyed")
+end)
+
+function DestroyBuildingImmediate(bld, return_resources, dont_notify)
 	if not IsValid(bld) or bld.destroyed or bld.indestructible then
 		return
+	end
+	if not dont_notify then
+		table.insert_unique(g_DestroyedBuildings, bld)
 	end
 	bld.demolishing = true
 	bld.demolishing_countdown = 0
@@ -1367,7 +1366,7 @@ function Building:Rebuild(params)
 		self:TogglePin()
 	end
 	params.rebuild = self
-	params.alternative_entity = self:GetEntity()
+	params.alternative_entity_t = {entity = self:GetEntity(), palette = {self:GetColorizationMaterial4()}}
 	params.name = self.name
 	return PlaceConstructionSite(self.city, self.template_name, pos, angle, params)
 end
@@ -1440,7 +1439,7 @@ end
 
 function Building:CheatDestroy()
 	self.indestructible = false
-	DestroyBuildingImmediate(self)
+	DestroyBuildingImmediate(self, nil, "dont_notify")
 end
 
 function Building:CheatMalfunction()
@@ -1716,6 +1715,7 @@ end
 
 function Building:GetCostsTArray(id, include_total_cost)
 	local costs = {}
+	local available = {}
 	if self.upgrades_under_construction and self.upgrades_under_construction[id] then
 		local data = self.upgrades_under_construction[id]
 		local reqs = data.reqs
@@ -1728,6 +1728,7 @@ function Building:GetCostsTArray(id, include_total_cost)
 			local total_cost = self:GetUpgradeCost(data.tier, r_n)
 			local amount_supplying = sreq and sreq:GetActualAmount() or nil
 			costs[#costs + 1] = FormatResource(empty_table, data.canceled and amount_supplying or (total_cost - amount_remaining), total_cost, r_n)
+			available[#available + 1] = FormatResource(empty_table, ResourceOverviewObj:GetAvailable(r_n), r_n)
 		end
 	else
 		local tier = self:GetUpgradeTier(id)
@@ -1740,11 +1741,12 @@ function Building:GetCostsTArray(id, include_total_cost)
 				else
 					costs[#costs + 1] = FormatResource(empty_table, c, r_n)
 				end
+				available[#available + 1] = FormatResource(empty_table, ResourceOverviewObj:GetAvailable(r_n), r_n)
 			end
 		end
 	end
 	
-	return table.concat(costs, " ")
+	return table.concat(costs, " "), table.concat(available, " ")
 end
 
 function Building:IsUpgradeBeingConstructed(id)
@@ -1976,7 +1978,7 @@ function Building:DroneUnloadResource(drone, request, resource, amount)
 	end
 end
 
-function Building:ChangeSkin(skin)
+function Building:ChangeSkin(skin, palette)
 	if SelectedObj == self then
 		PlayFX("Select", "end", self)
 	end
@@ -1984,8 +1986,10 @@ function Building:ChangeSkin(skin)
 	if self.working then
 		self:ChangeWorkingStateAnim(false)
 	end
+	self:RestoreTerrain()
 	self:ChangeEntity(skin)
-	self:OnSkinChanged(skin)
+	self:OnSkinChanged(skin, palette)
+	self:DeduceAndReapplyDustVisualsFromState()
 	if self.working then
 		self:ChangeWorkingStateAnim(true)
 	end
@@ -1996,25 +2000,39 @@ function Building:ChangeSkin(skin)
 	end
 end
 
-function Building:OnSkinChanged(skin)
+function Building:OnSkinChanged(skin, palette)
 	local pipe_lookup = empty_table
-	
+	local cable_lookup = empty_table
 	if IsKindOf(self, "LifeSupportGridObject") then
 		pipe_lookup = self:GetPipeConnLookup()
 	end
+	if IsKindOf(self, "ElectricityGridObject") then
+		cable_lookup = GetAllCableConnectionClassesTable()
+	end
+	
 	self:DestroyAttaches(function(attach, pipe_lookup)
 		return not pipe_lookup[attach] --pipe
-			and not IsKindOfClasses(attach, "CableConnection", "ResourceStockpileBase", "BuildingSign", "GridTileWater")
-													--cable,            own stockpile,          ui sign,         ui pipe helper
+			and not IsKindOfClasses(attach, "ResourceStockpileBase", "BuildingSign", "GridTileWater", table.unpack(cable_lookup))
+													--own stockpile,          ui sign,         ui pipe helper
 	end, pipe_lookup)
 	AutoAttachObjectsToShapeshifter(self)
 	self:AttachConfigurableAttaches()
-	local palettes = BuildingPalettes[self.template_name] 
-	if palettes and palettes[1] and EntityPalettes[palettes[1]] then
-		self:SetPalette(palettes[1])
+	
+	local cm1, cm2, cm3, cm4
+	if palette then
+		cm1, cm2, cm3, cm4 = DecodePalette(palette)
+	else
+		cm1, cm2, cm3, cm4 = GetBuildingColors(GetCurrentColonyColorScheme(), self)	
 	end
+	self:SetPalette(cm1, cm2, cm3, cm4)
+	
 	if self.parent_dome then
 		DeleteUnattachedRoads(self, self.parent_dome)
+	end
+	local ft = self.force_fx_work_target
+	if type(ft) == "table" and not IsValid(ft) and not IsKindOf(ft, "Object") then
+		--auto particle target
+		self.force_fx_work_target = false
 	end
 	self:ChangeWorkingStateAnim(self.working)
 	self:BuildWaypointChains()
@@ -2107,8 +2125,10 @@ NotWorkingWarning = {
 	Defrosting = T{8520, "Defrosting. This building will need repair after it is defrosted."},
 	TurnedOff = T{184, "This building has been turned off."},
 	ExceptionalCircumstancesDisabled = T{10903, "This building is disabled due to exceptional circumstances"},
-	ExceptionalCircumstancesMalafunction = T{10904, "This building was damaged due to exceptional circumstances. Drones can repair it with <resource(maintenance_resource_amount, maintenance_resource_type)>."},  
-	ExceptionalCircumstancesMaintenance = T{10905, "This building requires maintenance due to exceptional circumstances. Required resources <resource(maintenance_resource_amount, maintenance_resource_type)>."},  
+	ExceptionalCircumstancesMalafunction = T{10904, "This building was damaged due to exceptional circumstances. Drones can repair it with <resource(maintenance_resource_amount, maintenance_resource_type)>."}, 
+	NoResourceExceptionalCircumstancesMalafunction = T{11568, "This building was damaged due to exceptional circumstances."}, 
+	ExceptionalCircumstancesMaintenance = T{10905, "This building requires maintenance due to exceptional circumstances. Required resources <resource(maintenance_resource_amount, maintenance_resource_type)>."},
+	NoResourceExceptionalCircumstancesMaintenance = T{11569, "This building requires maintenance due to exceptional circumstances."},
 	SuspendedDustStorm = T{185, "Doesn't function during Dust Storms."},
 	Suspended = T{7524, "Building disabled by lightning strike. Will resume work in several hours."},
 	NoDeposits = T{187, "No deposits"},
@@ -2140,17 +2160,21 @@ NotWorkingWarning = {
 	NoCommandCenter = T{632, "Outside Drone commander range."},
 	NoDroneHub = T{845, "Too far from working Drone commander."},
 	DomeNotWorking = T{10548, "This building doesn't work because the Dome has been turned off"},
+	Halted = T{11000, "The construction process has been halted due to exceptional circumstances."}
 }
 
 function Building:GetUIWarning()
 	-- errors
 	local reason = false
-	if not self.ui_working then
+	if not self.ui_working then	
 		reason = "TurnedOff" 
 	elseif self.demolishing then
 		reason = "Demolish"
 	elseif self.exceptional_circumstances_maintenance then
-		reason = self:IsMalfunctioned() and "ExceptionalCircumstancesMalafunction" or "ExceptionalCircumstancesMaintenance"		
+		reason = self:IsMalfunctioned() and "ExceptionalCircumstancesMalafunction" or "ExceptionalCircumstancesMaintenance"
+		if self.maintenance_resource_type == "no_resource" or self.maintenance_resource_type == "no_maintenance" then
+			reason = "NoResource" .. reason
+		end
 	elseif self:IsMalfunctioned() then
 		if self:DoesRequireMaintenance() then
 			reason = "MalfunctionRes"
@@ -2201,7 +2225,7 @@ function Building:GetUIWarning()
 		reason = "NoOxygen"
 	elseif IsKindOf(self, "LifeSupportConsumer") and self:ShouldShowNoWaterSign() then
 		reason = "NoWater"
-	elseif IsKindOf(self, "ResearchLab") and not self:TechId() then
+	elseif IsKindOf(self, "BaseResearchLab") and not self:TechId() then
 		reason = "NoResearch"
 	elseif IsKindOf(self, "WindTurbine") and not self:IsProducingEnoughToWork() then
 		reason = "LowWind"
@@ -2548,41 +2572,50 @@ function TrackAllMoments(obj, fx_action, fx_actor, fx_target) --expects to obj a
 end
 
 function GetDomeSkins(template, class)
-	local skins = {{template.entity, class.configurable_attaches, construction_entity = template.construction_entity, palettes = template.palettes}}
+	local skins = {{template.entity, class.configurable_attaches, construction_entity = template.construction_entity}}
+	local palettes = { { template.palette_color1, template.palette_color2, template.palette_color3, template.palette_color4 } }
 	ForEachPreset("DomeSkins", function(preset, grp, skins, class)
 		if preset.dome_type == class.class then
-			table.insert(skins, {preset.entity, GetConfigAttachTableFromPreset(preset),
-							construction_entity = preset.construction_entity, skin_category = preset.preset, palettes = preset.palettes ~= "" and preset.palettes or template.palettes})
+			table.insert(skins, {
+				preset.entity, 
+				GetConfigAttachTableFromPreset(preset),
+				construction_entity = preset.construction_entity, 
+				skin_category = preset.preset, })
+			table.insert(palettes, { preset.palette_color1, preset.palette_color2, preset.palette_color3, preset.palette_color4 } )
+						
 		end
 	end, skins, class)
 	
-	return skins
+	return skins, palettes
 end
 
 function GetBuildingSkins(template_name, entity)
 	local template = BuildingTemplates[template_name]
-	if not template then return {} end
+	if not template then return {}, {} end
 	local class = ClassTemplates.Building[template.template_class]
 	if IsKindOf(class, "Dome") then
 		return GetDomeSkins(template, class)
 	end
 	local skins = { template.entity }
-	for i = 2, 6 do
+	local palettes = { { template.palette_color1, template.palette_color2, template.palette_color3, template.palette_color4 } }
+	for i = 2, MaxAltEntityIdx do
 		local entity = template["entity" .. i]
 		if entity == "" then
 			break
 		end
 		if IsDlcAvailable(template["entitydlc" .. i]) then
 			table.insert(skins, entity)
+			table.insert(palettes, { template["palette" .. i .. "_color1"], template["palette" .. i .. "_color2"], template["palette" .. i .. "_color3"], template["palette" .. i .. "_color4"] })
 		end
 	end
 	if entity then
 		if not table.find(skins, entity) then
 			table.insert(skins, 1, entity)
+			table.insert(palettes, 1, false)
 		end
 	end
 	
-	return skins
+	return skins, palettes
 end
 
 function Building:SetDustVisuals(dust)
@@ -2668,17 +2701,18 @@ end
 
 function SelectNextBuildingOfSameType(dir)
 	local igi = GetInGameInterface()
-	if igi and igi:GetVisible() then
+	local dlg = GetHUD()
+	if igi and dlg and dlg:GetVisible() and igi:GetVisible() then
 		local bld
 		if IsKindOf(SelectedObj, "Building") and SelectedObj.build_category ~= "Hidden" then
-			local name = SelectedObj.template_name
+			local name = IsKindOf(SelectedObj, "ConstructionSite") and "ConstructionSite" or SelectedObj.template_name
 			local buildings = UICity.labels[name] or {}
 			local idx = table.find(buildings, SelectedObj)
 			local count = #buildings
 			repeat
 				idx = idx and buildings[idx + dir] and idx + dir or dir == 1 and 1 or count
 				bld = buildings[idx]
-			until bld.template_name == name
+			until bld.template_name == name or bld.template_name == "" and name == "ConstructionSite"
 		else
 			bld = MapFindNearest(GetTerrainGamepadCursor(), "map", "Building", const.efSelectable, function(obj) return obj.build_category ~= "Hidden" end)
 		end
@@ -2690,3 +2724,130 @@ GlobalVar("g_DestroyedDrones", {})
 GlobalGameTimeThread("DestroyedDronesNotif", function()
 	HandleNewObjsNotif(g_DestroyedDrones, "DestroyedDrones", nil, nil, nil, true)
 end)
+
+----
+
+local range = 3500 --copied from large meteor
+local position
+local function filter(obj, building)
+	return obj:IsCloser2D(position, range + obj:GetRadius())
+	--and not IsObjInDome(obj)
+	and (IsKindOf(obj, "ResourceStockpileBase") or not obj:GetParent())
+end
+
+local function GetExplosionQuery(building, range)
+	local pos = building:GetPos()
+	return pos, range + GetEntityMaxSurfacesRadius() , "Drone", "Colonist", "Building", "BaseRover", "ResourceStockpileBase", "ElectricityGridElement", "LifeSupportGridElement", "PassageGridElement" , filter
+end
+
+function Building:BlowUp(kill_colonists, reason, single_building) --immitates meteor explosion in the center of the building
+	local units = self.units and table.copy(self.units) or empty_table
+	
+	position = self:GetPos()
+	local colonists_to_kill = {}
+	if kill_colonists then
+		for _, unit in ipairs(units) do
+			if unit:IsKindOf("Colonist") then
+				table.insert(colonists_to_kill, unit)
+			end
+		end
+	end
+	
+	SuspendPassEdits("MeteorLargeExplode")
+	UICity:SetCableCascadeDeletion(false, "meteor")
+	local objects = single_building and {self} or MapGet(GetExplosionQuery(self, range))
+	local chain_id_counter = 1
+	local passages_fractured = {}
+	local destroyed_pipes = {}
+	local destroyed_cables = {}
+	local cablesnpipes_to_kill = {}
+	local buildings_hit = {}
+	for i=1,#objects do
+		local obj = objects[i]
+		if IsKindOfClasses(obj, "Drone", "BaseRover") then
+			if not obj:IsDead() then
+				PlayFX("MeteorDestruction", "start", obj)
+				obj:SetCommand("Dead", false, true)
+			end
+		elseif IsKindOf(obj, "Colonist") and kill_colonists then
+			PlayFX("MeteorDestruction", "start", obj)
+			obj:SetCommand("Die", reason)
+		elseif IsKindOf(obj, "UniversalStorageDepot") then
+			if not IsKindOf(obj, "SupplyRocket") and obj:GetStoredAmount("Fuel") > 0 then
+				PlayFX("FuelExplosion", "start", obj)
+				obj:CheatEmpty()
+				AddOnScreenNotification("FuelDestroyed", nil, {}, {obj})
+			end
+		elseif IsKindOf(obj, "ResourceStockpileBase") then
+			local amount = obj:GetStoredAmount()
+			if obj.resource == "Fuel" and amount > 0 then
+				PlayFX("FuelExplosion", "start", obj)
+				obj:AddResourceAmount(-amount, true)
+			end
+		elseif IsKindOf(obj, "PassageGridElement") then
+			if not passages_fractured[obj.passage_obj] then
+				obj:AddFracture(position)
+				passages_fractured[obj.passage_obj] = true
+			end
+		elseif IsKindOf(obj, "Building") then
+			if not IsKindOfClasses(obj, "Dome", "ConstructionSite") then
+				local pos, radius = obj:GetPos(), obj:GetRadius() * 150 / 100
+				if DestroyBuildingImmediate(obj) then
+					PlayFX("MeteorDestruction", "start", obj, nil, pos)
+					table.insert(buildings_hit, { pos = pos, radius = radius})
+				end
+			end
+		elseif IsKindOfClasses(obj, "ElectricityGridElement", "LifeSupportGridElement") then
+			--destroy if origin in range, break if otherwise
+			if self:IsCloser2D(obj, range) then
+				local is_pipe = IsKindOf(obj, "LifeSupportGridElement")
+				if is_pipe and g_Consts.InstantPipes == 0 or
+					not is_pipe and g_Consts.InstantCables == 0 then --don't destroy if we are just gona place them instantly again
+					if not IsKindOf(obj, "ConstructionSite") then
+						if not is_pipe and not table.find(destroyed_cables, 4, obj) then
+							local t = GatherSupplyGridObjectsToBeDestroyed(obj, destroyed_cables)
+							table.append(destroyed_cables, t)
+						elseif is_pipe and not table.find(destroyed_pipes, 4, obj) then
+							local t
+							t, chain_id_counter = GatherSupplyGridObjectsToBeDestroyed(obj, destroyed_pipes, chain_id_counter)
+							table.append(destroyed_pipes, t)
+						end
+					end
+					table.insert(cablesnpipes_to_kill, obj)
+				else
+					obj:Break()
+				end
+			else
+				obj:Break()
+			end
+		end
+	end
+		
+	for i = 1, #cablesnpipes_to_kill do
+		if IsValid(cablesnpipes_to_kill[i]) then
+			DoneObject(cablesnpipes_to_kill[i])
+		end
+	end
+
+	if #destroyed_pipes > 0 then
+		RebuildSupplyGridObjects(destroyed_pipes, "LifeSupportGridElement")
+	end
+	
+	if #destroyed_cables > 0 then
+		RebuildSupplyGridObjects(destroyed_cables, "ElectricityGridElement")
+	end
+	
+	for i = 1, #colonists_to_kill do
+		colonists_to_kill[i]:SetCommand("Die", reason)
+	end
+	
+	UICity:SetCableCascadeDeletion(true, "meteor")
+	ResumePassEdits("MeteorLargeExplode")
+end
+
+function BuildingTemplate:OnEditorSetProperty(prop_id, old_value)
+	if prop_id:match("palette%d?_color%d") then
+		ReapplyPalettes()
+	end
+end
+

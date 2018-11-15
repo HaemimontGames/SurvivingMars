@@ -7,7 +7,7 @@ PlaceObj('XTemplate', {
 		'__context', function (parent, context) return not GameState.gameplay and RocketPayloadObjectCreateAndLoad("pregame") or context end,
 		'__class', "XDialog",
 		'Id', "idPayload",
-		'Padding', box(0, 65, 100, 50),
+		'Margins', box(60, 68, 0, 25),
 		'ContextUpdateOnOpen', true,
 		'InitialMode', "items",
 		'InternalModes', "items,prefabs",
@@ -16,7 +16,16 @@ PlaceObj('XTemplate', {
 			'name', "Open",
 			'func', function (self, ...)
 XDialog.Open(self, ...)
-self:SetPadding(GetSafeMargins(self:GetPadding()))
+self:SetMargins(GetSafeMargins(self:GetMargins()))
+local param = GetDialogModeParam(self.parent)
+if param == "resupply" then
+	local title = self:ResolveId("idTitle")
+	if title then
+		title:SetTitle(T{561537249557, "RESUPPLY"})
+		title:SetSubtitle("")
+		title:SetSmallImage(true)
+	end
+end
 end,
 		}),
 		PlaceObj('XTemplateFunc', {
@@ -42,30 +51,60 @@ RocketPayload_CalcCargoWeightCost()
 end,
 		}),
 		PlaceObj('XTemplateTemplate', {
-			'__template', "ActionBar",
-			'MinWidth', 550,
+			'__template', "ActionBarNew",
+			'Margins', box(55, 0, 0, 0),
 		}),
 		PlaceObj('XTemplateWindow', {
 			'Id', "idContent",
-			'Margins', box(0, 65, 0, 0),
-			'HAlign', "right",
-			'MinWidth', 550,
-			'MaxWidth', 550,
+			'HAlign', "left",
 		}, {
+			PlaceObj('XTemplateTemplate', {
+				'__template', "DialogTitleNew",
+				'Margins', box(55, 0, 0, 0),
+				'Title', T{668912375628, --[[XTemplate PGMissionPayload Title]] "ROCKET PAYLOAD"},
+				'Subtitle', T{774720837511, --[[XTemplate PGMissionPayload Subtitle]] "Difficulty Challenge <percent(DifficultyBonus)>"},
+			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XContentTemplate",
+				'Margins', box(15, 30, 0, 0),
 				'Dock', "top",
 			}, {
 				PlaceObj('XTemplateMode', {
 					'mode', "items",
 				}, {
 					PlaceObj('XTemplateWindow', {
+						'__condition', function (parent, context) return GetUIStyleGamepad() and UICity and UICity.launch_mode ~= "elevator" end,
+						'__class', "XImage",
+						'Id', "idGamepadRenameHint",
+						'Margins', box(-40, 0, 0, 0),
+						'Dock', "box",
+						'HAlign', "left",
+						'VAlign', "center",
+						'FoldWhenHidden', true,
+						'ImageScale', point(520, 520),
+					}),
+					PlaceObj('XTemplateCode', {
+						'run', function (self, parent, context)
+local hint = parent:ResolveId("idGamepadRenameHint")
+if hint then
+	hint:SetImage(GetPlatformSpecificImagePath("RSPress"))
+end
+end,
+					}),
+					PlaceObj('XTemplateWindow', {
 						'__class', "XText",
-						'HAlign', "right",
+						'Id', "idRocketName",
+						'Padding', box(0, 0, 0, 0),
+						'HAlign', "left",
 						'MaxHeight', 50,
 						'MouseCursor', "UI/Cursors/Rollover.tga",
-						'TextFont', "PGLandingPosDetails",
-						'TextColor', RGBA(118, 163, 222, 255),
+						'TextStyle', "PGLandingPosDetails",
+						'ContextUpdateOnOpen', true,
+						'OnContextUpdate', function (self, context, ...)
+if UICity and UICity.launch_mode == "elevator" then
+	self:SetMargins(box(38,0,0,0))
+end
+end,
 						'Translate', true,
 						'Text', T{779595445764, --[[XTemplate PGMissionPayload Text]] "<RocketName>"},
 						'Shorten', true,
@@ -79,26 +118,6 @@ host.context:RenameRocket(host)
 end,
 						}),
 						}),
-					PlaceObj('XTemplateAction', {
-						'ActionId', "buyRocket",
-						'ActionName', T{5454, --[[XTemplate PGMissionPayload ActionName]] "BUY ROCKET"},
-						'ActionToolbar', "ActionBar",
-						'ActionGamepad', "ButtonY",
-						'OnAction', function (self, host, source)
-BuyRocket(host)
-end,
-						'__condition', function (parent, context) return GameState.gameplay and GetMissionSponsor().rocket_price > 0 and UICity and (not UICity.launch_mode or UICity.launch_mode == "rocket") end,
-					}),
-					PlaceObj('XTemplateAction', {
-						'ActionId', "rename",
-						'ActionName', T{10136, --[[XTemplate PGMissionPayload ActionName]] "RENAME"},
-						'ActionToolbar', "ActionBar",
-						'ActionGamepad', "RightThumbClick",
-						'OnAction', function (self, host, source)
-host.context:RenameRocket(host)
-end,
-						'__condition', function (parent, context) return not UICity or UICity.launch_mode ~= "elevator" end,
-					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "back",
 						'ActionName', T{4254, --[[XTemplate PGMissionPayload ActionName]] "BACK"},
@@ -118,6 +137,26 @@ end,
 						'OnActionEffect', "mode",
 						'OnActionParam', "sponsor",
 						'__condition', function (parent, context) return not GameState.gameplay end,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "buyRocket",
+						'ActionName', T{5454, --[[XTemplate PGMissionPayload ActionName]] "BUY ROCKET"},
+						'ActionToolbar', "ActionBar",
+						'ActionGamepad', "ButtonY",
+						'OnAction', function (self, host, source)
+BuyRocket(host)
+end,
+						'__condition', function (parent, context) return GameState.gameplay and GetMissionSponsor().rocket_price > 0 and UICity and (not UICity.launch_mode or UICity.launch_mode == "rocket") end,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "rename",
+						'ActionName', T{10136, --[[XTemplate PGMissionPayload ActionName]] "RENAME"},
+						'ActionToolbar', "ActionBar",
+						'ActionGamepad', "RightThumbClick",
+						'OnAction', function (self, host, source)
+host.context:RenameRocket(host)
+end,
+						'__condition', function (parent, context) return not UICity or UICity.launch_mode ~= "elevator" end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "next",
@@ -148,11 +187,13 @@ end,
 				}, {
 					PlaceObj('XTemplateWindow', {
 						'__class', "XText",
-						'HAlign', "right",
-						'TextFont', "PGLandingPosDetails",
-						'TextColor', RGBA(118, 163, 222, 255),
+						'Padding', box(0, 0, 0, 0),
+						'HAlign', "left",
+						'MaxHeight', 50,
+						'MouseCursor', "UI/Cursors/Rollover.tga",
+						'TextStyle', "LandingPosName",
 						'Translate', true,
-						'Text', T{345420497005, --[[XTemplate PGMissionPayload Text]] "<PrefabsTitle>"},
+						'Shorten', true,
 						'TextHAlign', "right",
 					}),
 					PlaceObj('XTemplateAction', {
@@ -166,67 +207,93 @@ end,
 					}),
 				}),
 			PlaceObj('XTemplateWindow', {
-				'comment', "Cargo Capacity",
-				'__condition', function (parent, context) return not GameState.gameplay end,
-				'__class', "XText",
+				'Margins', box(55, 0, 0, 0),
 				'Dock', "top",
-				'HAlign', "right",
-				'TextFont', "PGLandingPosDetails",
-				'TextColor', RGBA(118, 163, 222, 255),
-				'RolloverTextColor', RGBA(118, 163, 222, 255),
-				'Translate', true,
-				'Text', T{954934126187, --[[XTemplate PGMissionPayload Text]] "Cargo Capacity <white><Capacity> kg</white>\nFunding <white><funding(Funding)></white>"},
-				'TextHAlign', "right",
-			}),
+				'LayoutMethod', "HList",
+				'LayoutHSpacing', 40,
+			}, {
+				PlaceObj('XTemplateWindow', {
+					'LayoutMethod', "VList",
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XText",
+						'Padding', box(0, 0, 0, 0),
+						'TextStyle', "PGLandingPosDetails",
+						'Translate', true,
+						'Text', T{3499, --[[XTemplate PGMissionPayload Text]] "Cargo Capacity"},
+					}),
+					PlaceObj('XTemplateWindow', {
+						'__class', "XText",
+						'Padding', box(0, 0, 0, 0),
+						'TextStyle', "PGLandingPosDetails",
+						'Translate', true,
+						'Text', T{3613, --[[XTemplate PGMissionPayload Text]] "Funding"},
+					}),
+					}),
+				PlaceObj('XTemplateWindow', {
+					'LayoutMethod', "VList",
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XText",
+						'Padding', box(0, 0, 0, 0),
+						'TextStyle', "PGChallengeDescription",
+						'Translate', true,
+						'Text', T{270405570569, --[[XTemplate PGMissionPayload Text]] "<Capacity> kg"},
+					}),
+					PlaceObj('XTemplateWindow', {
+						'__class', "XText",
+						'Padding', box(0, 0, 0, 0),
+						'TextStyle', "PGChallengeDescription",
+						'Translate', true,
+						'Text', T{134782360990, --[[XTemplate PGMissionPayload Text]] "<funding(Funding)>"},
+					}),
+					}),
+				}),
 			PlaceObj('XTemplateWindow', {
-				'comment', "Cargo Capacity Rocket",
-				'__condition', function (parent, context) return GameState.gameplay and (not UICity or not UICity.launch_mode or UICity.launch_mode == "rocket") end,
-				'__class', "XText",
-				'Dock', "top",
-				'HAlign', "right",
-				'TextFont', "PGLandingPosDetails",
-				'TextColor', RGBA(118, 163, 222, 255),
-				'RolloverTextColor', RGBA(118, 163, 222, 255),
-				'Translate', true,
-				'Text', T{253829683975, --[[XTemplate PGMissionPayload Text]] "Cargo Capacity <white><Capacity> kg</white>\nFunding <white><funding(Funding)></white>\nAvailable Rockets <white><AvailableRockets>/<TotalRockets></white>"},
-				'TextHAlign', "right",
-			}),
-			PlaceObj('XTemplateWindow', {
-				'comment', "Cargo Capacity Elevator",
-				'__condition', function (parent, context) return GameState.gameplay and UICity and UICity.launch_mode == "elevator" end,
-				'__class', "XText",
-				'Dock', "top",
-				'HAlign', "right",
-				'TextFont', "PGLandingPosDetails",
-				'TextColor', RGBA(118, 163, 222, 255),
-				'RolloverTextColor', RGBA(118, 163, 222, 255),
-				'Translate', true,
-				'Text', T{902798449197, --[[XTemplate PGMissionPayload Text]] "Cargo Capacity <white><Capacity> kg</white>\nFunding <white><funding(Funding)></white>"},
-				'TextHAlign', "right",
-			}),
-			PlaceObj('XTemplateTemplate', {
-				'__template', "AddAdditionalCargoCapacityTexts",
-			}),
-			PlaceObj('XTemplateWindow', {
-				'__class', "XFrame",
-				'Margins', box(-340, 20, -40, -126),
-				'Dock', "top",
-				'Image', "UI/Common/pm_pad_large.tga",
-				'FrameBox', box(320, 0, 40, 0),
-				'SqueezeY', false,
-				'FlipY', true,
-			}),
-			PlaceObj('XTemplateWindow', {
-				'__class', "XLabel",
-				'Id', "idTitle",
-				'Margins', box(7, 0, 0, 0),
-				'Padding', box(22, 2, 2, 2),
+				'__class', "XContentTemplate",
+				'IdNode', false,
+				'Margins', box(55, 0, 0, 0),
 				'Dock', "top",
 				'HAlign', "left",
-				'TextFont', "PGMissionDescrTitle",
-				'TextColor', RGBA(96, 135, 185, 255),
-				'Translate', true,
-			}),
+			}, {
+				PlaceObj('XTemplateWindow', {
+					'__class', "XFrame",
+					'Margins', box(-350, 0, 0, 0),
+					'Dock', "box",
+					'MinWidth', 794,
+					'Image', "UI/CommonNew/pg_action_bar.tga",
+					'FrameBox', box(42, 0, 341, 0),
+					'TileFrame', true,
+					'SqueezeY', false,
+				}),
+				PlaceObj('XTemplateWindow', {
+					'__class', "XText",
+					'Id', "idListTitle",
+					'Padding', box(0, 0, 0, 0),
+					'VAlign', "center",
+					'HandleMouse', false,
+					'TextStyle', "MediumHeader",
+					'Translate', true,
+					'Text', T{4067, --[[XTemplate PGMissionPayload Text]] "SELECT ROCKET"},
+					'HideOnEmpty', true,
+				}),
+				PlaceObj('XTemplateMode', {
+					'mode', "items",
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__condition', function (parent, context) return GameState.gameplay end,
+						'__class', "XText",
+						'Margins', box(549, 0, 0, 0),
+						'Padding', box(0, 0, 0, 0),
+						'VAlign', "center",
+						'HandleMouse', false,
+						'TextStyle', "MediumHeader",
+						'Translate', true,
+						'Text', T{782457493363, --[[XTemplate PGMissionPayload Text]] "IN COLONY"},
+						'HideOnEmpty', true,
+					}),
+					}),
+				}),
 			PlaceObj('XTemplateWindow', {
 				'Dock', "top",
 			}, {
@@ -234,7 +301,8 @@ end,
 					'__class', "XContentTemplateList",
 					'Id', "idList",
 					'BorderWidth', 0,
-					'LayoutVSpacing', 10,
+					'Padding', box(15, 2, 2, 2),
+					'LayoutVSpacing', 6,
 					'UniformRowHeight', true,
 					'Clip', false,
 					'Background', RGBA(0, 0, 0, 0),
@@ -259,7 +327,7 @@ end,
 					}, {
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-parent:ResolveId("idTitle"):SetText(T{4159, "PAYLOAD"})
+parent:ResolveId("idListTitle"):SetText(T{11442, "SELECT PAYLOAD"})
 end,
 						}),
 						PlaceObj('XTemplateForEach', {
@@ -268,12 +336,20 @@ end,
 							'condition', function (parent, context, item, i) return (not item.filter or item.filter()) and not context:IsLocked(item.id) and not context:IsBlacklisted(item) and not BuildingTemplates[item.id] end,
 							'item_in_context', "prop_meta",
 							'run_after', function (child, context, item, i, n)
-local rollover = context:GetRollover(item.id)
+local id = item.id
+local rollover = context:GetRollover(id)
 if rollover then
 	child:SetRolloverTitle(rollover.title)
 	child:SetRolloverText(rollover.descr)
 	child:SetRolloverHint(rollover.hint)
 	child:SetRolloverHintGamepad(rollover.gamepad_hint)
+end
+if GameState.gameplay and ResourceOverviewObj.data then
+	if Resources[id] then
+		child.idAvailable:SetText(T{11592, "<num>", num = FormatResource(ResourceOverviewObj, ResourceOverviewObj:GetAvailable(id), id)})
+	elseif id == "Drone" then
+		child.idAvailable:SetText(T{11592, "<num>", num = FormatResource(empty_table, #(UICity.labels.Drone or ""), id)})
+	end
 end
 end,
 						}, {
@@ -282,14 +358,16 @@ end,
 								'RolloverTemplate', "Rollover",
 							}, {
 								PlaceObj('XTemplateWindow', {
-									'__class', "XImage",
+									'__class', "XFrame",
 									'Id', "idRollover",
 									'ZOrder', 0,
-									'Margins', box(-60, 0, -60, -6),
+									'Margins', box(-25, -13, 210, -3),
 									'Dock', "box",
+									'MinWidth', 228,
 									'Visible', false,
-									'Image', "UI/Common/bm_buildings_pad.tga",
-									'ImageFit', "stretch",
+									'Image', "UI/CommonNew/pg_selection.tga",
+									'FrameBox', box(50, 0, 178, 0),
+									'TileFrame', true,
 								}),
 								}),
 							}),
@@ -299,7 +377,7 @@ end,
 					}, {
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-parent:ResolveId("idTitle"):SetText("")
+parent:ResolveId("idListTitle"):SetText(T{4068, "PREFABS"})
 end,
 						}),
 						PlaceObj('XTemplateForEach', {
@@ -322,23 +400,24 @@ end,
 								'RolloverTemplate', "Rollover",
 							}, {
 								PlaceObj('XTemplateWindow', {
-									'__class', "XImage",
+									'__class', "XFrame",
 									'Id', "idRollover",
 									'ZOrder', 0,
-									'Margins', box(-60, 0, -60, -6),
+									'Margins', box(-25, -13, 210, -3),
 									'Dock', "box",
+									'MinWidth', 228,
 									'Visible', false,
-									'Image', "UI/Common/bm_buildings_pad.tga",
-									'ImageFit', "stretch",
+									'Image', "UI/CommonNew/pg_selection.tga",
+									'FrameBox', box(50, 0, 178, 0),
+									'TileFrame', true,
 								}),
 								}),
 							}),
 						}),
 					}),
 				PlaceObj('XTemplateTemplate', {
-					'__template', "Scrollbar",
+					'__template', "ScrollbarNew",
 					'Id', "idScroll",
-					'Margins', box(0, 0, 0, 30),
 					'Target', "idList",
 				}),
 				}),

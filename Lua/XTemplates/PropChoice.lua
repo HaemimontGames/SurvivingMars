@@ -1,11 +1,13 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 PlaceObj('XTemplate', {
+	__is_kind_of = "XPropControl",
 	group = "PreGame",
 	id = "PropChoice",
 	PlaceObj('XTemplateWindow', {
 		'__class', "XPropControl",
-		'RolloverAnchor', "left",
+		'RolloverAnchor', "right",
+		'LayoutMethod', "HList",
 		'RolloverOnFocus', true,
 		'MouseCursor', "UI/Cursors/Rollover.tga",
 		'FXMouseIn', "MenuItemHover",
@@ -33,7 +35,9 @@ local text
 if type(value) == "table" then
 	local count = 0
 	for k,v in pairs(value) do
-		count = count + 1
+		if v ~= "none" then
+			count = count + 1
+		end
 	end
 	if count == 0 then
 		text = T{9813, "None selected"}

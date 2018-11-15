@@ -27,6 +27,9 @@ DefineClass.DroneBase =
 
 	interaction_mode = false, --custom str, represents special interraction btn toggle.
 	control_override = false,
+	
+	embark_target = false,
+	embark_rocket_spot = false,	
 }
 
 function DroneBase:Done()
@@ -35,6 +38,10 @@ function DroneBase:Done()
 end
 
 function DroneBase:SetCommandUserInteraction(...)
+	self:SetCommand(...)
+end
+
+function DroneBase:SetDisablingCommand(...)
 	self:SetCommand(...)
 end
 
@@ -126,7 +133,7 @@ function DroneBase:ToggleControlMode_Update(button)
 	button:SetEnabled(self:CanBeControlled())
 	local to_mode = self.interaction_mode ~= "move"
 	button:SetRolloverText(
-		(self:IsKindOf("RCTransport") or self:IsKindOf("RCDesireTransport")) and T{4463, "Give command to move or harvest resources."}
+		self:IsKindOf("RCTransport") and T{4463, "Give command to move or harvest resources."}
 		or self:IsKindOf("RCRover") and T{4483, "Give command to move or repair Drones."}
 		or T{4424, "Give command to move or interact with an object."})
 	local shortcuts = GetShortcuts("actionMoveInteract")
@@ -147,13 +154,17 @@ function DroneBase:Random(...)
 	return CityObject.Random(self, ...)
 end
 
+function DroneBase:GetDustMax()
+	return self.dust_max * (100 + g_Consts.DroneMaxDustBonus) / 100
+end
+
 function DroneBase:AddDust(dust)
 	if not self.accumulate_dust or self:IsDead() then return end
-	self.dust = Min(self.dust_max, self.dust + dust)
-	local dust_max = self.dust_max * (100 + g_Consts.DroneMaxDustBonus) / 100
+	local dust_max = self:GetDustMax()
+	self.dust = Min(dust_max, self.dust + dust)
 	self:SetDustVisuals()
 	if self.dust >= dust_max and self.command ~= "Malfunction" then
-		self:SetCommand("Malfunction")
+		self:SetDisablingCommand("Malfunction")
 	end
 end
 
@@ -325,4 +336,66 @@ function DroneBase:UseTunnel(tunnel)
 	else
 		self:Goto(self:GetPos()) -- find a destlockable point nearby
 	end
+end
+
+function DroneBase:GotoAndEmbark(rocket)
+	self:PushDestructor(function(self)
+		self.control_override = nil
+		self.embark_target = nil
+	end, self)
+	self.control_override = true
+	self.embark_target = rocket
+	self:SetCommandCenter(false, "do not orphan!")
+	self:DropCarriedResource()
+	
+	local entrance = rocket.waypoint_chains and rocket.waypoint_chains.rocket_entrance[1]
+	if entrance then
+		local speed = self:GetSpeed()
+		local count = #entrance
+		local first_pt = count
+
+		local p1 = entrance[count]
+		local p2 = entrance[count - 1]
+		local p = self:GetPos()
+		if p ~= p1 and p ~= p2 then
+			local init_at = count
+			if IsCloser2D(p, p2, p1:Dist2D(p2)) then
+				init_at = init_at - 1
+			end
+			self:Goto(entrance[init_at]) --use goto to reach first pt
+		end
+		if not IsValid(rocket) or not rocket:IsValidPos() or not rocket:IsBoardingAllowed() then 
+			self:PopAndCallDestructor() -- control_override
+			return 
+		end
+		
+		table.insert(rocket.boarding, self)
+		self:PushDestructor(function(self)
+			table.remove_value(rocket.boarding, self)
+			table.insert_unique(rocket.expedition.drones, self)
+		end)
+		
+		for i = count - 1, 1, -1 do
+			local p1 = entrance[i + 1]
+			local p2 = entrance[i]
+			local p3 = self:GetPos()
+			if p2 ~= p3 then
+				self:Face(p2)
+				rocket:OnWaypointStartGoto(self, p1, p2)
+				local t = p3:Dist(p2) * 1000 / speed
+				self:SetPos(p2, t)
+				Sleep(t)
+				if not IsValid(rocket) or not rocket:IsValidPos() or not self:IsValidPos() then return end
+			end
+		end
+		
+		self:PopAndCallDestructor()
+	else -- fallback, no entrance found
+		self:Goto(rocket:GetPos())
+	end	
+
+	if not IsValid(rocket) then return end
+
+	self:SetHolder(rocket)
+	self:SetCommand("Disappear", "keep in holder")
 end

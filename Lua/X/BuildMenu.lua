@@ -11,9 +11,15 @@ DefineClass.XBuildMenu = {
 	__parents = {"ItemMenu"},
 	hide_single_category = false,
 	ZOrder = 2,
+	FocusOnOpen = "self",
+	
+	lines_stretch_time_init = 220,
+	refresh_thread = false,
 } 
 
 function XBuildMenu:Init()
+	self.idCategoryList:SetScaleModifier(point(800,800))
+	self.idContainer:SetScaleModifier(point(750,750))
 	self.idCategoryList:SetVAlign("bottom")
 	UICity:Gossip("BuildMenu", "open")
 	local sel_dome = self.context.selected_dome
@@ -31,11 +37,28 @@ end
 function XBuildMenu:Open(...)
 	self:RecalculateMargins()
 	ItemMenu.Open(self, ...)
+	
+	local hud = GetHUD()
+	if hud then
+		local buildmenu_btn = hud.idBuild
+		if buildmenu_btn then
+			buildmenu_btn:SetToggled(true)
+		end
+	end
 end
 
 function XBuildMenu:RecalculateMargins()
 	--This is temporarily and should be removed when implementing InGameInterface with new UI
-	self:SetMargins(OnScreenHintDlg.Margins + GetSafeMargins())
+	local hud, hud_margins = GetHUD()
+	if hud then
+		local gamepad = not not GetUIStyleGamepad()
+		local ui_scale = GetUIScale()
+		local hud_height = Max(hud.idBottom.measure_height, hud.idBottom.MinHeight)
+		hud_height = MulDivRound(hud_height, 100, ui_scale)
+		local bottom_margin = gamepad and 10 or hud_height
+		hud_margins = box(0, 0, 0, bottom_margin)
+	end
+	self:SetMargins(hud_margins + GetSafeMargins())
 end
 
 function OnMsg.SafeAreaMarginsChanged()
@@ -56,26 +79,26 @@ end
 function XBuildMenu:CreateCategoryItems(all_categories)
 	local list = self.idCategoryList
 	self.cat_items = {}
-	for _, cat in ipairs(all_categories or empty_table) do
-		if cat.id ~= "Hidden" then
-			local items_count = UICountItemMenu(cat.id)
+	for _, cat_data in ipairs(all_categories or empty_table) do
+		local id = cat_data.id
+		if id ~= "Hidden" then
+			local items_count = UICountItemMenu(id)
 			if items_count and items_count > 0 then			
-				local cat_data = cat
-				local new_item = MenuCategoryButton:new({image = cat_data.img, highlight = cat_data.highlight_img, id = cat_data.id, name = cat_data.name}, list.idCategoriesList)
+				local new_item = MenuCategoryButton:new(cat_data, list.idCategoriesList)
 				self.cat_items[#self.cat_items + 1] = new_item
 				
 				new_item:SetEnabled(true)				
 				new_item.OnMouseEnter = function(this, ...)				
 					this.idCategoryButton:OnMouseEnter(...)
 					this.idCategorySelection:SetVisible(true)
-					if self.category ~= cat_data.id then
+					if self.category ~= id then
 						this.idCategoryRollover:SetVisible(true)
 					end
 					list.idSelectedCat:SetText(cat_data.name)
 					self:DeleteThread("show_sel_cat_name")
 				end
 				new_item.OnMouseLeft = function(this, ...)
-					if self.category ~= cat_data.id then
+					if self.category ~= id then
 						this.idCategoryButton:OnMouseLeft(...)
 						this.idCategoryRollover:SetVisible(false)
 						this.idCategorySelection:SetVisible(false)
@@ -102,13 +125,13 @@ function XBuildMenu:CreateCategoryItems(all_categories)
 			end	
 		end	
 	end
-	
-	list:CreateThread(function()
-		EdgeAnimation(true, list, 0, self.box:sizey() - self.idCategoryList.idCatBkg.box:miny(), self.cat_section_show_time)
-	end)	
 end
 
 function XBuildMenu:Close()
+	if IsValidThread(self.refresh_thread) then
+		DeleteThread(self.refresh_thread)
+	end
+
 	g_LastBuildCat = self.category
 
 	local sel_dome = self.context.selected_dome
@@ -122,14 +145,24 @@ function XBuildMenu:Close()
 	if not ShowResourceOverview then
 		UpdateInfobarVisibility()
 	end	
+	
+	local hud = GetHUD()
+	if hud then
+		local buildmenu_btn = hud.idBuild
+		if buildmenu_btn then
+			buildmenu_btn:SetToggled(false)
+		end
+	end
 end
 
 function XBuildMenu:OnXButtonDown(button, source)
 	if button == "RightTrigger" and IsColonyOverviewOpened() then
 		return
 	elseif button == "ButtonY" then
-		self:Close()
-		return "break"
+		if not self:IsThreadRunning("CloseThread") then
+			self:Close()
+			return "break"
+		end
 	end
 	return ItemMenu.OnXButtonDown(self, button, source)
 end
@@ -364,7 +397,9 @@ function BuildingInfoLine(template_name, dont_modify)
 	local is_grid_element = template_name=="LifeSupportGridElement" or template_name == "ElectricityGridElement"
 	local class = is_grid_element and g_Classes[template_name] or BuildingTemplates[template_name]
 	if not class then
-		assert(false, "No such class / template: " .. tostring(template_name))
+		-- asserts olny if all dlcs are available and cannot find the building template 
+		-- otherwise the template may be in disabled dlc and return is enough 
+		assert(DbgAreDlcsMissing(), "No such class / template: " .. tostring(template_name))
 		return ""
 	end
 	if is_grid_element then
@@ -442,8 +477,8 @@ function UICountItemMenu(category_id)
 	return count
 end
 
-function UIGetBuildingPrerequisites(cat_id, template, bCreateItems)
-	if template.build_category ~= cat_id or template.hide_from_build_menu then
+function UIGetBuildingPrerequisites(cat_id, template, bCreateItems, ignore_checks)
+	if not ignore_checks and (template.build_category ~= cat_id or template.hide_from_build_menu) then
 		return false
 	end
 
@@ -493,7 +528,30 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems)
 		can_build = true
 	elseif require_prefab then
 		-- not allowed, display warning about shipping prefabs
-		description = T{3970, "You need prefab parts for this building. Use a resupply Rocket to bring more <em>prefabs</em> from Earth, or research the corresponding <em>Technology</em>."}
+		local techs = BuildingTechRequirements[template.id]
+		local tech_def
+		local field_def
+		if #techs == 1 then
+			tech_def = TechDef[techs[1].tech]
+			field_def = TechFields[tech_def.group]
+			description = T{11416, "You need prefab parts for this building. Use a resupply Rocket to bring more <em>prefabs</em> from Earth, or research the technology <em><tech_name> (<tech_field_name>)</em>.", tech_name = tech_def.display_name, tech_field_name = field_def.display_name}
+		elseif #techs > 1 then
+			description = T{11417, "You need prefab parts for this building. Use a resupply Rocket to bring more <em>prefabs</em> from Earth, or research the technologies"}
+			local separator
+			for i = 1, #techs do
+				tech_def = TechDef[techs[i].tech]
+				field_def = TechFields[tech_def.group]
+				local separator = T{1000539, ","}
+				if i == #techs - 1 then
+					separator = T{11418, "and"}
+				elseif i == #techs then
+					separator = T{""}
+				end
+				description = T{11419, "<descr> <em><tech_name> (<tech_field_name>)<separator></em>", descr = description, tech_name = tech_def.display_name, tech_field_name = field_def.display_name, separator = separator}
+			end
+		else
+			description = T{3970, "You need prefab parts for this building. Use a resupply Rocket to bring more <em>prefabs</em> from Earth, or research the corresponding <em>Technology</em>."}
+		end
 		can_build = false
 	elseif not tech_enabled then
 		description = tech_rollover
@@ -526,7 +584,7 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems)
 	if bCreateItems then
 		if require_prefab or available_prefabs > 0 then
 			action = function(obj, data)
-				if GetUIStyleGamepad() then g_LastBuildItem = template.id end
+				g_LastBuildItem = template.id
 				local params
 				if UICity:GetPrefabs(template.id) > 0 then
 					params = { supplied = true, prefab = true }
@@ -544,7 +602,7 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems)
 			end
 		else
 			action = function(obj, data)
-				if GetUIStyleGamepad() then g_LastBuildItem = data.name end
+				g_LastBuildItem = data.name
 				if not data.enabled then return end
 				local variants
 				if IsKindOf(data, "XWindow") then
@@ -559,6 +617,108 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems)
 	end
 	
 	return true, (require_prefab or available_prefabs>0) and not prefab_disabled, can_build, action, description
+end
+
+local button_ease_total_duration = 150
+function XBuildMenu:EaseInButtons(buttons, start_time, open)
+	for i=1,#buttons do
+		buttons[i]:SetVisible(not open, "instant")
+	end
+	
+	local step_duration = button_ease_total_duration / #buttons
+	
+	local first = open and 1 or #buttons
+	local last = open and #buttons or 1
+	local step = open and 1 or -1
+	start_time = (start_time or GetPreciseTicks()) + 80
+	for i=first,last,step do
+		self:EaseInButton(buttons[i], start_time, open)
+		start_time = start_time + step_duration
+	end
+end
+
+local button_ease_duration = 175
+function XBuildMenu:EaseInButton(button, start_time, open)
+	button:SetVisible(true, "instant")
+	button:AddInterpolation{
+		id = "move_up",
+		type = const.intRect,
+		startRect = Offset(button.box, point(0, -35)),
+		endRect = button.box,
+		start = start_time,
+		duration = button_ease_duration,
+		flags = open and const.intfInverse or nil,
+		easing = const.Easing.CubicIn,
+		autoremove = true,
+	}
+	button:AddInterpolation{
+		id = "appear",
+		type = const.intAlpha,
+		startValue = 0,
+		endValue = 255,
+		start = start_time,
+		duration = button_ease_duration,
+		autoremove = not not open,
+		flags = not open and const.intfInverse or nil,
+	}
+end
+
+function XBuildMenu:StopOpenCloseInterpolation()
+	if self:IsThreadRunning("OpenAnimation") then
+		self:DeleteThread("OpenAnimation")
+	end
+end
+
+function XBuildMenu:OpenItemsInterpolation(bFirst, set_focus)
+	self:StopOpenCloseInterpolation()
+
+	self:CreateThread("OpenAnimation", function(self)
+		self.idBackground.FadeInTime = 140
+		self:StretchCloseAnimation(self.idBackground, false, self.lines_stretch_time_init, "invert")
+	
+		self:EaseInButtons(self.items, nil, "open")
+		if set_focus then
+			self.idButtonsList.RecalcVisibility = empty_func
+			self:SetInitFocus(set_focus)
+			self.idButtonsList.RecalcVisibility = nil
+		end
+		
+		if bFirst then
+			self.idButtonsListScroll.FadeInTime = 140
+			self:StretchCloseAnimation(self.idCategoryList.idCategoriesPad, false, self.lines_stretch_time_init, "invert")
+			local interpolation_start = GetPreciseTicks()
+			self:EaseInButton(self.idCategoryList.idCatBkg, interpolation_start, "open")
+			self:EaseInButtons(self.cat_items, interpolation_start, "open")
+		end
+	end, self)
+end
+
+function XBuildMenu:CloseItemsInterpolation()
+	if self:IsThreadRunning("CloseThread") then
+		return
+	end
+
+	self:StopOpenCloseInterpolation()
+
+	local interpolation_start = GetPreciseTicks()
+	self:EaseInButton(self.idCategoryList.idCatBkg, interpolation_start, not "open")
+	self:EaseInButtons(self.cat_items, interpolation_start, not "open")
+	self:EaseInButtons(self.items, interpolation_start, not "open")
+	
+	interpolation_start = interpolation_start + button_ease_total_duration
+	self.idBackground.FadeOutTime = self.lines_stretch_time_init
+	self.idButtonsListScroll.FadeOutTime = self.lines_stretch_time_init
+	self.idCategoryList.idCategoriesPad.FadeOutTime = self.lines_stretch_time_init
+	self:StretchCloseAnimation(self.idBackground, interpolation_start, self.lines_stretch_time_init, not "invert")
+	self:StretchCloseAnimation(self.idCategoryList.idCategoriesPad, interpolation_start, self.lines_stretch_time_init, not "invert")
+	self.idBackground:SetVisible(false)
+	self.idButtonsListScroll:SetVisible(false)
+	self.idCategoryList.idCategoriesPad:SetVisible(false)
+
+	self:CreateThread("CloseThread", function()
+		Sleep(button_ease_total_duration + button_ease_duration)
+		XDialog.Close(self)
+	end)
 end
 
 function XBuildMenu:GetItems(category_id)
@@ -626,7 +786,8 @@ function UIItemMenu(category_id, bCreateItems)
 					enabled = can_build or false,
 					prefabs = prefabs or false,
 					action = action,
-					Id = building_template.id
+					Id = building_template.id,
+					close_parent = true,
 				})
 			end
 		end
@@ -693,10 +854,11 @@ function UIItemMenu(category_id, bCreateItems)
 				hint = hint,
 				enabled = not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.PowerCables or false,
 				action = function()
-					if GetUIStyleGamepad() then g_LastBuildItem =  "PowerCables" end
+					g_LastBuildItem =  "PowerCables"
 					GetInGameInterface():SetMode("electricity_grid", {grid_elements_require_construction = require_construction})
 				end,
-				build_pos = 20,
+				build_pos = 11,
+				close_parent = true,
 			}
 		
 			local building_template = BuildingTemplates.ElectricitySwitch
@@ -716,10 +878,11 @@ function UIItemMenu(category_id, bCreateItems)
 				hint = hint,
 				enabled = not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.ElectricitySwitch or false,
 				action = function()
-					if GetUIStyleGamepad() then g_LastBuildItem = building_template.id end
+					g_LastBuildItem = building_template.id
 					GetInGameInterface():SetMode("electricity_switch")
 				end,
 				build_pos = 21,
+				close_parent = true,
 			}
 		end
 	end
@@ -747,10 +910,11 @@ function UIItemMenu(category_id, bCreateItems)
 				hint = hint,
 				enabled = not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.Pipes or false,
 				action = function()
-					if GetUIStyleGamepad() then g_LastBuildItem = "Pipes" end
+					g_LastBuildItem = "Pipes"
 					GetInGameInterface():SetMode("life_support_grid", {grid_elements_require_construction = require_construction})
 				end,
-				build_pos = 7,
+				build_pos = 8,
+				close_parent = true,
 			}
 		
 			local building_template = BuildingTemplates.LifesupportSwitch
@@ -770,10 +934,11 @@ function UIItemMenu(category_id, bCreateItems)
 				hint = hint,
 				enabled = not g_Tutorial or not g_Tutorial.BuildMenuWhitelist or g_Tutorial.BuildMenuWhitelist.LifesupportSwitch or false,
 				action = function()
-					if GetUIStyleGamepad() then g_LastBuildItem = building_template.id end
+					g_LastBuildItem = building_template.id
 					GetInGameInterface():SetMode("lifesupport_switch")
 				end,
-				build_pos = 8,
+				build_pos = 9,
+				close_parent = true,
 			}
 		end
 	end
@@ -796,11 +961,12 @@ function UIItemMenu(category_id, bCreateItems)
 					description = T{3974, "Marks buildings, cables and pipes to be demolished. Half of the construction resource cost of any salvaged buildings will be refunded."},
 					hint = hint,
 					action = function()
-						if GetUIStyleGamepad() then g_LastBuildItem = "Salvage" end
+						g_LastBuildItem = "Salvage"
 						GetInGameInterface():SetMode("demolish")
 						PlayFX("DemolishButton", "start")
 					end,
 					build_pos = next_bld_pos,
+					close_parent = true,
 				}
 			end
 		end
@@ -829,6 +995,7 @@ function UIItemMenu(category_id, bCreateItems)
 				GetInGameInterface():SetMode("passage_grid", {grid_elements_require_construction = g_Consts.InstantPassages == 0})
 			end,
 			build_pos = 20,
+			close_parent = true,
 		}
 		building_template = BuildingTemplates.PassageRamp
 		local hint = ""
@@ -848,6 +1015,7 @@ function UIItemMenu(category_id, bCreateItems)
 				GetInGameInterface():SetMode("passage_ramp")
 			end,
 			build_pos = 21,
+			close_parent = true,
 		}
 		count = count + 2
 	end
@@ -899,15 +1067,74 @@ function CloseXBuildMenu()
 	CloseDialog("XBuildMenu")
 end
 
-function RefreshXBuildMenu()
-	local dlg = GetDialog("XBuildMenu")
-	if not dlg then return end
-	
-	dlg:SelectCategory(dlg.category)
+function ToggleXBuildMenu(count_right_click, close_action, ...)
+	local build_menu = GetDialog("XBuildMenu")
+	if build_menu then
+		if build_menu:IsThreadRunning("CloseThread") then
+			if count_right_click then
+				g_BuildMenuRightClicksCount = g_BuildMenuRightClicksCount + 1
+			end
+			build_menu:delete()
+			OpenXBuildMenu(...)
+		else
+			if close_action == "back" then
+				build_menu:SelectParentCategory()
+			else
+				build_menu:Close()
+			end
+		end
+	else
+		if count_right_click then
+			g_BuildMenuRightClicksCount = g_BuildMenuRightClicksCount + 1
+		end
+		OpenXBuildMenu(...)
+	end
 end
 
+function RefreshXBuildMenu()
+	local build_menu = GetDialog("XBuildMenu")
+	if not build_menu then return end
+	
+	--a thread is needed here, because buildings add themselves to labels in their GameInit()
+	--this way `wonder` buildings are taken into account when refreshing
+	build_menu.refresh_thread = CreateGameTimeThread(function()
+		local category = build_menu.category_id
+		for i,item in ipairs(build_menu.items) do
+			local building_template = BuildingTemplates[item.name]
+			if building_template then
+				local show, prefabs, can_build, action, description = UIGetBuildingPrerequisites(category, building_template, false, "ignore_check")
+				item.enabled = can_build or false
+				item.prefabs = prefabs or false
+				item.description = description or item.description or false
+				item:UpdateContent()
+			end
+		end
+	end)
+end
+
+local previous_was_construction
 function OnMsg.UIModeChange(mode)
-	CloseXBuildMenu()
+	local mode_dlg = GetInGameInterfaceModeDlg()
+	local is_construction = IsKindOfClasses(mode_dlg, "ConstructionModeDialog", "GridConstructionDialog", "GridSwitchConstructionDialog", "DemolishModeDialog")
+	if not previous_was_construction and not is_construction then
+		CloseXBuildMenu()
+	elseif previous_was_construction and not is_construction then
+		local build_menu = GetDialog("XBuildMenu")
+		if build_menu then
+			if GetUIStyleGamepad() and g_LastBuildItem then
+				for i,item in ipairs(build_menu.items) do
+					if g_LastBuildItem == item.name then
+						item:SetFocus(true)
+						break
+					end
+				end
+			else
+				build_menu:SetFocus(true)
+			end
+			RefreshXBuildMenu()
+		end
+	end
+	previous_was_construction = is_construction
 end
 
 function OnMsg.SelectionChange()

@@ -118,7 +118,7 @@ PlaceObj('XTemplate', {
 					'__template', "InfopanelSection",
 					'RolloverText', T{131743729104, --[[XTemplate ipResourceOverview RolloverText]] "<AgeGroupsText>"},
 					'RolloverTitle', T{987289847467, --[[XTemplate ipResourceOverview RolloverTitle]] "Age Groups"},
-					'Title', T{892778823326, --[[XTemplate ipResourceOverview Title]] "<nbsp>Colonists<right><colonist(ColonistCount)>"},
+					'Title', T{782298266613, --[[XTemplate ipResourceOverview Title]] "<nbsp>Colonists<right><colonist(ColonistCount)>"},
 					'Icon', "UI/Icons/Sections/colonist.tga",
 				}, {
 					PlaceObj('XTemplateTemplate', {

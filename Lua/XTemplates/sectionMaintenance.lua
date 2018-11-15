@@ -41,6 +41,9 @@ end,
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'__template', "InfopanelText",
+					'__condition', function(parent, context)
+						return context.maintenance_resource_type ~= "no_resource" and context.maintenance_resource_type ~= "no_maintenance"
+					end,
 					'Dock', "right",
 					'Text', T{601912665358, --[[XTemplate sectionMaintenance Text]] "<resource(maintenance_resource_amount, maintenance_resource_type)>"},
 				}),

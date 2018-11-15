@@ -34,7 +34,7 @@ function CleanupHexRanges(obj, bind_func)
 	end
 end
 
-local function ShowBuildingHexes(bld, hex_range_class, bind_func)
+function ShowBuildingHexes(bld, hex_range_class, bind_func)
 	if bld:IsValidPos() and not bld.destroyed then
 		CleanupHexRanges(bld, bind_func)
 		local obj = PlaceObject(hex_range_class)
@@ -171,7 +171,7 @@ function OnMsg.SelectedObjChange(obj, prev)
 		g_FXBuildingType = { city = obj.city, class = bld.class }
 		ShowHexRanges(UICity, bld.class)
 	end
-	if bld and IsKindOfClasses(bld, "SupplyRocket", "DustGenerator") then
+	if bld and obj:IsValidPos() and IsKindOfClasses(bld, "SupplyRocket", "DustGenerator") then
 		g_FXBuildingType = { city = obj.city, class = bld.class }
 		local bind_func = "GetDustRadius"
 		local range = PlaceObject("RangeHexMultiSelectRadius")
@@ -225,7 +225,7 @@ function ViewAndSelectDome(obj)
 	local radius = obj:GetRadius()
 	local dx, dy = (cur_la - cur_pos):xy()
 	local norm = SetLen(point(-dy, dx, 0), radius)
-	local la = obj:GetPos() + norm
+	local la = obj:GetVisualPos() + norm
 	local pos = la - SetLen(point(dx, dy, 0), radius/3) + point(0, 0, radius/3)
 	
 	ViewObjectMars(la, nil, pos, 7000)
@@ -378,7 +378,7 @@ end
 
 function InGameInterface:OnShortcut(shortcut, source)
 	local desktop = self.desktop
-	if desktop:GetModalWindow() == desktop and self.mode_dialog and desktop.keyboard_focus and not desktop.keyboard_focus:IsWithin(self.mode_dialog) then
+	if desktop:GetModalWindow() == desktop and self.mode_dialog and self.mode_dialog:GetVisible() and desktop.keyboard_focus and not desktop.keyboard_focus:IsWithin(self.mode_dialog) then
 		if self.mode_dialog:OnShortcut(shortcut, source)=="break" then
 			return "break"
 		end	
@@ -498,7 +498,9 @@ function CloseModeDialog(mode)
 	if igi and (not mode or igi.mode == mode) then
 		local dlg = GetHUD()
 		if dlg then dlg.idtxtConstructionStatus:SetVisible(false) end
-		igi:SetMode("selection")
+		if GetInGameInterfaceMode() ~= "selection" then
+			igi:SetMode("selection")
+		end
 	end
 end
 
@@ -508,6 +510,14 @@ function RefreshSectorInfopanel(sector)
 		if dlg and dlg.mode_name == "overview" then
 			dlg:UpdateSectorRollover(sector)
 		end
+	end
+end
+
+function ShowNewFeaturesNotif()
+	if not AccountStorage.GameNewFeaturesNotificationVersion or AccountStorage.GameNewFeaturesNotificationVersion ~= const.GameNewFeaturesNotificationVersion then
+		AccountStorage.GameNewFeaturesNotificationVersion = const.GameNewFeaturesNotificationVersion
+		SaveAccountStorage(5000)
+		AddOnScreenNotification("NewFeatures")
 	end
 end
 
@@ -538,6 +548,7 @@ function OnMsg.CityStart()
 		igi = GetInGameInterface()
 		if not igi then return end
 		if not g_Tutorial then
+			ShowNewFeaturesNotif()
 			ShowStartGamePopup()
 		end
 	end)

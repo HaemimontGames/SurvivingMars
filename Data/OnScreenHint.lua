@@ -10,8 +10,8 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "HintBuildingUpgrade",
 	'title', T{8763, --[[OnScreenHint HintBuildingUpgrade title]] "Building Upgrade Available"},
-	'text', T{8848, --[[OnScreenHint HintBuildingUpgrade text]] "To order the construction of a building upgrade, press the upgrade button located at the top right corner of the building infopanel."},
-	'gamepad_text', T{8849, --[[OnScreenHint HintBuildingUpgrade gamepad_text]] "To order the construction of a building upgrade, press the upgrade button located at the top right corner of the building infopanel.\nPress <RT> while the building is selected and use <DPadRight> to navigate to the upgrade button."},
+	'text', T{8848, --[[OnScreenHint HintBuildingUpgrade text]] "To order the construction of a building upgrade, press the upgrade button located on the building infopanel."},
+	'gamepad_text', T{8849, --[[OnScreenHint HintBuildingUpgrade gamepad_text]] "To order the construction of a building upgrade, press the upgrade button located on the building infopanel.\nPress <RT> while the building is selected and use <DPadRight> to navigate to the upgrade button."},
 })
 
 PlaceObj('OnScreenHint', {
@@ -39,7 +39,7 @@ PlaceObj('OnScreenHint', {
 	'name', "HintGameSpeed",
 	'title', T{5505, --[[OnScreenHint HintGameSpeed title]] "Game Speed"},
 	'text', T{5506, --[[OnScreenHint HintGameSpeed text]] "Use the controls on the HUD or the following shortcuts to control the game speed:\n<em><ShortcutName('actionPauseGame')></em> - pause/unpause\n<em><ShortcutName('actionSpeedUp')> key</em> - increase game speed\n<em><ShortcutName('actionSpeedDown')> key</em> - decrease game speed"},
-	'gamepad_text', T{5507, --[[OnScreenHint HintGameSpeed gamepad_text]] "Use the following to control the game speed:\n<DPadDown>/<DPadUp> - pause/unpause\n<DPadRight> - increase game speed\n<DPadLeft> -  decrease game speed\n"},
+	'gamepad_text', T{5507, --[[OnScreenHint HintGameSpeed gamepad_text]] "Use the following to control the game speed:\n<ShortcutName('actionSpeedUp')> - increase game speed\n<ShortcutName('actionSpeedDown')> -  decrease game speed\n"},
 })
 
 PlaceObj('OnScreenHint', {
@@ -237,8 +237,8 @@ PlaceObj('OnScreenHint', {
 
 PlaceObj('OnScreenHint', {
 	'name', "HintSuggestLivingQuarters",
-	'title', T{5564, --[[OnScreenHint HintSuggestLivingQuarters title]] "Suggested Building: Living Quarters"},
-	'text', T{5565, --[[OnScreenHint HintSuggestLivingQuarters text]] "<em>Colonists</em> live in residential buildings within the <em>Domes</em>. The basic residential building is called <em>Living Quarters</em>."},
+	'title', T{5564, --[[OnScreenHint HintSuggestLivingQuarters title]] "Suggested Building: Living Complex"},
+	'text', T{5565, --[[OnScreenHint HintSuggestLivingQuarters text]] "<em>Colonists</em> live in residential buildings within the <em>Domes</em>. The basic residential building is called <em>Living Complex</em>."},
 })
 
 PlaceObj('OnScreenHint', {
@@ -275,7 +275,7 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "HintPassengerRocket",
 	'title', T{1116, --[[OnScreenHint HintPassengerRocket title]] "Passenger Rocket"},
-	'text', T{7436, --[[OnScreenHint HintPassengerRocket text]] "The passenger rocket will deliver Colonists and a minimal food supply to Mars. Use <em>Review</em> to inspect the traits of the arrivals."},
+	'text', T{7436, --[[OnScreenHint HintPassengerRocket text]] "The passenger rocket will deliver Colonists and a minimal food supply to Mars. Highlight an applicant to inspect their traits."},
 })
 
 PlaceObj('OnScreenHint', {
@@ -379,7 +379,7 @@ PlaceObj('OnScreenHint', {
 	'name', "Tutorial_1_SpeedControl",
 	'title', T{9040, --[[OnScreenHint Tutorial_1_SpeedControl title]] "Game Speed Controls"},
 	'text', T{9041, --[[OnScreenHint Tutorial_1_SpeedControl text]] "Use the controls on the HUD or the following shortcuts to control the game speed:\n\n<em><ShortcutName('actionPauseGame')></em> - pause/unpause\n<em><ShortcutName('actionSpeedUp')> key</em> - increase game speed\n<em><ShortcutName('actionSpeedDown')> key</em> - decrease game speed\n\nNow, accelerate the game speed so the Drones gather the required Metals faster."},
-	'gamepad_text', T{9826, --[[OnScreenHint Tutorial_1_SpeedControl gamepad_text]] "Use the following to control the game speed:\n\n<DPadDown>/<DPadUp> - pause/unpause\n<DPadRight> - increase game speed\n<DPadLeft> -  decrease game speed\n\nNow, accelerate the game speed so the Drones gather the required Metals faster."},
+	'gamepad_text', T{9826, --[[OnScreenHint Tutorial_1_SpeedControl gamepad_text]] "Use the following to control the game speed:\n\n<ShortcutName('actionSpeedUp')> - increase game speed\n<ShortcutName('actionSpeedDown')> -  decrease game speed\n\nNow, accelerate the game speed so the Drones gather the required Metals faster."},
 	'tutorial', "Tutorial1",
 })
 
@@ -512,8 +512,8 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "Tutorial_2_SelectRover",
 	'title', T{9075, --[[OnScreenHint Tutorial_2_SelectRover title]] "Rover Basics"},
-	'text', T{9076, --[[OnScreenHint Tutorial_2_SelectRover text]] "Select the <em>RC Transport</em> indicated in the view."},
-	'gamepad_text', T{9077, --[[OnScreenHint Tutorial_2_SelectRover gamepad_text]] "Select the <em>RC Transport</em> indicated in the view with <ButtonA>."},
+	'text', T{9076, --[[OnScreenHint Tutorial_2_SelectRover text]] "Select the <em>RC Transport</em>."},
+	'gamepad_text', T{9077, --[[OnScreenHint Tutorial_2_SelectRover gamepad_text]] "Select the <em>RC Transport</em> with <ButtonA>."},
 	'tutorial', "Tutorial2",
 	'encyclopedia_image', "UI/Messages/rc_transport.tga",
 })
@@ -782,7 +782,7 @@ PlaceObj('OnScreenHint', {
 	'name', "Tutorial_3_WaitRocket",
 	'title', T{9153, --[[OnScreenHint Tutorial_3_WaitRocket title]] "Awaiting Rocket"},
 	'text', T{9154, --[[OnScreenHint Tutorial_3_WaitRocket text]] "Wait for the arrival of the Rocket, then land it near the base.\n\nRemember you can speed up time via the HUD buttons at the bottom center of the screen."},
-	'gamepad_text', T{9155, --[[OnScreenHint Tutorial_3_WaitRocket gamepad_text]] "Wait for the arrival of the Rocket, then land it near the base.\n\nRemember you can speed up time via <DPadRight>."},
+	'gamepad_text', T{9155, --[[OnScreenHint Tutorial_3_WaitRocket gamepad_text]] "Wait for the arrival of the Rocket, then land it near the base.\n\nRemember you can speed up time via <ShortcutName('actionSpeedUp')>."},
 	'tutorial', "Tutorial3",
 	'encyclopedia_image', "UI/Messages/rocket_1.tga",
 })
@@ -831,9 +831,9 @@ PlaceObj('OnScreenHint', {
 
 PlaceObj('OnScreenHint', {
 	'name', "Tutorial_4_Housing",
-	'title', T{3532, --[[OnScreenHint Tutorial_4_Housing title]] "Living Quarters"},
-	'text', T{9165, --[[OnScreenHint Tutorial_4_Housing text]] "Construct <em>Living Quarters</em> at the indicated location. "},
-	'gamepad_text', T{9166, --[[OnScreenHint Tutorial_4_Housing gamepad_text]] "From the Build Menu <ButtonY> construct <em>Living Quarters</em> at the indicated location. "},
+	'title', T{3532, --[[OnScreenHint Tutorial_4_Housing title]] "Living Complex"},
+	'text', T{9165, --[[OnScreenHint Tutorial_4_Housing text]] "Construct a <em>Living Complex</em> at the indicated location. "},
+	'gamepad_text', T{9166, --[[OnScreenHint Tutorial_4_Housing gamepad_text]] "From the Build Menu <ButtonY> construct a <em>Living Complex</em> at the indicated location. "},
 	'tutorial', "Tutorial4",
 	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial3/Tutorial3_DomeSupply.tga",
 })
@@ -850,7 +850,7 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	'name', "Tutorial_4_PassengerRocket",
 	'title', T{1116, --[[OnScreenHint Tutorial_4_PassengerRocket title]] "Passenger Rocket"},
-	'text', T{9169, --[[OnScreenHint Tutorial_4_PassengerRocket text]] 'Use the <em>applicants filter</em> to set criteria for what type of colonists you want to bring to Mars. Alternatively you may use the "<em>Review</em>" option to view and hand pick 12 individual applicants.\n\nWhen you are ready use the "Launch" option to send the first colonists on their journey towards Mars.'},
+	'text', T{9169, --[[OnScreenHint Tutorial_4_PassengerRocket text]] 'Use the <em>applicants filter</em> to set criteria for what type of colonists you want to bring to Mars. Alternatively you may highlight individual applicants to inspect and hand pick 12 of them yourself.\n\nWhen you are ready use the "Launch" option to send the first colonists on their journey towards Mars.'},
 	'tutorial', "Tutorial4",
 	'encyclopedia_image', "UI/Messages/colonists.tga",
 })
@@ -954,9 +954,9 @@ PlaceObj('OnScreenHint', {
 
 PlaceObj('OnScreenHint', {
 	'name', "Tutorial_5_Housing",
-	'title', T{3532, --[[OnScreenHint Tutorial_5_Housing title]] "Living Quarters"},
-	'text', T{9194, --[[OnScreenHint Tutorial_5_Housing text]] "Construct <em>Living Quarters</em> inside the mining Dome."},
-	'gamepad_text', T{9195, --[[OnScreenHint Tutorial_5_Housing gamepad_text]] "From the Build Menu <ButtonY>, construct Living Quarters inside the mining Dome."},
+	'title', T{3532, --[[OnScreenHint Tutorial_5_Housing title]] "Living Complex"},
+	'text', T{9194, --[[OnScreenHint Tutorial_5_Housing text]] "Construct a <em>Living Complex</em> inside the mining Dome."},
+	'gamepad_text', T{9195, --[[OnScreenHint Tutorial_5_Housing gamepad_text]] "From the Build Menu <ButtonY>, construct a Living Complex inside the mining Dome."},
 	'tutorial', "Tutorial5",
 	'encyclopedia_image', "UI/Messages/Tutorials/Tutorial5/Tutorial5_Popup4_Housing.tga",
 })

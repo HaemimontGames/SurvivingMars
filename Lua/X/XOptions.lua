@@ -132,9 +132,11 @@ function ApplyDisplayOptions(host)
 		if ok == "confirmation" then
 			ok = WaitMarsQuestion(nil, T{4089, "Video mode change"}, T{4090, "The video mode has been changed. Keep changes?"}, T{1138, "Yes"}, T{1139, "No"}) == "ok"
 		end
+		--options obj should always show the current resolution
+		obj:SetProperty("Resolution", point(GetResolution()))
 		if ok then
 			obj:CopyCategoryTo(original_obj, "Display")
-			original_obj:SaveToTables() 
+			original_obj:SaveToTables()
 			SaveEngineOptions() -- save the original + the new display options to disk, in case user cancels options menu
 		else
 			-- user doesn't like it, restore
@@ -151,6 +153,7 @@ function CancelDisplayOptions(host)
 	local mode_param = GetDialogModeParam(host)
 	if not mode_param then return end
 	original_obj:CopyCategoryTo(obj, mode_param.id)
+	obj:SetProperty("Resolution", point(GetResolution()))
 	SetBackDialogMode(host)
 end
 

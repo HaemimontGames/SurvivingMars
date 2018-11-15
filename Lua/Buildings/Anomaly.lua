@@ -228,6 +228,7 @@ function SubsurfaceAnomaly:Setdepth_layer(depth)
 	end
 end
 
+GlobalVar("g_ScannedAnomaly", 0)
 function SubsurfaceAnomaly:ScanCompleted(scanner)
 	local city = scanner and scanner.city or UICity
 	local tech_action = self.tech_action
@@ -292,6 +293,7 @@ function SubsurfaceAnomaly:ScanCompleted(scanner)
 	end
 	HintDisable("HintAnomaly")
 	--@@@msg AnomalyAnalyzed,anomaly- fired when a new anomaly has been completely analized.
+	g_ScannedAnomaly = g_ScannedAnomaly + 1
 	Msg("AnomalyAnalyzed", self)
 	self:StartSequence(self.sequence, scanner, self:GetVisualPos())
 end
@@ -378,6 +380,41 @@ function SA_SpawnDepositAtAnomaly:Exec(sequence_player, ip, seq, registers)
 	end
 end
 
+DefineClass.SA_SpawnEffectDepositAtAnomaly = {
+	__parents = {"SequenceAction"},
+	properties = {
+		{ category = "Effect", id = "effect_type", name = "Effect Type", editor = "combo", items = ClassDescendantsCombo("EffectDeposit"), default = "" },
+	},
+	
+	Menu = "Gameplay",
+	MenuName = "Spawn EffectDeposit at Anomaly",
+	MenuSection = "Anomaly",
+	RestrictToList = "Scenario",
+}
+
+function SA_SpawnEffectDepositAtAnomaly:ShortDescription()
+	local effect_type = (self.effect_type ~= "") and self.effect_type or "EffectDeposit"
+	return string.format("Place %s at Anomaly", effect_type)
+end
+
+function SA_SpawnEffectDepositAtAnomaly:Exec(sequence_player, ip, seq, registers)
+	local class = self.effect_type
+	if not g_Classes[class] then 
+		sequence_player:Error(self, string.format("invalid effect deposit %s", self.self.effect_type))
+		return false
+	end
+	if registers.anomaly_pos then
+		local deposit = PlaceEffectDeposit(self.effect_type)
+		if deposit then
+			deposit:SetRevealed(true)
+		end
+		
+		deposit:SetPos(registers.anomaly_pos)
+	else
+		sequence_player:Error(self, string.format("invalid anomaly"))
+	end
+end
+
 DefineClass.SA_SpawnDustDevilAtAnomaly = {
 	__parents = { "SequenceAction" },
 	
@@ -428,30 +465,65 @@ function OnMsg.GatherFXTargets(list)
 	list[#list + 1] = "SubsurfaceAnomaly"
 end
 
+GlobalVar("BreakthroughOrder", {})
+function SavegameFixups.FixBreakthroughOrderIds()
+	for i, tech in ipairs(BreakthroughOrder) do
+		BreakthroughOrder[i] = tech.id
+	end
+end
+
+function City:GetUnregisteredBreakthroughs()
+	local ids = {}
+	for _, tech in ipairs(Presets.TechPreset.Breakthroughs) do
+		local id = tech.id
+		if not table.find(BreakthroughOrder, id) and not self:IsTechDiscovered(id) then
+			ids[#ids + 1] = id
+		end
+	end
+	return ids
+end
+
 function City:InitBreakThroughAnomalies()
 	local markers = MapGet("map", "SubsurfaceAnomalyMarker", function(a) return a.tech_action == "breakthrough" end )
-	local techs = table.icopy(Presets.TechPreset.Breakthroughs)
-	assert(#techs >= #markers, "Too many breakthrough anomalies found!")
-	if IsGameRuleActive("ChaosTheory") then
-		table.shuffle(techs)
-		table.shuffle(markers)
-	else
-		StableShuffle(techs, self:CreateMapRand("ShuffleBreakThroughTech"), 100)
-		table.shuffle(markers, self:CreateMapRand("ShuffleBreakThroughMarkers"))
+	
+	BreakthroughOrder = table.imap(Presets.TechPreset.Breakthroughs, "id")
+	
+	-- remove discovered
+	for i = #BreakthroughOrder, 1, -1 do
+		if self:IsTechDiscovered(BreakthroughOrder[i]) then
+			table.remove(BreakthroughOrder, i)
+		end
 	end
+	
+	-- initialize order
+	assert(#BreakthroughOrder >= #markers, "Too many breakthrough anomalies found!")
+	StableShuffle(BreakthroughOrder, self:CreateResearchRand("ShuffleBreakThroughTech"), 100)
+	table.shuffle(markers, self:CreateResearchRand("ShuffleBreakThroughMarkers"))
+	
+	-- cap the number of breakthroughs
+	while #BreakthroughOrder > #markers do
+		table.remove(BreakthroughOrder)
+	end
+	
+	-- reserve techs for planetary anomalies
+	local reserved = #markers / 2
+	for i = 1, reserved do
+		-- kill half the markers
+		local marker = table.remove(markers)
+		DoneObject(marker)
+	end
+	
 	-- assign breakthrough tech to each marker
 	local assigned = 0
 	while assigned < #markers do
-		local idx = #techs
-		local tech = techs[idx]
-		if not tech then
+		local idx = #BreakthroughOrder
+		local breakthrough_tech = BreakthroughOrder[idx]
+		if not breakthrough_tech then
 			break
 		end
-		if not self:IsTechDiscovered(tech.id) then
-			assigned = assigned + 1
-			markers[assigned].breakthrough_tech = tech.id
-		end
-		table.remove(techs, idx)
+		assigned = assigned + 1
+		markers[assigned].breakthrough_tech = breakthrough_tech
+		table.remove(BreakthroughOrder, idx)
 	end
 	if #markers > assigned then
 		print("Removing", #markers - assigned, "unassigned breakthrough anomaly markers.")

@@ -7,7 +7,7 @@ DefineClass.PinsDlg = {
 	LayoutMethod = "HOverlappingList",
 	FocusOnOpen = "",
 	LayoutHSpacing = 10,
-	Margins = box(100, 0, 100, 50),
+	Margins = box(100, 0, 100, 0),
 }
 
 function PinsDlg:Open(...)
@@ -61,7 +61,20 @@ end
 
 function PinsDlg:RecalculateMargins()
 	--This is temporarily and should be removed when implementing InGameInterface with new UI
-	self:SetMargins(PinsDlg.Margins + GetSafeMargins())
+	local hud_margins = box()
+	local hud = GetHUD()
+	if hud then
+		local gamepad = not not GetUIStyleGamepad()
+		local ui_scale = GetUIScale()
+		local hud_side_width = Max(hud.idLeft.measure_width, hud.idLeft.MinWidth)
+		hud_side_width = MulDivRound(hud_side_width, 100, ui_scale)
+		
+		local pins_side_margin = Max(PinsDlg.Margins:minx(), PinsDlg.Margins:maxx())
+		local side_margin = gamepad and (hud_side_width + 10 - pins_side_margin) or 0
+		local bottom_margin = gamepad and 10 or 80
+		hud_margins = box(side_margin, 0, side_margin,bottom_margin)
+	end
+	self:SetMargins(PinsDlg.Margins + hud_margins + GetSafeMargins())
 end
 
 function OnMsg.SafeAreaMarginsChanged()
@@ -79,6 +92,67 @@ end
 function PinsDlg:OnKillFocus()
 	self:UpdateGamepadHint()
 	XDialog.OnKillFocus(self)
+end
+
+function PinsDlg:SetVisible(visible, instant, ...)
+	if self.window_state == "destroying" then return end
+
+	if instant then
+		XDrawCacheDialog.SetVisible(self, visible, "instant", ...)
+	end
+	
+	if self:GetVisible() == visible then
+		return
+	end
+
+	local function ButtonAnimation(button, start_time, show)
+		local box = button.box
+		button:AddInterpolation{
+			id = "drop",
+			type = const.intRect,
+			startRect = Offset(box, point(0, -box:sizey())),
+			endRect = box,
+			start = start_time,
+			duration = 250,
+			flags = show and const.intfInverse or nil,
+			easing = const.Easing.CubicIn,
+			autoremove = true,
+		}
+		button:AddInterpolation{
+			id = "fade",
+			type = const.intAlpha,
+			startValue = 0,
+			endValue = 255,
+			start = start_time + 50,
+			duration = 150,
+			autoremove = not not show,
+			flags = not show and const.intfInverse or nil,
+		}
+	end
+	
+	if visible then
+		XDrawCacheDialog.SetVisible(self, true, "instant", ...)
+	end
+	
+	local half = (#self - 1) / 2
+	local delay = 30
+	local start_time = GetPreciseTicks() + half * delay
+	for i=2,#self do
+		ButtonAnimation(self[i], start_time, visible)
+		start_time = start_time + (i <= half and -delay or delay)
+	end
+	
+	if not visible then
+		if self:IsThreadRunning("SetVisibleThread") then
+			self:DeleteThread("SetVisibleThread")
+			XDrawCacheDialog.SetVisible(self, false, "instant", ...)
+		else
+			self:CreateThread("SetVisibleThread", function(self, visible, instant, ...)
+				Sleep(30 * (#self / 2) + 250)
+				XDrawCacheDialog.SetVisible(self, false, "instant", ...)
+			end, self, visible, instant, ...)
+		end
+	end
 end
 
 function PinsDlg:UpdateGamepadHint()
@@ -223,12 +297,15 @@ local function resolve_pin_rollover_hint(obj, gamepad)
 	elseif hint ~= "" then
 		hint = T{hint, obj}
 	end
-	
-	if gamepad and obj:CanBeUnpinned() then
-		return T{10988, "<hint> <ButtonY> Unpin", hint = hint}
-	else
-		return hint
+	 
+	if obj:CanBeUnpinned() then
+		if gamepad then
+			return T{10988, "<hint> <ButtonY> Unpin", hint = hint}
+		else
+			return T{10988, "<hint> <ButtonY> Unpin", hint = hint, ButtonY=TLookupTag("<right_click>")}
+		end
 	end
+	return hint
 end
 
 function PinsDlg:InitPinButton(button)
@@ -286,6 +363,8 @@ function PinsDlg:InitPinButton(button)
 			and self.context:CanHaveMoreDrones() and SelectedObj.command_center ~= self.context then
 			
 			SelectedObj:SetCommandCenterUser(self.context)
+		else
+			self.context:TogglePin()		
 		end
 	end
 	
@@ -434,6 +513,7 @@ function OnMsg.GamepadUIStyleChanged()
 		local gamepad = GetUIStyleGamepad()
 		pins_dlg.idGamepadImage:SetVisible(gamepad)
 		pins_dlg.idGamepadImage:SetDock(gamepad and "left" or "ignore")
+		pins_dlg:RecalculateMargins()
 	end
 end
 

@@ -6,45 +6,42 @@ PlaceObj('XTemplate', {
 	id = "PropLandingParam",
 	PlaceObj('XTemplateWindow', {
 		'__class', "XPropControl",
-		'RolloverAnchor', "left",
 	}, {
 		PlaceObj('XTemplateWindow', {
 			'__class', "XText",
 			'Id', "idTextValue",
 			'Padding', box(0, 0, 0, 0),
-			'Dock', "right",
+			'Dock', "left",
 			'VAlign', "center",
 			'MinWidth', 103,
 			'Visible', false,
 			'FoldWhenHidden', true,
 			'HandleMouse', false,
-			'TextFont', "PGResource",
-			'TextColor', RGBA(140, 156, 178, 255),
+			'TextStyle', "PGResource",
 			'Translate', true,
 			'TextHAlign', "center",
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XImage",
 			'Id', "idImage",
-			'Dock', "right",
+			'Dock', "left",
 			'FoldWhenHidden', true,
 			'Image', "UI/Common/pm_progress_bar.tga",
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XLabel",
 			'Id', "idName",
-			'Margins', box(0, 0, 10, 0),
-			'Dock', "right",
+			'Margins', box(40, 0, 0, 0),
+			'Dock', "left",
 			'VAlign', "center",
-			'TextFont', "PGResource",
-			'TextColor', RGBA(140, 156, 178, 255),
+			'TextStyle', "PGResource",
 			'Translate', true,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnPropUpdate(self, context, prop_meta, value)",
 			'func', function (self, context, prop_meta, value)
 local obj = ResolvePropObj(context)
-local image = obj:GetParamValue(prop_meta)
+local image = obj:GetThreatResourceImage(prop_meta)
 local text = ""
 local hide_image = false
 if NoThreats(prop_meta.id) then

@@ -5,16 +5,19 @@ PlaceObj('XTemplate', {
 	id = "PropNumber",
 	PlaceObj('XTemplateWindow', {
 		'__class', "XPropControl",
+		'LayoutMethod', "HList",
 		'RolloverOnFocus', true,
 		'FXMouseIn', "MenuItemHover",
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "PropName",
+			'MinWidth', 400,
+			'MaxWidth', 400,
+			'TextStyle', "ListItem3",
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XScrollThumb",
 			'Id', "idSlider",
-			'Dock', "right",
 			'VAlign', "center",
 			'MinWidth', 240,
 			'MouseCursor', "UI/Cursors/Rollover.tga",

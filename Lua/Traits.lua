@@ -41,8 +41,19 @@ end
 
 function CycleFilterTraits(obj, dir, category)
 	local domes = UICity.labels.Dome or {}
-	local idx = table.find(domes, obj.dome)
-	local next_dome = idx and domes[idx + dir] or domes[dir == 1 and 1 or #domes]
+	local idx = table.find(domes, obj.dome	)
+	local count = #domes
+	local next_dome = idx and domes[idx + dir] or domes[dir == 1 and 1 or count]
+	if not idx or not domes[idx + dir] then
+		idx = dir == 1 and 1 or count
+	end	
+	while next_dome and not next_dome:GetUIInteractionState() do	
+		idx = idx + dir
+		if idx<1 or idx>count then
+			idx = dir == 1 and 1 or count
+		end	
+		next_dome = domes[idx]		
+	end
 	if next_dome then
 		next_dome:OpenFilterTraits(category)
 	end
@@ -61,6 +72,9 @@ DefineClass.TraitsObject = {
 	dialog = false,
 	dome = false,
 	colonists = false,
+	matching_applicants = false,
+	locked_applicants = false,
+	applicants_invalid = true,
 	colonist_count = false,
 	filter = false,
 	categories = false,
@@ -69,12 +83,14 @@ DefineClass.TraitsObject = {
 }
 
 function TraitsObject:InitData(context)
+	self.approved_applicants = {}
 	if context then
 		self.dome = context.dome
 		self.colonists = context.colonists
 		self.filter = table.copy(context.filter)
 	else
-		self.colonists = table.copy(g_ApplicantPool)
+		self.colonists = g_ApplicantPool
+		self.locked_applicants = {}
 		self.filter = g_ApplicantPoolFilter
 	end
 	self:CountTraitsPerCategory()
@@ -113,39 +129,26 @@ function TraitsObject:GetMatchingColonistsCount()
 end
 
 function TraitsObject:GetApprovedColonists()
-	local approved = self.approved_applicants or empty_table
-	local count = 0
-	if approved then
-		for app, val in pairs(approved) do
-			count = count + 1
-		end
+	if self.applicants_invalid then
+		self:ResolveApplicantLists()
 	end
-	return count
+	return #(self.approved_applicants or "")
 end
 
-function GetPassengerCapacity()
-	return g_Consts.MaxColonistsPerRocket
+function TraitsObject:GetPassengerCapacity(launch_mode)
+	launch_mode = launch_mode or UICity and UICity.launch_mode
+	return launch_mode == "passenger_pod" and g_Consts.MaxColonistsPerPod or g_Consts.MaxColonistsPerRocket
 end
 
-function TraitsObject:GetReviewSubtitle()
-	local approved = self:GetApprovedColonists()
+function TraitsObject:SetUIResupplyParams(win)
+	local capacity = self:GetPassengerCapacity()
+	local capacity_win = win:ResolveId("idCapacity")
+	if capacity_win then capacity_win:SetText(T{11592, "<num>", num = capacity}) end
 	local count, all = self:GetMatchingColonistsCount()
-	local capacity = GetPassengerCapacity()
-	local color =  approved==capacity and TLookupTag("<green>") or approved>capacity and TLookupTag("<red>") or TLookupTag("<white>")
-	return T{7643, "Matching Colonists <white><count>/<applicants></white><newline>Approved Colonists <col><approved>/<capacity></color><newline>Available Residences on Mars <white><residences></white>",
-	approved = approved, count = count, capacity = capacity, residences =  GetAvailableResidences(UICity), applicants = all,
-		col = color }
-end
-
-function TraitsObject:GetApplicantsSubtitle()
-	local count, all = self:GetMatchingColonistsCount()
-	local capacity = GetPassengerCapacity()
-	return T{7644, "Matching Colonists <white><count>/<all></white><newline>Rocket Capacity <white><applicants></white><newline>Available Residences on Mars <white><residences></white>",
-		count = count, 
-		all = #g_ApplicantPool, 
-		residences =  GetAvailableResidences(UICity), 
-		applicants = capacity,
-	}
+	local matching_win = win:ResolveId("idMatchingColonists")
+	if matching_win then matching_win:SetText(T{11593, "<count>/<all>", count = count, all = all}) end
+	local residences_win = win:ResolveId("idResidences")
+	if residences_win then residences_win:SetText(T{11592, "<num>", num = GetAvailableResidences(UICity)}) end
 end
 
 function TraitsObject:GetDomeSubtitle()
@@ -192,6 +195,7 @@ function TraitsObject:FilterTrait(prop_meta, state)
 end
 
 function TraitsObject:SetFilter(prop_meta, state, current_state)
+	self:InvalidateApplicants()
 	local filter = self.filter
 	local cat_id = prop_meta.cat_id or prop_meta.id
 	local all = prop_meta.value == "all" or prop_meta.submenu
@@ -290,6 +294,7 @@ function TraitsObject:CountColonists()
 end
 
 function TraitsObject:ClearTraits(prop_meta)
+	self:InvalidateApplicants()
 	local filter = self.filter
 	local traits = TraitPresets
 	if prop_meta then
@@ -307,57 +312,147 @@ function TraitsObject:ClearTraits(prop_meta)
 	self.dialog:UpdateActionViews(self.dialog.idActionBar)
 end
 
-function TraitsObject:GetReviewColonists()
-	local items = {}
-	local all = #self.colonists
-	for i = 1, all do
-		local colonist = self.colonists[i][1]
+function TraitsObject:InvalidateApplicants()
+	self.applicants_invalid = true
+end
+
+function TraitsObject:ResolveApplicantLists()
+	self.matching_applicants = {}
+	local applicants = self.matching_applicants
+	local approved = self.approved_applicants
+	local eval_t = {}
+	for _, item in ipairs(self.colonists) do --iterate over the entire applicant pool
+		local colonist = item[1]
 		local eval = TraitFilterColonist(self.filter, colonist.traits)
 		if eval >= 0 then
-			local name = Untranslated(colonist.name)
-			local specialist = GetSpecialization(colonist.specialist).display_name
-			local nation = table.find_value(Nations, "value", colonist.birthplace)
-			local flag = nation and nation.flag			
-			local rollover_description =  T{1148, "Birthplace <right><flag><newline><left>Sex<right><gender><newline><left>Age<right><Age><newline><left>Specialization<right><specialist>", 
-						name = name, specialist = specialist, 
-						gender = Colonist.GetGender(colonist), Age = Colonist.GetAge(colonist),
-						flag = flag and "<image "..flag.." 1400>" or nation.text}
-						
-			local traits = {}
-			for trait_id in pairs(colonist.traits) do
-				local trait = TraitPresets[trait_id]
-				if trait and trait.show_in_traits_ui then
-					traits[#traits + 1] = T{7373, "<em><trait></em>: <descr>", trait = trait.display_name, descr = trait.description}
-				end
+			if not table.find(approved, item) then
+				applicants[#applicants + 1] = item
+				eval_t[item] = -eval
 			end
-			if next(traits) then
-				rollover_description = rollover_description..T{1150, "<newline><left><center>Traits<newline><left>"}..table.concat(traits,"<newline><newline><left>")
+		else
+			--remove from approved if not locked
+			if not self.locked_applicants[item] then
+				table.remove_entry(approved, item)
 			end
-			local info  = (colonist.traits.Child or colonist.traits.Senior) and Colonist.GetAge(colonist) or specialist
-			items[#items + 1] = {
-				name = T{1151, "<name> (<info>)",name = name, info = info},
-				approved_for_flight  = self.approved_applicants[self.colonists[i]] or false,
-				applicant = self.colonists[i],
-				rollover = {
-					title = name,
-					descr = rollover_description,
-					gamepad_hint = T{7581, "<DPadLeft> Toggle <DPadRight>"},
-				},
-				eval = eval,
-			}
 		end
 	end
-	table.sortby_field_descending(items, "eval")
+	table.sortby(applicants, eval_t)
+	--fill remaining slots in the approved list
+	local free_capacity = self:GetPassengerCapacity() - #approved
+	for i = 1, free_capacity do
+		if not applicants[1] then break end
+		self:ApproveApplicant(applicants[1], true)
+	end
+	self.applicants_invalid = false
+end
+
+function TraitsObject:CreateUIListItems(colonists, selected)
+	local items = {}
+	for _, item in ipairs(colonists) do --iterate over the entire applicant pool
+		local colonist = item[1]
+		local name = colonist.name
+		local specialist = GetSpecialization(colonist.specialist).display_name
+		local nation = table.find_value(Nations, "value", colonist.birthplace)
+		local flag = nation and nation.flag			
+		local rollover_description =  T{1148, "Birthplace <right><flag><newline><left>Sex<right><gender><newline><left>Age<right><Age><newline><left>Specialization<right><specialist>", 
+					name = name, specialist = specialist, 
+					gender = Colonist.GetGender(colonist), Age = Colonist.GetAge(colonist),
+					flag = flag and "<image "..flag.." 1400>" or nation.text}
+					
+		local traits = {}
+		for trait_id in pairs(colonist.traits) do
+			local trait = TraitPresets[trait_id]
+			if trait and trait.show_in_traits_ui then
+				traits[#traits + 1] = T{7373, "<em><trait></em>: <descr>", trait = trait.display_name, descr = trait.description}
+			end
+		end
+		if next(traits) then
+			rollover_description = rollover_description..T{1150, "<newline><left><center>Traits<newline><left>"}..table.concat(traits,"<newline><newline><left>")
+		end
+		local info  = (colonist.traits.Child or colonist.traits.Senior) and Colonist.GetAge(colonist) or specialist
+		local hint, gamepad_hint
+		if selected then
+			rollover_description = rollover_description .. T{11594, "<newline><newline><lock_icon> Locked passengers will remain selected when the filter changes."}
+			local t = {}
+			t[#t + 1] = T{11595, "<ButtonA> Remove"}
+			t[#t + 1] = T{11596, "<ButtonY> Toggle Lock"}
+			gamepad_hint = table.concat(t, "<newline>")
+			t = {}
+			t[#t + 1] = T{11597, "<left_click> Remove"}
+			t[#t + 1] = T{11598, "<right_click> Toggle Lock"}
+			hint = table.concat(t, "<newline>")
+		else
+			gamepad_hint = T{11599, "<ButtonA> Add"}
+			hint = T{11600, "<left_click> Add"}
+		end
+		items[#items + 1] = {
+			name = T{1151, "<name> (<info>)",name = name, info = info},
+			applicant = item,
+			rollover = {
+				title = name,
+				descr = rollover_description,
+				gamepad_hint = gamepad_hint,
+				hint = hint,
+			},
+		}
+	end
 	return items
 end
 
-function TraitsObject:ToggleApplicant(ctrl, prop_meta)
-	prop_meta.approved_for_flight = not prop_meta.approved_for_flight
-	self.approved_applicants[prop_meta.applicant] = prop_meta.approved_for_flight or nil
-	ctrl:SetImage(prop_meta.approved_for_flight  and "UI/Icons/traits_approve.tga" or "UI/Icons/traits_approve_disable.tga")
-	local subtitle = self:GetReviewSubtitle()
-	self.dialog.idTop.idSubtitle:SetText(subtitle)
-	self.dialog:UpdateActionViews(self.dialog.idActionBar)
+function TraitsObject:GetMatchingApplicantsList()
+	if self.applicants_invalid then
+		self:ResolveApplicantLists()
+	end
+	return self:CreateUIListItems(self.matching_applicants)
+end
+
+function TraitsObject:GetApprovedApplicantsList()
+	if self.applicants_invalid then
+		self:ResolveApplicantLists()
+	end
+	return self:CreateUIListItems(self.approved_applicants, true)
+end
+
+function TraitsObject:ApproveApplicant(applicant, dont_lock)
+	local approved = self.approved_applicants
+	local colonists = self.matching_applicants
+	approved[#approved + 1] = applicant
+	table.remove_entry(colonists, applicant)
+	if not dont_lock then
+		self:LockApplicant(applicant)
+		ObjModified(self)
+	end
+end
+
+function TraitsObject:RemoveApprovedApplicant(applicant)
+	local approved = self.approved_applicants
+	local colonists = self.matching_applicants
+	colonists[#colonists + 1] = applicant
+	table.remove_entry(approved, applicant)
+	self:UnlockApplicant(applicant)
+	ObjModified(self)
+end
+
+function TraitsObject:LockApplicant(applicant)
+	self.locked_applicants[applicant] = applicant
+	return true
+end
+
+function TraitsObject:UnlockApplicant(applicant)
+	self.locked_applicants[applicant] = nil
+end
+
+function TraitsObject:ToggleLockApplicant(applicant)
+	local locked = self.locked_applicants
+	if locked[applicant] then
+		return self:UnlockApplicant(applicant)
+	else
+		return self:LockApplicant(applicant)
+	end
+end
+
+function TraitsObject:IsApplicantLocked(prop_meta)
+	return self.locked_applicants[prop_meta.applicant]
 end
 
 function TraitsObject:UpdateRocketName(host)
@@ -444,18 +539,16 @@ end
 
 function TraitsObject:CountApprovedCheck()
 	local count = self:GetApprovedColonists()
-	local capacity = GetPassengerCapacity()
+	local capacity = self:GetPassengerCapacity()
 
 	return count > 0 and count <= capacity
 end
 
-function TraitsObject:CanLaunchPassengerRocket()
+function TraitsObject:GetPassengerRocketLaunchIssue()
 	local approved = self.approved_applicants
-	if approved then
-		return self:CountApprovedCheck()
+	if #(approved or "") > 0 then
+		return not self:CountApprovedCheck() and "capacity"
 	end
-
-	return self:GetMatchingColonistsCount() > 0
 end
 
 function TraitsObjectCreateAndLoad(context)
@@ -476,7 +569,7 @@ function BuyApplicants(host)
 					GenerateApplicant(now)
 				end
 				local obj = host.context
-				obj.colonists = table.copy(g_ApplicantPool)
+				obj.colonists = g_ApplicantPool
 				obj:CountColonists()
 				ObjModified(obj)
 				host:UpdateActionViews(host.idActionBar)
@@ -488,25 +581,37 @@ function BuyApplicants(host)
 end
 
 function LaunchPassengerRocket(host)
+	local obj = ResolvePropObj(host.context)
+	local issue = obj:GetPassengerRocketLaunchIssue()
+	if issue then
+		local caption, text
+		if issue == "capacity" then
+			text = T{11601, "Too many selected applicants"}
+		end
+		CreateMessageBox(T{11603, "Launch Failed"}, text, nil, host)
+		return
+	end
+	
 	local mode = UICity.launch_mode
 	local label = SetupLaunchLabel(mode)
 
-	CreateRealTimeThread(function(mode, label)
-		local obj = ResolvePropObj(host.context)
+	CreateRealTimeThread(function(obj, mode, label)
 		g_ApplicantPoolFilter = obj.filter
-		local capacity = GetPassengerCapacity(mode)
+		local capacity = obj:GetPassengerCapacity(mode)
 		local amount, data = PrepareApplicantsForTravel(UICity, host, capacity)
 		if not amount then return end
 		Msg("PassengerRocketLaunched", label)
 		local cargo = {}
 		cargo.rocket_name = g_RenameRocketObj.rocket_name
 		MarkNameAsUsed("Rocket", g_RenameRocketObj.rocket_name_base)
-		cargo[1] = {class = "Passengers", amount = amount, applicants_data = data}
-		cargo[2] = {class = "Food", amount = MulDivRound(amount, g_Consts.FoodPerRocketPassenger, const.ResourceScale)}
+		if amount > 0 then
+			cargo[1] = {class = "Passengers", amount = amount, applicants_data = data}
+			cargo[2] = {class = "Food", amount = MulDivRound(amount, g_Consts.FoodPerRocketPassenger, const.ResourceScale)}
+		end
 		host.parent.parent:Close()
 
 		-- mark progress for colony viability
-		if g_ColonyNotViableUntil == -3 then
+		if amount > 0 and g_ColonyNotViableUntil == -3 then
 			g_ColonyNotViableUntil = -2
 		end
 		
@@ -514,7 +619,7 @@ function LaunchPassengerRocket(host)
 			Sleep(1)
 			UICity:OrderLanding(cargo, 0, false, label)
 		end, mode, label)
-	end, mode, label)
+	end, obj, mode, label)
 end
 
 
@@ -620,8 +725,12 @@ function GetCompatibleTraits(compatible, nonerare, rare, category)
 	for idx, tbl in pairs({nonerare, rare}) do
 		for i=#tbl, 1, -1 do 
 			local name = tbl[i]
-			local trait = TraitPresets[name]		
-			if category~=nil and trait.group ~= category then
+			local trait = TraitPresets[name]
+			if category == "Rare" then
+				if not trait.rare then
+					table.remove(tbl, i)
+				end
+			elseif category~=nil and trait.group ~= category then
 				table.remove(tbl,i)
 			end
 			
@@ -722,9 +831,10 @@ end
 
 TraitFilterUnit = TraitFilterColonist --old fn. name (for savegame compatibility)
 
-function GetTSortedTraits()
+function GetTSortedTraits(group)
 	local t = {}
-	for id, trait in pairs(TraitPresets) do
+	local presets_list = group and Presets.TraitPreset[group] or TraitPresets
+	for i, trait in ipairs(presets_list) do
 		if not g_HiddenTraits[trait.id] then
 			table.insert(t, trait)
 		end

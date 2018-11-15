@@ -2,14 +2,22 @@
 
 PlaceObj('Milestone', {
 	Complete = function (self)
-WaitMsg("AnomalyAnalyzed")
+CreateGameTimeThread(function()
+	WaitMsg("AnomalyAnalyzed")
+	Msg("MilestoneAnomalyAnalyzed")
+end)
+CreateGameTimeThread(function()
+	WaitMsg("PlanetaryAnomalyAnalyzed")
+	Msg("MilestoneAnomalyAnalyzed")
+end)
+WaitMsg("MilestoneAnomalyAnalyzed")
 return true
 end,
 	SortKey = 1000,
 	base_score = 100,
 	bonus_score = 300,
 	bonus_score_expiration = 30,
-	display_name = T{979029137252, --[[Milestone Default ScanAnomaly display_name]] "Scanned an Anomaly"},
+	display_name = T{979029137252, --[[Milestone Default ScanAnomaly display_name]] "Scan an Anomaly"},
 	group = "Default",
 	id = "ScanAnomaly",
 })
@@ -23,7 +31,7 @@ end,
 	base_score = 100,
 	bonus_score = 300,
 	bonus_score_expiration = 30,
-	display_name = T{326786953545, --[[Milestone Default ReturnRocket display_name]] "Launched a Rocket from Mars"},
+	display_name = T{326786953545, --[[Milestone Default ReturnRocket display_name]] "Launch a Rocket from Mars"},
 	group = "Default",
 	id = "ReturnRocket",
 })
@@ -40,7 +48,7 @@ end,
 	base_score = 100,
 	bonus_score = 300,
 	bonus_score_expiration = 30,
-	display_name = T{761999391455, --[[Milestone Default FindWater display_name]] "Found Water on Mars"},
+	display_name = T{761999391455, --[[Milestone Default FindWater display_name]] "Find Water on Mars"},
 	group = "Default",
 	id = "FindWater",
 })
@@ -53,9 +61,10 @@ end,
 	base_score = 100,
 	bonus_score = 600,
 	bonus_score_expiration = 60,
-	display_name = T{639900467782, --[[Milestone Default ConstructDome display_name]] "Constructed a Dome"},
+	display_name = T{639900467782, --[[Milestone Default ConstructDome display_name]] "Construct a Dome"},
 	group = "Default",
 	id = "ConstructDome",
+	reward_research = 500,
 })
 
 PlaceObj('Milestone', {
@@ -82,6 +91,8 @@ end,
 	bonus_score_expiration = 100,
 	display_name = T{488379408129, --[[Milestone Default Martianborn display_name]] "First Martianborn"},
 	id = "Martianborn",
+	reward_research = 500,
+	trigger_fireworks = true,
 })
 
 PlaceObj('Milestone', {
@@ -92,9 +103,10 @@ end,
 	SortKey = 7000,
 	base_score = 300,
 	bonus_score_expiration = 100,
-	display_name = T{665036099552, --[[Milestone Default ProduceFood display_name]] "Produced Food"},
+	display_name = T{665036099552, --[[Milestone Default ProduceFood display_name]] "Produce Food"},
 	group = "Default",
 	id = "ProduceFood",
+	trigger_fireworks = true,
 })
 
 PlaceObj('Milestone', {
@@ -109,9 +121,10 @@ end,
 	SortKey = 8000,
 	base_score = 300,
 	bonus_score_expiration = 100,
-	display_name = T{149119990393, --[[Milestone Default ResearchBreakthrough display_name]] "Researched a Breakthrough"},
+	display_name = T{149119990393, --[[Milestone Default ResearchBreakthrough display_name]] "Research a Breakthrough"},
 	group = "Default",
 	id = "ResearchBreakthrough",
+	reward_research = 500,
 })
 
 PlaceObj('Milestone', {
@@ -119,13 +132,15 @@ PlaceObj('Milestone', {
 WaitMsg("MissionEvaluationDone")
 return true
 end,
-	GetScore = function (self)
-return UICity.mission_goal and UICity.mission_goal.score
-end,
 	SortKey = 9000,
-	display_name = T{106610630022, --[[Milestone Default Evaluation display_name]] "Evaluation"},
+	base_score = 300,
+	bonus_score = 2000,
+	bonus_score_expiration = 200,
+	display_name = T{106610630022, --[[Milestone Default SponsorGoals display_name]] "All Sponsor Goals"},
 	group = "Default",
-	id = "Evaluation",
+	id = "SponsorGoals",
+	reward_research = 2500,
+	trigger_fireworks = true,
 })
 
 PlaceObj('Milestone', {
@@ -136,9 +151,10 @@ end,
 	base_score = 300,
 	bonus_score = 2000,
 	bonus_score_expiration = 200,
-	display_name = T{785508231749, --[[Milestone Default ScanAllSectors display_name]] "Scanned all Sectors"},
+	display_name = T{785508231749, --[[Milestone Default ScanAllSectors display_name]] "Scan all Sectors"},
 	group = "Default",
 	id = "ScanAllSectors",
+	reward_research = 2500,
 })
 
 PlaceObj('Milestone', {
@@ -152,6 +168,8 @@ end,
 	display_name = T{180356594159, --[[Milestone Default Population100 display_name]] "100 Colonists"},
 	group = "Default",
 	id = "Population100",
+	reward_research = 1000,
+	trigger_fireworks = true,
 })
 
 PlaceObj('Milestone', {
@@ -165,6 +183,8 @@ end,
 	display_name = T{539130058924, --[[Milestone Default Population500 display_name]] "500 Colonists"},
 	group = "Default",
 	id = "Population500",
+	reward_research = 2500,
+	trigger_fireworks = true,
 })
 
 PlaceObj('Milestone', {
@@ -177,6 +197,8 @@ end,
 	display_name = T{174129126515, --[[Milestone Default Population1000 display_name]] "1000 Colonists"},
 	group = "Default",
 	id = "Population1000",
+	reward_research = 5000,
+	trigger_fireworks = true,
 })
 
 PlaceObj('Milestone', {
@@ -186,9 +208,11 @@ end,
 	SortKey = 14000,
 	bonus_score = 5000,
 	bonus_score_expiration = 500,
-	display_name = T{833327755106, --[[Milestone Default ConstructMegaDome display_name]] "Constructed a Mega Dome"},
+	display_name = T{833327755106, --[[Milestone Default ConstructMegaDome display_name]] "Construct a Mega Dome"},
 	group = "Default",
 	id = "ConstructMegaDome",
+	reward_research = 2500,
+	trigger_fireworks = true,
 })
 
 PlaceObj('Milestone', {
@@ -198,9 +222,11 @@ end,
 	SortKey = 15000,
 	bonus_score = 5000,
 	bonus_score_expiration = 500,
-	display_name = T{781931111320, --[[Milestone Default ConstructWonder display_name]] "Constructed a Wonder"},
+	display_name = T{781931111320, --[[Milestone Default ConstructWonder display_name]] "Construct a Wonder"},
 	group = "Default",
 	id = "ConstructWonder",
+	reward_research = 5000,
+	trigger_fireworks = true,
 })
 
 PlaceObj('Milestone', {
@@ -213,5 +239,7 @@ end,
 	display_name = T{590068197487, --[[Milestone Default WorkersInWorkshops display_name]] "40% Workers in Workshops"},
 	group = "Default",
 	id = "WorkersInWorkshops",
+	reward_research = 10000,
+	trigger_fireworks = true,
 })
 

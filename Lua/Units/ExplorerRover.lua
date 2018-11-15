@@ -22,7 +22,7 @@ DefineClass.ExplorerRover = {
 		Malfunction = true,
 	},
 	research_points_lifetime = false,
-	palettes = { "ExplorerRover" },
+	palette = {"rover_accent","rover_dark","outside_metal","rover_base"},
 	
 	malfunction_idle_state = "malfunctionIdle",
 	
@@ -49,7 +49,7 @@ function ExplorerRover:Idle()
 								end)
 		
 		if anomaly then
-			if pf.HasPath(self:GetPos(), self.pfclass, anomaly:GetPos()) then
+			if self:HasPath(anomaly, self.work_spot_task) then
 				anomaly.auto_rover = self
 				self:SetCommand("Analyze", anomaly)
 			else

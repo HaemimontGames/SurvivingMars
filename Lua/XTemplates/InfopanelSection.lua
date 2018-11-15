@@ -15,21 +15,20 @@ PlaceObj('XTemplate', {
 		'RolloverOnFocus', true,
 		'RelativeFocusOrder', "new-line",
 	}, {
+		PlaceObj('XTemplateWindow', {
+			'__class', "XFrame",
+			'Id', "idBackground",
+			'IdNode', false,
+			'Margins', box(-12, -12, 0, -13),
+			'Dock', "box",
+			'Image', "UI/CommonNew/ip_header.tga",
+			'FrameBox', box(12, 12, 0, 12),
+		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "Highlight(self, highlight)",
 			'func', function (self, highlight)
 if self.idSectionTitle.visible then
 		self.idHighlight:SetVisible(highlight)
-		self.idHighlight2:SetVisible(highlight)
-		local b = self.idHighlight2.box
-		self.idHighlight2:AddInterpolation{
-			type = const.intRect,
-			duration = self.idHighlight2:GetFadeInTime(),
-			startRect = b,
-			endRect = sizebox(b:minx(), b:miny(), 40, b:sizey()),
-			flags = const.intfInverse,
-			autoremove = true,
-		}
 		PlayFX("UIInfoPanelItemHover", highlight and "start" or "end", self, self.Id)
 	end
 end,
@@ -48,30 +47,6 @@ self:Highlight(false)
 return XWindow.OnKillFocus(self)
 end,
 		}),
-		PlaceObj('XTemplateWindow', {
-			'comment', "section background",
-			'Dock', "box",
-			'HandleMouse', true,
-		}, {
-			PlaceObj('XTemplateWindow', {
-				'__class', "XImage",
-				'Margins', box(0, -1, 0, 0),
-				'VAlign', "top",
-				'Image', "UI/Infopanel/section.tga",
-				'ImageFit', "stretch-x",
-			}),
-			PlaceObj('XTemplateWindow', {
-				'__class', "XImage",
-				'Id', "idHighlight2",
-				'IdNode', false,
-				'Margins', box(0, 22, 0, 0),
-				'VAlign', "top",
-				'Visible', false,
-				'FadeInTime', 150,
-				'Image', "UI/Infopanel/section _shine.tga",
-				'ImageFit', "stretch-x",
-			}),
-			}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XImage",
 			'Id', "idIcon",
@@ -101,25 +76,18 @@ end,
 		PlaceObj('XTemplateWindow', {
 			'Id', "idContent",
 			'Margins', box(2, 0, 20, 4),
+			'Padding', box(5, 5, 0, 0),
 			'LayoutMethod', "VList",
 		}, {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelSectionTitle",
 				'Id', "idSectionTitle",
 				'Padding', box(2, 2, 2, 4),
+				'MaxHeight', 40,
 				'FoldWhenHidden', true,
+				'Shorten', true,
 			}),
 			}),
-		PlaceObj('XTemplateFunc', {
-			'name', "Open",
-			'func', function (self, ...)
-	local gamepad = GetUIStyleGamepad()
-	if gamepad and self.idSectionTitle:GetText()=="" then
-		self.idHighlight2:SetMargins(box(0,32,0,-8))
-	end
-	XSection.Open(self, ...)
-end,
-		}),
 		}),
 	PlaceObj('XTemplateProperty', {
 		'category', "General",
@@ -151,6 +119,15 @@ end,
 		'translate', false,
 		'Set', function (self, value)
 self.idSectionTitle:SetHAlign(value)
+end,
+	}),
+	PlaceObj('XTemplateProperty', {
+		'id', "StretchFrameRight",
+		'Set', function (self, value)
+if value then
+	local m = self.idBackground:GetMargins()
+	self.idBackground:SetMargins(box(m:minx(), m:miny(), m:maxx() - 300, m:maxy()))
+end
 end,
 	}),
 })

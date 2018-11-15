@@ -19,12 +19,13 @@ CreateRealTimeThread(function(self, mode, mode_param)
 end, self, mode, mode_param)
 end,
 		}),
+		PlaceObj('XTemplateLayer', {
+			'layer', "ScreenBlur",
+			'layer_id', "idBlur",
+		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XContentTemplate",
 		}, {
-			PlaceObj('XTemplateLayer', {
-				'layer', "VogelBlur",
-			}),
 			PlaceObj('XTemplateMode', nil, {
 				PlaceObj('XTemplateLayer', {
 					'__condition', function (parent, context) return GetUIStyleGamepad() end,
@@ -34,7 +35,7 @@ end,
 						'name', "Open",
 						'func', function (self, ...)
 XOpenLayer.Open(self, ...)
-self.dialog.idContent:SetMargins(box(-350, 0, 0, 0))
+self.dialog.idContent:SetMargins(box(175, 0, 0, 0))
 end,
 					}),
 					}),

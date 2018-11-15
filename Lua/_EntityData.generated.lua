@@ -32,10 +32,45 @@ EntityData["DecLavaCoils_04"] = {
 		material_type = "Stone",
 	},
 }
+EntityData["SignResearchDeposit"] = {
+	category_Decors = true,
+	entity = {
+		fade_category = "Never",
+		material_type = "Metal",
+	},
+}
+EntityData["SignBeautyDeposit"] = {
+	category_Decors = true,
+	entity = {
+		fade_category = "Never",
+		material_type = "Metal",
+	},
+}
+EntityData["SignExpeditionRocket"] = {
+	category_Decors = true,
+	entity = {
+		fade_category = "Never",
+		material_type = "Metal",
+	},
+}
+EntityData["SignAutomatedTrade"] = {
+	category_Decors = true,
+	entity = {
+		fade_category = "Never",
+		material_type = "Metal",
+	},
+}
 EntityData["DomeGeoscape_Vent"] = {
 	category_Buildings = true,
 	entity = {
 		class_parent = "BuildingEntityClass",
+		fade_category = "Never",
+		material_type = "Metal",
+	},
+}
+EntityData["SignUnableToWork"] = {
+	category_Decors = true,
+	entity = {
 		fade_category = "Never",
 		material_type = "Metal",
 	},
@@ -67,6 +102,22 @@ EntityData["DomeGrass_06"] = {
 	entity = {
 		class_parent = "BakedDomeDecal",
 		material_type = "    ",
+	},
+}
+EntityData["SupplyPod"] = {
+	category_Vehicles = true,
+	entity = {
+		class_parent = "BuildingEntityClass",
+		fade_category = "Never",
+		material_type = "Metal",
+	},
+}
+EntityData["WasteRockProcessor"] = {
+	category_Buildings = true,
+	entity = {
+		class_parent = "BuildingEntityClass",
+		fade_category = "Never",
+		material_type = "Metal",
 	},
 }
 EntityData["DomeDiamondSmoothTerrainGrass"] = {
@@ -105,6 +156,13 @@ EntityData["DomePack_EntranceTubeExtension"] = {
 	category_Buildings = true,
 	entity = {
 		class_parent = "BuildingEntityClass",
+		fade_category = "Never",
+		material_type = "Metal",
+	},
+}
+EntityData["WasteRockProcessorCrusher"] = {
+	category_Buildings = true,
+	entity = {
 		fade_category = "Never",
 		material_type = "Metal",
 	},
@@ -6983,6 +7041,14 @@ EntityData["DecSmartHomeRoad_03"] = {
 	},
 }
 EntityData["DecSmartHomeRoad_04"] = {
+	category_Decals = true,
+	entity = {
+		class_parent = "BakedTerrainDecal",
+		fade_category = "Never",
+		material_type = "Stone",
+	},
+}
+EntityData["DecSmartHomeRoad_05"] = {
 	category_Decals = true,
 	entity = {
 		class_parent = "BakedTerrainDecal",

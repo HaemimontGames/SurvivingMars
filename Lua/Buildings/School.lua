@@ -55,7 +55,9 @@ function School:SetTrait(idx, traitname, broadcast)
 		BroadcastAction(self, "SetTrait", idx, traitname)
 		return
 	end
-	self["trait"..idx] = traitname
+	if traitname~= self.trait1 and traitname~= self.trait2 and traitname~= self.trait3 then
+		self["trait"..idx] = traitname
+	end
 	--self:UpdateVisitors()
 	ObjModified(self)
 end

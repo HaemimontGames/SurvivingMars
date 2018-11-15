@@ -39,41 +39,31 @@ function Encyclopedia:Init(parent, context)
 	}, self)
 	--margins window
 	local container = XWindow:new({
-		Margins = box(0, 30, 100, 50),
+		Margins = box(60, 68, 0, 25),
 	}, self)
 	container.Open = function(self, ...)
 		XWindow.Open(self, ...)
 		self:SetMargins(GetSafeMargins(self:GetMargins()))
 	end
 	--title
-	XText:new({
-		Id = "idTitle",
-		HAlign = "right",
-		Dock = "top",
-		TextFont = "PGTags",
-		Translate = true,
-		HandleMouse = false,
-		TextColor = RGBA(119, 198, 255, 255),
-	}, container)
+	local ctrl = XTemplateSpawn("DialogTitleNew", container, self.context)
+	ctrl:SetId("idTitle")
+	ctrl:SetMargins(box(55, 0, 0, 0))
+	ctrl:SetTitle(T{5473, "ENCYCLOPEDIA"})
 	--action bar
-	XActionBar:new({
-		MinWidth = 300,
+	ctrl = XTemplateSpawn("ActionBarNew", container, self.context)
+	ctrl:SetMargins(box(55, 0, 0, 0))
+	--left column
+	local window_left = XWindow:new({
+		Dock = "left",
+		Padding = box(0, 40, 0, 0),
 	}, container)
-	--right column
-	local window_right = XWindow:new({
-		Dock = "right",
-	}, container)
-	XImage:new({
-		Image = "UI/Common/pm_pad_small.tga",
-		Margins = box(0,2,-40,-70),
-		Dock = "top",
-	}, window_right)
 	XList:new({
 		Id = "idList",
+		Margins = box(35, 0, 20, 0),
 		BorderWidth = 0,
 		MinWidth = 500,
 		MaxWidth = 500,
-		LayoutVSpacing = 12,
 		Clip = false,
 		MouseScroll = true,
 		Background = RGBA(0,0,0,0),
@@ -81,129 +71,54 @@ function Encyclopedia:Init(parent, context)
 		ShowPartialItems = false,
 		UniformRowHeight = true,
 		VScroll = "idScroll",
-	}, window_right)
-	local scroll = XScrollThumb:new({
-		Id = "idScroll",
-		ZOrder = 10,
-		Padding = box(5, 0, 5, 0),
-		Dock = "right",
-		MinWidth = 18,
-		MaxWidth = 18,
-		Visible = false,
-		FoldWhenHidden = false,
-		MouseCursor = "UI/Cursors/Rollover.tga",
-		FullPageAtEnd = true,
-		SnapToItems = true,
-		AutoHide = true,
-		MinThumbSize = 30,
-		FixedSizeThumb = false,
-		Margins = box(0,5,10,25),
-		Target = "idList",
-	}, window_right)
-	XFrame:new({
-		Dock = "box",
-		Image = "UI/Common/scrollbar_line.tga",
-		FrameBox = box(0, 5, 0, 5),
-	}, scroll)
-	XFrame:new({
-		Id = "idThumb",
-		Image = "UI/Common/scrollbar.tga",
-		ImageScale = point(400, 400),
-		FrameBox = box(0, 10, 0, 10),
-		SqueezeX = false,
-	}, scroll)
-	--left upper line
-	local left_line = XImage:new({
-		Image = "UI/Common/bm_pad.tga",
-		ImageFit = "stretch-x",
-		Margins = box(-250,0,-250,-102),
-		Dock = "top",
-	}, container)
-	left_line:SetTransparency(150)
-	--left description window
+	}, window_left)
+	ctrl = XTemplateSpawn("ScrollbarNew", window_left, self.context)
+	ctrl:SetId("idScroll")
+	ctrl:SetTarget("idList")
+	--right description window
 	local desc_window = XWindow:new({
 		Id = "idDescrWindow",
-		Margins = box(0,0,0,-60),
-		Padding = box(90, 0, 150, 0),
+		Padding = box(0, 48, 150, 0),
 		LayoutMethod = "VList",
 	}, container)
 	desc_window:SetVisible(false)
 	XText:new({
 		Id = "idArticleTitle",
+		Padding = box(18, 0, 0, 0),
 		Dock = "top",
-		HAlign = "center",
-		Padding = box(62,2,2,2),
-		TextFont = "EncyclopediaArticleTitle",
+		TextStyle = "MediumHeader",
 		Translate = true,
 		HandleMouse = false,
-		TextColor = RGBA(255, 255, 255, 255),
-		ShadowSize = 2,
-		ShadowColor = RGBA(0, 0, 0, 255),
 	}, desc_window)
 	--description image
 	local win = XWindow:new({
-		Padding = box(60,0,0,0),
+		Padding = box(0,-10,0,5),
 		Dock = "top",
 	}, desc_window)
-	local shadow_frame = XFrame:new({
-		Id = "idShadowFrame",
-		IdNode = false,
-		FoldWhenHidden = true,
-		Padding = box(20,20,20,20),
-		HAlign = "center",
-		VAlign = "top",
-		MaxHeight = 403,
-		Image = "UI/Common/mod_image_shadow.tga",
-		Background = RGBA(48, 117, 255, 255),
-		FrameBox = box(20,20,20,20),
-	}, win)
 	XImage:new({
 		Id = "idImage",
 		Image = "UI/Encyclopedia/Concrete.tga",
 		ImageFit = "smallest",
-	}, shadow_frame)
-	shadow_frame:SetVisible(false)
+		FoldWhenHidden = true,
+		Dock = "top",
+		Padding = box(20,20,20,20),
+		HAlign = "left",
+		VAlign = "top",
+		MaxHeight = 403,
+	}, win)
 	local scroll_area = XScrollArea:new({
 		Id = "idDescrTextArea",
-		Margins = box(0,20,0,0),
 		IdNode = false,
 		VScroll = "idArticleScroll",
 		MouseWheelStep = 40,
 	}, desc_window)
-	local article_scroll = XScrollThumb:new({
-		Id = "idArticleScroll",
-		ZOrder = 10,
-		Padding = box(5, 0, 5, 0),
-		Dock = "left",
-		MinWidth = 18,
-		MaxWidth = 18,
-		Visible = false,
-		FoldWhenHidden = false,
-		MouseCursor = "UI/Cursors/Rollover.tga",
-		FullPageAtEnd = true,
-		SnapToItems = true,
-		AutoHide = true,
-		MinThumbSize = 30,
-		FixedSizeThumb = false,
-		Margins = box(0,5,5,5),
-		Target = "idDescrTextArea",
-	}, scroll_area)
-	XFrame:new({
-		Dock = "box",
-		Image = "UI/Common/scrollbar_line.tga",
-		FrameBox = box(0, 5, 0, 5),
-	}, article_scroll)
-	XFrame:new({
-		Id = "idThumb",
-		Image = "UI/Common/scrollbar.tga",
-		ImageScale = point(400, 400),
-		FrameBox = box(0, 10, 0, 10),
-		SqueezeX = false,
-	}, article_scroll)
+	ctrl = XTemplateSpawn("ScrollbarNew", desc_window, self.context)
+	ctrl:SetId("idArticleScroll")
+	ctrl:SetTarget("idDescrTextArea")
+	ctrl:SetPadding(box(0, 0, 10, 0))
 	XText:new({
 		Id = "idDescription",
-		TextFont = "EncyclopediaArticleDescr",
-		TextColor = RGBA(240, 235, 198, 255),
+		TextStyle = "EncyclopediaArticleDescr",
 		HandleMouse = false,
 		Translate = true,
 	}, scroll_area)
@@ -231,9 +146,9 @@ function Encyclopedia:OnDialogModeChange(mode, dialog)
 	self:RespawnListContent()
 	self:RebuildActionbar()
 	if mode == "categories" then
-		self.idTitle:SetText(T{5473, "ENCYCLOPEDIA"})
+		self.idTitle:SetSubtitle(T{1117, "CATEGORIES"})
 	elseif mode == "items" then
-		self.idTitle:SetText(self.mode_param.title_text_upper)
+		self.idTitle:SetSubtitle(self.mode_param.title_text_upper)
 	end
 end
 
@@ -247,8 +162,6 @@ function Encyclopedia:RespawnListContent()
 		local is_category = v.category_id and v.title_id == ""
 		local button = XTextButton:new({
 			Translate = true,
-			Padding = box(0,2,0,2),
-			HAlign = "right",
 			Background = RGBA(0,0,0,0),
 			FocusedBackground = RGBA(0,0,0,0),
 			RolloverBackground = RGBA(0,0,0,0),
@@ -257,10 +170,7 @@ function Encyclopedia:RespawnListContent()
 			FXMouseIn = "MenuItemHover",
 			FXPress = "MenuItemClick",
 			FXPressDisabled = "UIDisabledButtonPressed",
-			TextFont = "PGListItem",
-			TextColor = RGBA(221, 215, 170, 255),
-			RolloverTextColor = RGBA(255,255,255,255),
-			DisabledTextColor = RGBA(94,94,94,255),
+			TextStyle = "ListItem2",
 			FocusOrder = point(0,i),
 			OnPress = function(button, gamepad)
 				local n = button.FocusOrder:y()
@@ -282,11 +192,12 @@ function Encyclopedia:RespawnListContent()
 		if is_category then
 			XTextButton:new({
 				Id = "idArrow",
-				Margins = box(0,0,5,0),
+				Margins = box(-24,0,5,0),
 				Dock = "left",
 				VAlign = "center",
 				HandleKeyboard = false,
 				HandleMouse = false,
+				TextStyle = "ListItem2",
 				Image = "UI/Common/submenu.tga",
 				ColumnsUse = "abaa",
 			}, button)
@@ -294,10 +205,10 @@ function Encyclopedia:RespawnListContent()
 		local rollover_image = XImage:new({
 			Id = "idRollover",
 			ZOrder = 0,
-			Margins = box(-60,0,-60,-6),
+			Margins = box(-15, -10, 0, -10),
 			Dock = "box",
-			Image = "UI/Common/bm_buildings_pad.tga",
-			ImageFit = "stretch",
+			HAlign = "left",
+			Image = "UI/CommonNew/pg_selection.tga",
 		}, button)
 		rollover_image:SetVisible(false)
 		button.SetSelected = function(button, selected)
@@ -373,6 +284,24 @@ function Encyclopedia:RebuildActionbar()
 			OnActionEffect = close_effect,
 		}, self)
 	end
+	XAction:new({
+		ActionId = "actionScrollAreaDown",
+		ActionGamepad = "RightThumbDown",
+		OnAction = function(self, host, source)
+			if host.idDescrTextArea:GetVisible() then
+				return host.idDescrTextArea:OnMouseWheelBack()
+			end
+		end,
+	}, self)
+	XAction:new({
+		ActionId = "actionScrollAreaUp",
+		ActionGamepad = "RightThumbUp",
+		OnAction = function(self, host, source)
+			if host.idDescrTextArea:GetVisible() then
+				return host.idDescrTextArea:OnMouseWheelForward()
+			end
+		end,
+	}, self)
 	self:UpdateActionViews(self.idActionBar)
 end
 
@@ -383,7 +312,7 @@ function Encyclopedia:SetDescription(article)
 	if has_image then
 		self.idImage:SetImage(article.image)
 	end
-	self.idShadowFrame:SetVisible(has_image)
+	self.idImage:SetVisible(has_image)
 	self.idDescription:SetText(article.text)
 	self.idDescrWindow:SetVisible(true)
 end

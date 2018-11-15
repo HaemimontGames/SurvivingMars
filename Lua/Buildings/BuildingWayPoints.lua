@@ -130,6 +130,7 @@ DefineClass.WaypointsObj = {
 	__parents = { "Object" },
 	waypoint_chains = false,
 	entrance_fallback = false,
+	parent_dome = false, --save compat with rev 225026 saves
 }
 
 function WaypointsObj:GameInit()
@@ -223,7 +224,7 @@ function WaypointsObj:GetEntranceFallback()
 end
 
 function WaypointsObj:GetEntrance(target, entrance_type, spot_name)
-	if not self:IsValidPos() then
+	if not IsValid(self) or not self:IsValidPos() then
 		return
 	end
 	target = target or self

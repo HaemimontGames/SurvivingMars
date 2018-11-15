@@ -17,7 +17,7 @@ PlaceObj('XTemplate', {
 		}, {
 			PlaceObj('XTemplateWindow', {
 				'comment', "margins",
-				'Margins', box(0, 30, 100, 50),
+				'Margins', box(0, 0, 0, 25),
 			}, {
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
@@ -27,8 +27,8 @@ self:SetMargins(GetSafeMargins(self:GetMargins()))
 end,
 				}),
 				PlaceObj('XTemplateTemplate', {
-					'__template', "ActionBar",
-					'MinWidth', 300,
+					'__template', "ActionBarNew",
+					'Margins', box(115, 0, 0, 0),
 				}),
 				PlaceObj('XTemplateWindow', {
 					'HAlign', "right",

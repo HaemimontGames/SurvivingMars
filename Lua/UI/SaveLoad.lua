@@ -220,10 +220,7 @@ function ShowSavegameDescription(item, dialog)
 			local sponsor_data = data.mission_sponsor_id and GetMissionSponsor(data.mission_sponsor_id)
 			local commander_data = data.commander_profile_id and GetCommanderProfile(data.commander_profile_id)
 			if data.latitude and data.longitude then
-				data.lat_dir = data.latitude > 0 and T{6908, "S"} or T{6909, "N"}
-				data.long_dir = data.longitude > 0 and T{6910, "E"} or T{6911, "W"}
-				data.latitude = abs(data.latitude)
-				data.longitude = abs(data.longitude)
+				data.latitude, data.longitude, data.lat_dir, data.long_dir = FormatCoordinates(data.latitude, data.longitude)
 			end
 			local mods_list, mods_string, mods_missing
 			local max_mods, more = 30
@@ -290,12 +287,48 @@ function ShowSavegameDescription(item, dialog)
 			end
 			dialog.idProblem:SetText(problem_text)
 			
-			dialog.idCoordinates:SetText((data.latitude and data.longitude) and T{4199, "Coordinates: <sharp_yellow><lat>°<lat_dir> <long>°<long_dir></sharp_yellow>", lat = data.latitude, lat_dir = data.lat_dir, long = data.longitude, long_dir = data.long_dir} or "")
-			dialog.idSols:SetText((data.elapsed_sols and data.elapsed_sols > 0) and T{4196, "Sols on Mars: <sharp_yellow><value></sharp_yellow>", value = data.elapsed_sols} or "")
-			dialog.idSponsor:SetText(sponsor_data and T{4197, "Sponsor: <sharp_yellow><value></sharp_yellow>", value = sponsor_data.display_name or T{130, "N/A"}} or "")
-			dialog.idCommanderProfile:SetText(commander_data and T{4198, "Commander Profile: <sharp_yellow><value></sharp_yellow>", value = commander_data.display_name or T{130, "N/A"}} or "")
-			dialog.idActiveMods:SetText((mods_string and mods_string ~= "") and T{4200, "Active mods: <sharp_yellow><value></sharp_yellow>", value = Untranslated(mods_string)} or "")
-			dialog.idActiveGameRules:SetText((game_rules_string and game_rules_string ~= "") and T{8800, "Game Rules"} .. ": " .. TLookupTag("<sharp_yellow>") .. game_rules_string .. TLookupTag("</sharp_yellow>") or "")
+			if data.latitude and data.longitude then
+				dialog.idCoordinates:SetText(T{11457, "Coordinates"})
+				dialog.idCoordinatesVal:SetText(T{4199, "<lat>°<lat_dir> <long>°<long_dir>", lat = data.latitude, lat_dir = data.lat_dir, long = data.longitude, long_dir = data.long_dir})
+			else
+				dialog.idCoordinates:SetText("")
+				dialog.idCoordinatesVal:SetText("")
+			end
+			if data.elapsed_sols and data.elapsed_sols > 0 then
+				dialog.idSols:SetText(T{4196, "Sols on Mars"})
+				dialog.idSolsVal:SetText(T{4341, "<value>", value = data.elapsed_sols})
+			else
+				dialog.idSols:SetText("")
+				dialog.idSolsVal:SetText("")
+			end
+			if sponsor_data then
+				dialog.idSponsor:SetText(T{3474, "Mission Sponsor"})
+				dialog.idSponsorVal:SetText(sponsor_data.display_name or T{130, "N/A"})
+			else
+				dialog.idSponsor:SetText("")
+				dialog.idSponsorVal:SetText("")
+			end
+			if commander_data then
+				dialog.idCommanderProfile:SetText(T{3478, "Commander Profile"})
+				dialog.idCommanderProfileVal:SetText(T{4341, "<value>", value = commander_data.display_name or T{130, "N/A"}})
+			else
+				dialog.idCommanderProfile:SetText("")
+				dialog.idCommanderProfileVal:SetText("")
+			end
+			if mods_string and mods_string ~= "" then
+				dialog.idActiveMods:SetText(T{4200, "Active mods"})
+				dialog.idActiveModsVal:SetText(T{4341, "<value>", value = Untranslated(mods_string)})
+			else
+				dialog.idActiveMods:SetText("")
+				dialog.idActiveModsVal:SetText("")
+			end
+			if game_rules_string and game_rules_string ~= "" then
+				dialog.idActiveGameRules:SetText(T{8800, "Game Rules"})
+				dialog.idActiveGameRulesVal:SetText(game_rules_string)
+			else
+				dialog.idActiveGameRules:SetText("")
+				dialog.idActiveGameRulesVal:SetText("")
+			end
 			
 			if GetUIStyleGamepad() then
 				dialog.idDelInfo:SetVisible(false)

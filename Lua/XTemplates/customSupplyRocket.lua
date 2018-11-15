@@ -10,7 +10,7 @@ PlaceObj('XTemplate', {
 			'comment', "force launch",
 			'__template', "InfopanelButton",
 			'RolloverText', T{625375195830, --[[XTemplate customSupplyRocket RolloverText]] "Initiates launch sequence for the return trip to Earth. Note that the rocket has to be refueled and any remaining resources on board will be lost.<newline><newline>Status: <em><UILaunchStatus></em>"},
-			'RolloverTitle', T{526598507877, --[[XTemplate customSupplyRocket RolloverTitle]] "Launch"},
+			'RolloverTitle', T{526598507877, --[[XTemplate customSupplyRocket RolloverTitle]] "Return to Earth"},
 			'Id', "idLaunch",
 			'OnPressParam', "UILaunch",
 			'Icon', "UI/Icons/IPButtons/force_launch.tga",
@@ -74,6 +74,18 @@ end
 end,
 		}),
 		PlaceObj('XTemplateTemplate', {
+			'comment', "send on expedition",
+			'__condition', function (parent, context) return not g_Tutorial and UICity.next_anomaly_day and context:IsRocketLanded() end,
+			'__template', "InfopanelButton",
+			'RolloverText', T{758333922831, --[[XTemplate customSupplyRocket RolloverText]] "Send this rocket on an expedition\n\nStatus: <em><UILaunchStatus></em>"},
+			'RolloverTitle', T{949636784531, --[[XTemplate customSupplyRocket RolloverTitle]] "Send on Expedition"},
+			'Id', "idExpedition",
+			'OnPress', function (self, gamepad)
+OpenPlanetaryView({rocket = self.context})
+end,
+			'Icon', "UI/Icons/IPButtons/send_on_expedition.tga",
+		}),
+		PlaceObj('XTemplateTemplate', {
 			'comment', "drones",
 			'__template', "InfopanelSection",
 			'RolloverText', T{260933228141, --[[XTemplate customSupplyRocket RolloverText]] "Drones commanded by the Rocket ship."},
@@ -119,7 +131,7 @@ end,
 		PlaceObj('XTemplateTemplate', {
 			'comment', "basic resources",
 			'__template', "InfopanelSection",
-			'RolloverText', T{495, --[[XTemplate customSupplyRocket RolloverText]] "Basic Resources available in this Depot."},
+			'RolloverText', T{495, --[[XTemplate customSupplyRocket RolloverText]] "Stored Basic Resources."},
 			'OnContextUpdate', function (self, context, ...)
 self:SetVisible(context.landed and not context.cargo)
 end,
@@ -142,7 +154,7 @@ end,
 		PlaceObj('XTemplateTemplate', {
 			'comment', "advanced resources",
 			'__template', "InfopanelSection",
-			'RolloverText', T{501, --[[XTemplate customSupplyRocket RolloverText]] "Advanced Resources available in this Depot."},
+			'RolloverText', T{501, --[[XTemplate customSupplyRocket RolloverText]] "Stored Advanced Resources."},
 			'OnContextUpdate', function (self, context, ...)
 self:SetVisible(context.landed and not context.cargo)
 end,

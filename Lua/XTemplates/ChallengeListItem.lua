@@ -6,7 +6,7 @@ PlaceObj('XTemplate', {
 	id = "ChallengeListItem",
 	PlaceObj('XTemplateWindow', {
 		'__class', "XTextButton",
-		'RolloverText', T{431702306266, --[[XTemplate ChallengeListItem RolloverText]] "<description>\nDeadline Sol <GetDeadline>\n\n<if(Completed)>\n<GetCompletedText></if>"},
+		'RolloverText', T{431702306266, --[[XTemplate ChallengeListItem RolloverText]] "<description>\nDeadline Sol <Deadline>\nPerfect Time Sol <PerfectDeadline>\n\n<if(Completed)>\n<CompletedText></if>"},
 		'RolloverTitle', T{559796896496, --[[XTemplate ChallengeListItem RolloverTitle]] "<title>"},
 		'Background', RGBA(0, 0, 0, 0),
 		'MouseCursor', "UI/Cursors/Rollover.tga",
@@ -16,19 +16,26 @@ PlaceObj('XTemplate', {
 		'FocusedBackground', RGBA(0, 0, 0, 0),
 		'RolloverBackground', RGBA(0, 0, 0, 0),
 		'PressedBackground', RGBA(0, 0, 0, 0),
-		'TextStyle', "ListItem",
+		'TextStyle', "ListItem2",
 		'Translate', true,
 		'Text', T{752346534878, --[[XTemplate ChallengeListItem Text]] "<title>"},
 	}, {
 		PlaceObj('XTemplateWindow', {
 			'__class', "XImage",
+			'Id', "idStar",
+			'Dock', "left",
+			'VAlign', "center",
+			'Image', "UI/Common/star_silver.tga",
+		}),
+		PlaceObj('XTemplateWindow', {
+			'__class', "XImage",
 			'Id', "idRollover",
 			'ZOrder', 0,
-			'Margins', box(-10, 0, 0, 0),
+			'Margins', box(-15, -10, 0, -10),
 			'Dock', "box",
+			'HAlign', "left",
 			'Visible', false,
-			'Image', "UI/CommonNew/action_bar.tga",
-			'ImageFit', "stretch",
+			'Image', "UI/CommonNew/pg_selection.tga",
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnSetFocus",
@@ -42,15 +49,6 @@ end,
 			'func', function (self, selected)
 self:SetFocus(selected)
 end,
-		}),
-		PlaceObj('XTemplateWindow', {
-			'__class', "XImage",
-			'Id', "idStar",
-			'Margins', box(0, 0, 10, 0),
-			'Padding', box(0, 6, 0, 7),
-			'Dock', "left",
-			'VAlign', "center",
-			'Image', "UI/Common/star_silver.tga",
 		}),
 		}),
 })

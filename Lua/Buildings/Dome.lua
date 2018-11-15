@@ -215,6 +215,8 @@ DefineClass.Dome = {
 	supply_interrupted = false,
 	
 	passage_skin_override = false,
+	
+	change_skin_closed_thread = false,
 }
 
 local dome_lerp_dust_total_time = 1000
@@ -226,7 +228,10 @@ function Dome:SetDustVisualsPerc(perc)
 	end
 	
 	local current_dust_perc = MulDivRound(self:GetDust(), 100, 255)
-	if perc == current_dust_perc then return end --nothing to do
+	if perc == current_dust_perc then 
+		RequiresMaintenance.SetDustVisualsPerc(self, perc)
+		return 
+	end
 	
 	self.dust_lerp_thread = CreateGameTimeThread(function(self, current_dust_perc, perc, dome_lerp_dust_total_time, dome_lerp_dust_delta)
 		local start_t = GameTime()
@@ -392,15 +397,8 @@ function Dome:GameInit()
 	
 	g_DomeVersion = g_DomeVersion + 1
 	
-	local skin = self:GetCurrentSkin()
-	local palette = skin.palettes
-	palette = palette ~= "" and EntityPalettes[palette] or nil
-	if palette then
-		palette:ApplyToObj(self)
-		self:ForEachAttach(function(attach)
-			palette:ApplyToObj(attach)
-		end)
-	end
+	local skin, palette = self:GetCurrentSkin()
+	self:SetPalette(DecodePalette(palette))
 	
 	if not self.landing_slots then
 		CreateGameTimeThread(self.InitLandingSpots, self)
@@ -786,7 +784,7 @@ function Dome:Close()
 end
 
 function Dome:CanDemolish()
-	return #self.labels.Buildings<=0 and #self.labels.Colonist<=0 and not next(self.connected_domes) and Building.CanDemolish(self)
+	return self.ui_interaction_state and #self.labels.Buildings<=0 and #self.labels.Colonist<=0 and not next(self.connected_domes) and Building.CanDemolish(self)
 end
 
 function Dome:CreateLifeSupportElements()
@@ -882,6 +880,24 @@ function Dome:SetUIWorking(work)
 	end
 end
 
+function Dome:SetUIInteractionState(bState)
+	if self.accept_colonists then
+		self:ToggleDomePolicy("accept_colonists")
+	end	
+	Building.SetUIInteractionState(self, bState)
+	
+	for _,building in ipairs(self.labels.Buildings) do
+		building:SetUIInteractionState(bState)
+	end
+end
+
+function OnMsg.ConstructionComplete(bld, dome)
+	local dome = dome
+	if dome then
+		bld:SetUIInteractionState(dome:GetUIInteractionState())
+	end
+end
+
 function Dome:SetIsNightLightPossible(val, all_lights)
 	Building.SetIsNightLightPossible(self, val, all_lights)
 	for _, v in ipairs(self.labels.Decorations or empty_table) do
@@ -953,12 +969,13 @@ function SavegameFixups.CleanPassageTablesAfterUnfinishedPassageDestruction()
 		for d, pt_t in pairs(self.passage_exits or empty_table) do
 			clean(pt_t)
 			local c = #pt_t
-			self.connected_domes[d] = c == 0 and nil or c
+			self.connected_domes[d] = c ~= 0 and c or nil
 		end
 	end)
 end
 
 SavegameFixups.CleanPassageTablesAfterUnfinishedPassageDestructionAgain = SavegameFixups.CleanPassageTablesAfterUnfinishedPassageDestruction
+SavegameFixups.CleanPassageTablesAfterUnfinishedPassageDestructionYetAgain = SavegameFixups.CleanPassageTablesAfterUnfinishedPassageDestruction
 
 function Dome:PropagateSetSupplyToPassages()
 	for d, pt_t in pairs(self.passage_entrances) do
@@ -1528,7 +1545,6 @@ function Dome:CalcIntersetsFails()
 		local fail = colonist.daily_interest_fail
 		if fail>0 then
 			--fail  -- 0 - not tried, 1 - not found, 2 - closed, 3 - full, 4 - CanService failed
-			if fail~=3 then fail = 1 end
 			local interest = colonist.daily_interest
 			if interest and interest~="" then
 				local fail_table = iterests_fails[fail] or {}
@@ -1548,40 +1564,41 @@ function Dome:CalcIntersetsFails()
 	return iterests_fails
 end
 
+local ServiceFailTexts = {
+	[1] = 	T{7894, "<red>Missing service building (<interest_name>)<right><colonist(number)></red>"},
+	[2] = 	T{11431, "<red>Service buildings are not working (<interest_name>)<right><colonist(number)></red>"},
+	[3] = 	T{7895, "<red>Service buildings are full (<interest_name>)<right><colonist(number)></red>"},
+	[4] = 	T{11432, "<red>Service buildings were not supplied with resources(<interest_name>)<right><colonist(number)></red>"},
+}
+
 function Dome:GetComfortRollover()
 	local iterests_fails = self:CalcIntersetsFails()
 	local texts = {}
 	texts[#texts+1] = T{7893, --[[XTemplate sectionDome RolloverText]] "The average <em>Comfort</em> of all Colonists living in this Dome."}
 	if next(iterests_fails) then
 		--fail  -- 0 - not tried, 1 - not found, 2 - closed, 3 - full, 4 - CanService failed
-		local not_found = iterests_fails[1] or empty_table
-		if next(not_found) then
-			texts[#texts+1] = T{""}
-			for i = 1, Min(5,#not_found)  do
-				local data = not_found[i]
-				texts[#texts + 1] = T{7894, "<red>Missing service building (<interest_name>)<right><colonist(number)></red>" , 
-										number = data.count,interest_name = Interests[data.interest].display_name }
-			end
-		end
-		texts[#texts+1] = T{""}
-		local full = iterests_fails[3] or empty_table
-		if next(full) then
-			for i = 1, Min(5,#full)  do
-				local data = full[i]
-				texts[#texts + 1] = T{7895, "<red>Service buildings are full (<interest_name>)<right><colonist(number)></red>" , 
-										number = data.count,interest_name = Interests[data.interest].display_name }
+		for j = 1, 4 do --failed reasons
+			local fails = iterests_fails[j] or empty_table
+			if next(fails) then
+				texts[#texts+1] = T{""}
+				for i = 1, Min(5,#fails)  do
+					local data = fails[i]
+					texts[#texts + 1] = T{ServiceFailTexts[j], number = data.count,interest_name = Interests[data.interest].display_name }
+				end
 			end
 		end
 	end
 	return table.concat(texts, "<newline><left>")
 end
 
-function Dome:SpawnColonist()
-	local colonist = GenerateColonistData(self.city)
+function Dome:SpawnColonist(colonist_data, without_notification)
+	local colonist = colonist_data or GenerateColonistData(self.city)
 	colonist.dome = self
 	Colonist:new(colonist)
 	colonist:SetDome(self)
-	Msg("ColonistBorn", colonist)
+	if not without_notification then
+		Msg("ColonistBorn", colonist)
+	end
 	local pt = self:PickColonistSpawnPt()
 	colonist:SetPos(pt)
 	return colonist
@@ -1592,11 +1609,14 @@ function Dome:CheatSpawnColonist()
 end
 
 function Dome:ToggleDomePolicy(policy_member, broadcast)
+	if not self:GetUIInteractionState() then 
+		return
+	end	
 	local state = not self[policy_member]
 	if broadcast then
 		local list = self.city.labels.Dome or empty_table
 		for _, dome in ipairs(list) do
-			if dome[policy_member] ~= state then
+			if dome[policy_member] ~= state and self:GetUIInteractionState() then
 				PlayFX("DomeAcceptColonistsChanged", "start", dome)
 				dome[policy_member] = state
 				ObjModified(dome)
@@ -1766,9 +1786,13 @@ function Dome:PlaceFracture(crack_type, fracture_pos, fracture_radius)
 	local axis, angle = self:GetAxis(), self:GetAngle()
 	glass:Attach(fracture, origin_idx)
 	if not fracture_pos then
-		local bottom = RotateRadius(AsyncRand(glass:GetRadius() - 10*guim), AsyncRand(360*60), origin_spot)
-		local top = bottom:SetZ(bottom:z() + 1000*guim)
-		fracture_pos = IntersectRayWithObject(bottom, top, glass, EntitySurfaces.Collision)
+		local pos = table.rand(self.walkable_points or empty_table)
+		if pos then
+			local h = terrain.GetHeight(pos)
+			local bottom = pos:SetZ(h)
+			local top = pos:SetZ(h + 1000*guim)
+			fracture_pos = IntersectRayWithObject(bottom, top, glass, EntitySurfaces.Collision)
+		end
 		assert(fracture_pos)
 		if not fracture_pos then
 			return
@@ -1784,11 +1808,11 @@ function Dome:PlaceFracture(crack_type, fracture_pos, fracture_radius)
 	end
 	self.fractures = self.fractures or {}
 	table.insert(self.fractures, fracture)
-	return fracture
+	return fracture, fracture_pos
 end
 
 function Dome:AddFracture(crack_type, fracture_pos)
-	local fracture = self:PlaceFracture(crack_type, fracture_pos)
+	local fracture, fracture_pos = self:PlaceFracture(crack_type, fracture_pos)
 	self.fractures_oxygen_modifier:Change(self:GetFracturesCount() * 1 * const.ResourceScale, 0)
 	table.insert_unique(g_DomesWithFractures, self)
 	self.fracture_demand_request:AddAmount(g_Consts.PolymersPerFracture)
@@ -2039,8 +2063,8 @@ DefineClass.DomeBasic = {
 	__parents = { "Dome" },
 	configurable_attaches = {
 		{"DomeBasic_Glass", "Origin"},
-		{"Dome_Entrance", "Entrance"},
-		{"Dome_EntranceTube", "Entrancetube"},
+		{"DomePack_Entrance", "Entrance"},
+		{"DomePack_EntranceTube", "Entrancetube"},
 	},
 }
 
@@ -2048,8 +2072,8 @@ DefineClass.DomeMega = {
 	__parents = { "Dome" },
 	configurable_attaches = {
 		{"DomeMega_Glass", "Origin"},
-		{"Dome_Entrance", "Entrance"},
-		{"Dome_EntranceTube", "Entrancetube"},
+		{"DomePack_Entrance", "Entrance"},
+		{"DomePack_EntranceTube", "Entrancetube"},
 	},
 }
 
@@ -2057,8 +2081,8 @@ DefineClass.DomeMedium = {
 	__parents = { "Dome" },
 	configurable_attaches = {
 		{"DomeMedium_Glass", "Origin"},
-		{"Dome_Entrance", "Entrance"},
-		{"Dome_EntranceTube", "Entrancetube"},
+		{"DomePack_Entrance", "Entrance"},
+		{"DomePack_EntranceTube", "Entrancetube"},
 	},
 }
 
@@ -2066,8 +2090,8 @@ DefineClass.DomeOval = {
 	__parents = { "Dome" },
 	configurable_attaches = {
 		{"DomeOval_Glass", "Origin"},
-		{"Dome_Entrance", "Entrance"},
-		{"Dome_EntranceTube", "Entrancetube"},
+		{"DomePack_Entrance", "Entrance"},
+		{"DomePack_EntranceTube", "Entrancetube"},
 	},
 }
 
@@ -2517,13 +2541,13 @@ function Dome:GetCurrentSkinStrIdForPassage()
 end
 
 function Dome:GetCurrentSkin()
-	local skins = self:GetSkins()
+	local skins, palettes = self:GetSkins()
 	local skin_idx = table.find(skins, 1, self:GetEntity()) or 1
-	return skins[skin_idx]
+	return skins[skin_idx], palettes[skin_idx]
 end
 
-function Dome:OnSkinChanged(skin)
-	Building.OnSkinChanged(self, skin)
+function Dome:OnSkinChanged(skin, palette)
+	Building.OnSkinChanged(self, skin, palette)
 	self.cupola_attach = false --so it passes if check
 	self:InitAttaches()
 	for _, spire in ipairs(self.labels.Spire or empty_table) do
@@ -2531,6 +2555,15 @@ function Dome:OnSkinChanged(skin)
 			spire:UpdateFrame()
 		end
 	end
+	self:SetDustVisualsPerc(self:GetDustPerc())
+	DeleteThread(self.change_skin_closed_thread)
+	self.change_skin_closed_thread = CreateRealTimeThread(function(dome)
+		dome:Close()
+		Sleep(10000)
+		if SelectedObj == self then
+			dome:Open()
+		end
+	end, self)
 end
 
 function Dome:UpdateRoadConnections(bld, conn_type)
@@ -2563,7 +2596,7 @@ function Dome:UpdateRoadConnections(bld, conn_type)
 	end
 end
 
-function Dome:ChangeSkin(skin)
+function Dome:ChangeSkin(skin, palette)
 	--detach all fractures
 	for _, fracture in ipairs(self.fractures or empty_table) do
 		fracture:Detach()
@@ -2574,7 +2607,7 @@ function Dome:ChangeSkin(skin)
 	
 	self:ChangeEntity(skin[1])
 	self.configurable_attaches = skin[2]
-	self:OnSkinChanged(skin)
+	self:OnSkinChanged(skin, palette)
 	if self.working then
 		self.cupola_attach[1]:SetGameFlags(const.gofMarkVolume)
 	end
@@ -2590,15 +2623,9 @@ function Dome:ChangeSkin(skin)
 		fracture:SetAttachOffset(fracture.dir)
 	end
 	self:VisualizeFractures()
-	
-	local palette = skin.palettes
-	palette = palette ~= "" and EntityPalettes[palette] or nil
-	if palette then
-		palette:ApplyToObj(self)
-		self:ForEachAttach(function(attach)
-			palette:ApplyToObj(attach)
-		end)
-	end
+
+	assert(palette)
+	SetObjectPaletteRecursive(self, DecodePalette(palette))
 end
 
 function Dome:OnDomeDisconnected(other_dome)
@@ -2638,7 +2665,8 @@ end
 
 local function SelectDome(dir)
 	local igi = GetInGameInterface()
-	if igi and igi:GetVisible() then
+	local dlg = GetHUD()
+	if igi and dlg and dlg:GetVisible() and igi:GetVisible() then
 		local domes = UICity.labels.Dome or {}
 		local idx = table.find(domes, SelectedObj)
 		local dome = idx and domes[idx + dir] or domes[dir == 1 and 1 or #domes]
@@ -2702,12 +2730,30 @@ function Dome:GetUISectionCitizensRollover()
 	local ui_on_vacant, ui_off_vacant = GetFreeWorkplacesAround(self)
 	local free_all = self:GetFreeLivingSpace(true)
 	local free_adult = self:GetFreeLivingSpace()
+	local colonists = self.labels.Colonist or empty_table
+	local ill, earthsick, tourists = 0,0, 0
+	for _, colonist in ipairs(colonists) do 
+		if colonist:IsTemporaryIll() then
+			ill = ill + 1
+		end
+		if colonist.status_effects.StatusEffect_Earthsick then
+			earthsick = earthsick +1
+		end
+		if colonist.traits.Tourist then
+			tourists = tourists + 1
+		end
+	end
+	
 	local texts = {
-		T{7622, "<center><em>Jobs</em>"},
+		T{11710, "<center><em>Jobs</em>"},
 		T{548, "Unemployed, seeking work<right><unemployed(number)>", number = self.labels.Unemployed and #self.labels.Unemployed or 0, empty_table},
 		T{549, "Vacant work slots<right><work(number)>",  number = ui_on_vacant},
 		T{550, "Disabled work slots<right><work(number)>",  number = ui_off_vacant},
 		T{7346, "Renegades<right><colonist(number)>", number = self.labels.Renegade and #self.labels.Renegade or 0},
+		T{11700, "Earthsick<right><colonist(number)>", number = earthsick},
+		T{11701, "Tourists<right><colonist(number)>", number = tourists},
+		T{11702, "Temporary ill<right><colonist(number)>", number = ill},
+
 		T{7623, "<newline><center><em>Living space</em>"},
 		T{552, "Vacant residential slots<right><home(number)>", number = free_adult},
 		T{7624, "Vacant nursery slots<right><home(number)>", number = free_all - free_adult},
@@ -2736,6 +2782,25 @@ end
 function Dome:ToggleWorking_Update(button)
 	button:SetRolloverText(T{10549, "Domes that are turned off do not accept Colonists and do not consume Power, Oxygen or Water. When a Dome is turned off, all buildings inside are turned off as well.<newline><newline>Current status: <em><UIWorkingStatus></em>"})
 	Building.ToggleWorking_Update(self, button)
+end
+
+function Dome:TriggerFireworks(time, count, particle)
+	if hr.ShowFireworks == 0 then return end
+	assert(count > 0, "Fireworks count must be positive.")
+	CreateGameTimeThread(function(dome, time, count, particle)
+		local end_time = GameTime() + time
+		local firework_count = 0
+		PlayFX("Fireworks", "start", self)
+		while firework_count < count do
+			firework_count = firework_count + 1
+			local i, pos, dir = GetRandomFirework(dome, particle)
+			PlayFX("Fireworks_" .. i, "start", nil, nil, pos, dir)
+			if firework_count ~= count then
+				Sleep(time/count)
+			end
+		end
+		PlayFX("Fireworks", "end", self)
+	end, self, time, count, particle)
 end
 
 function OpenAllDomes(city)
@@ -2781,7 +2846,10 @@ DefineClass.DomeSkins = {
 		
 		{ id = "construction_entity", name = T{8647, "Dome entity during construction"}, editor = "text", default = "", help = "Should have full block pass, all configurable attaches should be auto attaches for this entity"},
 		
-		{ id = "palettes", name = T{7685, "Available Palettes"}, editor = "combo", items = PresetsCombo("EntityPalette"), default = "" },
+		{ name = T{11561, "Palette color 1"}, id = "palette_color1", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+		{ name = T{11562, "Palette color 2"}, id = "palette_color2", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+		{ name = T{11563, "Palette color 3"}, id = "palette_color3", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+		{ name = T{11564, "Palette color 4"}, id = "palette_color4", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
 	},
 	
 	EditorName = "Dome Skin",
@@ -2812,7 +2880,9 @@ end
 
 function DomeSkins:SetProperty(...)
 	PropertyObject.SetProperty(self, ...)
-	DomeSkinsCache[self] = nil
+	if DomeSkinsCache then
+		DomeSkinsCache[self] = nil
+	end
 end
 
 DefineClass.DomeDoorWithFX = {
@@ -2881,6 +2951,34 @@ function DomeSoundEnhance()
 			Sleep(333)
 		end
 	end)
+end
+
+function TriggerFireworks()
+	if hr.ShowFireworks == 0 then return end
+	local domes = UICity.labels.Dome
+	if #domes < 11 then
+		for i = 1, #domes do
+			domes[i]:TriggerFireworks(3*const.HourDuration, 60)
+		end
+	else
+		local domes_copy = table.copy(domes)
+		table.shuffle(domes_copy)
+		for i = 1, 10 do
+			domes_copy[i]:TriggerFireworks(3*const.HourDuration, 60)
+		end
+	end
+end
+
+function GetRandomFirework(dome, particle)
+	local i = particle or UICity:Random(18) + 1
+	local hex_pos = point(WorldToHex(dome)) + UICity:TableRand(dome:GetBuildShape())
+	local world_x, world_y = HexToWorld(hex_pos:xy())
+	local world_z = Flight_GetHeight(world_x, world_y)
+	local world_pos = point(world_x, world_y, world_z)
+	local dir = world_pos - dome:GetPos()
+	local angle_adjust_z = MulDivRound(dir:Len2D2(), 4000, dir:Len2())
+	dir = dir:AddZ(angle_adjust_z)
+	return i, world_pos, dir
 end
 
 OnMsg.NewMapLoaded = DomeSoundEnhance

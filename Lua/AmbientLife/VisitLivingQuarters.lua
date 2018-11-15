@@ -12,6 +12,8 @@ local _slots = {
 		spots = {
 			"Visitlounge",
 			"Visittable",
+			"Visitchair1",
+			"Visitchair2",
 		},
 		usable_night = false,
 	},

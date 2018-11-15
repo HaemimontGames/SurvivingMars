@@ -119,13 +119,13 @@ function OnMsg.RocketLanded(rocket)
 			AddOnScreenNotification("FounderStageDuration", nil, {start_time = GameTime(), expiration = const.ColonyViableByDelay})
 		end
 	end
-	local total_colonists = #(UICity.labels.Colonist or empty_table)
 	for _, applicant in ipairs(applicants) do
 		if is_founder then 
 			applicant.traits.Founder = true 
+			applicant.pin_on_start = true
 		end
 		for trait_id, _ in pairs(applicant.traits) do
-			if g_RareTraits[trait_id] and total_colonists <= 100 then
+			if g_RareTraits[trait_id] then
 				applicant.pin_on_start = true
 			end
 		end

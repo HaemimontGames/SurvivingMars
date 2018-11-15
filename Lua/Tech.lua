@@ -269,7 +269,8 @@ end
 function LabelsCombo()
 	local labels = {}
 	Msg("GatherLabels", labels)
-	labels = table.keys(labels, true)
+	labels = table.keys(labels)
+	table.sort(labels, CmpLower)
 	table.insert(labels, 1, "")
 	return labels
 end
@@ -438,7 +439,7 @@ Research technology and gain its effect. If the technology property 'repeatable'
 @param string tech_id - technology internal id.
 ]]
 function GrantTech(tech_id)
-	UICity:SetTechResearched(tech_id)
+	UICity:SetTechResearched(tech_id, "notify")
 end	
 
 --[[@@@
@@ -498,6 +499,6 @@ function TechEditor_Research(socket, preset)
 	if not UICity then return end
 	local obj = socket.selected_object
 	if obj and IsKindOf(obj, "TechPreset") then
-		UICity:SetTechResearched(obj.id)
+		UICity:SetTechResearched(obj.id, "notify")
 	end
 end

@@ -13,10 +13,7 @@ PlaceObj('XTemplate', {
 		'FocusedBackground', RGBA(0, 0, 0, 0),
 		'RolloverBackground', RGBA(160, 160, 160, 255),
 		'PressedBackground', RGBA(160, 160, 160, 255),
-		'TextFont', "Editor18",
-		'TextColor', RGBA(255, 255, 255, 255),
-		'RolloverTextColor', RGBA(255, 255, 255, 255),
-		'DisabledTextColor', RGBA(255, 255, 255, 128),
+		'TextStyle', "Cheats",
 	}),
 })
 

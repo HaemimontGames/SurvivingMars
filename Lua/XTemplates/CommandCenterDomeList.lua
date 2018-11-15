@@ -20,8 +20,6 @@ PlaceObj('XTemplate', {
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "MenuEntrySmall",
-			'Padding', box(0, 0, 0, 0),
-			'HAlign', "right",
 			'OnPress', function (self, gamepad)
 local dlg = GetDialog(self)
 dlg.context.dome = nil
@@ -36,8 +34,6 @@ end,
 		}, {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "MenuEntrySmall",
-				'Padding', box(0, 0, 0, 0),
-				'HAlign', "right",
 				'OnPress', function (self, gamepad)
 local dlg = GetDialog(self)
 dlg.context.dome = self.context
@@ -55,5 +51,10 @@ end,
 			'OnActionEffect', "back",
 		}),
 		}),
+	PlaceObj('XTemplateCode', {
+		'run', function (self, parent, context)
+parent:ResolveId("idScroll"):SetMargins(box(99,0,0,0))
+end,
+	}),
 })
 

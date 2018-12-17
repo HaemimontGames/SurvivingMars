@@ -1,7 +1,7 @@
 DefineClass.ForeignAidRocket = {
 	__parents = { "SupplyRocket" },
 
-	pin_rollover = T{10, "<Description>"},
+	pin_rollover = T(10, "<Description>"),
 	fx_actor_base_class = "FXRocket",
 	fx_actor_class = "SupplyRocket",
 	show_service_area = false,

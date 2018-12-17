@@ -19,7 +19,7 @@ PlaceObj('XTemplate', {
 			'__class', "XText",
 			'Id', "idText",
 			'IdNode', false,
-			'Padding', box(10, 10, 10, 10),
+			'Padding', box(10, 10, 10, 0),
 			'HAlign', "left",
 			'FadeInTime', 300,
 			'FadeOutTime', 100,
@@ -63,7 +63,7 @@ end,
 		'Get', function (self)
 return self.idText:GetText()
 end,
-		'name', T{720368811140, --[[XTemplate PGRollover name]] "Text"},
+		'name', T(720368811140, --[[XTemplate PGRollover name]] "Text"),
 	}),
 })
 

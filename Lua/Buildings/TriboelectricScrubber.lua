@@ -26,9 +26,9 @@ DefineClass.TriboelectricScrubber =
 
 	properties =
 	{
-		{ template = true, category = "Triboelectric Scrubber", name = T{826, "Charge time"},	id = "charge_time",	editor = "number", default = 2 * const.HourDuration, scale = const.HourDuration, help = "In hours",},
-		{ template = true, category = "Triboelectric Scrubber", name = T{827, "Dust to clean"},	id = "dust_clean",	editor = "number", default = 5000, help = "How much dust to clean from buildings in range.",},
-		{ template = true, category = "Triboelectric Scrubber", name = T{828, "Sphere Speed"},	id = "sphere_speed",editor = "number", default = 5 * guim, scale = guim, help = "Speed of the sphere movement in m/s",},
+		{ template = true, category = "Triboelectric Scrubber", name = T(826, "Charge time"),	id = "charge_time",	editor = "number", default = 2 * const.HourDuration, scale = const.HourDuration, help = "In hours",},
+		{ template = true, category = "Triboelectric Scrubber", name = T(827, "Dust to clean"),	id = "dust_clean",	editor = "number", default = 5000, help = "How much dust to clean from buildings in range.",},
+		{ template = true, category = "Triboelectric Scrubber", name = T(828, "Sphere Speed"),	id = "sphere_speed",editor = "number", default = 5 * guim, scale = guim, help = "Speed of the sphere movement in m/s",},
 	},
 	
 	charge_thread = false,

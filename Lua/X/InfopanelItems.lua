@@ -213,8 +213,8 @@ function GetInfopanelSelectorItems(dataset, list)
 		table.insert(items, HexButtonInfopanel:new({
 			ButtonAlign =  align,
 			name = "", 
-			display_name = T{6864, "None"},
-			description  = T{6865, "None"},
+			display_name = T(6864, "None"),
+			description  = T(6865, "None"),
 			icon =  "UI/Icons/Buildings/crops_empty.tga",
 			action = function(dataset, delta, controller)
 				local farm = dataset.object
@@ -241,10 +241,10 @@ function GetInfopanelSelectorItems(dataset, list)
 			ButtonAlign = align,
 			name = "auto", 
 			icon = "UI/Icons/Colonists/Malenone.tga",
-			display_name = T{669, "Auto"},
-			description  = T{670, "Automatically graduates to the Specialization that is most needed in your colony"},
-			hint =  T{7604, "<left_click> Select"},
-			gamepad_hint = T{3545, "<ButtonA> Select"},
+			display_name = T(669, "Auto"),
+			description  = T(670, "Automatically graduates to the Specialization that is most needed in your colony"),
+			hint =  T(7604, "<left_click> Select"),
+			gamepad_hint = T(3545, "<ButtonA> Select"),
 			action = function(dataset, delta, controller)
 				local university = dataset.object
 				if not IsValid(university) then return end
@@ -261,8 +261,8 @@ function GetInfopanelSelectorItems(dataset, list)
 				icon = specialization.display_icon,
 				display_name = specialization.display_name,
 				description  = specialization.description,
-				hint =  T{703125928773, --[[XTemplate customMartianUniversity RolloverHint]] "<left_click> Select specialization<newline><em>Ctrl + <left_click> on specialization</em> Select in all Universities"},
-				gamepad_hint =  T{896744390747, --[[XTemplate customMartianUniversity RolloverHintGamepad]] "<ButtonA> Select specialization<newline><em><ButtonX> on specialization</em> Select in all Universities"},
+				hint =  T(703125928773, --[[XTemplate customMartianUniversity RolloverHint]] "<left_click> Select specialization<newline><em>Ctrl + <left_click> on specialization</em> Select in all Universities"),
+				gamepad_hint =  T(896744390747, --[[XTemplate customMartianUniversity RolloverHintGamepad]] "<ButtonA> Select specialization<newline><em><ButtonX> on specialization</em> Select in all Universities"),
 				action = function(dataset, delta, controller)
 					local university = dataset.object
 					if not IsValid(university) then return end

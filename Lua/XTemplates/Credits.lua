@@ -47,7 +47,7 @@ end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "close",
-							'ActionName', T{328491723397, --[[XTemplate Credits ActionName]] "CLOSE"},
+							'ActionName', T(328491723397, --[[XTemplate Credits ActionName]] "CLOSE"),
 							'ActionToolbar', "ActionBar",
 							'ActionShortcut', "Escape",
 							'ActionGamepad', "ButtonB",

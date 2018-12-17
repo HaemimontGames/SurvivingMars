@@ -3,7 +3,7 @@ DefineClass.ResearchBuilding =
 	__parents = { "ElectricityConsumer", "Workplace" },
 
 	properties = {
-		{ template = true, modifiable = true, id = "ResearchPointsPerDay", name = T{686, "RP/Day"}, editor = "number", category = "Research", default = 1000, help = "Research Points Generated Per Day", scale = 1000 },
+		{ template = true, modifiable = true, id = "ResearchPointsPerDay", name = T(686, "RP/Day"), editor = "number", category = "Research", default = 1000, help = "Research Points Generated Per Day", scale = 1000 },
 	},
 	
 	research_points_day = 0,

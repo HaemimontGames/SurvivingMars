@@ -6,8 +6,8 @@ PlaceObj('XTemplate', {
 	id = "ChallengeListItem",
 	PlaceObj('XTemplateWindow', {
 		'__class', "XTextButton",
-		'RolloverText', T{431702306266, --[[XTemplate ChallengeListItem RolloverText]] "<description>\nDeadline Sol <Deadline>\nPerfect Time Sol <PerfectDeadline>\n\n<if(Completed)>\n<CompletedText></if>"},
-		'RolloverTitle', T{559796896496, --[[XTemplate ChallengeListItem RolloverTitle]] "<title>"},
+		'RolloverText', T(431702306266, --[[XTemplate ChallengeListItem RolloverText]] "<description>\nDeadline Sol <Deadline>\nPerfect Time Sol <PerfectDeadline>\n\n<if(Completed)>\n<CompletedText></if>"),
+		'RolloverTitle', T(559796896496, --[[XTemplate ChallengeListItem RolloverTitle]] "<title>"),
 		'Background', RGBA(0, 0, 0, 0),
 		'MouseCursor', "UI/Cursors/Rollover.tga",
 		'FXMouseIn', "MenuItemHover",
@@ -18,7 +18,7 @@ PlaceObj('XTemplate', {
 		'PressedBackground', RGBA(0, 0, 0, 0),
 		'TextStyle', "ListItem2",
 		'Translate', true,
-		'Text', T{752346534878, --[[XTemplate ChallengeListItem Text]] "<title>"},
+		'Text', T(752346534878, --[[XTemplate ChallengeListItem Text]] "<title>"),
 	}, {
 		PlaceObj('XTemplateWindow', {
 			'__class', "XImage",

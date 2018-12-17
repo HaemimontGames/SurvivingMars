@@ -31,24 +31,24 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	ScriptDone = true,
-	Text = T{11052, --[[StoryBit BuildingClogged Text]] "One of our buildings has stopped working - a <DisplayName>. It looks like the fine dust from the storm has filled away a key component of the power supply. The repair task is too complex for a drone."},
+	Text = T(11052, --[[StoryBit BuildingClogged Text]] "One of our buildings has stopped working - a <DisplayName>. It looks like the fine dust from the storm has filled away a key component of the power supply. The repair task is too complex for a drone."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{638269722928, --[[StoryBit BuildingClogged Title]] "Building Clogged"},
+	Title = T(638269722928, --[[StoryBit BuildingClogged Title]] "Building Clogged"),
 	Trigger = "DustStorm",
-	VoicedText = T{348826743709, --[[voice:narrator]] "I don’t like dust. It’s coarse and rough and irritating… and it gets everywhere."},
+	VoicedText = T(348826743709, --[[voice:narrator]] "I don’t like dust. It’s coarse and rough and irritating… and it gets everywhere."),
 	group = "Disasters",
 	id = "BuildingClogged",
 	PlaceObj('StoryBitReply', {
-		'Text', T{774150409025, --[[StoryBit BuildingClogged Text]] "Send a Colonist."},
+		'Text', T(774150409025, --[[StoryBit BuildingClogged Text]] "Send a Colonist."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{915583139331, --[[StoryBit BuildingClogged CustomOutcomeText]] "They may be hurt"},
+		'CustomOutcomeText', T(915583139331, --[[StoryBit BuildingClogged CustomOutcomeText]] "They may be hurt"),
 		'Prerequisite', PlaceObj('CheckColonistCount', nil),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
 		'Weight', 30,
-		'Text', T{625300347788, --[[StoryBit BuildingClogged Text]] "A colonist braved the storm and managed to fix the broken component. Our <DisplayName> is now operational."},
+		'Text', T(625300347788, --[[StoryBit BuildingClogged Text]] "A colonist braved the storm and managed to fix the broken component. Our <DisplayName> is now operational."),
 		'Effects', {
 			PlaceObj('SetBuildingEnabledState', {
 				'Enabled', true,
@@ -58,7 +58,7 @@ PlaceObj('StoryBit', {
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
 		'Weight', 70,
-		'Text', T{384998371456, --[[StoryBit BuildingClogged Text]] "A colonist braved the storm and managed to fix the broken component. Our <DisplayName> is now operational. Regrettably, during the repairs the colonist's space suit was compromised and they didn't make it back."},
+		'Text', T(384998371456, --[[StoryBit BuildingClogged Text]] "A colonist braved the storm and managed to fix the broken component. Our <DisplayName> is now operational. Regrettably, during the repairs the colonist's space suit was compromised and they didn't make it back."),
 		'Effects', {
 			PlaceObj('ForEachExecuteEffects', {
 				'Label', "Colonist",
@@ -69,7 +69,9 @@ PlaceObj('StoryBit', {
 					}),
 				},
 				'RandomCount', 1,
-				'Effects', {},
+				'Effects', {
+					PlaceObj('EraseColonist', nil),
+				},
 			}),
 			PlaceObj('SetBuildingEnabledState', {
 				'Enabled', true,
@@ -77,9 +79,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{902102504705, --[[StoryBit BuildingClogged Text]] "We’ll fix it after the storm."},
+		'Text', T(902102504705, --[[StoryBit BuildingClogged Text]] "We’ll fix it after the storm."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{681844902370, --[[StoryBit BuildingClogged CustomOutcomeText]] "<DisplayName> will be suspended"},
+		'CustomOutcomeText', T(681844902370, --[[StoryBit BuildingClogged CustomOutcomeText]] "<DisplayName> will be suspended"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -89,9 +91,9 @@ PlaceObj('StoryBit', {
 		'Effects', {},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{326224564565, --[[StoryBit BuildingClogged Text]] "Have the Drones replace the entire component."},
+		'Text', T(326224564565, --[[StoryBit BuildingClogged Text]] "Have the Drones replace the entire component."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{920455332842, --[[StoryBit BuildingClogged CustomOutcomeText]] "<DisplayName> will require <electronics(repaircost)> emergency maintenance"},
+		'CustomOutcomeText', T(920455332842, --[[StoryBit BuildingClogged CustomOutcomeText]] "<DisplayName> will require <electronics(repaircost)> emergency maintenance"),
 	}),
 	PlaceObj('StoryBitParamResource', {
 		'Name', "repaircost",
@@ -109,9 +111,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{539661399921, --[[StoryBit BuildingClogged Text]] "Step aside, I know regular expressions!"},
+		'Text', T(539661399921, --[[StoryBit BuildingClogged Text]] "Step aside, I know regular expressions!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{802195888137, --[[StoryBit BuildingClogged CustomOutcomeText]] "use your expertise to fix <DisplayName> remotely"},
+		'CustomOutcomeText', T(802195888137, --[[StoryBit BuildingClogged CustomOutcomeText]] "use your expertise to fix <DisplayName> remotely"),
 		'Prerequisite', PlaceObj('IsCommander', {
 			'CommanderProfile', "inventor",
 		}),

@@ -117,7 +117,7 @@ function StirlingGenerator:ToggleOpenedState(broadcast)
 end
 
 function StirlingGenerator:GetUIOpenStatus()
-	return self:IsOpened() and T{7356, "Open"} or T{7357, "Closed"}
+	return self:IsOpened() and T(7356, "Open") or T(7357, "Closed")
 end
 
 function StirlingGenerator:OnSetWorking(working)

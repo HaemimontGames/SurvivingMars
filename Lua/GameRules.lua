@@ -72,7 +72,7 @@ function GetIncompatibleGameRulesNames(id)
 	if all_names == "" then
 		return ""
 	else
-		return "\n\n"..T{3942, "Incompatible"}..":\n"..all_names
+		return "\n\n"..T(3942, "Incompatible")..":\n"..all_names
 	end
 end
 

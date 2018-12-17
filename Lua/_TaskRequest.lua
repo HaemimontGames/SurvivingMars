@@ -196,9 +196,9 @@ function TaskRequester:SetUrgentPriority() self:SetPriority(3) end
 function TaskRequester:SetHighPriority()   self:SetPriority(2) end
 function TaskRequester:SetNormalPriority() self:SetPriority(1) end
 local PriorityNames = {
-	T{4862, "Low"},
-	T{646, "Medium"},
-	T{4863, "High"},
+	T(4862, "Low"),
+	T(646, "Medium"),
+	T(4863, "High"),
 }
 function TaskRequester:GetUIPriority()
 	return PriorityNames[self.priority] or PriorityNames[1]

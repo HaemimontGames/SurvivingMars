@@ -14,7 +14,7 @@ PlaceObj('StoryBit', {
 	},
 	Effects = {},
 	Image = "UI/Messages/Events/22_collapsing_building.tga",
-	NotificationText = T{10901, --[[StoryBit TheIncident_2_RestartReactors NotificationText]] "Fusion Reactors have resumed operations"},
+	NotificationText = T(10901, --[[StoryBit TheIncident_2_RestartReactors NotificationText]] "Fusion Reactors have resumed operations"),
 	Prerequisites = {},
 	ScriptDone = true,
 	SuppressTime = 1440000,

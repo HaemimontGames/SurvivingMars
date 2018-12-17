@@ -183,7 +183,7 @@ function SupplyGridElement:GetElectricityUIMode()
 	elseif change > 0 then
 		change = grid.charge ~= 0 and MulDivRound(change, self.charge, grid.charge) or 0
 	end
-	if change == 0 then return self.storage_mode == "full" and T{3880, "Status<right>Full"} or self.storage_mode == "empty" and T{3881, "Status<right>Empty"} or T{3882, "Status<right>Idle"} end
+	if change == 0 then return self.storage_mode == "full" and T(3880, "Status<right>Full") or self.storage_mode == "empty" and T(3881, "Status<right>Empty") or T(3882, "Status<right>Idle") end
 	if change > 0 then return T{3883, "Charging<right><power(amount)>", amount = change} end
 	return T{3884, "Discharging<right><power(amount)>", amount = change} 
 end
@@ -198,7 +198,7 @@ function SupplyGridElement:GetUIMode()
 	elseif change > 0 then
 		change = grid.charge ~= 0 and MulDivRound(change, self.charge, grid.charge) or 0
 	end
-	if change == 0 then return self.storage_mode == "full" and T{3880, "Status<right>Full"} or self.storage_mode == "empty" and T{3881, "Status<right>Empty"} or T{3882, "Status<right>Idle"} end
+	if change == 0 then return self.storage_mode == "full" and T(3880, "Status<right>Full") or self.storage_mode == "empty" and T(3881, "Status<right>Empty") or T(3882, "Status<right>Idle") end
 	if change > 0 then return T{3885, "Increasing<right><resource(change,resource_type)>", change = change, resource_type = resource_type} end
 	return T{3886, "Decreasing<right><resource(change,resource_type)>", change = change, resource_type = resource_type} 
 end
@@ -1410,7 +1410,7 @@ DefineClass.SupplyGridSwitch = {
 	open_close_thread = false,
 	encyclopedia_id = false,
 	
-	pin_rollover = T{7383, "<description>"},
+	pin_rollover = T(7383, "<description>"),
 	skin_before_switch = false,
 	
 	switch_cs = false,
@@ -1619,7 +1619,7 @@ local function HandleLeakDetectedNotif()
 				text = T{10983, "<air(air)> <water(water)>", air = air_lost, water = water_lost}
 			end
 			local rollover = T{10984, "Cable faults: <cables><newline>Pipe leaks: <pipes>", cables = #cable_faults, pipes = #pipe_leaks}
-			AddOnScreenNotification("LeakDetected", nil, { leaks = text, rollover_title = T{522588249261, "Leak Detected"}, rollover_text = rollover }, displayed_in_notif)
+			AddOnScreenNotification("LeakDetected", nil, { leaks = text, rollover_title = T(522588249261, "Leak Detected"), rollover_text = rollover }, displayed_in_notif)
 		end
 	end
 end
@@ -1813,7 +1813,7 @@ end
 
 function BreakableSupplyGridElement:GetDisplayName()
 	if self.repair_resource_request then
-		return self.supply_resource == "electricity" and T{3890, "Cable Fault"} or T{3891, "Pipe Leak"}
+		return self.supply_resource == "electricity" and T(3890, "Cable Fault") or T(3891, "Pipe Leak")
 	elseif IsKindOf(self, "SupplyGridSwitch") then
 		return SupplyGridSwitch.GetDisplayName(self)
 	else

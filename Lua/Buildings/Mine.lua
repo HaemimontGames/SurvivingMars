@@ -80,7 +80,7 @@ function Mine:GetUISectionMineRollover()
 		T{468, "Lifetime production<right><resource(LifetimeProduction,exploitation_resource)>", self},
 	}
 	AvailableDeposits(self, lines)
-	lines[#lines + 1] = T{469, "<newline><center><em>Storage</em>"}
+	lines[#lines + 1] = T(469, "<newline><center><em>Storage</em>")
 	lines[#lines + 1] = T{470, "<resource(exploitation_resource)><right><resource(GetAmountStored,max_storage,exploitation_resource)>", self}
 	lines[#lines + 1] = T{471, "Waste Rock<right><wasterock(GetWasterockAmountStored,wasterock_max_storage)>", self}
 

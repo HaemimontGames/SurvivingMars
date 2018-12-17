@@ -20,11 +20,11 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	ScriptDone = true,
-	Text = T{11046, --[[StoryBit OverworkedGenius Text]] "The brilliant <name> admits feeling depressed and burned out lately. They are requesting some time off work, to meditate and seek inspiration in the red wastes outside the Dome."},
+	Text = T(11046, --[[StoryBit OverworkedGenius Text]] "The brilliant <name> admits feeling depressed and burned out lately. They are requesting some time off work, to meditate and seek inspiration in the red wastes outside the Dome."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{329295678391, --[[StoryBit OverworkedGenius Title]] "A Message from a Colonist"},
-	VoicedText = T{384407716400, --[[voice:narrator]] "One of our Genius Colonists has come up with an unusual request."},
+	Title = T(329295678391, --[[StoryBit OverworkedGenius Title]] "A Message from a Colonist"),
+	VoicedText = T(384407716400, --[[voice:narrator]] "One of our Genius Colonists has come up with an unusual request."),
 	group = "Colonists",
 	id = "OverworkedGenius",
 	PlaceObj('StoryBitParamSols', {
@@ -32,9 +32,9 @@ PlaceObj('StoryBit', {
 		'Value', 3600000,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{584846315916, --[[StoryBit OverworkedGenius Text]] "A Genius is entitled to some eccentricity. Permission granted!"},
+		'Text', T(584846315916, --[[StoryBit OverworkedGenius Text]] "A Genius is entitled to some eccentricity. Permission granted!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{291045242755, --[[StoryBit OverworkedGenius CustomOutcomeText]] "<DisplayName> will not work for <sols(sols)> Sols"},
+		'CustomOutcomeText', T(291045242755, --[[StoryBit OverworkedGenius CustomOutcomeText]] "<DisplayName> will not work for <sols(sols)> Sols"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -56,9 +56,9 @@ PlaceObj('StoryBit', {
 		'Value', -10,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{284222014860, --[[StoryBit OverworkedGenius Text]] "They signed for this job. Permission denied!"},
+		'Text', T(284222014860, --[[StoryBit OverworkedGenius Text]] "They signed for this job. Permission denied!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{906508514767, --[[StoryBit OverworkedGenius CustomOutcomeText]] "<DisplayName> will lose Sanity and Morale"},
+		'CustomOutcomeText', T(906508514767, --[[StoryBit OverworkedGenius CustomOutcomeText]] "<DisplayName> will lose Sanity and Morale"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -74,9 +74,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{285896527041, --[[StoryBit OverworkedGenius Text]] "A Genius is one of our most valuable assets. They have my special dispensation to never work again."},
+		'Text', T(285896527041, --[[StoryBit OverworkedGenius Text]] "A Genius is one of our most valuable assets. They have my special dispensation to never work again."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{761487143335, --[[StoryBit OverworkedGenius CustomOutcomeText]] "<DisplayName> will drop off the workforce"},
+		'CustomOutcomeText', T(761487143335, --[[StoryBit OverworkedGenius CustomOutcomeText]] "<DisplayName> will drop off the workforce"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -99,9 +99,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{585963511109, --[[StoryBit OverworkedGenius Text]] "<DisplayName>, I want tell me about your problems..."},
+		'Text', T(585963511109, --[[StoryBit OverworkedGenius Text]] "<DisplayName>, tell me about your problems..."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{666641421081, --[[StoryBit OverworkedGenius CustomOutcomeText]] "no consequences"},
+		'CustomOutcomeText', T(666641421081, --[[StoryBit OverworkedGenius CustomOutcomeText]] "no consequences"),
 		'Prerequisite', PlaceObj('IsCommander', {
 			'CommanderProfile', "psychologist",
 		}),

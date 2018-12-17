@@ -49,7 +49,7 @@ function HintTrigger(id, force)
 		Sleep(delay * 1000)
 		if hint:IsValid() then
 			AddOnScreenHint(hint)
-			local preset = DataInstances.OnScreenHint[id]
+			local preset = OnScreenHintPresets[id]
 			if preset and preset.voiced_text ~= "" then
 				g_Voice:Play(preset.voiced_text, not "actor", "Voiceover", not "subtitles")
 			end
@@ -394,9 +394,9 @@ DefineClass.HintBuildingConstruction = {
 
 function TFormat.OpenBuildMenuHint(context_obj)
 	if g_RightClickOpensBuildMenu then
-		return T{11005, --[[Open build menu hint (right click)]] "Open the Build Menu with <right_click> or <em><ShortcutName('actionOpenBuildMenu')></em>, select a building, and place it on the desired location with <left_click>"}
+		return T(11005, --[[Open build menu hint (right click)]] "Open the Build Menu with <right_click> or <em><ShortcutName('actionOpenBuildMenu')></em>, select a building, and place it on the desired location with <left_click>")
 	else
-		return T{11006, --[[Open build menu hint (no right click)]] "Open the Build Menu with <em><ShortcutName('actionOpenBuildMenu')></em> or the <em>HUD button</em>, select a building, and place it on the desired location with <left_click>"}
+		return T(11006, --[[Open build menu hint (no right click)]] "Open the Build Menu with <em><ShortcutName('actionOpenBuildMenu')></em> or the <em>HUD button</em>, select a building, and place it on the desired location with <left_click>")
 	end
 end
 
@@ -696,7 +696,7 @@ DefineClass.HintExplorer = {
 function TFormat.UnitMoveControl(context_obj, gamepad_hint_key, interaction_mode)
 	local  gamepad = GetUIStyleGamepad()
 	if interaction_mode~=nil and interaction_mode~=false and interaction_mode~="default" then
-		return gamepad and T{7518, "<ButtonA>"} or T{7519, "<left_click>"}
+		return gamepad and T(7518, "<ButtonA>") or T(7519, "<left_click>")
 	end
 	
 	if gamepad then
@@ -707,9 +707,9 @@ function TFormat.UnitMoveControl(context_obj, gamepad_hint_key, interaction_mode
 	end	
 	
 	if MoveUnitsOnRightClick() then
-		return T{7366, "<right_click>"}
+		return T(7366, "<right_click>")
 	else
-		return T{7367, "<em>Ctrl + <left_click></em>"}
+		return T(7367, "<em>Ctrl + <left_click></em>")
 	end
 end
 

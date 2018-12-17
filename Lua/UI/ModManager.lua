@@ -16,18 +16,18 @@ function GetModsListForTag(param)
 		end
 		if list_mod then
 			local corrupted, warning = GetModCorruptedStatus(v)
-			local author = v.author ~= "" and Untranslated(v.author) or T{4328, "Unknown"}
+			local author = v.author ~= "" and Untranslated(v.author) or T(4328, "Unknown")
 			items[#items+1] = {
 				id = k,
 				title = Untranslated(v.title),
 				corrupted = corrupted,
 				warning = corrupted and (TLookupTag("<red>") .. warning .. TLookupTag("</red>")) or "",
-				author = T{1000022, "Author"},
+				author = T(1000022, "Author"),
 				author_val = author,
 				description = Untranslated(v.description),
-				last_update = v.saved and T{1122, "Last Update"} or "",
+				last_update = v.saved and T(1122, "Last Update") or "",
 				last_update_val = v.saved and Untranslated(os.date("%d.%m.%Y", v.saved)) or "",
-				mod_tags = mod_tags and #mod_tags > 0 and T{1000018, "Tags"} or "",
+				mod_tags = mod_tags and #mod_tags > 0 and T(1000018, "Tags") or "",
 				mod_tags_val = mod_tags and #mod_tags > 0 and Untranslated(table.concat(mod_tags, ", ")),
 				image = v.image,
 			}
@@ -39,9 +39,9 @@ end
 
 function GetModCorruptedStatus(mod)
 	if mod.lua_revision < ModMinLuaRevision then
-		return true, T{8689, "This mod is disabled due to version incompatibility."}
+		return true, T(8689, "This mod is disabled due to version incompatibility.")
 	elseif mod.lua_revision > LuaRevision then
-		return true, T{4074, "This mod requires a newer game version!"}
+		return true, T(4074, "This mod requires a newer game version!")
 	end
 	return false
 end
@@ -169,10 +169,10 @@ function ModManagerEnd(dialog)
 			local exit_choice = true
 			if #new_mods > 0 then
 				local choice = WaitMarsQuestion(dialog, 
-							T{6899, "Warning"}, 
-							T{4164, "Mods are player created software packages that modify your game experience. USE THEM AT YOUR OWN RISK! We do not examine, monitor, support or guarantee this user created content. You should take all precautions you normally take regarding downloading files from the Internet before using mods."}, 
-							T{6900, "OK"}, 
-							T{4165, "Back"}
+							T(6899, "Warning"), 
+							T(4164, "Mods are player created software packages that modify your game experience. USE THEM AT YOUR OWN RISK! We do not examine, monitor, support or guarantee this user created content. You should take all precautions you normally take regarding downloading files from the Internet before using mods."), 
+							T(6900, "OK"), 
+							T(4165, "Back")
 				)
 				exit_choice = (choice == "ok")
 			end
@@ -190,24 +190,24 @@ function ModManagerEnd(dialog)
 end
 
 ---- SignUp ----
-local months = {T{10427, "January"},T{10428, "February"},T{10429, "March"},T{10430, "April"},T{10431, "May"},T{10432, "June"},T{10433, "July"},T{1962, "August"},T{10434, "September"},T{10435, "October"},T{10436, "November"},T{10437, "December"}}
+local months = {T(10427, "January"),T(10428, "February"),T(10429, "March"),T(10430, "April"),T(10431, "May"),T(10432, "June"),T(10433, "July"),T(1962, "August"),T(10434, "September"),T(10435, "October"),T(10436, "November"),T(10437, "December")}
 function PDXAccountFillBirthDataCombos(self)
 	--day:1-31, month:January_December (translated), Year:1900-Current
 	local items = {}
-	items[1] = {name = _InternalTranslate(T{7715, "Day"}), id = ""}
+	items[1] = {name = _InternalTranslate(T(7715, "Day")), id = ""}
 	for i=1, 31 do
 		items[#items + 1] = {name = tostring(i), id = i}
 	end
 	self:ResolveId("idDay").idCombo:SetItems(items)
 	items = {}
-	items[1] = {name = _InternalTranslate(T{7714, "Month"}), id = ""}
+	items[1] = {name = _InternalTranslate(T(7714, "Month")), id = ""}
 	for i=1, #months do
 		items[#items+1] = {name = _InternalTranslate(months[i]), id = i}
 	end
 	self:ResolveId("idMonth").idCombo:SetItems(items)
 	items = {}
 	local start = tonumber(os.date("%Y"))
-	items[1] = {name = _InternalTranslate(T{10438, "Year"}), id = ""}
+	items[1] = {name = _InternalTranslate(T(10438, "Year")), id = ""}
 	for i = start, 1900, -1 do
 		items[#items + 1] = {name = tostring(i), id = i}
 	end

@@ -35,7 +35,7 @@ end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "CommandCenterTitle",
-			'Title', T{106988210968, --[[XTemplate ColonistsOverview Title]] "COLONISTS"},
+			'Title', T(106988210968, --[[XTemplate ColonistsOverview Title]] "COLONISTS"),
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__context', function (parent, context) return context or {} end,
@@ -85,16 +85,16 @@ end,
 						PlaceObj('XTemplateTemplate', {
 							'comment', "able to work",
 							'__template', "CommandCenterButton",
-							'RolloverTitle', T{9673, --[[XTemplate ColonistsOverview RolloverTitle]] "Able to Work"},
+							'RolloverTitle', T(9673, --[[XTemplate ColonistsOverview RolloverTitle]] "Able to Work"),
 							'Margins', box(-12, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
 local dlg = GetDialog(self)
 local able_to_work = dlg.context.able_to_work
 self:SetIcon(able_to_work == false and "UI/Icons/ColonyControlCenter/working_age_off.tga" or "UI/Icons/ColonyControlCenter/working_age_on.tga")
-self:SetRolloverText(GetColonistsFilterRollover(context, T{515632937650, "Toggle filtering of Colonists that are able to work."}))
-self:SetRolloverHint(able_to_work ~= false and T{9787, "<left_click> Hide filtered objects"} or T{9788, "<left_click> Show filtered objects"})
-local hint_gamepad = able_to_work ~= false and T{9789, "<ButtonA> Hide filtered objects"} or T{9790, "<ButtonA> Show filtered objects"}
-hint_gamepad = hint_gamepad .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverText(GetColonistsFilterRollover(context, T(515632937650, "Toggle filtering of Colonists that are able to work.")))
+self:SetRolloverHint(able_to_work ~= false and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+local hint_gamepad = able_to_work ~= false and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
 self:SetRolloverHintGamepad(hint_gamepad)
 self:SetToggled(not not able_to_work)
 end,
@@ -102,21 +102,21 @@ end,
 ToggleCommandCenterFilter(self, "able_to_work", true)
 end,
 							'Icon', "UI/Icons/ColonyControlCenter/working_age_off.tga",
-							'Text', T{9673, --[[XTemplate ColonistsOverview Text]] "Able to Work"},
+							'Text', T(9673, --[[XTemplate ColonistsOverview Text]] "Able to Work"),
 						}),
 						PlaceObj('XTemplateTemplate', {
 							'comment', "unable to work",
 							'__template', "CommandCenterButton",
-							'RolloverTitle', T{731124482973, --[[XTemplate ColonistsOverview RolloverTitle]] "Unable to Work"},
+							'RolloverTitle', T(731124482973, --[[XTemplate ColonistsOverview RolloverTitle]] "Unable to Work"),
 							'Margins', box(-12, 0, 0, 10),
 							'OnContextUpdate', function (self, context, ...)
 local dlg = GetDialog(self)
 local unable_to_work = dlg.context.unable_to_work
 self:SetIcon(not unable_to_work and "UI/Icons/ColonyControlCenter/unable_to_work_off.tga" or "UI/Icons/ColonyControlCenter/unable_to_work_on.tga")
-self:SetRolloverText(GetColonistsFilterRollover(context, T{9674, "Toggle filtering of Colonists that are unable to work."}))
-self:SetRolloverHint(unable_to_work and T{9787, "<left_click> Hide filtered objects"} or T{9788, "<left_click> Show filtered objects"})
-local hint_gamepad = unable_to_work and T{9789, "<ButtonA> Hide filtered objects"} or T{9790, "<ButtonA> Show filtered objects"}
-hint_gamepad = hint_gamepad .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverText(GetColonistsFilterRollover(context, T(9674, "Toggle filtering of Colonists that are unable to work.")))
+self:SetRolloverHint(unable_to_work and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+local hint_gamepad = unable_to_work and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
 self:SetRolloverHintGamepad(hint_gamepad)
 self:SetToggled(not not unable_to_work)
 end,
@@ -124,21 +124,21 @@ end,
 ToggleCommandCenterFilter(self, "unable_to_work")
 end,
 							'Icon', "UI/Icons/ColonyControlCenter/unable_to_work_off.tga",
-							'Text', T{731124482973, --[[XTemplate ColonistsOverview Text]] "Unable to Work"},
+							'Text', T(731124482973, --[[XTemplate ColonistsOverview Text]] "Unable to Work"),
 						}),
 						PlaceObj('XTemplateTemplate', {
 							'comment', "homeless",
 							'__template', "CommandCenterButton",
-							'RolloverTitle', T{9665, --[[XTemplate ColonistsOverview RolloverTitle]] "Homeless colonists"},
+							'RolloverTitle', T(9665, --[[XTemplate ColonistsOverview RolloverTitle]] "Homeless colonists"),
 							'Margins', box(-12, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
 local dlg = GetDialog(self)
 local homeless = dlg.context.homeless
 self:SetIcon(not homeless and "UI/Icons/ColonyControlCenter/homeless_off.tga" or "UI/Icons/ColonyControlCenter/homeless_on.tga")
-self:SetRolloverText(GetColonistsFilterRollover(context, T{9676, "Toggle filtering of Homeless Colonists."}))
-self:SetRolloverHint(homeless and T{9787, "<left_click> Hide filtered objects"} or T{9788, "<left_click> Show filtered objects"})
-local hint_gamepad = homeless and T{9789, "<ButtonA> Hide filtered objects"} or T{9790, "<ButtonA> Show filtered objects"}
-hint_gamepad = hint_gamepad .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverText(GetColonistsFilterRollover(context, T(9676, "Toggle filtering of Homeless Colonists.")))
+self:SetRolloverHint(homeless and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+local hint_gamepad = homeless and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
 self:SetRolloverHintGamepad(hint_gamepad)
 self:SetToggled(not not homeless)
 end,
@@ -146,21 +146,21 @@ end,
 ToggleCommandCenterFilter(self, "homeless")
 end,
 							'Icon', "UI/Icons/ColonyControlCenter/homeless_off.tga",
-							'Text', T{9665, --[[XTemplate ColonistsOverview Text]] "Homeless colonists"},
+							'Text', T(9665, --[[XTemplate ColonistsOverview Text]] "Homeless colonists"),
 						}),
 						PlaceObj('XTemplateTemplate', {
 							'comment', "unemployed",
 							'__template', "CommandCenterButton",
-							'RolloverTitle', T{9666, --[[XTemplate ColonistsOverview RolloverTitle]] "Unemployed colonists"},
+							'RolloverTitle', T(9666, --[[XTemplate ColonistsOverview RolloverTitle]] "Unemployed colonists"),
 							'Margins', box(-12, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
 local dlg = GetDialog(self)
 local unemployed = dlg.context.unemployed
 self:SetIcon(not unemployed and "UI/Icons/ColonyControlCenter/unemployed_off.tga" or "UI/Icons/ColonyControlCenter/unemployed_on.tga")
-self:SetRolloverText(GetColonistsFilterRollover(context, T{9677, "Toggle filtering of Unemployed Colonists."}))
-self:SetRolloverHint(unemployed and T{9787, "<left_click> Hide filtered objects"} or T{9788, "<left_click> Show filtered objects"})
-local hint_gamepad = unemployed and T{9789, "<ButtonA> Hide filtered objects"} or T{9790, "<ButtonA> Show filtered objects"}
-hint_gamepad = hint_gamepad .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverText(GetColonistsFilterRollover(context, T(9677, "Toggle filtering of Unemployed Colonists.")))
+self:SetRolloverHint(unemployed and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+local hint_gamepad = unemployed and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
 self:SetRolloverHintGamepad(hint_gamepad)
 self:SetToggled(not not unemployed)
 end,
@@ -168,21 +168,21 @@ end,
 ToggleCommandCenterFilter(self, "unemployed")
 end,
 							'Icon', "UI/Icons/ColonyControlCenter/unemployed_off.tga",
-							'Text', T{9666, --[[XTemplate ColonistsOverview Text]] "Unemployed colonists"},
+							'Text', T(9666, --[[XTemplate ColonistsOverview Text]] "Unemployed colonists"),
 						}),
 						PlaceObj('XTemplateTemplate', {
 							'comment', "problematic colonists",
 							'__template', "CommandCenterButton",
-							'RolloverTitle', T{7934, --[[XTemplate ColonistsOverview RolloverTitle]] "Problematic colonists"},
+							'RolloverTitle', T(7934, --[[XTemplate ColonistsOverview RolloverTitle]] "Problematic colonists"),
 							'Margins', box(-12, 0, 0, 10),
 							'OnContextUpdate', function (self, context, ...)
 local dlg = GetDialog(self)
 local problematic = dlg.context.problematic_colonists
 self:SetIcon(not problematic and "UI/Icons/ColonyControlCenter/problematic_colonists_off.tga" or "UI/Icons/ColonyControlCenter/problematic_colonists_on.tga")
-self:SetRolloverText(GetColonistsFilterRollover(context, T{9678, "Toggle filtering of Colonists suffering from status effects."}))
-self:SetRolloverHint(problematic and T{9787, "<left_click> Hide filtered objects"} or T{9788, "<left_click> Show filtered objects"})
-local hint_gamepad = problematic and T{9789, "<ButtonA> Hide filtered objects"} or T{9790, "<ButtonA> Show filtered objects"}
-hint_gamepad = hint_gamepad .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverText(GetColonistsFilterRollover(context, T(9678, "Toggle filtering of Colonists suffering from status effects.")))
+self:SetRolloverHint(problematic and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+local hint_gamepad = problematic and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
 self:SetRolloverHintGamepad(hint_gamepad)
 self:SetToggled(not not problematic)
 end,
@@ -190,17 +190,17 @@ end,
 ToggleCommandCenterFilter(self, "problematic_colonists")
 end,
 							'Icon', "UI/Icons/ColonyControlCenter/problematic_colonists_off.tga",
-							'Text', T{7934, --[[XTemplate ColonistsOverview Text]] "Problematic colonists"},
+							'Text', T(7934, --[[XTemplate ColonistsOverview Text]] "Problematic colonists"),
 						}),
 						PlaceObj('XTemplateTemplate', {
 							'__template', "CommandCenterButton",
-							'RolloverTitle', T{11607, --[[XTemplate ColonistsOverview RolloverTitle]] "Age Group"},
+							'RolloverTitle', T(11607, --[[XTemplate ColonistsOverview RolloverTitle]] "Age Group"),
 							'Id', "idAge",
 							'Margins', box(-12, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
 XTextButton.OnContextUpdate(self, context, ...)
-self:SetRolloverText(GetColonistsFilterRollover(context, T{9672, "Filter by Age Group."}))
-local hint_gamepad = T{507431830973, "<ButtonA> Set filter"} .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverText(GetColonistsFilterRollover(context, T(9672, "Filter by Age Group.")))
+local hint_gamepad = T(507431830973, "<ButtonA> Set filter") .. " " .. T(9802, "<RB> Inspect")
 self:SetRolloverHintGamepad(hint_gamepad)
 end,
 							'OnPress', function (self, gamepad)
@@ -217,7 +217,7 @@ end,
 								'ContextUpdateOnOpen', true,
 								'OnContextUpdate', function (self, context, ...)
 local trait = self.context["trait_Age Group"]
-local trait_name = trait and trait.display_name or T{11679, "No filter"}
+local trait_name = trait and trait.display_name or T(11679, "No filter")
 self:SetText(T{11608, "AGE GROUP: <em><trait></em>", trait = trait_name})
 end,
 								'Translate', true,
@@ -225,13 +225,13 @@ end,
 							}),
 						PlaceObj('XTemplateTemplate', {
 							'__template', "CommandCenterButton",
-							'RolloverTitle', T{11609, --[[XTemplate ColonistsOverview RolloverTitle]] "Specialization"},
+							'RolloverTitle', T(11609, --[[XTemplate ColonistsOverview RolloverTitle]] "Specialization"),
 							'Id', "idSpec",
 							'Margins', box(-12, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
 XTextButton.OnContextUpdate(self, context, ...)
-self:SetRolloverText(GetColonistsFilterRollover(context, T{11610, "Filter by Specialization."}))
-local hint_gamepad = T{507431830973, "<ButtonA> Set filter"} .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverText(GetColonistsFilterRollover(context, T(11610, "Filter by Specialization.")))
+local hint_gamepad = T(507431830973, "<ButtonA> Set filter") .. " " .. T(9802, "<RB> Inspect")
 self:SetRolloverHintGamepad(hint_gamepad)
 end,
 							'OnPress', function (self, gamepad)
@@ -248,7 +248,7 @@ end,
 								'ContextUpdateOnOpen', true,
 								'OnContextUpdate', function (self, context, ...)
 local trait = self.context.trait_Specialization
-local trait_name = trait and trait.display_name or T{11679, "No filter"}
+local trait_name = trait and trait.display_name or T(11679, "No filter")
 self:SetText(T{11611, "SPECIALIZATION: <em><trait></em>", trait = trait_name})
 end,
 								'Translate', true,
@@ -256,13 +256,44 @@ end,
 							}),
 						PlaceObj('XTemplateTemplate', {
 							'__template', "CommandCenterButton",
-							'RolloverTitle', T{11612, --[[XTemplate ColonistsOverview RolloverTitle]] "Perks"},
+							'RolloverTitle', T(240, --[[XTemplate ColonistsOverview RolloverTitle]] "Specialization"),
+							'Id', "idInterest",
+							'Margins', box(-12, 0, 0, -14),
+							'OnContextUpdate', function (self, context, ...)
+XTextButton.OnContextUpdate(self, context, ...)
+self:SetRolloverText(GetColonistsFilterRollover(context, T(11834, "Filter by Interest.")))
+local hint_gamepad = T(507431830973, "<ButtonA> Set filter") .. " " .. T(9802, "<RB> Inspect")
+self:SetRolloverHintGamepad(hint_gamepad)
+end,
+							'OnPress', function (self, gamepad)
+SpawnTraitsPopup(self, "interest")
+end,
+							'Image', "UI/CommonNew/ccc_categories_small.tga",
+						}, {
+							PlaceObj('XTemplateWindow', {
+								'__class', "XText",
+								'Id', "idText",
+								'Margins', box(15, 0, 0, 0),
+								'VAlign', "center",
+								'TextStyle', "CCCFilterItem",
+								'ContextUpdateOnOpen', true,
+								'OnContextUpdate', function (self, context, ...)
+local interest = self.context.trait_interest
+local interest_name = interest and interest.display_name or T(11679, "No filter")
+self:SetText(T{11835, "INTEREST: <em><interest></em>", interest = interest_name})
+end,
+								'Translate', true,
+							}),
+							}),
+						PlaceObj('XTemplateTemplate', {
+							'__template', "CommandCenterButton",
+							'RolloverTitle', T(11612, --[[XTemplate ColonistsOverview RolloverTitle]] "Perks"),
 							'Id', "idPerk",
 							'Margins', box(-12, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
 XTextButton.OnContextUpdate(self, context, ...)
-self:SetRolloverText(GetColonistsFilterRollover(context, T{11613, "Filter by Perks."}))
-local hint_gamepad = T{507431830973, "<ButtonA> Set filter"} .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverText(GetColonistsFilterRollover(context, T(11613, "Filter by Perks.")))
+local hint_gamepad = T(507431830973, "<ButtonA> Set filter") .. " " .. T(9802, "<RB> Inspect")
 self:SetRolloverHintGamepad(hint_gamepad)
 end,
 							'OnPress', function (self, gamepad)
@@ -279,7 +310,7 @@ end,
 								'ContextUpdateOnOpen', true,
 								'OnContextUpdate', function (self, context, ...)
 local trait = self.context.trait_Positive
-local trait_name = trait and trait.display_name or T{11679, "No filter"}
+local trait_name = trait and trait.display_name or T(11679, "No filter")
 self:SetText(T{11614, "PERK: <em><trait></em>", trait = trait_name})
 end,
 								'Translate', true,
@@ -287,13 +318,13 @@ end,
 							}),
 						PlaceObj('XTemplateTemplate', {
 							'__template', "CommandCenterButton",
-							'RolloverTitle', T{11615, --[[XTemplate ColonistsOverview RolloverTitle]] "Quirk"},
+							'RolloverTitle', T(11615, --[[XTemplate ColonistsOverview RolloverTitle]] "Quirk"),
 							'Id', "idQuirk",
 							'Margins', box(-12, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
 XTextButton.OnContextUpdate(self, context, ...)
-self:SetRolloverText(GetColonistsFilterRollover(context, T{11616, "Filter by Quirk."}))
-local hint_gamepad = T{507431830973, "<ButtonA> Set filter"} .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverText(GetColonistsFilterRollover(context, T(11616, "Filter by Quirk.")))
+local hint_gamepad = T(507431830973, "<ButtonA> Set filter") .. " " .. T(9802, "<RB> Inspect")
 self:SetRolloverHintGamepad(hint_gamepad)
 end,
 							'OnPress', function (self, gamepad)
@@ -310,7 +341,7 @@ end,
 								'ContextUpdateOnOpen', true,
 								'OnContextUpdate', function (self, context, ...)
 local trait = self.context.trait_other
-local trait_name = trait and trait.display_name or T{11679, "No filter"}
+local trait_name = trait and trait.display_name or T(11679, "No filter")
 self:SetText(T{11617, "QUIRK: <em><trait></em>", trait = trait_name})
 end,
 								'Translate', true,
@@ -318,14 +349,14 @@ end,
 							}),
 						PlaceObj('XTemplateTemplate', {
 							'__template', "CommandCenterButton",
-							'RolloverText', T{372599874431, --[[XTemplate ColonistsOverview RolloverText]] "Filter by Flaw"},
-							'RolloverTitle', T{583453649364, --[[XTemplate ColonistsOverview RolloverTitle]] "Flaw"},
+							'RolloverText', T(372599874431, --[[XTemplate ColonistsOverview RolloverText]] "Filter by Flaw"),
+							'RolloverTitle', T(583453649364, --[[XTemplate ColonistsOverview RolloverTitle]] "Flaw"),
 							'Id', "idFlaw",
 							'Margins', box(-12, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
 XTextButton.OnContextUpdate(self, context, ...)
-self:SetRolloverText(GetColonistsFilterRollover(context, T{11618, "Filter by Flaw."}))
-local hint_gamepad = T{507431830973, "<ButtonA> Set filter"} .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverText(GetColonistsFilterRollover(context, T(11618, "Filter by Flaw.")))
+local hint_gamepad = T(507431830973, "<ButtonA> Set filter") .. " " .. T(9802, "<RB> Inspect")
 self:SetRolloverHintGamepad(hint_gamepad)
 end,
 							'OnPress', function (self, gamepad)
@@ -342,7 +373,7 @@ end,
 								'ContextUpdateOnOpen', true,
 								'OnContextUpdate', function (self, context, ...)
 local trait = self.context.trait_Negative
-local trait_name = trait and trait.display_name or T{11679, "No filter"}
+local trait_name = trait and trait.display_name or T(11679, "No filter")
 self:SetText(T{11619, "FLAW: <em><trait></em>", trait = trait_name})
 end,
 								'Translate', true,
@@ -376,7 +407,7 @@ end,
 				}, {
 					PlaceObj('XTemplateAction', {
 						'ActionId', "back",
-						'ActionName', T{4254, --[[XTemplate ColonistsOverview ActionName]] "BACK"},
+						'ActionName', T(4254, --[[XTemplate ColonistsOverview ActionName]] "BACK"),
 						'ActionToolbar', "ActionBar",
 						'ActionShortcut', "Escape",
 						'ActionGamepad', "ButtonB",
@@ -384,7 +415,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "prev",
-						'ActionName', T{129795472601, --[[XTemplate ColonistsOverview ActionName]] "PREVIOUS DOME"},
+						'ActionName', T(129795472601, --[[XTemplate ColonistsOverview ActionName]] "PREVIOUS DOME"),
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "LeftTrigger",
 						'OnAction', function (self, host, source)
@@ -394,7 +425,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "next",
-						'ActionName', T{9679, --[[XTemplate ColonistsOverview ActionName]] "NEXT DOME"},
+						'ActionName', T(9679, --[[XTemplate ColonistsOverview ActionName]] "NEXT DOME"),
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "RightTrigger",
 						'OnAction', function (self, host, source)
@@ -404,7 +435,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "interests",
-						'ActionName', T{663581795644, --[[XTemplate ColonistsOverview ActionName]] "INTERESTS"},
+						'ActionName', T(663581795644, --[[XTemplate ColonistsOverview ActionName]] "INTERESTS"),
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonY",
 						'ActionState', function (self, host)
@@ -417,7 +448,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "traits",
-						'ActionName', T{265445412858, --[[XTemplate ColonistsOverview ActionName]] "TRAITS"},
+						'ActionName', T(265445412858, --[[XTemplate ColonistsOverview ActionName]] "TRAITS"),
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonY",
 						'ActionState', function (self, host)
@@ -430,7 +461,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "reset",
-						'ActionName', T{550362230354, --[[XTemplate ColonistsOverview ActionName]] "RESET FILTERS"},
+						'ActionName', T(550362230354, --[[XTemplate ColonistsOverview ActionName]] "RESET FILTERS"),
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonX",
 						'OnAction', function (self, host, source)
@@ -463,7 +494,7 @@ end,
 							'HandleMouse', false,
 							'TextStyle', "OverviewItemSection",
 							'Translate', true,
-							'Text', T{547, --[[XTemplate ColonistsOverview Text]] "Colonists"},
+							'Text', T(547, --[[XTemplate ColonistsOverview Text]] "Colonists"),
 							'TextVAlign', "center",
 						}),
 						PlaceObj('XTemplateWindow', {
@@ -525,7 +556,7 @@ self:SetVisible(not context.interests)
 XText.OnContextUpdate(self, context, ...)
 end,
 							'Translate', true,
-							'Text', T{235, --[[XTemplate ColonistsOverview Text]] "Traits"},
+							'Text', T(235, --[[XTemplate ColonistsOverview Text]] "Traits"),
 							'TextHAlign', "center",
 							'TextVAlign', "center",
 						}),
@@ -548,7 +579,7 @@ self:SetVisible(context.interests)
 XText.OnContextUpdate(self, context, ...)
 end,
 							'Translate', true,
-							'Text', T{186933092758, --[[XTemplate ColonistsOverview Text]] "Interests"},
+							'Text', T(186933092758, --[[XTemplate ColonistsOverview Text]] "Interests"),
 							'TextHAlign', "center",
 							'TextVAlign', "center",
 						}),
@@ -598,7 +629,7 @@ end,
 						'HandleMouse', false,
 						'TextStyle', "InGameTitle",
 						'Translate', true,
-						'Text', T{9763, --[[XTemplate ColonistsOverview Text]] "No objects matching current filters."},
+						'Text', T(9763, --[[XTemplate ColonistsOverview Text]] "No objects matching current filters."),
 					}),
 					PlaceObj('XTemplateCode', {
 						'run', function (self, parent, context)
@@ -638,7 +669,7 @@ local dlg = GetDialog(self)
 dlg.context["trait_" .. dlg.mode_param.trait_group] = nil
 SetBackDialogMode(self)
 end,
-							'Text', T{652319561018, --[[XTemplate ColonistsOverview Text]] "All Traits"},
+							'Text', T(652319561018, --[[XTemplate ColonistsOverview Text]] "All Traits"),
 						}),
 						PlaceObj('XTemplateForEach', {
 							'comment', "traits",
@@ -658,12 +689,12 @@ local dlg = GetDialog(self)
 dlg.context["trait_" .. dlg.mode_param.trait_group] = self.context
 SetBackDialogMode(self)
 end,
-								'Text', T{583679719179, --[[XTemplate ColonistsOverview Text]] "<display_name>"},
+								'Text', T(583679719179, --[[XTemplate ColonistsOverview Text]] "<display_name>"),
 							}),
 							}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "back",
-							'ActionName', T{4254, --[[XTemplate ColonistsOverview ActionName]] "BACK"},
+							'ActionName', T(4254, --[[XTemplate ColonistsOverview ActionName]] "BACK"),
 							'ActionToolbar', "ActionBar",
 							'ActionShortcut', "Escape",
 							'ActionGamepad', "ButtonB",

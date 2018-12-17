@@ -7,17 +7,17 @@ function GetConsumptionResourcesDropDownItems()
 	table.remove_entry(ret, "value", "Colonist")
 	
 	--add maintenance specific stuff
-	table.insert(ret, 1, {text = T{89, "No consumption"}, value = "no_consumption"})
+	table.insert(ret, 1, {text = T(89, "No consumption"), value = "no_consumption"})
 	
 	return ret
 end
 
 function GetConsumptionTypeDropdownItems()
 	return {
-		{ text = T{80, "Production"}, value = 1 }, --used by production blds (ResourceProducer) 1 unit production = 1 unit consumption * consumption_amount/1000
-		{ text = T{90, "Visit"}, value = 2 }, --used by food suppliers, consumption_amount is consumed per commie visit, if totall is less, commie regains less needs proportionally
-		{ text = T{91, "Shuttle"}, value = 3 }, --used for shuttle refuel. 1 * consumption_amount / const.ResourceScale units consumption = 1 full shuttle refuel
-		{ text = T{4819, "Workshop"}, value = 4 }, --used for workshop consumption
+		{ text = T(80, "Production"), value = 1 }, --used by production blds (ResourceProducer) 1 unit production = 1 unit consumption * consumption_amount/1000
+		{ text = T(90, "Visit"), value = 2 }, --used by food suppliers, consumption_amount is consumed per commie visit, if totall is less, commie regains less needs proportionally
+		{ text = T(91, "Shuttle"), value = 3 }, --used for shuttle refuel. 1 * consumption_amount / const.ResourceScale units consumption = 1 full shuttle refuel
+		{ text = T(4819, "Workshop"), value = 4 }, --used for workshop consumption
 	}
 end
 
@@ -38,11 +38,11 @@ class overview...
 DefineClass.HasConsumption = {
 	__parents = { "TaskRequester" },
 	properties = {
-		{template = true, category = "Resource Consumption", name = T{117, "Consumption Resource Type"},id = "consumption_resource_type", editor = "dropdownlist", items = GetConsumptionResourcesDropDownItems(), default = GetConsumptionResourcesDropDownItems()[1].value, help = "The type of resource associated with consumption demands.",},
-		{template = true, category = "Resource Consumption", name = T{118, "Consumption Max Storage"},  id = "consumption_max_storage", editor = "number", scale = const.ResourceScale, default = 5 * const.ResourceScale, help = "The max amount of storage for consumption resource.",},
-		{template = true, category = "Resource Consumption", name = T{119, "Consumption Amount"},       id = "consumption_amount", editor = "number", scale = const.ResourceScale, default = 1 * const.ResourceScale,modifiable = true, help = "Amount of stored consumption resources needed for consumption op. In other words, the convertion rate of consumption resources to other stuff.",},
-		{template = true, category = "Resource Consumption", name = T{120, "Consumption Type"},         id = "consumption_type", editor = "dropdownlist", items = GetConsumptionTypeDropdownItems(), default = GetConsumptionTypeDropdownItems()[1].value, help = "Determines the purpose of the consumption resource.",},
-		{template = true, category = "Resource Consumption", name = T{121, "Input Pile Spot Name"},     id = "consumption_resource_stockpile_spot_name", editor = "text", default = "Resourcepile2", help = "If there is any consumption, will try to attacha purely visual stockpile at this spot.",},
+		{template = true, category = "Resource Consumption", name = T(117, "Consumption Resource Type"),id = "consumption_resource_type", editor = "dropdownlist", items = GetConsumptionResourcesDropDownItems(), default = GetConsumptionResourcesDropDownItems()[1].value, help = "The type of resource associated with consumption demands.",},
+		{template = true, category = "Resource Consumption", name = T(118, "Consumption Max Storage"),  id = "consumption_max_storage", editor = "number", scale = const.ResourceScale, default = 5 * const.ResourceScale, help = "The max amount of storage for consumption resource.",},
+		{template = true, category = "Resource Consumption", name = T(119, "Consumption Amount"),       id = "consumption_amount", editor = "number", scale = const.ResourceScale, default = 1 * const.ResourceScale,modifiable = true, help = "Amount of stored consumption resources needed for consumption op. In other words, the convertion rate of consumption resources to other stuff.",},
+		{template = true, category = "Resource Consumption", name = T(120, "Consumption Type"),         id = "consumption_type", editor = "dropdownlist", items = GetConsumptionTypeDropdownItems(), default = GetConsumptionTypeDropdownItems()[1].value, help = "Determines the purpose of the consumption resource.",},
+		{template = true, category = "Resource Consumption", name = T(121, "Input Pile Spot Name"),     id = "consumption_resource_stockpile_spot_name", editor = "text", default = "Resourcepile2", help = "If there is any consumption, will try to attacha purely visual stockpile at this spot.",},
 	},
 	
 	

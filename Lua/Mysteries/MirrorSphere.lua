@@ -74,8 +74,8 @@ DefineClass.MirrorSphere = {
 	
 	--ui
 	display_icon = "UI/Icons/Buildings/mirror_sphere.tga",
-	DisplayName = T{1182, "Mirror Sphere"},
-	description = T{1183, "An unknown alien object."},
+	DisplayName = T(1182, "Mirror Sphere"),
+	description = T(1183, "An unknown alien object."),
 	ip_template = "ipMirrorSphere",
 	rename_allowed = false,
 }
@@ -538,8 +538,8 @@ DefineClass.MirrorSphereMystery = {
 	__parents = {"MysteryBase"},
 	scenario_name = "Mystery 3",
 	
-	display_name = T{1184, "Spheres (Normal)"},
-	rollover_text = T{1185, '"Never fire a laser at a mirror."<newline><right>- Larry Niven'},
+	display_name = T(1184, "Spheres (Normal)"),
+	rollover_text = T(1185, '"Never fire a laser at a mirror."<newline><right>- Larry Niven'),
 	challenge_mod = 40,
 	order_pos = 6,
 }
@@ -573,8 +573,8 @@ DefineClass.MirrorSphereBuilding = {
 	scanned = false,
 	anomaly = false,
 	entity = "MirrorSphereExcavation",
-	DisplayNameBurried = T{1186, "Strange pile of rocks"},
-	DisplayNameExcavated = T{1187, "Mirror Sphere excavation site"},
+	DisplayNameBurried = T(1186, "Strange pile of rocks"),
+	DisplayNameExcavated = T(1187, "Mirror Sphere excavation site"),
 	
 	dbg_enable_all = false,
 	max_workers = 6,
@@ -751,16 +751,16 @@ end
 
 function MirrorSphereBuilding:IsActionEnabled(action)
 	if self.action then
-		return false, self.action == action and T{6780, "Cancel."} or T{1188, "Action in progress."}
+		return false, self.action == action and T(6780, "Cancel.") or T(1188, "Action in progress.")
 	elseif self.completed[action] then
-		return false, T{1189, "Already completed."}
+		return false, T(1189, "Already completed.")
 	elseif self.dbg_enable_all then
 		return true
 	elseif action == "PierceTheShell" then
 		if MapCount(self,"hex",const.CommandCenterMaxRadius,"DroneControl", function (center, sphere) return #center.drones > 0 and HexAxialDistance(sphere, center) <= center.work_radius end , self) > 0 then
 			return true
 		end
-		return false, T{1190, "Too far from any Drone commander."}
+		return false, T(1190, "Too far from any Drone commander.")
 	elseif action == "Communicate" then
 		local towers = self.city.labels.SensorTower or ""
 		for i=1,#towers do
@@ -769,12 +769,12 @@ function MirrorSphereBuilding:IsActionEnabled(action)
 				return true
 			end
 		end
-		return false, T{1191, "No Sensor Tower in range."}
+		return false, T(1191, "No Sensor Tower in range.")
 	elseif action == "FeedPower" then
 		if MapCount(self, effect_range, "ElectricityStorage", is_valid_el_storage, self) > 0 then
 			return true
 		end
-		return false, T{1192, "No Accumulator with stored Power in range."}
+		return false, T(1192, "No Accumulator with stored Power in range.")
 	end
 end
 
@@ -890,11 +890,11 @@ end
 							
 function PowerDecoy:IsActionEnabled()
 	if not self.city:IsTechResearched("Xeno-Terraforming") then
-		return false, T{1193, "The necessary technology hasn't been researched."}
+		return false, T(1193, "The necessary technology hasn't been researched.")
 	elseif not self:IsOccupied() then
-		return false, T{1194, "There's no trapped Sphere."}
+		return false, T(1194, "There's no trapped Sphere.")
 	elseif not self.working then
-		return false, T{1195, "Not operational."}
+		return false, T(1195, "Not operational.")
 	end
 	return true
 end

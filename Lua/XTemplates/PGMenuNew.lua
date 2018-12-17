@@ -60,7 +60,12 @@ end,
 						'__class', "XImage",
 						'Id', "idImage",
 						'IdNode', false,
+						'MinWidth', 330,
+						'MinHeight', 235,
+						'MaxWidth', 330,
+						'MaxHeight', 235,
 						'Image', "UI/CommonNew/mm_space_race.tga",
+						'ImageFit', "smallest",
 					}, {
 						PlaceObj('XTemplateWindow', {
 							'__class', "XTextButton",
@@ -120,7 +125,7 @@ end,
 				}, {
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idTutorial",
-						'ActionName', T{756622437336, --[[XTemplate PGMenuNew ActionName]] "TUTORIAL"},
+						'ActionName', T(756622437336, --[[XTemplate PGMenuNew ActionName]] "TUTORIAL"),
 						'ActionIcon', "UI/CommonNew/mm_tutorials.tga",
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
@@ -140,10 +145,10 @@ end)
 end,
 					}),
 					PlaceObj('XTemplateAction', {
-						'RolloverText', T{427174640796, --[[XTemplate PGMenuNew RolloverText]] "Start a survival game, which allows you to choose Mission Sponsor, Commander Profile, Rocket payload and landing location."},
-						'RolloverTitle', T{10455, --[[XTemplate PGMenuNew RolloverTitle]] "NEW GAME"},
+						'RolloverText', T(427174640796, --[[XTemplate PGMenuNew RolloverText]] "Start a survival game, which allows you to choose Mission Sponsor, Commander Profile, Rocket payload and landing location."),
+						'RolloverTitle', T(10455, --[[XTemplate PGMenuNew RolloverTitle]] "NEW GAME"),
 						'ActionId', "idStandardGame",
-						'ActionName', T{10455, --[[XTemplate PGMenuNew ActionName]] "NEW GAME"},
+						'ActionName', T(10455, --[[XTemplate PGMenuNew ActionName]] "NEW GAME"),
 						'ActionIcon', "UI/CommonNew/mm_new_game.tga",
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
@@ -152,7 +157,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idLoad",
-						'ActionName', T{1128, --[[XTemplate PGMenuNew ActionName]] "LOAD GAME"},
+						'ActionName', T(1128, --[[XTemplate PGMenuNew ActionName]] "LOAD GAME"),
 						'ActionIcon', "UI/CommonNew/mm_load_game.tga",
 						'ActionToolbar', "mainmenu",
 						'ActionState', function (self, host)
@@ -162,9 +167,9 @@ end,
 						'OnActionParam', "Load",
 					}),
 					PlaceObj('XTemplateAction', {
-						'RolloverText', T{554914047909, --[[XTemplate PGMenuNew RolloverText]] "Challenge yourself to accomplish a specific objective within a time limit.\n\nMission parameters and colony site are predetermined."},
+						'RolloverText', T(554914047909, --[[XTemplate PGMenuNew RolloverText]] "Challenge yourself to accomplish a specific objective within a time limit.\n\nMission parameters and colony site are predetermined."),
 						'ActionId', "idChallenge",
-						'ActionName', T{10519, --[[XTemplate PGMenuNew ActionName]] "CHALLENGE MODE"},
+						'ActionName', T(10519, --[[XTemplate PGMenuNew ActionName]] "CHALLENGE MODE"),
 						'ActionIcon', "UI/CommonNew/mm_challenges.tga",
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
@@ -172,10 +177,10 @@ StartNewGame(host, "Challenge")
 end,
 					}),
 					PlaceObj('XTemplateAction', {
-						'RolloverText', T{650579644429, --[[XTemplate PGMenuNew RolloverText]] "Create the colony that you imagine and test how it works without worrying about survival threats.<newline><newline><NoAchievements()>"},
-						'RolloverTitle', T{144559490492, --[[XTemplate PGMenuNew RolloverTitle]] "CREATIVE MODE"},
+						'RolloverText', T(650579644429, --[[XTemplate PGMenuNew RolloverText]] "Create the colony that you imagine and test how it works without worrying about survival threats.<newline><newline><NoAchievements()>"),
+						'RolloverTitle', T(144559490492, --[[XTemplate PGMenuNew RolloverTitle]] "CREATIVE MODE"),
 						'ActionId', "idCreativeMode",
-						'ActionName', T{144559490492, --[[XTemplate PGMenuNew ActionName]] "CREATIVE MODE"},
+						'ActionName', T(144559490492, --[[XTemplate PGMenuNew ActionName]] "CREATIVE MODE"),
 						'ActionIcon', "UI/CommonNew/mm_creative_mode.tga",
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
@@ -193,7 +198,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idModManager",
-						'ActionName', T{1129, --[[XTemplate PGMenuNew ActionName]] "MOD MANAGER"},
+						'ActionName', T(1129, --[[XTemplate PGMenuNew ActionName]] "MOD MANAGER"),
 						'ActionIcon', "UI/Icons/main_menu_mod_manager.tga",
 						'ActionToolbar', "bottommenu",
 						'OnAction', function (self, host, source)
@@ -206,7 +211,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idModEditor",
-						'ActionName', T{1130, --[[XTemplate PGMenuNew ActionName]] "MOD EDITOR"},
+						'ActionName', T(1130, --[[XTemplate PGMenuNew ActionName]] "MOD EDITOR"),
 						'ActionIcon', "UI/Icons/main_menu_mod_editor.tga",
 						'ActionToolbar', "bottommenu",
 						'OnAction', function (self, host, source)
@@ -219,7 +224,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idOptions",
-						'ActionName', T{1131, --[[XTemplate PGMenuNew ActionName]] "OPTIONS"},
+						'ActionName', T(1131, --[[XTemplate PGMenuNew ActionName]] "OPTIONS"),
 						'ActionIcon', "UI/Icons/main_menu_options.tga",
 						'ActionToolbar', "bottommenu",
 						'OnActionEffect', "mode",
@@ -227,7 +232,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idAchievements",
-						'ActionName', T{856797454991, --[[XTemplate PGMenuNew ActionName]] "ACHIEVEMENTS"},
+						'ActionName', T(856797454991, --[[XTemplate PGMenuNew ActionName]] "ACHIEVEMENTS"),
 						'ActionIcon', "UI/Icons/main_menu_achievements.tga",
 						'ActionToolbar', "bottommenu",
 						'OnActionEffect', "mode",
@@ -236,7 +241,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idParadoxAccount",
-						'ActionName', T{4525, --[[XTemplate PGMenuNew ActionName]] "PARADOX ACCOUNT"},
+						'ActionName', T(4525, --[[XTemplate PGMenuNew ActionName]] "PARADOX ACCOUNT"),
 						'ActionIcon', "UI/Icons/main_menu_paradox.tga",
 						'ActionToolbar', "bottommenu",
 						'ActionState', function (self, host)
@@ -251,7 +256,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idQuit",
-						'ActionName', T{1132, --[[XTemplate PGMenuNew ActionName]] "QUIT"},
+						'ActionName', T(1132, --[[XTemplate PGMenuNew ActionName]] "QUIT"),
 						'ActionIcon', "UI/Icons/main_menu_exit.tga",
 						'ActionToolbar', "bottommenu",
 						'ActionShortcut', "Escape",
@@ -279,7 +284,8 @@ local top = "bottom"
 	child.idButton:SetFocusOrder(point(n, 0))
 	child.idButton:SetImage(action.ActionIcon)
 	child.idButton:SetOnPressParam(action.ActionId)
-	child.idPGRollover:SetText(action.RolloverText)
+	child.idTextRollover:SetText(action.RolloverText)
+	child.idDownImage:SetFlipX(n%2==0)
 	if n == 1 and GetUIStyleGamepad() then
 		child:CreateThread("FocusThread", function()
 			child.idButton:SetFocus()
@@ -313,14 +319,44 @@ end,
 									'func', function (self, rollover)
 self.parent:SetRollover(rollover)
 XTextButton.SetRollover(self, rollover)
-local ctrl_rollover = self.parent:ResolveId("idPGRollover")
-if ctrl_rollover  then
-	ctrl_rollover:SetRollover(rollover )	
-end
 
-local text = self.parent:ResolveId("idText")
-if text then
-	text:SetRollover(rollover)	
+local duration = 200
+local frame = self.parent:ResolveId("idFrame")
+local image = self.parent:ResolveId("idDownImage")
+local textContainer = self.parent:ResolveId("idText")
+local rText = self.parent:ResolveId("idTextRollover")
+local bdescription = rText:GetText()~=""
+textContainer:SetRollover(rollover)
+
+if bdescription then
+	frame:AddInterpolation{
+		id = "move",
+		type = const.intRect,
+		duration = duration,
+		endRect = sizebox(frame.box:minx(), frame.box:miny() - rText.box:sizey(), frame.box:sizex(), frame.box:sizey() + 1+ rText.box:sizey()),
+		startRect =  frame.box,
+		flags = (not rollover) and const.intfInverse or nil,
+	}
+
+	rText:SetVisible(rollover)
+	rText:AddInterpolation{
+		id = "move",
+		type = const.intRect,
+		start = GetPreciseTicks() + duration/2,
+		duration = duration/2,
+		startRect = rText.box,
+		endRect = sizebox(image.box:minx(),image.box:miny(),rText.box:sizex(),0),
+		flags =rollover and const.intfInverse or nil,
+	}
+
+	textContainer:AddInterpolation{
+		id = "move",
+		type = const.intRect,
+		duration = duration,
+		endRect = Offset(textContainer.box,0, -rText.box:sizey()),
+		startRect = textContainer.box,
+		flags = (not rollover) and const.intfInverse or nil,
+	}
 end
 end,
 								}),
@@ -335,35 +371,75 @@ if not enabled then
 end
 end,
 								}),
-								PlaceObj('XTemplateTemplate', {
-									'__template', "MainMenuButtonText",
-									'Id', "idText",
-									'Padding', box(4, 0, 4, 0),
+								PlaceObj('XTemplateWindow', {
+									'__class', "XImage",
+									'Id', "idDownImage",
+									'Dock', "bottom",
+									'VAlign', "bottom",
+									'MinWidth', 243,
+									'MaxWidth', 243,
+									'Visible', false,
+									'Image', "UI/CommonNew/mm_rollover1.tga",
+								}),
+								PlaceObj('XTemplateWindow', {
+									'Id', "idRolloverWnd",
 									'Dock', "box",
 									'HAlign', "center",
 									'VAlign', "bottom",
-									'MinHeight', 60,
-									'MaxHeight', 65,
-									'Translate', true,
-									'TextHAlign', "center",
-									'TextVAlign', "center",
+									'MinWidth', 243,
+									'MaxWidth', 243,
+									'LayoutMethod', "VList",
+								}, {
+									PlaceObj('XTemplateWindow', {
+										'__class', "XFrame",
+										'Id', "idFrame",
+										'IdNode', false,
+										'Dock', "box",
+										'Image', "UI/CommonNew/mm_rollover2.tga",
+									}),
+									PlaceObj('XTemplateTemplate', {
+										'__template', "MainMenuButtonText",
+										'Id', "idText",
+										'Margins', box(0, 0, 0, -30),
+										'Padding', box(4, 0, 4, 0),
+										'Dock', "box",
+										'HAlign', "center",
+										'VAlign', "bottom",
+										'MinHeight', 60,
+										'MaxHeight', 65,
+										'Translate', true,
+										'TextHAlign', "center",
+										'TextVAlign', "center",
+									}),
+									}),
+								PlaceObj('XTemplateWindow', {
+									'Dock', "box",
+									'MinWidth', 243,
+									'MaxWidth', 243,
+								}, {
+									PlaceObj('XTemplateWindow', {
+										'__class', "XText",
+										'Id', "idTextRollover",
+										'IdNode', false,
+										'Margins', box(0, 30, 0, -18),
+										'Padding', box(10, 10, 10, 0),
+										'HAlign', "center",
+										'VAlign', "bottom",
+										'MinWidth', 243,
+										'MaxWidth', 243,
+										'FadeInTime', 300,
+										'FadeOutTime', 100,
+										'TextStyle', "RolloverTextStyle",
+										'Translate', true,
+										'HideOnEmpty', true,
+									}),
+									}),
 								}),
-								}),
-							PlaceObj('XTemplateTemplate', {
-								'__template', "PGRollover",
-								'Margins', box(0, 0, 0, 60),
-								'Dock', "box",
-								'HAlign', "center",
-								'VAlign', "bottom",
-								'MinWidth', 243,
-								'MaxWidth', 243,
-								'GridStretchX', false,
-							}),
 							PlaceObj('XTemplateFunc', {
 								'name', "Open",
 								'func', function (self, ...)
 XWindow.Open(self, ...)
-self.idPGRollover:SetVisible(false)
+self.idTextRollover:SetVisible(false)
 end,
 							}),
 							}),

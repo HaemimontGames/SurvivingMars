@@ -66,6 +66,7 @@ function StartTutorial(id)
 	}
 	ChangeMap(def.map)
 	
+	
 	MapForEach("map", "TutorialMarker",
 		function(o)
 			if o.MarkerName ~= "" then
@@ -83,11 +84,13 @@ function StartTutorial(id)
 	LoadingScreenClose("idLoadingScreen", "Tutorial")
 		
 	-- run tutorial-specific code
-	g_Tutorial.Thread = CurrentThread()
-	if g_TutorialScenarios[id] then
-		g_TutorialScenarios[id]()
-	end
-	TutorialCleanup()
+	
+	g_Tutorial.Thread = CreateMapRealTimeThread(function()
+		if g_TutorialScenarios[id] then
+			g_TutorialScenarios[id]()
+		end
+		TutorialCleanup()
+	end)
 end
 
 function WinTutorial(next_id)
@@ -146,7 +149,7 @@ end
 function CountCompletedTutorials()
   local completed = AccountStorage and AccountStorage.CompletedTutorials 
   local count = 0
-  for _, def in pairs(completed) do
+  for _, def in pairs(completed or empty_table) do
 	count = count + 1
   end
   return count
@@ -391,14 +394,17 @@ end
 -- the following two waits will mostly work, assuming you dont receive multiple Msg in the same millisecond (e.g. alt+b)
 function WaitConstruction(...)
 	local waited = {...}
+	local last_bld
 	while #waited > 0 do
 		local ok, bld = WaitMsg("ConstructionComplete")
 		for i = #waited, 1, -1 do
 			if bld.template_name == waited[i] then
 				table.remove(waited, i)
+				last_bld = bld
 			end
 		end
 	end
+	return last_bld
 end
 
 function WaitConstructionSite(...)
@@ -750,7 +756,7 @@ function WaitResourcesNearPoint(point, resource, amount, radius, ignore_classes)
 				if IsKindOfClasses(pile, ignore_classes) then return end
 				if resource == "Fuel" and IsKindOf(pile, "SupplyRocket") then
 					local extra = pile.unload_fuel_request and pile.unload_fuel_request:GetActualAmount() or 0	
-					local current = (pile.launch_fuel - pile.refuel_request:GetActualAmount() + extra)
+					local current = (pile:GetLaunchFuel() - pile.refuel_request:GetActualAmount() + extra)
 					total = total + current
 				elseif pile:HasMember(getter_name) then
 					total = total + pile[getter_name](pile)
@@ -771,7 +777,7 @@ function WaitResourcesNearPoint(point, resource, amount, radius, ignore_classes)
 				if IsKindOfClasses(pile, ignore_classes) then return end
 				if IsKindOf(pile, "SupplyRocket") then
 					local extra = pile.unload_fuel_request and pile.unload_fuel_request:GetActualAmount() or 0	
-					local current = (pile.launch_fuel - pile.refuel_request:GetActualAmount() + extra)
+					local current = (pile:GetLaunchFuel() - pile.refuel_request:GetActualAmount() + extra)
 					total = total + current
 				elseif type(pile.stockpiled_amount) == "table" then
 					for res, amount in pairs(stockpiled_amount) do
@@ -844,9 +850,9 @@ end
 
 TFormat.TutorialDisabledAchievementsText = function(context_obj)
 	if Platform.ps4 then
-		return T{10089, "Trophies are disabled during all tutorials."}
+		return T(10089, "Trophies are disabled during all tutorials.")
 	else
-		return T{10090, "Achievements are disabled during all tutorials."}
+		return T(10090, "Achievements are disabled during all tutorials.")
 	end
 end
 

@@ -43,9 +43,9 @@ if type(value) == "table" then
 		end
 	end
 	if count == 0 then
-		text = T{9813, "None selected"}
+		text = T(9813, "None selected")
 	elseif count == 1 and value["random"] then
-		text = T{3490, "Random"}
+		text = T(3490, "Random")
 	else
 		text = Untranslated("x" .. count)
 	end

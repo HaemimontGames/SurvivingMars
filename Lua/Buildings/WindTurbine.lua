@@ -1,10 +1,10 @@
 DefineClass.WindTurbine = {
 	__parents = { "ElectricityProducer", },
 	properties = {
-		{ template = true, id = "bonus_per_kilometer_elevation", name = T{829, "Bonus Production % per km elevation"}, category = "Power Production", editor = "number", default = 200 },
-		{ template = true, id = "min_production_to_work", name = T{830, "Min Production to Work"}, category = "Power Production", editor = "number", default = 1000, help = "If production would fall bellow this number, the building will turn itself off." },
-		{ template = true, id = "dust_storm_bonus_percent", name = T{831, "Dust Storm bonus percent"}, category = "Power Production", editor = "number", default = 50, modifiable = true },
-		{ template = true, id = "great_dust_storm_bonus_percent", name = T{832, "Great Dust Storm bonus percent"}, category = "Power Production", editor = "number", default = 100, modifiable = true },
+		{ template = true, id = "bonus_per_kilometer_elevation", name = T(829, "Bonus Production % per km elevation"), category = "Power Production", editor = "number", default = 200 },
+		{ template = true, id = "min_production_to_work", name = T(830, "Min Production to Work"), category = "Power Production", editor = "number", default = 1000, help = "If production would fall bellow this number, the building will turn itself off." },
+		{ template = true, id = "dust_storm_bonus_percent", name = T(831, "Dust Storm bonus percent"), category = "Power Production", editor = "number", default = 50, modifiable = true },
+		{ template = true, id = "great_dust_storm_bonus_percent", name = T(832, "Great Dust Storm bonus percent"), category = "Power Production", editor = "number", default = 100, modifiable = true },
 	},
 	
 	dust_storm_boost = false,

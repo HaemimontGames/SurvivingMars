@@ -10,7 +10,7 @@ PlaceObj('XTemplate', {
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "CommandCenterTitle",
-			'Title', T{282240748525, --[[XTemplate ColonyStats Title]] "GRAPHS"},
+			'Title', T(282240748525, --[[XTemplate ColonyStats Title]] "GRAPHS"),
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XContentTemplate",
@@ -97,7 +97,9 @@ child:SetIcon(item.off_icon)
 local parent_dlg = GetDialog(GetDialog(child).parent)
 local parent_context = parent_dlg.context
 if (not parent_context.graph_id and i == 1) or parent_context.graph_id == item.id then
+	child.EnableFX = false
 	child:Press()
+	child.EnableFX = true
 	if GetUIStyleGamepad() then
 		CreateRealTimeThread(function()
 			if child.window_state ~= "destroying" then
@@ -107,7 +109,7 @@ if (not parent_context.graph_id and i == 1) or parent_context.graph_id == item.i
 	end
 end
 local hint_gamepad = child.RolloverHintGamepad
-hint_gamepad = hint_gamepad .. " " .. T{9802, "<RB> Inspect"}
+hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
 child:SetRolloverHintGamepad(hint_gamepad)
 end,
 						}, {
@@ -179,7 +181,7 @@ end,
 				}),
 			PlaceObj('XTemplateAction', {
 				'ActionId', "back",
-				'ActionName', T{4254, --[[XTemplate ColonyStats ActionName]] "BACK"},
+				'ActionName', T(4254, --[[XTemplate ColonyStats ActionName]] "BACK"),
 				'ActionToolbar', "ActionBar",
 				'ActionShortcut', "Escape",
 				'ActionGamepad', "ButtonB",

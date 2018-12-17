@@ -127,7 +127,7 @@ end,
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-HideGamepadCursor("ingame_interface_hidden")
+HideGamepadCursor("planetary_view")
 XDialog.Open(self, ...)
 self.context:InitData(self)
 local padding = GetSafeMargins(self:GetPadding())
@@ -138,7 +138,7 @@ end,
 		PlaceObj('XTemplateFunc', {
 			'name', "Close",
 			'func', function (self, ...)
-ShowGamepadCursor("ingame_interface_hidden")
+ShowGamepadCursor("planetary_view")
 XDialog.Close(self, ...)
 end,
 		}),
@@ -158,7 +158,6 @@ end,
 			'HAlign', "left",
 			'VAlign', "center",
 			'MinWidth', 570,
-			'MaxWidth', 570,
 			'MaxHeight', 890,
 			'LayoutMethod', "VList",
 		}, {
@@ -169,7 +168,7 @@ end,
 				PlaceObj('XTemplateTemplate', {
 					'__template', "DialogTitleNew",
 					'Margins', box(55, 0, 0, 0),
-					'Title', T{931381024216, --[[XTemplate PlanetaryView Title]] "PLANETARY VIEW"},
+					'Title', T(931381024216, --[[XTemplate PlanetaryView Title]] "PLANETARY VIEW"),
 					'SmallImage', true,
 				}),
 				PlaceObj('XTemplateWindow', {
@@ -185,7 +184,7 @@ end,
 					}, {
 						PlaceObj('XTemplateAction', {
 							'ActionId', "close",
-							'ActionName', T{4523, --[[XTemplate PlanetaryView ActionName]] "CLOSE"},
+							'ActionName', T(4523, --[[XTemplate PlanetaryView ActionName]] "CLOSE"),
 							'ActionToolbar', "ActionBar",
 							'ActionShortcut', "Escape",
 							'ActionGamepad', "ButtonB",
@@ -193,7 +192,7 @@ end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "expedition",
-							'ActionName', T{960994412922, --[[XTemplate PlanetaryView ActionName]] "SEND EXPEDITION"},
+							'ActionName', T(960994412922, --[[XTemplate PlanetaryView ActionName]] "SEND EXPEDITION"),
 							'ActionToolbar', "ActionBar",
 							'ActionGamepad', "ButtonX",
 							'ActionState', function (self, host)
@@ -215,7 +214,7 @@ end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "cancelExpedition",
-							'ActionName', T{762629505520, --[[XTemplate PlanetaryView ActionName]] "CANCEL EXPEDITION"},
+							'ActionName', T(762629505520, --[[XTemplate PlanetaryView ActionName]] "CANCEL EXPEDITION"),
 							'ActionToolbar', "ActionBar",
 							'ActionGamepad', "ButtonX",
 							'ActionState', function (self, host)
@@ -229,7 +228,7 @@ end,
 						PlaceObj('XTemplateTemplate', {
 							'__template', "DialogTitleSmall",
 							'Margins', box(55, 0, 0, 0),
-							'Title', T{482503373345, --[[XTemplate PlanetaryView Title]] "<white><Coord></white>"},
+							'Title', T(482503373345, --[[XTemplate PlanetaryView Title]] "<white><Coord></white>"),
 							'BigImage', true,
 						}),
 						PlaceObj('XTemplateWindow', {
@@ -249,7 +248,7 @@ end,
 								'HandleMouse', false,
 								'TextStyle', "PGLandingPosDetails",
 								'Translate', true,
-								'Text', T{717906085951, --[[XTemplate PlanetaryView Text]] "<AnomalyDescription>"},
+								'Text', T(717906085951, --[[XTemplate PlanetaryView Text]] "<AnomalyDescription>"),
 								'HideOnEmpty', true,
 							}),
 							PlaceObj('XTemplateWindow', {
@@ -309,7 +308,7 @@ end,
 										'HandleMouse', false,
 										'TextStyle', "PGLandingPosDetails",
 										'Translate', true,
-										'Text', T{434715079508, --[[XTemplate PlanetaryView Text]] "Crew"},
+										'Text', T(434715079508, --[[XTemplate PlanetaryView Text]] "Crew"),
 									}),
 									PlaceObj('XTemplateWindow', {
 										'__condition', function (parent, context) return context.selected_spot.requirements and context.selected_spot.requirements.num_crew end,
@@ -318,7 +317,7 @@ end,
 										'HandleMouse', false,
 										'TextStyle', "PGLandingPosDetails",
 										'Translate', true,
-										'Text', T{240, --[[XTemplate PlanetaryView Text]] "Specialization"},
+										'Text', T(240, --[[XTemplate PlanetaryView Text]] "Specialization"),
 									}),
 									PlaceObj('XTemplateWindow', {
 										'__condition', function (parent, context) return context.selected_spot.requirements and context.selected_spot.requirements.num_drones or context.selected_spot.requirements.rover_type end,
@@ -327,7 +326,7 @@ end,
 										'HandleMouse', false,
 										'TextStyle', "PGLandingPosDetails",
 										'Translate', true,
-										'Text', T{387987656324, --[[XTemplate PlanetaryView Text]] "Additional Inventory"},
+										'Text', T(387987656324, --[[XTemplate PlanetaryView Text]] "Additional Inventory"),
 									}),
 									PlaceObj('XTemplateWindow', {
 										'__class', "XText",
@@ -335,7 +334,7 @@ end,
 										'HandleMouse', false,
 										'TextStyle', "PGLandingPosDetails",
 										'Translate', true,
-										'Text', T{874227567877, --[[XTemplate PlanetaryView Text]] "Expedition time"},
+										'Text', T(874227567877, --[[XTemplate PlanetaryView Text]] "Expedition time"),
 									}),
 									}),
 								PlaceObj('XTemplateWindow', {
@@ -389,7 +388,7 @@ end,
 								PlaceObj('XTemplateTemplate', {
 									'__template', "DialogTitleSmall",
 									'Dock', false,
-									'Title', T{982534758732, --[[XTemplate PlanetaryView Title]] "PROGRESS"},
+									'Title', T(982534758732, --[[XTemplate PlanetaryView Title]] "PROGRESS"),
 								}),
 								PlaceObj('XTemplateWindow', {
 									'Margins', box(55, 0, 0, 0),
@@ -405,7 +404,7 @@ end,
 											'HandleMouse', false,
 											'TextStyle', "PGLandingPosDetails",
 											'Translate', true,
-											'Text', T{667836283259, --[[XTemplate PlanetaryView Text]] "Current Stage"},
+											'Text', T(667836283259, --[[XTemplate PlanetaryView Text]] "Current Stage"),
 										}),
 										PlaceObj('XTemplateWindow', {
 											'__condition', function (parent, context) return context.selected_spot.rocket and context.selected_spot.rocket.expedition_return_time end,
@@ -414,7 +413,7 @@ end,
 											'HandleMouse', false,
 											'TextStyle', "PGLandingPosDetails",
 											'Translate', true,
-											'Text', T{922301447107, --[[XTemplate PlanetaryView Text]] "Remaining Time"},
+											'Text', T(922301447107, --[[XTemplate PlanetaryView Text]] "Remaining Time"),
 										}),
 										PlaceObj('XTemplateWindow', {
 											'__condition', function (parent, context) return context.selected_spot.rocket and context.selected_spot.rocket.is_paused end,
@@ -423,7 +422,7 @@ end,
 											'HandleMouse', false,
 											'TextStyle', "PGLandingPosDetails",
 											'Translate', true,
-											'Text', T{11415, --[[XTemplate PlanetaryView Text]] "Expedition delayed"},
+											'Text', T(11415, --[[XTemplate PlanetaryView Text]] "Expedition delayed"),
 										}),
 										}),
 									PlaceObj('XTemplateWindow', {
@@ -482,7 +481,7 @@ end,
 									'__template', "DialogTitleSmall",
 									'Margins', box(55, 0, 0, 0),
 									'Dock', false,
-									'Title', T{669520482581, --[[XTemplate PlanetaryView Title]] "Trade"},
+									'Title', T(669520482581, --[[XTemplate PlanetaryView Title]] "Trade"),
 								}),
 								PlaceObj('XTemplateWindow', {
 									'__class', "XList",
@@ -507,7 +506,7 @@ end,
 										PlaceObj('XTemplateTemplate', {
 											'__template', "PropName",
 											'Id', "",
-											'Text', T{822920410783, --[[XTemplate PlanetaryView Text]] "Export Amount"},
+											'Text', T(822920410783, --[[XTemplate PlanetaryView Text]] "Export Amount"),
 										}),
 										PlaceObj('XTemplateWindow', {
 											'__class', "XScrollThumb",
@@ -617,14 +616,14 @@ end,
 										PlaceObj('XTemplateTemplate', {
 											'__template', "PropName",
 											'Id', "",
-											'Text', T{121343378374, --[[XTemplate PlanetaryView Text]] "Automated Mode"},
+											'Text', T(121343378374, --[[XTemplate PlanetaryView Text]] "Automated Mode"),
 										}),
 										PlaceObj('XTemplateTemplate', {
 											'__template', "PropValue",
 											'Id', "idOn",
 											'FoldWhenHidden', true,
 											'TextStyle', "ListItem4",
-											'Text', T{6847, --[[XTemplate PlanetaryView Text]] "On"},
+											'Text', T(6847, --[[XTemplate PlanetaryView Text]] "On"),
 										}),
 										PlaceObj('XTemplateTemplate', {
 											'__template', "PropValue",
@@ -632,7 +631,7 @@ end,
 											'Visible', false,
 											'FoldWhenHidden', true,
 											'TextStyle', "ListItem4",
-											'Text', T{6844,--[[XTemplate PlanetaryView Text]] "Off"},
+											'Text', T(6844, --[[XTemplate PlanetaryView Text]] "Off"),
 										}),
 										PlaceObj('XTemplateWindow', {
 											'__class', "XImage",
@@ -703,11 +702,11 @@ end,
 								'__template', "DialogTitleSmall",
 								'Margins', box(55, 0, 0, 0),
 								'Dock', false,
-								'Title', T{11718, --[[XTemplate PlanetaryView Title]] "Select Rocket"},
+								'Title', T(11718, --[[XTemplate PlanetaryView Title]] "Select Rocket"),
 							}),
 							PlaceObj('XTemplateWindow', {
 								'Id', "idContent",
-								'MinHeight', 577,
+								'MinHeight', 482,
 								'LayoutMethod', "VList",
 							}, {
 								PlaceObj('XTemplateWindow', {
@@ -717,7 +716,7 @@ end,
 									'HandleMouse', false,
 									'TextStyle', "PGLandingPosDetails",
 									'Translate', true,
-									'Text', T{795779197869, --[[XTemplate PlanetaryView Text]] "Available rockets on Earth <white><AvailableRockets></white>"},
+									'Text', T(795779197869, --[[XTemplate PlanetaryView Text]] "Available rockets on Earth <white><AvailableRockets></white>"),
 									'HideOnEmpty', true,
 								}),
 								PlaceObj('XTemplateWindow', {
@@ -745,7 +744,7 @@ child:SetEnabled(item:IsRocketLanded())
 end,
 									}, {
 										PlaceObj('XTemplateTemplate', {
-											'__template', "MenuEntrySmall",
+											'__template', "ResupplyCategoryItem",
 											'OnPress', function (self, gamepad)
 local dlg = GetDialog(self)
 local additional_params
@@ -757,6 +756,14 @@ SendRocketToMarsPoint(self.context, dlg.context.selected_spot, dlg, nil, additio
 end,
 										}, {
 											PlaceObj('XTemplateFunc', {
+												'name', "OnMouseButtonDoubleClick(self, pos, button)",
+												'func', function (self, pos, button)
+if button == "L" then
+	self:Press()
+end
+end,
+											}),
+											PlaceObj('XTemplateFunc', {
 												'name', "OnMouseButtonDown(self, pos, button)",
 												'func', function (self, pos, button)
 if button == "L" then
@@ -764,14 +771,6 @@ if button == "L" then
 	parent:SetSelection(table.find(parent, self))
 	local dlg = GetDialog(parent)
 	dlg:UpdateActionViews(dlg.idActionBar)
-end
-end,
-											}),
-											PlaceObj('XTemplateFunc', {
-												'name', "OnMouseButtonDoubleClick(self, pos, button)",
-												'func', function (self, pos, button)
-if button == "L" then
-	self:Press()
 end
 end,
 											}),
@@ -807,10 +806,12 @@ end,
 							'run', function (self, parent, context)
 local dlg = GetDialog(parent)
 local obj = dlg.context
+local content = dlg:ResolveId("idContent")
 local trade_part = dlg:ResolveId("idTradePart")
 local list = parent:ResolveId("idList")
 if not trade_part then
 	list:SetGamepadInitialSelection()
+	content:SetMinHeight(642)
 end
 if obj.expedition_rocket then
 	list:SetForceInitialSelection(true)
@@ -819,15 +820,22 @@ end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "back",
-							'ActionName', T{4254, --[[XTemplate PlanetaryView ActionName]] "BACK"},
+							'ActionName', T(4254, --[[XTemplate PlanetaryView ActionName]] "BACK"),
 							'ActionToolbar', "ActionBar",
 							'ActionShortcut', "Escape",
 							'ActionGamepad', "ButtonB",
 							'OnActionEffect', "back",
+							'OnAction', function (self, host, source)
+local param = GetDialogModeParam(host) 
+if param and param.cooldown_action then
+	g_NegotiationHistory[host.context.selected_spot.id][param.cooldown_action] = nil
+end
+SetBackDialogMode(host)
+end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "send",
-							'ActionName', T{221817248681, --[[XTemplate PlanetaryView ActionName]] "SEND"},
+							'ActionName', T(221817248681, --[[XTemplate PlanetaryView ActionName]] "SEND"),
 							'ActionToolbar', "ActionBar",
 							'ActionGamepad', "ButtonA",
 							'ActionState', function (self, host)

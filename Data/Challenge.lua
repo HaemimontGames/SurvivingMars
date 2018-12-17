@@ -16,7 +16,7 @@ return n
 end,
 	TrackProgress = true,
 	commander = "author",
-	description = T{886987306987, --[[Challenge Default ChinaLivingQuarters description]] "Have 4 fully occupied Living Complexes"},
+	description = T(886987306987, --[[Challenge Default ChinaLivingQuarters description]] "Have 4 fully occupied Living Complexes"),
 	gamerule1 = "StoryBitsDisabled",
 	group = "Default",
 	id = "ChinaLivingQuarters",
@@ -26,7 +26,7 @@ end,
 	sponsor = "CNSA",
 	time_completed = 21600000,
 	time_perfected = 9360000,
-	title = T{461830129252, --[[Challenge Default ChinaLivingQuarters title]] "Housing Bubble"},
+	title = T(461830129252, --[[Challenge Default ChinaLivingQuarters title]] "Housing Bubble"),
 })
 
 PlaceObj('Challenge', {
@@ -35,7 +35,7 @@ WaitMsg("ColonyApprovalPassed")
 end,
 	SortKey = 3,
 	commander = "rocketscientist",
-	description = T{153735343793, --[[Challenge Default USAFounderStage description]] "Complete the Founder Stage"},
+	description = T(153735343793, --[[Challenge Default USAFounderStage description]] "Complete the Founder Stage"),
 	gamerule1 = "NoDisasters",
 	gamerule2 = "StoryBitsDisabled",
 	group = "Default",
@@ -46,7 +46,7 @@ end,
 	sponsor = "NASA",
 	time_completed = 8640000,
 	time_perfected = 4320000,
-	title = T{463998263208, --[[Challenge Default USAFounderStage title]] "Founding Fathers"},
+	title = T(463998263208, --[[Challenge Default USAFounderStage title]] "Founding Fathers"),
 })
 
 PlaceObj('Challenge', {
@@ -58,7 +58,7 @@ return total / const.ResourceScale
 end,
 	TrackProgress = true,
 	commander = "astrogeologist",
-	description = T{528782053501, --[[Challenge Default BlueSunExportedRareMetals description]] "Export 30 Rare Metals"},
+	description = T(528782053501, --[[Challenge Default BlueSunExportedRareMetals description]] "Export 30 Rare Metals"),
 	gamerule1 = "NoDisasters",
 	gamerule2 = "StoryBitsDisabled",
 	group = "Default",
@@ -69,7 +69,7 @@ end,
 	sponsor = "BlueSun",
 	time_completed = 21600000,
 	time_perfected = 7200000,
-	title = T{455697218349, --[[Challenge Default BlueSunExportedRareMetals title]] "The Gold Must Flow"},
+	title = T(455697218349, --[[Challenge Default BlueSunExportedRareMetals title]] "The Gold Must Flow"),
 })
 
 PlaceObj('Challenge', {
@@ -85,7 +85,7 @@ return count
 end,
 	TrackProgress = true,
 	commander = "rocketscientist",
-	description = T{238728162719, --[[Challenge Default NewArkChurchMartianborns description]] "Have 5 Martianborn colonists"},
+	description = T(238728162719, --[[Challenge Default NewArkChurchMartianborns description]] "Have 5 Martianborn colonists"),
 	gamerule1 = "StoryBitsDisabled",
 	group = "Default",
 	id = "NewArkChurchMartianborns",
@@ -95,7 +95,7 @@ end,
 	sponsor = "NewArk",
 	time_completed = 18720000,
 	time_perfected = 9360000,
-	title = T{327559036075, --[[Challenge Default NewArkChurchMartianborns title]] "Baby Steps"},
+	title = T(327559036075, --[[Challenge Default NewArkChurchMartianborns title]] "Baby Steps"),
 })
 
 PlaceObj('Challenge', {
@@ -127,7 +127,7 @@ end,
 	SortKey = 6,
 	TargetValue = 100,
 	commander = "psychologist",
-	description = T{492192262201, --[[Challenge Default IndiaDomePopulation description]] "Have a Dome with population 100 and no homeless citizens"},
+	description = T(492192262201, --[[Challenge Default IndiaDomePopulation description]] "Have a Dome with population 100 and no homeless citizens"),
 	gamerule1 = "StoryBitsDisabled",
 	group = "Default",
 	id = "IndiaDomePopulation",
@@ -137,7 +137,7 @@ end,
 	sponsor = "ISRO",
 	time_completed = 50400000,
 	time_perfected = 25200000,
-	title = T{384677172418, --[[Challenge Default IndiaDomePopulation title]] "City Building"},
+	title = T(384677172418, --[[Challenge Default IndiaDomePopulation title]] "City Building"),
 })
 
 PlaceObj('Challenge', {
@@ -148,7 +148,7 @@ return  (g_ResourceProducedTotal.Concrete or 0) / const.ResourceScale
 end,
 	TrackProgress = true,
 	commander = "oligarch",
-	description = T{990026297222, --[[Challenge Default RussiaProducedConcrete description]] "Produce 1000 Concrete"},
+	description = T(990026297222, --[[Challenge Default RussiaProducedConcrete description]] "Produce 1000 Concrete"),
 	gamerule1 = "LongRide",
 	gamerule2 = "StoryBitsDisabled",
 	group = "Default",
@@ -159,7 +159,7 @@ end,
 	sponsor = "Roscosmos",
 	time_completed = 24480000,
 	time_perfected = 12240000,
-	title = T{418870631516, --[[Challenge Default RussiaProducedConcrete title]] "Russian Concrete"},
+	title = T(418870631516, --[[Challenge Default RussiaProducedConcrete title]] "Russian Concrete"),
 })
 
 PlaceObj('Challenge', {
@@ -187,7 +187,7 @@ while true do
 end
 end,
 	commander = "psychologist",
-	description = T{835293560099, --[[Challenge Default SpaceYAdvancedResources description]] "Produce 5 Polymers, 5 Machine Parts and 5 Electronics on Mars"},
+	description = T(835293560099, --[[Challenge Default SpaceYAdvancedResources description]] "Produce 5 Polymers, 5 Machine Parts and 5 Electronics on Mars"),
 	gamerule1 = "StoryBitsDisabled",
 	group = "Default",
 	id = "SpaceYAdvancedResources",
@@ -197,7 +197,7 @@ end,
 	sponsor = "SpaceY",
 	time_completed = 21600000,
 	time_perfected = 10800000,
-	title = T{109451622778, --[[Challenge Default SpaceYAdvancedResources title]] "The Means of Production"},
+	title = T(109451622778, --[[Challenge Default SpaceYAdvancedResources title]] "The Means of Production"),
 })
 
 PlaceObj('Challenge', {
@@ -215,7 +215,7 @@ return n
 end,
 	TrackProgress = true,
 	commander = "author",
-	description = T{670352505144, --[[Challenge Default EuropeResearchedTechs description]] "Research 25 technologies (repeatable technologies are counted once)"},
+	description = T(670352505144, --[[Challenge Default EuropeResearchedTechs description]] "Research 25 technologies (repeatable technologies are counted once)"),
 	gamerule1 = "StoryBitsDisabled",
 	group = "Default",
 	id = "EuropeResearchedTechs",
@@ -225,11 +225,11 @@ end,
 	sponsor = "ESA",
 	time_completed = 28800000,
 	time_perfected = 14400000,
-	title = T{611257797429, --[[Challenge Default EuropeResearchedTechs title]] "Tech Boost"},
+	title = T(611257797429, --[[Challenge Default EuropeResearchedTechs title]] "Tech Boost"),
 })
 
 PlaceObj('Challenge', {
-	ProgressText = T{10882, --[[Challenge Default NewArkChurchManyMartianborns ProgressText]] "Average Comfort: <current>/<target>"},
+	ProgressText = T(10882, --[[Challenge Default NewArkChurchManyMartianborns ProgressText]] "Average Comfort: <current>/<target>"),
 	Run = function (self)
 while true do
 	Sleep(1000)
@@ -251,7 +251,7 @@ end,
 return #(UICity.labels.Colonist or empty_table) >= 50
 end,
 	commander = "doctor",
-	description = T{213053799455, --[[Challenge Default NewArkChurchManyMartianborns description]] "Have a colony with at least 50 Colonists with average Comfort 80"},
+	description = T(213053799455, --[[Challenge Default NewArkChurchManyMartianborns description]] "Have a colony with at least 50 Colonists with average Comfort 80"),
 	gamerule1 = "StoryBitsDisabled",
 	group = "Default",
 	id = "NewArkChurchManyMartianborns",
@@ -261,11 +261,11 @@ end,
 	sponsor = "NewArk",
 	time_completed = 57600000,
 	time_perfected = 28800000,
-	title = T{645223119450, --[[Challenge Default NewArkChurchManyMartianborns title]] "New Eden"},
+	title = T(645223119450, --[[Challenge Default NewArkChurchManyMartianborns title]] "New Eden"),
 })
 
 PlaceObj('Challenge', {
-	ProgressText = T{10876, --[[Challenge Default SpaceYMoneyFromTourists ProgressText]] "Progress: <funding(current)>/<funding(target)>"},
+	ProgressText = T(10876, --[[Challenge Default SpaceYMoneyFromTourists ProgressText]] "Progress: <funding(current)>/<funding(target)>"),
 	Run = function (self)
 while true do
 	Sleep(1000)
@@ -284,7 +284,7 @@ return total.Tourist or 0
 end,
 	TrackProgress = true,
 	commander = "rocketscientist",
-	description = T{140613558769, --[[Challenge Default SpaceYMoneyFromTourists description]] "Earn $2,000 M  from Tourists"},
+	description = T(140613558769, --[[Challenge Default SpaceYMoneyFromTourists description]] "Earn $2,000 M  from Tourists"),
 	gamerule1 = "StoryBitsDisabled",
 	group = "Default",
 	id = "SpaceYMoneyFromTourists",
@@ -294,7 +294,7 @@ end,
 	sponsor = "SpaceY",
 	time_completed = 57600000,
 	time_perfected = 28800000,
-	title = T{668546976180, --[[Challenge Default SpaceYMoneyFromTourists title]] "Tourist Trap"},
+	title = T(668546976180, --[[Challenge Default SpaceYMoneyFromTourists title]] "Tourist Trap"),
 })
 
 PlaceObj('Challenge', {
@@ -314,7 +314,7 @@ return #(UICity.labels.Colonist or empty_table)
 end,
 	TrackProgress = true,
 	commander = "oligarch",
-	description = T{136641671099, --[[Challenge Default ChinaReachedPopulation description]] "Have a population of 200 colonists"},
+	description = T(136641671099, --[[Challenge Default ChinaReachedPopulation description]] "Have a population of 200 colonists"),
 	gamerule1 = "LongRide",
 	gamerule2 = "StoryBitsDisabled",
 	group = "Default",
@@ -325,7 +325,7 @@ end,
 	sponsor = "CNSA",
 	time_completed = 57600000,
 	time_perfected = 28800000,
-	title = T{351190390137, --[[Challenge Default ChinaReachedPopulation title]] "Serve the People"},
+	title = T(351190390137, --[[Challenge Default ChinaReachedPopulation title]] "Serve the People"),
 })
 
 PlaceObj('Challenge', {
@@ -368,7 +368,7 @@ end
 end,
 	SortKey = 14,
 	commander = "astrogeologist",
-	description = T{902770126715, --[[Challenge Default EuropeAnalyzedAllAnomalies description]] "Analyze all anomalies"},
+	description = T(902770126715, --[[Challenge Default EuropeAnalyzedAllAnomalies description]] "Analyze all anomalies"),
 	gamerule1 = "WinterIsComing",
 	gamerule2 = "StoryBitsDisabled",
 	group = "Default",
@@ -379,7 +379,7 @@ end,
 	sponsor = "ESA",
 	time_completed = 57600000,
 	time_perfected = 28800000,
-	title = T{291361258859, --[[Challenge Default EuropeAnalyzedAllAnomalies title]] "Under the Microscope"},
+	title = T(291361258859, --[[Challenge Default EuropeAnalyzedAllAnomalies title]] "Under the Microscope"),
 })
 
 PlaceObj('Challenge', {
@@ -413,7 +413,7 @@ return n
 end,
 	TrackProgress = true,
 	commander = "ecologist",
-	description = T{259694468737, --[[Challenge Default IndiaFusionGenerators description]] "Have 4 Fusion Reactors fully staffed and on 3 shifts"},
+	description = T(259694468737, --[[Challenge Default IndiaFusionGenerators description]] "Have 4 Fusion Reactors fully staffed and on 3 shifts"),
 	gamerule1 = "WinterIsComing",
 	gamerule2 = "StoryBitsDisabled",
 	group = "Default",
@@ -424,11 +424,11 @@ end,
 	sponsor = "ISRO",
 	time_completed = 100800000,
 	time_perfected = 50400000,
-	title = T{170425616626, --[[Challenge Default IndiaFusionGenerators title]] "Cold Fusion"},
+	title = T(170425616626, --[[Challenge Default IndiaFusionGenerators title]] "Cold Fusion"),
 })
 
 PlaceObj('Challenge', {
-	ProgressText = T{10877, --[[Challenge Default BlueSunAccumulatedMoney ProgressText]] "Progress: <funding(current)>/<funding(target)>"},
+	ProgressText = T(10877, --[[Challenge Default BlueSunAccumulatedMoney ProgressText]] "Progress: <funding(current)>/<funding(target)>"),
 	Run = function (self)
 while true do
 	WaitMsg("FundingChanged")
@@ -445,7 +445,7 @@ return UICity.funding
 end,
 	TrackProgress = true,
 	commander = "politician",
-	description = T{802150886111, --[[Challenge Default BlueSunAccumulatedMoney description]] "Accumulate $35,000 M"},
+	description = T(802150886111, --[[Challenge Default BlueSunAccumulatedMoney description]] "Accumulate $35,000 M"),
 	gamerule1 = "Inflation",
 	gamerule2 = "StoryBitsDisabled",
 	group = "Default",
@@ -456,7 +456,7 @@ end,
 	sponsor = "BlueSun",
 	time_completed = 100800000,
 	time_perfected = 57600000,
-	title = T{191449868184, --[[Challenge Default BlueSunAccumulatedMoney title]] "Fiscal Profits"},
+	title = T(191449868184, --[[Challenge Default BlueSunAccumulatedMoney title]] "Fiscal Profits"),
 })
 
 PlaceObj('Challenge', {
@@ -473,7 +473,7 @@ end
 end,
 	SortKey = 18,
 	commander = "doctor",
-	description = T{831840869483, --[[Challenge Default RussiaWorkshopVariety description]] "Have a VR Workshop, Art Workshop and Biorobotics Workshop"},
+	description = T(831840869483, --[[Challenge Default RussiaWorkshopVariety description]] "Have a VR Workshop, Art Workshop and Biorobotics Workshop"),
 	gamerule1 = "StoryBitsDisabled",
 	group = "Default",
 	id = "RussiaWorkshopVariety",
@@ -483,7 +483,7 @@ end,
 	sponsor = "Roscosmos",
 	time_completed = 108000000,
 	time_perfected = 54000000,
-	title = T{501393143773, --[[Challenge Default RussiaWorkshopVariety title]] "Vocation Destination"},
+	title = T(501393143773, --[[Challenge Default RussiaWorkshopVariety title]] "Vocation Destination"),
 })
 
 PlaceObj('Challenge', {
@@ -497,7 +497,7 @@ end
 end,
 	SortKey = 19,
 	commander = "politician",
-	description = T{496004694621, --[[Challenge Default USAConstructedWonder description]] "Construct a Wonder"},
+	description = T(496004694621, --[[Challenge Default USAConstructedWonder description]] "Construct a Wonder"),
 	gamerule1 = "StoryBitsDisabled",
 	group = "Default",
 	id = "USAConstructedWonder",
@@ -507,7 +507,7 @@ end,
 	sponsor = "NASA",
 	time_completed = 86400000,
 	time_perfected = 43200000,
-	title = T{551704435140, --[[Challenge Default USAConstructedWonder title]] "Wonderful Life"},
+	title = T(551704435140, --[[Challenge Default USAConstructedWonder title]] "Wonderful Life"),
 })
 
 PlaceObj('Challenge', {
@@ -539,7 +539,7 @@ return n
 end,
 	TrackProgress = true,
 	commander = "rocketscientist",
-	description = T{864506930463, --[[Challenge Default USAManyDomesAndColonists description]] "Have 5 Domes, each with population of 200 Colonists or more"},
+	description = T(864506930463, --[[Challenge Default USAManyDomesAndColonists description]] "Have 5 Domes, each with population of 200 Colonists or more"),
 	gamerule1 = "EndlessSupply",
 	gamerule2 = "StoryBitsDisabled",
 	group = "Default",
@@ -550,7 +550,7 @@ end,
 	sponsor = "NASA",
 	time_completed = 144000000,
 	time_perfected = 72000000,
-	title = T{610101463949, --[[Challenge Default USAManyDomesAndColonists title]] "A New Nation"},
+	title = T(610101463949, --[[Challenge Default USAManyDomesAndColonists title]] "A New Nation"),
 })
 
 PlaceObj('Challenge', {
@@ -570,7 +570,7 @@ return #(UICity.labels.scientist or empty_table)
 end,
 	TrackProgress = true,
 	commander = "ecologist",
-	description = T{547935715802, --[[Challenge Default EuropeScientists description]] "Have 200 Scientists"},
+	description = T(547935715802, --[[Challenge Default EuropeScientists description]] "Have 200 Scientists"),
 	gamerule1 = "StoryBitsDisabled",
 	group = "Default",
 	id = "EuropeScientists",
@@ -580,7 +580,7 @@ end,
 	sponsor = "ESA",
 	time_completed = 172800000,
 	time_perfected = 86400000,
-	title = T{799852804431, --[[Challenge Default EuropeScientists title]] "Campus Life"},
+	title = T(799852804431, --[[Challenge Default EuropeScientists title]] "Campus Life"),
 })
 
 PlaceObj('Challenge', {
@@ -600,7 +600,7 @@ return #(UICity.labels.Colonist or empty_table)
 end,
 	TrackProgress = true,
 	commander = "doctor",
-	description = T{810118153279, --[[Challenge Default NewArkChurchNoImigration description]] "Have 200 Colonists"},
+	description = T(810118153279, --[[Challenge Default NewArkChurchNoImigration description]] "Have 200 Colonists"),
 	gamerule1 = "TheLastArk",
 	gamerule2 = "StoryBitsDisabled",
 	group = "Default",
@@ -611,7 +611,7 @@ end,
 	sponsor = "NewArk",
 	time_completed = 172800000,
 	time_perfected = 86400000,
-	title = T{445732820214, --[[Challenge Default NewArkChurchNoImigration title]] "Ark 2.0"},
+	title = T(445732820214, --[[Challenge Default NewArkChurchNoImigration title]] "Ark 2.0"),
 })
 
 PlaceObj('Challenge', {
@@ -623,7 +623,7 @@ return  (g_ResourceProducedTotal.Electronics or 0) / const.ResourceScale
 end,
 	TrackProgress = true,
 	commander = "author",
-	description = T{457238895348, --[[Challenge Default RussiaExportedRareMetals description]] "Produce 250 Electronics"},
+	description = T(457238895348, --[[Challenge Default RussiaExportedRareMetals description]] "Produce 250 Electronics"),
 	gamerule1 = "StoryBitsDisabled",
 	group = "Default",
 	id = "RussiaExportedRareMetals",
@@ -633,7 +633,7 @@ end,
 	sponsor = "Roscosmos",
 	time_completed = 144000000,
 	time_perfected = 72000000,
-	title = T{331673519012, --[[Challenge Default RussiaExportedRareMetals title]] "Elbrus++"},
+	title = T(331673519012, --[[Challenge Default RussiaExportedRareMetals title]] "Elbrus++"),
 })
 
 PlaceObj('Challenge', {
@@ -653,7 +653,7 @@ end
 end,
 	SortKey = 26,
 	commander = "inventor",
-	description = T{229016730636, --[[Challenge Default BlueSunUpgradedMoholeMine description]] "Have a fully upgraded Mohole Mine"},
+	description = T(229016730636, --[[Challenge Default BlueSunUpgradedMoholeMine description]] "Have a fully upgraded Mohole Mine"),
 	gamerule1 = "StoryBitsDisabled",
 	group = "Default",
 	id = "BlueSunUpgradedMoholeMine",
@@ -663,7 +663,7 @@ end,
 	sponsor = "BlueSun",
 	time_completed = 180000000,
 	time_perfected = 108000000,
-	title = T{910413199776, --[[Challenge Default BlueSunUpgradedMoholeMine title]] "Drill Baby, Drill"},
+	title = T(910413199776, --[[Challenge Default BlueSunUpgradedMoholeMine title]] "Drill Baby, Drill"),
 })
 
 PlaceObj('Challenge', {
@@ -676,7 +676,7 @@ return UICity:CountBuildings("Wonders")
 end,
 	TrackProgress = true,
 	commander = "astrogeologist",
-	description = T{756340045094, --[[Challenge Default ChinaSevenWonders description]] "Have 7 Wonders"},
+	description = T(756340045094, --[[Challenge Default ChinaSevenWonders description]] "Have 7 Wonders"),
 	gamerule1 = "StoryBitsDisabled",
 	group = "Default",
 	id = "ChinaSevenWonders",
@@ -686,7 +686,7 @@ end,
 	sponsor = "CNSA",
 	time_completed = 180000000,
 	time_perfected = 108000000,
-	title = T{345588760269, --[[Challenge Default ChinaSevenWonders title]] "Seven"},
+	title = T(345588760269, --[[Challenge Default ChinaSevenWonders title]] "Seven"),
 })
 
 PlaceObj('Challenge', {
@@ -718,7 +718,7 @@ return n
 end,
 	TrackProgress = true,
 	commander = "politician",
-	description = T{660322242409, --[[Challenge Default SpaceYResearchedTechs description]] "Research 100 Technologies (repeatable technologies are counted once)"},
+	description = T(660322242409, --[[Challenge Default SpaceYResearchedTechs description]] "Research 100 Technologies (repeatable technologies are counted once)"),
 	gamerule1 = "ChaosTheory",
 	gamerule2 = "StoryBitsDisabled",
 	group = "Default",
@@ -729,7 +729,7 @@ end,
 	sponsor = "SpaceY",
 	time_completed = 180000000,
 	time_perfected = 108000000,
-	title = T{150528747155, --[[Challenge Default SpaceYResearchedTechs title]] "The Boundaries of Knowledge"},
+	title = T(150528747155, --[[Challenge Default SpaceYResearchedTechs title]] "The Boundaries of Knowledge"),
 })
 
 PlaceObj('Challenge', {
@@ -749,7 +749,7 @@ return #(UICity.labels.Colonist or empty_table)
 end,
 	TrackProgress = true,
 	commander = "oligarch",
-	description = T{342668768307, --[[Challenge Default IndiaHighPopulation description]] "Reach population of 2000"},
+	description = T(342668768307, --[[Challenge Default IndiaHighPopulation description]] "Reach population of 2000"),
 	gamerule1 = "RebelYell",
 	gamerule2 = "StoryBitsDisabled",
 	group = "Default",
@@ -760,6 +760,6 @@ end,
 	sponsor = "ISRO",
 	time_completed = 216000000,
 	time_perfected = 144000000,
-	title = T{726344005353, --[[Challenge Default IndiaHighPopulation title]] "Civil Disorder"},
+	title = T(726344005353, --[[Challenge Default IndiaHighPopulation title]] "Civil Disorder"),
 })
 

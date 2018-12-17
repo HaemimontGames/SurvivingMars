@@ -9,7 +9,7 @@ PlaceObj('XTemplate', {
 	}, {
 		PlaceObj('XTemplateAction', {
 			'ActionId', "close",
-			'ActionName', T{4523, --[[XTemplate XIGMenu ActionName]] "CLOSE"},
+			'ActionName', T(4523, --[[XTemplate XIGMenu ActionName]] "CLOSE"),
 			'ActionToolbar', "ActionBar",
 			'ActionShortcut', "Escape",
 			'ActionGamepad', "ButtonB",
@@ -19,7 +19,7 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "DialogTitleNew",
 			'Margins', box(115, 0, 0, 0),
-			'Title', T{552944862587, --[[XTemplate XIGMenu Title]] "GAME OPTIONS"},
+			'Title', T(552944862587, --[[XTemplate XIGMenu Title]] "GAME OPTIONS"),
 			'SmallImage', true,
 		}),
 		PlaceObj('XTemplateWindow', {
@@ -58,7 +58,7 @@ end,
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "idSaveGame",
-					'ActionName', T{11476, --[[XTemplate XIGMenu ActionName]] "Save Game"},
+					'ActionName', T(11476, --[[XTemplate XIGMenu ActionName]] "Save Game"),
 					'ActionToolbar', "mainmenu",
 					'ActionState', function (self, host)
 return (PlayWithoutStorage() or not not g_Tutorial) and "disabled"
@@ -68,7 +68,7 @@ end,
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "idLoadGame",
-					'ActionName', T{1009, --[[XTemplate XIGMenu ActionName]] "Load Game"},
+					'ActionName', T(1009, --[[XTemplate XIGMenu ActionName]] "Load Game"),
 					'ActionToolbar', "mainmenu",
 					'ActionState', function (self, host)
 return IsLoadButtonDisabled(host.context) and "disabled"
@@ -78,14 +78,14 @@ end,
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "idOptions",
-					'ActionName', T{11477, --[[XTemplate XIGMenu ActionName]] "Options"},
+					'ActionName', T(11477, --[[XTemplate XIGMenu ActionName]] "Options"),
 					'ActionToolbar', "mainmenu",
 					'OnActionEffect', "mode",
 					'OnActionParam', "Options",
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "idPhotoMode",
-					'ActionName', T{11478, --[[XTemplate XIGMenu ActionName]] "Photo Mode"},
+					'ActionName', T(11478, --[[XTemplate XIGMenu ActionName]] "Photo Mode"),
 					'ActionToolbar', "mainmenu",
 					'OnAction', function (self, host, source)
 CloseIngameMainMenu()
@@ -98,14 +98,14 @@ end,
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "idEncyclopedia",
-					'ActionName', T{7384, --[[XTemplate XIGMenu ActionName]] "Encyclopedia"},
+					'ActionName', T(7384, --[[XTemplate XIGMenu ActionName]] "Encyclopedia"),
 					'ActionToolbar', "mainmenu",
 					'OnActionEffect', "mode",
 					'OnActionParam', "Encyclopedia",
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "idAchievements",
-					'ActionName', T{697482021580, --[[XTemplate XIGMenu ActionName]] "Achievements"},
+					'ActionName', T(697482021580, --[[XTemplate XIGMenu ActionName]] "Achievements"),
 					'ActionToolbar', "mainmenu",
 					'OnActionEffect', "mode",
 					'OnActionParam', "Achievements",
@@ -113,11 +113,11 @@ end,
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "idRestartMap",
-					'ActionName', T{1136, --[[XTemplate XIGMenu ActionName]] "Restart Map"},
+					'ActionName', T(1136, --[[XTemplate XIGMenu ActionName]] "Restart Map"),
 					'ActionToolbar', "mainmenu",
 					'OnAction', function (self, host, source)
 CreateRealTimeThread(function()
-	if WaitMarsQuestion(nil, T{1136, "Restart Map"}, T{1137, "Are you sure you want to restart the map?"}, T{1138, "Yes"}, T{1139, "No"}, "UI/Messages/space.tga") == "ok" then
+	if WaitMarsQuestion(nil, T(1136, "Restart Map"), T(1137, "Are you sure you want to restart the map?"), T(1138, "Yes"), T(1139, "No"), "UI/Messages/space.tga") == "ok" then
 		LoadingScreenOpen("idLoadingScreen", "restart map")
 		host:Close()
 		TelemetryRestartSession()
@@ -140,11 +140,11 @@ end,
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "idMainMenu",
-					'ActionName', T{1010, --[[XTemplate XIGMenu ActionName]] "Main Menu"},
+					'ActionName', T(1010, --[[XTemplate XIGMenu ActionName]] "Main Menu"),
 					'ActionToolbar', "mainmenu",
 					'OnAction', function (self, host, source)
 CreateRealTimeThread(function()
-	if WaitMarsQuestion(nil, T{6779, "Warning"}, T{1141, "Exit to the main menu?"}, T{1138, "Yes"}, T{1139, "No"}, "UI/Messages/space.tga") == "ok" then
+	if WaitMarsQuestion(nil, T(6779, "Warning"), T(1141, "Exit to the main menu?"), T(1138, "Yes"), T(1139, "No"), "UI/Messages/space.tga") == "ok" then
 		LoadingScreenOpen("idLoadingScreen", "main menu")
 		host:Close()
 		OpenPreGameMainMenu()
@@ -155,7 +155,7 @@ end,
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "idQuit",
-					'ActionName', T{11479, --[[XTemplate XIGMenu ActionName]] "Quit"},
+					'ActionName', T(11479, --[[XTemplate XIGMenu ActionName]] "Quit"),
 					'ActionToolbar', "mainmenu",
 					'OnAction', function (self, host, source)
 QuitGame()

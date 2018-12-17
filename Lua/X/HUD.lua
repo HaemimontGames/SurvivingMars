@@ -181,7 +181,10 @@ end
 --button callbacks
 
 function HUD.idBuildOnPress()
-	ToggleXBuildMenu(not GetUIStyleGamepad(), "close")
+	if not GetUIStyleGamepad() then
+		g_BuildMenuHUDClicksCount = g_BuildMenuHUDClicksCount + 1
+	end
+	ToggleXBuildMenu(false, "close")
 end
 
 function HUD.idOverviewOnPress()
@@ -200,7 +203,7 @@ end
 
 function HUD:GetCurrentResearchName()
 	local current_research = UICity and UICity:GetResearchInfo()
-	return current_research and TechDef[current_research].display_name or T{6868, "None"}
+	return current_research and TechDef[current_research].display_name or T(6868, "None")
 end
 
 function HUD:GetCurrentResearchProgress()

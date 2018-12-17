@@ -83,16 +83,18 @@ DefineClass.CheckBuildingCount = {
 			editor = "number", default = 0, 
 			buttons = { { "Param", "PickParam" } }, },
 	},
-	TextSingular = T{828647965498, "1 <building_name>"},
-	TextPlural = T{438871007969, "<amount> <building_name_plural>"},
+	TextSingular = T(828647965498, "1 <building_name>"),
+	TextPlural = T(438871007969, "<amount> <building_name_plural>"),
 }
 
 function CheckBuildingCount:__eval(obj, context)
 	local count = 0
 	local amount = self:ResolveValue("Amount", context)
-	for _, building in ipairs(UICity.labels[self.Building] or empty_table) do
-		if ClassTemplates.Building[building] and not building.destroyed then
-			count = count + 1
+	if ClassTemplates.Building[self.Building] then
+		for _, building in ipairs(UICity.labels[self.Building] or empty_table) do
+			if not building.destroyed then
+				count = count + 1
+			end
 		end
 	end
 	return count >= amount
@@ -103,8 +105,8 @@ function CheckBuildingCount:GetDescription(obj, context)
 	local amount = self:ResolveValue("Amount", context)
 	if not bld then
 		return amount == 1 and
-			T{self.TextSingular, building_name = T{5426, --[[Label Building display_name]] "Building"}} or
-			T{self.TextPlural, amount = amount, building_name_plural = T{3980, "Buildings"}}
+			T{self.TextSingular, building_name = T(5426, --[[Label Building display_name]] "Building")} or
+			T{self.TextPlural, amount = amount, building_name_plural = T(3980, "Buildings")}
 	end
 	return amount == 1 and
 		T{self.TextSingular, building_name = bld.display_name} or
@@ -121,10 +123,10 @@ DefineClass.CheckColonistCount = {
 		{ id = "Trait", 
 			editor = "combo", default = false, items = function (self) return TraitsCombo() end, },
 	},
-	TextSingular = T{189508201261, "1 Colonist"},
-	TextPlural = T{672624091330, "<amount> Colonists"},
-	TextTraitSingular = T{313070027412, "1 <trait> Colonist"},
-	TextTraitPlural = T{330446983216, "<amount> <trait> Colonists"},
+	TextSingular = T(189508201261, "1 Colonist"),
+	TextPlural = T(672624091330, "<amount> Colonists"),
+	TextTraitSingular = T(313070027412, "1 <trait> Colonist"),
+	TextTraitPlural = T(330446983216, "<amount> <trait> Colonists"),
 }
 
 function CheckColonistCount:__eval(obj, context)
@@ -164,7 +166,7 @@ DefineClass.CheckColonistStat = {
 			editor = "number", default = 0, 
 			buttons = { { "Param", "PickParam" } }, scale = "Stat", step = 1000, min = 0, max = 100000, },
 		{ id = "Description", 
-			editor = "text", default = T{297267954147, "<Stat> <Condition> <Amount>"}, translate = true, },
+			editor = "text", default = T(297267954147, "<Stat> <Condition> <Amount>"), translate = true, },
 	},
 }
 
@@ -254,7 +256,7 @@ DefineClass.CheckObjectCount = {
 			editor = "number", default = false, 
 			buttons = { { "Param", "PickParam" } }, },
 		{ id = "Description", 
-			editor = "text", default = T{569587504378, "<ObjName> count <Condition> <Amount>"}, translate = true, },
+			editor = "text", default = T(569587504378, "<ObjName> count <Condition> <Amount>"), translate = true, },
 	},
 }
 
@@ -317,7 +319,7 @@ DefineClass.CheckResource = {
 			editor = "number", default = 0, 
 			buttons = { { "Param", "PickParam" } }, },
 		{ id = "Description", 
-			editor = "text", default = T{549355793884, "<ResourceText> <Condition> <Amount>"}, translate = true, },
+			editor = "text", default = T(549355793884, "<ResourceText> <Condition> <Amount>"), translate = true, },
 	},
 }
 
@@ -360,7 +362,7 @@ end
 
 function CheckResource:GetResourceText(obj, context)
 	local desc = Resources[self.Resource]
-	return desc and desc.display_name or T{15, "Resource"}
+	return desc and desc.display_name or T(15, "Resource")
 end
 
 UndefineClass('CheckTechStatus')
@@ -397,22 +399,79 @@ function CheckTechStatus:GetDescription()
 	local tech_name = desc and desc.display_name or ""
 	if self.Status == "researched" then
 		if self.Negate then
-			return T{11662, "Tech not researched <tech_name>", tech_name = tech_name}
+			return T{11848, "Tech not researched <tech_name>", tech_name = tech_name}
 		else
-			return T{11663, "Tech researched <tech_name>", tech_name = tech_name}
+			return T{11849, "Tech researched <tech_name>", tech_name = tech_name}
 		end
 	elseif self.Status == "available" then
 		if self.Negate then
-			return T{11664, "Tech not available <tech_name>", tech_name = tech_name}
+			return T{11850, "Tech not available <tech_name>", tech_name = tech_name}
 		else
-			return T{11665, "Tech available <tech_name>", tech_name = tech_name}
+			return T{11851, "Tech available <tech_name>", tech_name = tech_name}
 		end
 	else
 		if self.Negate then
-			return T{11666, "Tech unknown <tech_name>", tech_name = tech_name}
+			return T{11852, "Tech unknown <tech_name>", tech_name = tech_name}
 		else
-			return T{11667, "Tech discovered <tech_name>", tech_name = tech_name}
+			return T{11853, "Tech discovered <tech_name>", tech_name = tech_name}
 		end
+	end
+end
+
+UndefineClass('CountShuttles')
+DefineClass.CountShuttles = {
+	__parents = { "Condition", },
+	properties = {
+		{ id = "Status", 
+			editor = "choice", default = "all", items = function (self) return ShuttleStatusComboItems end, },
+		{ id = "Amount", 
+			editor = "number", default = 0, },
+		{ id = "Condition", 
+			editor = "choice", default = ">=", items = function (self) return { ">=", "<=", ">", "<", "==", "~=" } end, },
+	},
+	Description = Untranslated("Shuttle count <Condition> <Amount>"),
+}
+
+function CountShuttles:__eval(obj, context)
+	local amount = self:ResolveValue("Amount", context)
+	local count = 0
+	local ShuttleHubCountShuttles
+	if self.Status == "all" then
+		ShuttleHubCountShuttles = function(hub) 
+			return #hub.shuttle_infos
+		end
+	elseif self.Status == "in flight" then
+		ShuttleHubCountShuttles = function(hub) 
+			return hub:GetFlyingShuttles()
+		end
+	elseif self.Status == "refueling" then
+		ShuttleHubCountShuttles = function(hub) 
+			return hub:GetRefuelingShuttles()
+		end
+	elseif self.Status == "idle" then
+		ShuttleHubCountShuttles = function(hub) 
+			return hub:GetIdleShuttles()
+		end
+	end
+	for _, shuttle_hub in pairs(UICity.labels.ShuttleHub or empty_table) do
+		if not shuttle_hub:IsKindOf("ConstructionSite") and not shuttle_hub.destroyed then
+			count = count + ShuttleHubCountShuttles(shuttle_hub)
+		end
+	end
+	
+	local condition = self.Condition
+	if condition == ">=" then
+		return count >= amount
+	elseif condition == "<=" then
+		return count <= amount
+	elseif condition == ">" then
+		return count > amount
+	elseif condition == "<" then
+		return count < amount
+	elseif condition == "==" then
+		return count == amount
+	else -- "~="
+		return count ~= amount
 	end
 end
 
@@ -428,7 +487,7 @@ DefineClass.CountTechsResearched = {
 			editor = "number", default = false, 
 			buttons = { { "Param", "PickParam" } }, },
 		{ id = "Description", 
-			editor = "text", default = T{847100615161, "Techs researched count <Condition> <Amount>"}, translate = true, },
+			editor = "text", default = T(847100615161, "Techs researched count <Condition> <Amount>"), translate = true, },
 	},
 }
 
@@ -594,8 +653,8 @@ DefineClass.IsCommander = {
 		{ id = "Negate", name = "Negate Condition", 
 			editor = "bool", default = false, },
 	},
-	Description = T{715647837632, "<display_name('CommanderProfilePreset',CommanderProfile)>"},
-	DescriptionNeg = T{370328927689, "Commander Profile: not <display_name('CommanderProfilePreset',CommanderProfile)>"},
+	Description = T(715647837632, "<display_name('CommanderProfilePreset',CommanderProfile)>"),
+	DescriptionNeg = T(370328927689, "Commander Profile: not <display_name('CommanderProfilePreset',CommanderProfile)>"),
 }
 
 function IsCommander:__eval(obj, context)
@@ -617,8 +676,8 @@ DefineClass.IsCommander2 = {
 		{ id = "Negate", name = "Negate Condition", 
 			editor = "bool", default = false, },
 	},
-	Description = T{954742980035, "<display_name('CommanderProfilePreset',CommanderProfile1)> or <display_name('CommanderProfilePreset',CommanderProfile2)>"},
-	DescriptionNeg = T{267085582298, "Commander Profile: not <display_name('CommanderProfilePreset',CommanderProfile1)> or <display_name('CommanderProfilePreset',CommanderProfile2)>"},
+	Description = T(954742980035, "<display_name('CommanderProfilePreset',CommanderProfile1)> or <display_name('CommanderProfilePreset',CommanderProfile2)>"),
+	DescriptionNeg = T(267085582298, "Commander Profile: not <display_name('CommanderProfilePreset',CommanderProfile1)> or <display_name('CommanderProfilePreset',CommanderProfile2)>"),
 }
 
 function IsCommander2:__eval(obj, context)
@@ -639,8 +698,8 @@ DefineClass.IsCommanders = {
 		{ id = "Negate", name = "Negate Condition", 
 			editor = "bool", default = false, },
 	},
-	Description = T{282335593996, "Commander is <NamesText>"},
-	DescriptionNeg = T{403412127044, "Commander isn't <NamesText>"},
+	Description = T(282335593996, "Commander is <NamesText>"),
+	DescriptionNeg = T(403412127044, "Commander isn't <NamesText>"),
 }
 
 function IsCommanders:__eval(obj, context)
@@ -660,8 +719,8 @@ function IsCommanders:__eval_relaxed(obj, context)
 	return true
 end
 
-UndefineClass('IsCustomAnomalyWithID')
-DefineClass.IsCustomAnomalyWithID = {
+UndefineClass('IsCustomAnomaly')
+DefineClass.IsCustomAnomaly = {
 	__parents = { "Condition", },
 	properties = {
 		{ id = "Negate", name = "Negate Condition", 
@@ -669,16 +728,27 @@ DefineClass.IsCustomAnomalyWithID = {
 		{ id = "id", 
 			editor = "text", default = false, },
 	},
-	Description = Untranslated("Is associated object an anomaly with custom id <id>"),
-	DescriptionNeg = Untranslated("Is associated object not an anomaly with custom id <id>"),
+	Description = Untranslated("Is associated anomaly"),
+	DescriptionNeg = Untranslated("Not associated anomaly"),
 	RequiredObjClasses = {
 	"PlanetaryAnomaly",
+	"SupplyRocket",
 },
 }
 
-function IsCustomAnomalyWithID:__eval(anomaly, context)
-	return anomaly.custom_id == self.id
+function IsCustomAnomaly:__eval(obj, context)
+	if IsKindOf(obj, "RocketExpedition") then
+		obj = obj.expedition and obj.expedition.anomaly
+	end
+	if IsKindOf(obj, "PlanetaryAnomaly") then
+		if self.id then
+			return obj.custom_id == self.id
+		else
+			return obj == context.object
+		end
+	end
 end
+
 
 UndefineClass('IsFoundersRocket')
 DefineClass.IsFoundersRocket = {
@@ -728,8 +798,8 @@ DefineClass.IsRocketID = {
 		{ id = "rocket_id", name = "Rocket ID", 
 			editor = "text", default = false, },
 	},
-	Description = T{791896416077, "Is Rocket Id <rocket_id>"},
-	DescriptionNeg = T{342912052918, "Is Rocket Id not <rocket_id>"},
+	Description = T(791896416077, "Is Rocket Id <rocket_id>"),
+	DescriptionNeg = T(342912052918, "Is Rocket Id not <rocket_id>"),
 }
 
 function IsRocketID:__eval(obj, context)
@@ -773,7 +843,7 @@ DefineClass.IsRocketType = {
 }
 
 function IsRocketType:GetEditorView()
-	return self.Negate and T{11668, "Rocket is <Type>"} or T{11669, "Rocket is not <Type>"}
+	return self.Negate and T(11854, "Rocket is <Type>") or T(11855, "Rocket is not <Type>")
 end
 
 function IsRocketType:__eval(obj, context)
@@ -811,8 +881,8 @@ DefineClass.IsSponsor = {
 		{ id = "Negate", name = "Negate Condition", 
 			editor = "bool", default = false, },
 	},
-	Description = T{393331541770, "<display_name('MissionSponsorPreset',SponsorName)>"},
-	DescriptionNeg = T{256907425108, "not <display_name('MissionSponsorPreset',SponsorName)>"},
+	Description = T(393331541770, "<display_name('MissionSponsorPreset',SponsorName)>"),
+	DescriptionNeg = T(256907425108, "not <display_name('MissionSponsorPreset',SponsorName)>"),
 }
 
 function IsSponsor:__eval(obj, context)
@@ -832,8 +902,8 @@ DefineClass.IsSponsors = {
 		{ id = "Negate", name = "Negate Condition", 
 			editor = "bool", default = false, },
 	},
-	Description = T{299678364320, "Sponsor is <NamesText>"},
-	DescriptionNeg = T{886907915754, "Sponsor isn't <NamesText>"},
+	Description = T(299678364320, "Sponsor is <NamesText>"),
+	DescriptionNeg = T(886907915754, "Sponsor isn't <NamesText>"),
 }
 
 function IsSponsors:__eval(obj, context)
@@ -927,7 +997,7 @@ function PickFromLabel:ConditionsFormat()
 	for _, cond in ipairs(self.Conditions or empty_table) do
 		t[#t + 1] = T{cond.EditorView, cond}
 	end
-	return table.concat(t, T{1000736, ", "})
+	return table.concat(t, T(1000736, ", "))
 end
 
 function PickFromLabel:__eval(obj, context)
@@ -1028,6 +1098,20 @@ function PickRocketWithStatus:__eval(obj, context)
 	
 	if #matching > 0 then
 		context.object = AsyncRandElement(matching)
+		return true
+	end
+end
+
+UndefineClass('PickShuttle')
+DefineClass.PickShuttle = {
+	__parents = { "Condition", },
+	Description = Untranslated("Pick random flying shuttle"),
+}
+
+function PickShuttle:__eval(obj, context)
+	local shuttles = UICity.labels.CargoShuttle
+	if #shuttles > 0 then
+		context.object = AsyncRandElement(shuttles)
 		return true
 	end
 end

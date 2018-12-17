@@ -235,7 +235,7 @@ end
 function GetGridElementConstructionCostDescription(class, is_passage)
 	-- stage 1
 	if IsGameRuleActive("FreeConstruction") then
-		return T{10540, "Cost: Nothing (Free Construction rule)"}
+		return T(10540, "Cost: Nothing (Free Construction rule)")
 	end
 	local text = ""
 	local cost1= {}
@@ -246,8 +246,8 @@ function GetGridElementConstructionCostDescription(class, is_passage)
 		end		
 	end
 	if next(cost1)then
-		local sep = " "..(is_passage and T{8902, "per segment"} or T{3957, "for each 5 hexes-long section"})
-		text =  T{263, "Cost: "}..table.concat(cost1,"")..sep
+		local sep = " "..(is_passage and T(8902, "per segment") or T(3957, "for each 5 hexes-long section"))
+		text =  T(263, "Cost: ")..table.concat(cost1,"")..sep
 	end
 	return text
 end
@@ -275,7 +275,7 @@ function GetConstructionDescription(class, cost1, dont_modify) --class is a buil
 	-- stage 1
 	local texts
 	if IsGameRuleActive("FreeConstruction") then
-		texts = {T{10540, "Cost: Nothing (Free Construction rule)"}}
+		texts = {T(10540, "Cost: Nothing (Free Construction rule)")}
 	else
 		texts = {}
 		if cost1 then
@@ -289,7 +289,7 @@ function GetConstructionDescription(class, cost1, dont_modify) --class is a buil
 				end		
 			end
 			if next(cost1)then
-				texts[#texts+1] =  T{263, "Cost: "}..table.concat(cost1," ") .. "\n"
+				texts[#texts+1] =  T(263, "Cost: ")..table.concat(cost1," ") .. "\n"
 			end
 		end
 	end
@@ -319,7 +319,7 @@ function GetConstructionDescription(class, cost1, dont_modify) --class is a buil
 		consumption[#consumption + 1] = FormatResource(empty_table, 1000, template_class.consumption_resource_type)
 	end
 	if next(consumption) then
-		texts[#texts+1] = T{3959, "Consumption: "} .. table.concat(consumption, " ")
+		texts[#texts+1] = T(3959, "Consumption: ") .. table.concat(consumption, " ")
 	end
 	
 	--- maintenance
@@ -354,7 +354,7 @@ function GetConstructionDescription(class, cost1, dont_modify) --class is a buil
 	
 	-- electricity, air, water production
 	if IsKindOf(template_class, "Farm") then
-		texts[#texts+1] = T{3966, "Base production: <icon_Food> based on crop"}
+		texts[#texts+1] = T(3966, "Base production: <icon_Food> based on crop")
 	else
 		local production = {}
 		for i = 1, #production_props do
@@ -373,7 +373,7 @@ function GetConstructionDescription(class, cost1, dont_modify) --class is a buil
 			end
 		end
 		if next(production) then
-			texts[#texts+1] = T{3967, "Base production: "} .. table.concat(production, " ")
+			texts[#texts+1] = T(3967, "Base production: ") .. table.concat(production, " ")
 		end
 	end
 	
@@ -412,7 +412,7 @@ function BuildingInfoLine(template_name, dont_modify)
 			end		
 		end
 		if next(cost1)then
-			local sep = " "..T{3957, "for each 5 hexes-long section"}
+			local sep = " "..T(3957, "for each 5 hexes-long section")
 			return table.concat(cost1,"")..sep
 		end
 		return text
@@ -520,7 +520,7 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems, ignore_check
 	
 	local can_build, description, cost_text
 	if wonder_exists then
-		description = T{3968, "You can build this building only once."}
+		description = T(3968, "You can build this building only once.")
 		can_build = false
 	elseif available_prefabs > 0 then
 		-- allowed, display number of prefabs instead of cost
@@ -536,28 +536,28 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems, ignore_check
 			field_def = TechFields[tech_def.group]
 			description = T{11416, "You need prefab parts for this building. Use a resupply Rocket to bring more <em>prefabs</em> from Earth, or research the technology <em><tech_name> (<tech_field_name>)</em>.", tech_name = tech_def.display_name, tech_field_name = field_def.display_name}
 		elseif #techs > 1 then
-			description = T{11417, "You need prefab parts for this building. Use a resupply Rocket to bring more <em>prefabs</em> from Earth, or research the technologies"}
+			description = T(11417, "You need prefab parts for this building. Use a resupply Rocket to bring more <em>prefabs</em> from Earth, or research the technologies")
 			local separator
 			for i = 1, #techs do
 				tech_def = TechDef[techs[i].tech]
 				field_def = TechFields[tech_def.group]
-				local separator = T{1000539, ","}
+				local separator = T(1000539, ",")
 				if i == #techs - 1 then
-					separator = T{11418, "and"}
+					separator = T(11418, "and")
 				elseif i == #techs then
 					separator = T{""}
 				end
 				description = T{11419, "<descr> <em><tech_name> (<tech_field_name>)<separator></em>", descr = description, tech_name = tech_def.display_name, tech_field_name = field_def.display_name, separator = separator}
 			end
 		else
-			description = T{3970, "You need prefab parts for this building. Use a resupply Rocket to bring more <em>prefabs</em> from Earth, or research the corresponding <em>Technology</em>."}
+			description = T(3970, "You need prefab parts for this building. Use a resupply Rocket to bring more <em>prefabs</em> from Earth, or research the corresponding <em>Technology</em>.")
 		end
 		can_build = false
 	elseif not tech_enabled then
 		description = tech_rollover
 		can_build = false
 	elseif cat_id == "Domes" and AreDomesCapped() then
-		description = T{7907, "Maximum number of Domes has been reached" }
+		description = T(7907, "Maximum number of Domes has been reached")
 		can_build = false
 	else
 		can_build = true
@@ -565,7 +565,7 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems, ignore_check
 	
 	local prefab_disabled
 	if g_Tutorial and g_Tutorial.BuildMenuWhitelist and not g_Tutorial.BuildMenuWhitelist[template.id] then
-		description = T{8958, "Not yet available."} -- due to tutorial
+		description = T(8958, "Not yet available.") -- due to tutorial
 		can_build = false
 		prefab_disabled = true
 	end
@@ -799,9 +799,9 @@ function UIItemMenu(category_id, bCreateItems)
 			if subcategories["Depots"] then
 				items[#items + 1] ={
 					name = "Depots",
-					display_name = T{8878, "Depot"},
+					display_name = T(8878, "Depot"),
 					icon = "UI/Icons/Buildings/depots.tga",
-					description = T{10420, "Resource-specific Depots"},
+					description = T(10420, "Resource-specific Depots"),
 					build_pos = 2,
 					category = "Storage",
 					close_parent = false,
@@ -815,9 +815,9 @@ function UIItemMenu(category_id, bCreateItems)
 			if subcategories["MechanizedDepots"] then
 				items[#items + 1] ={
 					name = "MechanizedDepots",
-					display_name = T{519, "Storage"},
+					display_name = T(519, "Storage"),
 					icon = "UI/Icons/Buildings/storages.tga",
-					description = T{10421, "Resource-specific Storages"},
+					description = T(10421, "Resource-specific Storages"),
 					build_pos = 3,
 					category = "Storage",
 					close_parent = false,
@@ -833,8 +833,8 @@ function UIItemMenu(category_id, bCreateItems)
 	if category_id == "Power" then
 		count = count + 2
 		if bCreateItems then
-			local construction_cost =  T{8100, "<formatedbuildinginfo('ElectricityGridElement')>"}
-			local description = T{3971, "Connect Power producers and consumers by establishing Power grids."}
+			local construction_cost =  T(8100, "<formatedbuildinginfo('ElectricityGridElement')>")
+			local description = T(3971, "Connect Power producers and consumers by establishing Power grids.")
 			local require_construction = not(g_Consts and g_Consts.InstantCables ~= 0)
 			if require_construction and construction_cost~="" then
 				description = description..Untranslated("\n\n")..construction_cost
@@ -848,7 +848,7 @@ function UIItemMenu(category_id, bCreateItems)
 			items[#items + 1] = {
 				name = "PowerCables",
 				Id = "PowerCables",
-				display_name = T{881, "Power Cables"},
+				display_name = T(881, "Power Cables"),
 				icon = "UI/Icons/Buildings/power_cables.tga",
 				description = description,
 				hint = hint,
@@ -889,8 +889,8 @@ function UIItemMenu(category_id, bCreateItems)
 	if category_id == "Life-Support" then
 		count = count + 2
 		if bCreateItems then
-			local construction_cost = T{8102, "<formatedbuildinginfo('LifeSupportGridElement')>"}
-			local description = T{3972, "Transport Water and Oxygen."}
+			local construction_cost = T(8102, "<formatedbuildinginfo('LifeSupportGridElement')>")
+			local description = T(3972, "Transport Water and Oxygen.")
 			local require_construction = not(g_Consts and g_Consts.InstantPipes ~= 0)
 			if require_construction and construction_cost~="" then
 				description = description..Untranslated("\n\n")..construction_cost
@@ -904,7 +904,7 @@ function UIItemMenu(category_id, bCreateItems)
 			items[#items + 1] = {
 				name = "Pipes",
 				Id = "Pipes",
-				display_name = T{882, "Pipes"},
+				display_name = T(882, "Pipes"),
 				icon = "UI/Icons/Buildings/pipes.tga",
 				description = description,
 				hint = hint,
@@ -956,9 +956,9 @@ function UIItemMenu(category_id, bCreateItems)
 				items[#items + 1] = {
 					name = "Salvage",
 					Id = "Salvage",
-					display_name = T{3973, "Salvage"},
+					display_name = T(3973, "Salvage"),
 					icon = "UI/Icons/Buildings/salvage.tga",
-					description = T{3974, "Marks buildings, cables and pipes to be demolished. Half of the construction resource cost of any salvaged buildings will be refunded."},
+					description = T(3974, "Marks buildings, cables and pipes to be demolished. Half of the construction resource cost of any salvaged buildings will be refunded."),
 					hint = hint,
 					action = function()
 						g_LastBuildItem = "Salvage"
@@ -973,7 +973,7 @@ function UIItemMenu(category_id, bCreateItems)
 	end
 	if category_id == "Domes" then
 		local building_template = BuildingTemplates.Passage
-		local construction_cost = T{8720, "<formatedbuildinginfo('Passage')>"}
+		local construction_cost = T(8720, "<formatedbuildinginfo('Passage')>")
 		local description = building_template.description
 		if g_Consts.InstantPassages == 0 then
 			description = description .. Untranslated("\n\n") .. construction_cost

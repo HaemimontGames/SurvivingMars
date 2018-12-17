@@ -96,13 +96,18 @@ end
 
 function PinsDlg:SetVisible(visible, instant, ...)
 	if self.window_state == "destroying" then return end
-
-	if instant then
-		XDrawCacheDialog.SetVisible(self, visible, "instant", ...)
+	
+	if self:IsThreadRunning("SetVisibleThread") then
+		self:DeleteThread("SetVisibleThread")
+		XDrawCacheDialog.SetVisible(self, false, "instant", ...)
 	end
 	
 	if self:GetVisible() == visible then
 		return
+	end
+
+	if instant then
+		XDrawCacheDialog.SetVisible(self, visible, "instant", ...)
 	end
 
 	local function ButtonAnimation(button, start_time, show)
@@ -143,15 +148,10 @@ function PinsDlg:SetVisible(visible, instant, ...)
 	end
 	
 	if not visible then
-		if self:IsThreadRunning("SetVisibleThread") then
-			self:DeleteThread("SetVisibleThread")
+		self:CreateThread("SetVisibleThread", function(self, visible, instant, ...)
+			Sleep(30 * (#self / 2) + 250)
 			XDrawCacheDialog.SetVisible(self, false, "instant", ...)
-		else
-			self:CreateThread("SetVisibleThread", function(self, visible, instant, ...)
-				Sleep(30 * (#self / 2) + 250)
-				XDrawCacheDialog.SetVisible(self, false, "instant", ...)
-			end, self, visible, instant, ...)
-		end
+		end, self, visible, instant, ...)
 	end
 end
 

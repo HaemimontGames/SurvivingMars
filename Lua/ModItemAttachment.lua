@@ -135,23 +135,23 @@ GlobalVar("ModItemAttachment_Thread", false)
 DefineClass.ModItemAttachment = {
 	__parents = { "ModItem" },
 	properties = {
-		{ category = "General", id = "Parent",  name = T{1000069, "Parent entity"}, editor = "choice", default = "",   items = ModItemParentCombo, object_update = true, editor_update = "items", buttons = {{"Ground", "ActionGround"}} },
-		{ category = "General", id = "Child",   name = T{1000071, "Child entity"},  editor = "choice", default = "",   items = ModItemChildCombo, editor_update = "items" },
-		{ category = "General", id = "AttachSpot",    name = T{1000072, "Anchor"},  editor = "choice", default = "",   items = ModItemAttachmentSpotsCombo, buttons = {{"View", "ActionViewSpots"}} },
+		{ category = "General", id = "Parent",  name = T(1000069, "Parent entity"), editor = "choice", default = "",   items = ModItemParentCombo, object_update = true, editor_update = "items", buttons = {{"Ground", "ActionGround"}} },
+		{ category = "General", id = "Child",   name = T(1000071, "Child entity"),  editor = "choice", default = "",   items = ModItemChildCombo, editor_update = "items" },
+		{ category = "General", id = "AttachSpot",    name = T(1000072, "Anchor"),  editor = "choice", default = "",   items = ModItemAttachmentSpotsCombo, buttons = {{"View", "ActionViewSpots"}} },
 		
-		{ category = "General", id = "AttachOffset",  name = T{1000073, "Offset"},            editor = "point",        default = point30, scale = guim, buttons = {{"Edit", "ActionEditOffset"}, {"Apply", "ActionApplyOffset"}, {"Reset", "ActionResetOffset"}}, },
-		{ category = "General", id = "AttachOffsetX", name = T{1000074, "Offset Front-Back"}, editor = "number",       default = 0,       dont_save = true, min = -max_off, max = max_off, scale = guim, slider = true, },
-		{ category = "General", id = "AttachOffsetY", name = T{1000075, "Offset Left-Right"}, editor = "number",       default = 0,       dont_save = true, min = -max_off, max = max_off, scale = guim, slider = true, },
-		{ category = "General", id = "AttachOffsetZ", name = T{1000076, "Offset Top-Bottom"}, editor = "number",       default = 0,       dont_save = true, min = -max_off, max = max_off, scale = guim, slider = true, },
+		{ category = "General", id = "AttachOffset",  name = T(1000073, "Offset"),            editor = "point",        default = point30, scale = guim, buttons = {{"Edit", "ActionEditOffset"}, {"Apply", "ActionApplyOffset"}, {"Reset", "ActionResetOffset"}}, },
+		{ category = "General", id = "AttachOffsetX", name = T(1000074, "Offset Front-Back"), editor = "number",       default = 0,       dont_save = true, min = -max_off, max = max_off, scale = guim, slider = true, },
+		{ category = "General", id = "AttachOffsetY", name = T(1000075, "Offset Left-Right"), editor = "number",       default = 0,       dont_save = true, min = -max_off, max = max_off, scale = guim, slider = true, },
+		{ category = "General", id = "AttachOffsetZ", name = T(1000076, "Offset Top-Bottom"), editor = "number",       default = 0,       dont_save = true, min = -max_off, max = max_off, scale = guim, slider = true, },
 
-		{ category = "General", id = "AttachRotate",  name = T{1000077, "Rotate"},            editor = "point",        default = point30, scale = 60, buttons = {{"Edit", "ActionEditRotate"}, {"Apply", "ActionApplyRotate"}, {"Reset", "ActionResetRotate"}},},
-		{ category = "General", id = "AttachRotateX", name = T{1000078, "Rotate Roll"},       editor = "number",       default = 0,       dont_save = true, min = -max_rot, max = max_rot, scale = 60, slider = true, },
-		{ category = "General", id = "AttachRotateY", name = T{1000079, "Rotate Pitch"},      editor = "number",       default = 0,       dont_save = true, min = -max_rot, max = max_rot, scale = 60, slider = true, },
-		{ category = "General", id = "AttachRotateZ", name = T{1000080, "Rotate Yaw"},        editor = "number",       default = 0,       dont_save = true, min = -max_rot, max = max_rot, scale = 60, slider = true, },
+		{ category = "General", id = "AttachRotate",  name = T(1000077, "Rotate"),            editor = "point",        default = point30, scale = 60, buttons = {{"Edit", "ActionEditRotate"}, {"Apply", "ActionApplyRotate"}, {"Reset", "ActionResetRotate"}},},
+		{ category = "General", id = "AttachRotateX", name = T(1000078, "Rotate Roll"),       editor = "number",       default = 0,       dont_save = true, min = -max_rot, max = max_rot, scale = 60, slider = true, },
+		{ category = "General", id = "AttachRotateY", name = T(1000079, "Rotate Pitch"),      editor = "number",       default = 0,       dont_save = true, min = -max_rot, max = max_rot, scale = 60, slider = true, },
+		{ category = "General", id = "AttachRotateZ", name = T(1000080, "Rotate Yaw"),        editor = "number",       default = 0,       dont_save = true, min = -max_rot, max = max_rot, scale = 60, slider = true, },
 		
-		{ category = "General", id = "AttachScale",   name = T{1000081, "Scale"},             editor = "number",       default = 100,     min = 0, max = 1000, buttons = {{"Edit", "ActionEditScale"}} },
-		{ category = "General", id = "AttachColor",   name = T{1000082, "Color"},             editor = "color",        default = no_clr, },
-		{ category = "General", id = "AttachEvent",   name = T{1000083, "When to Anchor"},    editor = "choice",       default = def_event, items = AttachEvents, editor_update = "items" },
+		{ category = "General", id = "AttachScale",   name = T(1000081, "Scale"),             editor = "number",       default = 100,     min = 0, max = 1000, buttons = {{"Edit", "ActionEditScale"}} },
+		{ category = "General", id = "AttachColor",   name = T(1000082, "Color"),             editor = "color",        default = no_clr, },
+		{ category = "General", id = "AttachEvent",   name = T(1000083, "When to Anchor"),    editor = "choice",       default = def_event, items = AttachEvents, editor_update = "items" },
 	},
 	EditorName = "Attachment",
 	spot_texts = false,
@@ -468,10 +468,10 @@ function ModItemAttachment:Visualize(enable)
 		end
 		local dlg = OpenDialog("ModItemAttachmentDialog")
 		local modes = {
-			X = {btn = dlg.idAxisX,  key = const.vkX,    status = T{1000084, "Anchor X-axis"}},
-			Y = {btn = dlg.idAxisY,  key = const.vkC,    status = T{1000085, "Anchor Y-axis"}},
-			Z = {btn = dlg.idAxisZ,  key = const.vkZ,    status = T{1000086, "Anchor Z-axis"}},
-			O = {btn = dlg.idParent, key = const.vkAlt,  status = T{1000087, "Control Parent"}},
+			X = {btn = dlg.idAxisX,  key = const.vkX,    status = T(1000084, "Anchor X-axis")},
+			Y = {btn = dlg.idAxisY,  key = const.vkC,    status = T(1000085, "Anchor Y-axis")},
+			Z = {btn = dlg.idAxisZ,  key = const.vkZ,    status = T(1000086, "Anchor Z-axis")},
+			O = {btn = dlg.idParent, key = const.vkAlt,  status = T(1000087, "Control Parent")},
 		}
 		for mode_i, info_i in pairs(modes) do
 			local btn = info_i.btn
@@ -497,15 +497,15 @@ function ModItemAttachment:Visualize(enable)
 			T{7958, "Hold <em><keyboard_key></em> key to activate Z-axis of the object", keyboard_key = KeyNames[modes.Z.key]},
 			T{7959, "Hold <em><keyboard_key></em> key to control the parent object", keyboard_key = KeyNames[modes.O.key]},
 			"",
-			T{7960, "Use the toggle buttons in the bottom right corner to lock one of the above modes"},
+			T(7960, "Use the toggle buttons in the bottom right corner to lock one of the above modes"),
 			"",
-			T{7961, "Click <em><mouse_button></em> button to move the object", mouse_button = T{1000595, "Left"}},
-			T{7962, "Click <em><mouse_button></em> button to rotate the object", mouse_button = T{1000596, "Right"}},
+			T{7961, "Click <em><mouse_button></em> button to move the object", mouse_button = T(1000595, "Left")},
+			T{7962, "Click <em><mouse_button></em> button to rotate the object", mouse_button = T(1000596, "Right")},
 			"",
-			T{7964, "Click <em><mouse_button></em> button to control the camera", mouse_button = T{7963, "Middle"}},
+			T{7964, "Click <em><mouse_button></em> button to control the camera", mouse_button = T(7963, "Middle")},
 			T{7965, "Hold <em><keyboard_key></em> key to move the camera", keyboard_key = KeyNames[const.vkControl]},
 			T{7966, "Hold <em><keyboard_key></em> key to rotate the camera", keyboard_key = KeyNames[const.vkAlt]},
-			T{7967, "Use mouse <em><mouse_scroll></em> to zoom in / out", mouse_scroll = T{1000095, "Scroll"}},
+			T{7967, "Use mouse <em><mouse_scroll></em> to zoom in / out", mouse_scroll = T(1000095, "Scroll")},
 		}
 		dlg.idHelpText:SetText(table.concat(help, "\n"))
 		dlg.TrackPos = function(self, ...)

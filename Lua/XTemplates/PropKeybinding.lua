@@ -98,8 +98,8 @@ end,
 		PlaceObj('XTemplateFunc', {
 			'name', "OnPropUpdate(self, context, prop_meta, value)",
 			'func', function (self, context, prop_meta, value)
-self.idBinding1:SetText(KeybindingName(value and value[1]) or T{7875, "(  )"})
-self.idBinding2:SetText(KeybindingName(value and value[2]) or T{7875, "(  )"})
+self.idBinding1:SetText(KeybindingName(value and value[1]) or T(7875, "(  )"))
+self.idBinding2:SetText(KeybindingName(value and value[2]) or T(7875, "(  )"))
 end,
 		}),
 		PlaceObj('XTemplateFunc', {

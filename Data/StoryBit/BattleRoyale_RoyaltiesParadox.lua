@@ -7,7 +7,10 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	Effects = {},
-	NotificationText = T{520518425404, --[[StoryBit BattleRoyale_RoyaltiesParadox NotificationText]] "Profited <funding(royalties)> from game sales"},
+	Enables = {
+		"BattleRoyale_RoyaltiesParadox",
+	},
+	NotificationText = T(520518425404, --[[StoryBit BattleRoyale_RoyaltiesParadox NotificationText]] "Profited <funding(royalties)> from game sales"),
 	Prerequisites = {},
 	ScriptDone = true,
 	SuppressTime = 3600000,

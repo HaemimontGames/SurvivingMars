@@ -12,7 +12,7 @@ function SensorTowerBase:OnSetWorking(working)
 end
 
 function SensorTowerBase:GetSensorTowerWorking()
-	return self.working and T{11230, "Working"} or T{7326, "Not Working"}
+	return self.working and T(11230, "Working") or T(7326, "Not Working")
 end
 
 function SensorTowerBase:GetWorkingSensorTowersCount()

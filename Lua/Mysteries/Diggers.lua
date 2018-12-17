@@ -7,8 +7,8 @@ DefineClass.DiggersMystery = {
 	is_big_digger_destroyed = false,
 	destroyed_diggers = 0,
 	
-	display_name = T{1170, "The Dredgers (Normal)"},
-	rollover_text = T{1171, '"Two possibilities exist: either we are alone in the Universe or we are not. Both are equally terrifying."<newline><right>- Arthur C. Clarke'},
+	display_name = T(1170, "The Dredgers (Normal)"),
+	rollover_text = T(1171, '"Two possibilities exist: either we are alone in the Universe or we are not. Both are equally terrifying."<newline><right>- Arthur C. Clarke'),
 	challenge_mod = 40,
 	order_pos = 7,
 }
@@ -41,8 +41,8 @@ DefineClass.AlienDigger = {
 	--anomally
 	my_anomally = false,
 	--ui
-	display_name = T{1172, "Dredger"},
-	description = T{1173, "A mysterious alien object which seems to excavate landmass from the Martian surface."},
+	display_name = T(1172, "Dredger"),
+	description = T(1173, "A mysterious alien object which seems to excavate landmass from the Martian surface."),
 	--
 	pre_hit_ground_t = 1000,
 	pre_hit_ground_t_2 = 500,
@@ -338,7 +338,7 @@ GlobalVar("AlienDiggerBigID", 0)
 DefineClass.AlienDiggerBig = {
 	__parents = { "AlienDigger" },
 	entity = "AlienDiggerBig",
-	display_name = T{1179, "Dredgenaught"},
+	display_name = T(1179, "Dredgenaught"),
 	work_required_to_destroy = 90 * const.HourDuration,
 	work_max_drones = 6,
 	dig_time = 100 * const.HourDuration,

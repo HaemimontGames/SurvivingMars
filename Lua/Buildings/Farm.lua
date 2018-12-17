@@ -3,16 +3,16 @@ DefineClass.Farm = {
 	
 	properties = {
 		--{ template = true, category = "Mine", name = T{"Drone Slots"},     id = "drone_slots", editor = "number", default = 10, min = 1, max = 900, help = "Maximum number of drones that can work @ this mine.",},
-		{ template = true, category = "Farm", name = T{655, "Hydroponic"}, id = "hydroponic", editor = "bool", default = false, min = 1, max = 9999999, scale = const.ResourceScale },
-		{ template = true, id = "water_consumption", name = T{656, "Water consumption"},  category = "Consumption", editor = "number", default = 0, scale = const.ResourceScale, read_only = true, modifiable = true, min = 0, },
-		{ template = true, id = "air_consumption",   name = T{657, "Oxygen Consumption"}, category = "Consumption", editor = "number", default = 0, scale = const.ResourceScale, read_only = true, modifiable = true, min = 0, },
+		{ template = true, category = "Farm", name = T(655, "Hydroponic"), id = "hydroponic", editor = "bool", default = false, min = 1, max = 9999999, scale = const.ResourceScale },
+		{ template = true, id = "water_consumption", name = T(656, "Water consumption"),  category = "Consumption", editor = "number", default = 0, scale = const.ResourceScale, read_only = true, modifiable = true, min = 0, },
+		{ template = true, id = "air_consumption",   name = T(657, "Oxygen Consumption"), category = "Consumption", editor = "number", default = 0, scale = const.ResourceScale, read_only = true, modifiable = true, min = 0, },
 		
-		{ template = true, id = "soil_demand_mod", name = T{658, "Soil Demand Modifier"}, category = "Farm", editor = "number", default = 100, read_only = true, modifiable = true },
-		{ template = true, id = "oxygen_production_efficiency", name = T{659, "Oxygen Production Efficiency"}, category = "Farm", editor = "number", default = 100, read_only = true, modifiable = true },
+		{ template = true, id = "soil_demand_mod", name = T(658, "Soil Demand Modifier"), category = "Farm", editor = "number", default = 100, read_only = true, modifiable = true },
+		{ template = true, id = "oxygen_production_efficiency", name = T(659, "Oxygen Production Efficiency"), category = "Farm", editor = "number", default = 100, read_only = true, modifiable = true },
 		
 		--ui related
 		--{ template = true, id = "ui_stored", editor = "text", name = T{""}, translate = true, no_edit = true, default = T{""}, dont_save = true},
-		{ template = true,id = "persist_crops",    name = T{660, "Persisted crops"},  no_edit = true, editor = "text", default = ""},
+		{ template = true,id = "persist_crops",    name = T(660, "Persisted crops"),  no_edit = true, editor = "text", default = ""},
 	},
 	
 	last_serviced_time = 0, --(TODO: is still needed?) moment the farm was last serviced by a working drone, or turned on
@@ -39,7 +39,7 @@ DefineClass.Farm = {
 	crop_effects = false,
 	
 	ui_current_crop_resource_type = "Food", --for ui to know what icon to show
-	ui_current_crop_resource_type_display_name = T{1022, "Food"},
+	ui_current_crop_resource_type_display_name = T(1022, "Food"),
 	--
 	farm_id = false,
 	manual_resource_production = true,
@@ -157,9 +157,9 @@ function Farm:SetSoilQuality(value)
 	self.soil_quality = value
 	value = (value / const.SoilQualityScale) - 50
 	if value > 0 then
-		self:SetModifier("performance", "soil", value, 0, T{661, "<green>Soil Quality +<amount></green>"})
+		self:SetModifier("performance", "soil", value, 0, T(661, "<green>Soil Quality +<amount></green>"))
 	elseif value < 0 then
-		self:SetModifier("performance", "soil", value, 0, T{8654, "<red>Soil Quality <amount></red>"})
+		self:SetModifier("performance", "soil", value, 0, T(8654, "<red>Soil Quality <amount></red>"))
 	end
 end
 
@@ -177,7 +177,7 @@ function Farm:GetCropEffects()
 		end
 	end
 	if next(texts) then
-		table.insert(texts, 1, T{662, "<newline>Effects on current crop:"})
+		table.insert(texts, 1, T(662, "<newline>Effects on current crop:"))
 	end
 	return table.concat(texts, "\n")
 end
@@ -626,7 +626,7 @@ end
 
 function Farm:GetCropName(idx)
 	local crop = self.selected_crop[idx]
-	return crop and CropPresets[crop] and CropPresets[crop].DisplayName or T{6761, "None"}
+	return crop and CropPresets[crop] and CropPresets[crop].DisplayName or T(6761, "None")
 end
 
 function Farm:GetCrop(idx)
@@ -645,7 +645,7 @@ function Farm:GetNextCrop()
 			return  CropPresets[crop] and CropPresets[crop].DisplayName
 		end
 	end
-	return T{6762, "None"}
+	return T(6762, "None")
 end
 
 function Farm:GetGrowthProgress()-- for current crop,0 for others
@@ -809,7 +809,7 @@ function UICropUpdate(self, farm, index)
 	local active = crop and farm.current_crop == index
 	self.idActive:SetVisible(active)
 	local name = crop and crop.DisplayName
-	self:SetTitle(active and "" or name or T{6763, "Select new crop"})
+	self:SetTitle(active and "" or name or T(6763, "Select new crop"))
 	self:SetRolloverTitle(crop and active and T{7603, "<name>  <percent(p)>", name = name, p = farm:GetGrowthProgress()} or "")
 	self:SetIcon(crop and crop.icon or "UI/Icons/Buildings/crops_empty.tga")
 	self.idIcon:SetColumns(2)
@@ -835,7 +835,7 @@ function UICropUpdate(self, farm, index)
 			end
 			texts[#texts+1] = T{253, "Growth time<right><HarvestTotal> Sols", HarvestTotal = farm:GetGrowthDuration(index, crop and crop.id)}
 		else
-			texts[#texts+1] = T{7349, "Crops have different harvest cycles, Water consumption, and Food yield."}
+			texts[#texts+1] = T(7349, "Crops have different harvest cycles, Water consumption, and Food yield.")
 		end
 		local remainingSols = index == farm.current_crop and farm:GetHarvestRemaining() or 0
 		if index == farm.current_crop then
@@ -843,12 +843,12 @@ function UICropUpdate(self, farm, index)
 				texts[#texts+1] = T{254, "Time until next harvest<right><number> Sols", number = remainingSols}
 			end
 		end
-		texts[#texts+1] = T{316, "<newline>"}
+		texts[#texts+1] = T(316, "<newline>")
 		if not farm.working then
 			if remainingSols > 0 then
-				texts[#texts+1] = T{255, "<em>The farm is not working. The crops are decaying</em>"} 
+				texts[#texts+1] = T(255, "<em>The farm is not working. The crops are decaying</em>") 
 			else
-				texts[#texts+1] = T{256, "<em>The farm is not working. New crops won't be planted</em>"}
+				texts[#texts+1] = T(256, "<em>The farm is not working. New crops won't be planted</em>")
 			end
 		end
 		if crop and index == farm.current_crop then

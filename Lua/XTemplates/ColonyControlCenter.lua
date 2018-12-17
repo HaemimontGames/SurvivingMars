@@ -19,6 +19,7 @@ XDialog.Close(self, ...)
 end,
 		}),
 		PlaceObj('XTemplateLayer', {
+			'__condition', function (parent, context) return GameState.gameplay end,
 			'layer', "ScreenBlur",
 			'layer_id', "idBlur",
 		}),
@@ -78,6 +79,13 @@ end,
 			}, {
 				PlaceObj('XTemplateTemplate', {
 					'__template', "PowerGridsOverview",
+				}),
+				}),
+			PlaceObj('XTemplateMode', {
+				'mode', "LifeSupportGrids",
+			}, {
+				PlaceObj('XTemplateTemplate', {
+					'__template', "LifeSupportGridsOverview",
 				}),
 				}),
 			PlaceObj('XTemplateMode', {

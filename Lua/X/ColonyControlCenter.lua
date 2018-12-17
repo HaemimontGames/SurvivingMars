@@ -2,8 +2,8 @@ function City:GetColonyStatsButtons()
 	local resource_overview_obj = ResourceOverviewObj
 	local t = {
 		{
-			button_caption = T{547, "Colonists"},
-			button_text = T{9640, "Show historical data for Colonists, unemployed and homeless."},
+			button_caption = T(547, "Colonists"),
+			button_text = T(9640, "Show historical data for Colonists, unemployed and homeless."),
 			on_icon = "UI/Icons/ColonyControlCenter/colonist_on.tga",
 			off_icon = "UI/Icons/ColonyControlCenter/colonist_off.tga",
 			{
@@ -26,8 +26,8 @@ function City:GetColonyStatsButtons()
 			id = "colonists",
 		},
 		{
-			button_caption = T{716941050141, "Transportation"},
-			button_text = T{9641, "Show historical data for Drones and Shuttles."},
+			button_caption = T(716941050141, "Transportation"),
+			button_text = T(9641, "Show historical data for Drones and Shuttles."),
 			on_icon = "UI/Icons/ColonyControlCenter/drones_on.tga",
 			off_icon = "UI/Icons/ColonyControlCenter/drones_off.tga",
 			{
@@ -49,8 +49,8 @@ function City:GetColonyStatsButtons()
 			id = "transportation",
 		},
 		{
-			button_caption = T{3980, "Buildings"},
-			button_text = T{9642, "Show historical data for colony Buildings and completed constructions per Sol."},
+			button_caption = T(3980, "Buildings"),
+			button_text = T(9642, "Show historical data for colony Buildings and completed constructions per Sol."),
 			on_icon = "UI/Icons/ColonyControlCenter/buildings_on.tga",
 			off_icon = "UI/Icons/ColonyControlCenter/buildings_off.tga",
 			{
@@ -72,8 +72,8 @@ function City:GetColonyStatsButtons()
 			id = "buildings",
 		},
 		{
-			button_caption = T{79, "Power"},
-			button_text = T{9643, "Show historical data for Power - stored Power, average production and demand per hour."},
+			button_caption = T(79, "Power"),
+			button_text = T(9643, "Show historical data for Power - stored Power, average production and demand per hour."),
 			on_icon = "UI/Icons/ColonyControlCenter/power_on.tga",
 			off_icon = "UI/Icons/ColonyControlCenter/power_off.tga",
 			{
@@ -96,8 +96,8 @@ function City:GetColonyStatsButtons()
 			id = "power",
 		},
 		{
-			button_caption = T{682, "Oxygen"},
-			button_text = T{9645, "Show historical data for Oxygen - stored Oxygen, average production and demand per hour."},
+			button_caption = T(682, "Oxygen"),
+			button_text = T(9645, "Show historical data for Oxygen - stored Oxygen, average production and demand per hour."),
 			on_icon = "UI/Icons/ColonyControlCenter/oxygen_on.tga",
 			off_icon = "UI/Icons/ColonyControlCenter/oxygen_off.tga",
 			{
@@ -120,8 +120,8 @@ function City:GetColonyStatsButtons()
 			id = "oxygen",
 		},
 		{
-			button_caption = T{681, "Water"},
-			button_text = T{9646, "Show historical data for Water - stored Water, average production and demand per hour."},
+			button_caption = T(681, "Water"),
+			button_text = T(9646, "Show historical data for Water - stored Water, average production and demand per hour."),
 			on_icon = "UI/Icons/ColonyControlCenter/water_on.tga",
 			off_icon = "UI/Icons/ColonyControlCenter/water_off.tga",
 			{
@@ -174,6 +174,15 @@ function City:GetColonyStatsButtons()
 		}
 	end
 	return t
+end
+
+function CommandCenterChooseLifeSupportGridBuilding(context)
+	local water, air = context.water, context.air
+	local combined_grid = { }
+	combined_grid.consumers = table.union(water.consumers, air.consumers)
+	combined_grid.producers = table.union(water.producers, air.producers)
+	combined_grid.elements  = table.union(water.elements,  air.elements)
+	return CommandCenterChooseGridBuilding(combined_grid)
 end
 
 function CommandCenterChooseGridBuilding(grid)
@@ -245,7 +254,8 @@ function GetCommandCenterColonists(context)
 			FilterColonistByTrait(colonist, context["trait_Negative"]) or
 			FilterColonistByTrait(colonist, context["trait_Specialization"]) or
 			FilterColonistByTrait(colonist, context["trait_other"]) or
-			FilterColonistByTrait(colonist, context["trait_Positive"])
+			FilterColonistByTrait(colonist, context["trait_Positive"]) or
+			context["trait_interest"] and not table.find(GetInterests(colonist), context["trait_interest"].id)
 		then
 			table.remove(colonists, i)
 			removed = true
@@ -289,7 +299,7 @@ function SpawnTraitsPopup(button, traits_group)
 	local list = popup.idContainer
 	
 	local entry = XTemplateSpawn("CommandCenterPopupItem", list)
-	entry:SetText(T{11679, "No filter"})
+	entry:SetText(T(11679, "No filter"))
 	entry.OnPress = function(self, gamepad)
 		dlg.context["trait_" .. traits_group] = nil
 		dlg.idContent:RespawnContent()
@@ -298,7 +308,19 @@ function SpawnTraitsPopup(button, traits_group)
 		end
 	end
 	
-	local traits = GetTSortedTraits(traits_group)
+	local traits
+	if traits_group == "interest" then
+		traits = { }
+		for i=1,#ServiceInterestsList do
+			local interest_id = ServiceInterestsList[i]
+			if interest_id ~= "needFood" then
+				table.insert(traits, { id = interest_id, display_name = Interests[interest_id].display_name })
+			end
+		end
+		TSort(traits, "display_name")
+	else
+		traits = GetTSortedTraits(traits_group)
+	end
 	for i,trait in ipairs(traits) do
 		local entry = XTemplateSpawn("CommandCenterPopupItem", list, trait)
 		entry:SetText(trait.display_name)
@@ -341,18 +363,18 @@ end
 
 function Colonist:GetOverviewInfo()
 	local rows = {}
-	rows[#rows + 1] = T{4358, "Age Group<right><Age>"}
-	rows[#rows + 1] = T{4359, "Specialization<right><Specialization>"}
-	rows[#rows + 1] = T{4360, "Residence<right><h SelectResidence InfopanelSelect><ResidenceDisplayName></h>"}
-	rows[#rows + 1] = T{213479829949, "<UIWorkplaceLine>"}
+	rows[#rows + 1] = T(4358, "Age Group<right><Age>")
+	rows[#rows + 1] = T(4359, "Specialization<right><Specialization>")
+	rows[#rows + 1] = T(4360, "Residence<right><h SelectResidence InfopanelSelect><ResidenceDisplayName></h>")
+	rows[#rows + 1] = T(213479829949, "<UIWorkplaceLine>")
 	rows[#rows + 1] = self:GetUIInfo(true)
-	rows[#rows + 1] = T{9722, "<center><em>Traits</em>"}
+	rows[#rows + 1] = T(9722, "<center><em>Traits</em>")
 	rows[#rows + 1] = self:GetUITraitsRollover()
-	rows[#rows + 1] = T{9723, "<center><em>Interests</em>"}
+	rows[#rows + 1] = T(9723, "<center><em>Interests</em>")
 	rows[#rows + 1] = self:GetUIInterestsLine()
 	local warning = self:GetUIWarning()
 	if warning then
-		rows[#rows + 1] = "<center>" .. T{47, "<red>Warning</red>"}
+		rows[#rows + 1] = "<center>" .. T(47, "<red>Warning</red>")
 		rows[#rows + 1] = warning
 	end
 	return table.concat(rows, "<newline><left>")
@@ -379,6 +401,43 @@ function GetCommandCenterPowerGrids(context)
 			
 			if not only_autonomous then
 				table.insert(result, grid)
+			end
+		end
+	end
+	
+	return result
+end
+
+function GetCommandCenterLifeSupportGrids(context)
+	local result = { }
+	local all_grids = UICity.water
+	for i, grid in ipairs(all_grids) do
+		--exclude grids containing only autonomous consumers and nothing else
+		--also exclude empty grids (only cables)
+		
+		local entry = { water = grid, air = grid.air_grid }
+		
+		if (#entry.water.storages + #entry.air.storages) > 0 or (#entry.water.producers + #entry.air.producers) > 0 then
+			table.insert(result, entry)
+		elseif (#entry.water.consumers + #entry.air.consumers) > 0 then
+			local only_autonomous = true
+			for j,consumer in ipairs(entry.water.consumers) do
+				--autonomous consumers have this flag set to 1
+				if consumer.building.disable_electricity_consumption == 0 then
+					only_autonomous = false
+					break
+				end
+			end
+			for j,consumer in ipairs(entry.air.consumers) do
+				--autonomous consumers have this flag set to 1
+				if consumer.building.disable_electricity_consumption == 0 then
+					only_autonomous = false
+					break
+				end
+			end
+			
+			if not only_autonomous then
+				table.insert(result, entry)
 			end
 		end
 	end
@@ -463,7 +522,7 @@ end
 function Building:GetUIProductionTexts(items, short)
 	items = items or {}
 	if self:IsKindOf("AirProducer") or self:IsKindOf("WaterProducer") or IsKindOf(self, "ElectricityProducer") or IsKindOf(self, "Mine") or self:IsKindOf("ResourceProducer") and self:GetResourceProduced() and not self:IsKindOf("Farm") then
-		if not short then items[#items + 1] = T{9649, "<center><em>Production</em>"} end
+		if not short then items[#items + 1] = T(9649, "<center><em>Production</em>") end
 		if self:IsKindOf("AirProducer") then
 			if not short then
 				items[#items + 1] = self:GetUISectionAirProductionRollover()
@@ -473,13 +532,13 @@ function Building:GetUIProductionTexts(items, short)
 		elseif self:IsKindOf("WaterProducer") then
 			items[#items + 1] = self:GetWaterProductionText(short)
 			if not short and self:IsKindOf("ResourceProducer") and self.wasterock_producer then
-				items[#items + 1] = T{474, "Stored Waste Rock<right><wasterock(GetWasterockAmountStored,wasterock_max_storage)>"}
+				items[#items + 1] = T(474, "Stored Waste Rock<right><wasterock(GetWasterockAmountStored,wasterock_max_storage)>")
 			end
 		elseif IsKindOf(self, "Mine") then
-			items[#items + 1] = short and T{9724, "<resource(PredictedDailyProduction, GetResourceProduced)>"} or T{472, "Production per Sol<right><resource(PredictedDailyProduction, GetResourceProduced)>"}
+			items[#items + 1] = short and T(9724, "<resource(PredictedDailyProduction, GetResourceProduced)>") or T(472, "Production per Sol<right><resource(PredictedDailyProduction, GetResourceProduced)>")
 			if not short then
-				items[#items + 1] = T{473, "Stored <resource(exploitation_resource)><right><resource(GetAmountStored,max_storage,exploitation_resource)>"}
-				items[#items + 1] = T{474, "Stored Waste Rock<right><wasterock(GetWasterockAmountStored,wasterock_max_storage)>"}
+				items[#items + 1] = T(473, "Stored <resource(exploitation_resource)><right><resource(GetAmountStored,max_storage,exploitation_resource)>")
+				items[#items + 1] = T(474, "Stored Waste Rock<right><wasterock(GetWasterockAmountStored,wasterock_max_storage)>")
 			end
 		elseif self:IsKindOf("ResourceProducer") then
 			for _, producer in ipairs(self.producers) do
@@ -496,12 +555,12 @@ function Building:GetUIProductionTexts(items, short)
 				end
 			end
 			if not short and self.wasterock_producer then
-				items[#items + 1] = T{474, "Stored Waste Rock<right><wasterock(GetWasterockAmountStored,wasterock_max_storage)>"}
+				items[#items + 1] = T(474, "Stored Waste Rock<right><wasterock(GetWasterockAmountStored,wasterock_max_storage)>")
 			end
 		elseif self:IsKindOf("ElectricityProducer") then
-			items[#items + 1] = short and T{9725, "<power(UIPowerProduction)>"} or T{437, "Power production<right><power(UIPowerProduction)>"}
+			items[#items + 1] = short and T(9725, "<power(UIPowerProduction)>") or T(437, "Power production<right><power(UIPowerProduction)>")
 			if not short and self:IsKindOf("WindTurbine") then
-				items[#items + 1] = T{438, "Elevation boost<right><ElevationBonus>%"}
+				items[#items + 1] = T(438, "Elevation boost<right><ElevationBonus>%")
 			end
 		end
 	elseif self:IsKindOf("Farm") and short then
@@ -520,11 +579,11 @@ function Building:GetUIProductionTexts(items, short)
 end
 
 function Building:GetOverviewInfo()
-	local rows = {self.description .. T{316, "<newline>"}}
+	local rows = {self.description .. T(316, "<newline>")}
 	rows = self:GetUIProductionTexts(rows)
 	local res = self:GetUIConsumptionTexts()
 	if next(res) then
-		rows[#rows + 1] = T{9650, "<center><em>Consumption</em>"}
+		rows[#rows + 1] = T(9650, "<center><em>Consumption</em>")
 		if res.power then rows[#rows + 1] = res.power end
 		if res.air then rows[#rows + 1] = res.air end
 		if res.water then rows[#rows + 1] = res.water end
@@ -534,36 +593,36 @@ function Building:GetOverviewInfo()
 		if res.upgrade then rows[#rows + 1] = res.upgrade end
 	end
 	if self:IsKindOf("Service") then
-		rows[#rows + 1] = T{9651, "<center><em>Visitors</em>"}
-		rows[#rows + 1] = T{708009583391, "Inside<right><count(visitors)>/<colonist(max_visitors)>"}
-		rows[#rows + 1] = T{529, "Today<right><colonist(visitors_per_day)>"}
-		rows[#rows + 1] = T{530, "Lifetime<right><colonist(visitors_lifetime)>"}
-		rows[#rows + 1] = T{531, "Service Comfort<right><Stat(EffectiveServiceComfort)>"}
+		rows[#rows + 1] = T(9651, "<center><em>Visitors</em>")
+		rows[#rows + 1] = T(708009583391, "Inside<right><count(visitors)>/<colonist(max_visitors)>")
+		rows[#rows + 1] = T(529, "Today<right><colonist(visitors_per_day)>")
+		rows[#rows + 1] = T(530, "Lifetime<right><colonist(visitors_lifetime)>")
+		rows[#rows + 1] = T(531, "Service Comfort<right><Stat(EffectiveServiceComfort)>")
 	end
 	if self:IsKindOf("ElectricityStorage") then
-		rows[#rows + 1] = T{9652, "<center><em>Power Storage</em>"}
+		rows[#rows + 1] = T(9652, "<center><em>Power Storage</em>")
 		rows[#rows + 1] = self.electricity:GetElectricityUIMode()
-		rows[#rows + 1] = T{464, "Stored Power<right><power(StoredPower)>"}
-		rows[#rows + 1] = T{465, "Capacity<right><power(capacity)>"}
-		rows[#rows + 1] = T{7784, "Max output<right><power(max_electricity_discharge)>"}
+		rows[#rows + 1] = T(464, "Stored Power<right><power(StoredPower)>")
+		rows[#rows + 1] = T(465, "Capacity<right><power(capacity)>")
+		rows[#rows + 1] = T(7784, "Max output<right><power(max_electricity_discharge)>")
 	end
 	if self:IsKindOf("AirStorage") then
-		rows[#rows + 1] = T{9653, "<center><em>Oxygen Storage</em>"}
+		rows[#rows + 1] = T(9653, "<center><em>Oxygen Storage</em>")
 		rows[#rows + 1] = self.air:GetUIMode()
-		rows[#rows + 1] = T{521, "Stored Oxygen<right><air(StoredAir)>"}
-		rows[#rows + 1] = T{522, "Capacity<right><air(air_capacity)>"}
-		rows[#rows + 1] = T{7783, "Max output<right><air(max_air_discharge)>"}
+		rows[#rows + 1] = T(521, "Stored Oxygen<right><air(StoredAir)>")
+		rows[#rows + 1] = T(522, "Capacity<right><air(air_capacity)>")
+		rows[#rows + 1] = T(7783, "Max output<right><air(max_air_discharge)>")
 	end
 	if self:IsKindOf("WaterStorage") then
-		rows[#rows + 1] = T{9654, "<center><em>Water Storage</em>"}
+		rows[#rows + 1] = T(9654, "<center><em>Water Storage</em>")
 		rows[#rows + 1] = self.water:GetUIMode()
-		rows[#rows + 1] = T{523, "Stored Water<right><water(StoredWater)>"}
-		rows[#rows + 1] = T{111319356806, "Capacity<right><water(water_capacity)>"}
-		rows[#rows + 1] = T{7785, "Max output<right><water(max_water_discharge)>"}
+		rows[#rows + 1] = T(523, "Stored Water<right><water(StoredWater)>")
+		rows[#rows + 1] = T(111319356806, "Capacity<right><water(water_capacity)>")
+		rows[#rows + 1] = T(7785, "Max output<right><water(max_water_discharge)>")
 	end
 	local power_grid = self:IsKindOfClasses("ElectricityProducer", "ElectricityStorage") and self.electricity and self.electricity.grid
 	if power_grid then
-		rows[#rows + 1] = T{9655, "<center><em>Power Grid</em>"}
+		rows[#rows + 1] = T(9655, "<center><em>Power Grid</em>")
 		rows[#rows + 1] = T{576, "Power production<right><power(current_production)>", current_production = power_grid.current_production, power_grid}
 		rows[#rows + 1] = T{321, "Total demand<right><power(consumption)>", consumption = power_grid.consumption, power_grid}
 		rows[#rows + 1] = T{322, "Stored Power<right><power(current_storage)>", current_storage = power_grid.current_storage, power_grid}
@@ -571,7 +630,7 @@ function Building:GetOverviewInfo()
 	local water_grid = self:IsKindOfClasses("WaterProducer", "WaterStorage") and self.water and self.water.grid
 		or self:IsKindOf("LifeSupportGridElement") and self.pillar and self.water and self.water.grid
 	if water_grid then
-		rows[#rows + 1] = T{9656, "<center><em>Water Grid</em>"}
+		rows[#rows + 1] = T(9656, "<center><em>Water Grid</em>")
 		rows[#rows + 1] = T{545, "Water production<right><water(current_production)>", current_production = water_grid.current_production, water_grid}
 		rows[#rows + 1] = T{332, "Total demand<right><water(consumption)>", consumption = water_grid.consumption, water_grid}
 		rows[#rows + 1] = T{333, "Stored Water<right><water(current_storage)>", current_storage = water_grid.current_storage, water_grid}
@@ -579,65 +638,65 @@ function Building:GetOverviewInfo()
 	local air_grid = self:IsKindOfClasses("AirProducer", "AirStorage") and self.air and self.air.grid 
 		or self:IsKindOf("LifeSupportGridElement") and self.pillar and self.water and self.water.grid and self.water.grid.air_grid
 	if air_grid then
-		rows[#rows + 1] = T{9657, "<center><em>Oxygen Grid</em>"}
+		rows[#rows + 1] = T(9657, "<center><em>Oxygen Grid</em>")
 		rows[#rows + 1] = T{541, "Oxygen production<right><air(current_production)>", current_production = air_grid.current_production, air_grid}
 		rows[#rows + 1] = T{327, "Total demand<right><air(consumption)>", consumption = air_grid.consumption, air_grid}
 		rows[#rows + 1] = T{328, "Stored Oxygen<right><air(current_storage)>", current_storage = air_grid.current_storage, air_grid}
 	end
 	if self:IsKindOf("ShuttleHub") then
-		rows[#rows + 1] = T{9658, "<center><em>Shuttles</em>"}
-		rows[#rows + 1] = T{766548374853, "Shuttles<right><count(shuttle_infos)>/<max_shuttles>"}
-		rows[#rows + 1] = T{398, "In flight<right><FlyingShuttles>"}
-		rows[#rows + 1] = T{8700, "Refueling<right><RefuelingShuttles>"}
-		rows[#rows + 1] = T{717110331584, "Idle<right><IdleShuttles>"}
-		rows[#rows + 1] = T{8701, "Global load <right><GlobalLoadText>"}
+		rows[#rows + 1] = T(9658, "<center><em>Shuttles</em>")
+		rows[#rows + 1] = T(766548374853, "Shuttles<right><count(shuttle_infos)>/<max_shuttles>")
+		rows[#rows + 1] = T(398, "In flight<right><FlyingShuttles>")
+		rows[#rows + 1] = T(8700, "Refueling<right><RefuelingShuttles>")
+		rows[#rows + 1] = T(717110331584, "Idle<right><IdleShuttles>")
+		rows[#rows + 1] = T(8701, "Global load <right><GlobalLoadText>")
 	end
 	if self:IsKindOf("DroneHub") then
-		rows[#rows + 1] = T{9659, "<center><em>Drones</em>"}
-		rows[#rows + 1] = T{732959546527, "Drones<right><drone(DronesCount,MaxDronesCount)>"}
-		rows[#rows + 1] = T{935141416350, "<DronesStatusText>"}
+		rows[#rows + 1] = T(9659, "<center><em>Drones</em>")
+		rows[#rows + 1] = T(732959546527, "Drones<right><drone(DronesCount,MaxDronesCount)>")
+		rows[#rows + 1] = T(935141416350, "<DronesStatusText>")
 		if self.total_requested_drones > 0 then
-			rows[#rows + 1] = T{8463, "<OrderedDronesCount>"}
+			rows[#rows + 1] = T(8463, "<OrderedDronesCount>")
 		end
 	end
 	if (IsKindOf(self, "UniversalStorageDepot") or IsKindOf(self, "MechanizedDepot")) and not self:IsKindOf("SupplyRocket") and not IsKindOf(self, "SpaceElevator") then
 		if (self:DoesAcceptResource("Metals") or self:DoesAcceptResource("Concrete") or self:DoesAcceptResource("Food") or self:DoesAcceptResource("PreciousMetals")) then
-			rows[#rows + 1] = T{9726, "<center><em>Basic Resources</em>"}
+			rows[#rows + 1] = T(9726, "<center><em>Basic Resources</em>")
 			if self:DoesAcceptResource("Concrete") then
-				rows[#rows + 1] = T{497, "<resource('Concrete' )><right><concrete(Stored_Concrete, MaxAmount_Concrete)>"}
+				rows[#rows + 1] = T(497, "<resource('Concrete' )><right><concrete(Stored_Concrete, MaxAmount_Concrete)>")
 			end
 			if self:DoesAcceptResource("Food") then
-				rows[#rows + 1] = T{498, "<resource('Food' )><right><food(Stored_Food, MaxAmount_Food)>"}
+				rows[#rows + 1] = T(498, "<resource('Food' )><right><food(Stored_Food, MaxAmount_Food)>")
 			end
 			if self:DoesAcceptResource("PreciousMetals") then
-				rows[#rows + 1] = T{499, "<resource('PreciousMetals' )><right><preciousmetals(Stored_PreciousMetals, MaxAmount_PreciousMetals)>"}
+				rows[#rows + 1] = T(499, "<resource('PreciousMetals' )><right><preciousmetals(Stored_PreciousMetals, MaxAmount_PreciousMetals)>")
 			end
 			if self:DoesAcceptResource("Metals") then
-				rows[#rows + 1] = T{496, "<resource('Metals' )><right><metals(Stored_Metals, MaxAmount_Metals)>"}
+				rows[#rows + 1] = T(496, "<resource('Metals' )><right><metals(Stored_Metals, MaxAmount_Metals)>")
 			end
 		end
 		if (self:DoesAcceptResource("Polymers") or self:DoesAcceptResource("Electronics") or self:DoesAcceptResource("MachineParts") or self:DoesAcceptResource("Fuel") or self:DoesAcceptResource("MysteryResource")) then
-			rows[#rows + 1] = T{9727, "<center><em>Advanced Resources</em>"}
+			rows[#rows + 1] = T(9727, "<center><em>Advanced Resources</em>")
 			if self:DoesAcceptResource("Polymers") then
-				rows[#rows + 1] = T{502, "<resource('Polymers' )><right><polymers(Stored_Polymers, MaxAmount_Polymers)>"}
+				rows[#rows + 1] = T(502, "<resource('Polymers' )><right><polymers(Stored_Polymers, MaxAmount_Polymers)>")
 			end
 			if self:DoesAcceptResource("Electronics") then
-				rows[#rows + 1] = T{503, "<resource('Electronics' )><right><electronics(Stored_Electronics, MaxAmount_Electronics)>"}
+				rows[#rows + 1] = T(503, "<resource('Electronics' )><right><electronics(Stored_Electronics, MaxAmount_Electronics)>")
 			end
 			if self:DoesAcceptResource("MachineParts") then
-				rows[#rows + 1] = T{504, "<resource('MachineParts' )><right><machineparts(Stored_MachineParts, MaxAmount_MachineParts)>"}
+				rows[#rows + 1] = T(504, "<resource('MachineParts' )><right><machineparts(Stored_MachineParts, MaxAmount_MachineParts)>")
 			end
 			if self:DoesAcceptResource("Fuel") then
-				rows[#rows + 1] = T{505, "<resource('Fuel' )><right><fuel(Stored_Fuel, MaxAmount_Fuel)>"}
+				rows[#rows + 1] = T(505, "<resource('Fuel' )><right><fuel(Stored_Fuel, MaxAmount_Fuel)>")
 			end
 			if self:DoesAcceptResource("MysteryResource") then
-				rows[#rows + 1] = T{8671, "<resource('MysteryResource' )><right><mysteryresource(Stored_MysteryResource, MaxAmount_MysteryResource)>"}
+				rows[#rows + 1] = T(8671, "<resource('MysteryResource' )><right><mysteryresource(Stored_MysteryResource, MaxAmount_MysteryResource)>")
 			end
 		end
 	end
 	local warning = self:GetUIWarning()
 	if warning then
-		rows[#rows + 1] = "<center>" .. T{47, "<red>Warning</red>"}
+		rows[#rows + 1] = "<center>" .. T(47, "<red>Warning</red>")
 		rows[#rows + 1] = warning
 	end
 	return #rows > 0 and table.concat(rows, "<newline><left>") or ""
@@ -662,15 +721,15 @@ end
 
 function Building:GetUIEffectsRow()
 	if self:IsKindOf("Service") then
-		return T{9728, "<count(visitors)>/<colonist(max_visitors)>"}
+		return T(9728, "<count(visitors)>/<colonist(max_visitors)>")
 	elseif self:IsKindOf("Residence") then
-		return T{9729, "<UIResidentsCount>/<colonist(UICapacity)>"}
+		return T(9729, "<UIResidentsCount>/<colonist(UICapacity)>")
 	elseif self:IsKindOf("DroneControl") then
-		return T{9730, "<drone(DronesCount,MaxDronesCount)>"}
+		return T(9730, "<drone(DronesCount,MaxDronesCount)>")
 	elseif self:IsKindOf("ShuttleHub") then
-		return T{9770, "<count(shuttle_infos)>/<max_shuttles>"}
+		return T(9770, "<count(shuttle_infos)>/<max_shuttles>")
 	elseif self:IsKindOf("Dome") then
-		return T{9771, "<colonist(ColonistCount, LivingSpace)>"}
+		return T(9771, "<colonist(ColonistCount, LivingSpace)>")
 	elseif (IsKindOf(self, "UniversalStorageDepot") or IsKindOf(self, "MechanizedDepot")) and not self:IsKindOf("SupplyRocket") and not IsKindOf(self, "SpaceElevator") then
 		local sum = type(self.resource) == "table" and #self.resource > 1
 		local stored, max = 0,0
@@ -680,7 +739,7 @@ function Building:GetUIEffectsRow()
 					stored = stored + self:GetStored_Concrete()
 					max = max + self:GetMaxAmount_Concrete()
 				else
-					return T{9731, "<concrete(Stored_Concrete, MaxAmount_Concrete)>"}
+					return T(9731, "<concrete(Stored_Concrete, MaxAmount_Concrete)>")
 				end
 			end
 			if self:DoesAcceptResource("Food") then
@@ -688,7 +747,7 @@ function Building:GetUIEffectsRow()
 					stored = stored + self:GetStored_Food()
 					max = max + self:GetMaxAmount_Food()
 				else
-					return T{9732, "<food(Stored_Food, MaxAmount_Food)>"}
+					return T(9732, "<food(Stored_Food, MaxAmount_Food)>")
 				end
 			end
 			if self:DoesAcceptResource("PreciousMetals") then
@@ -696,7 +755,7 @@ function Building:GetUIEffectsRow()
 					stored = stored + self:GetStored_PreciousMetals()
 					max = max + self:GetMaxAmount_PreciousMetals()
 				else
-					return T{9733, "<preciousmetals(Stored_PreciousMetals, MaxAmount_PreciousMetals)>"}
+					return T(9733, "<preciousmetals(Stored_PreciousMetals, MaxAmount_PreciousMetals)>")
 				end
 			end
 			if self:DoesAcceptResource("Metals") then
@@ -704,7 +763,7 @@ function Building:GetUIEffectsRow()
 					stored = stored + self:GetStored_Metals()
 					max = max + self:GetMaxAmount_Metals()
 				else
-					return T{9734, "<metals(Stored_Metals, MaxAmount_Metals)>"}
+					return T(9734, "<metals(Stored_Metals, MaxAmount_Metals)>")
 				end
 			end
 		end
@@ -714,7 +773,7 @@ function Building:GetUIEffectsRow()
 					stored = stored + self:GetStored_Polymers()
 					max = max + self:GetMaxAmount_Polymers()
 				else
-					return T{9735, "<polymers(Stored_Polymers, MaxAmount_Polymers)>"}
+					return T(9735, "<polymers(Stored_Polymers, MaxAmount_Polymers)>")
 				end
 			end
 			if self:DoesAcceptResource("Electronics") then
@@ -722,7 +781,7 @@ function Building:GetUIEffectsRow()
 					stored = stored + self:GetStored_Electronics()
 					max = max + self:GetMaxAmount_Electronics()
 				else
-					return T{9736, "<electronics(Stored_Electronics, MaxAmount_Electronics)>"}
+					return T(9736, "<electronics(Stored_Electronics, MaxAmount_Electronics)>")
 				end
 			end
 			if self:DoesAcceptResource("MachineParts") then
@@ -730,7 +789,7 @@ function Building:GetUIEffectsRow()
 					stored = stored + self:GetStored_MachineParts()
 					max = max + self:GetMaxAmount_MachineParts()
 				else
-					return T{9737, "<machineparts(Stored_MachineParts, MaxAmount_MachineParts)>"}
+					return T(9737, "<machineparts(Stored_MachineParts, MaxAmount_MachineParts)>")
 				end
 			end
 			if self:DoesAcceptResource("Fuel") then
@@ -738,7 +797,7 @@ function Building:GetUIEffectsRow()
 					stored = stored + self:GetStored_Fuel()
 					max = max + self:GetMaxAmount_Fuel()
 				else
-					return T{9738, "<fuel(Stored_Fuel, MaxAmount_Fuel)>"}
+					return T(9738, "<fuel(Stored_Fuel, MaxAmount_Fuel)>")
 				end
 			end
 			if self:DoesAcceptResource("MysteryResource") then
@@ -746,19 +805,19 @@ function Building:GetUIEffectsRow()
 					stored = stored + self:GetStored_MysteryResource()
 					max = max + self:GetMaxAmount_MysteryResource()
 				else
-					return T{9739, "<mysteryresource(Stored_MysteryResource, MaxAmount_MysteryResource)>"}
+					return T(9739, "<mysteryresource(Stored_MysteryResource, MaxAmount_MysteryResource)>")
 				end
 			end
 		end
 		return T{9740, "<stored>/<max>", stored = FormatResourceValueMaxResource(empty_table,stored), max = FormatResourceValueMaxResource(empty_table, max), empty_table}
 	elseif self:IsKindOf("ElectricityStorage") then
-		return  T{9741, "<power(StoredPower, capacity)>"}
+		return  T(9741, "<power(StoredPower, capacity)>")
 	elseif self:IsKindOf("AirStorage") then
-		return  T{9742, "<air(StoredAir, air_capacity)>"}
+		return  T(9742, "<air(StoredAir, air_capacity)>")
 	elseif self:IsKindOf("WaterStorage") then
-		return  T{9743, "<water(StoredWater, water_capacity)>"}
+		return  T(9743, "<water(StoredWater, water_capacity)>")
 	elseif self:IsKindOf("WasteRockDumpSite") then
-		return T{9744, "<wasterock(Stored_WasteRock, MaxAmount_WasteRock)>"}
+		return T(9744, "<wasterock(Stored_WasteRock, MaxAmount_WasteRock)>")
 	elseif self:IsKindOf("Workplace") then
 		local count, max = 0, 0
 		if self.active_shift > 0 then --single shift building
@@ -798,6 +857,8 @@ function GetCommandCenterDomesList()
 		elseif a.build_pos ~= b.build_pos then
 			return a.build_pos < b.build_pos
 		else
+			a.name = IsT(a.name) and _InternalTranslate(a.name) or a.name
+			b.name = IsT(b.name) and _InternalTranslate(b.name) or b.name
 			return a.name < b.name
 		end
 	end)
@@ -812,7 +873,7 @@ function SpawnDomesPopup(button)
 	local list = popup.idContainer
 	
 	local entry = XTemplateSpawn("CommandCenterPopupItem", list)
-	entry:SetText(T{596159635934, "Entire Colony"})
+	entry:SetText(T(596159635934, "Entire Colony"))
 	entry.OnPress = function(self, gamepad)
 		dlg.context.dome = nil
 		button:OnContextUpdate(dlg.context)
@@ -825,7 +886,7 @@ function SpawnDomesPopup(button)
 	local domes = GetCommandCenterDomesList()
 	for i,dome in ipairs(domes) do
 		local entry = XTemplateSpawn("CommandCenterPopupItem", list, dome)
-		entry:SetText(T{7305, "<DisplayName>"})
+		entry:SetText(T(7305, "<DisplayName>"))
 		entry.OnPress = function(self, gamepad)
 			dlg.context.dome = self.context
 			button:OnContextUpdate(dlg.context)
@@ -874,9 +935,9 @@ end
 function GetDomeFilterRolloverText(win)
 	local mode = GetDialogMode(win)
 	if mode == "colonists" then
-		return GetColonistsFilterRollover(win.context, T{9660, "Filter by Dome."})
+		return GetColonistsFilterRollover(win.context, T(9660, "Filter by Dome."))
 	elseif mode == "buildings" then
-		return GetBuildingsFilterRollover(win.context, T{9660, "Filter by Dome."})
+		return GetBuildingsFilterRollover(win.context, T(9660, "Filter by Dome."))
 	end
 end
 
@@ -892,21 +953,21 @@ local function add_separator(text, ...)
 	if count > 1 then
 		text = text .. ", "
 	elseif count == 1 then
-		text = text .. T{9661, " or "}
+		text = text .. T(9661, " or ")
 	end
 	return text
 end
 
 function GetTransportationFilterRollover(context, description)
 	local rows = {}
-	if context.drone_hubs ~= false then table.insert(rows, T{5048, "Drone Hubs"}) end
-	if context.drone_assemblers    then table.insert(rows, T{5046, "Drone Assemblers"}) end
-	if context.rovers ~= false     then table.insert(rows, T{951182332337, "RC Rovers"}) end
-	if context.shuttle_hubs        then table.insert(rows, T{5260, "Shuttle Hubs"}) end
+	if context.drone_hubs ~= false then table.insert(rows, T(5048, "Drone Hubs")) end
+	if context.drone_assemblers    then table.insert(rows, T(5046, "Drone Assemblers")) end
+	if context.rovers ~= false     then table.insert(rows, T(951182332337, "RC Rovers")) end
+	if context.shuttle_hubs        then table.insert(rows, T(5260, "Shuttle Hubs")) end
 	
 	local res
 	if #rows > 0 then
-		res = T{9667, "<center><em>Active Filters</em>"} .. "<newline><left>- " .. table.concat(rows, "<newline>- ")
+		res = T(9667, "<center><em>Active Filters</em>") .. "<newline><left>- " .. table.concat(rows, "<newline>- ")
 	end
 	
 	if description then
@@ -918,7 +979,7 @@ end
 
 function GetColonistsFilterRollover(context, description)
 	local rows = {}
-	local dome_name = context.dome and (T{9773, "Dome: "} .. context.dome:GetDisplayName()) or T{596159635934, "Entire Colony"}
+	local dome_name = context.dome and (T(9773, "Dome: ") .. context.dome:GetDisplayName()) or T(596159635934, "Entire Colony")
 	
 	rows[#rows + 1] = context["trait_Age Group"]      and context["trait_Age Group"].display_name or nil
 	rows[#rows + 1] = context["trait_Negative"]       and context["trait_Negative"].display_name or nil
@@ -927,20 +988,20 @@ function GetColonistsFilterRollover(context, description)
 	rows[#rows + 1] = context["trait_Positive"]       and context["trait_Positive"].display_name or nil
 	
 	if (context.able_to_work ~= false) ~= (context.unable_to_work ~= false) then
-		rows[#rows + 1] = (context.able_to_work ~= false) and T{9673, "Able to Work"} or nil
-		rows[#rows + 1] = (context.unable_to_work ~= false) and T{731124482973, "Unable to Work"} or nil
+		rows[#rows + 1] = (context.able_to_work ~= false) and T(9673, "Able to Work") or nil
+		rows[#rows + 1] = (context.unable_to_work ~= false) and T(731124482973, "Unable to Work") or nil
 	end
 	if context.homeless then
-		rows[#rows + 1] = T{9665, "Homeless colonists"}
+		rows[#rows + 1] = T(9665, "Homeless colonists")
 	end
 	if context.unemployed then
-		rows[#rows + 1] = T{9666, "Unemployed colonists"}
+		rows[#rows + 1] = T(9666, "Unemployed colonists")
 	end
 	if context.problematic_colonists then
-		rows[#rows + 1] = T{7934, "Problematic colonists"}
+		rows[#rows + 1] = T(7934, "Problematic colonists")
 	end
 	
-	local res = T{9667, "<center><em>Active Filters</em>"} .. "<newline><left>- " .. dome_name
+	local res = T(9667, "<center><em>Active Filters</em>") .. "<newline><left>- " .. dome_name
 	if #rows > 0 then
 		res = res .. "<newline>- " .. table.concat(rows, "<newline>- ")
 	end
@@ -953,24 +1014,24 @@ end
 
 function GetBuildingsFilterRollover(context, description)
 	local rows = {}
-	local dome_name = context.dome and (T{9773, "Dome: "} .. context.dome:GetDisplayName()) or T{9774, "In the entire Colony"}
-	local inside_buildings = context.inside_buildings ~= false and T{367336674138, "Inside Buildings"}
-	local outside_buildings = context.outside_buildings ~= false and T{885971788025, "Outside Buildings"}
+	local dome_name = context.dome and (T(9773, "Dome: ") .. context.dome:GetDisplayName()) or T(9774, "In the entire Colony")
+	local inside_buildings = context.inside_buildings ~= false and T(367336674138, "Inside Buildings")
+	local outside_buildings = context.outside_buildings ~= false and T(885971788025, "Outside Buildings")
 	if inside_buildings then
 		if outside_buildings then
-			inside_buildings = inside_buildings .. T{9661, " or "}
+			inside_buildings = inside_buildings .. T(9661, " or ")
 		end
 	end
 	if inside_buildings or outside_buildings then
 		rows[#rows + 1] = T{9668, "<inside_buildings><outside_buildings>", 
 			inside_buildings = inside_buildings or "", outside_buildings = outside_buildings or ""}
 	end
-	local decorations = context.decorations and T{435618535856, "Decorations"}
-	local power_producers = context.power_producers ~= false and T{416682488997, "Power Producers"}
-	local production_buildings = context.production_buildings ~= false and T{932771917833, "Production Buildings"}
-	local services = context.services ~= false and T{133797343482, "Services"}
-	local residential = context.residential and T{316855249043, "Residential Buildings"}
-	local other = context.other and T{814424953825, "Other Buildings"}
+	local decorations = context.decorations and T(435618535856, "Decorations")
+	local power_producers = context.power_producers ~= false and T(416682488997, "Power Producers")
+	local production_buildings = context.production_buildings ~= false and T(932771917833, "Production Buildings")
+	local services = context.services ~= false and T(133797343482, "Services")
+	local residential = context.residential and T(316855249043, "Residential Buildings")
+	local other = context.other and T(814424953825, "Other Buildings")
 	decorations = add_separator(decorations, power_producers, production_buildings, services, residential, other)
 	power_producers = add_separator(power_producers, production_buildings, services, residential, other)
 	production_buildings = add_separator(production_buildings, services, residential, other)
@@ -983,7 +1044,7 @@ function GetBuildingsFilterRollover(context, description)
 			residential = residential or "", other = other or "",}
 	end
 	
-	local res = T{9667, "<center><em>Active Filters</em>"} .. "<newline><left>- " .. dome_name
+	local res = T(9667, "<center><em>Active Filters</em>") .. "<newline><left>- " .. dome_name
 	if #rows > 0 then
 		res = res .. "<newline>- " .. table.concat(rows, "<newline>- ")
 	end
@@ -1000,14 +1061,14 @@ function Dome:GetOverviewInfo()
 	rows[#rows + 1] = self:GetUISectionCitizensRollover()
 	local connected_domes = self.connected_domes
 	if next(connected_domes) then
-		rows[#rows + 1] = T{9670, "<center><em>Connected Domes</em>"}
+		rows[#rows + 1] = T(9670, "<center><em>Connected Domes</em>")
 		for dome, val in pairs(connected_domes) do
 			rows[#rows + 1] = dome:GetDisplayName()
 		end
 	end
 	local warning = self:GetUIWarning()
 	if warning then
-		rows[#rows + 1] = "<center>" .. T{47, "<red>Warning</red>"}
+		rows[#rows + 1] = "<center>" .. T(47, "<red>Warning</red>")
 		rows[#rows + 1] = warning
 	end
 	return #rows > 0 and table.concat(rows, "<newline><left>") or ""
@@ -1167,57 +1228,57 @@ function GetCommandCenterTransportInfo(self)
 		rows[#rows + 1] = self:GetUIRolloverText(true)
 	end
 	if IsKindOf(self, "DroneControl") then
-		rows[#rows + 1] = T{316, "<newline>"}
-		rows[#rows + 1] = T{9659, "<center><em>Drones</em>"}
+		rows[#rows + 1] = T(316, "<newline>")
+		rows[#rows + 1] = T(9659, "<center><em>Drones</em>")
 		if IsKindOf(self, "SupplyRocket") then
-			rows[#rows + 1] = T{963695586350, "Drones<right><drone(DronesCount)>"}
+			rows[#rows + 1] = T(963695586350, "Drones<right><drone(DronesCount)>")
 		elseif IsKindOf(self, "RCRover") then
-			rows[#rows + 1] = T{4491, "Drones<right><count(drones)>/<MaxDrones>"}
+			rows[#rows + 1] = T(4491, "Drones<right><count(drones)>/<MaxDrones>")
 		else
-			rows[#rows + 1] = T{732959546527, "Drones<right><drone(DronesCount,MaxDronesCount)>"}
+			rows[#rows + 1] = T(732959546527, "Drones<right><drone(DronesCount,MaxDronesCount)>")
 		end
 		rows[#rows + 1] = self:GetDronesStatusText()
 	end
 	if IsKindOf(self, "RCTransport") then
-		rows[#rows + 1] = T{9805, "<newline><center><em>Resources carried</em>"}
+		rows[#rows + 1] = T(9805, "<newline><center><em>Resources carried</em>")
 		if self:HasMember("GetStored_Concrete") then
-			rows[#rows + 1] = T{343032565187, "Concrete<right><concrete(Stored_Concrete)>"}
+			rows[#rows + 1] = T(343032565187, "Concrete<right><concrete(Stored_Concrete)>")
 		end
 		if self:HasMember("GetStored_Metals") then
-			rows[#rows + 1] = T{455677282700, "Metals<right><metals(Stored_Metals)>"}
+			rows[#rows + 1] = T(455677282700, "Metals<right><metals(Stored_Metals)>")
 		end
 		if self:HasMember("GetStored_Food") then
-			rows[#rows + 1] = T{788345915802, "Food<right><food(Stored_Food)>"}
+			rows[#rows + 1] = T(788345915802, "Food<right><food(Stored_Food)>")
 		end
 		if self:HasMember("GetStored_PreciousMetals") then
-			rows[#rows + 1] = T{925417865592, "Rare Metals<right><preciousmetals(Stored_PreciousMetals)>"}
+			rows[#rows + 1] = T(925417865592, "Rare Metals<right><preciousmetals(Stored_PreciousMetals)>")
 		end
 		if self:HasMember("GetStored_Polymers") then
-			rows[#rows + 1] = T{157677153453, "Polymers<right><polymers(Stored_Polymers)>"}
+			rows[#rows + 1] = T(157677153453, "Polymers<right><polymers(Stored_Polymers)>")
 		end
 		if self:HasMember("GetStored_Electronics") then
-			rows[#rows + 1] = T{624861249564, "Electronics<right><electronics(Stored_Electronics)>"}
+			rows[#rows + 1] = T(624861249564, "Electronics<right><electronics(Stored_Electronics)>")
 		end
 		if self:HasMember("GetStored_MachineParts") then
-			rows[#rows + 1] = T{407728864620, "Machine Parts<right><machineparts(Stored_MachineParts)>"}
+			rows[#rows + 1] = T(407728864620, "Machine Parts<right><machineparts(Stored_MachineParts)>")
 		end
 		if self:HasMember("GetStored_Fuel") then
-			rows[#rows + 1] = T{317815331128, "Fuel<right><fuel(Stored_Fuel)>"}
+			rows[#rows + 1] = T(317815331128, "Fuel<right><fuel(Stored_Fuel)>")
 		end
 	end
 	if IsKindOf(self, "DroneFactory") then
-		rows[#rows + 1] = T{9806, "<newline><center><em>Construction</em>"}
-		rows[#rows + 1] = T{410, "<UIConstructionStatus>"}
-		rows[#rows + 1] = T{8646, "Available Drone Prefabs<right><drone(available_drone_prefabs)>"}
-		rows[#rows + 1] = T{8539, "Scheduled Drone Prefabs<right><drone(drones_in_construction)>"}
+		rows[#rows + 1] = T(9806, "<newline><center><em>Construction</em>")
+		rows[#rows + 1] = T(410, "<UIConstructionStatus>")
+		rows[#rows + 1] = T(8646, "Available Drone Prefabs<right><drone(available_drone_prefabs)>")
+		rows[#rows + 1] = T(8539, "Scheduled Drone Prefabs<right><drone(drones_in_construction)>")
 		if UICity:IsTechResearched("ThePositronicBrain") then
-			rows[#rows + 1] = T{6742, "Scheduled Biorobots<right><colonist(androids_in_construction)>"}
+			rows[#rows + 1] = T(6742, "Scheduled Biorobots<right><colonist(androids_in_construction)>")
 		end
-		rows[#rows + 1] = T{693516738839, "Required <resource(ConstructResource)><right><resource(ConstructResourceAmount, ConstructResourceTotal, ConstructResource)>"}
+		rows[#rows + 1] = T(693516738839, "Required <resource(ConstructResource)><right><resource(ConstructResourceAmount, ConstructResourceTotal, ConstructResource)>")
 	end
 	local warning = self:GetUIWarning()
 	if warning then
-		rows[#rows + 1] = "<center>" .. T{47, "<red>Warning</red>"}
+		rows[#rows + 1] = "<center>" .. T(47, "<red>Warning</red>")
 		rows[#rows + 1] = warning
 	end
 	return #rows > 0 and table.concat(rows, "<newline><left>") or ""
@@ -1259,7 +1320,7 @@ function CloseCommandCenter()
 	Msg("CommandCenterClosed")
 end
 
-function OnMsg.PopupNotificationBegin()
+function OnMsg.MessageBoxPreOpen()
 	CloseCommandCenter()
 end
 
@@ -1355,13 +1416,12 @@ function CCC_ButtonListOnShortcut(self, shortcut, source)
 		local focus = self.desktop:GetKeyboardFocus()
 		local idx = table.find(self, focus)
 		if idx then
-			if rel == "up" and idx == 1 then
-				self[#self]:SetFocus()
-				return "break"
-			elseif rel == "down" and idx == #self then
-				self[1]:SetFocus()
-				return "break"
-			end
+			local dir = rel=="up" and -1 or 1
+			local child = idx and self[idx + dir] or self[dir == 1 and 1 or #self]
+			local scroll_area = GetParentOfKind(self, "XScrollArea")
+			scroll_area:ScrollIntoView(child)
+			child:SetFocus()
+			return "break"
 		end
 	end
 	return XContextWindow.OnShortcut(self, shortcut, source)

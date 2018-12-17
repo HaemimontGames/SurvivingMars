@@ -1,7 +1,7 @@
 DefineClass.EffectDepositMarker = {
 	__parents = { "DepositMarker" },
 	properties = {
-		{ category = "Deposit", name = T{11450, "Deposit Type"}, id = "deposit_type", editor = "combo", items = ClassDescendantsCombo("EffectDeposit"), default = "" },
+		{ category = "Deposit", name = T(11450, "Deposit Type"), id = "deposit_type", editor = "combo", items = ClassDescendantsCombo("EffectDeposit"), default = "" },
 	},
 	
 	new_pos_if_obstruct = false,
@@ -109,8 +109,8 @@ DefineClass.BeautyEffectDeposit = {
 	
 	ConstructionStatusName = "BeautyDepositNearby",
 	resource = "Beauty",
-	display_name = T{11458, "Vista"},
-	IPDescription = T{11459, "Improves the Comfort of all residences when in the radius of a Dome."},
+	display_name = T(11458, "Vista"),
+	IPDescription = T(11459, "Improves the Comfort of all residences when in the radius of a Dome."),
 	display_icon = "UI/Icons/bmb_demo.tga",
 	entity = "SignBeautyDeposit",
 }
@@ -143,10 +143,10 @@ DefineClass.ResearchEffectDeposit = {
 	
 	ConstructionStatusName = "ResearchDepositNearby",
 	list_as_sector_expected = true,
-	sector_expected_name = T{311, "Research"},
+	sector_expected_name = T(311, "Research"),
 	resource = "Research",
-	display_name = T{11461, "Research Site"},
-	IPDescription = T{11462, "Boosts research production when in radius of a Dome or outside research facility."},
+	display_name = T(11461, "Research Site"),
+	IPDescription = T(11462, "Boosts research production when in radius of a Dome or outside research facility."),
 	display_icon = "UI/Icons/bmb_demo.tga",
 	entity = "SignResearchDeposit",
 }

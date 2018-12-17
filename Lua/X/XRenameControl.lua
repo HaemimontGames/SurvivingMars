@@ -12,13 +12,13 @@ function CreateMarsRenameControl(actionbar_parent, title, initial_text, ok_func,
 		CreateRealTimeThread(function(dialog)
 			local text, err, shown = WaitControllerTextInput(initial_text, title, "", max_len or 255, params and params.password)
 			if not shown and steam_keyboard then
-				CreateMessageBox(T{1000620, "Warning"}, T{10972, "Steam virtual keyboard requires Steam Big Picture Mode to be enabled. Please restart the game from Big Picture Mode in order to use the Steam virtual keyboard."})
+				CreateMessageBox(T(1000620, "Warning"), T(10972, "Steam virtual keyboard requires Steam Big Picture Mode to be enabled. Please restart the game from Big Picture Mode in order to use the Steam virtual keyboard."))
 			end
 			if err or not shown or text == "" then
 				cancel_func(text)
 			else
 				if params.check_format and params.pattern and params.format and not string.match(text, params.pattern) then
-					CreateMarsMessageBox(T{7730, "Invalid input"}, T{7731, "<field> should be in the format <format>", field = title, format = params.format}, T{1000136, "OK"})
+					CreateMarsMessageBox(T(7730, "Invalid input"), T{7731, "<field> should be in the format <format>", field = title, format = params.format}, T(1000136, "OK"))
 				else
 					ok_func(text)
 				end
@@ -61,7 +61,7 @@ function CreateMarsRenameControl(actionbar_parent, title, initial_text, ok_func,
 			local keep_open = false
 			if text and text~="" then
 				if params.check_format and params.pattern and params.format and not string.match(text, params.pattern) then
-					CreateMarsMessageBox(T{7730, "Invalid input"}, T{7731, "<field> should be in the format <format>", field = title, format = params.format}, T{1000136, "OK"})
+					CreateMarsMessageBox(T(7730, "Invalid input"), T{7731, "<field> should be in the format <format>", field = title, format = params.format}, T(1000136, "OK"))
 					keep_open = true
 				else
 					ok_func(text)

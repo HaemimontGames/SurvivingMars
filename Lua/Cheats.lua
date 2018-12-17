@@ -31,7 +31,7 @@ function CheatSpawnPlanetaryAnomalies()
 	for i = 1, 20 do
 		lat, long = GenerateMarsScreenPoI("anomaly")
 		local obj = PlaceObject("PlanetaryAnomaly", {
-			display_name = T{11234, "Planetary Anomaly"},
+			display_name = T(11234, "Planetary Anomaly"),
 			longitude = long,
 			latitude = lat,            
 		})
@@ -222,15 +222,15 @@ function CheatToggleInfopanelCheats()
 end
 
 GamepadCheatsList = {
-	{ display_name = T{7790, "Research Current Tech"},      func = CheatResearchCurrent },
-	{ display_name = T{7791, "Research all Techs"},         func = CheatResearchAll },
-	{ display_name = T{7792, "Unlock all Techs"},           func = CheatUnlockAllTech },
-	{ display_name = T{7793, "Unlock all Breakthroughs"},   func = CheatUnlockBreakthroughs },
-	{ display_name = T{7794, "Construct all buildings"},    func = CheatCompleteAllConstructions },
-	{ display_name = T{7795, "Add funding ($500,000,000)"}, func = CheatAddFunding },
-	{ display_name = T{7796, "Spawn 1 Colonist"},           func = function() CheatSpawnNColonists(1) end },
-	{ display_name = T{7797, "Spawn 10 Colonists"},         func = function() CheatSpawnNColonists(10) end },
-	{ display_name = T{7798, "Spawn 100 Colonists"},        func = function() CheatSpawnNColonists(100) end },
+	{ display_name = T(7790, "Research Current Tech"),      func = CheatResearchCurrent },
+	{ display_name = T(7791, "Research all Techs"),         func = CheatResearchAll },
+	{ display_name = T(7792, "Unlock all Techs"),           func = CheatUnlockAllTech },
+	{ display_name = T(7793, "Unlock all Breakthroughs"),   func = CheatUnlockBreakthroughs },
+	{ display_name = T(7794, "Construct all buildings"),    func = CheatCompleteAllConstructions },
+	{ display_name = T(7795, "Add funding ($500,000,000)"), func = CheatAddFunding },
+	{ display_name = T(7796, "Spawn 1 Colonist"),           func = function() CheatSpawnNColonists(1) end },
+	{ display_name = T(7797, "Spawn 10 Colonists"),         func = function() CheatSpawnNColonists(10) end },
+	{ display_name = T(7798, "Spawn 100 Colonists"),        func = function() CheatSpawnNColonists(100) end },
 }
 
 function OnMsg.ChangeMap(map)

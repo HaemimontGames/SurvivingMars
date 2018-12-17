@@ -14,19 +14,19 @@ DefineClass.Colonist =
 		{ id = "name",        default = "", editor = "text" }, 
 		{ id = "progenitor_name",        default = "", editor = "text", no_edit = true }, 
 		{ id = "serial",  default = 0, editor = "number", no_edit = true }, 
-		{ id = "performance", default = 100, name = T{4283, "Worker performance"}, modifiable = true, editor = "number" , no_edit = true},
-		{ id = "death_age",   default = 60,  name = T{4284, "Age of death"}, modifiable = true, editor = "number" , no_edit = true},
+		{ id = "performance", default = 100, name = T(4283, "Worker performance"), modifiable = true, editor = "number" , no_edit = true},
+		{ id = "death_age",   default = 60,  name = T(4284, "Age of death"), modifiable = true, editor = "number" , no_edit = true},
 
-		{ id = "base_morale",            default = 0,   name = T{4285, "Base Morale boost"}, modifiable = true, editor = "number" , no_edit = true, scale = "Stat"},
-		{ id = "birth_comfort_modifier", default = 0, scale = "Stat", name = T{4286, "Birth Comfort modifier"}, modifiable = true, editor = "number" , no_edit = true},
-		{ id = "preferred_workplace_performance_bonus", default = 0, name = T{4287, "Preferred Worker performance bonus"}, modifiable = true, editor = "number" , no_edit = true},
-		{ id = "DailyHealthRecover", name = T{4288, "Colonist daily Health recovery"}, editor = "number", default = 5000, modifiable = true, scale = "Stat" },
-		{ id = "DailySanityRecover", name = T{4289, "Colonist daily Sanity recovery"}, editor = "number", default = 5000, modifiable = true, scale = "Stat" },
+		{ id = "base_morale",            default = 0,   name = T(4285, "Base Morale boost"), modifiable = true, editor = "number" , no_edit = true, scale = "Stat"},
+		{ id = "birth_comfort_modifier", default = 0, scale = "Stat", name = T(4286, "Birth Comfort modifier"), modifiable = true, editor = "number" , no_edit = true},
+		{ id = "preferred_workplace_performance_bonus", default = 0, name = T(4287, "Preferred Worker performance bonus"), modifiable = true, editor = "number" , no_edit = true},
+		{ id = "DailyHealthRecover", name = T(4288, "Colonist daily Health recovery"), editor = "number", default = 5000, modifiable = true, scale = "Stat" },
+		{ id = "DailySanityRecover", name = T(4289, "Colonist daily Sanity recovery"), editor = "number", default = 5000, modifiable = true, scale = "Stat" },
 	},
 	max_name_len = 27,
 	dome = false,
 	city = false,
-	display_name = T{4290, "Colonist"},-- class's display name uinit name is in 'name'
+	display_name = T(4290, "Colonist"),-- class's display name uinit name is in 'name'
 	pfclass = 3,
 	radius = 30*guic,
 	collision_radius = 30*guic,
@@ -59,7 +59,7 @@ DefineClass.Colonist =
 	ip_specialization_icon = false,
 	
 	-- pin section
-	pin_rollover = T{7780, "<PinDescription>"},
+	pin_rollover = T(7780, "<PinDescription>"),
 	pin_progress_value = "",
 	pin_progress_max = "",
 	pin_on_start = false,
@@ -127,17 +127,17 @@ GlobalVar("g_TotalColonistComfort", 0)
 ColonistStatList = { "Health", "Sanity", "Comfort", "Morale" }
 ColonistStat = 
 {
-	Health = {value = "Health", text = T{4291, "Health"}, log = "log_health",
-		description = T{4292, "Represents physical injury, illness and exhaustion. Lowered by working on a heavy workload, having no functional home, shock when deprived from vital resources or when the Colonist is injured. Colonists can be healed in Medical Buildings in a powered Dome, but only if they are provided with Food, Water and Oxygen. Colonists can't work at low health unless they’re Fit."}, 
+	Health = {value = "Health", text = T(4291, "Health"), log = "log_health",
+		description = T(4292, "Represents physical injury, illness and exhaustion. Lowered by working on a heavy workload, having no functional home, shock when deprived from vital resources or when the Colonist is injured. Colonists can be healed in Medical Buildings in a powered Dome, but only if they are provided with Food, Water and Oxygen. Colonists can't work at low health unless they’re Fit."), 
 		icon = "UI/Icons/Sections/health.tga"},
-	Sanity = {value = "Sanity", text = T{4293, "Sanity"}, log = "log_sanity",
-		description = T{4294, "Represents mental condition. Lowered by working on a heavy workload, in outside buildings and during dark hours, witnessing the death of a Colonist living in the same Residence or various Martian disasters. Recovered when resting at home and by visiting certain Service Buildings."}, 
+	Sanity = {value = "Sanity", text = T(4293, "Sanity"), log = "log_sanity",
+		description = T(4294, "Represents mental condition. Lowered by working on a heavy workload, in outside buildings and during dark hours, witnessing the death of a Colonist living in the same Residence or various Martian disasters. Recovered when resting at home and by visiting certain Service Buildings."), 
 		icon = "UI/Icons/Sections/stress.tga"},
-	Comfort = {value = "Comfort", text = T{4295, "Comfort"}, log = "log_comfort",
-		description = T{4296, "Residences and visited buildings improve Comfort up to their Service Comfort value, but Colonists will try to visit only buildings that correspond to their interests. Colonists are more inclined to have children at higher Comfort. Earthborn Colonists whose Comfort is depleted will quit their job and leave the Colony at first opportunity."}, 
+	Comfort = {value = "Comfort", text = T(4295, "Comfort"), log = "log_comfort",
+		description = T(4296, "Residences and visited buildings improve Comfort up to their Service Comfort value, but Colonists will try to visit only buildings that correspond to their interests. Colonists are more inclined to have children at higher Comfort. Earthborn Colonists whose Comfort is depleted will quit their job and leave the Colony at first opportunity."), 
 		icon = "UI/Icons/Sections/comfort.tga"},
-	Morale = {value = "Morale", text = T{4297, "Morale"},
-		description = T{4298, "Represents overall happiness, optimism and loyalty. All other stats affect Morale. Influences the Colonist’s job performance. Colonists with low Morale may become Renegades."},  
+	Morale = {value = "Morale", text = T(4297, "Morale"),
+		description = T(4298, "Represents overall happiness, optimism and loyalty. All other stats affect Morale. Influences the Colonist’s job performance. Colonists with low Morale may become Renegades."),  
 		icon = "UI/Icons/Sections/morale.tga"},
 }
 
@@ -172,7 +172,7 @@ function Colonist:Init()
 
 	self.fx_actor_class = self.gender == "Male" and "ColonistMale" or "ColonistFemale"
 
-	self:SetSpecialization(self.specialist, "init")
+	self:AddTrait(self.specialist, "init")
 	self:SetState("idle")
 	self:SetMoveSpeed(self.move_speed)
 	self:SetMoveAnim("moveWalk")
@@ -313,13 +313,6 @@ function Colonist:AddTrait(trait_id, init)
 	if not IsTraitAvailable(trait_id) then
 		return -- try to add locked trait
 	end
-	-- shield specializations adding via SetSpecialist only
-	if const.ColonistSpecialization[trait_id] and self.specialist~=trait_id then
-		assert(false, string.format("Specialization not added via SetSpecialist function. Current: %s, new: %s",self.specialist, trait_id))
-		self:SetSpecialization(trait_id)
-		return
-	end
-	
 	g_HiddenTraits[trait_id] = nil
 	local has_trait = self.traits[trait_id]
 	self.traits[trait_id]= true
@@ -524,7 +517,7 @@ end
 function Colonist:GetTraitsWarnings()
 	-- Idiot trait warning	
 	if self.traits.Idiot then
-		return  "<newline><newline>"..T{8039, "Trait: Idiot (can cause a malfunction)"}
+		return  "<newline><newline>"..T(8039, "Trait: Idiot (can cause a malfunction)")
 	end
 	return ""
 end
@@ -643,7 +636,7 @@ function Colonist:Erase()
 		self:SetWorkplace(false)
 		self:SetResidence(false)
 		self:AssignToService(false) -- unassign from building when interupted
-		self:SetHolder(false)
+		self:ExitHolderImmediately()
 		self:SetDome(false)
 		table.clear(self.status_effects)
 		UpdateAttachedSign(self)
@@ -674,19 +667,7 @@ function Colonist:Die(reason)
 		self:SetWorkplace(false)
 		self:SetResidence(false)
 		self:AssignToService(false) -- unassign from building when interupted
-		local holder = self.holder
-		if holder then
-			local exit_pos
-			if IsKindOf(holder, "Building") then
-				local entrance, pos, spot_type = holder:GetEntrance()
-				exit_pos = spot_type and holder:GetSpotPos(holder:GetRandomSpot(spot_type)) or pos
-			end
-			exit_pos = exit_pos or holder:GetVisualPos()
-			self:SetPos(exit_pos)
-			self:SetAngle(AsyncRand(360*60))
-			self:SetHolder(false)
-			holder:OnExitUnit(self)
-		end
+		self:ExitHolderImmediately()
 		table.clear(self.status_effects)
 		UpdateAttachedSign(self)
 		RebuildInfopanel(self)
@@ -782,7 +763,7 @@ function Colonist:ProjectPhoenixEffect()
 		heir.serial = self.serial + 1
 		heir.name = T{4301, "<name> <roman(serial)>", name = heir.progenitor_name, serial = heir.serial}
 		local colonist = Colonist:new(heir)
-		colonist:SetSpecialization(self.specialist)
+		colonist:AddTrait(self.specialist)
 		dome:RandPlaceColonist(colonist)
 		--@@@msg ColonistBorn,colonist, event- fired when a colonist has been born/cloned/reborn/spawned/...
 		Msg("ColonistBorn", colonist, "reborn")
@@ -983,7 +964,7 @@ function Colonist:ChangeWorkplacePerformance()
 
 	if workplace and workplace.parent_dome and workplace.parent_dome ~= self.dome then
 		--different dome penalty
-		self:SetModifier("performance", "home_dome", -g_Consts.NonHomeDomePerformancePenalty, 0, T{8757, "<red>Not working in home dome <amount></color>"})
+		self:SetModifier("performance", "home_dome", -g_Consts.NonHomeDomePerformancePenalty, 0, T(8757, "<red>Not working in home dome <amount></color>"))
 	else
 		self:SetModifier("performance", "home_dome", 0, 0)
 	end
@@ -995,11 +976,11 @@ function Colonist:ChangeWorkplacePerformance()
 				or -g_Consts.NonSpecialistPerformancePenalty
 		local sponsor = GetMissionSponsor()
 		local text =  match and
-				T{6927, "<green>Correct workplace specialization +<amount></color>"}
-				or T{6928, "<red>Wrong workplace specialization <amount></color>"}
+				T(6927, "<green>Correct workplace specialization +<amount></color>")
+				or T(6928, "<red>Wrong workplace specialization <amount></color>")
 		self:SetModifier("performance", "specialist_match", amount, 0, text)
 		if sponsor.specialist_bonus_performance and match then
-			text = T{10538, "<green>"}..sponsor.specialist_bonus_performance_name..T{10539, " +<amount></color>", amount = sponsor.specialist_bonus_performance}
+			text = T(10538, "<green>")..sponsor.specialist_bonus_performance_name..T{10539, " +<amount></color>", amount = sponsor.specialist_bonus_performance}
 			self:SetModifier("performance", "specialist_match_sponsor_bonus", sponsor.specialist_bonus_performance, 0, text)
 		end
 	else
@@ -1008,7 +989,7 @@ function Colonist:ChangeWorkplacePerformance()
 
 	if g_NocturnalAdaptation then
 		if workplace and self.workplace_shift == g_NocturnalAdaptation.param1 then
-			self:SetModifier("performance", "NocturnalAdaptation", g_NocturnalAdaptation.param2, g_NocturnalAdaptation.param3, T{4304, "<green>Nocturnal Adaptation <amount></color>"})
+			self:SetModifier("performance", "NocturnalAdaptation", g_NocturnalAdaptation.param2, g_NocturnalAdaptation.param3, T(4304, "<green>Nocturnal Adaptation <amount></color>"))
 		else
 			self:SetModifier("performance", "NocturnalAdaptation", 0, 0)
 		end
@@ -1091,7 +1072,7 @@ function OnMsg.TechResearched(tech_id, city)
 		g_SeniorsCanWork = true
 	elseif tech_id == "MartianbornIngenuity" then
 		local amount = TechDef[tech_id].param1
-		local display_text = T{7587, "<green>Martianborn Ingenuity <amount></color>"}
+		local display_text = T(7587, "<green>Martianborn Ingenuity <amount></color>")
 		for _, dome in ipairs(city.labels.Dome) do
 			for _, colonist in ipairs(dome.labels.Martianborn or empty_table) do
 				colonist:SetModifier("performance", "MartianbornIngenuity", amount, 0, display_text)
@@ -1276,14 +1257,15 @@ end
 
 function Colonist:TryVisit(need, ...)
 	self:AssignToService(false) -- unassign from building when interupted
-	assert(self.dome)
-	if not self.dome then
+	local dome = self.dome or self.current_dome
+	assert(dome)
+	if not dome then
 		return
 	end
-	local building, fail = self.dome:GetService(need, self, ...)
+	local building, fail = dome:GetService(need, self, ...)
 	if building then
 		self:AssignToService(building)
-		self:SetCommand("VisitService", building)
+		self:SetCommand("VisitService", building, need)
 	end
 	return fail
 end
@@ -1311,28 +1293,22 @@ end
 
 function Colonist:Panic(panic_pos)
 	self:PushDestructor(function(self)
-		self:SetMoveAnim("moveWalk")
+		if IsValid(self) then
+			self:SetMoveAnim("moveWalk")
+		end
 	end)
+	
 	-- change move anim
 	self:SetMoveAnim("moveEvade")
-	
-	-- try to step away from panic_pos
-	local pt = self:GetVisualPos()
-	local dir = pt - panic_pos
-	local target = pt + SetLen(dir, 5*guim)
-	local reached
-	
-	if GetDomeAtPoint(target) == self.current_dome then
-		reached = self:Goto(target)
-	end
-	
-	if not reached then
-		-- if failed play cower anim for a time (standSuicide placeholder)
+	self:GoToRandomPosInDome(self.current_dome)
+
+	if IsValid(self) then
+		self:SetMoveAnim("moveWalk")
 		self:SetAnim(1, "standPanicIdle")
 		Sleep(2000)
 	end
 
-	self:PopAndCallDestructor()
+	self:PopDestructor()
 end
 
 local min_age_names = {}
@@ -1527,7 +1503,7 @@ function Colonist:AssignToService(service, force, ...)
 	end
 end
 
-function Colonist:VisitService(service)
+function Colonist:VisitService(service, need)
 	if not IsValid(service) then --bld can die before cmd boots up.
 		self:AssignToService()
 		return
@@ -1536,10 +1512,13 @@ function Colonist:VisitService(service)
 	self:PushDestructor(self.AssignToService)
 	local n = GameTime()
 	if self:EnterBuilding(service) and IsValid(service) then
-		local interest = self.daily_interest
-		if service:IsOneOfInterests(interest) then
-			self.daily_interest = ""
-		end
+		local interest = need
+		if not need then
+			interest = self.daily_interest
+			if service:IsOneOfInterests(interest) then
+				self.daily_interest = ""
+			end
+		end	
 		if self.traits.Gamer and service:IsOneOfInterests("interestGaming") then
 			local trait_gamer = TraitPresets.Gamer
 			self:ChangeSanity( trait_gamer.param * const.Scale.Stat, trait_gamer.id )
@@ -1947,6 +1926,11 @@ function Colonist:ChooseEntity()
 end
 
 function Colonist:SetSpecialization(specialist, init)
+	-- if SetSpecizization is called instead of add trait, call add trait to add to all labels
+	if not self.traits[specialist] then
+		return self:AddTrait(specialist, init)
+	end	
+	
 	self.city:RemoveFromLabel(self.specialist, self)
 	if not init then
 		self:RemoveTrait(self.specialist)
@@ -1954,11 +1938,9 @@ function Colonist:SetSpecialization(specialist, init)
 	self.specialist = specialist or "none"
 	self:ChooseEntity()
 
-	self.city:AddToLabel(self.specialist, self)
-	if not init then
-		self:AddTrait(self.specialist)
-	end
-	Msg("NewSpecialist")
+	self.city:AddToLabel(self.specialist, self)	
+	--@@@msg NewSpecialist,colonist - fired when a colonist gains a specialization
+	Msg("NewSpecialist", self)
 end
 -------------------------------------- Transport -----------------------------------------------
 
@@ -2219,15 +2201,15 @@ function Colonist:ToggleInteraction_Update(button)
 	button:SetEnabled(self:CanChangeCommand()and not self.traits.Renegade)
 	local to_mode = self.interaction_mode ~= "assign_to_bld"
 	button:SetIcon(to_mode and "UI/Icons/IPButtons/assign_residence.tga" or "UI/Icons/IPButtons/cancel.tga")
-	button:SetRolloverTitle(T{8758, "Assign to Building"})
-	button:SetRolloverText(T{8759, "Assign this Colonist to a residence, workplace or training building. The Colonist will not change assignment for the next 5 Sols. If the target building is in another Dome located far away, a shuttle may be needed to reach it."})
+	button:SetRolloverTitle(T(8758, "Assign to Building"))
+	button:SetRolloverText(T(8759, "Assign this Colonist to a residence, workplace or training building. The Colonist will not change assignment for the next 5 Sols. If the target building is in another Dome located far away, a shuttle may be needed to reach it."))
 	local shortcuts = GetShortcuts("actionAssignToBuilding")
 	local hint = ""
 	if shortcuts and (shortcuts[1] or shortcuts[2]) then
-		hint = T{10924, " / <em><ShortcutName('actionAssignToBuilding', 'keyboard')></em>"}
+		hint = T(10924, " / <em><ShortcutName('actionAssignToBuilding', 'keyboard')></em>")
 	end
-	button:SetRolloverHint(to_mode and T{10925, "<left_click><hint> Select target mode", hint = hint} or T{7510, "<left_click> on target to select it  <right_click> Cancel"})
-	button:SetRolloverHintGamepad(to_mode and T{7511, "<ButtonA> Select target mode"} or T{7512, "<ButtonA> Cancel"})
+	button:SetRolloverHint(to_mode and T{10925, "<left_click><hint> Select target mode", hint = hint} or T(7510, "<left_click> on target to select it  <right_click> Cancel"))
+	button:SetRolloverHintGamepad(to_mode and T(7511, "<ButtonA> Select target mode") or T(7512, "<ButtonA> Cancel"))
 end
 
 function Colonist:GetUIBirthplace()
@@ -2242,7 +2224,7 @@ end
 function Colonist:GetUIInfo(remove_descr)
 	local remove_descr = remove_descr or false
 	local t = {
-		T{4354, "Colonists are required to operate Dome buildings.<newline>"},
+		T(4354, "Colonists are required to operate Dome buildings.<newline>"),
 		T{4355, "Sols on Mars<right><sols>", self},
 		T{4356, "Sex<right><Gender>", self},
 		T{4357, "Birthplace<right><UIBirthplace>", self}
@@ -2258,7 +2240,7 @@ function Colonist:UIStatUpdate(win, stat)
 	win:SetIcon(def.icon)
 	if stat == "Morale" then
 		local renegade = self.traits.Renegade
-		win:SetTitle(renegade and T{4368, "Renegade"} or "")
+		win:SetTitle(renegade and T(4368, "Renegade") or "")
 		win.idBar:SetVisible(not renegade)
 	end
 	local v = self:GetProperty(stat)
@@ -2276,7 +2258,7 @@ function Colonist:UIStatUpdate(win, stat)
 	win.GetRolloverTitle = function(self)
 		local obj = self.context
 		if stat == "Morale" and obj.traits.Renegade then
-			return T{4368, "Renegade"}
+			return T(4368, "Renegade")
 		end
 		return T{4369, "<title> <GetProperty(stat)>", title = ColonistStat[stat].text, stat = stat, obj[1]}
 	end
@@ -2285,7 +2267,7 @@ function Colonist:UIStatUpdate(win, stat)
 		local def = ColonistStat[stat]
 		local texts
 		if stat == "Morale"  and obj.traits.Renegade then
-			return T{7781, "Citizens with low morale may become Renegades. Their performance is decreased by 50 at all jobs and they can cause crime events when there are not enough Security Stations in the Dome."}
+			return T(7781, "Citizens with low morale may become Renegades. Their performance is decreased by 50 at all jobs and they can cause crime events when there are not enough Security Stations in the Dome.")
 		elseif stat == "Morale" then
 			-- mirror logic in UpdateMorale because Morale does not have a log
 			local low = g_Consts.LowStatLevel / const.Scale.Stat
@@ -2294,7 +2276,7 @@ function Colonist:UIStatUpdate(win, stat)
 				if stat ~= "Morale" then
 					local value = obj:GetProperty(stat)
 					if value < low or value >= high then
-						texts = texts or {def.description, "", T{4370, "Effects:"}}
+						texts = texts or {def.description, "", T(4370, "Effects:")}
 						local sign,clr, amount_text, reason_sign
 						if value<low then
 							sign =  Untranslated("-")
@@ -2312,11 +2294,11 @@ function Colonist:UIStatUpdate(win, stat)
 				end
 			end
 			if obj.dome and obj.dome:HasSpire() and obj.city:IsTechResearched("InspiringArchitecture") then	
-				texts = texts or {def.description, "", T{4370, "Effects:"}}
+				texts = texts or {def.description, "", T(4370, "Effects:")}
 				texts[#texts + 1] = T{4371, "<green>Spire in Dome: <spire_name></green>", spire_name = obj.dome.labels.Spire[1]:GetDisplayName()}
 			end
 			if IsKindOf(obj.workplace, "Workshop") and obj.fulfill_workshift_boost then	
-				texts = texts or {def.description, "", T{4370, "Effects:"}}
+				texts = texts or {def.description, "", T(4370, "Effects:")}
 				texts[#texts + 1] = T{8803, "<green>Works in: <WorkplaceDisplayName> <amount></green>",obj, amount = Untranslated("+")..(g_Consts.WorkInWorkshopMoraleBoost/const.Scale.Stat)}
 			end
 			local trait_defs = TraitPresets
@@ -2331,12 +2313,12 @@ function Colonist:UIStatUpdate(win, stat)
 				end	
 				
 				if mod.display_text then
-					texts = texts or {def.description, "", T{4370, "Effects:"}}
+					texts = texts or {def.description, "", T(4370, "Effects:")}
 					texts[#texts + 1] = T{mod.display_text, amount = mod.amount/stat_scale}
 					cap_count = cap_count + 1
 				end
 				if trait_def then
-					texts = texts or {def.description, "", T{4370, "Effects:"}}
+					texts = texts or {def.description, "", T(4370, "Effects:")}
 					local infopanel_text = trait_def.infopanel_effect_text
 					local trait_text  = (infopanel_text == "") 
 						  and T{4372, "Trait: <trait_name> <amount>", trait_name = trait_def.display_name,amount = mod.amount/stat_scale}
@@ -2349,7 +2331,7 @@ function Colonist:UIStatUpdate(win, stat)
 					cap_count = cap_count + 1
 				end
 				if IsKindOf(mod, "PropertyObject") and mod:HasMember("infopanel_text") or rawget(mod, "infopanel_text") then
-					texts = texts or {def.description, "", T{4370, "Effects:"}}
+					texts = texts or {def.description, "", T(4370, "Effects:")}
 					texts[#texts + 1] = mod.infopanel_text
 					cap_count = cap_count + 1
 				end
@@ -2391,7 +2373,7 @@ function Colonist:UIStatUpdate(win, stat)
 							or trait and T{4378, "Sol <sol>: <clr>Trait <display_name> <amount></color>", amount = amount_text, clr = color, sol = sol, display_name = trait.display_name}
 							or  T{6937, "Sol <sol>: <clr><u(reason)><amount></color>", clr = color, reason = reason,amount = amount_text, sol = sol}																							
 						if not title then 
-							texts[#texts + 1] = T{4382, "Log of recent changes:"}
+							texts[#texts + 1] = T(4382, "Log of recent changes:")
 							title = true
 						end	
 						texts[#texts + 1] = reason_text
@@ -2405,15 +2387,15 @@ end
 
 function Colonist:GetUIWorkplaceLine()
 	if self.workplace or self.last_workplace then
-		return T{4362, "Workplace<right><h SelectWorkplace InfopanelSelect><WorkplaceDisplayName></h>" }
+		return T(4362, "Workplace<right><h SelectWorkplace InfopanelSelect><WorkplaceDisplayName></h>")
 	elseif self.traits["Child"] then
-		return T{4364, "Outside the workforce (Child)"}
+		return T(4364, "Outside the workforce (Child)")
 	elseif self.traits["Senior"] and not g_SeniorsCanWork then
-		return T{4365, "Outside the workforce (Senior)"}
+		return T(4365, "Outside the workforce (Senior)")
 	elseif not self:CanWork() then 
-		return T{6935, "Not looking for a job"}
+		return T(6935, "Not looking for a job")
 	else
-		return T{4366, "Workplace<right>Unemployed"}
+		return T(4366, "Workplace<right>Unemployed")
 	end
 end
 
@@ -2430,7 +2412,7 @@ function Colonist:GetUITraitsLine(separator)
 			end
 		end
 	end
-	return texts and (separator and table.concat(texts, separator) or TList(texts)) or T{7552, "No traits"}
+	return texts and (separator and table.concat(texts, separator) or TList(texts)) or T(7552, "No traits")
 end
 
 function Colonist:GetUITraitsList()
@@ -2444,12 +2426,12 @@ function Colonist:GetUIInterestsLine()
 		texts = texts or {}
 		texts[#texts + 1] = GetInterestDisplayName(interest)
 	end
-	return texts and TList(texts) or T{8935, "No interests"}
+	return texts and TList(texts) or T(8935, "No interests")
 end
 
 function Colonist:GetUITraitsRollover()
 	local texts = {
-		T{4383, "Traits are the individual characteristics of the Colonists."},
+		T(4383, "Traits are the individual characteristics of the Colonists."),
 	}
 	for trait_id in sorted_pairs(self.traits) do
 		local trait = TraitPresets[trait_id]
@@ -2486,7 +2468,7 @@ function Colonist:CanInteractWithObject(obj, mode)
 			if IsKindOfClasses(obj, "TrainingBuilding", "Workplace", "Residence")
 				and can and not IsInWalkingDist(obj, self:GetPos()) 
 				then
-				return can, hint.."\n"..T{9628, "<em>No Shuttle Available</em>"}, go_to 
+				return can, hint.."\n"..T(9628, "<em>No Shuttle Available</em>"), go_to 
 			end
 			return can, hint, go_to
 		end
@@ -2567,13 +2549,13 @@ end
 function Colonist:GetDomeDisplayName()  -- for hyperlinks
 	local bld = self.dome
 	if bld then return bld:GetDisplayName() end
-	return T{6761, "None"}
+	return T(6761, "None")
 end
 
 function Colonist:GetResidenceDisplayName()  -- for hyperlinks
 	local bld = self.residence or self.last_residence
 	if bld then return bld:GetDisplayName() end
-	return T{7553, "Homeless"}
+	return T(7553, "Homeless")
 end
 
 function Colonist:GetServiceDisplayName()  -- for hyperlinks
@@ -2601,9 +2583,9 @@ function Colonist:GetStatusEffects()
 end
 
 function Colonist:GetDescription()
-	local description = self.traits and self.traits["Child"] and T{4314, "One of the youngest residents of the Colony"} 
+	local description = self.traits and self.traits["Child"] and T(4314, "One of the youngest residents of the Colony") 
 		or GetSpecialization(self.specialist).description
-		or T{3849, "A brave citizen of Mars, ready to tame the final frontier."}
+		or T(3849, "A brave citizen of Mars, ready to tame the final frontier.")
 	if self.dying then 
 		return IsT(self.dying_reason) and T{self.dying_reason,self} 
 		or (DeathReasons[self.dying_reason] and T{4315, "The last remains of <em><u(name)></em>. Deceased.", self}) 
@@ -2611,7 +2593,7 @@ function Colonist:GetDescription()
 	end	
 	local issues = self:GetStatusEffects()
 	return description ..
-		T{4316, "<newline><nbsp><nbsp><em>Status:</em> <ui_command>"} ..
+		T(4316, "<newline><nbsp><nbsp><em>Status:</em> <ui_command>") ..
 		(issues and T{4317, "<newline><nbsp><nbsp><em>Issues:</em> <issues>", issues = issues} or "")
 end
 
@@ -2672,34 +2654,34 @@ function Colonist:GetSpecialization()
 end
 
 function Colonist:GetGender()
-	return TraitPresets[self.gender] and TraitPresets[self.gender].display_name or T{77, "Unknown"}
+	return TraitPresets[self.gender] and TraitPresets[self.gender].display_name or T(77, "Unknown")
 end
 
 local ColonistCommands = {
-	Abandoned = T{4318, "Seeking a Dome"},
-	Arrive = T{4319, "Just arrived"},
-	Die = T{4320, "Deceased"},
-	Embark = T{4321, "On an expedition"},
-	Idle = T{6929, "Idle"},
-	MysteryDream = T{6930, "Dreaming"},
-	Rest = T{4323, "Resting in <h SelectResidence InfopanelSelect><ResidenceDisplayName></h>"},
-	RestHomeless = T{4324, "Resting (homeless)"},
-	Roam = T{4325, "Free"},
-	VisitService = T{4326, "Visiting <h SelectService InfopanelSelect><ServiceDisplayName></h>"},
-	VisitNoTarget = T{4327, "Free time - no available Service to visit"},
-	Unknown = T{4328, "Unknown"},
-	Work = T{4329, "Going to work"},
-	WorkCycle = T{4330, "Working in <h SelectWorkplace InfopanelSelect><WorkplaceDisplayName></h>"},
-	WorkUnemployed = T{4331, "Free - unemployed"},
-	WorkStressed =  T{4332, "This Colonist is too Stressed out to work. Give them some time to recover"},
-	Transport =  T{4333, "Moving to a new Dome: <h SelectEmigrationDome InfopanelSelect><EmigrationDomeDisplayName></h>"},
-	TransportByFoot = T{4333, "Moving to a new Dome: <h SelectEmigrationDome InfopanelSelect><EmigrationDomeDisplayName></h>"},
-	LeavingMars = T{4334, "Leaving the Colony"},
+	Abandoned = T(4318, "Seeking a Dome"),
+	Arrive = T(4319, "Just arrived"),
+	Die = T(4320, "Deceased"),
+	Embark = T(4321, "On an expedition"),
+	Idle = T(6929, "Idle"),
+	MysteryDream = T(6930, "Dreaming"),
+	Rest = T(4323, "Resting in <h SelectResidence InfopanelSelect><ResidenceDisplayName></h>"),
+	RestHomeless = T(4324, "Resting (homeless)"),
+	Roam = T(4325, "Free"),
+	VisitService = T(4326, "Visiting <h SelectService InfopanelSelect><ServiceDisplayName></h>"),
+	VisitNoTarget = T(4327, "Free time - no available Service to visit"),
+	Unknown = T(4328, "Unknown"),
+	Work = T(4329, "Going to work"),
+	WorkCycle = T(4330, "Working in <h SelectWorkplace InfopanelSelect><WorkplaceDisplayName></h>"),
+	WorkUnemployed = T(4331, "Free - unemployed"),
+	WorkStressed =  T(4332, "This Colonist is too Stressed out to work. Give them some time to recover"),
+	Transport =  T(4333, "Moving to a new Dome: <h SelectEmigrationDome InfopanelSelect><EmigrationDomeDisplayName></h>"),
+	TransportByFoot = T(4333, "Moving to a new Dome: <h SelectEmigrationDome InfopanelSelect><EmigrationDomeDisplayName></h>"),
+	LeavingMars = T(4334, "Leaving the Colony"),
 	
-	GoingTo = T{4335, "Going to <h SelectWorkplace InfopanelSelect><WorkplaceDisplayName></h>"},
-	StudyingIn = T{4336, "Studying in <h SelectWorkplace InfopanelSelect><WorkplaceDisplayName></h>"},
-	TreatedIn = T{4337, "Treated in <h SelectWorkplace InfopanelSelect><WorkplaceDisplayName></h>"},
-	SafeMode = T{4338, "Safe Mode"},
+	GoingTo = T(4335, "Going to <h SelectWorkplace InfopanelSelect><WorkplaceDisplayName></h>"),
+	StudyingIn = T(4336, "Studying in <h SelectWorkplace InfopanelSelect><WorkplaceDisplayName></h>"),
+	TreatedIn = T(4337, "Treated in <h SelectWorkplace InfopanelSelect><WorkplaceDisplayName></h>"),
+	SafeMode = T(4338, "Safe Mode"),
 }
 
 function Colonist:Getui_command()
@@ -2777,7 +2759,7 @@ function GenerateColonistData(city, age_trait, martianborn, params)
 	martianborn = martianborn or false
 	local newborn = age_trait=="Child"	
 	local birthplace, age 
-	if newborn then
+	if newborn and martianborn then
 		birthplace = "Mars"
 		age_trait = "Child"
 		age = 0
@@ -2803,7 +2785,7 @@ function GenerateColonistData(city, age_trait, martianborn, params)
 	-- traits
 	local traits =  params and params.no_traits and {} or GenerateTraits({city = city, traits = {Martianborn = (not not martianborn or newborn)}}, age_trait=="Child")
 	traits[birthplace] = true
-	traits["Martianborn"] = (not not martianborn or newborn) or nil
+	traits["Martianborn"] = not not martianborn or nil
 	traits[age_trait]  = true
 	--gender	
 	local rand
@@ -3193,21 +3175,31 @@ Colonist.HourUpdate = empty_func
 
 function Colonist:MysteryDream()
 	self:ExitBuilding()
-	if not self.current_dome and not self:EnterBuilding(self.dome) then
+	if not IsValid(self) then
 		return
 	end
-
-	self:GoToRandomPosInDome(self.dome)
+	if self.current_dome or self:EnterBuilding(self.dome) then
+		if not IsValid(self) then
+			return
+		end
+		self:GoToRandomPosInDome(self.dome)
+	end
 
 	self:PushDestructor(function(self)
 		self.dreaming = true
 		self:StartFX("MysteryDream")
 		self:PlayState("sleepStart")
+		if not IsValid(self) then
+			return
+		end
 		self:PlayFXMoment("hit-moment")
 		self:PlayState("sleepIdle", 1, const.eDontCrossfade)
 		if g_MysteryDream then
 			WaitMsg("MysteryDreamEnded")
 			Sleep(self:Random(500))
+			if not IsValid(self) then
+				return
+			end
 		end
 		self:StopFX()
 		self:PlayState("sleepEnd")

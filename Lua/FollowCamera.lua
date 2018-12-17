@@ -86,13 +86,13 @@ end
 
 function OnMsg.UIModeChange(mode)
 	if mode ~= "follow_camera" then
-		Camera3pUnfollow()
+		UnfollowObjAndCloseModeDialog()
 	end
 end
 
 OnMsg.SaveGame = UnfollowObjAndCloseModeDialog
 OnMsg.SelectedObjChange = UnfollowObjAndCloseModeDialog
-OnMsg.PopupNotificationBegin = UnfollowObjAndCloseModeDialog
+OnMsg.MessageBoxPreOpen = UnfollowObjAndCloseModeDialog
 
 DefineClass.CameraFollowObject = {
 	__parents = { "Object", },
@@ -131,6 +131,7 @@ function FollowCameraModeDialog:Close()
 			dlg:SetVisible(visibility)
 		end
 	end
+	self.visibility_states = false
 	ShowGamepadCursor("FollowCamera")
 end
 

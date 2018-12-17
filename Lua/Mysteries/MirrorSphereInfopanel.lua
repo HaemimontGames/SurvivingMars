@@ -29,9 +29,9 @@ end
 
 function MirrorSphereBuilding:GetIPDescription()
 	if not self.scanned then
-		return T{1201, "An odd-looking rock pile."}
+		return T(1201, "An odd-looking rock pile.")
 	elseif self:GetProgressPct() == 100 then
-		return T{1202, "Mirror sphere excavation site"}
+		return T(1202, "Mirror sphere excavation site")
 	else
 		return self.description
 	end
@@ -39,13 +39,13 @@ end
 
 function MirrorSphereBuilding:GetActionDescr()
 	if self.action == "PierceTheShell" then
-		return T{1210, "Attempting to pierce the shell"}
+		return T(1210, "Attempting to pierce the shell")
 	elseif self.action == "Communicate" then
-		return T{1211, "Establishing communication"}
+		return T(1211, "Establishing communication")
 	elseif self.action == "FeedPower" then
-		return T{1212, "Feeding Power"}
+		return T(1212, "Feeding Power")
 	end
-	return T{1213, "Needs further analysis"}
+	return T(1213, "Needs further analysis")
 end
 
 ----
@@ -63,17 +63,17 @@ end
 
 function PowerDecoy:GetActionText()
 	if self.action == "TurnToMetal" then
-		return T{1219, "Decomposing into Metals"}
+		return T(1219, "Decomposing into Metals")
 	elseif self.action == "TurnToPreciousMetal" then
-		return T{1220, "Decomposing into Rare Metals"}
+		return T(1220, "Decomposing into Rare Metals")
 	elseif self.action == "TurnToPolymer" then
-		return T{1221, "Decomposing into Polymers"}
+		return T(1221, "Decomposing into Polymers")
 	elseif self.action then
-		return T{6781, "Idle"}
+		return T(6781, "Idle")
 	elseif self:IsOccupied() then
-		return T{455, "Occupied"}
+		return T(455, "Occupied")
 	else
-		return T{456, "Vacant"}
+		return T(456, "Vacant")
 	end
 end
 

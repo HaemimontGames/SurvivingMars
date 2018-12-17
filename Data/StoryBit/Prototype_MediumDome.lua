@@ -15,14 +15,20 @@ PlaceObj('StoryBit', {
 			'SponsorName', "ISRO",
 			'Negate', true,
 		}),
+		PlaceObj('CheckObjectCount', {
+			'Label', "scientist",
+			'Filters', {},
+			'Condition', ">=",
+			'Amount', 1,
+		}),
 	},
 	ScriptDone = true,
-	Text = T{634794330490, --[[StoryBit Prototype_MediumDome Text]] "Our recent discovery of the “Low-G Engineering” technology has inspired our research team and they want to prototype a Medium Dome.\n\nThere are some concerns that our other scientific endeavors will suffer due to the distraction and a positive result is not guaranteed."},
+	Text = T(634794330490, --[[StoryBit Prototype_MediumDome Text]] "Our recent discovery of the “Low-G Engineering” technology has inspired our research team and they want to prototype a Medium Dome.\n\nThere are some concerns that our other scientific endeavors will suffer due to the distraction and a positive result is not guaranteed."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{120968497094, --[[StoryBit Prototype_MediumDome Title]] "Prototype Medium Dome"},
+	Title = T(120968497094, --[[StoryBit Prototype_MediumDome Title]] "Prototype Medium Dome"),
 	Trigger = "TechResearchedTrigger",
-	VoicedText = T{485228194456, --[[voice:narrator]] "Excited and nervous, the group of Scientists in your office can do little to hide their excitement. They want to build a prototype of a new kind of structure. "},
+	VoicedText = T(485228194456, --[[voice:narrator]] "Excited and nervous, the group of Scientists in your office can do little to hide their excitement. They want to build a prototype of a new kind of structure. "),
 	group = "Buildings",
 	id = "Prototype_MediumDome",
 	PlaceObj('StoryBitParamPercent', {
@@ -34,9 +40,9 @@ PlaceObj('StoryBit', {
 		'Value', 3600000,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{353047012109, --[[StoryBit Prototype_MediumDome Text]] "Let them try!"},
+		'Text', T(353047012109, --[[StoryBit Prototype_MediumDome Text]] "Let them try!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{922275607541, --[[StoryBit Prototype_MediumDome CustomOutcomeText]] "<rp_reduction>% generated research for <sols(duration)> Sols, chance to get a Medium Dome prefab"},
+		'CustomOutcomeText', T(922275607541, --[[StoryBit Prototype_MediumDome CustomOutcomeText]] "<rp_reduction>% generated research for <sols(duration)> Sols, chance to get a Medium Dome prefab"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -99,9 +105,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{671538603784, --[[StoryBit Prototype_MediumDome Text]] "Join the project yourself."},
+		'Text', T(671538603784, --[[StoryBit Prototype_MediumDome Text]] "Join the project yourself."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{823084887974, --[[StoryBit Prototype_MediumDome CustomOutcomeText]] "<rp_reduction>% research generated for <sols(duration)> Sols,guaranteed Medium Dome prefab"},
+		'CustomOutcomeText', T(823084887974, --[[StoryBit Prototype_MediumDome CustomOutcomeText]] "<rp_reduction>% research generated for <sols(duration)> Sols, guaranteed Medium Dome prefab"),
 		'Prerequisite', PlaceObj('IsCommander', {
 			'CommanderProfile', "inventor",
 		}),
@@ -144,9 +150,9 @@ PlaceObj('StoryBit', {
 		'Value', 7200000,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{887088589221, --[[StoryBit Prototype_MediumDome Text]] "Deny the request."},
+		'Text', T(887088589221, --[[StoryBit Prototype_MediumDome Text]] "Deny the request."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{201426212996, --[[StoryBit Prototype_MediumDome CustomOutcomeText]] "<morale_penalty> Morale of all Scientists for <sols(morale_penalty_duration)> Sols"},
+		'CustomOutcomeText', T(201426212996, --[[StoryBit Prototype_MediumDome CustomOutcomeText]] "<morale_penalty> Morale of all Scientists for <sols(morale_penalty_duration)> Sols"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},

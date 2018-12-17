@@ -3,15 +3,15 @@ DefineClass.SupplyPod = {
 	__parents = { "SupplyRocket" },
 	
 	properties = {
-		{ template = true, id = "cargo_capacity", name = T{757, "Cargo Capacity (kg)"}, category = "Supply Pod", editor = "number", default = 100000, min = 0, modifiable = true },
-		{ template = true, id = "initial_cost", name = T{10357, "Initial Cost (M)"}, category = "Supply Pod", editor = "number", default = 100, min = 0, modifiable = true },
+		{ template = true, id = "cargo_capacity", name = T(757, "Cargo Capacity (kg)"), category = "Supply Pod", editor = "number", default = 100000, min = 0, modifiable = true },
+		{ template = true, id = "initial_cost", name = T(10357, "Initial Cost (M)"), category = "Supply Pod", editor = "number", default = 100, min = 0, modifiable = true },
 		{ id = "allow_export",	editor = "bool", default = false, no_edit = true },
 	},
 	rocket_palette = { "rocket_base", "outside_dark", "rocket_accent", "rocket_base" },
 	launch_after_unload = false,
 	landing_site_class = "PodLandingSite",
 	
-	pin_rollover = T{10274, "The remains of a Supply Pod. Can be salvaged for resources."},
+	pin_rollover = T(10274, "The remains of a Supply Pod. Can be salvaged for resources."),
 
 	-- landing/takeoff parameters
 	orbital_altitude = 2500*guim,
@@ -51,7 +51,7 @@ function SupplyPod:Done()
 end
 
 function SupplyPod:GetRocketType()
-	return T{824938247285, "Supply Pod"}
+	return T(824938247285, "Supply Pod")
 end
 
 function SupplyPod:Unload()

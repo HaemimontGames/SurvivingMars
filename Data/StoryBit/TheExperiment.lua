@@ -18,11 +18,11 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	ScriptDone = true,
-	Text = T{490394298129, --[[StoryBit TheExperiment Text]] "Quick to assure you the experiment is perfectly safe, <DisplayName> reluctantly asks for permission to test within the vicinity of a Dome – in case they need to get to shelter really fast."},
+	Text = T(490394298129, --[[StoryBit TheExperiment Text]] "Quick to assure you the experiment is perfectly safe, <DisplayName> reluctantly asks for permission to test within the vicinity of a Dome – in case they need to get to shelter really fast."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{896405918607, --[[StoryBit TheExperiment Title]] "The Experiment"},
-	VoicedText = T{492443614001, --[[voice:narrator]] "A Scientist barges into your office and says they have an important climate experiment to make."},
+	Title = T(896405918607, --[[StoryBit TheExperiment Title]] "The Experiment"),
+	VoicedText = T(492443614001, --[[voice:narrator]] "A Scientist barges into your office and says they have an important climate experiment to make."),
 	group = "Colonists",
 	id = "TheExperiment",
 	PlaceObj('StoryBitParamResearchPoints', {
@@ -34,9 +34,9 @@ PlaceObj('StoryBit', {
 		'Value', 3000,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{902039096119, --[[StoryBit TheExperiment Text]] "Innovation is always welcome! Go ahead – test it near a Dome."},
+		'Text', T(902039096119, --[[StoryBit TheExperiment Text]] "Innovation is always welcome! Go ahead – test it near a Dome."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{623306731985, --[[StoryBit TheExperiment CustomOutcomeText]] "get Research, something might happen"},
+		'CustomOutcomeText', T(623306731985, --[[StoryBit TheExperiment CustomOutcomeText]] "get Research, something might happen"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -68,9 +68,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{399295356378, --[[StoryBit TheExperiment Text]] "Sounds intriguing but I’d rather play it safe. Test it somewhere far away."},
+		'Text', T(399295356378, --[[StoryBit TheExperiment Text]] "Sounds intriguing but I’d rather play it safe. Test it somewhere far away."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{402353779881, --[[StoryBit TheExperiment CustomOutcomeText]] "get Research, something might happen"},
+		'CustomOutcomeText', T(402353779881, --[[StoryBit TheExperiment CustomOutcomeText]] "get Research, something might happen"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -86,7 +86,7 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{642549042924, --[[StoryBit TheExperiment Text]] "Enough crazy for today. Please, leave my office."},
+		'Text', T(642549042924, --[[StoryBit TheExperiment Text]] "Enough crazy for today. Please, leave my office."),
 	}),
 })
 

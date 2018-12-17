@@ -9,8 +9,8 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateTemplate', {
 			'comment', "colonists",
 			'__template', "InfopanelButton",
-			'RolloverText', T{9681, --[[XTemplate customDomeButtons RolloverText]] "Inspect Colonists residing in this dome in the Command Center."},
-			'RolloverTitle', T{425452845742, --[[XTemplate customDomeButtons RolloverTitle]] "Inspect Residents"},
+			'RolloverText', T(9681, --[[XTemplate customDomeButtons RolloverText]] "Inspect Colonists residing in this dome in the Command Center."),
+			'RolloverTitle', T(425452845742, --[[XTemplate customDomeButtons RolloverTitle]] "Inspect Residents"),
 			'OnPress', function (self, gamepad)
 OpenCommandCenter({dome = self.context}, "Colonists")
 end,
@@ -19,8 +19,8 @@ end,
 		PlaceObj('XTemplateTemplate', {
 			'comment', "buildings",
 			'__template', "InfopanelButton",
-			'RolloverText', T{9682, --[[XTemplate customDomeButtons RolloverText]] "Inspect buildings in this dome in the Command Center."},
-			'RolloverTitle', T{393977632582, --[[XTemplate customDomeButtons RolloverTitle]] "Inspect Buildings"},
+			'RolloverText', T(9682, --[[XTemplate customDomeButtons RolloverText]] "Inspect buildings in this dome in the Command Center."),
+			'RolloverTitle', T(393977632582, --[[XTemplate customDomeButtons RolloverTitle]] "Inspect Buildings"),
 			'OnPress', function (self, gamepad)
 OpenCommandCenter({dome = self.context}, "Buildings")
 end,

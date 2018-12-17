@@ -33,11 +33,11 @@ PlaceObj('StoryBit', {
 		PlaceObj('SupplyMissionsEnabled', nil),
 	},
 	ScriptDone = true,
-	Text = T{629928711723, --[[StoryBit InvestmentOpportunity Text]] "Word is that they are about to unveil a new virtual reality tech called DreamWeb. If this new tech fad catches on, it could become bigger than anything that Microsoft or Apple had ever done!\n\nOne sympathizer of our colony shared this information with us fairly early on, giving us the opportunity to invest and make a lot of money. But make no mistake, at the end of the day this is all highly speculative. If DreamWeb tanks, we will almost certainly lost most of the invested funds."},
+	Text = T(629928711723, --[[StoryBit InvestmentOpportunity Text]] "Word is that they are about to unveil a new virtual reality tech called DreamWeb. If this new tech fad catches on, it could become bigger than anything that Microsoft or Apple had ever done!\n\nOne sympathizer of our colony shared this information with us fairly early on, giving us the opportunity to invest and make a lot of money. But make no mistake, at the end of the day this is all highly speculative. If DreamWeb tanks, we will almost certainly lose most of the invested funds."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{271983493200, --[[StoryBit InvestmentOpportunity Title]] "Investment opportunity"},
-	VoicedText = T{234249987527, --[[voice:narrator]] "On Earth, a new company is making waves on the stock market. "},
+	Title = T(271983493200, --[[StoryBit InvestmentOpportunity Title]] "Investment Opportunity"),
+	VoicedText = T(234249987527, --[[voice:narrator]] "On Earth, a new company is making waves on the stock market. "),
 	group = "Sponsor",
 	id = "InvestmentOpportunity",
 	PlaceObj('StoryBitParamFunding', {
@@ -45,7 +45,7 @@ PlaceObj('StoryBit', {
 		'Value', 500000000,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{105204324977, --[[StoryBit InvestmentOpportunity Text]] "Sounds promising, we should invest."},
+		'Text', T(105204324977, --[[StoryBit InvestmentOpportunity Text]] "Sounds promising, we should invest."),
 		'Cost', "<requested_funds>",
 	}),
 	PlaceObj('StoryBitOutcome', {
@@ -54,11 +54,7 @@ PlaceObj('StoryBit', {
 		'Enables', {
 			"InvestmentOpportunity_FailedReturn",
 		},
-		'Effects', {
-			PlaceObj('PayFunding', {
-				'Amount', "<requested_funds>",
-			}),
-		},
+		'Effects', {},
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -66,11 +62,7 @@ PlaceObj('StoryBit', {
 		'Enables', {
 			"InvestmentOpportunity_GoodReturn",
 		},
-		'Effects', {
-			PlaceObj('PayFunding', {
-				'Amount', "<requested_funds>",
-			}),
-		},
+		'Effects', {},
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -78,17 +70,13 @@ PlaceObj('StoryBit', {
 		'Enables', {
 			"InvestmentOpportunity_GreatReturn",
 		},
-		'Effects', {
-			PlaceObj('PayFunding', {
-				'Amount', "<requested_funds>",
-			}),
-		},
+		'Effects', {},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{839026293408, --[[StoryBit InvestmentOpportunity Text]] " We are not in the gambling business. Pass."},
+		'Text', T(839026293408, --[[StoryBit InvestmentOpportunity Text]] " We are not in the gambling business. Pass."),
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{651297334336, --[[StoryBit InvestmentOpportunity Text]] "Send this sympathizer a bottle of something nice and get Blue Sun's tech team on the comm. We'll ride the hype train with a product of our own."},
+		'Text', T(651297334336, --[[StoryBit InvestmentOpportunity Text]] "Send this sympathizer a bottle of something nice and get Blue Sun's tech team on the comm. We'll ride the hype train with a product of our own."),
 		'Prerequisite', PlaceObj('IsSponsor', {
 			'SponsorName', "BlueSun",
 		}),
@@ -98,11 +86,7 @@ PlaceObj('StoryBit', {
 		'Enables', {
 			"InvestmentOpportunity_BlueSun",
 		},
-		'Effects', {
-			PlaceObj('PayFunding', {
-				'Amount', "<requested_funds>",
-			}),
-		},
+		'Effects', {},
 	}),
 })
 

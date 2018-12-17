@@ -168,7 +168,7 @@ function FormatResourceValueMaxResource(context_obj, value, max, resource)
 		or (value_frac == 0 and not frac) and T{4844, "<int>", int = value_int} 
 		or T{4845, "<int>.<frac>", int = value_int, frac = frac or Untranslated(value_frac) } 
 	if value_sign < 0 then
-		Tvalue = T{6981, "-"} .. Tvalue
+		Tvalue = T(6981, "-") .. Tvalue
 	end
 	return Tvalue .. Tmax .. Tresource
 end
@@ -296,7 +296,7 @@ TFormat.FormatResourceIcon = function(...)
 end
 
 function FormatResourceName(resource)
-	local invalid_resource = T{4855, "<red>INVALID RESOURCE</red>"}
+	local invalid_resource = T(4855, "<red>INVALID RESOURCE</red>")
 	if resource and Resources[resource] then
 		return Resources[resource].display_name or invalid_resource
 	end	
@@ -375,10 +375,10 @@ TFormat.funding = function(context_obj,x)
 		return T{4857, "<em>$<integer></em>", integer = x}
 	elseif x < 1000*1000 then
 		div = 1000
-		suffix = T{4858, "k"}
+		suffix = T(4858, "k")
 	else
 		div = 1000*1000
-		suffix = T{6983, "M"}
+		suffix = T(6983, "M")
 	end
 	
 	local integer = x / div
@@ -403,7 +403,7 @@ end
 
 TFormat.new_in = function(context_obj, version)
 	if version == const.GameNewFeaturesNotificationVersion then
-		return T{11446, "<em>NEW!</em> "}
+		return T(11446, "<em>NEW!</em> ")
 	end
 	return ""
 end
@@ -437,12 +437,12 @@ end
 function AllResourcesCombo() --construction resources, food, grid, funding, RP
 	local result = table.icopy(ResourcesDropDownListItems)
 	table.remove_entry(result, "value", "Water")
-	result[#result + 1] = { text = T{4806, "Water Production"}, value =  "Water"}
-	result[#result + 1] = { text = T{5558, "Air Production"}, value =  "Air"}
-	result[#result + 1] = { text = T{936, "Power Production"}, value =  "Power"}
-	result[#result + 1] = { text = T{33, "Stored Water"}, value =  "StoredWater"}
-	result[#result + 1] = { text = T{1074, "Stored Air"}, value =  "StoredAir"}
-	result[#result + 1] = { text = T{945, "Stored Power"}, value =  "StoredPower"}
+	result[#result + 1] = { text = T(4806, "Water Production"), value =  "Water"}
+	result[#result + 1] = { text = T(5558, "Air Production"), value =  "Air"}
+	result[#result + 1] = { text = T(936, "Power Production"), value =  "Power"}
+	result[#result + 1] = { text = T(33, "Stored Water"), value =  "StoredWater"}
+	result[#result + 1] = { text = T(1074, "Stored Air"), value =  "StoredAir"}
+	result[#result + 1] = { text = T(945, "Stored Power"), value =  "StoredPower"}
 	return result
 end
 
@@ -466,7 +466,7 @@ end
 
 function PrefabsCombo(first_entry)
 	local items =  BuildingsCombo(first_entry)
-	table.insert(items, 2, {value = "DronePrefab", text = T{11189, "Drone Prefab"}})
+	table.insert(items, 2, {value = "DronePrefab", text = T(11189, "Drone Prefab")})
 	return items
 end
 
@@ -567,7 +567,7 @@ function BaseTraitsCombo(city, add_empty)
 	end)
 	
 	if add_empty then
-		table.insert(traits, 1, {text = T{6761, "None"}, value = ""})
+		table.insert(traits, 1, {text = T(6761, "None"), value = ""})
 	end
 	
 	return traits
@@ -777,7 +777,7 @@ end
 
 -- "<on_off(IsResourceAvailable(res))>"
 TFormat.on_off = function (context_obj, var)
-	return (var and var ~= "") and T{6772, "<green>ON</green>"} or T{6771, "<red>OFF</red>"}
+	return (var and var ~= "") and T(6772, "<green>ON</green>") or T(6771, "<red>OFF</red>")
 end
 
 TFormat.has_dlc = function (context_obj, dlc)

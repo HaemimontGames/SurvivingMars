@@ -42,12 +42,12 @@ PlaceObj('XTemplate', {
 				PlaceObj('XTemplateTemplate', {
 					'__template', "DialogTitleNew",
 					'Margins', box(55, 0, 0, 0),
-					'Title', T{708805240891, --[[XTemplate MissionProfileDlg Title]] "MISSION GOALS"},
-					'Subtitle', T{774720837511, --[[XTemplate MissionProfileDlg Subtitle]] "Difficulty Challenge <percent(DifficultyBonus)>"},
+					'Title', T(708805240891, --[[XTemplate MissionProfileDlg Title]] "MISSION GOALS"),
+					'Subtitle', T(774720837511, --[[XTemplate MissionProfileDlg Subtitle]] "Difficulty Challenge <percent(DifficultyBonus)>"),
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "close",
-					'ActionName', T{4523, --[[XTemplate MissionProfileDlg ActionName]] "CLOSE"},
+					'ActionName', T(4523, --[[XTemplate MissionProfileDlg ActionName]] "CLOSE"),
 					'ActionToolbar', "ActionBar",
 					'ActionShortcut', "Escape",
 					'ActionGamepad', "ButtonB",

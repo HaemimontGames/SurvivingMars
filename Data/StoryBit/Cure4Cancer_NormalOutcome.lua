@@ -22,11 +22,11 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	ScriptDone = true,
-	Text = T{500948267418, --[[StoryBit Cure4Cancer_NormalOutcome Text]] "A battle in the war against Cancer has been won! Humanity hasn't discovered the cure for the horrific disease yet, but we managed to make progress. Our colonists are proud that we were a part of this initiative.  \n\n<effect>+<morale_boost> Morale for the next <sols(morale_boost_duration)> Sols"},
+	Text = T(500948267418, --[[StoryBit Cure4Cancer_NormalOutcome Text]] "A battle in the war against cancer has been won! Humanity hasn't discovered the cure for the horrific disease yet, but we managed to make progress. Our colonists are proud that we were a part of this initiative.  \n\n<effect>+<morale_boost> Morale for the next <sols(morale_boost_duration)> Sols"),
 	TextReadyForValidation = true,
 	TextsDone = true,
 	Trigger = "TechResearchedTrigger",
-	VoicedText = T{356069116535, --[[voice:narrator]] "Everyone on Mars is standing tall today, filled with great pride. "},
+	VoicedText = T(356069116535, --[[voice:narrator]] "Everyone on Mars is standing tall today, filled with great pride. "),
 	group = "Sponsor",
 	id = "Cure4Cancer_NormalOutcome",
 	PlaceObj('StoryBitParamNumber', {

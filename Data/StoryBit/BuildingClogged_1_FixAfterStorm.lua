@@ -8,7 +8,7 @@ PlaceObj('StoryBit', {
 	},
 	Delay = 30000,
 	Effects = {},
-	NotificationText = T{10993, --[[StoryBit BuildingClogged_1_FixAfterStorm NotificationText]] "A repair crew has fixed <DisplayName>"},
+	NotificationText = T(10993, --[[StoryBit BuildingClogged_1_FixAfterStorm NotificationText]] "A repair crew has fixed <DisplayName>"),
 	Prerequisites = {},
 	ScriptDone = true,
 	TextReadyForValidation = true,

@@ -302,6 +302,7 @@ function OverviewModeDialog:SetScan(mode)
 	end
 	
 	self.scan_mode = mode
+	self:SetMouseCursor(mode and "UI/Cursors/Interaction.tga" or "")
 	DoneObject(self.sector_obj)
 	for _, obj in ipairs(self.sector_objs or empty_table) do
 		DoneObject(obj)
@@ -350,6 +351,7 @@ function OverviewModeDialog:SelectSector(sector, rollover_pos, forced)
 	if sector and (forced or not CameraTransitionThread) then
 		if self.sector_id ~= sector.id then -- only refresh when a new sector is hovered
 			PlayFX("SectorHover", "start") --for sound
+			self:SetMouseCursor(self.scan_mode and "UI/Cursors/Interaction.tga" or "")
 			self.current_sector = sector
 			self.sector_id = sector.id
 			
@@ -394,6 +396,7 @@ function OverviewModeDialog:SelectSector(sector, rollover_pos, forced)
 			end
 		end
 	else
+		self:SetMouseCursor("")
 		self.sector_obj:ClearEnumFlags(const.efVisible)
 		for _, obj in ipairs(self.sector_objs or empty_table) do
 			obj:ClearEnumFlags(const.efVisible)
@@ -419,6 +422,7 @@ end
 
 function OverviewModeDialog:OnMousePos(pt)
 	self:SelectSectorAtPoint(GetTerrainCursor(), pt)
+	UnitDirectionModeDialog.OnMousePos(self, pt)
 end
 
 function OverviewModeDialog:GenerateSectorRolloverContext(sector, forced)
@@ -437,7 +441,7 @@ function OverviewModeDialog:GenerateSectorRolloverContext(sector, forced)
 			status = "deep available"
 		end
 		if sector:HasBlockers() then
-			texts[#texts + 1] = T{10411, "<em>An Alien Crystal is blocking the scanning of this sector</em>"}
+			texts[#texts + 1] = T(10411, "<em>An Alien Crystal is blocking the scanning of this sector</em>")
 		else
 			texts[#texts + 1] = T{4049, "<em><status></em>", status = SectorStatusToDisplay[status]}
 		end
@@ -485,7 +489,7 @@ function OverviewModeDialog:GenerateSectorRolloverContext(sector, forced)
 		end
 		
 		if #expected > 0 then
-			texts[#texts + 1] = T{4053, "<newline>High chance that this Sector contains:"}
+			texts[#texts + 1] = T(4053, "<newline>High chance that this Sector contains:")
 			for i = 1, #expected do
 				texts[#texts + 1] = T{4054, "<tab 10><name>", name = expected[i]}
 			end
@@ -497,60 +501,60 @@ function OverviewModeDialog:GenerateSectorRolloverContext(sector, forced)
 		if not scanned or (deep and not deep_scanned) then
 			local texts = {}
 			if queue_idx  or  queued < max then
-				texts = {T{4056, "<ButtonY> Add/Remove sector from scan queue"}}
+				texts = {T(4056, "<ButtonY> Add/Remove sector from scan queue")}
 			end
 			if queued>=1 and (queue_idx  and queue_idx>1 or queued < max) then
-				texts[#texts +1] = T{10889, "<RightTrigger><ButtonY> Queue first"}
+				texts[#texts +1] = T(10889, "<RightTrigger><ButtonY> Queue first")
 			end	
 			if has_probes then
-				texts[#texts +1] = T{10536, "<ButtonX> Deploy an Orbital Probe to scan this sector"}
-				texts[#texts +1] = T{7908, "<ButtonA> Zoom in"}
+				texts[#texts +1] = T(10536, "<ButtonX> Deploy an Orbital Probe to scan this sector")
+				texts[#texts +1] = T(7908, "<ButtonA> Zoom in")
 				texts[#texts +1] = Untranslated("\n")
 			else
-				texts[#texts +1] = T{7908, "<ButtonA> Zoom in"}
+				texts[#texts +1] = T(7908, "<ButtonA> Zoom in")
 			end
 			hint_gamepad = table.concat(texts, "\n")	
 				
 			if not self.scan_mode then
 				if queue_idx then
-					hint = T{4057, "<right_click> Remove from queue"}
+					hint = T(4057, "<right_click> Remove from queue")
 				elseif queued < max then
-					hint = T{4058, "<left_click> Add to queue"}
+					hint = T(4058, "<left_click> Add to queue")
 				end				 
 				if queued>=1 and (queue_idx  and queue_idx>1 or queued < max) then
-					hint = (hint or "").."\n".. T{10537, "Ctrl + <left_click> Queue first"}
+					hint = (hint or "").."\n".. T(10537, "Ctrl + <left_click> Queue first")
 				end					
 			end
 			if has_probes then
 				hint = hint and hint .. "<newline>" or ""
 				if self.scan_mode then
 					if deep_probes then
-						hint = hint .. T{10985, "<left_click> Deploy an Orbital Probe and deep scan this Sector"}
+						hint = hint .. T(10985, "<left_click> Deploy an Orbital Probe and deep scan this Sector")
 					else
-						hint = hint .. T{4060, "<left_click> Deploy an Orbital Probe and scan this Sector"}
+						hint = hint .. T(4060, "<left_click> Deploy an Orbital Probe and scan this Sector")
 					end
 				else
 					if deep_probes then
-						hint = hint .. T{4061, "<em><ShortcutName('actionDeployProbe')></em> Deploy an Orbital Probe and deep scan this Sector"}
+						hint = hint .. T(4061, "<em><ShortcutName('actionDeployProbe')></em> Deploy an Orbital Probe and deep scan this Sector")
 					else
-						hint = hint .. T{4062, "<em><ShortcutName('actionDeployProbe')></em> Deploy an Orbital Probe and scan this Sector"}
+						hint = hint .. T(4062, "<em><ShortcutName('actionDeployProbe')></em> Deploy an Orbital Probe and scan this Sector")
 					end
 				end
 			end
 		elseif deep_probes and not deep_scanned and has_probes then
 			if self.scan_mode then
-				hint = T{10986, "<left_click> Deploy an Orbital Probe and deep scan this Sector"}
+				hint = T(10986, "<left_click> Deploy an Orbital Probe and deep scan this Sector")
 			else
-				hint = T{4061, "<em><ShortcutName('actionDeployProbe')></em> Deploy an Orbital Probe and deep scan this Sector"}
+				hint = T(4061, "<em><ShortcutName('actionDeployProbe')></em> Deploy an Orbital Probe and deep scan this Sector")
 			end
 		else
-			hint_gamepad = T{7908, "<ButtonA> Zoom in"}
+			hint_gamepad = T(7908, "<ButtonA> Zoom in")
 		end
 	elseif deep_probes and not deep_scanned and has_probes then
 		if self.scan_mode then
-			hint = T{4059, "<left_click> to deploy an Orbital Probe and deep scan this Sector"}
+			hint = T(4059, "<left_click> to deploy an Orbital Probe and deep scan this Sector")
 		else
-			hint = T{4061, "<em><ShortcutName('actionDeployProbe')></em> Deploy an Orbital Probe and deep scan this Sector"}
+			hint = T(4061, "<em><ShortcutName('actionDeployProbe')></em> Deploy an Orbital Probe and deep scan this Sector")
 		end
 	end
 	

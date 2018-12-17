@@ -24,12 +24,12 @@ function GetDepositGradeToMultiplier(grade)
 end
 
 DepositGradeToDisplayName = {
-	["Depleted"]  = T{778, "Depleted"},
-	["Very Low"]  = T{779, "Very low"},
-	["Low"]       = T{644, "Low"},
-	["Average"]   = T{780, "Average"},
-	["High"]      = T{7358, "High"},
-	["Very High"] = T{781, "Very high"},
+	["Depleted"]  = T(778, "Depleted"),
+	["Very Low"]  = T(779, "Very low"),
+	["Low"]       = T(644, "Low"),
+	["Average"]   = T(780, "Average"),
+	["High"]      = T(7358, "High"),
+	["Very High"] = T(781, "Very high"),
 }
 
 local DepthLayerToMetersMinMax = {
@@ -44,11 +44,11 @@ local DepthLayerToMetersMinMax = {
 DefineClass.SubsurfaceDepositMarker = {
 	__parents = { "DepositMarker" },
 	properties = {
-		{ category = "Deposit", name = T{15, "Resource"},    id = "resource",    editor = "combo",        default = "Metals", items = SubSurfaceDeposits },
-		{ category = "Deposit", name = T{782, "Max amount"},  id = "max_amount",  editor = "number",       default = 50000, scale = const.ResourceScale},	 --quantity
-		{ category = "Deposit", name = T{16, "Grade"},       id = "grade",       editor = "dropdownlist", default = "Average", items = DepositGradesTable}, --grade
-		{ category = "Deposit", name = T{6, "Depth Layer"}, id = "depth_layer", editor = "number",       default = 1, min = 1, max = const.DepositDeepestLayer}, --depth layer
-		{ category = "Deposit", name = T{7, "Is Revealed"}, id = "revealed",    editor = "bool",         default = false }, 
+		{ category = "Deposit", name = T(15, "Resource"),    id = "resource",    editor = "combo",        default = "Metals", items = SubSurfaceDeposits },
+		{ category = "Deposit", name = T(782, "Max amount"),  id = "max_amount",  editor = "number",       default = 50000, scale = const.ResourceScale},	 --quantity
+		{ category = "Deposit", name = T(16, "Grade"),       id = "grade",       editor = "dropdownlist", default = "Average", items = DepositGradesTable}, --grade
+		{ category = "Deposit", name = T(6, "Depth Layer"), id = "depth_layer", editor = "number",       default = 1, min = 1, max = const.DepositDeepestLayer}, --depth layer
+		{ category = "Deposit", name = T(7, "Is Revealed"), id = "revealed",    editor = "bool",         default = false }, 
 	},
 }
 
@@ -97,7 +97,7 @@ end
 DefineClass.ExplorableObject = {
 	__parents = { "SyncObject", },
 	properties = {
-		{ name = T{7, "Is Revealed"}, id = "revealed", editor = "bool" }, -- so it gets saved..
+		{ name = T(7, "Is Revealed"), id = "revealed", editor = "bool" }, -- so it gets saved..
 	},
 	
 	revealed = false,
@@ -187,20 +187,20 @@ DefineClass.SubsurfaceDeposit = {
 	game_flags = { gofRealTimeAnim = true },
 	class_flags = { cfConstructible = false },
 	properties = {
-		{ category = "Deposit", name = T{782, "Max amount"},  id = "max_amount",  editor = "number",       default = 50000, scale = const.ResourceScale},	 --quantity
-		{ category = "Deposit", name = T{16, "Grade"},       id = "grade",       editor = "dropdownlist", default = "Average", items = DepositGradesTable}, --grade
-		{ category = "Deposit", name = T{6, "Depth Layer"}, id = "depth_layer", editor = "number",       default = 1, min = 1, max = const.DepositDeepestLayer}, --depth layer
+		{ category = "Deposit", name = T(782, "Max amount"),  id = "max_amount",  editor = "number",       default = 50000, scale = const.ResourceScale},	 --quantity
+		{ category = "Deposit", name = T(16, "Grade"),       id = "grade",       editor = "dropdownlist", default = "Average", items = DepositGradesTable}, --grade
+		{ category = "Deposit", name = T(6, "Depth Layer"), id = "depth_layer", editor = "number",       default = 1, min = 1, max = const.DepositDeepestLayer}, --depth layer
 	},
 	
 	
 	vis_exp = false,
 	--ui
-	display_name = T{783, "Deep <resource(resource)>"},
+	display_name = T(783, "Deep <resource(resource)>"),
 	display_icon = "UI/Icons/Buildings/drone.tga",
 	amount = 0,
 	
 	-- pin section
-	pin_rollover = T{784, "<Description><newline><newline><ResourceName><right><resource(amount,max_amount,resource)><newline><left>Grade<right><grade_name>"},
+	pin_rollover = T(784, "<Description><newline><newline><ResourceName><right><resource(amount,max_amount,resource)><newline><left>Grade<right><grade_name>"),
 	pin_progress_value = "amount",
 	pin_progress_max = "max_amount",
 	
@@ -379,10 +379,10 @@ DefineClass("SubsurfaceDepositMetals",
 	disabled_entity = "SignUnexploitableMetal",
 	display_icon = "UI/Icons/Buildings/deposit_subsurface_metals.tga",
 	--name and description is reassigned when setting a new 'depth_layer' (see SubsurfaceDeposit:Setdepth_layer)
-	display_name = T{791, "Underground Metals"},
-	description = T{792, "An underground deposit of Metals. Can be exploited by a <em>Metals Extractor</em> staffed by <em>Colonists</em>."},
-	display_name_deep = T{793, "Deep Metals"},
-	description_deep = T{794, "A deep underground deposit of Metals. Can be exploited by a <em>Metals Extractor</em> staffed by <em>Colonists</em>."}
+	display_name = T(791, "Underground Metals"),
+	description = T(792, "An underground deposit of Metals. Can be exploited by a <em>Metals Extractor</em> staffed by <em>Colonists</em>."),
+	display_name_deep = T(793, "Deep Metals"),
+	description_deep = T(794, "A deep underground deposit of Metals. Can be exploited by a <em>Metals Extractor</em> staffed by <em>Colonists</em>.")
 })
 
 DefineClass("SubsurfaceDepositWater",
@@ -392,11 +392,18 @@ DefineClass("SubsurfaceDepositWater",
 	disabled_entity = "SignUnexploitableWater",
 	display_icon = "UI/Icons/Buildings/deposit_water.tga",
 	--name and description is reassigned when setting a new 'depth_layer' (see SubsurfaceDeposit:Setdepth_layer)
-	display_name = T{795, "Underground Water"},
-	description = T{796, "An underground deposit of Water. Can be exploited by a <em>Water Extractor</em>."},
-	display_name_deep = T{797, "Deep Water"},
-	description_deep = T{798, "Deep underground deposit of Water. Can be exploited by a <em>Water Extractor</em>."},
+	display_name = T(795, "Underground Water"),
+	description = T(796, "An underground deposit of Water. Can be exploited by a <em>Water Extractor</em>."),
+	display_name_deep = T(797, "Deep Water"),
+	description_deep = T(798, "Deep underground deposit of Water. Can be exploited by a <em>Water Extractor</em>."),
 })
+
+function SubsurfaceDepositWater:OnRevealedValueChanged()
+	SubsurfaceDeposit.OnRevealedValueChanged(self)
+	if self.revealed then
+		Msg("WaterDepositRevealed", self)
+	end
+end
 
 DefineClass("SubsurfaceDepositPreciousMetals",
 { __parents = {"SubsurfaceDeposit"},
@@ -405,10 +412,10 @@ DefineClass("SubsurfaceDepositPreciousMetals",
 	disabled_entity = "SignUnexploitablePreciousMetals",
 	display_icon = "UI/Icons/Buildings/deposit_rare_metals.tga",
 	--name and description is reassigned when setting a new 'depth_layer' (see SubsurfaceDeposit:Setdepth_layer)
-	display_name = T{799, "Underground Rare Metals"},
-	description = T{800, "An underground deposit of Rare Metals. Can be exploited by a <em>Rare Metals Extractor</em> staffed by <em>Colonists</em>."},
-	display_name_deep = T{801, "Deep Rare Metals"},
-	description_deep = T{802, "Deep underground deposit of Rare Metals. Can be exploited by a <em>Rare Metals Extractor</em> staffed by <em>Colonists</em>."},
+	display_name = T(799, "Underground Rare Metals"),
+	description = T(800, "An underground deposit of Rare Metals. Can be exploited by a <em>Rare Metals Extractor</em> staffed by <em>Colonists</em>."),
+	display_name_deep = T(801, "Deep Rare Metals"),
+	description_deep = T(802, "Deep underground deposit of Rare Metals. Can be exploited by a <em>Rare Metals Extractor</em> staffed by <em>Colonists</em>."),
 })
 
 function OnMsg.GatherFXTargets(list)

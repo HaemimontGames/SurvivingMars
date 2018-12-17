@@ -39,8 +39,8 @@ end
 DefineClass.ResourceOverview =
 {
 	__parents = { "Object", "InfopanelObj" },
-	DisplayName = T{235513581267, "Resource Overview"},
-	description = T{3610, "Aggregated information for all resources in the Colony."},
+	DisplayName = T(235513581267, "Resource Overview"),
+	description = T(3610, "Aggregated information for all resources in the Colony."),
 	
 	data = false,
 	city = false,
@@ -58,18 +58,22 @@ local function RoundResourceAmount(r)
 	return r
 end
 
+function ResourceOverview:Init()
+	self.data = {}
+	self.city = self.city or UICity
+end
+
 function ResourceOverview:GameInit()
 	self.city = self.city or UICity
-	self.data = {}
 end
 
 function ResourceOverview:GetDisplayName()
 	if self.overview == "ResourceOverview" then
-		return T{235513581267, --[[Post-Cert]] "Resource Overview"}
+		return T(235513581267, --[[Post-Cert]] "Resource Overview")
 	elseif self.overview == "ColonistOverview" then 
-		return T{7853, --[[Post-Cert]] "Colonists Overview"}
+		return T(7853, --[[Post-Cert]] "Colonists Overview")
 	elseif self.overview == "TraitsOverview" then	
-		return T{235, --[[Post-Cert]] "Traits"}
+		return T(235, --[[Post-Cert]] "Traits")
 	end
 end
 
@@ -79,11 +83,11 @@ end
 
 function ResourceOverview:Getdescription()
 	if self.overview == "ResourceOverview" then
-		return T{7852, --[[Post-Cert]] "View information about the resources in your Colony."}
+		return T(7852, --[[Post-Cert]] "View information about the resources in your Colony.")
 	elseif self.overview == "ColonistOverview" then
-		return T{7854, --[[Post-Cert]] "View information about your Colonists."}
+		return T(7854, --[[Post-Cert]] "View information about your Colonists.")
 	elseif self.overview == "TraitsOverview" then	
-		return T{7855, --[[Post-Cert]] "View information about the traits of your Colonists."}
+		return T(7855, --[[Post-Cert]] "View information about the traits of your Colonists.")
 	end
 end
 
@@ -199,7 +203,7 @@ function ResourceOverview:GetLastExportStr()
 		local t = self.city.last_export
 		return T{3611, "Last export<right>Sol <day>, Hour <hour><newline><left>Rare Metals exported<right><preciousmetals(amount)>", day = t.day, hour = t.hour, amount = t.amount}
 	else
-		return T{3612, "Last export<right>N/A"}
+		return T(3612, "Last export<right>N/A")
 	end
 end
 
@@ -208,16 +212,16 @@ function ResourceOverview:GetRocketRefuelFuelYesterday()
 end
 
 FundingSourceTexts = {
-	Celebrity = T{10402, "Celebrities"},
-	Sponsor = T{10403, "Sponsor"},
-	Export = T{419, "Export"},
-	Tourist = T{10404, "Tourists"},
-	Building = T{3980, "Buildings"},
-	Research = T{311, "Research"},
+	Celebrity = T(10402, "Celebrities"),
+	Sponsor = T(10403, "Sponsor"),
+	Export = T(419, "Export"),
+	Tourist = T(10404, "Tourists"),
+	Building = T(3980, "Buildings"),
+	Research = T(311, "Research"),
 }
 
 function FundingSourceCombo()
-	local items = {{value = "", text = T{10405, "Other"}}}
+	local items = {{value = "", text = T(10405, "Other")}}
 	for source, text in sorted_pairs(FundingSourceTexts) do
 		items[#items + 1] = {value = source, text = text}
 	end
@@ -238,7 +242,7 @@ function ResourceOverview:GetFundingRollover()
 	for reason, amount in sorted_pairs(UICity.funding_gain_sol or empty_table) do
 		if amount ~= 0 then
 			if sources == 0 then
-				ret[#ret + 1] = T{10524, "Last Sol Income:"}
+				ret[#ret + 1] = T(10524, "Last Sol Income:")
 			end
 			local source = FundingSourceTexts[reason]
 			if source then
@@ -306,7 +310,7 @@ function ResourceOverview:GetResearchProgress()
 	local city = self.city
 	local queue = city and city:GetResearchQueue() or empty_table
 	if not next(queue) then
-		return T{9765, "n/a"}
+		return T(9765, "n/a")
 	else
 		return T{9766, "<percent(number)>", number = city:GetResearchProgress()}
 	end
@@ -320,8 +324,7 @@ function ResourceOverview:GetResearchRolloverItems()
 	local ret = {
 			T{4533, "Sponsor<right><ResearchPoints(EstimatedRP_Sponsor)>", self.city},
 			T{4534, "Outsourcing<right><ResearchPoints(EstimatedRP_Outsource)>", self.city},
-			T{10079, "Research Labs<right><ResearchPoints(EstimatedRP_ResearchLab)>", self.city},
-			T{4536, "Hawking Institutes<right><ResearchPoints(EstimatedRP_ScienceInstitute)>", self.city},
+			T{11829, "Research Buildings<right><ResearchPoints(EstimatedRP_ResearchBuildings)>", self.city},
 			T{4537, "Genius Colonists<right><ResearchPoints(EstimatedRP_Genius)>", self.city},
 		}
 	if self.city:IsTechResearched("ExplorerAI") then
@@ -341,7 +344,7 @@ end
 
 function ResourceOverview:GetElectricityGridRollover()
 	local ret = {
-		T{3619, "Power, Water and Oxygen are distributed via Power and Life Support grids.<newline>"} ,
+		T(3619, "Power, Water and Oxygen are distributed via Power and Life Support grids.<newline>") ,
 		T{3620, "Power production<right><power(TotalProducedPower)>", self}, 
 		T{3621, "Power demand<right><power(TotalRequiredPower)>", self}, 
 		T{3622, "Stored Power<right><power(TotalStoredPower)>", self}, 
@@ -351,11 +354,11 @@ end
 
 function ResourceOverview:GetLifesupportGridRollover()
 	local ret = {
-		T{3619, "Power, Water and Oxygen are distributed via Power and Life Support grids.<newline>"} ,
+		T(3619, "Power, Water and Oxygen are distributed via Power and Life Support grids.<newline>") ,
 		T{3623, "Oxygen production<right><air(TotalProducedAir)>", self}, 
 		T{3624, "Oxygen demand<right><air(TotalRequiredAir)>", self}, 
 		T{3625, "Stored Oxygen<right><air(TotalStoredAir)>", self}, 
-		T{316, "<newline>"},
+		T(316, "<newline>"),
 		T{3626, "Water production<right><water(TotalProducedWater)>", self}, 
 		T{3627, "Water demand<right><water(TotalRequiredWater)>", self}, 
 		T{3628, "Stored Water<right><water(TotalStoredWater)>", self}, 
@@ -365,15 +368,15 @@ end
 
 function ResourceOverview:GetGridRollover()
 	local ret = {
-		T{3619, "Power, Water and Oxygen are distributed via Power and Life Support grids.<newline>"} ,
+		T(3619, "Power, Water and Oxygen are distributed via Power and Life Support grids.<newline>") ,
 		T{3620, "Power production<right><power(TotalProducedPower)>", self}, 
 		T{3621, "Power demand<right><power(TotalRequiredPower)>", self}, 
 		T{3622, "Stored Power<right><power(TotalStoredPower)>", self}, 
-		T{316, "<newline>"},
+		T(316, "<newline>"),
 		T{3623, "Oxygen production<right><air(TotalProducedAir)>", self}, 
 		T{3624, "Oxygen demand<right><air(TotalRequiredAir)>", self}, 
 		T{3625, "Stored Oxygen<right><air(TotalStoredAir)>", self}, 
-		T{316, "<newline>"},
+		T(316, "<newline>"),
 		T{3626, "Water production<right><water(TotalProducedWater)>", self}, 
 		T{3627, "Water demand<right><water(TotalRequiredWater)>", self}, 
 		T{3628, "Stored Water<right><water(TotalStoredWater)>", self}, 
@@ -421,13 +424,13 @@ function ResourceOverview:GetWaterLine()
 end
 
 function ResourceOverview:GetBasicResourcesHeading()
-	return T{3635, "Basic resource production, consumption and other stats from the <em>last Sol</em>. Resources in consumption buildings are not counted towards the total available amount. Resource maintenance is estimated per Sol."}
+	return T(3635, "Basic resource production, consumption and other stats from the <em>last Sol</em>. Resources in consumption buildings are not counted towards the total available amount. Resource maintenance is estimated per Sol.")
 end
 
 function ResourceOverview:GetMetalsRollover()
 	local ret = {
 		self:GetBasicResourcesHeading(),
-		T{316, "<newline>"},
+		T(316, "<newline>"),
 		T{3636, "Metals production<right><metals(MetalsProducedYesterday)>", self},
 		T{3637, "From surface deposits<right><metals(MetalsGatheredYesterday)>", self},
 		T{3638, "Metals consumption<right><metals(MetalsConsumedByConsumptionYesterday)>", self},
@@ -441,7 +444,7 @@ end
 function ResourceOverview:GetConcreteRollover()
 	local ret = {
 		self:GetBasicResourcesHeading(),
-		T{316, "<newline>"},
+		T(316, "<newline>"),
 		T{3640, "Concrete production<right><concrete(ConcreteProducedYesterday)>", self},
 		T{3641, "Concrete consumption<right><concrete(ConcreteConsumedByConsumptionYesterday)>", self},
 		T{3642, "Concrete maintenance<right><concrete(ConcreteConsumedByMaintenanceYesterday)>", self},
@@ -454,7 +457,7 @@ end
 function ResourceOverview:GetFoodRollover()
 	local ret = {
 		self:GetBasicResourcesHeading(),
-		T{316, "<newline>"},
+		T(316, "<newline>"),
 		T{3643, "Food production<right><food(FoodProducedYesterday)>", self},
 		T{3644, "Food consumption<right><food(FoodConsumedByConsumptionYesterday)>", self},
 		T{9767, "Stored in service buildings<right><food(FoodStoredInServiceBuildings)>", self},
@@ -465,7 +468,7 @@ end
 function ResourceOverview:GetRareMetalsRollover()
 	local ret = {
 		self:GetBasicResourcesHeading(),
-		T{316, "<newline>"},
+		T(316, "<newline>"),
 		T{3646, "Rare Metals production<right><preciousmetals(PreciousMetalsProducedYesterday)>", self},
 		T{3647, "Rare Metals consumption<right><preciousmetals(PreciousMetalsConsumedByConsumptionYesterday)>", self},
 		T{3648, "Rare Metals maintenance<right><preciousmetals(PreciousMetalsConsumedByMaintenanceYesterday)>", self},
@@ -476,13 +479,13 @@ function ResourceOverview:GetRareMetalsRollover()
 end
 
 function ResourceOverview:GetAdvancedResourcesHeading()
-	return T{3654, "Advanced resource production, consumption and other stats from the <em>last Sol</em>. Resources in consumption buildings are not counted towards the total available amount. Resource maintenance is estimated per Sol."}
+	return T(3654, "Advanced resource production, consumption and other stats from the <em>last Sol</em>. Resources in consumption buildings are not counted towards the total available amount. Resource maintenance is estimated per Sol.")
 end
 
 function ResourceOverview:GetPolymersRollover()
 	local ret = {
 			self:GetAdvancedResourcesHeading(),
-			T{316, "<newline>"},
+			T(316, "<newline>"),
 			T{3655, "Polymers production<right><polymers(PolymersProducedYesterday)>", self},
 			T{3656, "From surface deposits<right><polymers(PolymersGatheredYesterday)>", self},
 			T{3657, "Polymers consumption<right><polymers(PolymersConsumedByConsumptionYesterday)>", self},
@@ -496,7 +499,7 @@ end
 function ResourceOverview:GetElectronicsRollover()
 	local ret = {
 			self:GetAdvancedResourcesHeading(),
-			T{316, "<newline>"},
+			T(316, "<newline>"),
 			T{3659, "Electronics production<right><electronics(ElectronicsProducedYesterday)>", self},
 			T{3660, "Electronics consumption<right><electronics(ElectronicsConsumedByConsumptionYesterday)>", self},
 			T{3661, "Electronics maintenance<right><electronics(ElectronicsConsumedByMaintenanceYesterday)>", self},
@@ -509,7 +512,7 @@ end
 function ResourceOverview:GetMachinePartsRollover()
 	local ret = {
 			self:GetAdvancedResourcesHeading(),
-			T{316, "<newline>"},
+			T(316, "<newline>"),
 			T{3662, "Machine Parts production<right><machineparts(MachinePartsProducedYesterday)>", self},
 			T{3663, "Machine Parts consumption<right><machineparts(MachinePartsConsumedByConsumptionYesterday)>", self},
 			T{3664, "Machine Parts maintenance<right><machineparts(MachinePartsConsumedByMaintenanceYesterday)>", self},
@@ -522,7 +525,7 @@ end
 function ResourceOverview:GetFuelRollover()
 	local ret = {
 			self:GetAdvancedResourcesHeading(),
-			T{316, "<newline>"},
+			T(316, "<newline>"),
 			T{3665, "Fuel production<right><fuel(FuelProducedYesterday)>", self},
 			T{3666, "Fuel consumption<right><fuel(FuelConsumedByConsumptionYesterday)>", self},
 			T{3667, "Fuel maintenance<right><fuel(FuelConsumedByMaintenanceYesterday)>", self},
@@ -636,7 +639,7 @@ function ResourceOverview:GetEmploymentMessage()
 	elseif vacant_off > 0 then
 		return T{568, "Disabled work slots<right><work(number)>", number = vacant_off}
 	elseif city_labels.Colonist and #city_labels.Colonist > 0 then
-		return T{569, "No unemployment, no vacant workplaces"}
+		return T(569, "No unemployment, no vacant workplaces")
 	end
 	return ""
 end
@@ -684,7 +687,7 @@ function ResourceOverview:GetJobsText()
 		T{549, "Vacant work slots<right><work(number)>",  number = ui_on_vacant},
 		T{550, "Disabled work slots<right><work(number)>",  number = ui_off_vacant},
 		T{7346, "Renegades<right><colonist(number)>", number = renegades},
-		T{3879, "Earthsick"} .. T{9719, "<right><colonist(number)>", number = #g_EarthSickColonists},
+		T(3879, "Earthsick") .. T{9719, "<right><colonist(number)>", number = #g_EarthSickColonists},
 	}	
 	if city_labels.Workshop and next(city_labels.Workshop) then
 		texts[#texts +1] = T{8802, "Workers in Workshops<right><percent(WorkshopWorkersPercent)>", self.city}		
@@ -714,7 +717,7 @@ function ResourceOverview:GetAgeGroupsText()
 		T{556, "Adults<right><colonist(number)>",     number = data.adults},
 		T{557, "Middle Aged<right><colonist(number)>",number = data.middleageds},
 		T{558, "Senior<right><colonist(number)>",     number = data.seniors},
-		T{9768, "<newline><center><em>Origin</em>"},
+		T(9768, "<newline><center><em>Origin</em>"),
 		T{8035, "Martianborn<right><colonist(number)>", number = data.martianborn},
 		T{8036, "Earthborn<right><colonist(number)>",   number = data.earthborn},
 	}
@@ -735,7 +738,7 @@ function ResourceOverview:GetColonistsRollover()
 		T{556, "Adults<right><colonist(number)>",      number = data.adults },
 		T{557, "Middle Aged<right><colonist(number)>", number = data.middleageds },
 		T{558, "Senior<right><colonist(number)>",      number = data.seniors },		
-		T{9768, "<newline><center><em>Origin</em>"},
+		T(9768, "<newline><center><em>Origin</em>"),
 		T{8035, "Martianborn<right><colonist(number)>", number = data.martianborn},
 		T{8036, "Earthborn<right><colonist(number)>",   number = data.earthborn},
 	}
@@ -778,7 +781,7 @@ function ResourceOverview:GetJobsRollover()
 	end
 	
 	local texts = {	
-		T{11711, "<center><em>Jobs</em>"},
+		T(11711, "<center><em>Jobs</em>"),
 		T{548, "Unemployed, seeking work<right><unemployed(number)>", number = city_labels.Unemployed and #city_labels.Unemployed or 0 },
 		T{549, "Vacant work slots<right><work(number)>",        number = ui_on_vacant },
 		T{550, "Disabled work slots<right><work(number)>",      number = ui_off_vacant },
@@ -786,8 +789,8 @@ function ResourceOverview:GetJobsRollover()
 		T{11700, "Earthsick<right><colonist(number)>", number = #g_EarthSickColonists},
 		T{11701, "Tourists<right><colonist(number)>", number = tourists },
 		T{11702, "Temporary ill<right><colonist(number)>", number = temporaryill},
-		T{316, "<newline>"},
-		T{7622, "<center><em>Specialization</em>"},		
+		T(316, "<newline>"),
+		T(7622, "<center><em>Specialization</em>"),		
 	}
 	texts[#texts+1] = T{7858, "<specialization><right><colonist(number)>", specialization = const.ColonistSpecialization["none"].display_name_plural, number = #(self.city.labels["none"] or empty_table)}
 	for  id, spec in sorted_pairs(const.ColonistSpecialization) do
@@ -807,7 +810,7 @@ function ResourceOverview:GetSpecializationsText()
 			texts[#texts+1] = T{7858, "<specialization><right><colonist(number)>", specialization = spec.display_name_plural, number = #(self.city.labels[id] or empty_table)}
 		end
 	end
-	return #texts>0 and table.concat(texts, "<newline><left>") or T{6761, "None"}
+	return #texts>0 and table.concat(texts, "<newline><left>") or T(6761, "None")
 end
 
 function ResourceOverview:CalcColonistsTraits()
@@ -848,14 +851,14 @@ function ResourceOverview:GetPerksText()
 	for i=1, Min(4,#t) do
 		texts[#texts + 1] = T{7859, "<trait><right><colonist(number)>", trait =  TraitPresets[t[i].value].display_name, number = t[i].text}
 	end
-	return #t>0 and table.concat(texts, "<newline><left>") or T{6761, "None"}
+	return #t>0 and table.concat(texts, "<newline><left>") or T(6761, "None")
 end
 
 function ResourceOverview:GetPerksRolloverText()
 	local traits_count = rawget(self.data, "traits_count") or self:CalcColonistsTraits()
 	local t = GetComboItems(traits_count.Positive)
 	table.sort(t, function(a,b) return a.text>b.text end )
-	local texts = { T{7861, --[[XTemplate ipTraitsOverview RolloverText]] "Perks are beneficial traits, representing various talents and abilities of your Colonists."},}
+	local texts = { T(7861, --[[XTemplate ipTraitsOverview RolloverText]] "Perks are beneficial traits, representing various talents and abilities of your Colonists."),}
 	for i=1, #t do
 		texts[#texts + 1] = T{7859, "<trait><right><colonist(number)>", trait =  TraitPresets[t[i].value].display_name, number = t[i].text}
 	end
@@ -870,14 +873,14 @@ function ResourceOverview:GetFlawsText()
 	for i=1, Min(4,#t) do
 		texts[#texts + 1] = T{7859, "<trait><right><colonist(number)>", trait = TraitPresets[t[i].value].display_name, number = t[i].text}
 	end
-	return #t>0 and table.concat(texts, "<newline><left>") or T{6761, "None"}
+	return #t>0 and table.concat(texts, "<newline><left>") or T(6761, "None")
 end
 
 function ResourceOverview:GetFlawsRolloverText()
 	local traits_count = rawget(self.data, "traits_count") or self:CalcColonistsTraits()
 	local t = GetComboItems(traits_count.Negative)
 	table.sort(t, function(a,b) return a.text>b.text end )
-	local texts = {T{7862, --[[XTemplate ipTraitsOverview RolloverText]] "Flaws are Detrimental traits, representing various flaws and disabilities of your Colonists."}}
+	local texts = {T(7862, --[[XTemplate ipTraitsOverview RolloverText]] "Flaws are Detrimental traits, representing various flaws and disabilities of your Colonists.")}
 	for i=1, #t do
 		texts[#texts + 1] = T{7859, "<trait><right><colonist(number)>", trait = TraitPresets[t[i].value].display_name, number = t[i].text}
 	end
@@ -892,14 +895,14 @@ function ResourceOverview:GetRareTraits()
 	for i=1, Min(4,#t) do
 		texts[#texts + 1] = T{7859, "<trait><right><colonist(number)>", trait = TraitPresets[t[i].value].display_name, number = t[i].text}
 	end
-	return #t>0 and table.concat(texts, "<newline><left>") or T{6761, "None"}
+	return #t>0 and table.concat(texts, "<newline><left>") or T(6761, "None")
 end
 
 function ResourceOverview:GetRareTraitsRollover()
 	local traits_count = rawget(self.data, "traits_count") or self:CalcColonistsTraits()
 	local t = GetComboItems(traits_count.rare)
 	table.sort(t, function(a,b) return a.text>b.text end )
-	local texts = {T{7863, --[[XTemplate ipTraitsOverview RolloverText]] "Rare traits denote exceptional citizens that have significant impact on your Colony."}}
+	local texts = {T(7863, --[[XTemplate ipTraitsOverview RolloverText]] "Rare traits denote exceptional citizens that have significant impact on your Colony.")}
 	for i=1, #t do
 		texts[#texts + 1] = T{7859, "<trait><right><colonist(number)>", trait = TraitPresets[t[i].value].display_name, number = t[i].text}
 	end
@@ -917,9 +920,9 @@ end
 
 function ResourceOverview:GetHomelessRolloverText()
 	if #(self.city.labels.Homeless or empty_table)>0 then
-		return T{9624, --[[Post-Cert]] "Inspect all homeless colonists in the Command Center."}
+		return T(9624, --[[Post-Cert]] "Inspect all homeless colonists in the Command Center.")
 	else	
-		return T{7866, --[[Post-Cert]] "There are no homeless colonists."}
+		return T(7866, --[[Post-Cert]] "There are no homeless colonists.")
 	end	
 end
 
@@ -929,9 +932,9 @@ end
 
 function ResourceOverview:GetUnemployedRolloverText()
 	if #(self.city.labels.Unemployed or empty_table)>0 then
-		return T{9625, --[[Post-Cert]] "Inspect all unemployed colonists in the Command Center."}
+		return T(9625, --[[Post-Cert]] "Inspect all unemployed colonists in the Command Center.")
 	else	
-		return T{7869, --[[Post-Cert]] "There are no unemployed colonists."}
+		return T(7869, --[[Post-Cert]] "There are no unemployed colonists.")
 	end	
 end
 
@@ -941,9 +944,9 @@ end
 
 function ResourceOverview:GetProblematicRolloverText()
 	if self:GetFirstWithDetrimentalStatusEffect() then
-		return T{9626, --[[Post-Cert]] "Inspect all colonists suffering from status effects in the Command Center."}
+		return T(9626, --[[Post-Cert]] "Inspect all colonists suffering from status effects in the Command Center.")
 	else	
-		return T{7971, --[[Post-Cert]] "There are no colonists suffering from status effects."}
+		return T(7971, --[[Post-Cert]] "There are no colonists suffering from status effects.")
 	end	
 end
 

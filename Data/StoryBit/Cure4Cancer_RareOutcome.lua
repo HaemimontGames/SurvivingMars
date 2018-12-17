@@ -29,11 +29,11 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	ScriptDone = true,
-	Text = T{712056810620, --[[StoryBit Cure4Cancer_RareOutcome Text]] "A promising breakthrough has been made in the fight against cancer – in large part based on research done here, in our own Martian labs. While not entirely ridding us of cancer, the new drug will dramatically reduce the lethality of the horrific disease.\n\n<DisplayName> has been nominated for a Nobel Prize in medical research, followed by a flood of donations and new applicants wanting to become part of our colony.\n\n<effect>+<morale_boost> Morale for the next <sols(morale_boost_duration)> Sols; <applicants> Applicants; <funding(funding_reward)> Funding."},
+	Text = T(712056810620, --[[StoryBit Cure4Cancer_RareOutcome Text]] "A promising breakthrough has been made in the fight against cancer – in large part based on research done here, in our own Martian labs. While not entirely ridding us of cancer, the new drug will dramatically reduce the lethality of the horrific disease.\n\n<DisplayName> has been nominated for a Nobel Prize in medical research, followed by a flood of donations and new applicants wanting to become part of our colony.\n\n<effect>+<morale_boost> Morale for the next <sols(morale_boost_duration)> Sols; <applicants> Applicants; <funding(funding_reward)> Funding."),
 	TextReadyForValidation = true,
 	TextsDone = true,
 	Trigger = "TechResearchedTrigger",
-	VoicedText = T{160216156691, --[[voice:narrator]] "Everyone on Mars is standing tall today, filled with pride beyond expression. "},
+	VoicedText = T(160216156691, --[[voice:narrator]] "Everyone on Mars is standing tall today, filled with pride beyond expression. "),
 	group = "Sponsor",
 	id = "Cure4Cancer_RareOutcome",
 	PlaceObj('StoryBitParamNumber', {

@@ -1,21 +1,21 @@
 local anomaly_tech_actions = {
-	{ text = T{1, "Unlock Breakthrough"}, value = "breakthrough" },
-	{ text = T{2, "Unlock Tech"}, value = "unlock" },
-	{ text = T{3, "Grant Research"}, value = "complete" },
-	{ text = T{8693, "Grant Resources"}, value = "resources" },
+	{ text = T(1, "Unlock Breakthrough"), value = "breakthrough" },
+	{ text = T(2, "Unlock Tech"), value = "unlock" },
+	{ text = T(3, "Grant Research"), value = "complete" },
+	{ text = T(8693, "Grant Resources"), value = "resources" },
 }
 
 DefineClass.SubsurfaceAnomalyMarker = {
 	__parents = { "DepositMarker" },
 	properties = {
-		{ category = "Anomaly", name = T{4, "Tech Action"},             id = "tech_action",              editor = "dropdownlist", default = false, items = anomaly_tech_actions },
-		{ category = "Anomaly", name = T{5, "Sequence"},                id = "sequence",                 editor = "dropdownlist", default = "",    items = function() return table.map(DataInstances.Scenario.Anomalies, "name") end, help = "Sequence to start when the anomaly is scanned" },
-		{ category = "Anomaly", name = T{3775, "Sequence List"}, 		id = "sequence_list", default = "Anomalies",    editor = "dropdownlist", items = function() return table.map(DataInstances.Scenario, "name") end, },
-		{ category = "Anomaly", name = T{6, "Depth Layer"},             id = "depth_layer",              editor = "number",       default = 1,     min = 1, max = const.DepositDeepestLayer}, --depth layer
-		{ category = "Anomaly", name = T{7, "Is Revealed"},             id = "revealed",                 editor = "bool",         default = false },
-		{ category = "Anomaly", name = T{8, "Breakthrough Tech"},       id = "breakthrough_tech",        editor = "text",       default = "" },
-		{ category = "Anomaly", name = T{8694, "Granted Resource"}, 				id = "granted_resource",			 editor = "dropdownlist", default = "", items = ResourcesDropDownListItems, },
-		{ category = "Anomaly", name = T{8695, "Granted Amount"},				id = "granted_amount",				 editor = "number", 		 default = 0, min = 0, scale = const.ResourceScale, },
+		{ category = "Anomaly", name = T(4, "Tech Action"),             id = "tech_action",              editor = "dropdownlist", default = false, items = anomaly_tech_actions },
+		{ category = "Anomaly", name = T(5, "Sequence"),                id = "sequence",                 editor = "dropdownlist", default = "",    items = function() return table.map(DataInstances.Scenario.Anomalies, "name") end, help = "Sequence to start when the anomaly is scanned" },
+		{ category = "Anomaly", name = T(3775, "Sequence List"), 		id = "sequence_list", default = "Anomalies",    editor = "dropdownlist", items = function() return table.map(DataInstances.Scenario, "name") end, },
+		{ category = "Anomaly", name = T(6, "Depth Layer"),             id = "depth_layer",              editor = "number",       default = 1,     min = 1, max = const.DepositDeepestLayer}, --depth layer
+		{ category = "Anomaly", name = T(7, "Is Revealed"),             id = "revealed",                 editor = "bool",         default = false },
+		{ category = "Anomaly", name = T(8, "Breakthrough Tech"),       id = "breakthrough_tech",        editor = "text",       default = "" },
+		{ category = "Anomaly", name = T(8694, "Granted Resource"), 				id = "granted_resource",			 editor = "dropdownlist", default = "", items = ResourcesDropDownListItems, },
+		{ category = "Anomaly", name = T(8695, "Granted Amount"),				id = "granted_amount",				 editor = "number", 		 default = 0, min = 0, scale = const.ResourceScale, },
 	},
 	new_pos_if_obstruct = true,
 }
@@ -53,18 +53,18 @@ DefineClass.SubsurfaceAnomaly = {
 	
 	properties =
 	{
-		{ name = T{4, "Tech Action"},             id = "tech_action",              editor = "dropdownlist", default = false, items = anomaly_tech_actions },
-		{ name = T{5, "Sequence"},                id = "sequence",                 editor = "dropdownlist", items = function() return table.map(DataInstances.Scenario.Anomalies, "name") end, default = "", help = "Sequence to start when the anomaly is scanned" },
-		{ name = T{8694, "Granted Resource"}, 			id = "granted_resource",			 editor = "dropdownlist", default = "", items = ResourcesDropDownListItems, },
-		{ name = T{8695, "Granted Amount"},				id = "granted_amount",				 editor = "number", 		 default = 0, min = 0, scale = const.ResourceScale, },
-		{ name = T{8696, "Expiration Time"},				id = "expiration_time",			 editor = "number",		 default = 0, scale = const.HourDuration },
+		{ name = T(4, "Tech Action"),             id = "tech_action",              editor = "dropdownlist", default = false, items = anomaly_tech_actions },
+		{ name = T(5, "Sequence"),                id = "sequence",                 editor = "dropdownlist", items = function() return table.map(DataInstances.Scenario.Anomalies, "name") end, default = "", help = "Sequence to start when the anomaly is scanned" },
+		{ name = T(8694, "Granted Resource"), 			id = "granted_resource",			 editor = "dropdownlist", default = "", items = ResourcesDropDownListItems, },
+		{ name = T(8695, "Granted Amount"),				id = "granted_amount",				 editor = "number", 		 default = 0, min = 0, scale = const.ResourceScale, },
+		{ name = T(8696, "Expiration Time"),				id = "expiration_time",			 editor = "number",		 default = 0, scale = const.HourDuration },
 	},
 	
-	display_name = T{9, "Anomaly"},
+	display_name = T(9, "Anomaly"),
 	display_icon = "UI/Icons/Buildings/anomaly.tga",
 	
 	-- pin section
-	pin_rollover = T{10, "<Description>"},
+	pin_rollover = T(10, "<Description>"),
 	pin_summary1 = "",
 	pin_progress_value = "",
 	pin_progress_max = "",
@@ -94,14 +94,14 @@ DefineClass.SubsurfaceAnomaly_breakthrough = {
 	__parents = { "SubsurfaceAnomaly" },
 	entity = "Anomaly_02",
 	tech_action = "breakthroug",
-	description = T{11, "Our scientists believe that this Anomaly may lead to a <em>Breakthrough</em>.<newline><newline>Send an <em>Explorer</em> to analyze the Anomaly."},
+	description = T(11, "Our scientists believe that this Anomaly may lead to a <em>Breakthrough</em>.<newline><newline>Send an <em>Explorer</em> to analyze the Anomaly."),
 }
 
 DefineClass.SubsurfaceAnomaly_unlock = {
 	__parents = { "SubsurfaceAnomaly" },
 	entity = "Anomaly_04",
 	tech_action = "unlock",
-	description = T{12, "Scans have detected some interesting readings that might help us discover <em>new Technologies</em>.<newline><newline>Send an <em>Explorer</em> to analyze the Anomaly."},
+	description = T(12, "Scans have detected some interesting readings that might help us discover <em>new Technologies</em>.<newline><newline>Send an <em>Explorer</em> to analyze the Anomaly."),
 }
 function SubsurfaceAnomaly_breakthrough:EditorGetText()
 	return "Breakthrough Anomaly"
@@ -111,13 +111,13 @@ DefineClass.SubsurfaceAnomaly_complete = {
 	__parents = { "SubsurfaceAnomaly" },
 	entity = "Anomaly_05",
 	tech_action = "complete",
-	description = T{13, "Sensors readings suggest that this Anomaly will help us with our current <em>Research</em> goals.<newline><newline>Send an <em>Explorer</em> to analyze the Anomaly."},
+	description = T(13, "Sensors readings suggest that this Anomaly will help us with our current <em>Research</em> goals.<newline><newline>Send an <em>Explorer</em> to analyze the Anomaly."),
 }
 DefineClass.SubsurfaceAnomaly_aliens = {
 	__parents = { "SubsurfaceAnomaly" },
 	entity = "Anomaly_03",
 	tech_action = "aliens",
-	description = T{14, "We have detected alien artifacts at this location that will <em>speed up</em> our Research efforts.<newline><newline>Send an <em>Explorer</em> to analyze the Anomaly."},
+	description = T(14, "We have detected alien artifacts at this location that will <em>speed up</em> our Research efforts.<newline><newline>Send an <em>Explorer</em> to analyze the Anomaly."),
 }
 
 function SubsurfaceAnomaly:Init()
@@ -339,10 +339,10 @@ DefineClass.SA_SpawnDepositAtAnomaly = {
 	
 	properties =
 	{
-		{ name = T{15, "Resource"}, id = "resource", default = "all", editor = "dropdownlist", items = function() return ResourcesDropDownListItems end },
-		{ name = T{1000100, "Amount"}, id = "amount", editor = "number", default = 50000, scale = const.ResourceScale},	 --quantity
-		{ name = T{16, "Grade"}, id = "grade", editor = "dropdownlist", default = "Average", items = function() return DepositGradesTable end}, --grade
-		{ name = T{6, "Depth Layer"}, id = "depth_layer", editor = "number", default = 1, min = 1, max = const.DepositDeepestLayer}, --depth layer
+		{ name = T(15, "Resource"), id = "resource", default = "all", editor = "dropdownlist", items = function() return ResourcesDropDownListItems end },
+		{ name = T(1000100, "Amount"), id = "amount", editor = "number", default = 50000, scale = const.ResourceScale},	 --quantity
+		{ name = T(16, "Grade"), id = "grade", editor = "dropdownlist", default = "Average", items = function() return DepositGradesTable end}, --grade
+		{ name = T(6, "Depth Layer"), id = "depth_layer", editor = "number", default = 1, min = 1, max = const.DepositDeepestLayer}, --depth layer
 	},
 
 	Menu = "Gameplay",
@@ -419,13 +419,13 @@ DefineClass.SA_SpawnDustDevilAtAnomaly = {
 	__parents = { "SequenceAction" },
 	
 	properties = {
-		{ name = T{17, "Period, base (s)"}, id = "period", editor = "number", min = 0, max = 300*1000, scale = 1000, default = 30*1000 },
-		{ name = T{18, "Period, random (s)"}, id = "period_random", editor = "number", min = 0, max = 300*1000, scale = 1000, default = 30*1000 },
-		{ name = T{19, "Spawn Chance (%)"}, id = "probability", editor = "number", min = 0, max = 100, default = 30 },
-		{ name = T{20, "Lifetime (s)"}, id = "lifetime", editor = "number", min = 0, max = 300*1000, scale = 1000, default = 60*1000 },
+		{ name = T(17, "Period, base (s)"), id = "period", editor = "number", min = 0, max = 300*1000, scale = 1000, default = 30*1000 },
+		{ name = T(18, "Period, random (s)"), id = "period_random", editor = "number", min = 0, max = 300*1000, scale = 1000, default = 30*1000 },
+		{ name = T(19, "Spawn Chance (%)"), id = "probability", editor = "number", min = 0, max = 100, default = 30 },
+		{ name = T(20, "Lifetime (s)"), id = "lifetime", editor = "number", min = 0, max = 300*1000, scale = 1000, default = 60*1000 },
 --		{ id = "range", editor = "number", min = 50, max = 500, scale = guim },
-		{ name = T{21, "Speed (m/s)"}, id = "speed", editor = "number", min = 5*guim, max = 100*guim, scale = guim, default = 3*guim},
-		{ name = T{3567, "Preset"}, id = "preset", editor = "choice", default = "DustDevils_VeryLow", items = DataInstanceCombo("MapSettings_DustDevils") },
+		{ name = T(21, "Speed (m/s)"), id = "speed", editor = "number", min = 5*guim, max = 100*guim, scale = guim, default = 3*guim},
+		{ name = T(3567, "Preset"), id = "preset", editor = "choice", default = "DustDevils_VeryLow", items = DataInstanceCombo("MapSettings_DustDevils") },
 	},
 	
 	Menu = "Gameplay",
@@ -454,7 +454,7 @@ function SA_SpawnDustDevilAtAnomaly:Exec(sequence_player, ip, seq, registers)
 end
 
 function SubsurfaceAnomaly:GetDescription()
-	return self.description or T{22, "Our scans have found some interesting readings in this Sector. Further analysis is needed.<newline><newline>Send an RC Explorer to analyze the Anomaly."}
+	return self.description or T(22, "Our scans have found some interesting readings in this Sector. Further analysis is needed.<newline><newline>Send an RC Explorer to analyze the Anomaly.")
 end
 
 function SubsurfaceAnomaly:GetDisplayName()

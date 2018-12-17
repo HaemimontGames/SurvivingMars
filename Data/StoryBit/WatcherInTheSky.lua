@@ -5,7 +5,7 @@ PlaceObj('StoryBit', {
 	Category = "Tick_FounderStageDone",
 	Effects = {},
 	Enabled = true,
-	Image = "UI/Messages/exploration_2.tga",
+	Image = "UI/Messages/Events/06_space_suit.tga",
 	Prerequisites = {
 		PlaceObj('CheckObjectCount', {
 			'Label', "Colonist",
@@ -21,19 +21,24 @@ PlaceObj('StoryBit', {
 		}),
 		PlaceObj('PickFromLabel', {
 			'Label', "Colonist",
-			'Conditions', {},
+			'Conditions', {
+				PlaceObj('HasTrait', {
+					'Trait', "Child",
+					'Negate', true,
+				}),
+			},
 		}),
 	},
 	ScriptDone = true,
-	Text = T{268319532855, --[[StoryBit WatcherInTheSky Text]] "The signal seems harmless but can very well be a spying device.\n\nDo we ignore it? "},
+	Text = T(268319532855, --[[StoryBit WatcherInTheSky Text]] "The signal seems harmless but can very well be a spying device.\n\nDo we ignore it? "),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{348128839780, --[[StoryBit WatcherInTheSky Title]] "The Watcher"},
-	VoicedText = T{284947371309, --[[voice:narrator]] "A faint signal was traced to originate from the high mountains just outside our Colony's vicinity."},
+	Title = T(348128839780, --[[StoryBit WatcherInTheSky Title]] "The Watcher"),
+	VoicedText = T(284947371309, --[[voice:narrator]] "A faint signal was traced to originate from the high mountains just outside our Colony's vicinity."),
 	group = "Colonists",
 	id = "WatcherInTheSky",
 	PlaceObj('StoryBitReply', {
-		'Text', T{982697491816, --[[StoryBit WatcherInTheSky Text]] "Send a Colonist in a Shuttle to investigate."},
+		'Text', T(982697491816, --[[StoryBit WatcherInTheSky Text]] "Send a Colonist in a Shuttle to investigate."),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -45,7 +50,7 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{567951828202, --[[StoryBit WatcherInTheSky Text]] "Jam the signal and carry on."},
+		'Text', T(567951828202, --[[StoryBit WatcherInTheSky Text]] "Jam the signal and carry on."),
 	}),
 })
 

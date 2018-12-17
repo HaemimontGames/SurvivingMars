@@ -25,8 +25,8 @@ end,
 				PlaceObj('XTemplateTemplate', {
 					'__template', "DialogTitleNew",
 					'Margins', box(55, 0, 0, 0),
-					'Title', T{577305258682, --[[XTemplate PGTutorialNew Title]] "Tutorials"},
-					'Subtitle', T{797581848776, --[[XTemplate PGTutorialNew Subtitle]] "Completed (0/5)"},
+					'Title', T(577305258682, --[[XTemplate PGTutorialNew Title]] "Tutorials"),
+					'Subtitle', T(797581848776, --[[XTemplate PGTutorialNew Subtitle]] "Completed (0/5)"),
 				}, {
 					PlaceObj('XTemplateCode', {
 						'run', function (self, parent, context)
@@ -48,13 +48,15 @@ end,
 child.idText:SetText(item.pregame_title)
 	child.idButton:SetFocusOrder(point(n, 0))
 	child.idButton:SetImage(item.image)
+	child.idDownImage:SetFlipX(n%2==0)
 	child.idButton.itemid = item.id
-	child.idPGRollover:SetText(item.description)
+	child.idTextRollover:SetText(item.description)
 	if n == 1 and GetUIStyleGamepad() then
 		child:CreateThread("FocusThread", function()
 			child.idButton:SetFocus()
 		end)
 	end
+	child.idTextRollover:SetVisible(false)
 end,
 					}, {
 						PlaceObj('XTemplateWindow', {
@@ -82,22 +84,6 @@ CreateRealTimeThread(StartTutorial, self.itemid)
 end,
 							}, {
 								PlaceObj('XTemplateFunc', {
-									'name', "SetRollover(self, rollover)",
-									'func', function (self, rollover)
-self.parent:SetRollover(rollover)
-XTextButton.SetRollover(self, rollover)
-local ctrl_rollover = self.parent:ResolveId("idPGRollover")
-if ctrl_rollover  then
-	ctrl_rollover:SetRollover(rollover )	
-end
-
-local text = self.parent:ResolveId("idText")
-if text then
-	text:SetRollover(rollover)	
-end
-end,
-								}),
-								PlaceObj('XTemplateFunc', {
 									'name', "SetEnabled(self, enabled)",
 									'func', function (self, enabled)
 XTextButton.SetEnabled(self, enabled)
@@ -108,56 +94,140 @@ if not enabled then
 end
 end,
 								}),
+								PlaceObj('XTemplateFunc', {
+									'name', "SetRollover(self, rollover)",
+									'func', function (self, rollover)
+self.parent:SetRollover(rollover)
+XTextButton.SetRollover(self, rollover)
+
+local duration = 200
+local frame = self.parent:ResolveId("idFrame")
+local image = self.parent:ResolveId("idDownImage")
+local textContainer = self.parent:ResolveId("idTextContainer")
+local rText = self.parent:ResolveId("idTextRollover")
+
+frame:AddInterpolation{
+	id = "move",
+	type = const.intRect,
+	duration = duration,
+	endRect = sizebox(frame.box:minx(), frame.box:miny() - rText.box:sizey(), frame.box:sizex(), frame.box:sizey() + 1+ rText.box:sizey()),
+	startRect =  frame.box,
+	flags = (not rollover) and const.intfInverse or nil,
+}
+
+rText:SetVisible(rollover)
+rText:AddInterpolation{
+	id = "move",
+	type = const.intRect,
+	start = GetPreciseTicks() + duration/2,
+	duration = duration/2,
+	startRect = rText.box,
+	endRect = sizebox(image.box:minx(),image.box:miny(),rText.box:sizex(),0),
+	flags =rollover and const.intfInverse or nil,
+}
+
+textContainer:SetRollover(rollover)
+textContainer:AddInterpolation{
+	id = "move",
+	type = const.intRect,
+	duration = duration,
+	endRect = Offset(textContainer.box,0, -rText.box:sizey()),
+	startRect = textContainer.box,
+	flags = (not rollover) and const.intfInverse or nil,
+}
+end,
+								}),
 								PlaceObj('XTemplateWindow', {
-									'Margins', box(20, 0, 0, 5),
+									'__class', "XImage",
+									'Id', "idDownImage",
+									'Dock', "bottom",
 									'VAlign', "bottom",
-									'LayoutMethod', "HList",
-									'LayoutHSpacing', 10,
+									'MinWidth', 243,
+									'MaxWidth', 243,
+									'Visible', false,
+									'Image', "UI/CommonNew/mm_rollover1.tga",
+								}),
+								PlaceObj('XTemplateWindow', {
+									'Id', "idRolloverWnd",
+									'Dock', "box",
+									'HAlign', "center",
+									'VAlign', "bottom",
+									'MinWidth', 243,
+									'MaxWidth', 243,
+									'LayoutMethod', "VList",
 								}, {
-									PlaceObj('XTemplateWindow', nil, {
-										PlaceObj('XTemplateWindow', {
-											'__class', "XImage",
-											'Id', "idCheckBack",
-											'Image', "UI/CommonNew/check_slot_hex.tga",
-											'ImageScale', point(600, 600),
-										}),
-										PlaceObj('XTemplateWindow', {
-											'__class', "XImage",
-											'Id', "idCheck",
-											'Image', "UI/Common/mission_yes.tga",
-											'ImageScale', point(800, 800),
-										}, {
-											PlaceObj('XTemplateCode', {
-												'run', function (self, parent, context)
+									PlaceObj('XTemplateWindow', {
+										'__class', "XFrame",
+										'Id', "idFrame",
+										'IdNode', false,
+										'Dock', "box",
+										'Image', "UI/CommonNew/mm_rollover2.tga",
+									}),
+									PlaceObj('XTemplateWindow', {
+										'Id', "idTextContainer",
+										'Margins', box(20, 0, 0, -30),
+										'HAlign', "left",
+										'VAlign', "bottom",
+										'LayoutMethod', "HList",
+										'LayoutHSpacing', 10,
+									}, {
+										PlaceObj('XTemplateWindow', nil, {
+											PlaceObj('XTemplateWindow', {
+												'__class', "XImage",
+												'Id', "idCheckBack",
+												'Image', "UI/CommonNew/check_slot_hex.tga",
+												'ImageScale', point(600, 600),
+											}),
+											PlaceObj('XTemplateWindow', {
+												'__class', "XImage",
+												'Id', "idCheck",
+												'Image', "UI/Common/mission_yes.tga",
+												'ImageScale', point(800, 800),
+											}, {
+												PlaceObj('XTemplateCode', {
+													'run', function (self, parent, context)
 parent:SetVisible(AccountStorage and AccountStorage.CompletedTutorials and AccountStorage.CompletedTutorials[context.id])
 end,
+												}),
+												}),
 											}),
-											}),
+										PlaceObj('XTemplateTemplate', {
+											'__template', "MainMenuButtonText",
+											'Id', "idText",
+											'Padding', box(2, 4, 2, 4),
+											'VAlign', "center",
+											'Translate', true,
 										}),
-									PlaceObj('XTemplateTemplate', {
-										'__template', "MainMenuButtonText",
-										'Id', "idText",
-										'Padding', box(2, 4, 2, 4),
-										'VAlign', "center",
+										}),
+									}),
+								PlaceObj('XTemplateWindow', {
+									'Dock', "box",
+									'MinWidth', 243,
+									'MaxWidth', 243,
+								}, {
+									PlaceObj('XTemplateWindow', {
+										'__class', "XText",
+										'Id', "idTextRollover",
+										'IdNode', false,
+										'Margins', box(0, 30, 0, -18),
+										'Padding', box(10, 10, 10, 0),
+										'HAlign', "center",
+										'VAlign', "bottom",
+										'MinWidth', 243,
+										'MaxWidth', 243,
+										'FadeInTime', 300,
+										'FadeOutTime', 100,
+										'TextStyle', "RolloverTextStyle",
 										'Translate', true,
+										'HideOnEmpty', true,
 									}),
 									}),
 								}),
-							PlaceObj('XTemplateTemplate', {
-								'__template', "PGRollover",
-								'Margins', box(0, 0, 0, 60),
-								'Dock', "box",
-								'HAlign', "center",
-								'VAlign', "bottom",
-								'MinWidth', 243,
-								'MaxWidth', 243,
-								'GridStretchX', false,
-							}),
 							PlaceObj('XTemplateFunc', {
 								'name', "Open",
 								'func', function (self, ...)
 XWindow.Open(self, ...)
-self.idPGRollover:SetVisible(false)
+self.idTextRollover:SetVisible(false)
 end,
 							}),
 							}),
@@ -184,7 +254,7 @@ end,
 					}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "back",
-					'ActionName', T{4254, --[[XTemplate PGTutorialNew ActionName]] "BACK"},
+					'ActionName', T(4254, --[[XTemplate PGTutorialNew ActionName]] "BACK"),
 					'ActionToolbar', "ActionBar",
 					'ActionShortcut', "Escape",
 					'ActionGamepad', "ButtonB",

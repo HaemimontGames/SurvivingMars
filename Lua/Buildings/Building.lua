@@ -17,19 +17,19 @@ AutoResolveMethods.InitConstruction = true
 AutoResolveMethods.RoverWork = true
 
 BuildCategories = {
-	{ id = "Infrastructure",      name = T{78, "Infrastructure"},              image = "UI/Icons/bmc_infrastructure.tga",     highlight = "UI/Icons/bmc_infrastructure_shine.tga" },
-	{ id = "Power",               name = T{79, "Power"},                       image = "UI/Icons/bmc_power.tga",              highlight= "UI/Icons/bmc_power_shine.tga" },
-	{ id = "Production",          name = T{80, "Production"},                  image = "UI/Icons/bmc_building_resources.tga", highlight= "UI/Icons/bmc_building_resources_shine.tga" },
-	{ id = "Life-Support",        name = T{81, "Life Support"},                image = "UI/Icons/bmc_life_support.tga",       highlight= "UI/Icons/bmc_life_support_shine.tga" },
-	{ id = "Storages",            name = T{82, "Storages"},                    image = "UI/Icons/bmc_building_storages.tga",  highlight= "UI/Icons/bmc_building_storages_shine.tga" },
-	{ id = "Domes",               name = T{83, "Domes"},                       image = "UI/Icons/bmc_domes.tga",              highlight= "UI/Icons/bmc_domes_shine.tga" },
-	{ id = "Habitats",            name = T{84, "Homes, Education & Research"}, image = "UI/Icons/bmc_habitats.tga",           highlight= "UI/Icons/bmc_habitats_shine.tga" },	
-	{ id = "Dome Services",       name = T{85, "Dome Services"},               image = "UI/Icons/bmc_dome_buildings.tga",     highlight= "UI/Icons/bmc_dome_buildings_shine.tga" },
-	{ id = "Dome Spires",         name = T{86, "Dome Spires"},                 image = "UI/Icons/bmc_dome_spires.tga",        highlight= "UI/Icons/bmc_dome_spires_shine.tga" },
-	{ id = "Decorations",         name = T{87, "Decorations"},                 image = "UI/Icons/bmc_decorations.tga",        highlight= "UI/Icons/bmc_decorations_shine.tga" },
-	{ id = "Outside Decorations", name = T{11408, "Outside Decorations"},      image = "UI/Icons/bmc_outside_decorations.tga",highlight= "UI/Icons/bmc_outside_decorations_shine.tga" },
-	{ id = "Wonders",             name = T{88, "Wonders"},                     image = "UI/Icons/bmc_wonders.tga",            highlight= "UI/Icons/bmc_wonders_shine.tga" },
-	{ id = "Hidden",              name = T{1000155, "Hidden"},                 image = "UI/Icons/bmc_placeholder.tga",        highlight= "UI/Icons/bmc_placeholder_shine.tga" },
+	{ id = "Infrastructure",      name = T(78, "Infrastructure"),              image = "UI/Icons/bmc_infrastructure.tga",     highlight = "UI/Icons/bmc_infrastructure_shine.tga" },
+	{ id = "Power",               name = T(79, "Power"),                       image = "UI/Icons/bmc_power.tga",              highlight= "UI/Icons/bmc_power_shine.tga" },
+	{ id = "Production",          name = T(80, "Production"),                  image = "UI/Icons/bmc_building_resources.tga", highlight= "UI/Icons/bmc_building_resources_shine.tga" },
+	{ id = "Life-Support",        name = T(81, "Life Support"),                image = "UI/Icons/bmc_life_support.tga",       highlight= "UI/Icons/bmc_life_support_shine.tga" },
+	{ id = "Storages",            name = T(82, "Storages"),                    image = "UI/Icons/bmc_building_storages.tga",  highlight= "UI/Icons/bmc_building_storages_shine.tga" },
+	{ id = "Domes",               name = T(83, "Domes"),                       image = "UI/Icons/bmc_domes.tga",              highlight= "UI/Icons/bmc_domes_shine.tga" },
+	{ id = "Habitats",            name = T(84, "Homes, Education & Research"), image = "UI/Icons/bmc_habitats.tga",           highlight= "UI/Icons/bmc_habitats_shine.tga" },	
+	{ id = "Dome Services",       name = T(85, "Dome Services"),               image = "UI/Icons/bmc_dome_buildings.tga",     highlight= "UI/Icons/bmc_dome_buildings_shine.tga" },
+	{ id = "Dome Spires",         name = T(86, "Dome Spires"),                 image = "UI/Icons/bmc_dome_spires.tga",        highlight= "UI/Icons/bmc_dome_spires_shine.tga" },
+	{ id = "Decorations",         name = T(87, "Decorations"),                 image = "UI/Icons/bmc_decorations.tga",        highlight= "UI/Icons/bmc_decorations_shine.tga" },
+	{ id = "Outside Decorations", name = T(11408, "Outside Decorations"),      image = "UI/Icons/bmc_outside_decorations.tga",highlight= "UI/Icons/bmc_outside_decorations_shine.tga" },
+	{ id = "Wonders",             name = T(88, "Wonders"),                     image = "UI/Icons/bmc_wonders.tga",            highlight= "UI/Icons/bmc_wonders_shine.tga" },
+	{ id = "Hidden",              name = T(1000155, "Hidden"),                 image = "UI/Icons/bmc_placeholder.tga",        highlight= "UI/Icons/bmc_placeholder_shine.tga" },
 }
 
 invalid_entity = "Hex1_Placeholder"
@@ -75,60 +75,60 @@ DefineClass.Building = {
 	UpdateConsumption = BaseBuilding.UpdateConsumption,
 	
 	properties = {
-		{ template = true, name = T{1000067, "Display Name"},     id = "display_name",      category = "General",  editor = "text",         default = "", translate = true, },
-		{ template = true, name = T{151, "Display Name (pl)"},    id = "display_name_pl",   category = "General",  editor = "text",         default = "", translate = true, },
-		{ template = true, name = T{1000017, "Description"},      id = "description",       category = "General",  editor = "text",         default = "", translate = true, },
+		{ template = true, name = T(1000067, "Display Name"),     id = "display_name",      category = "General",  editor = "text",         default = "", translate = true, },
+		{ template = true, name = T(151, "Display Name (pl)"),    id = "display_name_pl",   category = "General",  editor = "text",         default = "", translate = true, },
+		{ template = true, name = T(1000017, "Description"),      id = "description",       category = "General",  editor = "text",         default = "", translate = true, },
 		
-		{ template = true, name = T{152, "Build Menu Category"},  id = "build_category",    category = "General",  editor = "combo", default = "", items = GetBuildCategoryIds, },
-		{ template = true, name = T{153, "Build Menu Icon"},      id = "display_icon",      category = "General",  editor = "browse",       default = "", folder = "UI" },
-		{ template = true, name = T{154, "Build Menu Pos"},       id = "build_pos",         category = "General",  editor = "number",       default = 1, },
-		{ template = true, name = T{155, "Entity"},               id = "entity",            category = "General",  editor = "dropdownlist", default = invalid_entity, items = function() return GetBuildingEntities(invalid_entity) end},
+		{ template = true, name = T(152, "Build Menu Category"),  id = "build_category",    category = "General",  editor = "combo", default = "", items = GetBuildCategoryIds, },
+		{ template = true, name = T(153, "Build Menu Icon"),      id = "display_icon",      category = "General",  editor = "browse",       default = "", folder = "UI" },
+		{ template = true, name = T(154, "Build Menu Pos"),       id = "build_pos",         category = "General",  editor = "number",       default = 1, },
+		{ template = true, name = T(155, "Entity"),               id = "entity",            category = "General",  editor = "dropdownlist", default = invalid_entity, items = function() return GetBuildingEntities(invalid_entity) end},
 		--
-		{ template = true, name = T{156, "Dome Comfort"},         id = "dome_comfort",      category = "General",  editor = "number",       default = 0 , scale = "Stat", modifiable = true },
-		{ template = true, name = T{10971, "Show Range for All"},   id = "show_range_all", 	 category = "General",  editor = "bool",         default = false, help = "Show range radii for all buildings of that class when selected" },
-		{ template = true, name = T{158, "Show Range"},   		 id = "show_range", 	 	category = "General",  editor = "bool",         default = false, help = "Show range radius for this building" },
-		{ template = true, name = T{7331, "Infopanel"},           id = "ip_template", 	    category = "General",  editor = "text",         default = "ipBuilding", help = "Template used for building infopanel" },
-		{ template = true, name = T{8697, "Suspend on Dust Storm"},     id = "suspend_on_dust_storm", category = "General",  editor = "bool",         default = false },
+		{ template = true, name = T(156, "Dome Comfort"),         id = "dome_comfort",      category = "General",  editor = "number",       default = 0 , scale = "Stat", modifiable = true },
+		{ template = true, name = T(10971, "Show Range for All"),   id = "show_range_all", 	 category = "General",  editor = "bool",         default = false, help = "Show range radii for all buildings of that class when selected" },
+		{ template = true, name = T(158, "Show Range"),   		 id = "show_range", 	 	category = "General",  editor = "bool",         default = false, help = "Show range radius for this building" },
+		{ template = true, name = T(7331, "Infopanel"),           id = "ip_template", 	    category = "General",  editor = "text",         default = "ipBuilding", help = "Template used for building infopanel" },
+		{ template = true, name = T(8697, "Suspend on Dust Storm"),     id = "suspend_on_dust_storm", category = "General",  editor = "bool",         default = false },
 		
 		--
-		{ template = true, name = T{4103, "Encyclopedia ID"},     id = "encyclopedia_id",      category = "Encyclopedia",  editor = "text", default = "" },
-		{ template = true, name = T{160, "Encyclopedia Text"},    id = "encyclopedia_text",    category = "Encyclopedia",  editor = "multi_line_text",default = "", translate = true, },
-		{ template = true, name = T{161, "Encyclopedia Image"},   id = "encyclopedia_image",   category = "Encyclopedia",  editor = "browse",       default = "", folder = "UI" },
+		{ template = true, name = T(4103, "Encyclopedia ID"),     id = "encyclopedia_id",      category = "Encyclopedia",  editor = "text", default = "" },
+		{ template = true, name = T(160, "Encyclopedia Text"),    id = "encyclopedia_text",    category = "Encyclopedia",  editor = "multi_line_text",default = "", translate = true, },
+		{ template = true, name = T(161, "Encyclopedia Image"),   id = "encyclopedia_image",   category = "Encyclopedia",  editor = "browse",       default = "", folder = "UI" },
 		--
-		{ template = true, name = T{11469, "Keybinding allowed"}, id = "key_bindable", category = "Shortcuts", editor = "bool", default = true, },
-		{ template = true, name = T{7615, "Build Shortcut"},    id = "build_shortcut1", category = "Shortcuts",  editor = "text",default = "", },
-		{ template = true, name = T{7616, "Build Shortcut 2"},    id = "build_shortcut2", category = "Shortcuts",  editor = "text",default = "", },
-		{ template = true, name = T{7617, "Gamepad Shortcut"},    id = "build_shortcut_gamepad", category = "Shortcuts",  editor = "text",default = "", },
+		{ template = true, name = T(11469, "Keybinding allowed"), id = "key_bindable", category = "Shortcuts", editor = "bool", default = true, },
+		{ template = true, name = T(7615, "Build Shortcut"),    id = "build_shortcut1", category = "Shortcuts",  editor = "text",default = "", },
+		{ template = true, name = T(7616, "Build Shortcut 2"),    id = "build_shortcut2", category = "Shortcuts",  editor = "text",default = "", },
+		{ template = true, name = T(7617, "Gamepad Shortcut"),    id = "build_shortcut_gamepad", category = "Shortcuts",  editor = "text",default = "", },
 		--
-		{ template = true, name = T{167, "Label 1"},       id = "label1",    category = "Custom Labels",  editor = "text",         default = "" },
-		{ template = true, name = T{168, "Label 2"},       id = "label2",    category = "Custom Labels",  editor = "text",         default = "" },
-		{ template = true, name = T{169, "Label 3"},       id = "label3",    category = "Custom Labels",  editor = "text",         default = "" },
+		{ template = true, name = T(167, "Label 1"),       id = "label1",    category = "Custom Labels",  editor = "text",         default = "" },
+		{ template = true, name = T(168, "Label 2"),       id = "label2",    category = "Custom Labels",  editor = "text",         default = "" },
+		{ template = true, name = T(169, "Label 3"),       id = "label3",    category = "Custom Labels",  editor = "text",         default = "" },
 		--
-		{ template = true, name = T{170, "Has On/Off button"},   id = "on_off_button",  category = "UI",  editor = "bool",         default = true },
-		{ template = true, name = T{171, "Has Priority button"}, id = "prio_button",    category = "UI",  editor = "bool",         default = true },		
+		{ template = true, name = T(170, "Has On/Off button"),   id = "on_off_button",  category = "UI",  editor = "bool",         default = true },
+		{ template = true, name = T(171, "Has Priority button"), id = "prio_button",    category = "UI",  editor = "bool",         default = true },		
 		--
-		{ name = T{172, "Priority"},            id = "priority",            category = "General", editor = "number", default = 2, ui = "scrollbar", min = 1, max = const.MaxBuildingPriority },
-		{ name = T{173, "Salvage Modifier"},    id = "salvage_modifier",    category = "General", editor = "number", default = 100, ui = "number", min = 0, max = 100, modifiable = true, },
+		{ name = T(172, "Priority"),            id = "priority",            category = "General", editor = "number", default = 2, ui = "scrollbar", min = 1, max = const.MaxBuildingPriority },
+		{ name = T(173, "Salvage Modifier"),    id = "salvage_modifier",    category = "General", editor = "number", default = 100, ui = "number", min = 0, max = 100, modifiable = true, },
 		--
-		{ template = true, name = T{174, "Color Modifier"},       id = "color_modifier",    category = "General",  editor = "color",        default = const.clrNoModifier },
+		{ template = true, name = T(174, "Color Modifier"),       id = "color_modifier",    category = "General",  editor = "color",        default = const.clrNoModifier },
 		
-		{ template = true, name = T{11561, "Palette color 1"}, id = "palette_color1", category = "General", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
-		{ template = true, name = T{11562, "Palette color 2"}, id = "palette_color2", category = "General", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
-		{ template = true, name = T{11563, "Palette color 3"}, id = "palette_color3", category = "General", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
-		{ template = true, name = T{11564, "Palette color 4"}, id = "palette_color4", category = "General", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+		{ template = true, name = T(11561, "Palette color 1"), id = "palette_color1", category = "General", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+		{ template = true, name = T(11562, "Palette color 2"), id = "palette_color2", category = "General", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+		{ template = true, name = T(11563, "Palette color 3"), id = "palette_color3", category = "General", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+		{ template = true, name = T(11564, "Palette color 4"), id = "palette_color4", category = "General", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
 		
-		{ template = true, category = "Demolish", name = T{157, "Indestructible"}, 		        id = "indestructible", 	          editor = "bool",   default = false, help = "Specify if the building can be destroyed at all (by demolishing, by explosions, by meteors, etc)."},
-		{ template = true, category = "Demolish", name = T{175, "Use demolished state?"},       id = "use_demolished_state",      editor = "bool",   default = true, object_update = true, help = "If true, the building will transofrm into ruins, instead of disappearing after destruction."},
-		{ template = true, category = "Demolish", name = T{7332, "Demolish sinking (%)"},       id = "demolish_sinking",          editor = "range",  default = range(15, 30), min = 0, max = 50, help = "Building part sinking into the ground in demolished state. Valid only for buildings without terrain modification surfaces.", no_edit = function(obj) return not obj.use_demolished_state end, },
-		{ template = true, category = "Demolish", name = T{7333, "Demolish tilt (deg)"},        id = "demolish_tilt_angle",       editor = "range",  default = range(5*60, 10*60), min = 0, max = 30*60, scale = 60, help = "Building tilt angle in demolished state", no_edit = function(obj) return not obj.use_demolished_state end, },
-		{ template = true, category = "Demolish", name = T{7334, "Demolish color"},             id = "demolish_color",            editor = "color",  default = RGB(45, 50, 53), no_edit = function(obj) return not obj.use_demolished_state end, help = "Color modifier for the destroyed building." },
-		{ template = true, category = "Demolish", name = T{7335, "Demolish place debris (%)"},  id = "demolish_debris",           editor = "number", default = 70, min = 0, max = 100, slider = true, no_edit = function(obj) return not obj.use_demolished_state end, help = "Percentage of debris left after destruction.",},
-		{ template = true, category = "Demolish", name = T{8564, "Return resources"},                 id = "demolish_return_resources", editor = "bool",   default = true, help = "If true, the building will return resources upon destruction.", },
+		{ template = true, category = "Demolish", name = T(157, "Indestructible"), 		        id = "indestructible", 	          editor = "bool",   default = false, help = "Specify if the building can be destroyed at all (by demolishing, by explosions, by meteors, etc)."},
+		{ template = true, category = "Demolish", name = T(175, "Use demolished state?"),       id = "use_demolished_state",      editor = "bool",   default = true, object_update = true, help = "If true, the building will transofrm into ruins, instead of disappearing after destruction."},
+		{ template = true, category = "Demolish", name = T(7332, "Demolish sinking (%)"),       id = "demolish_sinking",          editor = "range",  default = range(15, 30), min = 0, max = 50, help = "Building part sinking into the ground in demolished state. Valid only for buildings without terrain modification surfaces.", no_edit = function(obj) return not obj.use_demolished_state end, },
+		{ template = true, category = "Demolish", name = T(7333, "Demolish tilt (deg)"),        id = "demolish_tilt_angle",       editor = "range",  default = range(5*60, 10*60), min = 0, max = 30*60, scale = 60, help = "Building tilt angle in demolished state", no_edit = function(obj) return not obj.use_demolished_state end, },
+		{ template = true, category = "Demolish", name = T(7334, "Demolish color"),             id = "demolish_color",            editor = "color",  default = RGB(45, 50, 53), no_edit = function(obj) return not obj.use_demolished_state end, help = "Color modifier for the destroyed building." },
+		{ template = true, category = "Demolish", name = T(7335, "Demolish place debris (%)"),  id = "demolish_debris",           editor = "number", default = 70, min = 0, max = 100, slider = true, no_edit = function(obj) return not obj.use_demolished_state end, help = "Percentage of debris left after destruction.",},
+		{ template = true, category = "Demolish", name = T(8564, "Return resources"),                 id = "demolish_return_resources", editor = "bool",   default = true, help = "If true, the building will return resources upon destruction.", },
 		
-		{ template = true, category = "Construction", name = T{176, "Construction Mode"}, id = "construction_mode", editor = "text", default = "construction", help = "The type of construction controller to launch", no_edit = true},
-		{ template = true, category = "Construction", name = T{7891, --[[Post-Cert]] "Refund on Salvage"}, id = "refund_on_salvage", editor = "bool", default = true},
+		{ template = true, category = "Construction", name = T(176, "Construction Mode"), id = "construction_mode", editor = "text", default = "construction", help = "The type of construction controller to launch", no_edit = true},
+		{ template = true, category = "Construction", name = T(7891, --[[Post-Cert]] "Refund on Salvage"), id = "refund_on_salvage", editor = "bool", default = true},
 		
-		{ template = true, category = "General", name = T{9611, "Count as Building"}, id = "count_as_building", editor = "bool", default = true, help = "Count as building for achievement / control center purposes"},
+		{ template = true, category = "General", name = T(9611, "Count as Building"), id = "count_as_building", editor = "bool", default = true, help = "Count as building for achievement / control center purposes"},
 	},
 	
 	update_thread = false,
@@ -179,8 +179,8 @@ MaxAltEntityIdx = 7
 do
 	local status_items = {
 		{value = false, text = ""},
-		{value = "required", text = T{9828, "Required"}},
-		{value = "disabled", text = T{847439380056, "Disabled"}},
+		{value = "required", text = T(9828, "Required")},
+		{value = "disabled", text = T(847439380056, "Disabled")},
 	}
 	local properties = Building.properties
 	for i=1,3 do
@@ -242,7 +242,7 @@ end
 
 function Building:GetIPDescription()
 	if self:IsKindOf("Building") and self.destroyed and not self.demolishing and not self.bulldozed then
-		return T{597, "The <em>ruins</em> of an abandoned building. Can be <em>cleared</em> for resources, or <em>rebuilt</em>."}
+		return T(597, "The <em>ruins</em> of an abandoned building. Can be <em>cleared</em> for resources, or <em>rebuilt</em>.")
 	end
 	return T{self.description,self}
 end
@@ -359,6 +359,7 @@ function Building:Done()
 	self.demolish_debris_objs = nil
 	BumpDroneUnreachablesVersion()
 	RefreshConstructionCursor()
+	Flight_Unmark(self)
 end
 
 function Building:InitInside(dome)
@@ -2114,53 +2115,53 @@ end
 function Building:Getui_dronehub_drones() return T{180, "Drones<right><DronesCount>/<CommandCenterMaxDrones>", self, CommandCenterMaxDrones = g_Consts.CommandCenterMaxDrones} end
 
 NotWorkingWarning = {
-	MechDepotWaitingForResourceUnload = T{9617, "Waiting for resources to unload."},
-	PassageWaitingForColonistsToExit = T{9618, "Waiting for colonists to exit."},
-	Demolish = T{181, "This building will be demolished in <em><FormatScale(demolishing_countdown,1000,true)></em> sec."},
-	Malfunction = T{182, "This building has malfunctioned. Repair it with Drones."},
-	MalfunctionRes = T{60192, "This building has malfunctioned. Drones can repair it with <resource(maintenance_resource_amount, maintenance_resource_type)>."},
-	Frozen = T{183, "This building is frozen. It can be repaired by Drones after the Cold Wave has passed."},
-	FrozenPerma = T{7892, "This building is frozen. Use a Subsurface Heater to heat the surrounding cold area."},
-	IonStorm = T{8926, "This building has been disabled by an Ion Storm."},
-	Defrosting = T{8520, "Defrosting. This building will need repair after it is defrosted."},
-	TurnedOff = T{184, "This building has been turned off."},
-	ExceptionalCircumstancesDisabled = T{10903, "This building is disabled due to exceptional circumstances"},
-	ExceptionalCircumstancesMalafunction = T{10904, "This building was damaged due to exceptional circumstances. Drones can repair it with <resource(maintenance_resource_amount, maintenance_resource_type)>."}, 
-	NoResourceExceptionalCircumstancesMalafunction = T{11568, "This building was damaged due to exceptional circumstances."}, 
-	ExceptionalCircumstancesMaintenance = T{10905, "This building requires maintenance due to exceptional circumstances. Required resources <resource(maintenance_resource_amount, maintenance_resource_type)>."},
-	NoResourceExceptionalCircumstancesMaintenance = T{11569, "This building requires maintenance due to exceptional circumstances."},
-	SuspendedDustStorm = T{185, "Doesn't function during Dust Storms."},
-	Suspended = T{7524, "Building disabled by lightning strike. Will resume work in several hours."},
-	NoDeposits = T{187, "No deposits"},
-	NoExploitableDeposits = T{188, "There are no exploitable deposits in range"},
-	NoStorageSpace = T{189, "Storage space is full"},
-	TooFarFromWorkforce = T{190, "This building requires Colonists and is too far from your Domes."},
-	InactiveWorkshift = T{191, "Inactive work shift"},
-	NotEnoughWorkers = T{192, "Not enough Workers"},
-	NoPower = T{193, "Not enough Power"},
-	NoOxygen = T{194, "Not enough Oxygen"},
-	NoWater = T{195, "Not enough Water"},
-	NotConnectedToPowerGridConsumer = T{196, "Must be connected to a Power consumer"},
-	NotConnectedToPowerGridProducer = T{197, "Must be connected to a Power producer"},
-	NotConnectedToWaterConsumer = T{198, "Must be connected to a Water consumer"},
-	NotConnectedToWaterProducer = T{199, "Must be connected to a Water producer"},
-	NotConnectedToAirConsumer = T{200, "Must be connected to an Oxygen consumer"},
-	NotConnectedToAirProducer = T{201, "Must be connected to an Oxygen producer"},
-	NoResearch = T{202, "No research project assigned"},
-	LowWind = T{203, "Not producing due to low wind and elevation"},
-	Renegades = T{204, "You’ll need more operational Security Stations to deal with Renegade crime in the Dome"},
-	WasteRock = T{205, "Waste Rock storage is full"},
-	UnexploitableDeposit = T{206, "We can't exploit this deposit with our current technology"},
-	WaitingFuel = T{207, "Waiting for Fuel"},
-	Default = T{208, "This building is not working"},
-	Destroyed = T{209, "This building has been destroyed"},
-	Consumption = T{210, "Building is waiting for <resource(1000, consumption_resource_type)> to resume working"},
-	WorkshopConsumption = T{8768, "Building is waiting for <resource(consumption_resource_type)> to resume working"},
-	NoCrop = T{7525, "No crop set"},
-	NoCommandCenter = T{632, "Outside Drone commander range."},
-	NoDroneHub = T{845, "Too far from working Drone commander."},
-	DomeNotWorking = T{10548, "This building doesn't work because the Dome has been turned off"},
-	Halted = T{11000, "The construction process has been halted due to exceptional circumstances."}
+	MechDepotWaitingForResourceUnload = T(9617, "Waiting for resources to unload."),
+	PassageWaitingForColonistsToExit = T(9618, "Waiting for colonists to exit."),
+	Demolish = T(181, "This building will be demolished in <em><FormatScale(demolishing_countdown,1000,true)></em> sec."),
+	Malfunction = T(182, "This building has malfunctioned. Repair it with Drones."),
+	MalfunctionRes = T(60192, "This building has malfunctioned. Drones can repair it with <resource(maintenance_resource_amount, maintenance_resource_type)>."),
+	Frozen = T(183, "This building is frozen. It can be repaired by Drones after the Cold Wave has passed."),
+	FrozenPerma = T(7892, "This building is frozen. Use a Subsurface Heater to heat the surrounding cold area."),
+	IonStorm = T(8926, "This building has been disabled by an Ion Storm."),
+	Defrosting = T(8520, "Defrosting. This building will need repair after it is defrosted."),
+	TurnedOff = T(184, "This building has been turned off."),
+	ExceptionalCircumstancesDisabled = T(10903, "This building is disabled due to exceptional circumstances"),
+	ExceptionalCircumstancesMalafunction = T(10904, "This building was damaged due to exceptional circumstances. Drones can repair it with <resource(maintenance_resource_amount, maintenance_resource_type)>."), 
+	NoResourceExceptionalCircumstancesMalafunction = T(11568, "This building was damaged due to exceptional circumstances."), 
+	ExceptionalCircumstancesMaintenance = T(10905, "This building requires maintenance due to exceptional circumstances. Required resources <resource(maintenance_resource_amount, maintenance_resource_type)>."),
+	NoResourceExceptionalCircumstancesMaintenance = T(11569, "This building requires maintenance due to exceptional circumstances."),
+	SuspendedDustStorm = T(185, "Doesn't function during Dust Storms."),
+	Suspended = T(7524, "Building disabled by lightning strike. Will resume work in several hours."),
+	NoDeposits = T(187, "No deposits"),
+	NoExploitableDeposits = T(188, "There are no exploitable deposits in range"),
+	NoStorageSpace = T(189, "Storage space is full"),
+	TooFarFromWorkforce = T(190, "This building requires Colonists and is too far from your Domes."),
+	InactiveWorkshift = T(191, "Inactive work shift"),
+	NotEnoughWorkers = T(192, "Not enough Workers"),
+	NoPower = T(193, "Not enough Power"),
+	NoOxygen = T(194, "Not enough Oxygen"),
+	NoWater = T(195, "Not enough Water"),
+	NotConnectedToPowerGridConsumer = T(196, "Must be connected to a Power consumer"),
+	NotConnectedToPowerGridProducer = T(197, "Must be connected to a Power producer"),
+	NotConnectedToWaterConsumer = T(198, "Must be connected to a Water consumer"),
+	NotConnectedToWaterProducer = T(199, "Must be connected to a Water producer"),
+	NotConnectedToAirConsumer = T(200, "Must be connected to an Oxygen consumer"),
+	NotConnectedToAirProducer = T(201, "Must be connected to an Oxygen producer"),
+	NoResearch = T(202, "No research project assigned"),
+	LowWind = T(203, "Not producing due to low wind and elevation"),
+	Renegades = T(204, "You’ll need more operational Security Stations to deal with Renegade crime in the Dome"),
+	WasteRock = T(205, "Waste Rock storage is full"),
+	UnexploitableDeposit = T(206, "We can't exploit this deposit with our current technology"),
+	WaitingFuel = T(207, "Waiting for Fuel"),
+	Default = T(208, "This building is not working"),
+	Destroyed = T(209, "This building has been destroyed"),
+	Consumption = T(210, "Building is waiting for <resource(1000, consumption_resource_type)> to resume working"),
+	WorkshopConsumption = T(8768, "Building is waiting for <resource(consumption_resource_type)> to resume working"),
+	NoCrop = T(7525, "No crop set"),
+	NoCommandCenter = T(632, "Outside Drone commander range."),
+	NoDroneHub = T(845, "Too far from working Drone commander."),
+	DomeNotWorking = T(10548, "This building doesn't work because the Dome has been turned off"),
+	Halted = T(11000, "The construction process has been halted due to exceptional circumstances.")
 }
 
 function Building:GetUIWarning()
@@ -2269,33 +2270,33 @@ function Building:ShowUISectionElectricityGrid()
 end
 
 ConsumptionStatuses = {
-	Power = T{334, "Power<right><green><power(electricity_consumption)></green>"},
-	PowerNotEnough = T{335, "Insufficient Power<right><red><power(electricity_consumption)></red>"},
-	PowerRequired = T{336, "Required Power<right><power(electricity_consumption)>"},
-	Oxygen = T{337, "Oxygen<right><green><air(air_consumption)></green>"},
-	OxygenNotEnough = T{338, "Insufficient Oxygen<right><red><air(air_consumption)></red>"},
-	OxygenRequired = T{339, "Required Oxygen<right><air(air_consumption)>"},
-	Water = T{340, "Water<right><green><water(water_consumption)></green>"},
-	WaterNotEnough = T{341, "Insufficient Water<right><red><water(water_consumption)></red>"},
-	WaterRequired = T{342, "Required Water<right><water(water_consumption)>"},
-	InsufficientResource = T{343, "Insufficient <resource(consumption_resource_type)><right><red><resource(consumption_stored_resources,consumption_max_storage,consumption_resource_type)></red>"},
-	Resource = T{344, "Stored <resource(consumption_resource_type)><right><resource(consumption_stored_resources,consumption_max_storage,consumption_resource_type)>"},
-	StoredWater = T{7336, "Stored Water<right><water(stored_water,water_capacity)>"},
+	Power = T(334, "Power<right><green><power(electricity_consumption)></green>"),
+	PowerNotEnough = T(335, "Insufficient Power<right><red><power(electricity_consumption)></red>"),
+	PowerRequired = T(336, "Required Power<right><power(electricity_consumption)>"),
+	Oxygen = T(337, "Oxygen<right><green><air(air_consumption)></green>"),
+	OxygenNotEnough = T(338, "Insufficient Oxygen<right><red><air(air_consumption)></red>"),
+	OxygenRequired = T(339, "Required Oxygen<right><air(air_consumption)>"),
+	Water = T(340, "Water<right><green><water(water_consumption)></green>"),
+	WaterNotEnough = T(341, "Insufficient Water<right><red><water(water_consumption)></red>"),
+	WaterRequired = T(342, "Required Water<right><water(water_consumption)>"),
+	InsufficientResource = T(343, "Insufficient <resource(consumption_resource_type)><right><red><resource(consumption_stored_resources,consumption_max_storage,consumption_resource_type)></red>"),
+	Resource = T(344, "Stored <resource(consumption_resource_type)><right><resource(consumption_stored_resources,consumption_max_storage,consumption_resource_type)>"),
+	StoredWater = T(7336, "Stored Water<right><water(stored_water,water_capacity)>"),
 }
 
 ConsumptionStatusesShort = {
-	Power = T{9689, "<green><power(electricity_consumption)></green>"},
-	PowerNotEnough = T{9690, "<red><power(electricity_consumption)></red>"},
-	PowerRequired = T{9691, "<power(electricity_consumption)>"},
-	Oxygen = T{9692, "<green><air(air_consumption)></green>"},
-	OxygenNotEnough = T{9693, "<red><air(air_consumption)></red>"},
-	OxygenRequired = T{9694, "<air(air_consumption)>"},
-	Water = T{9695, "<green><water(water_consumption)></green>"},
-	WaterNotEnough = T{9696, "<red><water(water_consumption)></red>"},
-	WaterRequired = T{9697, "<water(water_consumption)>"},
-	InsufficientResource = T{9698, "<red><resource(consumption_stored_resources,consumption_max_storage,consumption_resource_type)></red>"},
-	Resource = T{9699, "<resource(consumption_stored_resources,consumption_max_storage,consumption_resource_type)>"},
-	StoredWater = T{9700, "<water(stored_water,water_capacity)>"},
+	Power = T(9689, "<green><power(electricity_consumption)></green>"),
+	PowerNotEnough = T(9690, "<red><power(electricity_consumption)></red>"),
+	PowerRequired = T(9691, "<power(electricity_consumption)>"),
+	Oxygen = T(9692, "<green><air(air_consumption)></green>"),
+	OxygenNotEnough = T(9693, "<red><air(air_consumption)></red>"),
+	OxygenRequired = T(9694, "<air(air_consumption)>"),
+	Water = T(9695, "<green><water(water_consumption)></green>"),
+	WaterNotEnough = T(9696, "<red><water(water_consumption)></red>"),
+	WaterRequired = T(9697, "<water(water_consumption)>"),
+	InsufficientResource = T(9698, "<red><resource(consumption_stored_resources,consumption_max_storage,consumption_resource_type)></red>"),
+	Resource = T(9699, "<resource(consumption_stored_resources,consumption_max_storage,consumption_resource_type)>"),
+	StoredWater = T(9700, "<water(stored_water,water_capacity)>"),
 }
 
 function Building:UpdateUISectionConsumption(win)
@@ -2371,9 +2372,9 @@ end
 
 function Building:GetUISectionConsumptionRollover()
 	local items = {}
-	items[#items+1] = self:IsKindOf("Dome") and T{8652, "The total consumption of the Dome and all buildings inside is indicated in the infopanel. Individual consumption of the Dome is in parentheses. Red text indicates that the required resource is not provided."}
-		or T{315, "Current consumption of this building is indicated in the infopanel. Red text indicates that the required resource is not provided."}
-	items[#items+1] = T{8653, "<newline><center><em>Grid Parameters<left></em>"}
+	items[#items+1] = self:IsKindOf("Dome") and T(8652, "The total consumption of the Dome and all buildings inside is indicated in the infopanel. Individual consumption of the Dome is in parentheses. Red text indicates that the required resource is not provided.")
+		or T(315, "Current consumption of this building is indicated in the infopanel. Red text indicates that the required resource is not provided.")
+	items[#items+1] = T(8653, "<newline><center><em>Grid Parameters<left></em>")
 	local grid = false
 	if self:IsKindOf("ElectricityConsumer") and self.electricity_consumption and (self.electricity_consumption>0 or self:GetClassValue("electricity_consumption")>0) then
 		grid = self.electricity.grid
@@ -2385,7 +2386,7 @@ function Building:GetUISectionConsumptionRollover()
 		if self:GetColdPenalty()>0 then
 			items[#items+1] = T{317, "<em>The Power consumption of this building is increased by <red><percent(ColdPenalty)></red> due to low temperature.</em>", self}
 		end
-		items[#items+1] = T{316, "<newline>"}
+		items[#items+1] = T(316, "<newline>")
 	end
 	if self:IsKindOf("LifeSupportConsumer") and self.air_consumption and (self.air_consumption>0 or self:GetClassValue("air_consumption")>0) then
 		grid = self.air.grid
@@ -2394,7 +2395,7 @@ function Building:GetUISectionConsumptionRollover()
 		items[#items+1] = T{326, "Oxygen consumption<right><air(current_consumption)>", grid}
 		items[#items+1] = T{327, "Total demand<right><air(consumption)>", grid}
 		items[#items+1] = T{328, "Stored Oxygen<right><air(current_storage)>", grid}
-		items[#items+1] = T{316, "<newline>"}
+		items[#items+1] = T(316, "<newline>")
 	end
 	if self:IsKindOf("LifeSupportConsumer") and self.water_consumption and (self.water_consumption>0 or self:GetClassValue("water_consumption")>0) then
 		grid = self.water.grid
@@ -2403,7 +2404,7 @@ function Building:GetUISectionConsumptionRollover()
 		items[#items+1] = T{331, "Water consumption<right><water(current_consumption)>", grid}
 		items[#items+1] = T{332, "Total demand<right><water(consumption)>", grid}
 		items[#items+1] = T{333, "Stored Water<right><water(current_storage)>", grid}
-		items[#items+1] = T{316, "<newline>"}
+		items[#items+1] = T(316, "<newline>")
 	end
 		-- consumption from upgrades
 	if #(self.upgrade_consumption_objects or empty_table)>0 then
@@ -2413,7 +2414,7 @@ function Building:GetUISectionConsumptionRollover()
 				items[#items+1] = T{7768, "Stored <resource_name><right><resource(stored,max_stored,res_type)>",resource_name = Resources[res_type].display_name,  res_type = res_type, stored = cons_obj.consumption_stored_resources, max_stored =  cons_obj.consumption_max_storage }
 			end
 		end	
-		items[#items+1] = T{316, "<newline>"}
+		items[#items+1] = T(316, "<newline>")
 	end
 
 	return table.concat(items, Untranslated("<newline><left>"))
@@ -2720,10 +2721,25 @@ function SelectNextBuildingOfSameType(dir)
 	end
 end
 
-GlobalVar("g_DestroyedDrones", {})
+local function DestroyedVehiclesParamFunc(displayed_in_notif)
+	local rovers = 0
+	for i,obj in ipairs(displayed_in_notif) do
+		if IsKindOf(obj, "BaseRover") then
+			rovers = rovers + 1
+		end
+	end
+	local drones = #displayed_in_notif - rovers
+	return { rovers = rovers, drones = drones }
+end
+
+GlobalVar("g_DestroyedVehicles", {})
 GlobalGameTimeThread("DestroyedDronesNotif", function()
-	HandleNewObjsNotif(g_DestroyedDrones, "DestroyedDrones", nil, nil, nil, true)
+	HandleNewObjsNotif(g_DestroyedVehicles, "DestroyedVehicles", nil, DestroyedVehiclesParamFunc, nil, true)
 end)
+
+function SavegameFixups.DestroyedVehiclesNotifRestart()
+	RestartGlobalGameTimeThread("DestroyedDronesNotif")
+end
 
 ----
 
@@ -2754,7 +2770,6 @@ function Building:BlowUp(kill_colonists, reason, single_building) --immitates me
 	end
 	
 	SuspendPassEdits("MeteorLargeExplode")
-	UICity:SetCableCascadeDeletion(false, "meteor")
 	local objects = single_building and {self} or MapGet(GetExplosionQuery(self, range))
 	local chain_id_counter = 1
 	local passages_fractured = {}
@@ -2762,6 +2777,7 @@ function Building:BlowUp(kill_colonists, reason, single_building) --immitates me
 	local destroyed_cables = {}
 	local cablesnpipes_to_kill = {}
 	local buildings_hit = {}
+	local cablesnpipes = {}
 	for i=1,#objects do
 		local obj = objects[i]
 		if IsKindOfClasses(obj, "Drone", "BaseRover") then
@@ -2798,50 +2814,42 @@ function Building:BlowUp(kill_colonists, reason, single_building) --immitates me
 				end
 			end
 		elseif IsKindOfClasses(obj, "ElectricityGridElement", "LifeSupportGridElement") then
-			--destroy if origin in range, break if otherwise
-			if self:IsCloser2D(obj, range) then
-				local is_pipe = IsKindOf(obj, "LifeSupportGridElement")
-				if is_pipe and g_Consts.InstantPipes == 0 or
-					not is_pipe and g_Consts.InstantCables == 0 then --don't destroy if we are just gona place them instantly again
-					if not IsKindOf(obj, "ConstructionSite") then
-						if not is_pipe and not table.find(destroyed_cables, 4, obj) then
-							local t = GatherSupplyGridObjectsToBeDestroyed(obj, destroyed_cables)
-							table.append(destroyed_cables, t)
-						elseif is_pipe and not table.find(destroyed_pipes, 4, obj) then
-							local t
-							t, chain_id_counter = GatherSupplyGridObjectsToBeDestroyed(obj, destroyed_pipes, chain_id_counter)
-							table.append(destroyed_pipes, t)
-						end
+			cablesnpipes[#cablesnpipes + 1] = obj
+		end
+	end
+	
+	for i = 1, #cablesnpipes do
+		local obj = cablesnpipes[i]
+		--destroy if origin in range, break if otherwise
+		if self:IsCloser2D(obj, range) then
+			local is_pipe = IsKindOf(obj, "LifeSupportGridElement")
+			if is_pipe and g_Consts.InstantPipes == 0 or
+				not is_pipe and g_Consts.InstantCables == 0 then --don't destroy if we are just gona place them instantly again
+				if not IsKindOf(obj, "ConstructionSite") then
+					if not is_pipe and not table.find(destroyed_cables, 4, obj) then
+						local t = GatherSupplyGridObjectsToBeDestroyed(obj, destroyed_cables)
+						table.append(destroyed_cables, t)
+					elseif is_pipe and not table.find(destroyed_pipes, 4, obj) then
+						local t
+						t, chain_id_counter = GatherSupplyGridObjectsToBeDestroyed(obj, destroyed_pipes, chain_id_counter)
+						table.append(destroyed_pipes, t)
 					end
-					table.insert(cablesnpipes_to_kill, obj)
-				else
-					obj:Break()
 				end
+				table.insert(cablesnpipes_to_kill, obj)
 			else
 				obj:Break()
 			end
+		else
+			obj:Break()
 		end
-	end
-		
-	for i = 1, #cablesnpipes_to_kill do
-		if IsValid(cablesnpipes_to_kill[i]) then
-			DoneObject(cablesnpipes_to_kill[i])
-		end
-	end
-
-	if #destroyed_pipes > 0 then
-		RebuildSupplyGridObjects(destroyed_pipes, "LifeSupportGridElement")
 	end
 	
-	if #destroyed_cables > 0 then
-		RebuildSupplyGridObjects(destroyed_cables, "ElectricityGridElement")
-	end
+	KillCablesAndPipesAndRebuildThem(cablesnpipes_to_kill, destroyed_cables, destroyed_pipes)
 	
 	for i = 1, #colonists_to_kill do
 		colonists_to_kill[i]:SetCommand("Die", reason)
 	end
 	
-	UICity:SetCableCascadeDeletion(true, "meteor")
 	ResumePassEdits("MeteorLargeExplode")
 end
 

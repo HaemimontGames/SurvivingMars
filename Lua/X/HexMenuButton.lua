@@ -1,7 +1,7 @@
 -- create up, down HexItems
 DefineClass.HexButtonItem = {
 	__parents = {"ItemMenuDef"},
-	display_name = T{8664, "Uper Item definition"}, 
+	display_name = T(8664, "Uper Item definition"), 
 	icon = "UI/Icons/Buildings/academy_of_science.tga", 
 	
 	ButtonAlign = "top",
@@ -186,7 +186,7 @@ function HexButtonItem:FillRollover()
 		parent.idContainer:SetRolloverText(self.description or "")
 		parent.idContainer:SetRolloverTitle(self.display_name or "")
 		parent.idContainer:SetRolloverHint(self.hint or "")
-		parent.idContainer:SetRolloverHintGamepad(T{3545, "<ButtonA> Select"})
+		parent.idContainer:SetRolloverHintGamepad(T(3545, "<ButtonA> Select"))
 		XUpdateRolloverWindow(parent.idContainer)	
 	end	
 end
@@ -306,7 +306,7 @@ function HexButtonResource:FillRollover()
 		parent.idContainer:SetRolloverTitle(self.display_name)
 		local gamepad = GetUIStyleGamepad()
 		if gamepad then 
-			parent.idContainer:SetRolloverHint(self.gamepad_hint or T{3545, "<ButtonA> Select"})
+			parent.idContainer:SetRolloverHint(self.gamepad_hint or T(3545, "<ButtonA> Select"))
 		else
 			parent.idContainer:SetRolloverHint(self.hint or "")
 		end

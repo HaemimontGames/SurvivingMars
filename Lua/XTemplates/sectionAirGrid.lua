@@ -15,7 +15,7 @@ end,
 				or building:IsKindOf("LifeSupportGridElement") and building.pillar and building.water and building.water.grid and building.water.grid.air_grid
 end,
 		'__template', "InfopanelSection",
-		'RolloverText', T{946079411041, --[[XTemplate sectionAirGrid RolloverText]] "<UISectionAirGridRollover>"},
+		'RolloverText', T(946079411041, --[[XTemplate sectionAirGrid RolloverText]] "<UISectionAirGridRollover>"),
 		'OnContextUpdate', function (self, context, ...)
 		local building = context.building
 		local grid = building:IsKindOfClasses("AirProducer", "AirStorage") and building.air and building.air.grid
@@ -25,7 +25,7 @@ self.idConsumption:SetText( T{327, --[[XTemplate sectionAirGrid Text]] "Total de
 self.idCurrentStorage:SetText(T{328, --[[XTemplate sectionAirGrid Text]] "Stored Oxygen<right><air(current_storage)>", current_storage = grid.current_storage})
 XSection.OnContextUpdate(self, context, ...)
 end,
-		'Title', T{536, --[[XTemplate sectionAirGrid Title]] "Oxygen grid"},
+		'Title', T(536, --[[XTemplate sectionAirGrid Title]] "Oxygen grid"),
 		'Icon', "UI/Icons/Sections/life_support_grid.tga",
 	}, {
 		PlaceObj('XTemplateTemplate', {

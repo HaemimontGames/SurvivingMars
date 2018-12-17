@@ -86,7 +86,7 @@ end
 
 local function NotWorkingBuildingsParamFunc(displayed_in_notif)
 	local rollover_text = GetBuildingsParamInNotification(displayed_in_notif) or empty_table
-	return {count = #displayed_in_notif, rollover_title = T{5648, "Buildings Not Working"}, rollover_text = rollover_text}
+	return {count = #displayed_in_notif, rollover_title = T(5648, "Buildings Not Working"), rollover_text = rollover_text}
 end
 
 GlobalVar("g_NotWorkingBuildings", {})
@@ -142,7 +142,7 @@ function BaseBuilding:SetWorking(work)
 end
 function BaseBuilding:Setexceptional_circumstances(disabled)
 	self.exceptional_circumstances = disabled	
-	self:SetWorking(not disabled)
+	self:UpdateWorking()
 	self:AttachSign(disabled, "SignNotWorking")
 end
 
@@ -212,12 +212,12 @@ function BaseBuilding:ToggleWorking_Update(button)
 	local shortcuts = GetShortcuts("actionOnOff")
 	local binding = ""
 	if shortcuts and (shortcuts[1] or shortcuts[2]) then
-		binding = T{10902, " / <em><ShortcutName('actionOnOff', 'keyboard')></em>"}
+		binding = T(10902, " / <em><ShortcutName('actionOnOff', 'keyboard')></em>")
 	end
 	if self.suspended then
 		button:SetIcon("UI/Icons/IPButtons/turn_off.tga")
 		button:SetRolloverHint(T{7611, "<left_click><binding> Deactivate <newline><em>Ctrl + <left_click></em> Deactivate all <display_name_pl>", binding = binding})
-		button:SetRolloverHintGamepad(T{7612, "<ButtonA> Deactivate <newline><ButtonX> Deactivate all <display_name_pl>"})
+		button:SetRolloverHintGamepad(T(7612, "<ButtonA> Deactivate <newline><ButtonX> Deactivate all <display_name_pl>"))
 	elseif self.ui_working then
 		if not self.working then
 			button:SetIcon("UI/Icons/IPButtons/turn_warning.tga")
@@ -225,21 +225,21 @@ function BaseBuilding:ToggleWorking_Update(button)
 			button:SetIcon("UI/Icons/IPButtons/turn_off.tga")
 		end
 		button:SetRolloverHint(T{7611, "<left_click><binding> Deactivate <newline><em>Ctrl + <left_click></em> Deactivate all <display_name_pl>", binding = binding})
-		button:SetRolloverHintGamepad(T{7612, "<ButtonA> Deactivate <newline><ButtonX> Deactivate all <display_name_pl>"})
+		button:SetRolloverHintGamepad(T(7612, "<ButtonA> Deactivate <newline><ButtonX> Deactivate all <display_name_pl>"))
 	else
 		button:SetIcon("UI/Icons/IPButtons/turn_on.tga")
 		button:SetRolloverHint(T{7613, "<left_click><binding> Activate <newline><em>Ctrl + <left_click></em> Activate all <display_name_pl>", binding = binding})
-		button:SetRolloverHintGamepad(T{7614, "<ButtonA> Activate <newline><ButtonX> Activate all <display_name_pl>"})
+		button:SetRolloverHintGamepad(T(7614, "<ButtonA> Activate <newline><ButtonX> Activate all <display_name_pl>"))
 	end
 end
 
 function BaseBuilding:GetUIWorkingStatus()
-	if self.suspended then return T{379, "Suspended"} end
+	if self.suspended then return T(379, "Suspended") end
 	if self.ui_working then
-		if not self.working then return T{7326, "Not Working"} end
-		return T{7327, "Turned On"}
+		if not self.working then return T(7326, "Not Working") end
+		return T(7327, "Turned On")
 	end
-	return T{7328, "Turned Off"}
+	return T(7328, "Turned Off")
 end
 --[[@@@
 Returns whether work is possible in terms of game rules for this building.
@@ -326,7 +326,7 @@ function BaseBuilding:IsSupplyGridDemandStoppedByGame()
 			(IsKindOf(self, "BuildingDepositExploiterComponent") and not self:HasNearbyDeposits() and not self.city:IsTechResearched("NanoRefinement")) or false
 end
 
-function BaseBuilding:UpdateConsumption()
+function BaseBuilding:UpdateConsumption(update)
 	local is_electricity_consumer = self.is_electricity_consumer
 	local is_lifesupport_consumer = self.is_lifesupport_consumer
 	
@@ -353,7 +353,7 @@ function BaseBuilding:UpdateConsumption()
 			--we should consume stuff!
 			if is_electricity_consumer and self.electricity then
 				--always consume electricity.
-				self.electricity:SetConsumption(self.electricity_consumption)
+				self.electricity:SetConsumption(self.electricity_consumption, update)
 			end
 			
 			if is_lifesupport_consumer then

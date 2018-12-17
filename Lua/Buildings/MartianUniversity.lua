@@ -1,7 +1,7 @@
 DefineClass.MartianUniversity = {
 	__parents = { "ElectricityConsumer", "TrainingBuilding", "InteriorAmbientLife" },
 	properties = {	
-		{ template = true, id = "specialization", name = T{668, "Gain specialization"},  default = "auto", category = "University", editor = "combo",  items = GetColonistSpecializationCombo(false, "auto")},
+		{ template = true, id = "specialization", name = T(668, "Gain specialization"),  default = "auto", category = "University", editor = "combo",  items = GetColonistSpecializationCombo(false, "auto")},
 	},
 	training_type = "specialization",
 	trained_specialists = false,
@@ -25,7 +25,7 @@ function MartianUniversity:OnTrainingCompleted(unit)
 		local most = GetMostNeededSpecialistAround(unit.dome)
 		specialization = most or table.interaction_rand(ColonistSpecializationList, "specialization")
 	end
-	unit:SetSpecialization(specialization)
+	unit:AddTrait(specialization)
 	Msg("TrainingComplete", self, unit)
 	unit.training_points[self.training_type] = nil
 	if not self.trained_specialists then
@@ -47,7 +47,7 @@ end
 
 function MartianUniversity:GetSpecialization()
 	local spec = self.specialization
-	return spec == "auto" and T{669, "Auto"} or GetSpecialization(spec).display_name_plural
+	return spec == "auto" and T(669, "Auto") or GetSpecialization(spec).display_name_plural
 end
 
 function MartianUniversity:GetNeededSpecializations()
@@ -63,7 +63,7 @@ end
 
 function MartianUniversity:GetTrainedRollover()
 	local texts = {}
-	texts[#texts+1] = T{241, "Students will be trained to receive the selected specialization or to automatically get specializations desired in your colony."}
+	texts[#texts+1] = T(241, "Students will be trained to receive the selected specialization or to automatically get specializations desired in your colony.")
 	texts[#texts+1] = Untranslated("")
 	for i, spec in ipairs(ColonistSpecializationList) do
 		local trained = self.trained_specialists[spec]

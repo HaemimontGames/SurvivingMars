@@ -70,7 +70,7 @@ end
 DefineClass.InfopanelDlg = {
 	__parents = { "XDrawCacheDialog" },
 	RolloverTemplate = "InfopanelRollover",
-	RolloverTitle = T{7331, "Infopanel"},
+	RolloverTitle = T(7331, "Infopanel"),
 }
 
 if FirstLoad then
@@ -126,15 +126,15 @@ end
 
 function InfopanelDlg:ShowIPRollover()
 	local items = {
-		T{7557, "<DPad>    Navigates the infopanel sections"},
+		T(7557, "<DPad>    Navigates the infopanel sections"),
 	}
 	if self.context:GetPropertyMetadata("UIWorkRadius") or self.context:GetPropertyMetadata("UIRange") then
-		items[#items + 1] = T{7680, "<LB> / <RB>    Decrease / increase service radius"}
+		items[#items + 1] = T(7680, "<LB> / <RB>    Decrease / increase service radius")
 	end
 	if self.context:IsKindOf("CycleMember") then
-		items[#items + 1] = T{7681, "<LB> / <RB>    Previous / next colonist"}
+		items[#items + 1] = T(7681, "<LB> / <RB>    Previous / next colonist")
 	end
-	local intro = T{7558, "<newline><center>Selection specific shortcuts"}
+	local intro = T(7558, "<newline><center>Selection specific shortcuts")
 	for _, action in ipairs(XShortcutsTarget.actions) do
 		if action.ActionToolbar == "SelectedObj" 
 			and action.ActionGamepad ~= "" 

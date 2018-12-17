@@ -163,7 +163,7 @@ end,
 									'MinWidth', 260,
 									'TextStyle', "ResearchFieldTitle",
 									'Translate', true,
-									'Text', T{135513074411, --[[XTemplate ResearchDlg Text]] "<display_name>"},
+									'Text', T(135513074411, --[[XTemplate ResearchDlg Text]] "<display_name>"),
 								}),
 								PlaceObj('XTemplateWindow', {
 									'Id', "idFieldTech",
@@ -205,9 +205,9 @@ end,
 		}),
 		PlaceObj('XTemplateAction', {
 			'RolloverTemplate', "RolloverConst",
-			'RolloverText', T{942201510325, --[[XTemplate ResearchDlg RolloverText]] "In exchange for <funding(OutsourceResearchCost)> Funding, outsourced researchers will contribute <ResearchPoints(OutsourceResearch)> in the next <time(OutsourceResearchTime)>."},
+			'RolloverText', T(942201510325, --[[XTemplate ResearchDlg RolloverText]] "In exchange for <funding(OutsourceResearchCost)> Funding, outsourced researchers will contribute <ResearchPoints(OutsourceResearch)> in the next <time(OutsourceResearchTime)>."),
 			'ActionId', "outsource",
-			'ActionName', T{889032422791, --[[XTemplate ResearchDlg ActionName]] "OUTSOURCE"},
+			'ActionName', T(889032422791, --[[XTemplate ResearchDlg ActionName]] "OUTSOURCE"),
 			'ActionToolbar', "ActionBar",
 			'ActionGamepad', "ButtonY",
 			'ActionState', function (self, host)
@@ -228,8 +228,8 @@ host:CreateThread("outsource", function()
 				local multiplier = max_orders
 				local multiple_outsource_allowed = orders == 0 and funding >= g_Consts.OutsourceResearchCost * multiplier
 				local params = {
-					title = T{6882, "Warning"},
-					text = T{7876, "Are you sure you want to outsource research to Earth?"}, 
+					title = T(6882, "Warning"),
+					text = T(7876, "Are you sure you want to outsource research to Earth?"), 
 					choice1 = T{7877, "Outsource <ResearchPoints(points)> for <funding(price)> in the next <time(sols)>", points = g_Consts.OutsourceResearch, price = g_Consts.OutsourceResearchCost, sols = g_Consts.OutsourceResearchTime},
 					choice2 = multiple_outsource_allowed and T{7877, "Outsource <ResearchPoints(points)> for <funding(price)> in the next <time(sols)>", points = g_Consts.OutsourceResearch * multiplier, price = g_Consts.OutsourceResearchCost * multiplier, sols = g_Consts.OutsourceResearchTime} or nil,
 					image = "UI/Messages/outsource.tga",
@@ -237,9 +237,9 @@ host:CreateThread("outsource", function()
 					no_ccc_button = true,
 				}
 				if multiple_outsource_allowed then
-					params.choice3 = T{1139, "No"}
+					params.choice3 = T(1139, "No")
 				else
-					params.choice2 = T{1139, "No"}
+					params.choice2 = T(1139, "No")
 				end
 				local res = WaitPopupNotification(false, params, false, host)
 				if res == 1 or (multiple_outsource_allowed and res == 2) then
@@ -248,10 +248,10 @@ host:CreateThread("outsource", function()
 					UICity:OutsourceResearch(g_Consts.OutsourceResearch * multiplier, g_Consts.OutsourceResearchTime, multiplier)
 				end
 			else
-				CreateMarsMessageBox(T{6902, "Warning"}, T{10456, "You are not allowed to outsource more research to Earth at this time!"}, T{1000136, "OK"})
+				CreateMarsMessageBox(T(6902, "Warning"), T(10456, "You are not allowed to outsource more research to Earth at this time!"), T(1000136, "OK"))
 			end
 		else
-			CreateMarsMessageBox(T{6902, "Warning"}, T{7562, "Insufficient funding! <funding(price)> required for outsourcing!", price = g_Consts.OutsourceResearchCost}, T{1000136, "OK"}, host)
+			CreateMarsMessageBox(T(6902, "Warning"), T{7562, "Insufficient funding! <funding(price)> required for outsourcing!", price = g_Consts.OutsourceResearchCost}, T(1000136, "OK"), host)
 		end
 end)
 end,
@@ -260,7 +260,7 @@ end,
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "close",
-			'ActionName', T{4523, --[[XTemplate ResearchDlg ActionName]] "CLOSE"},
+			'ActionName', T(4523, --[[XTemplate ResearchDlg ActionName]] "CLOSE"),
 			'ActionToolbar', "ActionBar",
 			'ActionShortcut', "Escape",
 			'ActionGamepad', "ButtonB",
@@ -332,7 +332,7 @@ end,
 					'HAlign', "right",
 					'TextStyle', "OverlayTitle",
 					'Translate', true,
-					'Text', T{4530, --[[XTemplate ResearchDlg Text]] "RESEARCH"},
+					'Text', T(4530, --[[XTemplate ResearchDlg Text]] "RESEARCH"),
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XText",
@@ -340,7 +340,7 @@ end,
 					'HandleMouse', false,
 					'TextStyle', "ScoreName",
 					'Translate', true,
-					'Text', T{4531, --[[XTemplate ResearchDlg Text]] "Available Funding <white><funding(Funding)>"},
+					'Text', T(4531, --[[XTemplate ResearchDlg Text]] "Available Funding <white><funding(Funding)>"),
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XText",
@@ -348,7 +348,7 @@ end,
 					'HandleMouse', false,
 					'TextStyle', "ScoreName",
 					'Translate', true,
-					'Text', T{4532, --[[XTemplate ResearchDlg Text]] "Research per Sol <white><ResearchPoints(EstimatedRP)>"},
+					'Text', T(4532, --[[XTemplate ResearchDlg Text]] "Research per Sol <white><ResearchPoints(EstimatedRP)>"),
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XFrame",
@@ -362,49 +362,41 @@ end,
 				PlaceObj('XTemplateTemplate', {
 					'comment', "RP Sponsor",
 					'__template', "InfopanelText",
-					'Text', T{4533, --[[XTemplate ResearchDlg Text]] "Sponsor<right><ResearchPoints(EstimatedRP_Sponsor)>"},
+					'Text', T(4533, --[[XTemplate ResearchDlg Text]] "Sponsor<right><ResearchPoints(EstimatedRP_Sponsor)>"),
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'comment', "RP Outsource",
 					'__template', "InfopanelText",
-					'Text', T{4534, --[[XTemplate ResearchDlg Text]] "Outsourcing<right><ResearchPoints(EstimatedRP_Outsource)>"},
+					'Text', T(4534, --[[XTemplate ResearchDlg Text]] "Outsourcing<right><ResearchPoints(EstimatedRP_Outsource)>"),
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'comment', "RP Lab",
 					'__template', "InfopanelText",
-					'Text', T{10137, --[[XTemplate ResearchDlg Text]] "Research Labs<right><ResearchPoints(EstimatedRP_ResearchLab)>"},
-				}),
-				PlaceObj('XTemplateTemplate', {
-					'comment', "RP Hawking",
-					'__template', "InfopanelText",
-					'Text', T{4536, --[[XTemplate ResearchDlg Text]] "Hawking Institutes<right><ResearchPoints(EstimatedRP_ScienceInstitute)>"},
+					'Text', T(11829, --[[XTemplate ResearchDlg Text]] "Research Buildings<right><ResearchPoints(EstimatedRP_ResearchBuildings)>"),
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'comment', "RP Genius",
 					'__template', "InfopanelText",
-					'Text', T{4537, --[[XTemplate ResearchDlg Text]] "Genius Colonists<right><ResearchPoints(EstimatedRP_Genius)>"},
+					'Text', T(4537, --[[XTemplate ResearchDlg Text]] "Genius Colonists<right><ResearchPoints(EstimatedRP_Genius)>"),
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'comment', "RP Explorer",
 					'__condition', function (parent, context) return context:IsTechResearched("ExplorerAI") end,
 					'__template', "InfopanelText",
-					'Text', T{4538, --[[XTemplate ResearchDlg Text]] "Explorers<right><ResearchPoints(EstimatedRP_Explorer)>"},
+					'Text', T(4538, --[[XTemplate ResearchDlg Text]] "Explorers<right><ResearchPoints(EstimatedRP_Explorer)>"),
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'comment', "RP Power",
 					'__condition', function (parent, context) return g_Consts.ElectricityForResearchPoint ~= 0 end,
 					'__template', "InfopanelText",
-					'Text', T{4539, --[[XTemplate ResearchDlg Text]] "Excess Power<right><ResearchPoints(EstimatedRP_SuperconductingComputing)>"},
+					'Text', T(4539, --[[XTemplate ResearchDlg Text]] "Excess Power<right><ResearchPoints(EstimatedRP_SuperconductingComputing)>"),
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'comment', "RP Omega",
 					'__context', function (parent, context) return GetOmegaTelescope() end,
 					'__condition', function (parent, context) return context end,
 					'__template', "InfopanelText",
-					'Text', T{556459376226, --[[XTemplate ResearchDlg Text]] "<display_name><right><em><ResearchBoostPercent>%"},
-				}),
-				PlaceObj('XTemplateTemplate', {
-					'__template', "AddAdditionalResearchPointsTexts",
+					'Text', T(556459376226, --[[XTemplate ResearchDlg Text]] "<display_name><right><em><ResearchBoostPercent>%"),
 				}),
 				PlaceObj('XTemplateWindow', {
 					'Margins', box(0, 40, 0, 20),
@@ -415,14 +407,14 @@ end,
 						'HAlign', "right",
 						'VAlign', "center",
 						'Translate', true,
-						'Text', T{634036540793, --[[XTemplate ResearchDlg Text]] "<RB>"},
+						'Text', T(634036540793, --[[XTemplate ResearchDlg Text]] "<RB>"),
 					}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XLabel",
 						'Dock', "right",
 						'TextStyle', "OverlayTitle",
 						'Translate', true,
-						'Text', T{4540, --[[XTemplate ResearchDlg Text]] "RESEARCH QUEUE"},
+						'Text', T(4540, --[[XTemplate ResearchDlg Text]] "RESEARCH QUEUE"),
 					}),
 					}),
 				}),
@@ -468,12 +460,12 @@ end,
 						'__condition', function (parent, context) return context end,
 						'__template', "InfopanelSection",
 						'RolloverTemplate', "Rollover",
-						'RolloverTitle', T{3917, --[[XTemplate ResearchDlg RolloverTitle]] "<display_name> (<FieldDisplayName>)"},
-						'RolloverHint', T{3922, --[[XTemplate ResearchDlg RolloverHint]] "<right_click> Remove from Research queue"},
-						'RolloverHintGamepad', T{3924, --[[XTemplate ResearchDlg RolloverHintGamepad]] "<ButtonX> Remove from research queue"},
+						'RolloverTitle', T(3917, --[[XTemplate ResearchDlg RolloverTitle]] "<display_name> (<FieldDisplayName>)"),
+						'RolloverHint', T(3922, --[[XTemplate ResearchDlg RolloverHint]] "<right_click> Remove from Research queue"),
+						'RolloverHintGamepad', T(3924, --[[XTemplate ResearchDlg RolloverHintGamepad]] "<ButtonX> Remove from research queue"),
 						'FoldWhenHidden', false,
 						'InternalLeftRightNav', false,
-						'Title', T{460245435559, --[[XTemplate ResearchDlg Title]] "<display_name>"},
+						'Title', T(460245435559, --[[XTemplate ResearchDlg Title]] "<display_name>"),
 						'TitleHAlign', "left",
 						'StretchFrameRight', true,
 					}, {
@@ -503,7 +495,7 @@ end,
 						'__template', "InfopanelSection",
 						'FoldWhenHidden', false,
 						'InternalLeftRightNav', false,
-						'Title', T{385959075356, --[[XTemplate ResearchDlg Title]] "Empty slot"},
+						'Title', T(385959075356, --[[XTemplate ResearchDlg Title]] "Empty slot"),
 						'Icon', "UI/Icons/Research/rm_unknown.tga",
 						'TitleHAlign', "left",
 						'StretchFrameRight', true,

@@ -50,7 +50,7 @@ if size then
 	local context = self.context
 	size:SetVisible(context.FileSize)
 	if context.FileSize then
-		size:SetText(T{10487, "<FormatSize(FileSize, 2)>"})
+		size:SetText(T(10487, "<FormatSize(FileSize, 2)>"))
 	end
 end
 local current_rating_win = self:ResolveId("idCurrentRating")
@@ -228,7 +228,7 @@ end,
 						'HandleMouse', false,
 						'TextStyle', "ModsUIItemStatusEnabledConsole",
 						'Translate', true,
-						'Text', T{259958195040, --[[XTemplate ModsUIInstalledMod Text]] "ENABLED"},
+						'Text', T(259958195040, --[[XTemplate ModsUIInstalledMod Text]] "ENABLED"),
 					}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XText",
@@ -241,7 +241,7 @@ end,
 						'HandleMouse', false,
 						'TextStyle', "ModsUIItemStatusdisabledConsole",
 						'Translate', true,
-						'Text', T{815663365744, --[[XTemplate ModsUIInstalledMod Text]] "DISABLED"},
+						'Text', T(815663365744, --[[XTemplate ModsUIInstalledMod Text]] "DISABLED"),
 					}),
 					}),
 				}),
@@ -365,7 +365,7 @@ end,
 							'FoldWhenHidden', true,
 							'TextStyle', "ModsUIItemStatusInstalledEnabledPC",
 							'Translate', true,
-							'Text', T{460479110814, --[[XTemplate ModsUIInstalledMod Text]] "Enabled"},
+							'Text', T(460479110814, --[[XTemplate ModsUIInstalledMod Text]] "Enabled"),
 						}),
 						PlaceObj('XTemplateWindow', {
 							'__class', "XLabel",
@@ -378,7 +378,7 @@ end,
 							'FoldWhenHidden', true,
 							'TextStyle', "ModsUIItemStatusInstalledEnabledPC",
 							'Translate', true,
-							'Text', T{847439380056, --[[XTemplate ModsUIInstalledMod Text]] "Disabled"},
+							'Text', T(847439380056, --[[XTemplate ModsUIInstalledMod Text]] "Disabled"),
 						}),
 						}),
 					PlaceObj('XTemplateWindow', {

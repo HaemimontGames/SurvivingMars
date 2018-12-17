@@ -12,11 +12,11 @@ PlaceObj('XTemplate', {
 		}, {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelSection",
-				'Title', T{49, --[[XTemplate ipMirrorSphereBuilding Title]] "Status"},
+				'Title', T(49, --[[XTemplate ipMirrorSphereBuilding Title]] "Status"),
 			}, {
 				PlaceObj('XTemplateTemplate', {
 					'__template', "InfopanelText",
-					'Text', T{768796577102, --[[XTemplate ipMirrorSphereBuilding Text]] "<ActionDescr>"},
+					'Text', T(768796577102, --[[XTemplate ipMirrorSphereBuilding Text]] "<ActionDescr>"),
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XFrameProgress",
@@ -36,8 +36,8 @@ end,
 				}),
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelSection",
-				'RolloverText', T{1197, --[[XTemplate ipMirrorSphereBuilding RolloverText]] "Progress <right><percent(ProgressPct)>"},
-				'RolloverTitle', T{1196, --[[XTemplate ipMirrorSphereBuilding RolloverTitle]] "Sphere Powering Up"},
+				'RolloverText', T(1197, --[[XTemplate ipMirrorSphereBuilding RolloverText]] "Progress <right><percent(ProgressPct)>"),
+				'RolloverTitle', T(1196, --[[XTemplate ipMirrorSphereBuilding RolloverTitle]] "Sphere Powering Up"),
 				'Icon', "UI/Icons/Sections/electricity_4.tga",
 			}, {
 				PlaceObj('XTemplateWindow', {
@@ -55,10 +55,10 @@ end,
 			PlaceObj('XTemplateTemplate', {
 				'comment', "pierce",
 				'__template', "InfopanelButton",
-				'RolloverTitle', T{1204, --[[XTemplate ipMirrorSphereBuilding RolloverTitle]] "Attempt to Pierce the Shell"},
+				'RolloverTitle', T(1204, --[[XTemplate ipMirrorSphereBuilding RolloverTitle]] "Attempt to Pierce the Shell"),
 				'OnContextUpdate', function (self, context, ...)
 local enabled, reason = context:IsActionEnabled("PierceTheShell")
-self:SetRolloverText(enabled and T{1205, "Attempt to penetrate the outer shell of the Mirror Sphere with several Drones in the area."} or reason)
+self:SetRolloverText(enabled and T(1205, "Attempt to penetrate the outer shell of the Mirror Sphere with several Drones in the area.") or reason)
 
 self:SetEnabled(enabled or context.action == "PierceTheShell")
 if enabled or context.action ~= "PierceTheShell" then
@@ -72,10 +72,10 @@ end,
 			PlaceObj('XTemplateTemplate', {
 				'comment', "communicate",
 				'__template', "InfopanelButton",
-				'RolloverTitle', T{1206, --[[XTemplate ipMirrorSphereBuilding RolloverTitle]] "Attempt to Communicate"},
+				'RolloverTitle', T(1206, --[[XTemplate ipMirrorSphereBuilding RolloverTitle]] "Attempt to Communicate"),
 				'OnContextUpdate', function (self, context, ...)
 local enabled, reason = context:IsActionEnabled("Communicate")
-self:SetRolloverText(enabled and T{1207, "Attempt to communicate with the Mirror Sphere via a nearby Sensor Tower."} or reason)
+self:SetRolloverText(enabled and T(1207, "Attempt to communicate with the Mirror Sphere via a nearby Sensor Tower.") or reason)
 
 self:SetEnabled(enabled or context.action == "Communicate")
 if enabled or context.action ~= "Communicate" then
@@ -89,10 +89,10 @@ end,
 			PlaceObj('XTemplateTemplate', {
 				'comment', "feed",
 				'__template', "InfopanelButton",
-				'RolloverTitle', T{1208, --[[XTemplate ipMirrorSphereBuilding RolloverTitle]] "Feed with Power"},
+				'RolloverTitle', T(1208, --[[XTemplate ipMirrorSphereBuilding RolloverTitle]] "Feed with Power"),
 				'OnContextUpdate', function (self, context, ...)
 local enabled, reason = context:IsActionEnabled("FeedPower")
-self:SetRolloverText(enabled and T{1209, "Divert energy towards the Mirror Sphere from a nearby Power Accumulator."} or reason)
+self:SetRolloverText(enabled and T(1209, "Divert energy towards the Mirror Sphere from a nearby Power Accumulator.") or reason)
 
 self:SetEnabled(enabled or context.action == "FeedPower")
 if enabled or context.action ~= "FeedPower" then

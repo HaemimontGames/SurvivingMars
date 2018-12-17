@@ -7,8 +7,8 @@ PlaceObj('XTemplate', {
 		'__context_of_kind', "InfopanelObj",
 		'__condition', function (parent, context) return config.BuildingInfopanelCheats and context:CreateCheatActions(parent) end,
 		'__template', "InfopanelSection",
-		'RolloverText', T{331402867293, --[[XTemplate sectionCheats RolloverText]] "<CheatsRollover>"},
-		'Title', T{27, --[[XTemplate sectionCheats Title]] "Cheats"},
+		'RolloverText', T(331402867293, --[[XTemplate sectionCheats RolloverText]] "<CheatsRollover>"),
+		'Title', T(27, --[[XTemplate sectionCheats Title]] "Cheats"),
 		'Icon', "UI/Icons/Sections/dust.tga",
 	}, {
 		PlaceObj('XTemplateWindow', {

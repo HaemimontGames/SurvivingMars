@@ -22,9 +22,9 @@ local rfRestrictorWasteRockDump = const.rfRestrictorWasteRockDump
 DefineClass.DroneControl = {
 	__parents = { "SyncObject" }, --or object?
 	properties = {
-		{template = true,id = "starting_drones",  name = T{642, "Starting Drones"},editor = "number", default = 4, modifiable = true},
+		{template = true,id = "starting_drones",  name = T(642, "Starting Drones"),editor = "number", default = 4, modifiable = true},
 		-- make sure UIWorkRadius and work_radius share the same default value
-		{id = "UIWorkRadius", name = T{643, "Range"}, editor = "number", default = const.CommandCenterDefaultRadius, min=const.CommandCenterMinRadius, max=const.CommandCenterMaxRadius, no_edit = true, dont_save = true,}, -- prop only for UI purposes
+		{id = "UIWorkRadius", name = T(643, "Range"), editor = "number", default = const.CommandCenterDefaultRadius, min=const.CommandCenterMinRadius, max=const.CommandCenterMaxRadius, no_edit = true, dont_save = true,}, -- prop only for UI purposes
 		{id = "work_radius", editor = "number", default = const.CommandCenterDefaultRadius, no_edit = true, },
 	},
 
@@ -800,10 +800,10 @@ function DroneControl:OnSelected()
 	SelectionArrowAdd(drones)
 end
 
-function DroneControl:AbandonAllDrones(do_not_orphan)
+function DroneControl:AbandonAllDrones()
 	for i = #self.drones, 1, -1 do
 		local drone = self.drones[i]
-		drone:SetCommandCenter(false, do_not_orphan)
+		drone:SetCommandCenter(false)
 		if not drone:IsDisabled() then
 			drone:SetCommand("WaitingCommand")
 		end
@@ -1067,10 +1067,10 @@ function OnMsg.GatherLabels(labels)
 end
 
 local LoadTexts = {
-	T{935141416351, "Drones load <right><green>Low</green><left>"},
-	T{935141416352, "Drones load <right><yellow>Medium</yellow><left>"},
-	T{935141416353, "Drones load <right><red>Heavy</red><left>"},
-	T{8662, "Drones load <right>N/A<left>"},
+	T(935141416351, "Drones load <right><green>Low</green><left>"),
+	T(935141416352, "Drones load <right><yellow>Medium</yellow><left>"),
+	T(935141416353, "Drones load <right><red>Heavy</red><left>"),
+	T(8662, "Drones load <right>N/A<left>"),
 }
 
 GlobalVar("g_HeavyLoadDroneHubs", {})
@@ -1097,11 +1097,11 @@ function DroneControl:GetDronesStatusText()
 	local ret
 	
 	if (self:IsKindOf("DroneHub") and not self.working) then
-		ret = T{647, "<red>Not working. Drones won't receive further instructions.</red>"}
+		ret = T(647, "<red>Not working. Drones won't receive further instructions.</red>")
 	else
 		local brokenDrones = self:GetBrokenDronesCount()
 		local broken = 
-			brokenDrones == 1 and T{648, "There is <red>1</red> malfunctioning Drone</red>"} .. "\n"
+			brokenDrones == 1 and T(648, "There is <red>1</red> malfunctioning Drone</red>") .. "\n"
 			or brokenDrones > 1 and T{649, "There are <red><number></red> malfunctioning Drones</red>", number = brokenDrones} .. "\n"
 			or ""
 			
@@ -1122,7 +1122,7 @@ function DroneControl:GetDronesStatusText()
 	if IsKindOf(self, "SupplyRocket") then
 		return ret 
 	else	
-		return ret .. "\n" .. T{9757, "Available Prefabs <right><drone(available_drone_prefabs)>"}
+		return ret .. "\n" .. T(9757, "Available Prefabs <right><drone(available_drone_prefabs)>")
 	end	
 end
 

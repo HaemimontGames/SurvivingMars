@@ -8,7 +8,7 @@ end
 
 DefineModItemPreset("MissionLogoPreset", {
 	properties = {
-		{ category = "General", id = "image", name = T{3794, "Image"}, editor = "browse", default = "", folder = folder_fn, os_path = true, filter = "Image files|*.png" },
+		{ category = "General", id = "image", name = T(3794, "Image"), editor = "browse", default = "", folder = folder_fn, os_path = true, filter = "Image files|*.png" },
 	},
 	EditorName = "Mission Logo",
 })
@@ -32,7 +32,7 @@ function ModItemMissionLogoPreset:TestModItem(ged)
 	Msg("BinAssetsLoaded")
 	
 	if GetMap() == "" then
-		ModLog(T{1000066, "Entity testing only possible when a map is loaded"})
+		ModLog(T(1000066, "Entity testing only possible when a map is loaded"))
 		return
 	end
 	
@@ -68,11 +68,11 @@ end
 DefineClass.ModItemMissionLogo = { --Kept for backwards compatibility (mods with DataInstances, instead of Presets)
 	__parents = { "ModItem" },
 	properties = {
-		{ category = "General", id = "entity_name",  name = T{1000048, "Entity Name"},  		editor = "text", default = "" },
-		{ category = "General", id = "decal_entity",	name = T{1160, "Decal Mod Entity"},	editor = "combo", default = "", items = function() return GetModEntities("decal") end },
-		{ category = "General", id = "display_name", name = T{1000067, "Display Name"}, 		editor = "text", default = "", translate = true },
-		{ category = "General", id = "filter", name = T{1000108, "Filter"}, editor = "expression", parameters = "self", default = function() return true end },
-		{ category = "General", id = "image", name = T{3794, "Image"}, editor = "browse", default = "", folder = folder_fn, os_path = true, filter = "Image files|*.tga" },
+		{ category = "General", id = "entity_name",  name = T(1000048, "Entity Name"),  		editor = "text", default = "" },
+		{ category = "General", id = "decal_entity",	name = T(1160, "Decal Mod Entity"),	editor = "combo", default = "", items = function() return GetModEntities("decal") end },
+		{ category = "General", id = "display_name", name = T(1000067, "Display Name"), 		editor = "text", default = "", translate = true },
+		{ category = "General", id = "filter", name = T(1000108, "Filter"), editor = "expression", parameters = "self", default = function() return true end },
+		{ category = "General", id = "image", name = T(3794, "Image"), editor = "browse", default = "", folder = folder_fn, os_path = true, filter = "Image files|*.tga" },
 	},
 	EditorMenubarName = "",
 }

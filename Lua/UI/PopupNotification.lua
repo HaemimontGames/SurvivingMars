@@ -110,7 +110,7 @@ local function OpenPopupNotification(parent, context)
 		assert(not (i > 1 and choices[i] and not choices[i - 1]))
 	end
 	if not choices[1] then
-		choices[1] = T{6895, "OK"}
+		choices[1] = T(6895, "OK")
 	end
 	
 	local choice_count = #choices

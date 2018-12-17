@@ -5,9 +5,9 @@ end
 DefineClass.RocketExpedition = {
 	__parents = { "SupplyRocket" },
 	properties = {
-		{id = "TradeAmount", name = T{504954621520, "Export Amount"}, editor = "number", default = const.MaxTradeAmount*const.ResourceScale, min=const.MinTradeAmount*const.ResourceScale, max=const.MaxTradeAmount*const.ResourceScale, scale=const.ResourceScale, step=5*const.ResourceScale},
-		{id = "ExpeditionTime", name = T{11221, "Expedition Time (hrs)"}, editor = "number", default = 6 * const.HourDuration, min = 0, scale = const.HourDuration },
-		{id = "ReturnTime", name = T{11222, "Return Time (hrs)"}, editor = "number", default = 6 * const.HourDuration, min = 0, scale = const.HourDuration },
+		{id = "TradeAmount", name = T(504954621520, "Export Amount"), editor = "number", default = const.MaxTradeAmount*const.ResourceScale, min=const.MinTradeAmount*const.ResourceScale, max=const.MaxTradeAmount*const.ResourceScale, scale=const.ResourceScale, step=5*const.ResourceScale},
+		{id = "ExpeditionTime", name = T(11221, "Expedition Time (hrs)"), editor = "number", default = 6 * const.HourDuration, min = 0, scale = const.HourDuration },
+		{id = "ReturnTime", name = T(11222, "Return Time (hrs)"), editor = "number", default = 6 * const.HourDuration, min = 0, scale = const.HourDuration },
 	},
 	
 	expedition = false,
@@ -207,8 +207,8 @@ function RocketExpedition:RefurbishRocket(orig_rocket, target_rocket, connect_cc
 			
 	-- fuel
 	local unload_fuel = orig_rocket.unload_fuel_request and orig_rocket.unload_fuel_request:GetActualAmount() or 0
-	local fuel = orig_rocket.refuel_request and (orig_rocket.launch_fuel - orig_rocket.refuel_request:GetActualAmount()) or 0
-	local diff = target_rocket.launch_fuel - (Max(0, fuel) + unload_fuel)
+	local fuel = orig_rocket.refuel_request and (orig_rocket:GetLaunchFuel() - orig_rocket.refuel_request:GetActualAmount()) or 0
+	local diff = target_rocket:GetLaunchFuel() - (Max(0, fuel) + unload_fuel)
 	
 	target_rocket.refuel_request:SetAmount(Max(diff, 0))
 	
@@ -323,9 +323,9 @@ function RocketExpedition:ExpeditionRefuelAndLoad() -- handle fuel and resources
 	assert(self.expedition)
 	
 	if self.expedition.route_id then
-		self.description = T{11223, "This Rocket is servicing a trade route with a Rival Colony. As long as the trade route exists, it'll keep exchanging resources."}
+		self.description = T(11223, "This Rocket is servicing a trade route with a Rival Colony. As long as the trade route exists, it'll keep exchanging resources.")
 	else
-		self.description = T{11224, "This Rocket is going to analyze a Planetary Anomaly."}
+		self.description = T(11224, "This Rocket is going to analyze a Planetary Anomaly.")
 	end
 	
 	self:AttachSign(true, "SignExpeditionRocket")
@@ -458,6 +458,7 @@ function RocketExpedition:ExpeditionLoadDrones(num_drones)
 				if drone == SelectedObj then
 					SelectObj()
 				end
+				drone:SetCommandCenter(false, "do not orphan!")
 				drone:SetHolder(self)
 				drone:SetCommand("Disappear", "keep in holder")						
 			end
@@ -569,7 +570,7 @@ function RocketExpedition:Takeoff()
 	self.bonus_sleep_time = false
 	self.total_pause_time = false
 	
-	self:AbandonAllDrones("do_not_orphan")
+	self:AbandonAllDrones()
 	self:ResetDemandRequests(self.expedition.route_id and "skip_exports")
 	
 	--@@@msg RocketLaunched,rocket - fired when a rocket takes off from Mars
@@ -615,7 +616,7 @@ function RocketExpedition:Takeoff()
 	self:ClearEnumFlags(const.efVisible)
 	
 	if not self.expedition.canceled then
-		Msg("ExpeditionSent", self.expedition.anomaly)
+		Msg("ExpeditionSent", self)
 	end
 	self:SetCommand(self.expedition.canceled and "WaitInOrbit" or "ExpeditionExecute")
 end
@@ -677,6 +678,18 @@ function RocketExpedition:ExpeditionSleep(s_t, can_cancel)
 			is_pause_tick = true
 		end
 	end
+end
+
+function SavegameFixups.ResetOnEarthExpeditionRockets()
+	MapForEach("detached", "RocketExpedition", function(o)
+		if o.command == "OnEarth" then
+			o:SetCommand("WaitInOrbit")
+		end
+	end)
+end
+
+function RocketExpedition:OnEarth()
+	self:SetCommand("WaitInOrbit")
 end
 
 function RocketExpedition:ExpeditionExecute()
@@ -776,7 +789,8 @@ function RocketExpedition:ExpeditionExecute()
 	elseif self.expedition.anomaly then
 		self:UpdateStatus("mission return")
 	elseif self.expedition.task or self.expedition.help_rocket then
-		self:UpdateStatus("task return")
+		self.expedition.cargo = nil
+		self:UpdateStatus("task return")		
 	end
 	
 	bonus_time = self:GetTotalBonusSleepTime()
@@ -809,6 +823,14 @@ end
 function RocketExpedition:LandOnMars(...)
 	self.cargo = nil -- no longer needed
 	SupplyRocket.LandOnMars(self, ...)
+end
+
+function SavegameFixups.FixRocketsStuckInUnload()
+	MapForEach("map", "RocketExpedition", function(o)
+		if o.command == "Unload" and #o.drones_exiting > 0 then
+			o:DropBrokenDrones(o.drones_exiting)
+		end
+	end)
 end
 
 function RocketExpedition:Unload(cancel_expedition)
@@ -855,32 +877,39 @@ function RocketExpedition:Unload(cancel_expedition)
 	for i, drone in ipairs(self.expedition.drones or empty_table) do
 		-- adopt the drones and lead them out
 		drone:Appear()
-		table.insert_unique(self.drones_exiting, drone) -- insert immediately so the check below doesn't skip them
-		drone:SetCommandCenter(self)
-		drone:SetPos(spawn_pos)
-		CreateGameTimeThread(function(self, drone, delay)
-			Sleep(delay)
-			if IsValid(drone) then
-				drone:SetCommand("Embark")
-				self:LeadOut(drone)
-				table.remove_value(self.expedition.drones, drone)
-				ObjModified(self)
-				if not IsValid(drone) then return end
-				local pt
-				if IsValid(self) then
-					pt = self:PickArrivalPos(false, false, 30*guim, 10*guim, 90*60, -90*60)
+		if IsValid(drone) then
+			table.insert_unique(self.drones_exiting, drone) -- insert immediately so the check below doesn't skip them
+			drone:SetCommandCenter(self)
+			drone:SetPos(spawn_pos)
+			CreateGameTimeThread(function(self, drone, delay)
+				Sleep(delay)
+				if IsValid(drone) then
+					drone:SetCommand("Embark")
+					self:LeadOut(drone)
+					table.remove_value(self.expedition.drones, drone)
+					ObjModified(self)
+					if not IsValid(drone) then
+						return 
+					end
+					local pt
+					if IsValid(self) then
+						pt = self:PickArrivalPos(false, false, 30*guim, 10*guim, 90*60, -90*60)
+					else
+						pt = self:PickArrivalPos(drone:GetPos(), point(guim, 0, 0), 30*guim, 10*guim, 180*60, -180*60)
+					end
+					Movable.Goto(drone, pt) -- Unit.Goto is a command, use this instead for direct control
+					drone:SetCommand(IsValid(self) and "GoHome" or "Idle")
 				else
-					pt = self:PickArrivalPos(drone:GetPos(), point(guim, 0, 0), 30*guim, 10*guim, 180*60, -180*60)
+					table.remove_entry(self.drones_exiting, drone)
 				end
-				Movable.Goto(drone, pt) -- Unit.Goto is a command, use this instead for direct control
-				drone:SetCommand(IsValid(self) and "GoHome" or "Idle")
-			end
-		end, self, drone, i*600)
+			end, self, drone, i*600)
+		end
 	end
 	
 	-- wait for drones to finish disembarking
 	while #(self.drones_exiting or empty_table) > 0 do
 		Sleep(100)
+		self:DropBrokenDrones(self.drones_exiting)
 	end
 	
 	local domes, safety_dome = GetDomesInWalkableDistance(self.city, self:GetPos())
@@ -899,8 +928,10 @@ function RocketExpedition:Unload(cancel_expedition)
 		Sleep(1000)
 	end
 
-	-- make sure refuel request matches launch_fuel in case it was modified in the mean time
-	self.refuel_request:ResetAmount(self.launch_fuel)
+	if not cancel_expedition then
+		-- make sure refuel request matches launch_fuel in case it was modified in the mean time
+		self.refuel_request:SetAmount(self:GetLaunchFuel())
+	end
 
 	if not cancel_expedition and self.expedition.route_id and self.auto_export then
 		if MarsTradeRoutes[self.expedition.route_id] then
@@ -949,9 +980,12 @@ function RocketExpedition:OnPinClicked(gamepad)
 	return SupplyRocket.OnPinClicked(self, gamepad)
 end
 
+function RocketExpedition:ToggleAllowExport(broadcast)
+	return
+end
+
 function RocketExpedition:AppendCargo(resource, amount)
-	local max = self:GetEmptyStorage(resource)
-	amount = Clamp(amount, 0, max)
+	amount = Clamp(amount, 0, max_int)
 	if amount <= 0 then return end
 	self:AddResource(amount, resource)
 	local idx = table.find(self.cargo, "class", resource)
@@ -1001,42 +1035,42 @@ function RocketExpedition:GetCrew_TargetNum()
 end
 function RocketExpedition:GetCrew_Specialization()
 	local spec = self.expedition and self.expedition.crew_specialization and const.ColonistSpecialization[self.expedition.crew_specialization]
-	return spec and spec.display_name or T{4290, "Colonist"}
+	return spec and spec.display_name or T(4290, "Colonist")
 end
 function RocketExpedition:GetUIRocketStatus(first_only)
 	if self.command == "LandOnMars" then
-		return T{7897, "<green>Landing</green>"}
+		return T(7897, "<green>Landing</green>")
 	end
 	if self.command == "Unload" then
-		return T{7898, "<green>Unloading cargo</green>"}
+		return T(7898, "<green>Unloading cargo</green>")
 	end
 	if self.command == "Takeoff" or (self.command == "ExpeditionPrepare" and not self:IsWaitingForCrew()) then
-		return T{289, "Take-off in progress"}
+		return T(289, "Take-off in progress")
 	end
 	if self.status == "mission" then
-		return T{11228, "Flying to a Planetary Anomaly"}
+		return T(11228, "Flying to a Planetary Anomaly")
 	end
 	if self.status == "mission return" then
-		return T{11229, "Returning from a Planetary Anomaly"}
+		return T(11229, "Returning from a Planetary Anomaly")
 	end
 	if self.command == "ExpeditionExecute" then
-		return T{4321, "On an expedition"}
+		return T(4321, "On an expedition")
 	end
 	local extra = self.unload_fuel_request and self.unload_fuel_request:GetActualAmount() or 0	
 	local items = {}
 	
-	if not self:HasEnoughFuelToLaunch() and self.launch_fuel ~=0 then
-		items[#items + 1] = T{285, "Refueling<right><current>/<fuel(launch_fuel)>", current = (self.launch_fuel - self.refuel_request:GetActualAmount() + extra) / const.ResourceScale, self}
+	if not self:HasEnoughFuelToLaunch() and self:GetLaunchFuel() ~=0 then
+		items[#items + 1] = T{285, "Refueling<right><current>/<fuel(launch_fuel)>", current = (self:GetLaunchFuel()- self.refuel_request:GetActualAmount() + extra) / const.ResourceScale, self}
 	end
 	if self:HasCargoSpaceLeft() or self:IsWaitingForCrew() then
 		if self.expedition and self.expedition.route_id then
-			items[#items + 1] = T{11661, "<em>Waiting export resource to be loaded</em>"}
+			items[#items + 1] = T(11661, "<em>Waiting export resource to be loaded</em>")
 		else
-			items[#items + 1] = T{11410, "<em>Waiting for required payload to arrive</em>"}
+			items[#items + 1] = T(11410, "<em>Waiting for required payload to arrive</em>")
 		end
 	end
 	if self:GetStoredAmount() > 0 or self:HasExtraFuel() then
-		items[#items + 1] = T{283, "<em>Waiting to unload unnecessary cargo</em>"}
+		items[#items + 1] = T(283, "<em>Waiting to unload unnecessary cargo</em>")
 	end
 	if first_only then
 		return items[1] or ""
@@ -1062,11 +1096,11 @@ function RocketExpedition:GetUIWarning()
 	end
 	
 	if self.rover_summon_fail then
-		return T{11471, "No free rover"}
+		return T(11471, "No free rover")
 	elseif self.drone_summon_fail then
-		return T{11472, "Not enough Drones"}
+		return T(11472, "Not enough Drones")
 	elseif self.colonist_summon_fail then
-		return T{11473, "Not enough Colonists"}
+		return T(11473, "Not enough Colonists")
 	end	
 end
 ---------------- UI status funcs ----------------
@@ -1074,9 +1108,9 @@ function RocketExpedition:UIStatusTradeExport(template)
 	self.pin_blink = false
 	self.pin_rollover = T{11225, "Exporting <resource(amount,res)> to Rival Colony", amount = self.TradeAmount, res = self.export_requests[1]:GetResource()}
 	if self.is_paused then
-		self.pin_summary1 = T{11226, "Awaiting further instructions"}
+		self.pin_summary1 = T(11226, "Awaiting further instructions")
 	else
-		self.pin_summary1 = T{708, "<ArrivalTimePercent>%"}
+		self.pin_summary1 = T(708, "<ArrivalTimePercent>%")
 	end
 	self.pin_rollover_hint = ""
 	self.pin_rollover_hint_xbox = ""
@@ -1093,12 +1127,12 @@ function RocketExpedition:UIStatusTradeImport(template)
 		local amount = self["GetStored_"..route.export](self)
 		self.pin_rollover = T{11456, "Returning from Rival Colony with <resource(num, res)>", num = amount, res = route.export}
 	else
-		self.pin_rollover = T{11227, "Returning from Rival Colony"}
+		self.pin_rollover = T(11227, "Returning from Rival Colony")
 	end
 	if self.is_paused then
-		self.pin_summary1 = T{11226, "Awaiting further instructions"}
+		self.pin_summary1 = T(11226, "Awaiting further instructions")
 	else
-		self.pin_summary1 = T{708, "<ArrivalTimePercent>%"}
+		self.pin_summary1 = T(708, "<ArrivalTimePercent>%")
 	end
 	self.pin_rollover_hint = ""
 	self.pin_rollover_hint_xbox = ""
@@ -1109,11 +1143,11 @@ function RocketExpedition:UIStatusTradeImport(template)
 end
 function RocketExpedition:UIStatusMission(template)
 	self.pin_blink = false
-	self.pin_rollover = T{11228, "Flying to a Planetary Anomaly"}
+	self.pin_rollover = T(11228, "Flying to a Planetary Anomaly")
 	if self.is_paused then
-		self.pin_summary1 = T{11226, "Awaiting further instructions"}
+		self.pin_summary1 = T(11226, "Awaiting further instructions")
 	else
-		self.pin_summary1 = T{708, "<ArrivalTimePercent>%"}
+		self.pin_summary1 = T(708, "<ArrivalTimePercent>%")
 	end
 	self.pin_rollover_hint = ""
 	self.pin_rollover_hint_xbox = ""
@@ -1124,11 +1158,11 @@ function RocketExpedition:UIStatusMission(template)
 end
 function RocketExpedition:UIStatusMissionReturn(template)
 	self.pin_blink = false
-	self.pin_rollover = T{11229, "Returning from a Planetary Anomaly"}
+	self.pin_rollover = T(11229, "Returning from a Planetary Anomaly")
 	if self.is_paused then
-		self.pin_summary1 = T{11226, "Awaiting further instructions"}
+		self.pin_summary1 = T(11226, "Awaiting further instructions")
 	else
-		self.pin_summary1 = T{708, "<ArrivalTimePercent>%"}
+		self.pin_summary1 = T(708, "<ArrivalTimePercent>%")
 	end
 	self.pin_rollover_hint = ""
 	self.pin_rollover_hint_xbox = ""
@@ -1142,9 +1176,9 @@ function RocketExpedition:UIStatusTask(template)
 	local name  = self.expedition.help_rocket and self.expedition.rivalai_player:GetDisplayName() or self.expedition.task.target_player.display_name
 	self.pin_rollover = T{11572, "Flying to the Colony of <rival>", rival = name}
 	if self.is_paused then
-		self.pin_summary1 = T{11226, "Awaiting further instructions"}
+		self.pin_summary1 = T(11226, "Awaiting further instructions")
 	else
-		self.pin_summary1 = T{708, "<ArrivalTimePercent>%"}
+		self.pin_summary1 = T(708, "<ArrivalTimePercent>%")
 	end
 	self.pin_rollover_hint = ""
 	self.pin_rollover_hint_xbox = ""
@@ -1158,9 +1192,9 @@ function RocketExpedition:UIStatusTaskReturn(template)
 	local name  = self.expedition.help_rocket and self.expedition.rivalai_player:GetDisplayName() or self.expedition.task.target_player.display_name
 	self.pin_rollover = T{11573, "Returning from the Colony of <rival>", rival = name}
 	if self.is_paused then
-		self.pin_summary1 = T{11226, "Awaiting further instructions"}
+		self.pin_summary1 = T(11226, "Awaiting further instructions")
 	else
-		self.pin_summary1 = T{708, "<ArrivalTimePercent>%"}
+		self.pin_summary1 = T(708, "<ArrivalTimePercent>%")
 	end
 	self.pin_rollover_hint = ""
 	self.pin_rollover_hint_xbox = ""

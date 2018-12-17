@@ -8,7 +8,7 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	Effects = {},
-	NotificationText = T{11055, --[[StoryBit ViolentDelights_FollowRecovery NotificationText]] "<DisplayName> can work again."},
+	NotificationText = T(11055, --[[StoryBit ViolentDelights_FollowRecovery NotificationText]] "<DisplayName> can work again."),
 	Prerequisites = {},
 	ScriptDone = true,
 	SuppressTime = 3600000,

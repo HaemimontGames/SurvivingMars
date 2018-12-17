@@ -3,26 +3,26 @@
 const.ColonistSpecialization = 
 {
 	["none"] = {
-		display_name = T{3848, "No specialization"}, display_name_plural = T{3848, "No specialization"}, display_icon = "UI/Icons/Colonists/Malenone.tga",
-		description = T{3849, "A brave citizen of Mars, ready to tame the final frontier."}, },
+		display_name = T(3848, "No specialization"), display_name_plural = T(3848, "No specialization"), display_icon = "UI/Icons/Colonists/Malenone.tga",
+		description = T(3849, "A brave citizen of Mars, ready to tame the final frontier."), },
 	["scientist"]= {
-		display_name = T{3850, "Scientist"}, display_name_plural = T{3851, "Scientists"}, display_icon = "UI/Icons/Colonists/Femalescientist.tga",
-		description = T{3852, "A trained scientist, eager to discover the mysteries of the Cosmos."}, },
+		display_name = T(3850, "Scientist"), display_name_plural = T(3851, "Scientists"), display_icon = "UI/Icons/Colonists/Femalescientist.tga",
+		description = T(3852, "A trained scientist, eager to discover the mysteries of the Cosmos."), },
 	["engineer"] = {
-		display_name = T{3853, "Engineer"},  display_name_plural = T{3854, "Engineers"}, display_icon = "UI/Icons/Colonists/Femaleengineer.tga",
-		description = T{3855, "A trained engineer, building a better future for humanity."}, },
+		display_name = T(3853, "Engineer"),  display_name_plural = T(3854, "Engineers"), display_icon = "UI/Icons/Colonists/Femaleengineer.tga",
+		description = T(3855, "A trained engineer, building a better future for humanity."), },
 	["security"] = {
-		display_name = T{3856, "Officer"},  display_name_plural = T{3857, "Officers"}, display_icon = "UI/Icons/Colonists/Femalesecurity.tga",
-		description = T{3858, "A trained security officer, protecting our Utopia."}, },
+		display_name = T(3856, "Officer"),  display_name_plural = T(3857, "Officers"), display_icon = "UI/Icons/Colonists/Femalesecurity.tga",
+		description = T(3858, "A trained security officer, protecting our Utopia."), },
 	["geologist"] = {
-		display_name = T{3859, "Geologist"},  display_name_plural = T{3860, "Geologists"}, display_icon = "UI/Icons/Colonists/Malegeologist.tga",
-		description = T{3861, "A trained geologist, securing vital resources for the Colony."}, },
+		display_name = T(3859, "Geologist"),  display_name_plural = T(3860, "Geologists"), display_icon = "UI/Icons/Colonists/Malegeologist.tga",
+		description = T(3861, "A trained geologist, securing vital resources for the Colony."), },
 	["medic"] = {
-		display_name = T{3862, "Medic"}, display_name_plural = T{3863, "Medics"}, display_icon = "UI/Icons/Colonists/Femalemedic.tga",
-		description = T{3864, "A trained medic, facing new challenges on the red planet."}, },
+		display_name = T(3862, "Medic"), display_name_plural = T(3863, "Medics"), display_icon = "UI/Icons/Colonists/Femalemedic.tga",
+		description = T(3864, "A trained medic, facing new challenges on the red planet."), },
 	["botanist"] = {
-		display_name = T{3865, "Botanist"}, display_name_plural = T{3866, "Botanists"}, display_icon = "UI/Icons/Colonists/Malebotanist.tga",
-		description = T{3867, "A trained botanist, dreaming of a green Mars."}, },
+		display_name = T(3865, "Botanist"), display_name_plural = T(3866, "Botanists"), display_icon = "UI/Icons/Colonists/Malebotanist.tga",
+		description = T(3867, "A trained botanist, dreaming of a green Mars."), },
 }
 
 ColonistSpecializationList = table.keys2(const.ColonistSpecialization, true)
@@ -42,7 +42,7 @@ function GetColonistSpecializationCombo(empty, auto)
 			end	
 		end
 		if auto then
-			table.insert(items, 1, {value = "auto", text = T{669, "Auto"}})
+			table.insert(items, 1, {value = "auto", text = T(669, "Auto")})
 		end
 		return items
 	end
@@ -118,7 +118,7 @@ function ValidateSpecialization(colonist)
 	local traits = colonist.traits
 	if not traits[specialization] then 
 	--	sepcialization not added in traits
-		colonist:SetSpecialization(specialization)
+		colonist:AddTrait(specialization)
 	end
 	traits = colonist.traits
 	for spec, _ in pairs(const.ColonistSpecialization) do

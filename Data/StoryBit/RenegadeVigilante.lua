@@ -67,15 +67,15 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	ScriptDone = true,
-	Text = T{308180305462, --[[StoryBit RenegadeVigilante Text]] "Several Renegades have been pushed to their deaths during the night, in what seems like nothing short of an execution.\n\nJust as you are about to are about to begin coordinating a plan with the ranking Officers, a Colonist admits to being the culprit.\n\n<DisplayName> says the murdered group of renegades had been tormenting youngsters left and right around the Domes - some of which had been pushed to suicide. \n\nWhen they saw that the authorities were not going to solve this problem, <DisplayName> decided to take matters into their own hands. They punished the predatory group of renegades and are now ready to accept their fate."},
+	Text = T(308180305462, --[[StoryBit RenegadeVigilante Text]] "Several Renegades have been pushed to their deaths during the night, in what seems like nothing short of an execution.\n\nJust as you are about to begin coordinating a plan with the ranking Officers, a Colonist admits to being the culprit.\n\n<DisplayName> says the murdered group of renegades had been tormenting youngsters left and right around the Domes - some of which had been pushed to suicide. \n\nWhen they saw that the authorities were not going to solve this problem, <DisplayName> decided to take matters into their own hands. They punished the predatory group of renegades and are now ready to accept their fate."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{399708406552, --[[StoryBit RenegadeVigilante Title]] "Renegades: Vigilante Justice"},
-	VoicedText = T{967910574769, --[[voice:narrator]] "News of the gruesome crime reach had reached your ears with the sunrise."},
+	Title = T(399708406552, --[[StoryBit RenegadeVigilante Title]] "Renegades: Vigilante Justice"),
+	VoicedText = T(967910574769, --[[voice:narrator]] "News of the gruesome crime have reached your ears with the sunrise."),
 	group = "Renegades",
 	id = "RenegadeVigilante",
 	PlaceObj('StoryBitReply', {
-		'Text', T{317832898775, --[[StoryBit RenegadeVigilante Text]] "This is wrong and immoral. Prepare to ship <DisplayName> back to Earth."},
+		'Text', T(317832898775, --[[StoryBit RenegadeVigilante Text]] "This is wrong and immoral. Prepare to ship <DisplayName> back to Earth."),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -84,7 +84,7 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{834502749510, --[[StoryBit RenegadeVigilante Text]] "Maybe <DisplayName> is the antidote for our crime problem. Set them loose."},
+		'Text', T(834502749510, --[[StoryBit RenegadeVigilante Text]] "Maybe <DisplayName> is the antidote for our crime problem. Set them loose."),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},

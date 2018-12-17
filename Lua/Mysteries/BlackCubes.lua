@@ -14,8 +14,8 @@ DefineClass.BlackCubeMystery = {
 	--phases
 	can_destroy_cubes = false,
 	
-	display_name = T{1164, "The Power of Three (Easy)"},
-	rollover_text = T{1165, '"Science is no more than an investigation of a miracle we can never explain, and art is an interpretation of that miracle."<newline><right>- Ray Bradbury'},
+	display_name = T(1164, "The Power of Three (Easy)"),
+	rollover_text = T(1165, '"Science is no more than an investigation of a miracle we can never explain, and art is an interpretation of that miracle."<newline><right>- Ray Bradbury'),
 	challenge_mod = 20,
 	order_pos = 1,
 	
@@ -95,8 +95,8 @@ DefineClass.BlackCubeStockpileBase = {
 	rocks_obj = false,
 	set_terrain_type = false,
 	
-	description = T{1166, "Black. Cube-shaped. Just standing there, challenging our preconceptions."},
-	display_name = T{1167, "Black Cube Matrix"},
+	description = T(1166, "Black. Cube-shaped. Just standing there, challenging our preconceptions."),
+	display_name = T(1167, "Black Cube Matrix"),
 	
 	suppress_spawned_cube_counter = false,
 	
@@ -328,7 +328,7 @@ DefineClass.BlackCubeDumpSite = {
 	exclude_from_lr_transportation = false,
 
 	properties = {
-		{ template = true, name = T{1168, "Max Amount Black Cubes"},  category = "Storage Space", id = "max_amount_BlackCube",  editor = "number", default = 45000, scale = const.ResourceScale },
+		{ template = true, name = T(1168, "Max Amount Black Cubes"),  category = "Storage Space", id = "max_amount_BlackCube",  editor = "number", default = 45000, scale = const.ResourceScale },
 	},
 }
 

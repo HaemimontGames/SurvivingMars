@@ -47,11 +47,11 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	ScriptDone = true,
-	Text = T{366957194452, --[[StoryBit DustSickness_CureFound Text]] "Our sponsor is very happy with the result noting that this is further proof of the colony’s viability.\n\n<effect><sponsor_name> has provided us with <funding(sponsor_bonus)>"},
+	Text = T(366957194452, --[[StoryBit DustSickness_CureFound Text]] "Our sponsor is very happy with the result, noting that this is further proof of the colony’s viability.\n\n<effect><sponsor_name> has provided us with <funding(sponsor_bonus)>"),
 	TextReadyForValidation = true,
 	TextsDone = true,
 	Trigger = "TechResearchedTrigger",
-	VoicedText = T{597844079973, --[[voice:narrator]] "The medical report on your desk is very positive and concludes that the Dust Sickness issue has been resolved permanently."},
+	VoicedText = T(597844079973, --[[voice:narrator]] "The medical report on your desk is very positive and concludes that the Dust Sickness issue has been resolved permanently."),
 	group = "Disasters",
 	id = "DustSickness_CureFound",
 	PlaceObj('StoryBitParamFunding', {

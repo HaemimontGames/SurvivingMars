@@ -63,7 +63,7 @@ end,
 			'FXPressDisabled', "UIDisabledButtonPressed",
 			'TextStyle', "PGListItemName",
 			'Translate', true,
-			'Text', T{714247552511, --[[XTemplate GameRuleItem Text]] "<text>"},
+			'Text', T(714247552511, --[[XTemplate GameRuleItem Text]] "<text>"),
 			'Shorten', true,
 			'TextVAlign', "center",
 		}, {

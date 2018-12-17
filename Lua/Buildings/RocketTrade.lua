@@ -2,9 +2,9 @@ DefineClass.TradeRocket = {
 	__parents = { "SupplyRocket" },
 
 	export_goods = false, -- { resource, amount } pairs
-	pin_rollover = T{10, "<Description>"},
-	pin_rollover_arriving = T{8031, "<RocketType><newline>Travelling to Mars.<newline>Flight progress: <em><ArrivalTimePercent></em>%.<newline>Cargo Requested:<newline><CargoRequested>"},
-	pin_rollover_in_orbit = T{8032, "Ready to land.<newline>Cargo Requested:<newline><CargoRequested>"},
+	pin_rollover = T(10, "<Description>"),
+	pin_rollover_arriving = T(8031, "<RocketType><newline>Travelling to Mars.<newline>Flight progress: <em><ArrivalTimePercent></em>%.<newline>Cargo Requested:<newline><CargoRequested>"),
+	pin_rollover_in_orbit = T(8032, "Ready to land.<newline>Cargo Requested:<newline><CargoRequested>"),
 
 	fx_actor_base_class = "FXRocket",
 	fx_actor_class = "SupplyRocket",
@@ -73,7 +73,7 @@ function TradeRocket:OnModifiableValueChanged(prop, ...)
 end
 
 function TradeRocket:ResetDemandRequests()
-	self.refuel_request:ResetAmount(self.launch_fuel)
+	self.refuel_request:ResetAmount(self:GetLaunchFuel())
 end
 
 function TradeRocket:ToggleAllowExport()
@@ -100,7 +100,7 @@ function TradeRocket:GetCargoRequested()
 end
 
 function TradeRocket:GetUIExportStatus()
-	local text = T{7883, --[[Post-Cert]] "Gathering exports<right>"}
+	local text = T(7883, --[[Post-Cert]] "Gathering exports<right>")
 		
 	for i = 1, #self.export_goods do
 		local req = self.export_goods[i]

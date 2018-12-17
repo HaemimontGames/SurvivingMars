@@ -42,7 +42,7 @@ PlaceObj('XTemplate', {
 				'Id', "idSubtitle",
 				'Padding', box(0, 0, 0, 0),
 				'HandleMouse', false,
-				'TextStyle', "MediumHeader",
+				'TextStyle', "SubHeader",
 				'Translate', true,
 				'HideOnEmpty', true,
 			}),

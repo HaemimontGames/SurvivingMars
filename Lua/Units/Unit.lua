@@ -258,6 +258,7 @@ function Unit:KickFromBuilding(building, entrance_type)
 	local entrance, pos, spot_type = building:GetEntrance(nil, entrance_type)
 	pos = spot_type and building:GetSpotPos(building:GetRandomSpot(spot_type)) or pos or building:GetPos()
 	self:Detach()
+	self:ClearPath()
 	self:SetPos(pos)
 	self:SetHolder(false)
 	building:OnExitUnit(self)
@@ -481,6 +482,7 @@ function Unit:GotoBuildingSpot(building, spot, force_teleport, dest_tolerance)
 end
 
 function Unit:GoToRandomPosInDome(dome)
+	dome = dome or self.current_dome
 	assert(dome)
 	if not dome then
 		return
@@ -492,7 +494,7 @@ function Unit:GoToRandomPosInDome(dome)
 		self:SetPos(pts[idx])
 		return
 	end
-	self:Goto(pts[idx])
+	return self:Goto(pts[idx])
 end
 
 function Unit:GoToRandomPos(max_radius, min_radius, center, filter, ...)
@@ -847,6 +849,23 @@ end
 function Unit:OnAppear()
 end
 
+function Unit:ExitHolderImmediately() --unit appears directly on the exit spot
+	local holder = self.holder
+	if holder then
+		local exit_pos
+		if IsKindOf(holder, "Building") then
+			local entrance, pos, spot_type = holder:GetEntrance()
+			exit_pos = spot_type and holder:GetSpotPos(holder:GetRandomSpot(spot_type)) or pos
+		end
+		exit_pos = exit_pos or holder:GetVisualPos()
+		self:ClearPath()
+		self:SetPos(exit_pos)
+		self:SetAngle(AsyncRand(360*60))
+		self:SetHolder(false)
+		holder:OnExitUnit(self)
+	end
+end
+
 function Unit:Disappear(keep_in_holder)
 	self:OnPreDisappear()
 	if SelectedObj == self then
@@ -860,7 +879,7 @@ function Unit:Disappear(keep_in_holder)
 	
 	local holder = self.holder
 	if not keep_in_holder then
-		self:SetHolder(false)
+		self:ExitHolderImmediately()
 	end
 	
 	if self == CameraFollowObj then

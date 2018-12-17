@@ -29,16 +29,17 @@ PlaceObj('StoryBit', {
 					'Condition', ">",
 					'Amount', 0,
 				}),
+				PlaceObj('IsBuildingWorking', nil),
 			},
 		}),
 	},
 	ScriptDone = true,
-	Text = T{916296186236, --[[StoryBit DomeHeating Text]] "A power surge has caused a massive failure in the heating system of dome <DisplayName>. Using backup heaters we can keep everybody warm enough but the dome’s power consumption has been increased by <power_increase_prc>%.\n\nThe Cold Wave will persist for several sols. If the power supply fails many colonists may freeze to death."},
+	Text = T(916296186236, --[[StoryBit DomeHeating Text]] "A power surge has caused a massive failure in the heating system of dome <DisplayName>. Using backup heaters we can keep everybody warm enough but the dome’s power consumption has been increased by <power_increase_prc>%.\n\nThe Cold Wave will persist for several sols. If the power supply fails many colonists may freeze to death."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{831220657167, --[[StoryBit DomeHeating Title]] "Dome Heating"},
+	Title = T(831220657167, --[[StoryBit DomeHeating Title]] "Dome Heating"),
 	Trigger = "ColdWave",
-	VoicedText = T{398112054271, --[[voice:narrator]] "A blanket-clad colonist hands you a report, shivering from the cold. It is as you feared - all of the dome heaters have failed."},
+	VoicedText = T(398112054271, --[[voice:narrator]] "A blanket-clad colonist hands you a report, shivering from the cold. It is as you feared - all of the dome heaters have failed."),
 	group = "Disasters",
 	id = "DomeHeating",
 	PlaceObj('StoryBitParamNumber', {
@@ -46,9 +47,9 @@ PlaceObj('StoryBit', {
 		'Value', 200,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{650748426214, --[[StoryBit DomeHeating Text]] "Replace the Dome’s heating systems."},
+		'Text', T(650748426214, --[[StoryBit DomeHeating Text]] "Replace the Dome’s heating systems."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{412308178283, --[[StoryBit DomeHeating CustomOutcomeText]] "Costs <machineparts(repair_cost)> but the Dome won’t consume extra power"},
+		'CustomOutcomeText', T(412308178283, --[[StoryBit DomeHeating CustomOutcomeText]] "Costs <machineparts(repair_cost)> but the Dome won’t consume extra power"),
 		'Comment', "fix this to use parameter in the outcome when I can use a parameter in the effect",
 	}),
 	PlaceObj('StoryBitParamResource', {
@@ -70,12 +71,12 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{851106623231, --[[StoryBit DomeHeating Text]] "We have trained for such situations. We will persevere!"},
+		'Text', T(851106623231, --[[StoryBit DomeHeating Text]] "We have trained for such situations. We will persevere!"),
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{277274783674, --[[StoryBit DomeHeating Text]] "Salvage some heaters from Drones."},
+		'Text', T(277274783674, --[[StoryBit DomeHeating Text]] "Salvage some heaters from Drones."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{922837155040, --[[StoryBit DomeHeating CustomOutcomeText]] "<drone_prc>% of drones will freeze"},
+		'CustomOutcomeText', T(922837155040, --[[StoryBit DomeHeating CustomOutcomeText]] "<drone_prc>% of drones will freeze"),
 		'Prerequisite', PlaceObj('IsCommander', {
 			'CommanderProfile', "inventor",
 		}),

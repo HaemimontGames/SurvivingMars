@@ -9,25 +9,37 @@ local function TutorialsCombo()
 	return combo
 end
 
-DefineDataInstance("OnScreenHint",
-	{
-		{ category = "General", id = "title",        name = T{1000016, "Title"},        editor = "text",            default = "", translate = true },
-		{ category = "General", id = "voiced_text",  name = T{6855, "Voiced Text"},        editor = "multi_line_text", default = "", translate = true, context = VoicedContextFromField("actor")},
-		{ category = "General", id = "actor",        name = T{6857, "Voice Actor"},        editor = "combo",           default = "narrator", items = VoiceActors },
-		{ category = "General", id = "text",         name = T{1000145, "Text"},         editor = "multi_line_text", default = "", translate = true },
-		{ category = "General", id = "gamepad_text", name = T{4094, "Gamepad text"}, editor = "multi_line_text", default = "", translate = true },
-		{ category = "General", id = "tutorial",     name = T{8982, "Tutorial"},                 editor = "combo",           default = "none", items = TutorialsCombo },
-		{ category = "Misc", id = "encyclopedia_image",     name = T{161, "Encyclopedia Image"},         editor = "browse",           default = "", folder = "UI" },
+DefineClass.OnScreenHint = {
+	__parents = {"Preset"},
+	properties = {
+		{  id = "save_in", editor = false,},
+		{ category = "General", id = "title",        name = T(1000016, "Title"),        editor = "text",            default = "", translate = true },
+		{ category = "General", id = "voiced_text",  name = T(6855, "Voiced Text"),        editor = "multi_line_text", default = "", translate = true, context = VoicedContextFromField("actor")},
+		{ category = "General", id = "actor",        name = T(6857, "Voice Actor"),        editor = "combo",           default = "narrator", items = VoiceActors },
+		{ category = "General", id = "text",         name = T(1000145, "Text"),         editor = "multi_line_text", default = "", translate = true },
+		{ category = "General", id = "gamepad_text", name = T(4094, "Gamepad text"), editor = "multi_line_text", default = "", translate = true },
+		{ category = "General", id = "tutorial",     name = T(8982, "Tutorial"),                 editor = "combo",           default = "none", items = TutorialsCombo },
+		{ category = "Misc", id = "encyclopedia_image",     name = T(161, "Encyclopedia Image"),         editor = "browse",           default = "", folder = "UI" },
+		{ cateogry = "Misc", id = "video",           name = T(1000124, "Video"),              editor = "browse", folder = "Movies", filter = "Video files|*.ivf", default = "" },
+		{ cateogry = "Misc", id = "video_durango",      name = T(11832, "Xbox Video"),         editor = "browse", folder = "Movies", filter = "Video files|*.ivf", default = "" },
+		{ cateogry = "Misc", id = "video_ps4",       name = T(11833, "PS4 Video"),          editor = "browse", folder = "Movies", filter = "Video files|*.ivf", default = "" },
 	},
-	"Editors.GameUI", "On-Screen Hints"
-)
+
+	GlobalMap = "OnScreenHintPresets",
+	EditorMenubarName = "On-Screen Hints",
+	EditorMenubar = "Editors.GameUI",
+	HasSortKey = true,
+}
+
+function OnScreenHint:GetVideoFilename()
+	if GetUIStyleGamepad() then
+		return ShouldShowPS4Images() and self.video_ps4 or self.video_durango
+	else
+		return self.video
+	end
+end
 
 GlobalVar("g_ShownOnScreenHints", {})
-
-function co()
-	CloseDialog("OnScreenHintDlg")
-	OpenDialog("OnScreenHintDlg")
-end
 
 DefineClass.OnScreenHintDlg =
 {
@@ -68,7 +80,7 @@ function OnScreenHintDlg:Init()
 		TextStyle = "OnScreenHintTitle",
 		Translate = true,
 	}, self.idMinimized)
-	self.idMinimized.idActualText:SetText(GetUIStyleGamepad() and T{8983, "<Back> Hints"} or T{4248, "Hints"})
+	self.idMinimized.idActualText:SetText(GetUIStyleGamepad() and T(8983, "<Back> Hints") or T(4248, "Hints"))
 	-------- maximized controls
 	local maximized_win = XFrame:new({
 		Id = "idMaximizedControls",
@@ -116,6 +128,7 @@ function OnScreenHintDlg:Init()
 	}, bottom_buttons)
 	-------- gamepad button
 	local gamepad_close_win = XWindow:new({
+		Id = "idGamepadDismiss",
 		Dock = "bottom",
 		Margins = box(25, 0, 25, 0),
 		HandleMouse = false,
@@ -145,7 +158,7 @@ function OnScreenHintDlg:Init()
 		TextStyle = "OnScreenHintTitle",
 		HandleMouse = false,
 	}, gamepad_close_btn)
-	self.idGamepadHint:SetText(T{7586, --[[hint]] "<Back> Dismiss hint"})
+	self.idGamepadHint:SetText(T(7586, --[[hint]] "<Back> Dismiss hint"))
 	-------- title and buttons
 	local win = XWindow:new({
 		Dock = "top",
@@ -189,10 +202,13 @@ function OnScreenHintDlg:Init()
 		end,
 	}, button_window)
 	-------- text
+	local content = XWindow:new({
+		Dock = "box",
+		Padding = box(25, 15, 25, 0),
+	}, maximized_win)
 	XText:new({
 		Id = "idText",
 		Translate = true,
-		Margins = box(25, 15, 25, 15),
 		MinHeight = 70,
 		MaxWidth = 600,
 		TextStyle = "OnScreenHintText",
@@ -200,7 +216,19 @@ function OnScreenHintDlg:Init()
 		TextHAlign = "center",
 		TextVAlign = "center",
 		HandleMouse = false,
-	}, maximized_win)
+	}, content)
+	XVideo:new({
+		Id = "idVideo",
+		Dock = "right",
+		VAlign = "center",
+		FoldWhenHidden = true,
+		Margins = box(20, 0, 0, 0),
+		MinWidth = 360,
+		MaxWidth = 360,
+		MinHeight = 270,
+		MaxHeight = 270,
+		Looping = true,
+	}, content)
 	
 	self.current_page = self.current_page or #g_ShownOnScreenHints
 	self:UpdateVisuals()
@@ -439,20 +467,43 @@ function OnScreenHintDlg:OnXButtonDown(button, controller_id)
 	return "break"
 end
 
+function OnScreenHintDlg:GetVideoFilename(hint)
+	hint = hint or OnScreenHintPresets[self:CurrentHintId()]
+	return hint:GetVideoFilename()
+end
+
 function OnScreenHintDlg:UpdateVisuals()
+	local gamepad = GetUIStyleGamepad()
+	local data = OnScreenHintPresets[self:CurrentHintId()]
 	--set texts
-	local data = DataInstances.OnScreenHint[self:CurrentHintId()]
+	local video
 	if data then
 		self.idTitle:SetText(data.title)
-		local body_text = (GetUIStyleGamepad() and data.gamepad_text ~= "") and data.gamepad_text or data.text
+		local body_text = (gamepad and data.gamepad_text ~= "") and data.gamepad_text or data.text
 		body_text = T{body_text, self.context}
 		local text = (data.voiced_text ~= "") and (data.voiced_text.."\n\n"..body_text) or body_text
 		self.idText:SetText(T{text, self.context})
 		self.idPage:SetText(Untranslated(string.format("%d/%d", self.current_page, #g_ShownOnScreenHints)))
 		self.idGamepadHint:SetText(self.idGamepadHint:GetText())
+		video = self:GetVideoFilename(data)
+	end
+	if video ~= "" then
+		self.idText:SetMaxWidth(400)
+		self.idText:SetTextHAlign("left")
+		self.idVideo:SetVisible(true)
+		self.idVideo.resolution = point(512, 384)
+		if video ~= self.idVideo:GetFileName() or self.idVideo.state ~= "playing" then
+			self.idVideo:SetFileName(video)
+			self.idVideo:Play()
+		end
+	else
+		self.idText:SetMaxWidth(600)
+		self.idText:SetTextHAlign("center")
+		self.idVideo:Stop()
+		self.idVideo:SetVisible(false)
 	end
 	--update pages
-	if GetUIStyleGamepad() or self.minimized then
+	if gamepad or self.minimized then
 		self.idNext:SetVisible(false, "instant")
 		self.idPrev:SetVisible(false, "instant")
 	else
@@ -461,15 +512,15 @@ function OnScreenHintDlg:UpdateVisuals()
 		local bPrev = self.current_page > 1
 		self.idPrev:SetVisible(bPrev, "instant")
 	end
-	local gamepad = GetUIStyleGamepad()
 	local maximized = not self.minimized
 	--gamepad ctrls
 	self.idGamepadHint:SetVisible(gamepad and maximized)
+	self.idGamepadDismiss:SetVisible(gamepad and maximized)
 	--non-gamepad ctrls
 	self.idEncyclopediaBtn:SetVisible(not gamepad and maximized)
 	self.idClose:SetVisible(not gamepad and maximized)
 	self:UpdateMinimizedVisibility()
-	self.idMinimized.idActualText:SetText(GetUIStyleGamepad() and T{8983, "<Back> Hints"} or T{4248, "Hints"})
+	self.idMinimized.idActualText:SetText(gamepad and T(8983, "<Back> Hints") or T(4248, "Hints"))
 end
 
 function OnScreenHintDlg:UpdateMinimizedVisibility()

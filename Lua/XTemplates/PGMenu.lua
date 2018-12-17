@@ -175,7 +175,7 @@ end,
 				}, {
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idTutorial",
-						'ActionName', T{756622437336, --[[XTemplate PGMenu ActionName]] "TUTORIAL"},
+						'ActionName', T(756622437336, --[[XTemplate PGMenu ActionName]] "TUTORIAL"),
 						'ActionIcon', "UI/Icons/main_menu_tutorial.tga",
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
@@ -195,10 +195,10 @@ end)
 end,
 					}),
 					PlaceObj('XTemplateAction', {
-						'RolloverText', T{427174640796, --[[XTemplate PGMenu RolloverText]] "Start a survival game, which allows you to choose Mission Sponsor, Commander Profile, Rocket payload and landing location."},
-						'RolloverTitle', T{10455, --[[XTemplate PGMenu RolloverTitle]] "NEW GAME"},
+						'RolloverText', T(427174640796, --[[XTemplate PGMenu RolloverText]] "Start a survival game, which allows you to choose Mission Sponsor, Commander Profile, Rocket payload and landing location."),
+						'RolloverTitle', T(10455, --[[XTemplate PGMenu RolloverTitle]] "NEW GAME"),
 						'ActionId', "idStandardGame",
-						'ActionName', T{10455, --[[XTemplate PGMenu ActionName]] "NEW GAME"},
+						'ActionName', T(10455, --[[XTemplate PGMenu ActionName]] "NEW GAME"),
 						'ActionIcon', "UI/Icons/main_menu_new_game.tga",
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
@@ -206,10 +206,10 @@ StartNewGame(host, "Mission")
 end,
 					}),
 					PlaceObj('XTemplateAction', {
-						'RolloverText', T{650579644429, --[[XTemplate PGMenu RolloverText]] "Create the colony that you imagine and test how it works without worrying about survival threats.<newline><newline><NoAchievements()>"},
-						'RolloverTitle', T{144559490492, --[[XTemplate PGMenu RolloverTitle]] "CREATIVE MODE"},
+						'RolloverText', T(650579644429, --[[XTemplate PGMenu RolloverText]] "Create the colony that you imagine and test how it works without worrying about survival threats.<newline><newline><NoAchievements()>"),
+						'RolloverTitle', T(144559490492, --[[XTemplate PGMenu RolloverTitle]] "CREATIVE MODE"),
 						'ActionId', "idCreativeMode",
-						'ActionName', T{144559490492, --[[XTemplate PGMenu ActionName]] "CREATIVE MODE"},
+						'ActionName', T(144559490492, --[[XTemplate PGMenu ActionName]] "CREATIVE MODE"),
 						'ActionIcon', "UI/Icons/main_menu_creative_mode.tga",
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
@@ -226,9 +226,9 @@ StartNewGame(host, "Mission", {
 end,
 					}),
 					PlaceObj('XTemplateAction', {
-						'RolloverText', T{554914047909, --[[XTemplate PGMenu RolloverText]] "Challenge yourself to accomplish a specific objective within a time limit.\n\nMission parameters and colony site are predetermined."},
+						'RolloverText', T(554914047909, --[[XTemplate PGMenu RolloverText]] "Challenge yourself to accomplish a specific objective within a time limit.\n\nMission parameters and colony site are predetermined."),
 						'ActionId', "idChallenge",
-						'ActionName', T{10519, --[[XTemplate PGMenu ActionName]] "CHALLENGE MODE"},
+						'ActionName', T(10519, --[[XTemplate PGMenu ActionName]] "CHALLENGE MODE"),
 						'ActionIcon', "UI/Icons/main_menu_challenges.tga",
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
@@ -237,7 +237,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idLoad",
-						'ActionName', T{1128, --[[XTemplate PGMenu ActionName]] "LOAD GAME"},
+						'ActionName', T(1128, --[[XTemplate PGMenu ActionName]] "LOAD GAME"),
 						'ActionIcon', "UI/Icons/main_menu_load_game.tga",
 						'ActionToolbar', "mainmenu",
 						'ActionState', function (self, host)
@@ -248,7 +248,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idModManager",
-						'ActionName', T{1129, --[[XTemplate PGMenu ActionName]] "MOD MANAGER"},
+						'ActionName', T(1129, --[[XTemplate PGMenu ActionName]] "MOD MANAGER"),
 						'ActionIcon', "UI/Icons/main_menu_mod_manager.tga",
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
@@ -261,7 +261,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idModEditor",
-						'ActionName', T{1130, --[[XTemplate PGMenu ActionName]] "MOD EDITOR"},
+						'ActionName', T(1130, --[[XTemplate PGMenu ActionName]] "MOD EDITOR"),
 						'ActionIcon', "UI/Icons/main_menu_mod_editor.tga",
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
@@ -274,7 +274,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idOptions",
-						'ActionName', T{1131, --[[XTemplate PGMenu ActionName]] "OPTIONS"},
+						'ActionName', T(1131, --[[XTemplate PGMenu ActionName]] "OPTIONS"),
 						'ActionIcon', "UI/Icons/main_menu_options.tga",
 						'ActionToolbar', "mainmenu",
 						'OnActionEffect', "mode",
@@ -282,7 +282,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idAchievements",
-						'ActionName', T{856797454991, --[[XTemplate PGMenu ActionName]] "ACHIEVEMENTS"},
+						'ActionName', T(856797454991, --[[XTemplate PGMenu ActionName]] "ACHIEVEMENTS"),
 						'ActionIcon', "UI/Icons/main_menu_achievements.tga",
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
@@ -292,7 +292,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idParadoxAccount",
-						'ActionName', T{4525, --[[XTemplate PGMenu ActionName]] "PARADOX ACCOUNT"},
+						'ActionName', T(4525, --[[XTemplate PGMenu ActionName]] "PARADOX ACCOUNT"),
 						'ActionIcon', "UI/Icons/main_menu_paradox.tga",
 						'ActionToolbar', "mainmenu",
 						'ActionState', function (self, host)
@@ -307,7 +307,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idQuit",
-						'ActionName', T{1132, --[[XTemplate PGMenu ActionName]] "QUIT"},
+						'ActionName', T(1132, --[[XTemplate PGMenu ActionName]] "QUIT"),
 						'ActionIcon', "UI/Icons/main_menu_exit.tga",
 						'ActionToolbar', "mainmenu",
 						'ActionShortcut', "Escape",

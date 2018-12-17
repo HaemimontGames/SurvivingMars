@@ -26,7 +26,7 @@ DefineClass.RCRover =
 	work_spot_drone_repair = "Workrover",
 	
 	properties = {
-		{id = "UIWorkRadius", name = T{643, "Range"}, editor = "number", default = const.RCRoverDefaultRadius, min = const.RCRoverMinRadius, max = const.RCRoverMaxRadius, no_edit = true, dont_save = true,},
+		{id = "UIWorkRadius", name = T(643, "Range"), editor = "number", default = const.RCRoverDefaultRadius, min = const.RCRoverMinRadius, max = const.RCRoverMaxRadius, no_edit = true, dont_save = true,},
 	},
 	
 	work_radius = const.RCRoverDefaultRadius,
@@ -37,13 +37,13 @@ DefineClass.RCRover =
 	scanning_start = false,
 	scan_time = false,
 	
-	display_name = T{7678, "RC Commander"},
-	description = T{4477, "Remote-controlled vehicle that transports, commands and repairs Drones."},
+	display_name = T(7678, "RC Commander"),
+	description = T(4477, "Remote-controlled vehicle that transports, commands and repairs Drones."),
 	display_icon = "UI/Icons/Buildings/rcrover.tga",
 	
 	-- pin section
-	pin_rollover = T{10417, "<description><newline><newline>Current status: <ui_command><newline><DronesStatusText><newline><left>Drones<right><drone(DronesCount)>"},
-	pin_summary2 = T{4479, "<DronesCount><icon_Drone_small>"},
+	pin_rollover = T(10417, "<description><newline><newline>Current status: <ui_command><newline><DronesStatusText><newline><left>Drones<right><drone(DronesCount)>"),
+	pin_summary2 = T(4479, "<DronesCount><icon_Drone_small>"),
 		
 	work_speed_modifier = 100, --0->100, used for "body damage"
 	rough_terrain_modifier = false,
@@ -952,7 +952,6 @@ function RCRover:RepairDrone(drone, power)
 	
 	local drone_initial_battery = drone.battery
 	BaseRover.RepairDrone(self, drone, power, false)
-	self:PopAndCallDestructor()
 	
 	if IsValid(drone) and not drone:IsBroken() then --we repaired the guy
 		if #self.drones < self:GetMaxDrones() and drone.is_orphan then --we have room for another drone
@@ -1062,16 +1061,16 @@ function RCRover:ToggleSiegeMode_Update(button)
 	button:SetEnabled(self:CanBeControlled())
 	if self.sieged_state then
 		button:SetIcon("UI/Icons/IPButtons/open.tga")
-		button:SetRolloverTitle(T{4485, "Recall Drones"})
-		button:SetRolloverText(T{4487, "Recall all Drones commanded by this Rover."})
+		button:SetRolloverTitle(T(4485, "Recall Drones"))
+		button:SetRolloverText(T(4487, "Recall all Drones commanded by this Rover."))
 		button:SetRolloverHint(T{8023, "<left_click> Recall <newline>Ctrl + <left_click>Recall for all Commanders",self})
-		button:SetRolloverHintGamepad(T{8024, "<ButtonA> Recall <newline><ButtonX> Recall for all Commanders"})
+		button:SetRolloverHintGamepad(T(8024, "<ButtonA> Recall <newline><ButtonX> Recall for all Commanders"))
 	else
 		button:SetIcon("UI/Icons/IPButtons/close.tga")
-		button:SetRolloverTitle(T{4484, "Deploy Drones"})
-		button:SetRolloverText(T{4486, "Deploy Drones and remain on standby at this location."})
+		button:SetRolloverTitle(T(4484, "Deploy Drones"))
+		button:SetRolloverText(T(4486, "Deploy Drones and remain on standby at this location."))
 		button:SetRolloverHint(T{8025, "<left_click> Deploy <newline>Ctrl + <left_click>Deploy for all Commanders",self})
-		button:SetRolloverHintGamepad(T{8026, "<ButtonA> Deploy <newline><ButtonX> Deploy for all Commanders"})
+		button:SetRolloverHintGamepad(T(8026, "<ButtonA> Deploy <newline><ButtonX> Deploy for all Commanders"))
 	end
 end
 
@@ -1110,11 +1109,11 @@ end
 
 function RCRover:GetDronesStatusText()
 	if self.command == "Malfunction" then
-		return T{4480, "RC Commander has malfunctioned and is awaiting repairs."}
+		return T(4480, "RC Commander has malfunctioned and is awaiting repairs.")
 	elseif not self.sieged_state then
-		return T{10091, "Drones have been recalled in the RC Commander"}
+		return T(10091, "Drones have been recalled in the RC Commander")
 	elseif not self.working then
-		return T{4482, "RC Commander is moving and won’t give new orders to controlled Drones."}
+		return T(4482, "RC Commander is moving and won’t give new orders to controlled Drones.")
 	end
 	
 	return DroneControl.GetDronesStatusText(self)

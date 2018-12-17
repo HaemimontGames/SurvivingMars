@@ -1,6 +1,6 @@
 ResupplyPresets = {
 	["Start_low"] = { --low funding starting params
-		text = T{3675, "Default starting resources"},
+		text = T(3675, "Default starting resources"),
 		items = {
 			{class = "RCRover",       		amount = 1},
 			{class = "RCTransport",    		amount = 1},
@@ -15,7 +15,7 @@ ResupplyPresets = {
 		},
 	},
 	["Start_medium"] = { --medium funding starting params
-		text = T{3675, "Default starting resources"},
+		text = T(3675, "Default starting resources"),
 		items = {
 			{class = "RCRover",           	amount = 1},
 			{class = "RCTransport",       	amount = 1},
@@ -31,7 +31,7 @@ ResupplyPresets = {
 		},
 	},
 	["Start_high"] = { --high funding starting params
-		text = T{3675, "Default starting resources"},
+		text = T(3675, "Default starting resources"),
 		items = {
 			{class = "RCRover",           	amount = 1},
 			{class = "RCTransport",       	amount = 1},
@@ -48,13 +48,13 @@ ResupplyPresets = {
 		},
 	},
 	["Rover"] = {
-		text = T{3676, "Rover Start"},
+		text = T(3676, "Rover Start"),
 		items = {
 			{class = "RCRover",    amount = 1},
 		},
 	},
 	["Materials"] = {
-		text = T{3677, "Materials"},
+		text = T(3677, "Materials"),
 		items = {
 			{class = "Concrete",   amount = 30},
 			{class = "Metals",     amount = 20},
@@ -62,7 +62,7 @@ ResupplyPresets = {
 		},
 	},
 	["Probe"] = {
-		text = T{3678, "Probe"},
+		text = T(3678, "Probe"),
 		items = {
 			{ class = "OrbitalProbe", amount = 1, },
 		},
@@ -182,9 +182,9 @@ DefineClass.OrbitalProbe = {
 	__parents = { "BaseBuilding", "Shapeshifter", "PinnableObject" },
 	enum_flags = { efWalkable = false, efCollision = false, efApplyToGrids = false },
 	properties = {
-		{ id = "display_name", default = T{3525, "Orbital Probe"} },
+		{ id = "display_name", default = T(3525, "Orbital Probe") },
 		{ id = "display_icon", default = "UI/Icons/Buildings/orbital_probe.tga" },
-		{ id = "description", default = T{10086, "Reveals underground deposits in the scanned area." }},
+		{ id = "description", default = T(10086, "Reveals underground deposits in the scanned area.")},
 	},
 	entity = "InvisibleObject",
 	range = 160*guim,
@@ -193,20 +193,20 @@ DefineClass.OrbitalProbe = {
 	
 	show_pin_toggle = false,
 	pin_on_start = false,
-	pin_rollover = T{3680, "Immediately scans a Sector for deposits and Anomalies.<DeepScanWarning><newline><newline>Available Orbital Probes<right><NumProbes>"},
-	pin_rollover_hint = T{3681, "<left_click> Select Sector"},
-	pin_rollover_hint_xbox = T{7882, "<PinRolloverGamepadHint>"},
+	pin_rollover = T(3680, "Immediately scans a Sector for deposits and Anomalies.<DeepScanWarning><newline><newline>Available Orbital Probes<right><NumProbes>"),
+	pin_rollover_hint = T(3681, "<left_click> Select Sector"),
+	pin_rollover_hint_xbox = T(7882, "<PinRolloverGamepadHint>"),
 	pin_progress_value = "",
 	pin_progress_max = "",
-	pin_summary1 = T{3683, "<NumProbes>"},
+	pin_summary1 = T(3683, "<NumProbes>"),
 	scan_pattern = { point(0, 0) },
 }
 
 function OrbitalProbe:GetPinRolloverGamepadHint()
 	if GetInGameInterfaceMode() ~= "overview" then
-		return T{3682, "<ButtonA> Overview"}
+		return T(3682, "<ButtonA> Overview")
 	else
-		return T{8569, "<ButtonA> Select Sector"}
+		return T(8569, "<ButtonA> Select Sector")
 	end
 end
 
@@ -240,7 +240,7 @@ function OrbitalProbe:GetDeepScanWarning()
 	if self.city:IsTechResearched("AdaptedProbes") then
 		return ""
 	end
-	return T{3684, "<newline><em>Deep scanning of the Sector is not possible with the current technology</em>"}
+	return T(3684, "<newline><em>Deep scanning of the Sector is not possible with the current technology</em>")
 end
 
 function OrbitalProbe:GetAffectedSectors(sector)
@@ -317,10 +317,10 @@ end
 DefineClass.AdvancedOrbitalProbe = {
 	__parents = { "OrbitalProbe" },
 
-	pin_rollover = T{11413, "Immediately scans a Sector and the four adjacent Sectors for deposits and anomalies.<DeepScanWarning><newline><newline>Available Orbital Probes<right><NumProbes>"},
+	pin_rollover = T(11413, "Immediately scans a Sector and the four adjacent Sectors for deposits and anomalies.<DeepScanWarning><newline><newline>Available Orbital Probes<right><NumProbes>"),
 
 	properties = {
-		{ id = "display_name", default = T{10087, "Advanced Orbital Probe"} },
+		{ id = "display_name", default = T(10087, "Advanced Orbital Probe") },
 		{ id = "display_icon", default = "UI/Icons/Buildings/orbital_probe.tga" },
 	},
 	scan_pattern = {

@@ -4,10 +4,10 @@ DefineClass.Residence = {
 	__parents = { "StatsChange", "Holder"},
 	
 	properties = {		
-		{  template = true, modifiable = true, id = "capacity",        name = T{687, "Number of Residents"}, default = 5,  category = "Residence", editor = "number", min = 1 },
-		{  template = true, modifiable = true, id = "rest_duration",   name = T{688, "Rest Duration"},         default = 7*const.HourDuration, category = "Residence", editor = "number", scale = "hours", },
-		{  template = true, modifiable = true, id = "children_only",   name = T{689, "Children only"},         default = false, category = "Residence", editor = "bool", },
-		{  template = true, modifiable = true, id = "sanity_increase", name = T{691, "Sanity recover per rest"}, default = 0, editor = "number", scale = "Stat", },			
+		{  template = true, modifiable = true, id = "capacity",        name = T(687, "Number of Residents"), default = 5,  category = "Residence", editor = "number", min = 1 },
+		{  template = true, modifiable = true, id = "rest_duration",   name = T(688, "Rest Duration"),         default = 7*const.HourDuration, category = "Residence", editor = "number", scale = "hours", },
+		{  template = true, modifiable = true, id = "children_only",   name = T(689, "Children only"),         default = false, category = "Residence", editor = "bool", },
+		{  template = true, modifiable = true, id = "sanity_increase", name = T(691, "Sanity recover per rest"), default = 0, editor = "number", scale = "Stat", },			
 	},
 	colonists = false,  -- colonists arrays in this home
 	reserved = false,  -- from emigrating colonsit waiting for the shuttle
@@ -236,13 +236,13 @@ function Residence:ColonistCanInteract(col)
 		return false, false, true
 	end
 	if self.children_only and not col.traits.Child then
-		return false, T{4306, "<red>Building accepts only children</red>"}
+		return false, T(4306, "<red>Building accepts only children</red>")
 	end
 	if self == col.residence then
-		return false, T{4307, "Current Residence"}
+		return false, T(4307, "Current Residence")
 	end
 	if not col:CanReachBuilding(self) then
-		return false, T{4308, "<red>Out of reach</red>"}
+		return false, T(4308, "<red>Out of reach</red>")
 	end
 	return true, T{4309, "<UnitMoveControl('ButtonA', interaction_mode)>: Set Residence", col}
 end

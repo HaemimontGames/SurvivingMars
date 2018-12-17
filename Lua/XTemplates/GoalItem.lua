@@ -97,7 +97,7 @@ PlaceObj('XTemplate', {
 						'VAlign', "center",
 						'TextStyle', "GoalRewardLabel",
 						'Translate', true,
-						'Text', T{128569337702, --[[XTemplate GoalItem Text]] "Reward:"},
+						'Text', T(128569337702, --[[XTemplate GoalItem Text]] "Reward:"),
 					}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XText",

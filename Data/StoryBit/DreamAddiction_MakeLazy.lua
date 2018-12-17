@@ -20,7 +20,7 @@ PlaceObj('StoryBit', {
 	},
 	Effects = {},
 	Enables = {
-		"DreamAddication_MakeLazy",
+		"DreamAddiction_MakeLazy",
 	},
 	Prerequisites = {},
 	ScriptDone = true,

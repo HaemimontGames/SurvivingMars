@@ -27,7 +27,7 @@ local function SortMarsPointsOfInterest()
 end
 
 function OpenPlanetaryView(context)
-	OpenDialog("PlanetaryView", GetInGameInterface(), context)
+	return OpenDialog("PlanetaryView", GetInGameInterface(), context)
 end
 
 function GetSortedMarsPointsOfInterest()
@@ -122,6 +122,7 @@ function GenerateMarsScreenPoI(point_type)
 		--constrain them to be on the same side of the planet as our colony
 		max_long_dist = same_side_max_dist
 	end
+	local count = 0
 	while true do
 		lat, long = GenerateRandomLandingLocation()
 		if GetLongDist(long / 60, our_colony.longitude) <= max_long_dist
@@ -129,6 +130,8 @@ function GenerateMarsScreenPoI(point_type)
 			and not IsTooCloseToSpots(lat / 60, long / 60, MarsScreenLandingSpots) then
 			break
 		end
+		if count >= 100 then break end -- don't run infinitely
+		count = count + 1
 	end
 	return lat / 60, long / 60
 end
@@ -144,7 +147,7 @@ function InitMarsScreenData()
 			id = "OurColony",
 			latitude = MarsScreenMapParams.latitude,
 			longitude = MarsScreenMapParams.longitude,
-			display_name = T{11037, "Our Colony"},
+			display_name = T(11037, "Our Colony"),
 		}
 		Msg("OurColonyPlaced")
 	end
@@ -165,7 +168,7 @@ end
 
 function PromptNoAvailableRockets()
 	CreateRealTimeThread(function()
-		if WaitMarsQuestion(nil, T{6882, "Warning"}, T{11238, "There aren't any available Rockets to send on a Trade or Scientific Expedition. You will need a Rocket landed on Mars to perform this action."}, T{11239, "Go to Resupply View to request a Rocket from Earth (you will still have to setup the Expedition later)"}, T{3687, "Cancel"}) == "ok" then
+		if WaitMarsQuestion(nil, T(6882, "Warning"), T(11238, "There aren't any available Rockets to send on a Trade or Scientific Expedition. You will need a Rocket landed on Mars to perform this action."), T(11239, "Go to Resupply View to request a Rocket from Earth (you will still have to setup the Expedition later)"), T(3687, "Cancel")) == "ok" then
 			CloseDialog("PlanetaryView")
 			OpenDialog("Resupply")
 		end
@@ -174,33 +177,33 @@ end
 
 function GetRocketExpeditionStatus(rocket)
 	if rocket.status == "mission" then
-		return T{11228, "Flying to a Planetary Anomaly"}
+		return T(11228, "Flying to a Planetary Anomaly")
 	elseif rocket.status == "mission return" then
-		return T{11229, "Returning from a Planetary Anomaly"}
+		return T(11229, "Returning from a Planetary Anomaly")
 	elseif rocket.status == "task" then
-		return T{11589, "Flying to a Rival Colony"}
+		return T(11589, "Flying to a Rival Colony")
 	elseif rocket.status == "task return" then
-		return T{11590, "Returning from a Rival Colony"}
+		return T(11590, "Returning from a Rival Colony")
 	elseif rocket.command == "WaitLaunchOrder" then
-		return T{11240, "Ready"}
+		return T(11240, "Ready")
 	elseif rocket.command == "Refuel" then
-		return T{11241, "Refueling"}
+		return T(11241, "Refueling")
 	elseif rocket.command == "OnEarth" then
-		return T{11242, "On Earth"}
+		return T(11242, "On Earth")
 	elseif rocket.command == "ExpeditionRefuelAndLoad" or rocket.command == "ExpeditionPrepare" then
-		return T{11677, "Preparing for expedition"}
+		return T(11677, "Preparing for expedition")
 	elseif rocket.command == "WaitInOrbit" then
-		return T{11243, "In orbit"}
+		return T(11243, "In orbit")
 	elseif rocket.command == "LandOnMars" then
-		return T{282, "Landing"}
+		return T(282, "Landing")
 	elseif rocket.command == "Unload" then
-		return T{761527590297, "Unloading"}
+		return T(761527590297, "Unloading")
 	elseif rocket.command == "Countdown" or rocket.command == "Takeoff" then
-		return T{11244, "Taking off"}
+		return T(11244, "Taking off")
 	elseif rocket:IsLaunchAutomated() and rocket:HasCargoSpaceLeft() then
-		return T{11039, "Loading cargo"}
+		return T(11039, "Loading cargo")
 	end
-	return T{709, "In transit"}
+	return T(709, "In transit")
 end
 
 function SendRocketToMarsPoint(obj, spot, dialog)
@@ -219,10 +222,10 @@ end
 function CancelExpedition(rocket, dialog)
 	CreateRealTimeThread(function()
 		local params = {
-			title = T{311734996852, "Cancel Expedition"},
-			text = T{11245, "Are you sure you want to cancel this expedition?"}, 
-			choice1 = T{1138, "Yes"},
-			choice2 = T{1139, "No"},
+			title = T(311734996852, "Cancel Expedition"),
+			text = T(11245, "Are you sure you want to cancel this expedition?"), 
+			choice1 = T(1138, "Yes"),
+			choice2 = T(1139, "No"),
 			start_minimized = false,
 		}
 		local res = WaitPopupNotification(false, params, false, dialog)

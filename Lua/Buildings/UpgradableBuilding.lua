@@ -6,45 +6,45 @@ do
 --upggrade definitions, currently just props.
 		local upgrade_properties = {
 	--
-			{template = true, name = T{92, "Restore Upgrade Defaults"}, id = "restore_defaults", editor = "buttons", default = false, buttons = { {"Restore Upgrade Defaults", "BtnRetoreUpgradeDefaults"} }},
+			{template = true, name = T(92, "Restore Upgrade Defaults"), id = "restore_defaults", editor = "buttons", default = false, buttons = { {"Restore Upgrade Defaults", "BtnRetoreUpgradeDefaults"} }},
 	--
-			{ template = true, name = T{93, "ID"},                   id = "id",           editor = "text", default = "" },
-			{ template = true, name = T{1000067, "Display Name"},    id = "display_name", editor = "text", default = T{""}, translate = true },
-			{ template = true, name = T{1000017, "Description"},     id = "description",  editor = "text", default = T{""}, translate = true },
-			{ template = true, name = T{94, "Icon"},                 id = "icon",         editor = "browse", default = "UI/Icons/Upgrades/build.tga", folder = "UI" },
+			{ template = true, name = T(93, "ID"),                   id = "id",           editor = "text", default = "" },
+			{ template = true, name = T(1000067, "Display Name"),    id = "display_name", editor = "text", default = T{""}, translate = true },
+			{ template = true, name = T(1000017, "Description"),     id = "description",  editor = "text", default = T{""}, translate = true },
+			{ template = true, name = T(94, "Icon"),                 id = "icon",         editor = "browse", default = "UI/Icons/Upgrades/build.tga", folder = "UI" },
 	
-			{ template = true, name = T{95, "Concrete Cost"},        id = "upgrade_cost_Concrete",       editor = "number", default = 0, scale = const.ResourceScale},
-			{ template = true, name = T{96, "Metals Cost"},          id = "upgrade_cost_Metals",         editor = "number", default = 0, scale = const.ResourceScale},
-			{ template = true, name = T{97, "Polymers Cost"},        id = "upgrade_cost_Polymers",       editor = "number", default = 0, scale = const.ResourceScale},
-			{ template = true, name = T{98, "Electronics Cost"},     id = "upgrade_cost_Electronics",    editor = "number", default = 0, scale = const.ResourceScale},
-			{ template = true, name = T{99, "Machine Parts Cost"},   id = "upgrade_cost_MachineParts",   editor = "number", default = 0, scale = const.ResourceScale},
-			{ template = true, name = T{100, "Rare Metals Cost"},    id = "upgrade_cost_PreciousMetals", editor = "number", default = 0, scale = const.ResourceScale},
-			{ template = true, name = T{101, "Upgrade Time Cost"},   id = "upgrade_time",                editor = "number", default = 0, scale = const.HourDuration},
+			{ template = true, name = T(95, "Concrete Cost"),        id = "upgrade_cost_Concrete",       editor = "number", default = 0, scale = const.ResourceScale},
+			{ template = true, name = T(96, "Metals Cost"),          id = "upgrade_cost_Metals",         editor = "number", default = 0, scale = const.ResourceScale},
+			{ template = true, name = T(97, "Polymers Cost"),        id = "upgrade_cost_Polymers",       editor = "number", default = 0, scale = const.ResourceScale},
+			{ template = true, name = T(98, "Electronics Cost"),     id = "upgrade_cost_Electronics",    editor = "number", default = 0, scale = const.ResourceScale},
+			{ template = true, name = T(99, "Machine Parts Cost"),   id = "upgrade_cost_MachineParts",   editor = "number", default = 0, scale = const.ResourceScale},
+			{ template = true, name = T(100, "Rare Metals Cost"),    id = "upgrade_cost_PreciousMetals", editor = "number", default = 0, scale = const.ResourceScale},
+			{ template = true, name = T(101, "Upgrade Time Cost"),   id = "upgrade_time",                editor = "number", default = 0, scale = const.HourDuration},
 
-			{ template = true, name = T{102, "Modifier Target 1"},   id = "mod_target_1",  editor = "dropdownlist", default = "self", items = l_ModifierTargets },
-			{ template = true, name = T{103, "Modifier Label 1"},    id = "mod_label_1",   editor = "combo",        default = "",     items = LabelsCombo, },
-			{ template = true, name = T{104, "Modified Property 1"}, id = "mod_prop_id_1", editor = "combo",        default = "",     items = ModifiablePropsCombo },
-			{ template = true, name = T{105, "Percent Modifier 1"},  id = "mul_value_1",   editor = "number",       default = 0  },
-			{ template = true, name = T{106, "Amount Modifier 1"},   id = "add_value_1",   editor = "number",       default = 0  },
+			{ template = true, name = T(102, "Modifier Target 1"),   id = "mod_target_1",  editor = "dropdownlist", default = "self", items = l_ModifierTargets },
+			{ template = true, name = T(103, "Modifier Label 1"),    id = "mod_label_1",   editor = "combo",        default = "",     items = LabelsCombo, },
+			{ template = true, name = T(104, "Modified Property 1"), id = "mod_prop_id_1", editor = "combo",        default = "",     items = ModifiablePropsCombo },
+			{ template = true, name = T(105, "Percent Modifier 1"),  id = "mul_value_1",   editor = "number",       default = 0  },
+			{ template = true, name = T(106, "Amount Modifier 1"),   id = "add_value_1",   editor = "number",       default = 0  },
 	
-			{ template = true, name = T{107, "Modifier Target 2"},   id = "mod_target_2",  editor = "dropdownlist", default = "self", items = l_ModifierTargets },
-			{ template = true, name = T{108, "Modifier Label 2"},    id = "mod_label_2",   editor = "combo",        default = "",     items = LabelsCombo },
-			{ template = true, name = T{109, "Modified Property 2"}, id = "mod_prop_id_2", editor = "combo",        default = "",     items = ModifiablePropsCombo },
-			{ template = true, name = T{110, "Percent Modifier 2"},  id = "mul_value_2",   editor = "number",       default = 0  },
-			{ template = true, name = T{111, "Amount Modifier 2"},   id = "add_value_2",   editor = "number",       default = 0  },
+			{ template = true, name = T(107, "Modifier Target 2"),   id = "mod_target_2",  editor = "dropdownlist", default = "self", items = l_ModifierTargets },
+			{ template = true, name = T(108, "Modifier Label 2"),    id = "mod_label_2",   editor = "combo",        default = "",     items = LabelsCombo },
+			{ template = true, name = T(109, "Modified Property 2"), id = "mod_prop_id_2", editor = "combo",        default = "",     items = ModifiablePropsCombo },
+			{ template = true, name = T(110, "Percent Modifier 2"),  id = "mul_value_2",   editor = "number",       default = 0  },
+			{ template = true, name = T(111, "Amount Modifier 2"),   id = "add_value_2",   editor = "number",       default = 0  },
 	
-			{ template = true, name = T{112, "Modifier Target 3"},   id = "mod_target_3",  editor = "dropdownlist", default = "self", items = l_ModifierTargets },
-			{ template = true, name = T{113, "Modifier Label 3"},    id = "mod_label_3",   editor = "combo",        default = "",     items = LabelsCombo },
-			{ template = true, name = T{114, "Modified Property 3"}, id = "mod_prop_id_3", editor = "combo",        default = "",     items = ModifiablePropsCombo },
-			{ template = true, name = T{115, "Percent Modifier 3"},  id = "mul_value_3",   editor = "number",       default = 0  },
-			{ template = true, name = T{116, "Amount Modifier 3"},   id = "add_value_3",   editor = "number",       default = 0  },
+			{ template = true, name = T(112, "Modifier Target 3"),   id = "mod_target_3",  editor = "dropdownlist", default = "self", items = l_ModifierTargets },
+			{ template = true, name = T(113, "Modifier Label 3"),    id = "mod_label_3",   editor = "combo",        default = "",     items = LabelsCombo },
+			{ template = true, name = T(114, "Modified Property 3"), id = "mod_prop_id_3", editor = "combo",        default = "",     items = ModifiablePropsCombo },
+			{ template = true, name = T(115, "Percent Modifier 3"),  id = "mul_value_3",   editor = "number",       default = 0  },
+			{ template = true, name = T(116, "Amount Modifier 3"),   id = "add_value_3",   editor = "number",       default = 0  },
 	
 			--upgrade upkee... i mean consumption properties (deja vu?)
-			{ template = true, name = T{117, "Consumption Resource Type"}, id = "consumption_resource_type",                editor = "dropdownlist", items = GetConsumptionResourcesDropDownItems(), default = GetConsumptionResourcesDropDownItems()[1].value, help = "The type of resource associated with consumption demands.",},
-			{ template = true, name = T{118, "Consumption Max Storage"},   id = "consumption_max_storage",                  editor = "number", scale = const.ResourceScale, default = 5 * const.ResourceScale, help = "The max amount of storage for consumption resource.",},
-			{ template = true, name = T{119, "Consumption Amount"},        id = "consumption_amount",                       editor = "number", scale = const.ResourceScale, default = 1 * const.ResourceScale,modifiable = true, help = "Amount of stored consumption resources needed for consumption op. In other words, the convertion rate of consumption resources to other stuff.",},
-			{ template = true, name = T{120, "Consumption Type"},          id = "consumption_type",                         editor = "dropdownlist", items = GetConsumptionTypeDropdownItems(), default = GetConsumptionTypeDropdownItems()[1].value, help = "Determines the purpose of the consumption resource.",},
-			{ template = true, name = T{121, "Input Pile Spot Name"},      id = "consumption_resource_stockpile_spot_name", editor = "text", default = "Resourcepile2", help = "If there is any consumption, will try to attacha purely visual stockpile at this spot.",},
+			{ template = true, name = T(117, "Consumption Resource Type"), id = "consumption_resource_type",                editor = "dropdownlist", items = GetConsumptionResourcesDropDownItems(), default = GetConsumptionResourcesDropDownItems()[1].value, help = "The type of resource associated with consumption demands.",},
+			{ template = true, name = T(118, "Consumption Max Storage"),   id = "consumption_max_storage",                  editor = "number", scale = const.ResourceScale, default = 5 * const.ResourceScale, help = "The max amount of storage for consumption resource.",},
+			{ template = true, name = T(119, "Consumption Amount"),        id = "consumption_amount",                       editor = "number", scale = const.ResourceScale, default = 1 * const.ResourceScale,modifiable = true, help = "Amount of stored consumption resources needed for consumption op. In other words, the convertion rate of consumption resources to other stuff.",},
+			{ template = true, name = T(120, "Consumption Type"),          id = "consumption_type",                         editor = "dropdownlist", items = GetConsumptionTypeDropdownItems(), default = GetConsumptionTypeDropdownItems()[1].value, help = "Determines the purpose of the consumption resource.",},
+			{ template = true, name = T(121, "Input Pile Spot Name"),      id = "consumption_resource_stockpile_spot_name", editor = "text", default = "Resourcepile2", help = "If there is any consumption, will try to attacha purely visual stockpile at this spot.",},
 		}
 		local upgrade_pretty_name = "Upgrade " .. k
 		local upgrade_id_preposition = "upgrade" .. k .. "_"
@@ -166,17 +166,17 @@ function UISetupUpgradeButtonRollover(button, obj, upgrade_tier)
 		local status = ""
 		
 		if not UICity:IsUpgradeUnlocked(upgrade_id) then
-			status = T{7513, "Locked by research."}
+			status = T(7513, "Locked by research.")
 		elseif obj:HasUpgrade(upgrade_id) then
 			status = T{7514, "Upgrade already constructed. Current status: <working>", 
-				working = obj:IsUpgradeOn(upgrade_id) and T{6772, "<green>ON</green>"} or T{6771, "<red>OFF</red>"}}
+				working = obj:IsUpgradeOn(upgrade_id) and T(6772, "<green>ON</green>") or T(6771, "<red>OFF</red>")}
 		elseif obj:IsUpgradeBeingConstructed(upgrade_id) then
-			status = T{7515, "Upgrade is under construction."}
+			status = T(7515, "Upgrade is under construction.")
 		else
 			local costs, available = obj:GetCostsTArray(upgrade_id, obj:IsUpgradeBeingConstructedAndCanceled(upgrade_id))
 			if costs ~= "" then
-				status = T{7516, "Upgrade construction cost: "} .. costs
-				status = status .. "\n" .. T{11433, "Available resources: "} .. available
+				status = T(7516, "Upgrade construction cost: ") .. costs
+				status = status .. "\n" .. T(11433, "Available resources: ") .. available
 			end
 		end
 		return T{7517, "<description><newline><newline><status>", description = obj:GetUpgradeDescription(upgrade_tier), status = status}
@@ -185,8 +185,8 @@ function UISetupUpgradeButtonRollover(button, obj, upgrade_tier)
 		if not UICity:IsUpgradeUnlocked(upgrade_id) then
 			return ""
 		end
-		shortcut = shortcut or T{7519, "<left_click>"}
-		mass_shortcut = mass_shortcut or T{7367, "<em>Ctrl + <left_click></em>"}
+		shortcut = shortcut or T(7519, "<left_click>")
+		mass_shortcut = mass_shortcut or T(7367, "<em>Ctrl + <left_click></em>")
 		if obj:HasUpgrade(upgrade_id) then
 			if obj:IsUpgradeOn(upgrade_id) then
 				return T{7520, "<shortcut> Turn off<newline><shortcut2> Turn off in all <display_name_pl>", shortcut = shortcut, shortcut2 = mass_shortcut}
@@ -200,7 +200,7 @@ function UISetupUpgradeButtonRollover(button, obj, upgrade_tier)
 		end
 	end
 	button.GetRolloverHintGamepad = function(self)
-		return self:GetRolloverHint(T{7518, "<ButtonA>"}, T{7618, "<ButtonX>"})
+		return self:GetRolloverHint(T(7518, "<ButtonA>"), T(7618, "<ButtonX>"))
 	end
 end
 
@@ -208,7 +208,7 @@ function UICreateUpgradeButtons(parent, obj, notify)
 	if not obj:GetUIInteractionState() then	
 		local text = XTemplateSpawn("XText", parent)
 		text:SetTranslate(true)
-		text:SetText(T{922380859639, "Gone Rogue"})
+		text:SetText(T(922380859639, "Gone Rogue"))
 		text:SetTextStyle("OverviewItemName")
 		text:SetMargins(box(0,5,0,0))
 		text:SetScaleModifier(point(1500,1500))

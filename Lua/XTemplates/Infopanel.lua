@@ -38,7 +38,7 @@ PlaceObj('XTemplate', {
 						'Padding', box(2, 8, 2, 8),
 						'HAlign', "stretch",
 						'MouseCursor', "UI/Cursors/Rollover.tga",
-						'Text', T{7411, --[[XTemplate Infopanel Text]] "<DisplayName>"},
+						'Text', T(7411, --[[XTemplate Infopanel Text]] "<DisplayName>"),
 						'TextHAlign', "center",
 					}),
 					PlaceObj('XTemplateWindow', {
@@ -78,14 +78,14 @@ end,
 					PlaceObj('XTemplateTemplate', {
 						'__template', "InfopanelText",
 						'Id', "idDescription",
-						'Text', T{957712410031, --[[XTemplate Infopanel Text]] "<IPDescription>"},
+						'Text', T(957712410031, --[[XTemplate Infopanel Text]] "<IPDescription>"),
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'comment', "specialization",
 						'__context_of_kind', "Workplace",
 						'__condition', function (parent, context) return context.max_workers > 0 and context.specialist ~= "none" end,
 						'__template', "InfopanelText",
-						'Text', T{995212188397, --[[XTemplate Infopanel Text]] "Best workers<right><em><UISpecialization></em>"},
+						'Text', T(995212188397, --[[XTemplate Infopanel Text]] "Best workers<right><em><UISpecialization></em>"),
 					}),
 					PlaceObj('XTemplateForEach', {
 						'comment', "include InfopanelHeader",
@@ -131,15 +131,15 @@ end,
 						'__context_of_kind', "Renamable",
 						'__condition', function (parent, context) return (not context:IsKindOf("BaseBuilding") or context:GetUIInteractionState()) and context.rename_allowed end,
 						'__template', "InfopanelAction",
-						'RolloverText', T{4034, --[[XTemplate Infopanel RolloverText]] "Set a custom name."},
-						'RolloverTitle', T{4033, --[[XTemplate Infopanel RolloverTitle]] "Rename <display_name>"},
+						'RolloverText', T(4034, --[[XTemplate Infopanel RolloverText]] "Set a custom name."),
+						'RolloverTitle', T(4033, --[[XTemplate Infopanel RolloverTitle]] "Rename <display_name>"),
 						'Margins', box(-12, -12, -12, 0),
 						'RelativeFocusOrder', "next-in-line",
 						'OnContextUpdate', function (self, context, ...)
 local shortcuts = GetShortcuts("actionRenameSelected")
 local hint = ""
 if shortcuts and (shortcuts[1] or shortcuts[2]) then
-	hint = T{10946, " / <em><ShortcutName('actionRenameSelected', 'keyboard')></em>"}
+	hint = T(10946, " / <em><ShortcutName('actionRenameSelected', 'keyboard')></em>")
 end
 self:SetRolloverHint(T{10947, "<left_click><hint> Activate", hint = hint})
 end,
@@ -155,8 +155,8 @@ end,
 						'__context_of_kind', "SkinChangeable",
 						'__condition', function (parent, context) return not IsKindOf(context, "ConstructionSite") and #(context:GetSkins() or "") > 1 end,
 						'__template', "InfopanelAction",
-						'RolloverText', T{4041, --[[XTemplate Infopanel RolloverText]] "Cycle through all <count(Skins)> skins."},
-						'RolloverTitle', T{4042, --[[XTemplate Infopanel RolloverTitle]] "Change Skin"},
+						'RolloverText', T(4041, --[[XTemplate Infopanel RolloverText]] "Cycle through all <count(Skins)> skins."),
+						'RolloverTitle', T(4042, --[[XTemplate Infopanel RolloverTitle]] "Change Skin"),
 						'Margins', box(-12, -12, -12, 0),
 						'RelativeFocusOrder', "next-in-line",
 						'OnPress', function (self, gamepad)
@@ -171,15 +171,15 @@ end,
 						'__context_of_kind', "CameraFollowObject",
 						'__condition', function (parent, context) return not context.camera_follow_disabled end,
 						'__template', "InfopanelAction",
-						'RolloverText', T{10116, --[[XTemplate Infopanel RolloverText]] "Activate a close-up camera that follows this unit."},
-						'RolloverTitle', T{10117, --[[XTemplate Infopanel RolloverTitle]] "Follow Camera"},
+						'RolloverText', T(10116, --[[XTemplate Infopanel RolloverText]] "Activate a close-up camera that follows this unit."),
+						'RolloverTitle', T(10117, --[[XTemplate Infopanel RolloverTitle]] "Follow Camera"),
 						'Margins', box(-12, -12, -12, 0),
 						'RelativeFocusOrder', "next-in-line",
 						'OnContextUpdate', function (self, context, ...)
 local shortcuts = GetShortcuts("actionFollowCamera")
 local hint = ""
 if shortcuts and (shortcuts[1] or shortcuts[2]) then
-	hint = T{10948, " / <em><ShortcutName('actionFollowCamera', 'keyboard')></em>"}
+	hint = T(10948, " / <em><ShortcutName('actionFollowCamera', 'keyboard')></em>")
 end
 self:SetRolloverHint(T{10947, "<left_click><hint> Activate", hint = hint})
 end,
@@ -201,17 +201,17 @@ end,
 local shortcuts = GetShortcuts("actionTogglePin")
 local hint = ""
 if shortcuts and (shortcuts[1] or shortcuts[2]) then
-	hint = T{10949, " / <em><ShortcutName('actionTogglePin', 'keyboard')></em>"}
+	hint = T(10949, " / <em><ShortcutName('actionTogglePin', 'keyboard')></em>")
 end
 self:SetRolloverHint(T{10947, "<left_click><hint> Activate", hint = hint})
 if context:IsPinned() then
 	self.idIcon:SetRow(2)
-	self:SetRolloverTitle(T{4043, "Pinned"})
-	self:SetRolloverText(T{4044, "Unpin this item from the quick bar."})
+	self:SetRolloverTitle(T(4043, "Pinned"))
+	self:SetRolloverText(T(4044, "Unpin this item from the quick bar."))
 else
 	self.idIcon:SetRow(1)
-	self:SetRolloverTitle(T{4045, "Unpinned"})
-	self:SetRolloverText(T{4046, "Pin this item to the quick bar."})
+	self:SetRolloverTitle(T(4045, "Unpinned"))
+	self:SetRolloverText(T(4046, "Pin this item to the quick bar."))
 end
 end,
 						'OnPress', function (self, gamepad)
@@ -226,8 +226,8 @@ end,
 						'comment', "encyclopedia",
 						'__condition', function (parent, context) return context:HasMember("encyclopedia_id") and (context.encyclopedia_id or "") ~= "" end,
 						'__template', "InfopanelAction",
-						'RolloverText', T{4032, --[[XTemplate Infopanel RolloverText]] "Open the corresponding Encyclopedia article."},
-						'RolloverTitle', T{7384, --[[XTemplate Infopanel RolloverTitle]] "Encyclopedia"},
+						'RolloverText', T(4032, --[[XTemplate Infopanel RolloverText]] "Open the corresponding Encyclopedia article."),
+						'RolloverTitle', T(7384, --[[XTemplate Infopanel RolloverTitle]] "Encyclopedia"),
 						'Margins', box(-12, -12, -12, 0),
 						'RelativeFocusOrder', "next-in-line",
 						'OnPress', function (self, gamepad)
@@ -254,7 +254,7 @@ end,
 		'category', "General",
 		'id', "Title",
 		'editor', "text",
-		'default', T{7412, --[[XTemplate Infopanel default]] "<DisplayName>"},
+		'default', T(7412, --[[XTemplate Infopanel default]] "<DisplayName>"),
 		'Set', function (self, value)
 self.idTitle:SetText(value)
 end,
@@ -263,7 +263,7 @@ end,
 		'category', "General",
 		'id', "Description",
 		'editor', "text",
-		'default', T{957712410031, --[[XTemplate Infopanel default]] "<IPDescription>"},
+		'default', T(957712410031, --[[XTemplate Infopanel default]] "<IPDescription>"),
 		'Set', function (self, value)
 self.idDescription:SetText(value)
 if value == "" then

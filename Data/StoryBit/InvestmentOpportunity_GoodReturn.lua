@@ -10,10 +10,10 @@ PlaceObj('StoryBit', {
 	Prerequisites = {},
 	ScriptDone = true,
 	SuppressTime = 7200000,
-	Text = T{122982186877, --[[StoryBit InvestmentOpportunity_GoodReturn Text]] "Still, we have doubled our investment! The Colony's financial future looks bright!"},
+	Text = T(122982186877, --[[StoryBit InvestmentOpportunity_GoodReturn Text]] "Still, we have doubled our investment! The Colony's financial future looks bright!"),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	VoicedText = T{925944487962, --[[voice:narrator]] "DreamWeb is holding pretty well on the Stock Market – yet not even close to the levels of success it was speculated to reach."},
+	VoicedText = T(925944487962, --[[voice:narrator]] "DreamWeb is holding pretty well on the Stock Market – yet not even close to the levels of success it was speculated to reach."),
 	group = "Sponsor",
 	id = "InvestmentOpportunity_GoodReturn",
 	PlaceObj('StoryBitParamPercent', {

@@ -7,8 +7,8 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateTemplate', {
 		'__template', "CommandCenterRow",
 		'RolloverTitle', "",
-		'RolloverHint', T{115984499466, --[[XTemplate PowerGridsOverviewRow RolloverHint]] "<left_click><left_click> Select"},
-		'RolloverHintGamepad', T{764097870353, --[[XTemplate PowerGridsOverviewRow RolloverHintGamepad]] "<ButtonA> Select"},
+		'RolloverHint', T(115984499466, --[[XTemplate PowerGridsOverviewRow RolloverHint]] "<left_click><left_click> Select"),
+		'RolloverHintGamepad', T(764097870353, --[[XTemplate PowerGridsOverviewRow RolloverHintGamepad]] "<ButtonA> Select"),
 		'Id', "",
 	}, {
 		PlaceObj('XTemplateWindow', {
@@ -34,7 +34,7 @@ PlaceObj('XTemplate', {
 			'MaxWidth', 150,
 			'TextStyle', "OverviewItemValue",
 			'Translate', true,
-			'Text', T{681455976969, --[[XTemplate PowerGridsOverviewRow Text]] "<power(CurrentProduction)>"},
+			'Text', T(681455976969, --[[XTemplate PowerGridsOverviewRow Text]] "<power(CurrentProduction)>"),
 			'WordWrap', false,
 			'TextHAlign', "center",
 			'TextVAlign', "center",
@@ -48,7 +48,7 @@ PlaceObj('XTemplate', {
 			'MaxWidth', 150,
 			'TextStyle', "OverviewItemValue",
 			'Translate', true,
-			'Text', T{861269713460, --[[XTemplate PowerGridsOverviewRow Text]] "<power(CurrentConsumption)>"},
+			'Text', T(861269713460, --[[XTemplate PowerGridsOverviewRow Text]] "<power(CurrentConsumption)>"),
 			'WordWrap', false,
 			'TextHAlign', "center",
 			'TextVAlign', "center",
@@ -62,7 +62,7 @@ PlaceObj('XTemplate', {
 			'MaxWidth', 150,
 			'TextStyle', "OverviewItemValue",
 			'Translate', true,
-			'Text', T{685208892361, --[[XTemplate PowerGridsOverviewRow Text]] "<power(CurrentStorage)>"},
+			'Text', T(685208892361, --[[XTemplate PowerGridsOverviewRow Text]] "<resource(CurrentStorage, power)>"),
 			'WordWrap', false,
 			'TextHAlign', "center",
 			'TextVAlign', "center",
@@ -87,7 +87,7 @@ else
 end
 end,
 			'Translate', true,
-			'Text', T{616338099613, --[[XTemplate PowerGridsOverviewRow Text]] "<power(0)>"},
+			'Text', T(616338099613, --[[XTemplate PowerGridsOverviewRow Text]] "<power(0)>"),
 			'WordWrap', false,
 			'TextHAlign', "center",
 			'TextVAlign', "center",

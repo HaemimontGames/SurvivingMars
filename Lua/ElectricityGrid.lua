@@ -172,7 +172,7 @@ end
 function ElectricityGrid:GetUISectionPowerGridRollover()
 	local items =  
 	{
-		T{572, "Power grid parameters. Power reserve indicates the duration that the stored energy will last with the current consumption.<newline>"},
+		T(572, "Power grid parameters. Power reserve indicates the duration that the stored energy will last with the current consumption.<newline>"),
 		T{319, "Max production<right><power(production)>", self},
 		T{573, "Power consumption<right><power(current_consumption)>", self},
 	}
@@ -266,9 +266,9 @@ DefineClass.ElectricityGridElement = { -- cables
 	build_points = 1000,
 	construction_entity = "Hex1_Placeholder",
 	--construction ui
-	description = T{935, "Power Cable"},
-	display_name = T{935, "Power Cable"},
-	display_name_pl = T{881, "Power Cables"},
+	description = T(935, "Power Cable"),
+	display_name = T(935, "Power Cable"),
+	display_name_pl = T(881, "Power Cables"),
 	display_icon = "UI/Icons/Buildings/power_cables.tga", --pin dialog icon during construction
 	
 	construction_connections = -1,
@@ -298,7 +298,7 @@ end
 
 function ElectricityGridElement:GetDisplayName()
 	if self.repair_resource_request then
-		return T{3890, "Cable Fault"}
+		return T(3890, "Cable Fault")
 	else
 		return SupplyGridSwitch.GetDisplayName(self)
 	end
@@ -956,7 +956,7 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 DefineClass.ElectricityProducer = {
 	__parents = { "Building", "ElectricityGridObject"},
 	properties = {
-		{ template = true, id = "electricity_production", name = T{11017, "Power production"}, category = "Power Production", editor = "number", default = 1000, help = Untranslated("This is the amount produced per hour."), modifiable = true },
+		{ template = true, id = "electricity_production", name = T(11017, "Power production"), category = "Power Production", editor = "number", default = 1000, help = Untranslated("This is the amount produced per hour."), modifiable = true },
 	},
 }
 
@@ -1043,8 +1043,8 @@ DefineClass.ElectricityConsumer = {
 	__parents = { "Building", "ElectricityGridObject", "ColdSensitive" },
 
 	properties = {
-		{ template = true, id = "electricity_consumption", name = T{683, "Power Consumption"},  category = "Consumption", editor = "number", default = 1000, modifiable = true, min = 0 },
-		{ template = true, id = "disable_electricity_consumption", name = T{937, "Disable Consumption"}, no_edit = true, modifiable = true, editor = "number", default = 0, help = "So consumption can be turned off with modifiers"},
+		{ template = true, id = "electricity_consumption", name = T(683, "Power Consumption"),  category = "Consumption", editor = "number", default = 1000, modifiable = true, min = 0 },
+		{ template = true, id = "disable_electricity_consumption", name = T(937, "Disable Consumption"), no_edit = true, modifiable = true, editor = "number", default = 0, help = "So consumption can be turned off with modifiers"},
 	},
 	
 	is_electricity_consumer = true,
@@ -1192,7 +1192,7 @@ end
 function ElectricityConsumer:OnModifiableValueChanged(prop)
 	if self.electricity then
 		if prop == "electricity_consumption" then
-			self:UpdateConsumption()
+			self:UpdateConsumption("immediate")
 			self:Notify("UpdateWorking")
 		elseif prop == "disable_electricity_consumption" then
 			if self.disable_electricity_consumption >= 1 then
@@ -1222,27 +1222,27 @@ DefineClass.ElectricityStorage = {
 	__parents = { "Building", "ElectricityGridObject" },
 
 	properties = {
-		{ template = true, id = "max_electricity_charge",    name = T{938, "Max consumption while charging"},     category = "Power Storage", editor = "number", default = 100, help = "This is the amount of electricity the battery can charge per hour.",    modifiable = true },
-		{ template = true, id = "max_electricity_discharge", name = T{939, "Max output while discharging"},       category = "Power Storage", editor = "number", default = 100, help = "This is the amount of electricity the battery can discharge per hour.", modifiable = true },
-		{ template = true, id = "conversion_efficiency",     name = T{940, "Conversion efficiency % (charging)"}, category = "Power Storage", editor = "number", default = 90,  help = "(100 - this number)% will go to waste when charging.",                  modifiable = true },
-		{ template = true, id = "capacity", name = T{941, "Capacity (watts*hour)"}, editor = "number", category = "Power Storage", default = 1000, modifiable = true },
+		{ template = true, id = "max_electricity_charge",    name = T(938, "Max consumption while charging"),     category = "Power Storage", editor = "number", default = 100, help = "This is the amount of electricity the battery can charge per hour.",    modifiable = true },
+		{ template = true, id = "max_electricity_discharge", name = T(939, "Max output while discharging"),       category = "Power Storage", editor = "number", default = 100, help = "This is the amount of electricity the battery can discharge per hour.", modifiable = true },
+		{ template = true, id = "conversion_efficiency",     name = T(940, "Conversion efficiency % (charging)"), category = "Power Storage", editor = "number", default = 90,  help = "(100 - this number)% will go to waste when charging.",                  modifiable = true },
+		{ template = true, id = "capacity", name = T(941, "Capacity (watts*hour)"), editor = "number", category = "Power Storage", default = 1000, modifiable = true },
 		----------
-		{ template = true, id = "charge_animation", name = T{942, "Change animation"}, 
+		{ template = true, id = "charge_animation", name = T(942, "Change animation"), 
 			editor = "combo", default = "none",
 			items       = function(obj) return GetEntityStatesForTemplateObj(obj,true) end,
 			category = "Power Storage",  help = "If not none will play said animation, where the start of the anim will be when charge == 0 and the end of the anim will be when charge is 100%." 
 		},
-		{ template = true, id = "empty_state", name = T{943, "Empty state"}, 
+		{ template = true, id = "empty_state", name = T(943, "Empty state"), 
 			editor = "combo", default = "none",
 			items       = function(obj) return GetEntityStatesForTemplateObj(obj,true) end,
 			category = "Power Storage",  help = "If charge anim is none this is ignored. Will set said state when storage == 0 and no anim is playing." 
 		},
-		{ template = true, id = "full_state", name = T{944, "Full state"}, 
+		{ template = true, id = "full_state", name = T(944, "Full state"), 
 			editor = "combo", default = "none",
 			items       = function(obj) return GetEntityStatesForTemplateObj(obj,true) end,
 			category = "Power Storage",  help = "If charge anim is none this is ignored. Will set said state when storage == 100% and no anim is playing." 
 		},
-		{ id = "StoredPower", name = T{945, "Stored Power"}, editor = "number", default = 0, scale = const.ResourceScale, no_edit = true },
+		{ id = "StoredPower", name = T(945, "Stored Power"), editor = "number", default = 0, scale = const.ResourceScale, no_edit = true },
 	},
 	
 	building_update_time = 5000,
@@ -1419,12 +1419,12 @@ end
 
 function ElectricityStorage:Getui_mode()
 	local statuses = {
-		discharging = T{946, "Discharging"},
-		charging = T{947, "Charging"},
-		empty = T{588, "Empty"},
-		full = T{948, "Full"},
+		discharging = T(946, "Discharging"),
+		charging = T(947, "Charging"),
+		empty = T(588, "Empty"),
+		full = T(948, "Full"),
 	}
-	return statuses[self.mode] or T{949, "idle"}
+	return statuses[self.mode] or T(949, "idle")
 end
 
 function ElectricityStorage:CheatFill()

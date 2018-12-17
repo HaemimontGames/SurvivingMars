@@ -50,7 +50,7 @@ if change_mission_sponsor then
 end
 SetBackDialogMode(self)
 end,
-		'Text', T{714247552511, --[[XTemplate PGMissionItem Text]] "<text>"},
+		'Text', T(714247552511, --[[XTemplate PGMissionItem Text]] "<text>"),
 	}),
 	PlaceObj('XTemplateTemplate', {
 		'__condition', function (parent, context) return context.item_type == "idMystery" end,

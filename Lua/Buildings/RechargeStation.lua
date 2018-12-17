@@ -181,7 +181,7 @@ function RechargeStation:AttachSign(...)
 end
 ---------------------UI data---------------
 function RechargeStation:GetWorkMode()		
-	return self.drone_charged and T{684, "Charging<right><percent(charging_progress)>", self} or T{685, "Waiting for Drones"}
+	return self.drone_charged and T{684, "Charging<right><percent(charging_progress)>", self} or T(685, "Waiting for Drones")
 end
 
 function RechargeStation:OnSetWorking(working)

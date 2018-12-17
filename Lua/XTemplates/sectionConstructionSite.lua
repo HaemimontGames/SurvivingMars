@@ -8,13 +8,13 @@ PlaceObj('XTemplate', {
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelSection",
-			'RolloverText', T{626, --[[XTemplate sectionConstructionSite RolloverText]] "All resources have to be delivered to the site. Construction is performed by Drones."},
-			'Title', T{394, --[[XTemplate sectionConstructionSite Title]] "Construction progress"},
+			'RolloverText', T(626, --[[XTemplate sectionConstructionSite RolloverText]] "All resources have to be delivered to the site. Construction is performed by Drones."),
+			'Title', T(394, --[[XTemplate sectionConstructionSite Title]] "Construction progress"),
 			'Icon', "UI/Icons/Sections/construction.tga",
 		}, {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
-				'Text', T{796206581420, --[[XTemplate sectionConstructionSite Text]] "<IPStatus>"},
+				'Text', T(796206581420, --[[XTemplate sectionConstructionSite Text]] "<IPStatus>"),
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XFrameProgress",

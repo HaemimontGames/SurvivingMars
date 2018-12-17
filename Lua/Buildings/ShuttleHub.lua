@@ -395,8 +395,8 @@ DefineClass.CargoShuttle = {
 	game_flags = { gofPermanent = false },
 	enum_flags = { efVisible = false, efUnit = true, },
 	properties = {
-		{ id = "max_shared_storage", default = 3 * const.ResourceScale, scale = const.ResourceScale, name = T{743, "Max Shuttle resource capacity"}, modifiable = true, editor = "number" , no_edit = true},
-		{ id = "move_speed", default = 30*guim, name = T{6765, "Max Shuttle speed"}, modifiable = true, editor = "number" , no_edit = true},
+		{ id = "max_shared_storage", default = 3 * const.ResourceScale, scale = const.ResourceScale, name = T(743, "Max Shuttle resource capacity"), modifiable = true, editor = "number" , no_edit = true},
+		{ id = "move_speed", default = 30*guim, name = T(6765, "Max Shuttle speed"), modifiable = true, editor = "number" , no_edit = true},
 	},
 	
 	storable_resources = {"Concrete", "Metals", "Polymers", "Food", "Electronics", "MachineParts", "PreciousMetals", "Fuel", "Colonist", "MysteryResource", "BlackCube", "WasteRock"},
@@ -423,8 +423,8 @@ DefineClass.CargoShuttle = {
 	entity = Shuttle.entity,
 	
 	--ui
-	display_name = T{7675, "Shuttle"},
-	description = T{746, "Facilitates long-range resource transportation between Depots and colonist resettlement between Domes."},
+	display_name = T(7675, "Shuttle"),
+	description = T(746, "Facilitates long-range resource transportation between Depots and colonist resettlement between Domes."),
 	display_icon = "UI/Icons/Buildings/res_shuttle.tga",
 	
 	--fx
@@ -1269,7 +1269,7 @@ end
 --ui
 function CargoShuttle:GetCarriedResourceStr()
 	if self:GetStoredAmount() <= 0 then
-		return T{747, "Payload<right>nothing"}
+		return T(747, "Payload<right>nothing")
 	elseif self.carried_resource_type == "Colonist" then
 		return T{748, "Payload<right><colonist(StoredAmount)>", self}
 	else
@@ -1282,6 +1282,15 @@ function CargoShuttle:GetPinIcon()
 	return self.pin_icon or PinnableObject.GetPinIcon(self)
 end
 
+function ShuttleStatusComboItems()
+	return {
+		{ value = "all", 	text = "All" },
+		{ value = "in flight",	text = "In flight" },
+		{ value = "refueling", 	text = "Refueling" },
+		{ value = "idle", 	text = "Idle" },
+	}
+end
+
 local shuttle_construction_time = 120000
 local shuttle_construction_cost = {
 	Polymers = 5000,
@@ -1292,12 +1301,12 @@ DefineClass.ShuttleHub = {
 	__parents = { "ElectricityConsumer", "TaskRequester", "ShuttleLanding", },
 	
 	properties = {
-		{ template = true, category = "Consumption", name = T{750, "Water Consumption"},  id = "water_consumption",       editor = "number", default = 1000,   scale = const.ResourceScale, read_only = false, modifiable = true, min = 0, },
-		{ template = true, category = "Consumption", name = T{657, "Oxygen Consumption"}, id = "air_consumption",         editor = "number", default = 0,      scale = const.ResourceScale, read_only = true , modifiable = true, min = 0, },
-		{ template = true, category = "Consumption", name = T{683, "Power Consumption"},  id = "electricity_consumption", editor = "number", default = 1000,   modifiable = true, min = 0, },
+		{ template = true, category = "Consumption", name = T(750, "Water Consumption"),  id = "water_consumption",       editor = "number", default = 1000,   scale = const.ResourceScale, read_only = false, modifiable = true, min = 0, },
+		{ template = true, category = "Consumption", name = T(657, "Oxygen Consumption"), id = "air_consumption",         editor = "number", default = 0,      scale = const.ResourceScale, read_only = true , modifiable = true, min = 0, },
+		{ template = true, category = "Consumption", name = T(683, "Power Consumption"),  id = "electricity_consumption", editor = "number", default = 1000,   modifiable = true, min = 0, },
 
-		{ template = true, category = "Shuttle Hub", name = T{751, "Starting Shuttles"},  id = "starting_shuttles", editor = "number", default = 3,   modifiable = true },
-		{ template = true, category = "Shuttle Hub", name = T{752, "Max Shuttles"},       id = "max_shuttles", editor = "number", default = 10,       modifiable = true },
+		{ template = true, category = "Shuttle Hub", name = T(751, "Starting Shuttles"),  id = "starting_shuttles", editor = "number", default = 3,   modifiable = true },
+		{ template = true, category = "Shuttle Hub", name = T(752, "Max Shuttles"),       id = "max_shuttles", editor = "number", default = 10,       modifiable = true },
 	},
 	
 	
@@ -1343,7 +1352,7 @@ function ShuttleHub:ToggleTransportMode_Update(button)
 end
 
 function ShuttleHub:GetUITransportModeCurrentStatus()
-	return self.transport_mode == "all" and T{11507, "Transport everything"} or self.transport_mode == "people" and T{11508, "Transport Colonists"} or T{11509, "Transport resources"}
+	return self.transport_mode == "all" and T(11507, "Transport everything") or self.transport_mode == "people" and T(11508, "Transport Colonists") or T(11509, "Transport resources")
 end
 
 local skin_to_landing_info = {
@@ -1645,9 +1654,9 @@ function ShuttleHub:GetUIRolloverText(exclude_description)
 	end
 	local items = {}
 	if not exclude_description then
-		items[#items+1] = T{236268272624, "Shuttles facilitate long range transportation of resources between Storages and people between Domes."}
+		items[#items+1] = T(236268272624, "Shuttles facilitate long range transportation of resources between Storages and people between Domes.")
 	end
-	items[#items+1] = T{8699, "<newline><center><em>Global Statistics<left></em>"}
+	items[#items+1] = T(8699, "<newline><center><em>Global Statistics<left></em>")
 	items[#items+1] = T{398, "In flight<right><FlyingShuttles>", FlyingShuttles = FlyingShuttles}
 	items[#items+1] = T{8700, "Refueling<right><RefuelingShuttles>", RefuelingShuttles = RefuelingShuttles}
 	items[#items+1] = T{717110331584, "Idle<right><IdleShuttles>", IdleShuttles = IdleShuttles}
@@ -1729,7 +1738,7 @@ function ShuttleHub:GetShuttleConstructionProgress()
 	return MulDivRound((GameTime() - self.shuttle_construction_time_start_ts), 100, shuttle_construction_time)
 end
 
-local cost_t = T{754, "<left>Required <resource_display_name><right><resource(received_amount, total_amount, icon)>"}
+local cost_t = T(754, "<left>Required <resource_display_name><right><resource(received_amount, total_amount, icon)>")
 function ShuttleHub:GetShuttleConstructionCostsStr()
 	local ret = {}
 	
@@ -1801,14 +1810,14 @@ function ShuttleHub:GetGlobalLoad()
 end
 
 local ShuttleLoadTexts = {
-	T{8702, "<green>Low</green>"},
-	T{8703, "<yellow>Medium</yellow>"},
-	T{8704, "<red>Heavy</red>"},
+	T(8702, "<green>Low</green>"),
+	T(8703, "<yellow>Medium</yellow>"),
+	T(8704, "<red>Heavy</red>"),
 }
 
 function ShuttleHub:GetGlobalLoadText()
 	local shuttle_load = self:GetGlobalLoad()
-	return ShuttleLoadTexts[shuttle_load] or T{130, "N/A"}
+	return ShuttleLoadTexts[shuttle_load] or T(130, "N/A")
 end
 
 GlobalVar("g_HeavyLoadShuttleHubs", {})

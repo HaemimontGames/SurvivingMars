@@ -255,17 +255,17 @@ DefineClass.DefenceTower = {
 	__parents = { "Building", "ElectricityConsumer" },
 	properties =
 	{
-		{ template = true, category = "DefenceTower", name = T{671, "Hit Chance"},	id = "hit_chance",	editor = "number", default = 100, min = 0, max = 100, help = "The chance to hit a meteor" },
-		{ template = true, category = "DefenceTower", name = T{672, "Fire Rate"},	id = "cooldown",		editor = "number", default = 5 * 1000, scale = 1000, help = "cooldown between shots in seconds(only useful during a meteor storm)" },
+		{ template = true, category = "DefenceTower", name = T(671, "Hit Chance"),	id = "hit_chance",	editor = "number", default = 100, min = 0, max = 100, help = "The chance to hit a meteor" },
+		{ template = true, category = "DefenceTower", name = T(672, "Fire Rate"),	id = "cooldown",		editor = "number", default = 5 * 1000, scale = 1000, help = "cooldown between shots in seconds(only useful during a meteor storm)" },
 		
-		{ template = true, category = "DefenceTower", name = T{673, "Protect Range"},	id = "protect_range",	editor = "number", default = 20, help = "If meteors would fall within dist range it can be destroyed by the laser (in hexes)" },
-		{ template = true, category = "DefenceTower", name = T{674, "Shoot Range"},	id = "shoot_range", editor = "number", default = 500*guim, scale = guim, help = "Range at which meteors can be destroyed. Should be greater than the protection range (in hexes)" },
-		{ template = true, category = "DefenceTower", name = T{675, "Pitch Range"}, id = "pitch_range", editor = "range", default = def_pitch_range, scale = 60, help = "Range of the pitch angle for vertical adjustment (in Deg)" },
+		{ template = true, category = "DefenceTower", name = T(673, "Protect Range"),	id = "protect_range",	editor = "number", default = 20, help = "If meteors would fall within dist range it can be destroyed by the laser (in hexes)" },
+		{ template = true, category = "DefenceTower", name = T(674, "Shoot Range"),	id = "shoot_range", editor = "number", default = 500*guim, scale = guim, help = "Range at which meteors can be destroyed. Should be greater than the protection range (in hexes)" },
+		{ template = true, category = "DefenceTower", name = T(675, "Pitch Range"), id = "pitch_range", editor = "range", default = def_pitch_range, scale = 60, help = "Range of the pitch angle for vertical adjustment (in Deg)" },
 		
-		{ template = true, category = "DefenceTower", name = T{676, "Rotate Speed"},id = "rot_speed",	editor = "number", default = 120 * 60, scale = 60, help = "Platform's rotation speed to target meteor in Deg/Sec" },
-		{ template = true, category = "DefenceTower", name = T{677, "Beam Time"},	id = "beam_time",	editor = "number", default = 500, help = "For how long laser beam is visible(in ms)" },
-		{ template = true, category = "DefenceTower", name = T{678, "Tilt Tolerance"},id = "tilt_tolerance",editor = "number", default = 2 * 60, scale = 60, help = "Allowed angle difference between the beam and shooting dir(in degrees)" },
-		{ template = true, category = "DefenceTower", name = T{6750, "Reload Time"},id = "reload_time",editor = "number", default = const.HourDuration, scale = const.HourDuration },		
+		{ template = true, category = "DefenceTower", name = T(676, "Rotate Speed"),id = "rot_speed",	editor = "number", default = 120 * 60, scale = 60, help = "Platform's rotation speed to target meteor in Deg/Sec" },
+		{ template = true, category = "DefenceTower", name = T(677, "Beam Time"),	id = "beam_time",	editor = "number", default = 500, help = "For how long laser beam is visible(in ms)" },
+		{ template = true, category = "DefenceTower", name = T(678, "Tilt Tolerance"),id = "tilt_tolerance",editor = "number", default = 2 * 60, scale = 60, help = "Allowed angle difference between the beam and shooting dir(in degrees)" },
+		{ template = true, category = "DefenceTower", name = T(6750, "Reload Time"),id = "reload_time",editor = "number", default = const.HourDuration, scale = const.HourDuration },		
 	},
 	
 	intercept_distance_percent = 80, -- blow up after the meteor travelled this portion of its whole trajectory; low numbers may cause it to hit domes before getting blown up

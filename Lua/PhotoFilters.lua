@@ -5,9 +5,9 @@ end
 -- Note: PhotoFilter mods are now deprecated.
 DefineModItemPreset("PhotoFilterPreset", {
 	properties = {
-		{ category = "General", id = "filename",  name = T{3439, "Shader Filename"}, editor = "browse", os_path = true, filter = "FX files|*.fx",     default = "", folder = folder_fn },
-		{ category = "General", id = "texture1", name = T{3441, "Texture1"},         editor = "browse", os_path = true, filter = "Image files|*.tga", default = "", folder = folder_fn },
-		{ category = "General", id = "texture2", name = T{3443, "Texture2"},         editor = "browse", os_path = true, filter = "Image files|*.tga", default = "", folder = folder_fn },
+		{ category = "General", id = "filename",  name = T(3439, "Shader Filename"), editor = "browse", os_path = true, filter = "FX files|*.fx",     default = "", folder = folder_fn },
+		{ category = "General", id = "texture1", name = T(3441, "Texture1"),         editor = "browse", os_path = true, filter = "Image files|*.tga", default = "", folder = folder_fn },
+		{ category = "General", id = "texture2", name = T(3443, "Texture2"),         editor = "browse", os_path = true, filter = "Image files|*.tga", default = "", folder = folder_fn },
 	},
 	EditorMenubarName = "",
 	EditorName = "",
@@ -30,13 +30,13 @@ end
 DefineClass.ModItemPhotoFilter = { --Kept for backwards compatibility (mods with DataInstances, instead of Presets)
 	__parents = { "ModItem" },
 	properties = {
-		{ category = "General", id = "display_name", name = T{1000037, "Name"},             editor = "text", default = "", translate = true },
-		{ category = "General", id = "desc",         name = T{1000017, "Description"},      editor = "text", default = "", translate = true },
-		{ category = "General", id = "filename",     name = T{3439, "Shader Filename"},     editor = "browse", os_path = true, filter = "FX files|*.fx",     default = "", folder = folder_fn },
-		{ category = "General", id = "texture_1",    name = T{3441, "Texture1"},            editor = "browse", os_path = true, filter = "Image files|*.tga", default = "", folder = folder_fn },
-		{ category = "General", id = "texture_2",    name = T{3443, "Texture2"},            editor = "browse", os_path = true, filter = "Image files|*.tga", default = "", folder = folder_fn },
-		{ category = "General", id = "activate",     name = T{8074, "Run on activation"},   editor = "func", params = "filter, data", default = function() end },
-		{ category = "General", id = "deactivate",   name = T{8075, "Run on deactivation"}, editor = "func", params = "filter, data", default = function() end },
+		{ category = "General", id = "display_name", name = T(1000037, "Name"),             editor = "text", default = "", translate = true },
+		{ category = "General", id = "desc",         name = T(1000017, "Description"),      editor = "text", default = "", translate = true },
+		{ category = "General", id = "filename",     name = T(3439, "Shader Filename"),     editor = "browse", os_path = true, filter = "FX files|*.fx",     default = "", folder = folder_fn },
+		{ category = "General", id = "texture_1",    name = T(3441, "Texture1"),            editor = "browse", os_path = true, filter = "Image files|*.tga", default = "", folder = folder_fn },
+		{ category = "General", id = "texture_2",    name = T(3443, "Texture2"),            editor = "browse", os_path = true, filter = "Image files|*.tga", default = "", folder = folder_fn },
+		{ category = "General", id = "activate",     name = T(8074, "Run on activation"),   editor = "func", params = "filter, data", default = function() end },
+		{ category = "General", id = "deactivate",   name = T(8075, "Run on deactivation"), editor = "func", params = "filter, data", default = function() end },
 	},
 	EditorMenubarName = "",
 	EditorName = "",
@@ -61,6 +61,6 @@ function ModItemPhotoFilter:OnModLoad()
 end
 
 function ModItemPhotoFilterPreset:OnModLoad()
-	ModLog(T{10401, "Warning: photofilter mods are deprecated."})
+	ModLog(T(10401, "Warning: photofilter mods are deprecated."))
 	ModItemPreset.OnModLoad(self)
 end

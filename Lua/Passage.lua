@@ -221,8 +221,8 @@ DefineClass.PassageGridElement = {
 	__parents = { "Building", "Shapeshifter", "AutoAttachObject", "WaypointsObj", "TaskRequester" },
 	enum_flags = { efApplyToGrids = false },
 	entity = "InvisibleObject",
-	display_name = T{8798, "Passage piece"},
-	display_name_pl = T{11676, "Passage pieces"},
+	display_name = T(8798, "Passage piece"),
+	display_name_pl = T(11676, "Passage pieces"),
 	connections = false,
 	is_tall = false,
 	dome = false,
@@ -252,6 +252,7 @@ DefineClass.PassageGridElement = {
 	SetSuspended = __empty_function__,
 	
 	node_idx = false,
+	count_as_building = false,
 }
 
 function PassageGridElement:CanFracture()
@@ -552,7 +553,7 @@ OnMsg.ChangeMap = CopyCostsFromTemplateToClassDef
 DefineClass.Passage = {
 	__parents = { "Building", "ElectricityGridObject", "LifeSupportGridObject", "SkinChangeable", "PFTunnel" },
 	entity = "InvisibleObject",
-	display_name = T{8799, "Passage"},
+	display_name = T(8799, "Passage"),
 	on_off_button = false,
 	prio_button = false,
 	elements_under_construction = false,
@@ -582,6 +583,8 @@ DefineClass.Passage = {
 	start_el = false,
 	end_el = false,
 	last_node_idx = 0,
+	
+	count_as_building = false,
 }
 
 function PassageGridElement:DroneApproach(drone, resource)

@@ -6,14 +6,14 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateTemplate', {
 		'__context_of_kind', "LifeSupportGridElement",
 		'__template', "Infopanel",
-		'Description', T{313911890683, --[[XTemplate ipPillaredPipe Description]] "<description>"},
+		'Description', T(313911890683, --[[XTemplate ipPillaredPipe Description]] "<description>"),
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'comment', "salvage",
 			'__template', "InfopanelButton",
-			'RolloverText', T{828236114548, --[[XTemplate ipPillaredPipe RolloverText]] "Destroy this pipe."},
-			'RolloverTitle', T{3973, --[[XTemplate ipPillaredPipe RolloverTitle]] "Salvage"},
-			'RolloverHintGamepad', T{7657, --[[XTemplate ipPillaredPipe RolloverHintGamepad]] "<ButtonY> Activate"},
+			'RolloverText', T(828236114548, --[[XTemplate ipPillaredPipe RolloverText]] "Destroy this pipe."),
+			'RolloverTitle', T(3973, --[[XTemplate ipPillaredPipe RolloverTitle]] "Salvage"),
+			'RolloverHintGamepad', T(7657, --[[XTemplate ipPillaredPipe RolloverHintGamepad]] "<ButtonY> Activate"),
 			'ContextUpdateOnOpen', false,
 			'OnPressParam', "Demolish",
 			'Icon', "UI/Icons/IPButtons/salvage_1.tga",

@@ -69,7 +69,7 @@ function Infobar:DockInPopupNotification(popup, dock)
 		self:SetParent(popup)
 		self:EnumFocusChildren(function(child, x, y)
 			assert(not rawget(child, "GetRolloverHint") and not rawget(child, "GetRolloverHintGamepad"))
-			child.GetRolloverHint = function() return T{816190283569, --[[XTemplate Infobar RolloverHintGamepad]] "<DPad> Navigate <DPadDown> Close"} end
+			child.GetRolloverHint = function() return T(816190283569, --[[XTemplate Infobar RolloverHintGamepad]] "<DPad> Navigate <DPadDown> Close") end
 			child.GetRolloverHintGamepad = child.GetRolloverHint
 			rawset(child, "oldOnPress", rawget(child, "OnPress"))
 			rawset(child, "OnPress", nil)
@@ -261,7 +261,7 @@ function InfobarObj:GetResearchRollover()
 	local current_research = T{10095, "Current Research<right><em><name></em>",
 		name = function()
 			local current_research = UICity and UICity:GetResearchInfo()
-			return current_research and TechDef[current_research].display_name or T{6761, "None"}
+			return current_research and TechDef[current_research].display_name or T(6761, "None")
 		end,
 	}
 	table.insert(rollover_items, current_research)
@@ -517,11 +517,18 @@ function InfobarObj:GetDronesCount()
 end
 
 function InfobarObj:GetDronesRollover()
+	local drones = 0
+	for i,obj in ipairs(g_DestroyedVehicles) do
+		if IsKindOf(obj, "Drone") then
+			drones = drones + 1
+		end
+	end
+	
 	local texts = 
 	{
 		T{11697, "Drone controllers<right><number>", number = #(UICity.labels.DroneControl or empty_table)},
-		T{11698, "Drone prefabs<right><number>", number = FormatResourceValueMaxResource(empty_table, UICity.drone_prefabs,"Drone")},
-		T{11699, "Destroyed drones<right><number>", number =  FormatResourceValueMaxResource(empty_table,#g_DestroyedDrones, "Drone")},
+		T{11830, "Drone prefabs<right><number><icon_Drone>", number = UICity.drone_prefabs},
+		T{11831, "Destroyed drones<right><number><icon_Drone>", number =  drones},
 	}
 	return table.concat(texts, "<newline><left>")
 end

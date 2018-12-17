@@ -8,7 +8,7 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	Effects = {},
-	NotificationText = T{10997, --[[StoryBit WaterChip_NormalFix NotificationText]] "<DisplayName> dome has been fixed!"},
+	NotificationText = T(10997, --[[StoryBit WaterChip_NormalFix NotificationText]] "<DisplayName> dome has been fixed!"),
 	Prerequisites = {},
 	ScriptDone = true,
 	SuppressTime = 4320000,

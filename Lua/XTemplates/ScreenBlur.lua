@@ -12,7 +12,6 @@ PlaceObj('XTemplate', {
 			'name', "Open",
 			'func', function (self, ...)
 XLayer.Open(self, ...)
-if not GameState.gameplay then return end
 table.change(hr, "BackgroundBlur", {
 	EnablePostProcScreenBlur = 96,
 	EnablePostProcVignette = 1,
@@ -26,7 +25,6 @@ end,
 			'name', "Close",
 			'func', function (self, ...)
 XLayer.Close(self, ...)
-if not GameState.gameplay then return end
 table.restore(hr, "BackgroundBlur")
 SetSceneParam(1, "Vignette", CurrentLightmodel[1].vignette, 0, 0)
 SetSceneParam(1, "VignetteColor", CurrentLightmodel[1].vignette_color, 0, 0)

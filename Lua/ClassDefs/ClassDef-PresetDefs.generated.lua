@@ -89,7 +89,7 @@ end,
 			editor = "number", default = 1000, 
 			no_edit = function(self) return not self.TrackProgress end, min = -1000000000000, max = 1000000000000, },
 		{ id = "ProgressText", name = "Progress Text", 
-			editor = "text", default = T{207364138296, "Progress: <current>/<target>"}, 
+			editor = "text", default = T(207364138296, "Progress: <current>/<target>"), 
 			no_edit = function(self) return not self.TrackProgress end, translate = true, },
 	},
 	HasSortKey = true,
@@ -97,9 +97,7 @@ end,
 	EditorMenubar = "Editors.Game",
 }
 
-DefineModItemPreset("Challenge")
-ModItemChallenge.EditorName = "Challenge"
-
+DefineModItemPreset("Challenge", { EditorName = "Challenge" })
 function Challenge:Completed()
 	local completed = AccountStorage and AccountStorage.CompletedChallenges and AccountStorage.CompletedChallenges[self.id] or false
 	return completed and completed.time < self.time_completed and completed
@@ -127,7 +125,7 @@ UndefineClass('ColonyColorScheme')
 DefineClass.ColonyColorScheme = {
 	__parents = { "Preset", },
 	properties = {
-		{ category = "Preset", id = "display_name", name = "Name", 
+		{ category = "Preset", id = "display_name", name = "Display Name", 
 			editor = "text", default = false, translate = true, },
 		{ category = "Outside", id = "outside_base", 
 			editor = "material", default = 2215649344, },
@@ -204,8 +202,7 @@ DefineClass.ColonyColorScheme = {
 	EditorMenubar = "Editors.Art",
 }
 
-DefineModItemPreset("ColonyColorScheme")
-
+DefineModItemPreset("ColonyColorScheme", { EditorName = "Colony Color Schemes" })
 function ColonyColorScheme:OnEditorSetProperty(prop_id)
 	ReapplyPalettes()
 end
@@ -299,9 +296,7 @@ end, params = "self, city", },
 	EditorMenubar = "Editors.Game",
 }
 
-DefineModItemPreset("CommanderProfilePreset")
-ModItemCommanderProfilePreset.EditorName = "Commander Profile"
-
+DefineModItemPreset("CommanderProfilePreset", { EditorName = "Commander Profile" })
 UndefineClass('CropPreset')
 DefineClass.CropPreset = {
 	__parents = { "Preset", },
@@ -422,9 +417,7 @@ DefineClass.GameRules = {
 	effect = "",
 }
 
-DefineModItemPreset("GameRules")
-ModItemGameRules.EditorName = "Game Rule"
-
+DefineModItemPreset("GameRules", { EditorName = "Game Rule" })
 UndefineClass('MissionLogoPreset')
 DefineClass.MissionLogoPreset = {
 	__parents = { "Preset", },
@@ -558,7 +551,7 @@ end, },
 		{ category = "Technologies", id = "tech5", name = "Grant Research", 
 			editor = "combo", default = "", items = function (self) return TechCombo() end, },
 		{ category = "General", id = "difficulty", name = "Difficulty", 
-			editor = "text", default = T{424227828326, "Normal"}, translate = true, },
+			editor = "text", default = T(424227828326, "Normal"), translate = true, },
 		{ category = "Rockets", id = "pod_class", name = "Pod Class", 
 			editor = "combo", default = false, items = function (self) return PodsComboItems end, },
 		{ category = "General", id = "new_in", name = "New In", help = "The version, in which this sponsor was introduced", 
@@ -570,9 +563,7 @@ end, },
 	EditorMenubar = "Editors.Game",
 }
 
-DefineModItemPreset("MissionSponsorPreset")
-ModItemMissionSponsorPreset.EditorName = "Mission Sponsor"
-
+DefineModItemPreset("MissionSponsorPreset", { EditorName = "Mission Sponsor" })
 function MissionSponsorPreset:GetDynamicProperties(properties)
 	for i=1,const.MissionSponsorPriceModifiers do
 		properties[#properties + 1] = { category = "Price Modifiers", id = "modifier_name" .. i,  name = T{3541, "Modifier name <number>", number = i}, editor = "combo", default = "", items = ResupplyItemsCombo }
@@ -601,12 +592,12 @@ function MissionSponsorPreset:GetDynamicProperties(properties)
 		for i = 1, 5 do
 			local category = "Goal "..i
 			properties[#properties + 1] = { category = category, id = "sponsor_goal_"..i, name = T{10066, "Sponsor Goal <num>", num = i}, editor = "combo", default = i == 1 and "OldMissionEvaluation" or false, items = function (self) return SponsorGoalsCombo() end, }
-			properties[#properties + 1] = { category = category, id = string.format("goal_%d_param_1",i), name = T{3904, "Param 1"}, editor = "text", default = false, }
-			properties[#properties + 1] = { category = category, id = string.format("goal_%d_param_2",i), name = T{3906, "Param 2"}, editor = "text", default = false, }
-			properties[#properties + 1] = { category = category, id = string.format("goal_%d_param_3",i), name = T{3908, "Param 3"}, editor = "text", default = false, }
-			properties[#properties + 1] = { category = category, id = "goal_image_"..i, name = T{10067, "Goal Image"}, editor = "browse", default = "", }
-			properties[#properties + 1] = { category = category, id = "goal_pin_image_"..i, name = T{11654, "Goal Pin Image"}, editor = "browse", default = "", }
-			properties[#properties + 1] = { category = category, id = "reward_effect_"..i, name = T{10068, "Reward"}, editor = "nested_obj", base_class = "Effect", auto_expand = false, default = false, }
+			properties[#properties + 1] = { category = category, id = string.format("goal_%d_param_1",i), name = T(3904, "Param 1"), editor = "text", default = false, }
+			properties[#properties + 1] = { category = category, id = string.format("goal_%d_param_2",i), name = T(3906, "Param 2"), editor = "text", default = false, }
+			properties[#properties + 1] = { category = category, id = string.format("goal_%d_param_3",i), name = T(3908, "Param 3"), editor = "text", default = false, }
+			properties[#properties + 1] = { category = category, id = "goal_image_"..i, name = T(10067, "Goal Image"), editor = "browse", default = "", }
+			properties[#properties + 1] = { category = category, id = "goal_pin_image_"..i, name = T(11654, "Goal Pin Image"), editor = "browse", default = "", }
+			properties[#properties + 1] = { category = category, id = "reward_effect_"..i, name = T(10068, "Reward"), editor = "nested_obj", base_class = "Effect", auto_expand = false, default = false, }
 		end
 	end
 	return properties
@@ -899,11 +890,11 @@ DefineClass.TechFieldPreset = {
 	__parents = { "Preset", },
 	properties = {
 		{ category = "Field", id = "display_name", name = "Name", 
-			editor = "text", default = T{3893, "No Name"}, translate = true, },
+			editor = "text", default = T(3893, "No Name"), translate = true, },
 		{ category = "Field", id = "icon", name = "Icon", help = "Tech Game Icon", 
 			editor = "browse", default = "UI/Icons/Research/rm_placeholder.tga", folder = "UI", filter = "*.tga", },
 		{ category = "Field", id = "description", name = "Description", 
-			editor = "text", default = T{3894, "No Description"}, translate = true, },
+			editor = "text", default = T(3894, "No Description"), translate = true, },
 		{ category = "Field", id = "costs", name = "Research Costs", help = "Required Research Points For Each Tech Slot", 
 			editor = "prop table", default = {
 	1000,
@@ -946,7 +937,7 @@ DefineClass.TechPreset = {
 	__parents = { "Preset", "GameEffectsContainer", },
 	properties = {
 		{ category = "Tech", id = "display_name", name = "Display Name", help = "Tech Game Name - translated string", 
-			editor = "text", default = T{3900, "<no name>"}, translate = true, },
+			editor = "text", default = T(3900, "<no name>"), translate = true, },
 		{ category = "Tech", id = "icon", name = "Icon", help = "Tech Game Icon", 
 			editor = "browse", default = "UI/Icons/Research/rm_placeholder.tga", folder = "UI", filter = "Image files|*.tga", },
 		{ category = "Tech", id = "description", name = "Description", help = "Tech Description - translated text", 
@@ -1055,12 +1046,12 @@ DefineClass.TraitPreset = {
 			editor = "combo", default = "", items = function (self) return ServiceInterestsList end, },
 		{ id = "param", name = "Parameter", 
 			editor = "number", default = 0, },
-		{ id = "daily_update_func", name = "Update every sol func(colonist, trait)", 
-			editor = "func", default = false, },
-		{ id = "apply_func", name = "Apply func(colonist, trait, init)", 
-			editor = "func", default = false, },
-		{ id = "unapply_func", name = "Remove func(colonist, trait)", 
-			editor = "func", default = false, },
+		{ id = "daily_update_func", name = "Update every sol func", 
+			editor = "func", default = false, params = "colonist, trait", },
+		{ id = "apply_func", name = "Apply func", 
+			editor = "func", default = false, params = "colonist, trait, init", },
+		{ id = "unapply_func", name = "Remove func", 
+			editor = "func", default = false, params = "colonist, trait", },
 		{ id = "modify_target", name = "Modifier target", 
 			editor = "combo", default = "", items = function (self) return { "", "self", "dome colonists" } end, },
 		{ id = "modify_trait", name = "Target only Colonists with trait", 

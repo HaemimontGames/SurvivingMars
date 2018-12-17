@@ -4,8 +4,8 @@ DefineClass.DustGenerator =
 	
 	properties =
 	{
-		{id = "dust_per_sol",	name = T{653, "Dust per Sol"},	editor = "number", default = 14400,		category = "Dust Generator" },
-		{id = "dust_range",		name = T{654, "Dust Range"},		editor = "number", default = 7,	category = "Dust Generator" },
+		{id = "dust_per_sol",	name = T(653, "Dust per Sol"),	editor = "number", default = 14400,		category = "Dust Generator" },
+		{id = "dust_range",		name = T(654, "Dust Range"),		editor = "number", default = 7,	category = "Dust Generator" },
 	},
 	
 	last_dust_throw_time = false,

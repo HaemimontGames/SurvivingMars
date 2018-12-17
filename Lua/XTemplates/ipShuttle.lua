@@ -5,7 +5,7 @@ PlaceObj('XTemplate', {
 	id = "ipShuttle",
 	PlaceObj('XTemplateTemplate', {
 		'__template', "Infopanel",
-		'Description', T{7383, --[[XTemplate ipShuttle Description]] "<description>"},
+		'Description', T(7383, --[[XTemplate ipShuttle Description]] "<description>"),
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelSection",
@@ -14,7 +14,7 @@ PlaceObj('XTemplate', {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
 				'Margins', box(0, 7, 0, 0),
-				'Text', T{660271041264, --[[XTemplate ipShuttle Text]] "<CarriedResourceStr>"},
+				'Text', T(660271041264, --[[XTemplate ipShuttle Text]] "<CarriedResourceStr>"),
 			}),
 			}),
 		}),

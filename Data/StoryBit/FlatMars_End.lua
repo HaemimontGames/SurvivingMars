@@ -17,10 +17,10 @@ PlaceObj('StoryBit', {
 	},
 	ScriptDone = true,
 	SuppressTime = 7200000,
-	Text = T{329246546403, --[[StoryBit FlatMars_End Text]] "Their plan involves some home-built craft that will take as many as <number_of_idiots> people high enough into the stratosphere to disprove that Mars is round once and for all. Needless to say, the craft looks incredibly dangerous and a far cry from having even the slimmest chance of success."},
+	Text = T(329246546403, --[[StoryBit FlatMars_End Text]] "Their plan involves some home-built craft that will take as many as <number_of_idiots> people high enough into the stratosphere to disprove that Mars is round once and for all. Needless to say, the craft looks incredibly dangerous and a far cry from having even the slimmest chance of success."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	VoicedText = T{150695526934, --[[voice:narrator]] "The head of the, now quite grown in numbers, Flat Mars Society has come up with a plan that will, quote - “bring down the veil of lies that the Martian government is feeding its colonists and will enlighten anyone who is willing to see past it!”"},
+	VoicedText = T(150695526934, --[[voice:narrator]] "The head of the, now quite grown in numbers, Flat Mars Society has come up with a plan that will, quote - “bring down the veil of lies that the Martian government is feeding its colonists and will enlighten anyone who is willing to see past it!”"),
 	group = "Colonists",
 	id = "FlatMars_End",
 	PlaceObj('StoryBitParamNumber', {
@@ -28,9 +28,9 @@ PlaceObj('StoryBit', {
 		'Value', 10,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{702018806145, --[[StoryBit FlatMars_End Text]] "This has gone on long enough. Ban the Flat Mars Society!"},
+		'Text', T(702018806145, --[[StoryBit FlatMars_End Text]] "This has gone on long enough. Ban the Flat Mars Society!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{803513882897, --[[StoryBit FlatMars_End CustomOutcomeText]] "Martianborn Colonists lose Morale"},
+		'CustomOutcomeText', T(803513882897, --[[StoryBit FlatMars_End CustomOutcomeText]] "Martianborn Colonists lose Morale"),
 	}),
 	PlaceObj('StoryBitParamNumber', {
 		'Name', "morale_penalty",
@@ -57,7 +57,7 @@ PlaceObj('StoryBit', {
 						'Sols', "<morale_penalty_sols>",
 					}),
 				},
-				'Description', T{406588280703, --[[StoryBit FlatMars_End Description]] "<morale_penalty> Colonist Morale for the next <sols(morale_penalty_sols)> Sols"},
+				'Description', T(406588280703, --[[StoryBit FlatMars_End Description]] "<morale_penalty> Colonist Morale for the next <sols(morale_penalty_sols)> Sols"),
 			}),
 			PlaceObj('RemoveTrait', {
 				'Trait', "Guru",
@@ -65,8 +65,8 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{635136282832, --[[StoryBit FlatMars_End Text]] "You know what, let them do it!"},
-		'CustomOutcomeText', T{368587624296, --[[StoryBit FlatMars_End CustomOutcomeText]] "unknown outcome"},
+		'Text', T(635136282832, --[[StoryBit FlatMars_End Text]] "You know what, let them do it!"),
+		'CustomOutcomeText', T(368587624296, --[[StoryBit FlatMars_End CustomOutcomeText]] "unknown outcome"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -77,7 +77,7 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{366479108230, --[[StoryBit FlatMars_End Text]] "<DisplayName> has done enough harm, they may board the craft alone."},
+		'Text', T(366479108230, --[[StoryBit FlatMars_End Text]] "<DisplayName> has done enough harm, they may board the craft alone."),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},

@@ -64,7 +64,7 @@ end,
 self:SetVisible(context:IsButtonActive("ButtonY"))
 end,
 				'Translate', true,
-				'Text', T{649120194813, --[[XTemplate GamepadCursorDlg Text]] "<ButtonY>"},
+				'Text', T(649120194813, --[[XTemplate GamepadCursorDlg Text]] "<ButtonY>"),
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XText",
@@ -77,7 +77,7 @@ end,
 self:SetVisible(context:IsButtonActive("ButtonX"))
 end,
 				'Translate', true,
-				'Text', T{500955334824, --[[XTemplate GamepadCursorDlg Text]] "<ButtonX>"},
+				'Text', T(500955334824, --[[XTemplate GamepadCursorDlg Text]] "<ButtonX>"),
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XText",
@@ -90,7 +90,7 @@ end,
 self:SetVisible(context:IsButtonActive("ButtonA"))
 end,
 				'Translate', true,
-				'Text', T{262988649795, --[[XTemplate GamepadCursorDlg Text]] "<ButtonA>"},
+				'Text', T(262988649795, --[[XTemplate GamepadCursorDlg Text]] "<ButtonA>"),
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XText",
@@ -103,7 +103,7 @@ end,
 self:SetVisible(context:IsButtonActive("ButtonB"))
 end,
 				'Translate', true,
-				'Text', T{278990799792, --[[XTemplate GamepadCursorDlg Text]] "<ButtonB>"},
+				'Text', T(278990799792, --[[XTemplate GamepadCursorDlg Text]] "<ButtonB>"),
 			}),
 			}),
 		}),

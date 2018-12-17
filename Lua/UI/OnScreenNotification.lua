@@ -316,7 +316,7 @@ function OnScreenNotification:FillData(preset, callback, params, cycle_objs)
 							if hours > 0 then
 								params[cd_param] = sols > 1 and T{4108, "<sols> Sols <hours> h", sols = sols, hours = hours} or T{4109, "1 Sol <hours> h", hours = hours}
 							else
-								params[cd_param] = sols > 1 and T{4110, "<sols> Sols", sols = sols} or T{4111, "1 Sol"}
+								params[cd_param] = sols > 1 and T{4110, "<sols> Sols", sols = sols} or T(4111, "1 Sol")
 							end
 						else
 							params[cd_param] = T{4112, "<hours> h", hours = hours}
@@ -474,18 +474,18 @@ function OnScreenNotificationsDlg:UpdateRollover()
 		return
 	end
 	
-	local descr = T{7548, "<LB> / <DPadUp> Navigate <DPadDown> / <RB>"}
+	local descr = T(7548, "<LB> / <DPadUp> Navigate <DPadDown> / <RB>")
 	
 	local can_activate = notif.can_be_activated
 	if can_activate then
-		descr = descr .. T{7888, "<newline><ButtonA> Activate"}
+		descr = descr .. T(7888, "<newline><ButtonA> Activate")
 	end
 	
 	if notif:IsDismissable() then
-		descr = descr .. T{7889, "<newline><ButtonX> Dismiss"}
+		descr = descr .. T(7889, "<newline><ButtonX> Dismiss")
 	end
 	
-	self.idTitle:SetText(T{7582, "Notifications"})
+	self.idTitle:SetText(T(7582, "Notifications"))
 	self.idText:SetText(descr)
 end
 
@@ -769,7 +769,7 @@ function AddOnScreenNotification(id, callback, params, cycle_objs)
 		id = "popup" .. notification_id
 		preset = OnScreenNotificationPreset:new{
 			title = title,
-			text = T{10918, "View Message"},
+			text = T(10918, "View Message"),
 			dismissable = false,
 			popup_preset = params.id,
 			id = id,

@@ -66,7 +66,7 @@ g_TutorialScenarios.Tutorial4 = function()
 				launch_arrow = TutorialUIArrow:new({	
 					AnchorType = "center-top", 
 					FindTarget = function()
-						if not Dialogs.Resupply or Dialogs.Resupply.Mode ~= "passengers" then 
+						if not Dialogs.Resupply or Dialogs.Resupply.Mode ~= "passengers" or Dialogs.Resupply.idTemplate.idPassengers.Mode == "traitCategories" then 
 							return false
 						end
 						return Dialogs.Resupply.idTemplate.idPassengers.idToolBar.idlaunch

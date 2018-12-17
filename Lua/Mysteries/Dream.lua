@@ -3,8 +3,8 @@ DefineClass.DreamMystery = {
 	
 	scenario_name = "Mystery 4",
 	
-	display_name = T{1180, "Inner Light (Easy)"},
-	rollover_text = T{1181, '"Seize the time... Live now! Make now always the most precious time. Now will never come again."<newline><right>- Jean-Luc Picard'},
+	display_name = T(1180, "Inner Light (Easy)"),
+	rollover_text = T(1181, '"Seize the time... Live now! Make now always the most precious time. Now will never come again."<newline><right>- Jean-Luc Picard'),
 	challenge_mod = 20,
 	order_pos = 2,
 	

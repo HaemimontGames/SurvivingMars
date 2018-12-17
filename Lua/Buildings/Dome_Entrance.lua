@@ -1,5 +1,5 @@
 DefineClass.Dome_Entrance = {
-	__parents = { "BuildingEntityClass", "PFTunnel" },
+	__parents = { "BuildingEntityClass", "ComponentCustomData", "PFTunnel" },
 	leadin_chain = false,
 	leadout_chain = false,
 }

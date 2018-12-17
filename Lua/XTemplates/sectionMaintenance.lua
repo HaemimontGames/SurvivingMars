@@ -9,8 +9,8 @@ PlaceObj('XTemplate', {
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelSection",
-			'RolloverText', T{10556, --[[XTemplate sectionMaintenance RolloverText]] "<MaintenanceRolloverText>"},
-			'RolloverTitle', T{619281504128, --[[XTemplate sectionMaintenance RolloverTitle]] "Maintenance"},
+			'RolloverText', T(10556, --[[XTemplate sectionMaintenance RolloverText]] "<MaintenanceRolloverText>"),
+			'RolloverTitle', T(619281504128, --[[XTemplate sectionMaintenance RolloverTitle]] "Maintenance"),
 			'Id', "idSectionMaintenance",
 			'OnContextUpdate', function (self, context, ...)
 self:SetVisible(context:DoesRequireMaintenance())
@@ -45,7 +45,7 @@ end,
 						return context.maintenance_resource_type ~= "no_resource" and context.maintenance_resource_type ~= "no_maintenance"
 					end,
 					'Dock', "right",
-					'Text', T{601912665358, --[[XTemplate sectionMaintenance Text]] "<resource(maintenance_resource_amount, maintenance_resource_type)>"},
+					'Text', T(601912665358, --[[XTemplate sectionMaintenance Text]] "<resource(maintenance_resource_amount, maintenance_resource_type)>"),
 				}),
 				}),
 			}),
@@ -56,12 +56,12 @@ end,
 			'OnContextUpdate', function (self, context, ...)
 self:SetVisible(not context:IsMalfunctioned() and context.last_maintenance_points_full_ts and not (ResolveValue(context, "UIWarning") and true ))
 end,
-			'Title', T{277, --[[XTemplate sectionMaintenance Title]] "Attention"},
+			'Title', T(277, --[[XTemplate sectionMaintenance Title]] "Attention"),
 			'Icon', "UI/Icons/Sections/attention.tga",
 		}, {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
-				'Text', T{581, --[[XTemplate sectionMaintenance Text]] "This building has deteriorated and will stop working soon unless it receives maintenance.<EasyMaintenanceText()>"},
+				'Text', T(581, --[[XTemplate sectionMaintenance Text]] "This building has deteriorated and will stop working soon unless it receives maintenance.<EasyMaintenanceText()>"),
 				'TextHAlign', "center",
 			}),
 			}),
@@ -72,12 +72,12 @@ end,
 			'OnContextUpdate', function (self, context, ...)
 self:SetVisible(not context:IsMalfunctioned() and context.last_maintenance_points_full_ts and not (ResolveValue(context, "UIWarning") and true ))
 end,
-			'Title', T{277, --[[XTemplate sectionMaintenance Title]] "Attention"},
+			'Title', T(277, --[[XTemplate sectionMaintenance Title]] "Attention"),
 			'Icon', "UI/Icons/Sections/attention.tga",
 		}, {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
-				'Text', T{746855187624, --[[XTemplate sectionMaintenance Text]] "This building needs maintenance and is waiting for <resource(maintenance_resource_amount, maintenance_resource_type)>"},
+				'Text', T(746855187624, --[[XTemplate sectionMaintenance Text]] "This building needs maintenance and is waiting for <resource(maintenance_resource_amount, maintenance_resource_type)>"),
 				'TextHAlign', "center",
 			}),
 			}),

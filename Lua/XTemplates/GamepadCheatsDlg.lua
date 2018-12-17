@@ -12,7 +12,7 @@ PlaceObj('XTemplate', {
 			'HAlign', "right",
 			'TextStyle', "OverlayTitle",
 			'Translate', true,
-			'Text', T{554083515055, --[[XTemplate GamepadCheatsDlg Text]] "CHEATS"},
+			'Text', T(554083515055, --[[XTemplate GamepadCheatsDlg Text]] "CHEATS"),
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XFrame",
@@ -25,7 +25,7 @@ PlaceObj('XTemplate', {
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "close",
-			'ActionName', T{4523, --[[XTemplate GamepadCheatsDlg ActionName]] "CLOSE"},
+			'ActionName', T(4523, --[[XTemplate GamepadCheatsDlg ActionName]] "CLOSE"),
 			'ActionToolbar', "ActionBar",
 			'ActionShortcut', "Escape",
 			'ActionGamepad', "ButtonB",
@@ -61,7 +61,7 @@ end,
 					'OnPress', function (self, gamepad)
 self.context.func()
 end,
-					'Text', T{867595017482, --[[XTemplate GamepadCheatsDlg Text]] "<display_name>"},
+					'Text', T(867595017482, --[[XTemplate GamepadCheatsDlg Text]] "<display_name>"),
 				}),
 				}),
 			}),

@@ -3,7 +3,7 @@
 PlaceObj('StoryBit', {
 	ActivationEffects = {},
 	Effects = {},
-	NotificationText = T{11209, --[[StoryBit HelloDarkness_FollowRecovery NotificationText]] "<DisplayName> can work again."},
+	NotificationText = T(11209, --[[StoryBit HelloDarkness_FollowRecovery NotificationText]] "<DisplayName> can work again."),
 	Prerequisites = {},
 	ScriptDone = true,
 	TextReadyForValidation = true,

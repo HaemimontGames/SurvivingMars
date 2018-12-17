@@ -771,8 +771,8 @@ function AddModifiersRolloverInfo(infopanel, obj)
 		end
 	end
 	descr = Untranslated(table.concat(descr, '\n'))
-	local rollover_t = { content = {title = T{4064, "Modifiers"}, descr = descr}, }
-	local name = T{27, "Cheats"}
+	local rollover_t = { content = {title = T(4064, "Modifiers"), descr = descr}, }
+	local name = T(27, "Cheats")
 	local text = TDevModeGetEnglishText(name)
 	local cheats_entry
 	for i=1,#infopanel do

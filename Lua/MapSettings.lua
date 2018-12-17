@@ -159,14 +159,14 @@ end
 function GetEarlyWarningText(warn_time)
 	local sols = warn_time / const.DayDuration
 	local hours =(warn_time % const.DayDuration) / const.HourDuration
-	local text = sols ~= 0 and ( sols == 1 and T{10975, "1 Sol "} or T{10976, "<sol> Sols ", sol = sols}) or ""
+	local text = sols ~= 0 and ( sols == 1 and T(10975, "1 Sol ") or T{10976, "<sol> Sols ", sol = sols}) or ""
 	text = text .. T{10977, "<h> h", h = hours}
 	return text
 end
 
 function GetTowerCountText()
 	local towers = GetNumberOfSensorTowers()
-	towers = towers == 1 and T{10978, "1 Sensor Tower"} or T{10979, "<tower_number> Sensor Towers", tower_number = towers} 
+	towers = towers == 1 and T(10978, "1 Sensor Tower") or T{10979, "<tower_number> Sensor Towers", tower_number = towers} 
 	return towers
 end
 

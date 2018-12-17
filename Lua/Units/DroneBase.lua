@@ -13,8 +13,8 @@ DefineClass.DroneBase =
 	work_spot_drone_repair = "Repairdrone",
 
 	properties = {
-		{ category = "DroneBase", id = "name", name = T{1000037, "Name"}, editor = "text", default = "" },
-		{ category = "Movement", id = "move_speed", name = T{4454, "Move Speed"}, editor = "number", default = 1000, modifiable = true },
+		{ category = "DroneBase", id = "name", name = T(1000037, "Name"), editor = "text", default = "" },
+		{ category = "Movement", id = "move_speed", name = T(4454, "Move Speed"), editor = "number", default = 1000, modifiable = true },
 	},
 
 	dust = 0,
@@ -133,17 +133,17 @@ function DroneBase:ToggleControlMode_Update(button)
 	button:SetEnabled(self:CanBeControlled())
 	local to_mode = self.interaction_mode ~= "move"
 	button:SetRolloverText(
-		self:IsKindOf("RCTransport") and T{4463, "Give command to move or harvest resources."}
-		or self:IsKindOf("RCRover") and T{4483, "Give command to move or repair Drones."}
-		or T{4424, "Give command to move or interact with an object."})
+		self:IsKindOf("RCTransport") and T(4463, "Give command to move or harvest resources.")
+		or self:IsKindOf("RCRover") and T(4483, "Give command to move or repair Drones.")
+		or T(4424, "Give command to move or interact with an object."))
 	local shortcuts = GetShortcuts("actionMoveInteract")
 	local hint = ""
 	if shortcuts and (shortcuts[1] or shortcuts[2]) then
-		hint = T{10927, " / <em><ShortcutName('actionMoveInteract', 'keyboard')></em>"}
+		hint = T(10927, " / <em><ShortcutName('actionMoveInteract', 'keyboard')></em>")
 	end
 	button:SetRolloverHint(to_mode and T{7401, "<left_click><hint> Select target mode<newline><UnitMoveControl()> on target to move or interact", hint = hint, self}
-		or T{7510, "<left_click> on target to select it  <right_click> Cancel"})
-	button:SetRolloverHintGamepad(to_mode and T{7511, "<ButtonA> Select target mode"} or T{7512, "<ButtonA> Cancel"})
+		or T(7510, "<left_click> on target to select it  <right_click> Cancel"))
+	button:SetRolloverHintGamepad(to_mode and T(7511, "<ButtonA> Select target mode") or T(7512, "<ButtonA> Cancel"))
 end
 
 function DroneBase:SetControlMode(v)
@@ -159,7 +159,7 @@ function DroneBase:GetDustMax()
 end
 
 function DroneBase:AddDust(dust)
-	if not self.accumulate_dust or self:IsDead() then return end
+	if not self.accumulate_dust or self:IsDead() or self:GetParent() then return end
 	local dust_max = self:GetDustMax()
 	self.dust = Min(dust_max, self.dust + dust)
 	self:SetDustVisuals()

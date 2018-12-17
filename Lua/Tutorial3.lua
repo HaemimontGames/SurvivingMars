@@ -60,7 +60,7 @@ g_TutorialScenarios.Tutorial3 = function()
 	WaitBuildMenuItemSelected("Power", "SolarPanelBig", "place")
 	g_Tutorial.ConstructionTarget = nil
 	DoneObject(ghost)
-	WaitConstruction("SolarPanelBig")
+	local panel = WaitConstruction("SolarPanelBig")
 	
 	Sleep(1500)
 		
@@ -130,31 +130,33 @@ g_TutorialScenarios.Tutorial3 = function()
 	WaitTutorialPopup("Tutorial3_Popup7_Maintenance")
 	TutorialNextHint("Tutorial_3_Maintenance")
 	
-	local panels = UICity.labels.SolarPanelBig
-	local panel
-	for _, obj in ipairs(panels) do
-		if obj.working then
-			panel = obj
-			break
+	if not IsValid(panel) or panel.destroyed then
+		for _, obj in ipairs(UICity.labels.SolarPanelBig) do
+			if obj.working then
+				panel = obj
+				break
+			end
 		end
 	end
 	
-	-- add maintenance
-	ViewObjectMars(panel)
+	if IsValid(panel) and not panel.destroyed then
+		-- add maintenance
+		ViewObjectMars(panel)
 
-	obj_arrow = ShowTutorialArrow(panel, "ArrowTutorialBase")
-	while SelectedObj ~= panel do
-		Sleep(100)
+		obj_arrow = ShowTutorialArrow(panel, "ArrowTutorialBase")
+		while SelectedObj ~= panel do
+			Sleep(100)
+		end
+		DoneObject(obj_arrow)
+		arrow = TutorialUIArrow:new({
+			AnchorType = "left-center",
+			FindTarget = function() return Dialogs.Infopanel and SelectedObj == panel and Dialogs.Infopanel.idSectionMaintenance end,
+		}, terminal.desktop)		
+		
+		panel:CheatAddMaintenancePnts()
+		Sleep(12000)
+		arrow:delete()
 	end
-	DoneObject(obj_arrow)
-	arrow = TutorialUIArrow:new({
-		AnchorType = "left-center",
-		FindTarget = function() return Dialogs.Infopanel and SelectedObj == panel and Dialogs.Infopanel.idSectionMaintenance end,
-	}, terminal.desktop)		
-	
-	panel:CheatAddMaintenancePnts()
-	Sleep(12000)
-	arrow:delete()
 	
 	-- 8. Get More Metal
 	WaitTutorialPopup("Tutorial3_Popup8_MoreMetals")
@@ -386,6 +388,7 @@ g_TutorialScenarios.Tutorial3 = function()
 		if connected then
 			break
 		end
+		Sleep(100)
 	end
 	Sleep(1500)
 	

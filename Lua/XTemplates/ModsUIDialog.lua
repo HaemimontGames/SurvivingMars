@@ -135,7 +135,7 @@ end,
 						}, {
 							PlaceObj('XTemplateAction', {
 								'ActionId', "open",
-								'ActionName', T{170200551564, --[[XTemplate ModsUIDialog ActionName]] "Open"},
+								'ActionName', T(170200551564, --[[XTemplate ModsUIDialog ActionName]] "Open"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonA",
 								'ActionState', function (self, host)
@@ -147,7 +147,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "enable",
-								'ActionName', T{754117323318, --[[XTemplate ModsUIDialog ActionName]] "Enable"},
+								'ActionName', T(754117323318, --[[XTemplate ModsUIDialog ActionName]] "Enable"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonY",
 								'ActionState', function (self, host)
@@ -159,7 +159,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "disable",
-								'ActionName', T{251103844022, --[[XTemplate ModsUIDialog ActionName]] "Disable"},
+								'ActionName', T(251103844022, --[[XTemplate ModsUIDialog ActionName]] "Disable"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonY",
 								'ActionState', function (self, host)
@@ -171,7 +171,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "install",
-								'ActionName', T{10121, --[[XTemplate ModsUIDialog ActionName]] "Install"},
+								'ActionName', T(10121, --[[XTemplate ModsUIDialog ActionName]] "Install"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonX",
 								'ActionState', function (self, host)
@@ -187,7 +187,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "uninstall",
-								'ActionName', T{10122, --[[XTemplate ModsUIDialog ActionName]] "Uninstall"},
+								'ActionName', T(10122, --[[XTemplate ModsUIDialog ActionName]] "Uninstall"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonX",
 								'ActionState', function (self, host)
@@ -199,7 +199,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "search",
-								'ActionName', T{10123, --[[XTemplate ModsUIDialog ActionName]] "Search"},
+								'ActionName', T(10123, --[[XTemplate ModsUIDialog ActionName]] "Search"),
 								'ActionToolbar', "ActionBarRight",
 								'ActionGamepad', "Back",
 								'ActionState', function (self, host)
@@ -212,7 +212,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "filter",
-								'ActionName', T{1000108, --[[XTemplate ModsUIDialog ActionName]] "Filter"},
+								'ActionName', T(1000108, --[[XTemplate ModsUIDialog ActionName]] "Filter"),
 								'ActionToolbar', "ActionBarRight",
 								'ActionGamepad', "Start",
 								'ActionState', function (self, host)
@@ -225,7 +225,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "sort",
-								'ActionName', T{10124, --[[XTemplate ModsUIDialog ActionName]] "Sort"},
+								'ActionName', T(10124, --[[XTemplate ModsUIDialog ActionName]] "Sort"),
 								'ActionToolbar', "ActionBarRight",
 								'ActionGamepad', "RightThumbClick",
 								'ActionState', function (self, host)
@@ -238,7 +238,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "back",
-								'ActionName', T{4165, --[[XTemplate ModsUIDialog ActionName]] "Back"},
+								'ActionName', T(4165, --[[XTemplate ModsUIDialog ActionName]] "Back"),
 								'ActionToolbar', "ActionBarRight",
 								'ActionShortcut', "Escape",
 								'ActionGamepad', "ButtonB",
@@ -255,7 +255,7 @@ end,
 						}, {
 							PlaceObj('XTemplateAction', {
 								'ActionId', "open",
-								'ActionName', T{7356, --[[XTemplate ModsUIDialog ActionName]] "Open"},
+								'ActionName', T(7356, --[[XTemplate ModsUIDialog ActionName]] "Open"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonA",
 								'ActionState', function (self, host)
@@ -267,7 +267,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "enable",
-								'ActionName', T{754117323318, --[[XTemplate ModsUIDialog ActionName]] "Enable"},
+								'ActionName', T(754117323318, --[[XTemplate ModsUIDialog ActionName]] "Enable"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonY",
 								'ActionState', function (self, host)
@@ -279,7 +279,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "disable",
-								'ActionName', T{251103844022, --[[XTemplate ModsUIDialog ActionName]] "Disable"},
+								'ActionName', T(251103844022, --[[XTemplate ModsUIDialog ActionName]] "Disable"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonY",
 								'ActionState', function (self, host)
@@ -291,7 +291,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "uninstall",
-								'ActionName', T{10122, --[[XTemplate ModsUIDialog ActionName]] "Uninstall"},
+								'ActionName', T(10122, --[[XTemplate ModsUIDialog ActionName]] "Uninstall"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonX",
 								'ActionState', function (self, host)
@@ -303,7 +303,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "search",
-								'ActionName', T{10123, --[[XTemplate ModsUIDialog ActionName]] "Search"},
+								'ActionName', T(10123, --[[XTemplate ModsUIDialog ActionName]] "Search"),
 								'ActionToolbar', "ActionBarRight",
 								'ActionGamepad', "Back",
 								'ActionState', function (self, host)
@@ -316,7 +316,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "filter",
-								'ActionName', T{1000108, --[[XTemplate ModsUIDialog ActionName]] "Filter"},
+								'ActionName', T(1000108, --[[XTemplate ModsUIDialog ActionName]] "Filter"),
 								'ActionToolbar', "ActionBarRight",
 								'ActionGamepad', "Start",
 								'ActionState', function (self, host)
@@ -329,7 +329,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "sort",
-								'ActionName', T{10124, --[[XTemplate ModsUIDialog ActionName]] "Sort"},
+								'ActionName', T(10124, --[[XTemplate ModsUIDialog ActionName]] "Sort"),
 								'ActionToolbar', "ActionBarRight",
 								'ActionGamepad', "RightThumbClick",
 								'ActionState', function (self, host)
@@ -342,7 +342,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "back",
-								'ActionName', T{4165, --[[XTemplate ModsUIDialog ActionName]] "Back"},
+								'ActionName', T(4165, --[[XTemplate ModsUIDialog ActionName]] "Back"),
 								'ActionToolbar', "ActionBarRight",
 								'ActionShortcut', "Escape",
 								'ActionGamepad', "ButtonB",
@@ -359,7 +359,7 @@ end,
 						}, {
 							PlaceObj('XTemplateAction', {
 								'ActionId', "enable",
-								'ActionName', T{754117323318, --[[XTemplate ModsUIDialog ActionName]] "Enable"},
+								'ActionName', T(754117323318, --[[XTemplate ModsUIDialog ActionName]] "Enable"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonY",
 								'ActionState', function (self, host)
@@ -371,7 +371,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "disable",
-								'ActionName', T{251103844022, --[[XTemplate ModsUIDialog ActionName]] "Disable"},
+								'ActionName', T(251103844022, --[[XTemplate ModsUIDialog ActionName]] "Disable"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonY",
 								'ActionState', function (self, host)
@@ -383,7 +383,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "install",
-								'ActionName', T{10121, --[[XTemplate ModsUIDialog ActionName]] "Install"},
+								'ActionName', T(10121, --[[XTemplate ModsUIDialog ActionName]] "Install"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonX",
 								'ActionState', function (self, host)
@@ -400,7 +400,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "uninstall",
-								'ActionName', T{10122, --[[XTemplate ModsUIDialog ActionName]] "Uninstall"},
+								'ActionName', T(10122, --[[XTemplate ModsUIDialog ActionName]] "Uninstall"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonX",
 								'ActionState', function (self, host)
@@ -412,7 +412,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "rate",
-								'ActionName', T{10383, --[[XTemplate ModsUIDialog ActionName]] "Rate Mod"},
+								'ActionName', T(10383, --[[XTemplate ModsUIDialog ActionName]] "Rate Mod"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "LeftThumbClick",
 								'ActionState', function (self, host)
@@ -426,7 +426,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "flag",
-								'ActionName', T{418357045244, --[[XTemplate ModsUIDialog ActionName]] "Flag"},
+								'ActionName', T(418357045244, --[[XTemplate ModsUIDialog ActionName]] "Flag"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "RightThumbClick",
 								'ActionState', function (self, host)
@@ -440,7 +440,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "back",
-								'ActionName', T{4165, --[[XTemplate ModsUIDialog ActionName]] "Back"},
+								'ActionName', T(4165, --[[XTemplate ModsUIDialog ActionName]] "Back"),
 								'ActionToolbar', "ActionBarRight",
 								'ActionShortcut', "Escape",
 								'ActionGamepad', "ButtonB",
@@ -451,7 +451,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "popupflagselect",
-								'ActionName', T{835333740373, --[[XTemplate ModsUIDialog ActionName]] "Select"},
+								'ActionName', T(835333740373, --[[XTemplate ModsUIDialog ActionName]] "Select"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonA",
 								'ActionState', function (self, host)
@@ -461,7 +461,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "popupflagsubmit",
-								'ActionName', T{10399, --[[XTemplate ModsUIDialog ActionName]] "Submit"},
+								'ActionName', T(10399, --[[XTemplate ModsUIDialog ActionName]] "Submit"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "Start",
 								'ActionState', function (self, host)
@@ -476,7 +476,7 @@ end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "popuprateselect",
-								'ActionName', T{835333740373, --[[XTemplate ModsUIDialog ActionName]] "Select"},
+								'ActionName', T(835333740373, --[[XTemplate ModsUIDialog ActionName]] "Select"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonA",
 								'ActionState', function (self, host)
@@ -488,7 +488,7 @@ end,
 						PlaceObj('XTemplateMode', nil, {
 							PlaceObj('XTemplateAction', {
 								'ActionId', "select",
-								'ActionName', T{131775917427, --[[XTemplate ModsUIDialog ActionName]] "Select"},
+								'ActionName', T(131775917427, --[[XTemplate ModsUIDialog ActionName]] "Select"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonA",
 								'ActionState', function (self, host)
@@ -498,7 +498,7 @@ end,
 							}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "login",
-							'ActionName', T{598975766059, --[[XTemplate ModsUIDialog ActionName]] "Login"},
+							'ActionName', T(598975766059, --[[XTemplate ModsUIDialog ActionName]] "Login"),
 							'ActionToolbar', "ActionBarLeft",
 							'ActionGamepad', "ButtonX",
 							'ActionState', function (self, host)
@@ -511,7 +511,7 @@ end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "search",
-							'ActionName', T{10123, --[[XTemplate ModsUIDialog ActionName]] "Search"},
+							'ActionName', T(10123, --[[XTemplate ModsUIDialog ActionName]] "Search"),
 							'ActionToolbar', "ActionBarLeft",
 							'ActionShortcut', "Enter",
 							'ActionGamepad', "ButtonY",
@@ -537,7 +537,7 @@ end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "popupcancel",
-							'ActionName', T{3687, --[[XTemplate ModsUIDialog ActionName]] "Cancel"},
+							'ActionName', T(3687, --[[XTemplate ModsUIDialog ActionName]] "Cancel"),
 							'ActionToolbar', "ActionBarRight",
 							'ActionShortcut', "Escape",
 							'ActionGamepad', "ButtonB",
@@ -551,7 +551,7 @@ end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "popupsortsave",
-							'ActionName', T{409477211325, --[[XTemplate ModsUIDialog ActionName]] "Save"},
+							'ActionName', T(409477211325, --[[XTemplate ModsUIDialog ActionName]] "Save"),
 							'ActionToolbar', "ActionBarLeft",
 							'ActionGamepad', "ButtonA",
 							'ActionState', function (self, host)
@@ -564,7 +564,7 @@ end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "popupfiltersave",
-							'ActionName', T{301269983303, --[[XTemplate ModsUIDialog ActionName]] "Save"},
+							'ActionName', T(301269983303, --[[XTemplate ModsUIDialog ActionName]] "Save"),
 							'ActionToolbar', "ActionBarLeft",
 							'ActionGamepad', "ButtonY",
 							'ActionState', function (self, host)

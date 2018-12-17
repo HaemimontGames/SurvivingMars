@@ -35,12 +35,12 @@ DefineClass.NightLightLight = {
 	
 	properties = {
 		{
-			template = true, category = "Night Light", name = T{3023, "Predefined Color"}, id = "predefined_color",
+			template = true, category = "Night Light", name = T(3023, "Predefined Color"), id = "predefined_color",
 			editor = "combo", items = NightLightColorNames, default = "warm",
 			buttons = {{"Assign", "AssignPredefinedColor"}},
 		},
 		{
-			template = true, category = "Night Light", name = T{3024, "Exported string"}, id = "",
+			template = true, category = "Night Light", name = T(3024, "Exported string"), id = "",
 			editor = "text", default = "",
 			buttons = {{"Export", "ExportNightLight"}},
 		},

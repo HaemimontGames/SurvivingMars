@@ -147,14 +147,14 @@ local function LoadCallback(folder)
 				if not IsDlcAvailable(dlc.id) then
 					if Platform.developer then
 						if WaitMarsQuestion(GetLoadingScreenDialog() or terminal.desktop, 
-							T{6851, "Warning"}, T{8081, "The game can not be loaded because some required downloadable content is not installed."},
-							T{3686, "Load anyway"},
-							T{3687, "Cancel"}) == "cancel" then
+							T(6851, "Warning"), T(8081, "The game can not be loaded because some required downloadable content is not installed."),
+							T(3686, "Load anyway"),
+							T(3687, "Cancel")) == "cancel" then
 							return "user cancelled"
 						end
 						broken = true
 					else
-						WaitMarsMessage(GetLoadingScreenDialog() or terminal.desktop, T{6851, "Warning"}, T{8081, "The game can not be loaded because some required downloadable content is not installed."}, T{1000136, "OK"})
+						WaitMarsMessage(GetLoadingScreenDialog() or terminal.desktop, T(6851, "Warning"), T(8081, "The game can not be loaded because some required downloadable content is not installed."), T(1000136, "OK"))
 						return "missing dlc"
 					end
 				end
@@ -162,9 +162,9 @@ local function LoadCallback(folder)
 		end
 		if (metadata.lua_revision or 0) < config.SupportedSavegameLuaRevision then
 			if WaitMarsQuestion(GetLoadingScreenDialog() or terminal.desktop, 
-				T{6851, "Warning"}, T{3685, "This savegame is from an old version and may not function properly."},
-				T{3686, "Load anyway"},
-				T{3687, "Cancel"}) == "cancel" then
+				T(6851, "Warning"), T(3685, "This savegame is from an old version and may not function properly."),
+				T(3686, "Load anyway"),
+				T(3687, "Cancel")) == "cancel" then
 				return "user cancelled"
 			end
 			broken = true
@@ -176,9 +176,9 @@ local function LoadCallback(folder)
 				mods_string = mods_string .. "\n..."
 			end
 			if WaitMarsQuestion(GetLoadingScreenDialog() or terminal.desktop, 
-				T{6851, "Warning"}, T{8082, "The following mods are missing or outdated:\n\n<mods>\n\nSome features may not work.", mods = Untranslated(mods_string)},
-				T{3686, "Load anyway"},
-				T{3687, "Cancel"}) == "cancel" then
+				T(6851, "Warning"), T{8082, "The following mods are missing or outdated:\n\n<mods>\n\nSome features may not work.", mods = Untranslated(mods_string)},
+				T(3686, "Load anyway"),
+				T(3687, "Cancel")) == "cancel" then
 				return "user cancelled"
 			end
 			broken = true
@@ -202,7 +202,7 @@ local function LoadCallback(folder)
 	end
 	l_LoadGameMeta = metadata
 	if not broken and SavegameBroken then
-		WaitMarsMessage(GetLoadingScreenDialog() or terminal.desktop, T{6851, "Warning"}, T{10888, "This savegame was loaded in the past without required mods or with an incompatible game version. It may not function properly."}, T{1000136, "OK"})
+		WaitMarsMessage(GetLoadingScreenDialog() or terminal.desktop, T(6851, "Warning"), T(10888, "This savegame was loaded in the past without required mods or with an incompatible game version. It may not function properly."), T(1000136, "OK"))
 	end
 	SavegameBroken = SavegameBroken or broken
 end

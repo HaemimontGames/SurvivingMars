@@ -23,7 +23,7 @@ function XMarsMessageBox:Init()
 end
 
 function XMarsMessageBox:OnContextUpdate(context, ...)
-	self.idTitle:SetText(context.title ~= "" and context.title or T{11678, "Notification"})
+	self.idTitle:SetText(context.title ~= "" and context.title or T(11678, "Notification"))
 	if not context.popup_notification then
 		self.idDescription:SetText(context.text)
 	else
@@ -44,6 +44,7 @@ function XMarsMessageBox:Open(...)
 	self:SetMargins(box(margins:minx(), margins:miny() - 300, margins:maxx(), margins:maxy() - 50))
 
 	PlayFX("Popup", "start")
+	Msg("MessageBoxPreOpen")
 	XDialog.Open(self, ...)
 	self:SetModal()
 	local context = self.context
@@ -104,7 +105,7 @@ function CreateMarsMessageBox(caption, text, ok_text, parent, image, context, te
 	local actions = {}
 	actions[#actions + 1] = XAction:new({
 		ActionId = "idOk",
-		ActionName = ok_text or T{6877, "OK"},
+		ActionName = ok_text or T(6877, "OK"),
 		ActionShortcut = "Escape",
 		ActionShortcut2 = "Enter",
 		ActionGamepad = "ButtonA",
@@ -153,7 +154,7 @@ function CreateMarsQuestionBox(caption, text, ok_text, cancel_text, parent, imag
 	local actions = {}
 	actions[#actions + 1] = XAction:new({
 		ActionId = "idOk",
-		ActionName = ok_text or T{6878, "OK"},
+		ActionName = ok_text or T(6878, "OK"),
 		ActionShortcut = "Enter",
 		ActionShortcut2 = "1",
 		ActionIcon = "UI/CommonNew/message_1.tga",
@@ -164,7 +165,7 @@ function CreateMarsQuestionBox(caption, text, ok_text, cancel_text, parent, imag
 	})
 	actions[#actions + 1] = XAction:new({
 		ActionId = "idCancel",
-		ActionName = cancel_text or T{6879, "Cancel"},
+		ActionName = cancel_text or T(6879, "Cancel"),
 		ActionShortcut = "Escape",
 		ActionShortcut2 = "2",
 		ActionGamepad = "ButtonB",

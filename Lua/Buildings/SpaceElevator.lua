@@ -3,10 +3,10 @@ DefineClass.SpaceElevator = {
 	class_flags = { cfConstructible = true },
 	
 	properties = {
-		{ template = true, id = "price_mod", name = T{756, "Resupply Price Modifier"}, category = "Space Elevator", editor = "number", default = 50, min = 0, modifiable = true },
-		{ template = true, id = "cargo_capacity", name = T{757, "Cargo Capacity (kg)"}, category = "Space Elevator", editor = "number", default = 100000, min = 0, modifiable = true },
-		{ template = true, id = "max_export_storage", name = T{758, "Max Export Storage"}, category = "Space Elevator", editor = "number", scale = const.ResourceScale, default = 100*const.ResourceScale, min = 0, modifiable = true },
-		{ template = true, id = "travel_time", name = T{759, "Travel Time"}, category = "Space Elevator", editor = "number", scale = const.HourDuration, default = 1*const.HourDuration, min = 0, modifiable = true },
+		{ template = true, id = "price_mod", name = T(756, "Resupply Price Modifier"), category = "Space Elevator", editor = "number", default = 50, min = 0, modifiable = true },
+		{ template = true, id = "cargo_capacity", name = T(757, "Cargo Capacity (kg)"), category = "Space Elevator", editor = "number", default = 100000, min = 0, modifiable = true },
+		{ template = true, id = "max_export_storage", name = T(758, "Max Export Storage"), category = "Space Elevator", editor = "number", scale = const.ResourceScale, default = 100*const.ResourceScale, min = 0, modifiable = true },
+		{ template = true, id = "travel_time", name = T(759, "Travel Time"), category = "Space Elevator", editor = "number", scale = const.HourDuration, default = 1*const.HourDuration, min = 0, modifiable = true },
 
 		{ id = "allow_export",	editor = "bool", default = true, no_edit = true },
 	},
@@ -34,7 +34,7 @@ DefineClass.SpaceElevator = {
 	move_dir = 0, -- for the purpose of GetStatus
 	
 	pin_on_start = true,
-	pin_rollover = T{704, "Carries supplies from Earth."},	
+	pin_rollover = T(704, "Carries supplies from Earth."),	
 	accumulate_dust = true,
 }
 
@@ -351,7 +351,7 @@ end
 
 function SpaceElevator:GetCargoManifest()
 	if not self.current_imports then
-		return T{720, "Nothing"}
+		return T(720, "Nothing")
 	end
 	
 	local texts, resources = {}, {}
@@ -390,7 +390,7 @@ function SpaceElevator:GetStorageManifest()
 	end
 
 	if #resources == 0 then
-		return T{720, "Nothing"}
+		return T(720, "Nothing")
 	end
 	
 	return table.concat(resources, " ")
@@ -410,12 +410,12 @@ end
 
 function SpaceElevator:GetStatus()
 	if self.move_dir > 0 then
-		return T{762, "Going up"}
+		return T(762, "Going up")
 	end
 	if self.move_dir < 0 then
-		return T{763, "Going down"}
+		return T(763, "Going down")
 	end
-	return T{6766, "Idle"}
+	return T(6766, "Idle")
 end
 
 function SpaceElevator:SetCount() -- disable UniversalStorageDepot visuals code

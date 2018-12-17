@@ -417,24 +417,24 @@ DefineClass.Tutorial_1_RefuelingRocket_1 = { __parents = { "BaseHint" }, }
 
 function TFormat.OpenBuildMenuTutorialHint1(context_obj)
 	if g_RightClickOpensBuildMenu then
-		return T{11007, --[[Open build menu tutorial hint (right click)]] "Open the <em>Build Menu</em> using <right_click>"}
+		return T(11007, --[[Open build menu tutorial hint (right click)]] "Open the <em>Build Menu</em> using <right_click>")
 	else
-		return T{11008, --[[Open build menu tutorial hint (no right click)]] "Open the <em>Build Menu</em> using <left_click> on the HUD button"}
+		return T(11008, --[[Open build menu tutorial hint (no right click)]] "Open the <em>Build Menu</em> using <left_click> on the HUD button")
 	end
 end
 
 function TFormat.OpenBuildMenuTutorialHint2(context_obj)
 	if g_RightClickOpensBuildMenu then
-		return T{11009, --[[Universal storage tutorial hint (right click)]] "Open the Build Menu using <right_click> and select the <em>Universal Depot</em> by following the arrows"}
+		return T(11009, --[[Universal storage tutorial hint (right click)]] "Open the Build Menu using <right_click> and select the <em>Universal Depot</em> by following the arrows")
 	else
-		return T{11010, --[[Universal storage tutorial hint (no right click)]] "Open the Build Menu using <left_click> on the HUD button and select the <em>Universal Depot</em> by following the arrows"}
+		return T(11010, --[[Universal storage tutorial hint (no right click)]] "Open the Build Menu using <left_click> on the HUD button and select the <em>Universal Depot</em> by following the arrows")
 	end
 end
 
 function TFormat.OpenBuildMenuTutorialHint3(context_obj)
 	if g_RightClickOpensBuildMenu then
-		return T{11011, --[[Concrete extractor tutorial hint (right click)]] "Open the Build Menu using <right_click> and select a <em>Concrete Extractor</em> from the Production category."}
+		return T(11011, --[[Concrete extractor tutorial hint (right click)]] "Open the Build Menu using <right_click> and select a <em>Concrete Extractor</em> from the Production category.")
 	else
-		return T{11012, --[[Concrete extractor tutorial hint (no right click)]] "Open the Build Menu using <left_click> on the HUD button and select a <em>Concrete Extractor</em> from the Production category."}
+		return T(11012, --[[Concrete extractor tutorial hint (no right click)]] "Open the Build Menu using <left_click> on the HUD button and select a <em>Concrete Extractor</em> from the Production category.")
 	end
 end

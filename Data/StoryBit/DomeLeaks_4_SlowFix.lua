@@ -10,7 +10,7 @@ PlaceObj('StoryBit', {
 	Enables = {
 		"DomeLeaks_6_Finale",
 	},
-	NotificationText = T{10960, --[[StoryBit DomeLeaks_4_SlowFix NotificationText]] "Dome <DisplayName> has been fully repaired"},
+	NotificationText = T(10960, --[[StoryBit DomeLeaks_4_SlowFix NotificationText]] "Dome <DisplayName> has been fully repaired"),
 	Prerequisites = {},
 	ScriptDone = true,
 	SuppressTime = 720000,

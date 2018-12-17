@@ -8,11 +8,11 @@ PlaceObj('StoryBit', {
 	SuppressTime = 7200000,
 	TextReadyForValidation = true,
 	TextsDone = true,
-	VoicedText = T{386218699957, --[[voice:narrator]] "Starving, cold and lost, the Colonists from the rogue Dome wish to return to the colony."},
+	VoicedText = T(386218699957, --[[voice:narrator]] "Starving, cold and lost, the Colonists from the rogue Dome wish to return to the colony."),
 	group = "Renegades",
 	id = "EstrangedDome_FollowUp",
 	PlaceObj('StoryBitReply', {
-		'Text', T{811404767908, --[[StoryBit EstrangedDome_FollowUp Text]] "Welcome back!"},
+		'Text', T(811404767908, --[[StoryBit EstrangedDome_FollowUp Text]] "Welcome back!"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -23,7 +23,7 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{655328995444, --[[StoryBit EstrangedDome_FollowUp Text]] "No, I think you haven't tried hard enough. We will not accept you back in the colony."},
+		'Text', T(655328995444, --[[StoryBit EstrangedDome_FollowUp Text]] "No, I think you haven't tried hard enough. We will not accept you back in the colony."),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},

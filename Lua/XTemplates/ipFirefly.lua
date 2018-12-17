@@ -6,7 +6,7 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateTemplate', {
 		'__context_of_kind', "Firefly",
 		'__template', "Infopanel",
-		'Description', T{7383, --[[XTemplate ipFirefly Description]] "<description>"},
+		'Description', T(7383, --[[XTemplate ipFirefly Description]] "<description>"),
 	}),
 })
 

@@ -6,10 +6,10 @@ PlaceObj('StoryBit', {
 	Prerequisites = {},
 	ScriptDone = true,
 	SuppressTime = 1080000,
-	Text = T{146624104168, --[[StoryBit LongWinter_MoraleEvent Text]] "This damned long Cold Wave has everybody on edge. We have to do something about the Sanity of our colonists.\n\nNote: All effects will last until the end of the Cold Wave."},
+	Text = T(146624104168, --[[StoryBit LongWinter_MoraleEvent Text]] "This damned long Cold Wave has everybody on edge. We have to do something about the Sanity of our colonists.\n\nNote: All effects will last until the end of the Cold Wave."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	VoicedText = T{120250251183, --[[voice:narrator]] "Two Colonists bump into each other accidentally. A heated argument follows. It’s not the first one."},
+	VoicedText = T(120250251183, --[[voice:narrator]] "Two Colonists bump into each other accidentally. A heated argument follows. It’s not the first one."),
 	group = "Disasters",
 	id = "LongWinter_MoraleEvent",
 	PlaceObj('StoryBitParamNumber', {
@@ -17,9 +17,9 @@ PlaceObj('StoryBit', {
 		'Value', 40,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{838846202028, --[[StoryBit LongWinter_MoraleEvent Text]] "I know! Let’s organize a winter festival!"},
+		'Text', T(838846202028, --[[StoryBit LongWinter_MoraleEvent Text]] "I know! Let’s organize a winter festival!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{823788722118, --[[StoryBit LongWinter_MoraleEvent CustomOutcomeText]] "every colonists will regain <sanity_restored> Sanity"},
+		'CustomOutcomeText', T(823788722118, --[[StoryBit LongWinter_MoraleEvent CustomOutcomeText]] "every colonists will regain <sanity_restored> Sanity"),
 		'Prerequisite', PlaceObj('IsCommander', {
 			'CommanderProfile', "citymayor",
 		}),
@@ -48,9 +48,9 @@ PlaceObj('StoryBit', {
 		'Value', -50,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{637665293491, --[[StoryBit LongWinter_MoraleEvent Text]] "Warm food and a warm bed are the answer."},
+		'Text', T(637665293491, --[[StoryBit LongWinter_MoraleEvent Text]] "Warm food and a warm bed are the answer."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{284727608577, --[[StoryBit LongWinter_MoraleEvent CustomOutcomeText]] "Colonists will consume <food_increase>% more food and take less sanity damage from the disaster"},
+		'CustomOutcomeText', T(284727608577, --[[StoryBit LongWinter_MoraleEvent CustomOutcomeText]] "Colonists will consume <food_increase>% more food and take less sanity damage from the disaster"),
 		'Comment', "",
 	}),
 	PlaceObj('StoryBitOutcome', {
@@ -73,9 +73,9 @@ PlaceObj('StoryBit', {
 		'Value', 100,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{582720633961, --[[StoryBit LongWinter_MoraleEvent Text]] "Leave it to the doctors."},
+		'Text', T(582720633961, --[[StoryBit LongWinter_MoraleEvent Text]] "Leave it to the doctors."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{899364202147, --[[StoryBit LongWinter_MoraleEvent CustomOutcomeText]] "double Sanity restored from medical buildings"},
+		'CustomOutcomeText', T(899364202147, --[[StoryBit LongWinter_MoraleEvent CustomOutcomeText]] "double Sanity restored from medical buildings"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -93,9 +93,9 @@ PlaceObj('StoryBit', {
 		'Value', 5,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{793784829446, --[[StoryBit LongWinter_MoraleEvent Text]] "Let’s party!"},
+		'Text', T(793784829446, --[[StoryBit LongWinter_MoraleEvent Text]] "Let’s party!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{507145556590, --[[StoryBit LongWinter_MoraleEvent CustomOutcomeText]] "Spacebars and Casinos will restore <extra_sanity> Sanity on visit"},
+		'CustomOutcomeText', T(507145556590, --[[StoryBit LongWinter_MoraleEvent CustomOutcomeText]] "Spacebars and Casinos will restore <extra_sanity> Sanity on visit"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},

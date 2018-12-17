@@ -33,7 +33,7 @@ PlaceObj('XTemplate', {
 					'HandleMouse', false,
 					'TextStyle', "Autosave",
 					'Translate', true,
-					'Text', T{4252, --[[XTemplate XMarsAutosaveScreen Text]] "Autosaving..."},
+					'Text', T(4252, --[[XTemplate XMarsAutosaveScreen Text]] "Autosaving..."),
 					'TextHAlign', "center",
 				}),
 				}),

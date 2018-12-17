@@ -4,9 +4,9 @@ DefineClass.StorageDepot = {
 
 	properties = {
 		-- add dont_save specifically for this class, as it has a Get function 
-		{ template = true, name = T{765, "Pin Rollover"}, id = "pin_rollover", category = "Pin",  editor = "text", default = "", translate = true, dont_save = true},
-		{ template = true, category = "Demolish", name = T{175, "Use demolished state?"}, id = "use_demolished_state", editor = "bool", default = false, object_update = true },
-		{ template = true, category = "Storage Space", name = T{8054, "Ignored by shuttles"}, id = "exclude_from_lr_transportation", editor = "bool", default = false },
+		{ template = true, name = T(765, "Pin Rollover"), id = "pin_rollover", category = "Pin",  editor = "text", default = "", translate = true, dont_save = true},
+		{ template = true, category = "Demolish", name = T(175, "Use demolished state?"), id = "use_demolished_state", editor = "bool", default = false, object_update = true },
+		{ template = true, category = "Storage Space", name = T(8054, "Ignored by shuttles"), id = "exclude_from_lr_transportation", editor = "bool", default = false },
 	},
 	entity = false,
 
@@ -281,19 +281,19 @@ function StorageDepot:Getui_Fuel() return T{773, "Fuel<right><fuel(Stored_Fuel,M
 DefineClass.UniversalStorageDepot = {
 	__parents = { "StorageDepot" },
 	properties = {
-		{ template = true, name = T{774, "Max Storage Per Resource"},  category = "Storage Space", id = "max_storage_per_resource",  editor = "number", default = 30000, scale = const.ResourceScale },
-		{ template = true, name = T{775, "Max Boxes On The X Axis"}, category = "Storage Space", id = "max_x", editor = "number", default = 2, help = "Max amount of boxes per axis, for multiple resources its per resource type."},
-		{ template = true, name = T{7626, "Max Boxes On The Y Axis"}, category = "Storage Space", id = "max_y", editor = "number", default = 5, help = "Max amount of boxes per axis, for multiple resources its per resource type." },
-		{ template = true, name = T{7627, "Max Boxes On The Z Axis"}, category = "Storage Space", id = "max_z", editor = "number", default = 3, help = "Max amount of boxes per axis, for multiple resources its per resource type." },
-		{ template = true, name = T{776, "Storable Resources"}, category = "Storage Space", id = "storable_resources", editor = "prop table", default = {"Concrete",  "Food", "Metals", "PreciousMetals","Polymers","Electronics", "MachineParts", "Fuel"}, help = "The type of resources this depot can store."},
-		{ template = true, name = T{777, "Switch Fill Order"}, category = "Storage Space", id = "switch_fill_order", editor = "bool", default = true, help = "When true will fill in x of the spot dir first then y, the opposite when false."},
-		{ template = true, name = T{7770, "Fill Group Idx"}, category = "Storage Space", id = "fill_group_idx", editor = "number", default = 5, help = "When true will fill in x of the spot dir first then y, the opposite when false."},
+		{ template = true, name = T(774, "Max Storage Per Resource"),  category = "Storage Space", id = "max_storage_per_resource",  editor = "number", default = 30000, scale = const.ResourceScale },
+		{ template = true, name = T(775, "Max Boxes On The X Axis"), category = "Storage Space", id = "max_x", editor = "number", default = 2, help = "Max amount of boxes per axis, for multiple resources its per resource type."},
+		{ template = true, name = T(7626, "Max Boxes On The Y Axis"), category = "Storage Space", id = "max_y", editor = "number", default = 5, help = "Max amount of boxes per axis, for multiple resources its per resource type." },
+		{ template = true, name = T(7627, "Max Boxes On The Z Axis"), category = "Storage Space", id = "max_z", editor = "number", default = 3, help = "Max amount of boxes per axis, for multiple resources its per resource type." },
+		{ template = true, name = T(776, "Storable Resources"), category = "Storage Space", id = "storable_resources", editor = "prop table", default = {"Concrete",  "Food", "Metals", "PreciousMetals","Polymers","Electronics", "MachineParts", "Fuel"}, help = "The type of resources this depot can store."},
+		{ template = true, name = T(777, "Switch Fill Order"), category = "Storage Space", id = "switch_fill_order", editor = "bool", default = true, help = "When true will fill in x of the spot dir first then y, the opposite when false."},
+		{ template = true, name = T(7770, "Fill Group Idx"), category = "Storage Space", id = "fill_group_idx", editor = "number", default = 5, help = "When true will fill in x of the spot dir first then y, the opposite when false."},
 		
 		{ id = "StoredAmount", editor = false },
 		{ id = "stockpiled_amount", editor = "number", default = false, no_edit = true },
 		--default vals are for 180 cap depots, 30 depot is in bld template
-		{ template = true, id = "desire_slider_max", name = T{10369, "Desire Slider Max"}, category = "Storage Space", default = 36, editor = "number"},
-		{ template = true, id = "desired_amount", name = T{10370, "Desire Amount"}, category = "Storage Space", default = 0*const.ResourceScale, editor = "number", scale = const.ResourceScale},
+		{ template = true, id = "desire_slider_max", name = T(10369, "Desire Slider Max"), category = "Storage Space", default = 36, editor = "number"},
+		{ template = true, id = "desired_amount", name = T(10370, "Desire Amount"), category = "Storage Space", default = 0*const.ResourceScale, editor = "number", scale = const.ResourceScale},
 	},
 	
 	visual_cubes = false, --helper, to distinguish cube resource types
@@ -632,11 +632,11 @@ DefineClass.MechanizedDepot = {
 	__parents = { "Building", "StockpileController", "ResourceStockpileBase", "ElectricityConsumer" },
 	
 	properties = {
-		{ template = true, name = T{776, "Storable Resources"}, category = "Storage Space", id = "storable_resources", editor = "prop table", default = {"Concrete",  "Food", "Metals", "PreciousMetals","Polymers","Electronics", "MachineParts", "Fuel"}, help = "The type of resources this depot can store."},
-		{ template = true, name = T{774, "Max Storage Per Resource"},  category = "Storage Space", id = "max_storage_per_resource",  editor = "number", default = 30000, scale = const.ResourceScale },
+		{ template = true, name = T(776, "Storable Resources"), category = "Storage Space", id = "storable_resources", editor = "prop table", default = {"Concrete",  "Food", "Metals", "PreciousMetals","Polymers","Electronics", "MachineParts", "Fuel"}, help = "The type of resources this depot can store."},
+		{ template = true, name = T(774, "Max Storage Per Resource"),  category = "Storage Space", id = "max_storage_per_resource",  editor = "number", default = 30000, scale = const.ResourceScale },
 		
-		{ template = true, id = "desire_slider_max", name = T{10369, "Desire Slider Max"}, category = "Storage Space", default = 40, editor = "number"},
-		{ template = true, id = "desired_amount", name = T{10370, "Desire Amount"}, category = "Storage Space", default = 0 * const.ResourceScale, editor = "number", scale = const.ResourceScale},
+		{ template = true, id = "desire_slider_max", name = T(10369, "Desire Slider Max"), category = "Storage Space", default = 40, editor = "number"},
+		{ template = true, id = "desired_amount", name = T(10370, "Desire Amount"), category = "Storage Space", default = 0 * const.ResourceScale, editor = "number", scale = const.ResourceScale},
 	},
 	
 	stock_lanes = false,

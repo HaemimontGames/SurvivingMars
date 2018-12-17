@@ -1,19 +1,19 @@
-local l_traits_rollover_for_domes = T{1143, "Colonists with <em>MORE</em> of the desired traits will prefer this Dome.<newline><newline>Colonists with <em>ANY</em> of the undesired traits will leave, provided there is <em>available living space</em> elsewhere.<newline><newline>Colonists can walk to closely positioned Domes but will need Shuttles to reach distant Domes."}
-local l_traits_rollover_for_rocket = T{1144, "Applicants with <em>MORE</em> of the desired traits will board the Rocket.<newline><newline>Applicants with <em>ANY</em> of the undesired traits will be rejected."}
+local l_traits_rollover_for_domes = T(1143, "Colonists with <em>MORE</em> of the desired traits will prefer this Dome.<newline><newline>Colonists with <em>ANY</em> of the undesired traits will leave, provided there is <em>available living space</em> elsewhere.<newline><newline>Colonists can walk to closely positioned Domes but will need Shuttles to reach distant Domes.")
+local l_traits_rollover_for_rocket = T(1144, "Applicants with <em>MORE</em> of the desired traits will board the Rocket.<newline><newline>Applicants with <em>ANY</em> of the undesired traits will be rejected.")
 local function TraitCategoryItems(self, cat_id)
 	local items = {}
 	items[#items + 1] = {
 		cat_id = cat_id,
 		leave_space = true,
 		value = "all",
-		name = T{7642, "ALL TRAITS"},
+		name = T(7642, "ALL TRAITS"),
 		add_count_in_name = true,
 	}
-	local gamepad_hint = T{7580, "<DPadLeft> Change value <DPadRight>"}
+	local gamepad_hint = T(7580, "<DPadLeft> Change value <DPadRight>")
 	local hint
 	if self.dome then
-		gamepad_hint = gamepad_hint .. T{7776, "<newline><ButtonX> to select colonists"}
-		hint = T{7777, "<left_click><left_click> to select colonists"}
+		gamepad_hint = gamepad_hint .. T(7776, "<newline><ButtonX> to select colonists")
+		hint = T(7777, "<left_click><left_click> to select colonists")
 	end
 	local dome_filter = self.dome or false
 	ForEachPreset(TraitPreset, function(trait, group_list)
@@ -62,12 +62,12 @@ end
 DefineClass.TraitsObject = {
 	__parents = { "PropertyObject" },
 	properties = {
-		{id =  "Age Group", items = function(self) return TraitCategoryItems(self, "Age Group") end, name = T{3929, "Age Group"}, title = T{3929, "Age Group"}, descr = T{3930, "Colonists are divided into five Age Groups. Children and seniors cannot work."}, editor = "dropdown", default = "", gamepad_hint = T{1145, "<DPadLeft> Expand this category <DPadRight>"}, hint = T{1146, "<left_click> Expand this category"}, submenu = true,},
-		{id =  "Specialization", items = function(self) return TraitCategoryItems(self, "Specialization") end, name = T{240, "Specialization"}, title = T{240, "Specialization"}, descr = T{3931, "Specialized Colonists perform better at certain workplaces."}, editor = "dropdown", default = "", gamepad_hint = T{1145, "<DPadLeft> Expand this category <DPadRight>"}, hint = T{1146, "<left_click> Expand this category"}, submenu = true,},
-		{id =  "Gender", items = function(self) return TraitCategoryItems(self, "Gender") end, name = T{3932, "Sex"}, title = T{3932, "Sex"}, descr = T{3933, "The sex of the Colonist. The birth rate in any Dome is determined by the number of Male/Female couples at high Comfort."}, editor = "dropdown", default = "", gamepad_hint = T{1145, "<DPadLeft> Expand this category <DPadRight>"}, hint = T{1146, "<left_click> Expand this category"}, submenu = true,},
-		{id =  "Positive", items = function(self) return TraitCategoryItems(self, "Positive") end, name = T{3934, "Perks"}, title = T{3934, "Perks"}, descr = T{3935, "Beneficial traits, representing various talents and abilities of the Colonist."}, editor = "dropdown", default = "", gamepad_hint = T{1145, "<DPadLeft> Expand this category <DPadRight>"}, hint = T{1146, "<left_click> Expand this category"}, submenu = true,},
-		{id =  "Negative", items = function(self) return TraitCategoryItems(self, "Negative") end, name = T{3936, "Flaws"}, title = T{3936, "Flaws"}, descr = T{3937, "Detrimental traits, representing various flaws and disabilities of the Colonist."}, editor = "dropdown", default = "", gamepad_hint = T{1145, "<DPadLeft> Expand this category <DPadRight>"}, hint = T{1146, "<left_click> Expand this category"}, submenu = true,},
-		{id =  "other", items = function(self) return TraitCategoryItems(self, "other") end, name = T{3938, "Quirks"}, title = T{3938, "Quirks"}, descr = T{3939, "Traits that don't fit into any of the other groups."}, editor = "dropdown", default = "", gamepad_hint = T{1145, "<DPadLeft> Expand this category <DPadRight>"}, hint = T{1146, "<left_click> Expand this category"}, submenu = true,},
+		{id =  "Age Group", items = function(self) return TraitCategoryItems(self, "Age Group") end, name = T(3929, "Age Group"), title = T(3929, "Age Group"), descr = T(3930, "Colonists are divided into five Age Groups. Children and seniors cannot work."), editor = "dropdown", default = "", gamepad_hint = T(1145, "<DPadLeft> Expand this category <DPadRight>"), hint = T(1146, "<left_click> Expand this category"), submenu = true,},
+		{id =  "Specialization", items = function(self) return TraitCategoryItems(self, "Specialization") end, name = T(240, "Specialization"), title = T(240, "Specialization"), descr = T(3931, "Specialized Colonists perform better at certain workplaces."), editor = "dropdown", default = "", gamepad_hint = T(1145, "<DPadLeft> Expand this category <DPadRight>"), hint = T(1146, "<left_click> Expand this category"), submenu = true,},
+		{id =  "Gender", items = function(self) return TraitCategoryItems(self, "Gender") end, name = T(3932, "Sex"), title = T(3932, "Sex"), descr = T(3933, "The sex of the Colonist. The birth rate in any Dome is determined by the number of Male/Female couples at high Comfort."), editor = "dropdown", default = "", gamepad_hint = T(1145, "<DPadLeft> Expand this category <DPadRight>"), hint = T(1146, "<left_click> Expand this category"), submenu = true,},
+		{id =  "Positive", items = function(self) return TraitCategoryItems(self, "Positive") end, name = T(3934, "Perks"), title = T(3934, "Perks"), descr = T(3935, "Beneficial traits, representing various talents and abilities of the Colonist."), editor = "dropdown", default = "", gamepad_hint = T(1145, "<DPadLeft> Expand this category <DPadRight>"), hint = T(1146, "<left_click> Expand this category"), submenu = true,},
+		{id =  "Negative", items = function(self) return TraitCategoryItems(self, "Negative") end, name = T(3936, "Flaws"), title = T(3936, "Flaws"), descr = T(3937, "Detrimental traits, representing various flaws and disabilities of the Colonist."), editor = "dropdown", default = "", gamepad_hint = T(1145, "<DPadLeft> Expand this category <DPadRight>"), hint = T(1146, "<left_click> Expand this category"), submenu = true,},
+		{id =  "other", items = function(self) return TraitCategoryItems(self, "other") end, name = T(3938, "Quirks"), title = T(3938, "Quirks"), descr = T(3939, "Traits that don't fit into any of the other groups."), editor = "dropdown", default = "", gamepad_hint = T(1145, "<DPadLeft> Expand this category <DPadRight>"), hint = T(1146, "<left_click> Expand this category"), submenu = true,},
 	},
 	dialog = false,
 	dome = false,
@@ -320,19 +320,21 @@ function TraitsObject:ResolveApplicantLists()
 	self.matching_applicants = {}
 	local applicants = self.matching_applicants
 	local approved = self.approved_applicants
+	--remove all unlocked colonists from the approved list
+	for i = #approved, 1, -1 do
+		local item = approved[i]
+		if not self.locked_applicants[item] then
+			table.remove_entry(approved, item)
+		end
+	end
 	local eval_t = {}
 	for _, item in ipairs(self.colonists) do --iterate over the entire applicant pool
 		local colonist = item[1]
 		local eval = TraitFilterColonist(self.filter, colonist.traits)
 		if eval >= 0 then
-			if not table.find(approved, item) then
+			if not self.locked_applicants[item] then
 				applicants[#applicants + 1] = item
 				eval_t[item] = -eval
-			end
-		else
-			--remove from approved if not locked
-			if not self.locked_applicants[item] then
-				table.remove_entry(approved, item)
 			end
 		end
 	end
@@ -341,7 +343,7 @@ function TraitsObject:ResolveApplicantLists()
 	local free_capacity = self:GetPassengerCapacity() - #approved
 	for i = 1, free_capacity do
 		if not applicants[1] then break end
-		self:ApproveApplicant(applicants[1], true)
+		self:ApproveApplicant(applicants[1], "dont_lock")
 	end
 	self.applicants_invalid = false
 end
@@ -367,23 +369,23 @@ function TraitsObject:CreateUIListItems(colonists, selected)
 			end
 		end
 		if next(traits) then
-			rollover_description = rollover_description..T{1150, "<newline><left><center>Traits<newline><left>"}..table.concat(traits,"<newline><newline><left>")
+			rollover_description = rollover_description..T(1150, "<newline><left><center>Traits<newline><left>")..table.concat(traits,"<newline><newline><left>")
 		end
 		local info  = (colonist.traits.Child or colonist.traits.Senior) and Colonist.GetAge(colonist) or specialist
 		local hint, gamepad_hint
 		if selected then
-			rollover_description = rollover_description .. T{11594, "<newline><newline><lock_icon> Locked passengers will remain selected when the filter changes."}
+			rollover_description = rollover_description .. T(11594, "<newline><newline><lock_icon> Locked passengers will remain selected when the filter changes.")
 			local t = {}
-			t[#t + 1] = T{11595, "<ButtonA> Remove"}
-			t[#t + 1] = T{11596, "<ButtonY> Toggle Lock"}
+			t[#t + 1] = T(11595, "<ButtonA> Remove")
+			t[#t + 1] = T(11596, "<ButtonY> Toggle Lock")
 			gamepad_hint = table.concat(t, "<newline>")
 			t = {}
-			t[#t + 1] = T{11597, "<left_click> Remove"}
-			t[#t + 1] = T{11598, "<right_click> Toggle Lock"}
+			t[#t + 1] = T(11597, "<left_click> Remove")
+			t[#t + 1] = T(11598, "<right_click> Toggle Lock")
 			hint = table.concat(t, "<newline>")
 		else
-			gamepad_hint = T{11599, "<ButtonA> Add"}
-			hint = T{11600, "<left_click> Add"}
+			gamepad_hint = T(11599, "<ButtonA> Add")
+			hint = T(11600, "<left_click> Add")
 		end
 		items[#items + 1] = {
 			name = T{1151, "<name> (<info>)",name = name, info = info},
@@ -521,7 +523,7 @@ end
 
 function TraitsObject:WaitAskToApplyTraitsFilter()
 	if self:CanApplyFilter() then
-		if WaitMarsQuestion(self.dialog, T{1000599, "Warning"}, T{8715, "The new filters have not been applied. Do you want to apply the changes?"}, T{8716, "Apply the changes"}, T{8717, "Discard the changes"}) == "ok" then
+		if WaitMarsQuestion(self.dialog, T(1000599, "Warning"), T(8715, "The new filters have not been applied. Do you want to apply the changes?"), T(8716, "Apply the changes"), T(8717, "Discard the changes")) == "ok" then
 			self:ApplyDomeFilter()
 		end
 	end
@@ -562,7 +564,7 @@ function BuyApplicants(host)
 		local price = GetMissionSponsor().applicants_price
 		local count = const.BuyApplicantsCount
 		if UICity:GetFunding() >= price then
-			if WaitMarsQuestion(host, T{6882, "Warning"}, T{6883, "Are you sure you want to buy <count> applicants for <funding(price)>?", count = count, price = price}, T{1138, "Yes"}, T{1139, "No"}, "UI/Messages/death.tga") == "ok" then
+			if WaitMarsQuestion(host, T(6882, "Warning"), T{6883, "Are you sure you want to buy <count> applicants for <funding(price)>?", count = count, price = price}, T(1138, "Yes"), T(1139, "No"), "UI/Messages/death.tga") == "ok" then
 				UICity:ChangeFunding(-price, "Applicants")
 				local now = GameTime()
 				for i=1,count do
@@ -575,7 +577,7 @@ function BuyApplicants(host)
 				host:UpdateActionViews(host.idActionBar)
 			end
 		else
-			CreateMarsMessageBox(T{6902, "Warning"}, T{7547, "Insufficient funding! You need <funding(price)> to recruit applicants!", price = price}, T{1000136, "OK"}, host)
+			CreateMarsMessageBox(T(6902, "Warning"), T{7547, "Insufficient funding! You need <funding(price)> to recruit applicants!", price = price}, T(1000136, "OK"), host)
 		end
 	end)
 end
@@ -586,9 +588,9 @@ function LaunchPassengerRocket(host)
 	if issue then
 		local caption, text
 		if issue == "capacity" then
-			text = T{11601, "Too many selected applicants"}
+			text = T(11601, "Too many selected applicants")
 		end
-		CreateMessageBox(T{11603, "Launch Failed"}, text, nil, host)
+		CreateMessageBox(T(11603, "Launch Failed"), text, nil, host)
 		return
 	end
 	
@@ -613,6 +615,8 @@ function LaunchPassengerRocket(host)
 		-- mark progress for colony viability
 		if amount > 0 and g_ColonyNotViableUntil == -3 then
 			g_ColonyNotViableUntil = -2
+			AccountStorage.DisablePlayTutorialPopup = true
+			SaveAccountStorage(5000)
 		end
 		
 		CreateGameTimeThread(function(mode, label) -- let the new rockets properly GameInit so they can actually be used by OrderLanding
@@ -1034,8 +1038,8 @@ end
 
 DefineModItemPreset("TraitPreset", {
 	properties = {
-		{ id = "school_trait",     name = T{8627, "Is School Trait"},     editor = "bool", default = false, help = "If this trait will be added to the list of traits taught by the School." },
-		{ id = "sanatorium_trait", name = T{8628, "Is Sanatorium Trait"}, editor = "bool", default = false, help = "If this trait will be added to the list of traits cured by the Sanatorium." },
+		{ id = "school_trait",     name = T(8627, "Is School Trait"),     editor = "bool", default = false, help = "If this trait will be added to the list of traits taught by the School." },
+		{ id = "sanatorium_trait", name = T(8628, "Is Sanatorium Trait"), editor = "bool", default = false, help = "If this trait will be added to the list of traits cured by the Sanatorium." },
 	},
 	EditorName = "Trait",
 })
@@ -1056,32 +1060,32 @@ end
 DefineClass.ModItemTrait = { --Kept for backwards compatibility (mods with DataInstances, instead of Presets)
 	__parents = { "ModItem" },
 	properties = {
-		{ id = "name",        name = T{1000037, "Name"},         editor = "text" },
-		{ id = "display_name",name = T{1000067, "Display Name"}, editor = "text", translate = true, default = "" },		
-		{ id = "category",    name = T{1000097, "Category"},     editor = "combo" , items = GetTraitCategoriesCombo , default = "" },
-		{ id = "description", name = T{1000017, "Description"},  editor = "text", translate = true, default = "" },
-		{ id = "display_icon",name = T{94, "Icon"},         editor = "browse",folder = {"UI/", "CommonAssets/UI/"}, object_update = true,  default = "" },
-		{ id = "rare",        name = T{3940, "Rare"},         editor = "bool", default = false},
-		{ id = "weight",      name = T{3941, "Rarity weight"},editor = "number", default = 300},
-		{ id = "_incompatible",name = T{3942, "Incompatible"},editor = "text", default = "", help = "Comma separated traits this one is incompatible with (like Lazy and Workaholic)"},
-		{ id = "auto",        name = T{3943, "Used in base auto generated"},  editor = "bool", default = true},
-		{ id = "initial_filter", name = T{3944, "Initial Filter Down"},  editor = "bool", default = false},-- checked in rocket initial fileter down
-		{ id = "initial_filter_up", name = T{10378, "Initial Filter Up"},  editor = "bool", default = false},-- checked in rocket initial fileter up
-		{ id = "hidden_on_start", name = T{3945, "Hidden on start"},  editor = "bool", default = false},-- not shown/used before unlocked
-		{ id = "show_in_traits_ui", name = T{3946, "Show in traits UI"},  editor = "bool", default = true},-- colonist infopanel and counted traits for ProjectMorpheus
-		{ id = "dome_filter_only", name = T{6863, "Show in traits Dome filters UI but not in Applicants filters"},  editor = "bool", default = false},		
-		{ id = "add_interest",    name = T{3947, "Add interest"},editor = "combo", default = "", items = function() return ServiceInterestsList end, },
-		{ id = "remove_interest", name = T{3948, "Remove interest"},editor = "combo", default = "", items = function() return ServiceInterestsList end, },
-		{ id = "param", name = T{3949, "Parameter"}, editor = "number", default = 0 },
-		{ id = "daily_update_func", name = T{3950, "Update every sol func(colonist, trait)"}, editor = "func", params = "colonist, trait", default = false },
-		{ id = "apply_func", name = T{3951, "Apply func(colonist, trait, init)"}, editor = "func", params = "colonist, trait, init", default = false },
-		{ id = "unapply_func", name = T{3952, "Remove func(colonist, trait)"}, editor = "func", params = "colonist, trait", default = false },
-		{ id = "modify_target", name = T{930, "Modifier target"}, editor = "combo", items = { "", "self", "dome colonists" }, default = "" },
-		{ id = "modify_trait", name = T{3953, "Target only Colonists with trait"}, editor = "combo", items = DataInstanceCombo("Trait"), default = "" },
-		{ id = "modify_property", name = T{931, "Modified property"}, editor = "combo", items = function() return ClassModifiablePropsCombo(Colonist) end, default = "" },
-		{ id = "modify_amount", name = T{932, "Modification amount"}, editor = "number", default = 0,},
-		{ id = "modify_percent", name = T{933, "Modification percent"}, editor = "number", default = 0,},
-		{ id = "infopanel_effect_text", name = T{3954, "Infopanel effect text"}, editor = "text", translate = true, default = "" }
+		{ id = "name",        name = T(1000037, "Name"),         editor = "text" },
+		{ id = "display_name",name = T(1000067, "Display Name"), editor = "text", translate = true, default = "" },		
+		{ id = "category",    name = T(1000097, "Category"),     editor = "combo" , items = GetTraitCategoriesCombo , default = "" },
+		{ id = "description", name = T(1000017, "Description"),  editor = "text", translate = true, default = "" },
+		{ id = "display_icon",name = T(94, "Icon"),         editor = "browse",folder = {"UI/", "CommonAssets/UI/"}, object_update = true,  default = "" },
+		{ id = "rare",        name = T(3940, "Rare"),         editor = "bool", default = false},
+		{ id = "weight",      name = T(3941, "Rarity weight"),editor = "number", default = 300},
+		{ id = "_incompatible",name = T(3942, "Incompatible"),editor = "text", default = "", help = "Comma separated traits this one is incompatible with (like Lazy and Workaholic)"},
+		{ id = "auto",        name = T(3943, "Used in base auto generated"),  editor = "bool", default = true},
+		{ id = "initial_filter", name = T(3944, "Initial Filter Down"),  editor = "bool", default = false},-- checked in rocket initial fileter down
+		{ id = "initial_filter_up", name = T(10378, "Initial Filter Up"),  editor = "bool", default = false},-- checked in rocket initial fileter up
+		{ id = "hidden_on_start", name = T(3945, "Hidden on start"),  editor = "bool", default = false},-- not shown/used before unlocked
+		{ id = "show_in_traits_ui", name = T(3946, "Show in traits UI"),  editor = "bool", default = true},-- colonist infopanel and counted traits for ProjectMorpheus
+		{ id = "dome_filter_only", name = T(6863, "Show in traits Dome filters UI but not in Applicants filters"),  editor = "bool", default = false},		
+		{ id = "add_interest",    name = T(3947, "Add interest"),editor = "combo", default = "", items = function() return ServiceInterestsList end, },
+		{ id = "remove_interest", name = T(3948, "Remove interest"),editor = "combo", default = "", items = function() return ServiceInterestsList end, },
+		{ id = "param", name = T(3949, "Parameter"), editor = "number", default = 0 },
+		{ id = "daily_update_func", name = T(3950, "Update every sol func(colonist, trait)"), editor = "func", params = "colonist, trait", default = false },
+		{ id = "apply_func", name = T(3951, "Apply func(colonist, trait, init)"), editor = "func", params = "colonist, trait, init", default = false },
+		{ id = "unapply_func", name = T(3952, "Remove func(colonist, trait)"), editor = "func", params = "colonist, trait", default = false },
+		{ id = "modify_target", name = T(930, "Modifier target"), editor = "combo", items = { "", "self", "dome colonists" }, default = "" },
+		{ id = "modify_trait", name = T(3953, "Target only Colonists with trait"), editor = "combo", items = DataInstanceCombo("Trait"), default = "" },
+		{ id = "modify_property", name = T(931, "Modified property"), editor = "combo", items = function() return ClassModifiablePropsCombo(Colonist) end, default = "" },
+		{ id = "modify_amount", name = T(932, "Modification amount"), editor = "number", default = 0,},
+		{ id = "modify_percent", name = T(933, "Modification percent"), editor = "number", default = 0,},
+		{ id = "infopanel_effect_text", name = T(3954, "Infopanel effect text"), editor = "text", translate = true, default = "" }
 	},
 	EditorMenubarName = "",
 }

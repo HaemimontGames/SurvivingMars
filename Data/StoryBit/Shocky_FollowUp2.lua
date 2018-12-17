@@ -31,10 +31,11 @@ PlaceObj('StoryBit', {
 	},
 	Prerequisites = {},
 	ScriptDone = true,
-	Text = T{679536744432, --[[StoryBit Shocky_FollowUp2 Text]] "The researchers came up with a confirmation of the theory that parallel universes exist and even though some of them are similar to ours, others are horrifying. The mind of <DisplayName> could not bear this knowledge.\n\n<effect>3 Scientists lost Sanity. We gained 4000 Research."},
+	Text = T(679536744432, --[[StoryBit Shocky_FollowUp2 Text]] "The researchers came up with a confirmation of the theory that parallel universes exist and even though some of them are similar to ours, others are horrifying. The mind of <DisplayName> could not bear this knowledge.\n\n<effect>3 Scientists lost Sanity. We gained 4000 Research."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	VoicedText = T{799196876014, --[[voice:narrator]] "The boy who had an “imaginary friend” thrashes and speaks gibberish, restrained in the lab chair. "},
+	Title = T(199666886433, --[[StoryBit Shocky_FollowUp2 Title]] "Shocky"),
+	VoicedText = T(799196876014, --[[voice:narrator]] "The boy who had an “imaginary friend” thrashes and speaks gibberish, restrained in the lab chair. "),
 	group = "Colonists",
 	id = "Shocky_FollowUp2",
 	PlaceObj('StoryBitParamNumber', {
@@ -62,9 +63,9 @@ PlaceObj('StoryBit', {
 		'Value', 400000000,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{789110405274, --[[StoryBit Shocky_FollowUp2 Text]] "This is disturbing. Stop the project and send all data to our Sponsor."},
+		'Text', T(789110405274, --[[StoryBit Shocky_FollowUp2 Text]] "This is disturbing. Stop the project and send all data to our Sponsor."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{803516496901, --[[StoryBit Shocky_FollowUp2 CustomOutcomeText]] "gain <funding(funding)> funding"},
+		'CustomOutcomeText', T(803516496901, --[[StoryBit Shocky_FollowUp2 CustomOutcomeText]] "gain <funding(funding)> funding"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -75,9 +76,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{233212625454, --[[StoryBit Shocky_FollowUp2 Text]] "Everything is acceptable in the name of science. Continue the research!"},
+		'Text', T(233212625454, --[[StoryBit Shocky_FollowUp2 Text]] "Everything is acceptable in the name of science. Continue the research!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{876609466165, --[[StoryBit Shocky_FollowUp2 CustomOutcomeText]] "unknown consequences"},
+		'CustomOutcomeText', T(876609466165, --[[StoryBit Shocky_FollowUp2 CustomOutcomeText]] "unknown consequences"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},

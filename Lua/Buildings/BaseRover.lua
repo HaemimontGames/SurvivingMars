@@ -91,6 +91,7 @@ end
 
 function BaseRover:Done()
 	self:RemoveFromLabels()
+	table.remove_entry(g_DestroyedVehicles, self)
 end
 
 function BaseRover:AddToLabels()
@@ -269,6 +270,10 @@ function BaseRover:Dead()
 		PlaceResourceStockpile_Delayed(self:GetVisualPos(), res, amount, self:GetAngle(), true)
 	end
 
+	if not g_Tutorial then
+		table.insert(g_DestroyedVehicles, self)
+	end
+
 	self:OnDead()
 
 	RebuildInfopanel(self)
@@ -352,7 +357,7 @@ function BaseRover:GetUIWarning()
 			countdown = self.demolishing_countdown / 1000,
 		}
 	elseif self.command == "Malfunction" then
-		return T{65, "Malfunctioned"}
+		return T(65, "Malfunctioned")
 	end
 	return self.operation_interrupted_reason
 end
@@ -371,10 +376,10 @@ end
 function RoverStatus()
 	return 
 	{
-		section = {name = T{49, "Status"}, icon = "UI/Icons/Sections/sensor.tga", rollover_t = {
-			content = {title = T{49, "Status"}, descr = T{50, "Status and current task of this vehicle."}}
+		section = {name = T(49, "Status"), icon = "UI/Icons/Sections/sensor.tga", rollover_t = {
+			content = {title = T(49, "Status"), descr = T(50, "Status and current task of this vehicle.")}
 		}},
-		T{51, "<ui_command>"},
+		T(51, "<ui_command>"),
 		
 		function(obj)
 			if obj.command == "Siege" or obj.command == "Unsiege" then
@@ -385,7 +390,7 @@ function RoverStatus()
 					{
 						id = "ScanAnomalyProgress",
 						ui = "simple_progress_bar",
-						rollover_t = {content = {title = T{25, "Anomaly Scanning"}, descr = T{52, "Progress<right><percent(ScanAnomalyProgress)>"}}},
+						rollover_t = {content = {title = T(25, "Anomaly Scanning"), descr = T(52, "Progress<right><percent(ScanAnomalyProgress)>")}},
 					},
 					{id = false, ui = "space"},
 				}
@@ -394,7 +399,7 @@ function RoverStatus()
 				{
 					id = "MalfunctionRepairProgress",
 					ui = "simple_progress_bar",
-					rollover_t = {content = {title = T{53, "Malfunction"}, descr = T{54, "This vehicle has malfunctioned. It has to be repaired by Drones."}}},
+					rollover_t = {content = {title = T(53, "Malfunction"), descr = T(54, "This vehicle has malfunctioned. It has to be repaired by Drones.")}},
 				},
 				{id = false, ui = "space"},
 				}
@@ -405,39 +410,39 @@ function RoverStatus()
 end
 
 RoverCommands = {
-	Analyze = T{55, "Analyzing an Anomaly"},
-	AutoTransportRoute = T{56, "On a transport route"},
-	Construct = T{57, "Constructing"},
-	Dead = T{58, "<red>This unit has been destroyed. Salvage for materials.<red>"},
-	Disembarking = T{59, "Disembarking"},
-	DumpCargo = T{60, "Unloading cargo at target coordinates"},
-	EqualizePowerWithOtherRover = T{61, "Transfering power between vehicles"},
-	ExitImpassable = T{62, "Moving to avoid obstruction"},
-	Goto = T{63, "Travelling"},
-	GotoFromUser = T{63, "Travelling"},
-	Idle = T{6722, "Idle"},
-	Load = T{64, "Loading resources at target coordinates"},	
-	LoadWithNoTarget = T{64, "Loading resources at target coordinates"},	
-	Malfunction = T{7610, "Waiting for repairs"},
-	BeingRepaired = T{8028, "Undergoing repairs"},
-	PickupResource = T{67, "Loading resources"},
-	RepairDrone = T{70, "Repairing Drones"},
-	Siege = T{71, "Commanding Drones"},
-	TransferAllResources = T{72, "Transferring resources"},
-	TransferResources = T{72, "Transferring resources"},
-	Unload = T{73, "Unloading resources at target coordinates"},
-	Unsiege = T{74, "Recalling remote Drones"},
-	WaitingResources = T{7683, "Waiting for resources at construction site"},
-	Work = T{76, "Performing maintenance"},
-	RepairBuilding = T{76, "Performing maintenance"},
-	UseTunnel = T{6723, "Going through a tunnel"},
-	LoadingComplete = T{8490, "Loading complete"},
-	OperationInterrupted = T{9827, "Command interrupted"},
+	Analyze = T(55, "Analyzing an Anomaly"),
+	AutoTransportRoute = T(56, "On a transport route"),
+	Construct = T(57, "Constructing"),
+	Dead = T(58, "<red>This unit has been destroyed. Salvage for materials.<red>"),
+	Disembarking = T(59, "Disembarking"),
+	DumpCargo = T(60, "Unloading cargo at target coordinates"),
+	EqualizePowerWithOtherRover = T(61, "Transfering power between vehicles"),
+	ExitImpassable = T(62, "Moving to avoid obstruction"),
+	Goto = T(63, "Travelling"),
+	GotoFromUser = T(63, "Travelling"),
+	Idle = T(6722, "Idle"),
+	Load = T(64, "Loading resources at target coordinates"),	
+	LoadWithNoTarget = T(64, "Loading resources at target coordinates"),	
+	Malfunction = T(7610, "Waiting for repairs"),
+	BeingRepaired = T(8028, "Undergoing repairs"),
+	PickupResource = T(67, "Loading resources"),
+	RepairDrone = T(70, "Repairing Drones"),
+	Siege = T(71, "Commanding Drones"),
+	TransferAllResources = T(72, "Transferring resources"),
+	TransferResources = T(72, "Transferring resources"),
+	Unload = T(73, "Unloading resources at target coordinates"),
+	Unsiege = T(74, "Recalling remote Drones"),
+	WaitingResources = T(7683, "Waiting for resources at construction site"),
+	Work = T(76, "Performing maintenance"),
+	RepairBuilding = T(76, "Performing maintenance"),
+	UseTunnel = T(6723, "Going through a tunnel"),
+	LoadingComplete = T(8490, "Loading complete"),
+	OperationInterrupted = T(9827, "Command interrupted"),
 	-- attack rover commands
-	Roam = T{6724, "Roaming"},
-	Attack = T{6725, "Attacking"},
-	Reload = T{6726, "Reloading"},
-	GotoAndEmbark =  T{11216, "Boarding Rocket"},
+	Roam = T(6724, "Roaming"),
+	Attack = T(6725, "Attacking"),
+	Reload = T(6726, "Reloading"),
+	GotoAndEmbark =  T(11216, "Boarding Rocket"),
 }
 
 function BaseRover:Getui_command()
@@ -447,7 +452,7 @@ function BaseRover:Getui_command()
 		ui_command = "BeingRepaired"		
 	end
 	
-	return RoverCommands[ui_command] or T{77, "Unknown"}
+	return RoverCommands[ui_command] or T(77, "Unknown")
 end
 
 local function SelectRover(dir)

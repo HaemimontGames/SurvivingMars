@@ -46,7 +46,7 @@ end,
 			'HAlign', "right",
 			'TextStyle', "UITitle",
 			'Translate', true,
-			'Text', T{135662133117, --[[XTemplate PGTutorial Text]] "TUTORIAL"},
+			'Text', T(135662133117, --[[XTemplate PGTutorial Text]] "TUTORIAL"),
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XFrame",

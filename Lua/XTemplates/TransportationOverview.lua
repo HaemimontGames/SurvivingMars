@@ -35,7 +35,7 @@ end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "CommandCenterTitle",
-			'Title', T{684392855007, --[[XTemplate TransportationOverview Title]] "TRANSPORTATION"},
+			'Title', T(684392855007, --[[XTemplate TransportationOverview Title]] "TRANSPORTATION"),
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XContentTemplate",
@@ -66,7 +66,7 @@ end,
 					'VAlign', "center",
 					'TextStyle', "CCCFilterItem",
 					'Translate', true,
-					'Text', T{518310821309, --[[XTemplate TransportationOverview Text]] "AVAILABLE DRONE PREFABS: <em><n></em>"},
+					'Text', T(518310821309, --[[XTemplate TransportationOverview Text]] "AVAILABLE DRONE PREFABS: <em><n></em>"),
 				}),
 				}),
 			PlaceObj('XTemplateTemplate', {
@@ -104,16 +104,16 @@ end,
 					PlaceObj('XTemplateTemplate', {
 						'comment', "drone_hubs",
 						'__template', "CommandCenterButton",
-						'RolloverTitle', T{259870368403, --[[XTemplate TransportationOverview RolloverTitle]] "Drone Hubs"},
+						'RolloverTitle', T(259870368403, --[[XTemplate TransportationOverview RolloverTitle]] "Drone Hubs"),
 						'Margins', box(-12, 0, 0, -14),
 						'OnContextUpdate', function (self, context, ...)
 local dlg = GetDialog(self)
 local drone_hubs = dlg.context.drone_hubs
 self:SetIcon(drone_hubs == false and "UI/Icons/ColonyControlCenter/drone_hub_r.tga" or "UI/Icons/ColonyControlCenter/drone_hub_g.tga")
-self:SetRolloverText(GetTransportationFilterRollover(context, T{11632, "Toggle filtering of Drone Hubs."}))
-self:SetRolloverHint(drone_hubs ~= false and T{9787, "<left_click> Hide filtered objects"} or T{9788, "<left_click> Show filtered objects"})
-local hint_gamepad = drone_hubs ~= false and T{9789, "<ButtonA> Hide filtered objects"} or T{9790, "<ButtonA> Show filtered objects"}
-hint_gamepad = hint_gamepad .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverText(GetTransportationFilterRollover(context, T(11632, "Toggle filtering of Drone Hubs.")))
+self:SetRolloverHint(drone_hubs ~= false and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+local hint_gamepad = drone_hubs ~= false and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
 self:SetRolloverHintGamepad(hint_gamepad)
 self:SetToggled(drone_hubs ~= false)
 end,
@@ -121,21 +121,21 @@ end,
 ToggleCommandCenterFilter(self, "drone_hubs", true)
 end,
 						'Icon', "UI/Icons/Buildings/drone_hub.tga",
-						'Text', T{694591832026, --[[XTemplate TransportationOverview Text]] "DRONE HUBS"},
+						'Text', T(694591832026, --[[XTemplate TransportationOverview Text]] "DRONE HUBS"),
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'comment', "drone_assemblers",
 						'__template', "CommandCenterButton",
-						'RolloverTitle', T{397662043481, --[[XTemplate TransportationOverview RolloverTitle]] "Drone Assemblers"},
+						'RolloverTitle', T(397662043481, --[[XTemplate TransportationOverview RolloverTitle]] "Drone Assemblers"),
 						'Margins', box(-12, 0, 0, -14),
 						'OnContextUpdate', function (self, context, ...)
 local dlg = GetDialog(self)
 local drone_assemblers = dlg.context.drone_assemblers
 self:SetIcon(not drone_assemblers and "UI/Icons/ColonyControlCenter/workshop_r.tga" or "UI/Icons/ColonyControlCenter/workshop_g.tga")
-self:SetRolloverText(GetTransportationFilterRollover(context, T{11633, "Toggle filtering of Drone Assemblers."}))
-self:SetRolloverHint(drone_assemblers ~= false and T{9787, "<left_click> Hide filtered objects"} or T{9788, "<left_click> Show filtered objects"})
-local hint_gamepad = drone_assemblers ~= false and T{9789, "<ButtonA> Hide filtered objects"} or T{9790, "<ButtonA> Show filtered objects"}
-hint_gamepad = hint_gamepad .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverText(GetTransportationFilterRollover(context, T(11633, "Toggle filtering of Drone Assemblers.")))
+self:SetRolloverHint(drone_assemblers ~= false and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+local hint_gamepad = drone_assemblers ~= false and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
 self:SetRolloverHintGamepad(hint_gamepad)
 self:SetToggled(not not drone_assemblers)
 end,
@@ -143,21 +143,21 @@ end,
 ToggleCommandCenterFilter(self, "drone_assemblers", false)
 end,
 						'Icon', "UI/Icons/Buildings/workshop.tga",
-						'Text', T{814571150239, --[[XTemplate TransportationOverview Text]] "DRONE ASSEMBLERS"},
+						'Text', T(814571150239, --[[XTemplate TransportationOverview Text]] "DRONE ASSEMBLERS"),
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'comment', "rockets",
 						'__template', "CommandCenterButton",
-						'RolloverTitle', T{296967872321, --[[XTemplate TransportationOverview RolloverTitle]] "Rockets"},
+						'RolloverTitle', T(296967872321, --[[XTemplate TransportationOverview RolloverTitle]] "Rockets"),
 						'Margins', box(-12, 0, 0, 10),
 						'OnContextUpdate', function (self, context, ...)
 local dlg = GetDialog(self)
 local rockets = dlg.context.rockets
 self:SetIcon(not rockets and "UI/Icons/ColonyControlCenter/rocket_r.tga" or "UI/Icons/ColonyControlCenter/rocket_g.tga")
-self:SetRolloverText(GetTransportationFilterRollover(context, T{11635, "Toggle filtering of Rockets."}))
-self:SetRolloverHint(rockets ~= false and T{9787, "<left_click> Hide filtered objects"} or T{9788, "<left_click> Show filtered objects"})
-local hint_gamepad = rockets ~= false and T{9789, "<ButtonA> Hide filtered objects"} or T{9790, "<ButtonA> Show filtered objects"}
-hint_gamepad = hint_gamepad .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverText(GetTransportationFilterRollover(context, T(11635, "Toggle filtering of Rockets.")))
+self:SetRolloverHint(rockets ~= false and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+local hint_gamepad = rockets ~= false and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
 self:SetRolloverHintGamepad(hint_gamepad)
 self:SetToggled(not not rockets)
 end,
@@ -165,21 +165,21 @@ end,
 ToggleCommandCenterFilter(self, "rockets", false)
 end,
 						'Icon', "UI/Icons/Buildings/rocket.tga",
-						'Text', T{216365787860, --[[XTemplate TransportationOverview Text]] "ROCKETS"},
+						'Text', T(216365787860, --[[XTemplate TransportationOverview Text]] "ROCKETS"),
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'comment', "rovers",
 						'__template', "CommandCenterButton",
-						'RolloverTitle', T{951182332337, --[[XTemplate TransportationOverview RolloverTitle]] "RC Rovers"},
+						'RolloverTitle', T(951182332337, --[[XTemplate TransportationOverview RolloverTitle]] "RC Rovers"),
 						'Margins', box(-12, 0, 0, 10),
 						'OnContextUpdate', function (self, context, ...)
 local dlg = GetDialog(self)
 local rovers = dlg.context.rovers
 self:SetIcon(rovers == false and "UI/Icons/ColonyControlCenter/rcrover_r.tga" or "UI/Icons/ColonyControlCenter/rcrover_g.tga")
-self:SetRolloverText(GetTransportationFilterRollover(context, T{11636, "Toggle filtering of RC Rovers."}))
-self:SetRolloverHint(rovers ~= false and T{9787, "<left_click> Hide filtered objects"} or T{9788, "<left_click> Show filtered objects"})
-local hint_gamepad = rovers ~= false and T{9789, "<ButtonA> Hide filtered objects"} or T{9790, "<ButtonA> Show filtered objects"}
-hint_gamepad = hint_gamepad .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverText(GetTransportationFilterRollover(context, T(11636, "Toggle filtering of RC Rovers.")))
+self:SetRolloverHint(rovers ~= false and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+local hint_gamepad = rovers ~= false and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
 self:SetRolloverHintGamepad(hint_gamepad)
 self:SetToggled(rovers ~= false)
 end,
@@ -187,21 +187,21 @@ end,
 ToggleCommandCenterFilter(self, "rovers", false)
 end,
 						'Icon', "UI/Icons/Buildings/rcrover.tga",
-						'Text', T{513103441365, --[[XTemplate TransportationOverview Text]] "RC ROVERS"},
+						'Text', T(513103441365, --[[XTemplate TransportationOverview Text]] "RC ROVERS"),
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'comment', "shuttle_hubs",
 						'__template', "CommandCenterButton",
-						'RolloverTitle', T{606206203249, --[[XTemplate TransportationOverview RolloverTitle]] "Shuttle Hubs"},
+						'RolloverTitle', T(606206203249, --[[XTemplate TransportationOverview RolloverTitle]] "Shuttle Hubs"),
 						'Margins', box(-12, 0, 0, -14),
 						'OnContextUpdate', function (self, context, ...)
 local dlg = GetDialog(self)
 local shuttle_hubs = dlg.context.shuttle_hubs
 self:SetIcon(not shuttle_hubs and "UI/Icons/ColonyControlCenter/shuttle_hub_r.tga" or "UI/Icons/ColonyControlCenter/shuttle_hub_g.tga")
-self:SetRolloverText(GetTransportationFilterRollover(context, T{11647, "Toggle filtering of Shuttle Hubs."}))
-self:SetRolloverHint(shuttle_hubs ~= false and T{9787, "<left_click> Hide filtered objects"} or T{9788, "<left_click> Show filtered objects"})
-local hint_gamepad = shuttle_hubs ~= false and T{9789, "<ButtonA> Hide filtered objects"} or T{9790, "<ButtonA> Show filtered objects"}
-hint_gamepad = hint_gamepad .. " " .. T{9802, "<RB> Inspect"}
+self:SetRolloverText(GetTransportationFilterRollover(context, T(11647, "Toggle filtering of Shuttle Hubs.")))
+self:SetRolloverHint(shuttle_hubs ~= false and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+local hint_gamepad = shuttle_hubs ~= false and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
 self:SetRolloverHintGamepad(hint_gamepad)
 self:SetToggled(not not shuttle_hubs)
 end,
@@ -209,7 +209,7 @@ end,
 ToggleCommandCenterFilter(self, "shuttle_hubs", false)
 end,
 						'Icon', "UI/Icons/Buildings/shuttle_hub.tga",
-						'Text', T{418837943438, --[[XTemplate TransportationOverview Text]] "SHUTTLE HUBS"},
+						'Text', T(418837943438, --[[XTemplate TransportationOverview Text]] "SHUTTLE HUBS"),
 					}),
 					PlaceObj('XTemplateCode', {
 						'comment', "focus first",
@@ -243,7 +243,7 @@ end,
 						'HandleMouse', false,
 						'TextStyle', "OverviewItemSection",
 						'Translate', true,
-						'Text', T{1000037, --[[XTemplate TransportationOverview Text]] "Name"},
+						'Text', T(1000037, --[[XTemplate TransportationOverview Text]] "Name"),
 						'TextVAlign', "center",
 					}),
 					PlaceObj('XTemplateWindow', {
@@ -254,7 +254,7 @@ end,
 						'HandleMouse', false,
 						'TextStyle', "OverviewItemSection",
 						'Translate', true,
-						'Text', T{688745762460, --[[XTemplate TransportationOverview Text]] "Info"},
+						'Text', T(688745762460, --[[XTemplate TransportationOverview Text]] "Info"),
 						'TextHAlign', "center",
 						'TextVAlign', "center",
 					}),
@@ -266,7 +266,7 @@ end,
 						'HandleMouse', false,
 						'TextStyle', "OverviewItemSection",
 						'Translate', true,
-						'Text', T{885629433850, --[[XTemplate TransportationOverview Text]] "Workload"},
+						'Text', T(885629433850, --[[XTemplate TransportationOverview Text]] "Workload"),
 						'TextHAlign', "center",
 					}),
 					PlaceObj('XTemplateWindow', {
@@ -277,7 +277,7 @@ end,
 						'HandleMouse', false,
 						'TextStyle', "OverviewItemSection",
 						'Translate', true,
-						'Text', T{1000178, --[[XTemplate TransportationOverview Text]] "Actions"},
+						'Text', T(1000178, --[[XTemplate TransportationOverview Text]] "Actions"),
 						'TextHAlign', "center",
 					}),
 					}),
@@ -322,7 +322,7 @@ end,
 					'HandleMouse', false,
 					'TextStyle', "InGameTitle",
 					'Translate', true,
-					'Text', T{591853191640, --[[XTemplate TransportationOverview Text]] "Empty list"},
+					'Text', T(591853191640, --[[XTemplate TransportationOverview Text]] "Empty list"),
 				}),
 				PlaceObj('XTemplateCode', {
 					'run', function (self, parent, context)
@@ -334,7 +334,7 @@ end,
 			}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "back",
-			'ActionName', T{4254, --[[XTemplate TransportationOverview ActionName]] "BACK"},
+			'ActionName', T(4254, --[[XTemplate TransportationOverview ActionName]] "BACK"),
 			'ActionToolbar', "ActionBar",
 			'ActionShortcut', "Escape",
 			'ActionGamepad', "ButtonB",
@@ -342,7 +342,7 @@ end,
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "reset",
-			'ActionName', T{550362230354, --[[XTemplate TransportationOverview ActionName]] "RESET FILTERS"},
+			'ActionName', T(550362230354, --[[XTemplate TransportationOverview ActionName]] "RESET FILTERS"),
 			'ActionToolbar', "ActionBar",
 			'ActionGamepad', "ButtonX",
 			'OnAction', function (self, host, source)

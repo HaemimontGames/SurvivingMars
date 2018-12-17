@@ -24,11 +24,11 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	ScriptDone = true,
-	Text = T{253325154971, --[[StoryBit IncreaseResourceCost Text]] "It turns out that even Mars is not beyond the reach of stock market hiccups on our mother planet.\n\n<effect>The import price of <name> will be increased by <price_increase>% in <sols(delay)> Sols."},
+	Text = T(253325154971, --[[StoryBit IncreaseResourceCost Text]] "It turns out that even Mars is not beyond the reach of stock market hiccups on our mother planet.\n\n<effect>The import price of <name> will be increased by <price_increase>% in <sols(delay)> Sols."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{612282293862, --[[StoryBit IncreaseResourceCost Title]] "Fickle Economics"},
-	VoicedText = T{400822589178, --[[voice:narrator]] "Our sponsor informs us that due to changes in the economic conditions the import price of a key resource will soon be increased."},
+	Title = T(612282293862, --[[StoryBit IncreaseResourceCost Title]] "Fickle Economics"),
+	VoicedText = T(400822589178, --[[voice:narrator]] "Our sponsor informs us that due to changes in the economic conditions the import price of a key resource will soon be increased."),
 	group = "Earth",
 	id = "IncreaseResourceCost",
 	PlaceObj('StoryBitParamPercent', {
@@ -48,9 +48,9 @@ PlaceObj('StoryBit', {
 		'Value', 7200000,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{416767465149, --[[StoryBit IncreaseResourceCost Text]] "Yet Earth may be within our reach as well..."},
+		'Text', T(416767465149, --[[StoryBit IncreaseResourceCost Text]] "Yet Earth may be within our reach as well..."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{348294285589, --[[StoryBit IncreaseResourceCost CustomOutcomeText]] "the price will be increased only by <price_increase_oligarch>%"},
+		'CustomOutcomeText', T(348294285589, --[[StoryBit IncreaseResourceCost CustomOutcomeText]] "the price will be increased only by <price_increase_oligarch>%"),
 		'Prerequisite', PlaceObj('IsCommander', {
 			'CommanderProfile', "oligarch",
 		}),
@@ -63,9 +63,9 @@ PlaceObj('StoryBit', {
 		'Effects', {},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{830906483560, --[[StoryBit IncreaseResourceCost Text]] "I will personally negotiate special terms."},
+		'Text', T(830906483560, --[[StoryBit IncreaseResourceCost Text]] "I will personally negotiate special terms."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{198747065499, --[[StoryBit IncreaseResourceCost CustomOutcomeText]] "the price increase will happen in <sols(delay_politician)> Sols instead"},
+		'CustomOutcomeText', T(198747065499, --[[StoryBit IncreaseResourceCost CustomOutcomeText]] "the price increase will happen in <sols(delay_politician)> Sols instead"),
 		'Prerequisite', PlaceObj('IsCommander2', {
 			'CommanderProfile1', "politician",
 			'CommanderProfile2', "citymayor",
@@ -79,7 +79,7 @@ PlaceObj('StoryBit', {
 		'Effects', {},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{409955889619, --[[StoryBit IncreaseResourceCost Text]] "Understood."},
+		'Text', T(409955889619, --[[StoryBit IncreaseResourceCost Text]] "Understood."),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},

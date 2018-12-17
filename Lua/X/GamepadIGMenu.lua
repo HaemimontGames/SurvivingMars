@@ -15,7 +15,7 @@ end
 GamepadIGMenu_game_items = {
 	{ --build menu
 		name = "idBuild",
-		display_name = T{4237, "Build Menu"},
+		display_name = T(4237, "Build Menu"),
 		icon = "UI/Icons/console_build.tga",
 		action = function() HUD.idBuildOnPress() end,
 		description = "",
@@ -23,7 +23,7 @@ GamepadIGMenu_game_items = {
 	},
 	{ --overview
 		name = "idOverview",
-		display_name = T{3996, "Map Overview"},
+		display_name = T(3996, "Map Overview"),
 		icon = "UI/Icons/console_overview.tga",
 		action = function() HUD.idOverviewOnPress() end,
 		description = "",
@@ -31,7 +31,7 @@ GamepadIGMenu_game_items = {
 	},
 	{ --resupply
 		name = "idResupply",
-		display_name = T{3997, "Resupply"},
+		display_name = T(3997, "Resupply"),
 		icon = "UI/Icons/console_resupply.tga",
 		enabled_fn = IsHUDResupplyEnabled,
 		action = function() HUD.idResupplyOnPress() end,
@@ -39,7 +39,7 @@ GamepadIGMenu_game_items = {
 	},
 	{ --researh
 		name = "idResearch",
-		display_name = T{311, "Research"},
+		display_name = T(311, "Research"),
 		icon = "UI/Icons/console_research.tga",
 		enabled_fn = IsHUDResearchEnabled,
 		action = function() HUD.idResearchOnPress() end,
@@ -47,7 +47,7 @@ GamepadIGMenu_game_items = {
 	},
 	{ --mars screen
 		name = "idMarsScreen",
-		display_name = T{11030, "Planetary View"},
+		display_name = T(11030, "Planetary View"),
 		icon = "UI/Icons/console_mars_screen.tga",
 		enabled_fn = function () return not g_Tutorial end,
 		action = function() HUD.idPlanetaryViewOnPress() end,
@@ -55,7 +55,7 @@ GamepadIGMenu_game_items = {
 	},
 	{ --goals
 		name = "idGoals",
-		display_name = T{10092, "Mission Profile"},
+		display_name = T(10092, "Mission Profile"),
 		icon = "UI/Icons/console_goals.tga",
 		enabled_fn = function () return not g_Tutorial end,
 		action = function() HUD.idGoalsOnPress() end,
@@ -64,7 +64,7 @@ GamepadIGMenu_game_items = {
 	
 	{ --command center
 		name = "idColonyControlCenter",
-		display_name = T{137542936955, "Command Center"},
+		display_name = T(137542936955, "Command Center"),
 		icon = "UI/Icons/console_command_center.tga",
 		action = function() HUD.idColonyControlCenterOnPress() end,
 		description = "",
@@ -72,21 +72,21 @@ GamepadIGMenu_game_items = {
 	},
 	{ --markers
 		name = "idMilestones",
-		display_name = T{973748367669, "Milestones"},
+		display_name = T(973748367669, "Milestones"),
 		icon = "UI/Icons/console_markers.tga",
 		action = function() HUD.idMilestonesOnPress() end,
 		description = "",
 	},
 	{ --radio
 		name = "idRadio",
-		display_name = T{796804896133, "Radio"},
+		display_name = T(796804896133, "Radio"),
 		icon = "UI/Icons/console_radio.tga",
 		action = function() HUD.idRadioOnPress() end,
 		description = "",
 	},
 	{ --encyclopedia
 		name = "encyclopedia",
-		display_name = T{7384, "Encyclopedia"},
+		display_name = T(7384, "Encyclopedia"),
 		icon = "UI/Icons/console_encyclopedia.tga",
 		action = function(this)
 			PlayFX("EncyclopediaButtonClick", "start")

@@ -111,21 +111,21 @@ const.OverviewCamPos = point(-48, -48, 135) -- percent of map size
 const.OverviewCamRotateArea = 1 -- percent of screen size
 
 ResourceDescription = {
-	{ name = "Concrete",        display_name = T{3513, "Concrete"},         display_icon = "UI/Icons/Buildings/res_concrete.tga", unit_amount = const.ResourceScale, color = RGB(169, 159, 90), entity = "ResourceRegolith", description = T{7909, "Basic construction material often used to construct and maintain Domes and Dome buildings."}, },
-	{ name = "Metals",          display_name = T{3514, "Metals"},           display_icon = "UI/Icons/Buildings/res_metals.tga", unit_amount = const.ResourceScale, color = RGB(240, 51, 33), entity = "ResourceMetal", deep_enabled = true, description = T{7910, "Basic construction materials often used to construct and maintain outside buildings. Required for the creation of Machine Parts."}, },
-	{ name = "Polymers",        display_name = T{3515, "Polymers"},         display_icon = "UI/Icons/Buildings/res_polymers.tga", unit_amount = const.ResourceScale, color = RGB(163, 7, 245), entity = "ResourcePolymer", description = T{7911, "Advanced materials often used to construct and maintain Power accumulators, advanced Power generators, Domes and Spires."}, },
-	{ name = "Electronics",     display_name = T{3517, "Electronics"},      display_icon = "UI/Icons/Buildings/res_electronics.tga", unit_amount = const.ResourceScale, color = RGB(63, 245, 7), entity = "ResourceElectronics", description = T{7912, "Advanced materials often used to construct and maintain scientific and infrastructure buildings."}, },
-	{ name = "MachineParts",    display_name = T{3516, "Machine Parts"},    display_icon = "UI/Icons/Buildings/res_machine_parts.tga", unit_amount = const.ResourceScale, color = RGB(63, 7, 245), entity = "ResourceMachineParts", description = T{7913, "Advanced materials often used to construct and maintain Extractors and Factories."}, },
-	{ name = "PreciousMetals",  display_name = T{4139, "Rare Metals"},      display_icon = "UI/Icons/Buildings/res_precious_metals.tga", unit_amount = const.ResourceScale, color = RGB(245, 163, 7), entity = "ResourcePreciousMetals" , description = T{7985, "Can be exported to Earth for Funding or processed into Electronics."}},
-	{ name = "WasteRock",       display_name = T{4518, "Waste Rock"},       display_icon = "UI/Icons/Buildings/res_waste_rock.tga", unit_amount = const.ResourceScale, color = RGB(0, 255, 0), entity = {"ResourceWasteRock_01", "ResourceWasteRock_02", "ResourceWasteRock_03"} },
-	{ name = "BlackCube",       display_name = T{4764, "Black Cubes"},      display_icon = "UI/Icons/Buildings/res_black_box.tga", unit_amount = const.ResourceScale, color = RGB(0, 0, 0), entity = "Resource", },
-	{ name = "Water",           display_name = T{681, "Water"},            display_icon = "UI/Icons/Buildings/res_water.tga", unit_amount = const.ResourceScale, color = RGB(0, 237, 255), deep_enabled = true },
-	{ name = "Food",            display_name = T{1022, "Food"},             display_icon = "UI/Icons/Buildings/res_food.tga", unit_amount = const.ResourceScale, color = RGB(128, 255, 0), entity = "ResourceFood", description = T{7914, "Colonists arrive with nominal Food supply, but will soon need additional provisions to survive."}, },
-	{ name = "Fuel",            display_name = T{4765, "Fuel"},             display_icon = "UI/Icons/Buildings/res_fuel.tga", unit_amount = const.ResourceScale, color = RGB(255, 128, 0), entity = "ResourceFuel", description = T{7986, "Advanced resource produced in Fuel Refineries from Water. Required for the refuelling of Rockets. Highly explosive."} },	
-	{ name = "Funding",         display_name = T{3613, "Funding"},    },
-	{ name = "Colonist",        display_name = T{4290, "Colonist"},         display_icon = "UI/Icons/Buildings/res_fuel.tga", unit_amount = const.ResourceScale, color = RGB(255, 128, 0), entity = "ResourceFuel" },	
-	{ name = "MysteryResource", display_name = T{8064, "Mystery Resource"}, display_icon = "UI/Icons/Buildings/res_mystery_resource.tga", unit_amount = const.ResourceScale, color = RGB(128, 255, 0), entity = "ResourceMystery", description = T{8065, "Mystery Resource Description"} },
-	{ name = "ResearchPoints",  display_name = T{9755, "Research Points"},        display_icon = "UI/Icons/res_experimental_research.tga", unit_amount = const.ResourceScale, color = RGB(128, 255, 0), entity = "ResourceFuel", description = T{9755, "Research Points"} },
+	{ name = "Concrete",        display_name = T(3513, "Concrete"),         display_icon = "UI/Icons/Buildings/res_concrete.tga", unit_amount = const.ResourceScale, color = RGB(169, 159, 90), entity = "ResourceRegolith", description = T(7909, "Basic construction material often used to construct and maintain Domes and Dome buildings."), },
+	{ name = "Metals",          display_name = T(3514, "Metals"),           display_icon = "UI/Icons/Buildings/res_metals.tga", unit_amount = const.ResourceScale, color = RGB(240, 51, 33), entity = "ResourceMetal", deep_enabled = true, description = T(7910, "Basic construction materials often used to construct and maintain outside buildings. Required for the creation of Machine Parts."), },
+	{ name = "Polymers",        display_name = T(3515, "Polymers"),         display_icon = "UI/Icons/Buildings/res_polymers.tga", unit_amount = const.ResourceScale, color = RGB(163, 7, 245), entity = "ResourcePolymer", description = T(7911, "Advanced materials often used to construct and maintain Power accumulators, advanced Power generators, Domes and Spires."), },
+	{ name = "Electronics",     display_name = T(3517, "Electronics"),      display_icon = "UI/Icons/Buildings/res_electronics.tga", unit_amount = const.ResourceScale, color = RGB(63, 245, 7), entity = "ResourceElectronics", description = T(7912, "Advanced materials often used to construct and maintain scientific and infrastructure buildings."), },
+	{ name = "MachineParts",    display_name = T(3516, "Machine Parts"),    display_icon = "UI/Icons/Buildings/res_machine_parts.tga", unit_amount = const.ResourceScale, color = RGB(63, 7, 245), entity = "ResourceMachineParts", description = T(7913, "Advanced materials often used to construct and maintain Extractors and Factories."), },
+	{ name = "PreciousMetals",  display_name = T(4139, "Rare Metals"),      display_icon = "UI/Icons/Buildings/res_precious_metals.tga", unit_amount = const.ResourceScale, color = RGB(245, 163, 7), entity = "ResourcePreciousMetals" , description = T(7985, "Can be exported to Earth for Funding or processed into Electronics.")},
+	{ name = "WasteRock",       display_name = T(4518, "Waste Rock"),       display_icon = "UI/Icons/Buildings/res_waste_rock.tga", unit_amount = const.ResourceScale, color = RGB(0, 255, 0), entity = {"ResourceWasteRock_01", "ResourceWasteRock_02", "ResourceWasteRock_03"} },
+	{ name = "BlackCube",       display_name = T(4764, "Black Cubes"),      display_icon = "UI/Icons/Buildings/res_black_box.tga", unit_amount = const.ResourceScale, color = RGB(0, 0, 0), entity = "Resource", },
+	{ name = "Water",           display_name = T(681, "Water"),             display_icon = "UI/Icons/Buildings/res_water.tga", unit_amount = const.ResourceScale, color = RGB(0, 237, 255), deep_enabled = true },
+	{ name = "Food",            display_name = T(1022, "Food"),             display_icon = "UI/Icons/Buildings/res_food.tga", unit_amount = const.ResourceScale, color = RGB(128, 255, 0), entity = "ResourceFood", description = T(7914, "Colonists arrive with nominal Food supply, but will soon need additional provisions to survive."), },
+	{ name = "Fuel",            display_name = T(4765, "Fuel"),             display_icon = "UI/Icons/Buildings/res_fuel.tga", unit_amount = const.ResourceScale, color = RGB(255, 128, 0), entity = "ResourceFuel", description = T(7986, "Advanced resource produced in Fuel Refineries from Water. Required for the refuelling of Rockets. Highly explosive.") },	
+	{ name = "Funding",         display_name = T(3613, "Funding"),    },
+	{ name = "Colonist",        display_name = T(4290, "Colonist"),         display_icon = "UI/Icons/Buildings/res_fuel.tga", unit_amount = const.ResourceScale, color = RGB(255, 128, 0), entity = "ResourceFuel" },	
+	{ name = "MysteryResource", display_name = T(8064, "Mystery Resource"), display_icon = "UI/Icons/Buildings/res_mystery_resource.tga", unit_amount = const.ResourceScale, color = RGB(128, 255, 0), entity = "ResourceMystery", description = T(8065, "Mystery Resource Description") },
+	{ name = "ResearchPoints",  display_name = T(9755, "Research Points"),  display_icon = "UI/Icons/res_experimental_research.tga", unit_amount = const.ResourceScale, color = RGB(128, 255, 0), entity = "ResourceFuel", description = T(9755, "Research Points") },
 }
 
 Resources = {}
@@ -287,9 +287,9 @@ const.TagLookupTable["mouse_wheel_up"] = "<image UI/Infopanel/scroll_up.tga 1400
 const.TagLookupTable["mouse_wheel_down"] = "<image UI/Infopanel/scroll_down.tga 1400>"
 const.TagLookupTable["icon_no_maintenance"] = ""
 
-const.TagLookupTable["effect"] = T{7697, "<em>Effect:</em> "}
-const.TagLookupTable["hint"] = T{4774, "<em>Hint:</em> "}
-const.TagLookupTable["goal"] = T{4773, "<em>Goal:</em> "}
+const.TagLookupTable["effect"] = T(7697, "<em>Effect:</em> ")
+const.TagLookupTable["hint"] = T(4774, "<em>Hint:</em> ")
+const.TagLookupTable["goal"] = T(4773, "<em>Goal:</em> ")
 
 const.HyperlinkColors["InfopanelSelect"] = RGB(186, 131, 249)
 const.HyperlinkColors["Rename"] = RGB(255, 255, 255)
@@ -306,11 +306,11 @@ const.DefaultWorkshiftDurations = {
 	const.HoursPerDay + const.DefaultWorkshifts[3][2]-const.DefaultWorkshifts[3][1] }
 
 const.ColonistAgeGroups = {
-	["Child"] 		= {min =  0, next_agegroup = "Youth", display_name = T{4775, "Child"},      description = T{4776, "Too young to work but can study at a School"}},
-	["Youth"] 		= {min =  6, next_agegroup = "Adult", display_name = T{4777, "Youth"},      description = T{4778, "Too young to work but can be trained to become a specialist at an University."}}, 
-	["Adult"] 		= {min = 11, next_agegroup = "Middle Aged", display_name = T{4779, "Adult"}, description = T{4780, "An adult Colonist"}}, 
-	["Middle Aged"] = {min = 31, next_agegroup = "Senior", display_name = T{4781, "Middle Aged"},description = T{4782, "A middle aged Colonist approaching retirement"}}, 
-	["Senior"] 		= {min = 61, next_agegroup = false, display_name = T{4783, "Senior"},        description = T{4784, "A senior Colonist retired from active duty"}},
+	["Child"] 		= {min =  0, next_agegroup = "Youth", display_name = T(4775, "Child"),      description = T(4776, "Too young to work but can study at a School")},
+	["Youth"] 		= {min =  6, next_agegroup = "Adult", display_name = T(4777, "Youth"),      description = T(4778, "Too young to work but can be trained to become a specialist at an University.")}, 
+	["Adult"] 		= {min = 11, next_agegroup = "Middle Aged", display_name = T(4779, "Adult"), description = T(4780, "An adult Colonist")}, 
+	["Middle Aged"] = {min = 31, next_agegroup = "Senior", display_name = T(4781, "Middle Aged"),description = T(4782, "A middle aged Colonist approaching retirement")}, 
+	["Senior"] 		= {min = 61, next_agegroup = false, display_name = T(4783, "Senior"),        description = T(4784, "A senior Colonist retired from active duty")},
 }
 
 const.ColonistAges = {
@@ -333,35 +333,35 @@ const.MissionSponsorNations = 8
 
 FarmPerformanceEffects = 
 {
-	["-workforce"]	= T{4785, "<red>Low Building performance</red>"},
-	["-soil"]			= T{4786, "<red>Low Soil quality</red>"},
-	["+soil"]			= T{4787, "<green>High Soil quality</green>"},
-	["-power"]		= T{4788, "<red>Power shortage</red>"},
-	["-water"]		= T{4789, "<red>Water shortage</red>"},
-	["-workers"]    = T{4790, "<red>No workers</red>"},
+	["-workforce"]	= T(4785, "<red>Low Building performance</red>"),
+	["-soil"]			= T(4786, "<red>Low Soil quality</red>"),
+	["+soil"]			= T(4787, "<green>High Soil quality</green>"),
+	["-power"]		= T(4788, "<red>Power shortage</red>"),
+	["-water"]		= T(4789, "<red>Water shortage</red>"),
+	["-workers"]    = T(4790, "<red>No workers</red>"),
 }
 
 DeathReasons = 
 {
-	["meteor"]              = T{4791, "Meteor Impact"},
-	["lighting strike"]     = T{7879, "Struck by lighting"},
-	["fuel explosion"]      = T{7880, "Fuel explosion"},
-	["low health"]          = T{4792, "Low Health"},
-	["Old age"]             = T{4793, "Old Age"},
-	["could not reach dome"]= T{4794, "Spacesuit out of Oxygen"},
-	["could not find dome"] = T{4794, "Spacesuit out of Oxygen"},
-	["suicide"]             = T{4795, "Suicide (Low Sanity)"},
-	["rogue drone"]         = T{4796, "Killed by a rogue machine"},
+	["meteor"]              = T(4791, "Meteor Impact"),
+	["lighting strike"]     = T(7879, "Struck by lighting"),
+	["fuel explosion"]      = T(7880, "Fuel explosion"),
+	["low health"]          = T(4792, "Low Health"),
+	["Old age"]             = T(4793, "Old Age"),
+	["could not reach dome"]= T(4794, "Spacesuit out of Oxygen"),
+	["could not find dome"] = T(4794, "Spacesuit out of Oxygen"),
+	["suicide"]             = T(4795, "Suicide (Low Sanity)"),
+	["rogue drone"]         = T(4796, "Killed by a rogue machine"),
 	
-	["StatusEffect_Suffocating"]         = T{4797, "Suffocating"},
-	["StatusEffect_Suffocating_Outside"] = T{4797, "Suffocating"},
+	["StatusEffect_Suffocating"]         = T(4797, "Suffocating"),
+	["StatusEffect_Suffocating_Outside"] = T(4797, "Suffocating"),
 	
-	["StatusEffect_Dehydrated"] = T{4798, "Dehydrated"},
-	["StatusEffect_Freezing"]   = T{3875, "Freezing"},
-	["StatusEffect_Starving"]   = T{3877, "Starving"},
+	["StatusEffect_Dehydrated"] = T(4798, "Dehydrated"),
+	["StatusEffect_Freezing"]   = T(3875, "Freezing"),
+	["StatusEffect_Starving"]   = T(3877, "Starving"),
 	
-	["StoryBit"]     = T{10995, "Extenuating circumstances"},
-	["DustSickness"] = T{924901666901, "Dust Sickness"},
+	["StoryBit"]     = T(10995, "Extenuating circumstances"),
+	["DustSickness"] = T(924901666901, "Dust Sickness"),
 }
 
 NaturalDeathReasons = 
@@ -370,15 +370,15 @@ NaturalDeathReasons =
 }
 ColonistPerformanceReasons = 
 {
-	["Morale"] = T{7590, "Morale <amount>"},
-	["Enthusiast"] = T{7591, "Brimming with enthusiasm <amount> (Enthusiast)"},
-	["Melancholic"] = T{7592, "Severely depressed <amount> (Melancholic)"},
-	["Lazy"] = T{7593, "Procrastinating at work <amount> (Lazy)"},
-	["Workaholic"] = T{7594, "Working hard <amount> (Workaholic)"},
-	["Alcoholic"] = T{7595, "Hangover <amount> (Alcoholic)"},
-	["Renegade"] = T{7596, "Disillusioned <amount> (Renegade)"},
-	["VocationOrientedSociety"] = T{7597, "Vocation oriented society <amount>"},
-	["Refugee"] = T{8544, "Refugee performance penalty <amount> (Refugee)"}
+	["Morale"] = T(7590, "Morale <amount>"),
+	["Enthusiast"] = T(7591, "Brimming with enthusiasm <amount> (Enthusiast)"),
+	["Melancholic"] = T(7592, "Severely depressed <amount> (Melancholic)"),
+	["Lazy"] = T(7593, "Procrastinating at work <amount> (Lazy)"),
+	["Workaholic"] = T(7594, "Working hard <amount> (Workaholic)"),
+	["Alcoholic"] = T(7595, "Hangover <amount> (Alcoholic)"),
+	["Renegade"] = T(7596, "Disillusioned <amount> (Renegade)"),
+	["VocationOrientedSociety"] = T(7597, "Vocation oriented society <amount>"),
+	["Refugee"] = T(8544, "Refugee performance penalty <amount> (Refugee)")
 }
 --------------------------------------------------------------------------------------------------------------------
 -- RANDOM MAP

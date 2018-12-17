@@ -80,10 +80,10 @@ function ModsUIDialogEnd(dialog)
 			local exit_choice = true
 			if #new_mods > 0 then
 				local choice = WaitMarsQuestion(dialog, 
-							T{6899, "Warning"}, 
-							T{4164, "Mods are player created software packages that modify your game experience. USE THEM AT YOUR OWN RISK! We do not examine, monitor, support or guarantee this user created content. You should take all precautions you normally take regarding downloading files from the Internet before using mods."}, 
-							T{6900, "OK"}, 
-							T{4165, "Back"},
+							T(6899, "Warning"), 
+							T(4164, "Mods are player created software packages that modify your game experience. USE THEM AT YOUR OWN RISK! We do not examine, monitor, support or guarantee this user created content. You should take all precautions you normally take regarding downloading files from the Internet before using mods."), 
+							T(6900, "OK"), 
+							T(4165, "Back"),
 							nil,
 							nil,
 							GetErrorTemplate(nil, "pops")
@@ -105,9 +105,9 @@ end
 
 function ModsUIGetModCorruptedStatus(mod)
 	if mod.lua_revision < ModMinLuaRevision then
-		return true, T{10931, "Incompatible mod version."}
+		return true, T(10931, "Incompatible mod version.")
 	elseif mod.lua_revision > LuaRevision then
-		return true, T{10932, "Game update required!"}
+		return true, T(10932, "Game update required!")
 	end
 	return false
 end
@@ -118,17 +118,17 @@ function GetPopsModsUISortItems(mode)
 	PopsModsUISortItems = PopsModsUISortItems or {}
 	if PopsModsUISortItems[mode] then return PopsModsUISortItems[mode] end
 	local items = {}
-	items[#items + 1] = {id = "displayName_asc",  name = T{10933, "Alphabetically (ASC)"}, name_uppercase = T{10934, "ALPHABETICALLY (ASC)"}}
-	items[#items + 1] = {id = "displayName_desc", name = T{10935, "Alphabetically (DESC)"}, name_uppercase = T{10936, "ALPHABETICALLY (DESC)"}}
+	items[#items + 1] = {id = "displayName_asc",  name = T(10933, "Alphabetically (ASC)"), name_uppercase = T(10934, "ALPHABETICALLY (ASC)")}
+	items[#items + 1] = {id = "displayName_desc", name = T(10935, "Alphabetically (DESC)"), name_uppercase = T(10936, "ALPHABETICALLY (DESC)")}
 	if mode == "installed" then
-		items[#items + 1] = {id = "enabled_desc",  name = T{10973, "Enabled first"}, name_uppercase = T{10991, "ENABLED FIRST"}}
-		items[#items + 1] = {id = "enabled_asc", name = T{10974, "Disabled first"}, name_uppercase = T{10992, "DISABLED FIRST"}}
+		items[#items + 1] = {id = "enabled_desc",  name = T(10973, "Enabled first"), name_uppercase = T(10991, "ENABLED FIRST")}
+		items[#items + 1] = {id = "enabled_asc", name = T(10974, "Disabled first"), name_uppercase = T(10992, "DISABLED FIRST")}
 	end
 	if not Platform.steam then
-		items[#items + 1] = {id = "created_asc",       name = T{10937, "Oldest first"},         name_uppercase = T{10938, "OLDEST FIRST"}}
-		items[#items + 1] = {id = "created_desc",      name = T{10939, "Most recent first"},    name_uppercase = T{10940, "MOST RESENT FIRST"}}
-		items[#items + 1] = {id = "rating_asc",        name = T{10941, "Rating (ASC)"},         name_uppercase = T{10942, "RATING (ASC)"}}
-		items[#items + 1] = {id = "rating_desc",       name =  T{10943, "Rating (DESC)"},       name_uppercase = T{10944, "RATING (DESC)"}}
+		items[#items + 1] = {id = "created_asc",       name = T(10937, "Oldest first"),         name_uppercase = T(10938, "OLDEST FIRST")}
+		items[#items + 1] = {id = "created_desc",      name = T(10939, "Most recent first"),    name_uppercase = T(10940, "MOST RESENT FIRST")}
+		items[#items + 1] = {id = "rating_asc",        name = T(10941, "Rating (ASC)"),         name_uppercase = T(10942, "RATING (ASC)")}
+		items[#items + 1] = {id = "rating_desc",       name =  T(10943, "Rating (DESC)"),       name_uppercase = T(10944, "RATING (DESC)")}
 	end
 	PopsModsUISortItems[mode] = items
 	return items
@@ -140,7 +140,7 @@ function ModsUIChooseSort(parent)
 	obj.popup_shown = "sort"
 	local wnd = XTemplateSpawn("ModsUISortFilter", parent, obj)
 	wnd:Open()
-	wnd.idTitle:SetText(T{10124, "Sort"})
+	wnd.idTitle:SetText(T(10124, "Sort"))
 	return wnd
 end
 
@@ -154,7 +154,7 @@ function ModsUIChooseFilter(parent)
 	for k,v in pairs(obj.set_tags) do
 		obj.temp_tags[k] = v
 	end
-	wnd.idTitle:SetText(T{10426, "Filter by"})
+	wnd.idTitle:SetText(T(10426, "Filter by"))
 end
 
 function ModsUIToggleSortPC(parent)
@@ -227,7 +227,7 @@ function ModsUIChooseModRating(parent)
 	wnd:Open()
 	obj.popup_shown = "rate"
 	wnd.idTitle:SetText(T{10385, "Rate <ModName>", ModName = Untranslated(context.DisplayName)})
-	wnd.idText:SetText(T{10386, "Use the stars below to rate the <game_title> mod <ModName> by <AuthorName>", game_title = T{1079, "Surviving Mars"}, ModName = Untranslated(context.DisplayName), AuthorName = Untranslated(context.Author)})
+	wnd.idText:SetText(T{10386, "Use the stars below to rate the <game_title> mod <ModName> by <AuthorName>", game_title = T(1079, "Surviving Mars"), ModName = Untranslated(context.DisplayName), AuthorName = Untranslated(context.Author)})
 end
 
 function ModsUIRateMod(win, rating)
@@ -280,7 +280,7 @@ end
 function ModsUIUninstallMod(mod, obj_table)
 	g_PopsUninstallModThread = IsValidThread(g_PopsUninstallModThread) and g_PopsUninstallModThread or CreateRealTimeThread(function(mod, obj_table)
 		mod = mod or g_ParadoxModsContextObj:GetSelectedMod(obj_table)
-		local res = WaitMarsQuestion(nil, T{6779, "Warning"}, T{10945, "Do you want to uninstall the mod <ModName>?", ModName = Untranslated(mod.DisplayName)}, T{1138, "Yes"}, T{1139, "No"}, "UI/Messages/space.tga", nil, GetErrorTemplate(nil, "pops"))
+		local res = WaitMarsQuestion(nil, T(6779, "Warning"), T{10945, "Do you want to uninstall the mod <ModName>?", ModName = Untranslated(mod.DisplayName)}, T(1138, "Yes"), T(1139, "No"), "UI/Messages/space.tga", nil, GetErrorTemplate(nil, "pops"))
 		if res ~= "ok" then return end
 		local id = mod.ModID
 		local err
@@ -497,9 +497,9 @@ function ModsUIPCGamepadSearch(parent)
 	obj.popup_shown = "search"
 	local wnd = XTemplateSpawn("ModsUIPCGamepadSearch", parent, obj)
 	wnd:Open()
-	wnd.idTitle:SetText(T{10123, "Search"})
+	wnd.idTitle:SetText(T(10123, "Search"))
 	local query = dlg.Mode == "browse" and obj.query or obj.installed_query
-	query = query ~= "" and query or _InternalTranslate(T{10485, "Search mods..."})
+	query = query ~= "" and query or _InternalTranslate(T(10485, "Search mods..."))
 	wnd.idEdit:SetText(query)
 end
 
@@ -514,7 +514,7 @@ function ModsUIConsoleSearch(parent)
 		CreateRealTimeThread(function(obj, mode)
 			local query_name = mode == "browse" and "query" or "installed_query"
 			local current = obj[query_name]
-			local text, err = WaitControllerTextInput(current, T{10485, "Search mods..."}, "", 255, false)
+			local text, err = WaitControllerTextInput(current, T(10485, "Search mods..."), "", 255, false)
 			if not err then
 				text = text:trim_spaces()
 				local query_func = mode == "browse" and "GetMods" or "GetInstalledMods"
@@ -1018,24 +1018,24 @@ if FirstLoad then
 end
 
 ---- SignUp ----
-local months = {T{10427, "January"},T{10428, "February"},T{10429, "March"},T{10430, "April"},T{10431, "May"},T{10432, "June"},T{10433, "July"},T{1962, "August"},T{10434, "September"},T{10435, "October"},T{10436, "November"},T{10437, "December"}}
+local months = {T(10427, "January"),T(10428, "February"),T(10429, "March"),T(10430, "April"),T(10431, "May"),T(10432, "June"),T(10433, "July"),T(1962, "August"),T(10434, "September"),T(10435, "October"),T(10436, "November"),T(10437, "December")}
 function PDXAccountFillBirthDataCombos(self)
 	--day:1-31, month:January_December (translated), Year:1900-Current
 	local items = {}
-	items[1] = {name = _InternalTranslate(T{7715, "Day"}), id = ""}
+	items[1] = {name = _InternalTranslate(T(7715, "Day")), id = ""}
 	for i=1, 31 do
 		items[#items + 1] = {name = tostring(i), id = i}
 	end
 	self:ResolveId("idDay").idCombo:SetItems(items)
 	items = {}
-	items[1] = {name = _InternalTranslate(T{7714, "Month"}), id = ""}
+	items[1] = {name = _InternalTranslate(T(7714, "Month")), id = ""}
 	for i=1, #months do
 		items[#items+1] = {name = _InternalTranslate(months[i]), id = i}
 	end
 	self:ResolveId("idMonth").idCombo:SetItems(items)
 	items = {}
 	local start = tonumber(os.date("%Y"))
-	items[1] = {name = _InternalTranslate(T{10438, "Year"}), id = ""}
+	items[1] = {name = _InternalTranslate(T(10438, "Year")), id = ""}
 	for i = start, 1900, -1 do
 		items[#items + 1] = {name = tostring(i), id = i}
 	end
@@ -1048,8 +1048,8 @@ PopsModsUIFlagReasons = {
 	--{ name = T{10440, "Violence"},     id = "violence" },
 	--{ name = T{10441, "Harassment"},   id = "harassment" },
 	--{ name = T{10442, "Spam"},         id = "spam" },
-	{ name = T{10443, "Copyright infringement"}, id = "copyright" },
+	{ name = T(10443, "Copyright infringement"), id = "copyright" },
 	--{ name = T{10444, "Hate speech"},  id = "hate" },
-	{ name = T{10541, "Inappropriate"}, id = "inappropriate" },
-	{ name = T{10445, "Somehing else"},id = "other" },
+	{ name = T(10541, "Inappropriate"), id = "inappropriate" },
+	{ name = T(10445, "Somehing else"),id = "other" },
 }

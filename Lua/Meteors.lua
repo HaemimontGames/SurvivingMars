@@ -499,7 +499,6 @@ DefineClass.BaseMeteorSmall =
 
 function BaseMeteorSmall:Explode()
 	SuspendPassEdits("MeteorSmallExplode")
-	UICity:SetCableCascadeDeletion(false, "meteor")
 	local objects = MapGet(self:GetQuery())
 	local passages_fractured = {}
 	local buildings_hit = {}
@@ -507,6 +506,7 @@ function BaseMeteorSmall:Explode()
 	local destroyed_pipes = {}
 	local destroyed_cables = {}
 	local cablesnpipes_to_kill = {}
+	local cablesnpipes = {}
 	for i=1,#objects do
 		local obj = objects[i]
 		if IsKindOf(obj, "Drone") then
@@ -550,34 +550,35 @@ function BaseMeteorSmall:Explode()
 				obj:SetMalfunction()
 			end
 		elseif IsKindOfClasses(obj, "ElectricityGridElement", "LifeSupportGridElement") then
-			--destroy if origin in range, break if otherwise
-			if self:IsCloser2D(obj, self.range) then
-				local is_pipe = IsKindOf(obj, "LifeSupportGridElement")
-				if is_pipe and g_Consts.InstantPipes == 0 or
-					not is_pipe and g_Consts.InstantCables == 0 then --don't destroy if we are just gona place them instantly again
-					if not IsKindOf(obj, "ConstructionSite") then
-						if not is_pipe and not table.find(destroyed_cables, 4, obj) then
-							local t = GatherSupplyGridObjectsToBeDestroyed(obj, destroyed_cables)
-							table.append(destroyed_cables, t)
-						elseif is_pipe and not table.find(destroyed_pipes, 4, obj) then
-							local t
-							t, chain_id_counter = GatherSupplyGridObjectsToBeDestroyed(obj, destroyed_pipes, chain_id_counter)
-							table.append(destroyed_pipes, t)
-						end
+			cablesnpipes[#cablesnpipes + 1] = obj
+		end
+	end
+	
+	--should be a separate pass from blds gettting killed to get accurate topology
+	for i = 1, #cablesnpipes do
+		local obj = cablesnpipes[i]
+		--destroy if origin in range, break if otherwise
+		if self:IsCloser2D(obj, self.range) then
+			local is_pipe = IsKindOf(obj, "LifeSupportGridElement")
+			if is_pipe and g_Consts.InstantPipes == 0 or
+				not is_pipe and g_Consts.InstantCables == 0 then --don't destroy if we are just gona place them instantly again
+				if not IsKindOf(obj, "ConstructionSite") then
+					if not is_pipe and not table.find(destroyed_cables, 4, obj) then
+						local t = GatherSupplyGridObjectsToBeDestroyed(obj, destroyed_cables)
+						table.append(destroyed_cables, t)
+					elseif is_pipe and not table.find(destroyed_pipes, 4, obj) then
+						local t
+						t, chain_id_counter = GatherSupplyGridObjectsToBeDestroyed(obj, destroyed_pipes, chain_id_counter)
+						table.append(destroyed_pipes, t)
 					end
-					
-					table.insert(cablesnpipes_to_kill, obj)
-				else
-					obj:Break()
 				end
+				
+				table.insert(cablesnpipes_to_kill, obj)
 			else
 				obj:Break()
 			end
-		end
-	end
-	for i = 1, #cablesnpipes_to_kill do
-		if IsValid(cablesnpipes_to_kill[i]) then
-			DoneObject(cablesnpipes_to_kill[i])
+		else
+			obj:Break()
 		end
 	end
 	
@@ -598,16 +599,7 @@ function BaseMeteorSmall:Explode()
 		self:SpawnDeposit(buildings_hit[1 + self:Random(#buildings_hit)])
 	end
 	
-	if #destroyed_pipes > 0 then
-		RebuildSupplyGridObjects(destroyed_pipes, "LifeSupportGridElement")
-	end
-	
-	if #destroyed_cables > 0 then
-		RebuildSupplyGridObjects(destroyed_cables, "ElectricityGridElement")
-	end
-	
-	
-	UICity:SetCableCascadeDeletion(true, "meteor")
+	KillCablesAndPipesAndRebuildThem(cablesnpipes_to_kill, destroyed_cables, destroyed_pipes)
 	ResumePassEdits("MeteorSmallExplode")
 end
 
@@ -630,7 +622,6 @@ end
 
 function BaseMeteorLarge:Explode()
 	SuspendPassEdits("MeteorLargeExplode")
-	UICity:SetCableCascadeDeletion(false, "meteor")
 	local objects = MapGet(self:GetQuery())
 	local chain_id_counter = 1
 	local passages_fractured = {}
@@ -638,6 +629,7 @@ function BaseMeteorLarge:Explode()
 	local destroyed_cables = {}
 	local cablesnpipes_to_kill = {}
 	local buildings_hit = {}
+	local cablesnpipes = {}
 	for i=1,#objects do
 		local obj = objects[i]
 		if IsKindOfClasses(obj, "Drone", "BaseRover") then
@@ -674,35 +666,35 @@ function BaseMeteorLarge:Explode()
 				end
 			end
 		elseif IsKindOfClasses(obj, "ElectricityGridElement", "LifeSupportGridElement") then
-			--destroy if origin in range, break if otherwise
-			if self:IsCloser2D(obj, self.range) then
-				local is_pipe = IsKindOf(obj, "LifeSupportGridElement")
-				if is_pipe and g_Consts.InstantPipes == 0 or
-					not is_pipe and g_Consts.InstantCables == 0 then --don't destroy if we are just gona place them instantly again
-					if not IsKindOf(obj, "ConstructionSite") then
-						if not is_pipe and not table.find(destroyed_cables, 4, obj) then
-							local t = GatherSupplyGridObjectsToBeDestroyed(obj, destroyed_cables)
-							table.append(destroyed_cables, t)
-						elseif is_pipe and not table.find(destroyed_pipes, 4, obj) then
-							local t
-							t, chain_id_counter = GatherSupplyGridObjectsToBeDestroyed(obj, destroyed_pipes, chain_id_counter)
-							table.append(destroyed_pipes, t)
-						end
+			cablesnpipes[#cablesnpipes + 1] = obj			
+		end
+	end
+	
+	--should be a separate pass from blds gettting killed to get accurate topology
+	for i = 1, #cablesnpipes do
+		--destroy if origin in range, break if otherwise
+		local obj = cablesnpipes[i]
+		if self:IsCloser2D(obj, self.range) then
+			local is_pipe = IsKindOf(obj, "LifeSupportGridElement")
+			if is_pipe and g_Consts.InstantPipes == 0 or
+				not is_pipe and g_Consts.InstantCables == 0 then --don't destroy if we are just gona place them instantly again
+				if not IsKindOf(obj, "ConstructionSite") then
+					if not is_pipe and not table.find(destroyed_cables, 4, obj) then
+						local t = GatherSupplyGridObjectsToBeDestroyed(obj, destroyed_cables)
+						table.append(destroyed_cables, t)
+					elseif is_pipe and not table.find(destroyed_pipes, 4, obj) then
+						local t
+						t, chain_id_counter = GatherSupplyGridObjectsToBeDestroyed(obj, destroyed_pipes, chain_id_counter)
+						table.append(destroyed_pipes, t)
 					end
-					
-					table.insert(cablesnpipes_to_kill, obj)
-				else
-					obj:Break()
 				end
+				
+				table.insert(cablesnpipes_to_kill, obj)
 			else
 				obj:Break()
 			end
-		end
-	end
-		
-	for i = 1, #cablesnpipes_to_kill do
-		if IsValid(cablesnpipes_to_kill[i]) then
-			DoneObject(cablesnpipes_to_kill[i])
+		else
+			obj:Break()
 		end
 	end
 	
@@ -722,16 +714,8 @@ function BaseMeteorLarge:Explode()
 	else
 		self:SpawnDeposit(buildings_hit[1 + self:Random(#buildings_hit)])
 	end
-
-	if #destroyed_pipes > 0 then
-		RebuildSupplyGridObjects(destroyed_pipes, "LifeSupportGridElement")
-	end
 	
-	if #destroyed_cables > 0 then
-		RebuildSupplyGridObjects(destroyed_cables, "ElectricityGridElement")
-	end
-	
-	UICity:SetCableCascadeDeletion(true, "meteor")
+	KillCablesAndPipesAndRebuildThem(cablesnpipes_to_kill, destroyed_cables, destroyed_pipes)
 	ResumePassEdits("MeteorLargeExplode")
 end
 
@@ -767,8 +751,6 @@ GlobalGameTimeThread("MeteorDecalFade", function()
 end)
 
 function GatherSupplyGridObjectsToBeDestroyed(first_obj, collected, chain_id_counter)
-	assert(UICity.cascade_cable_deletion_enabled == false)
-	
 	local is_pipe = IsKindOf(first_obj, "LifeSupportGridElement")
 	local supply_resource = is_pipe and "water" or "electricity"
 	local conn_grid = SupplyGridConnections[supply_resource]
@@ -931,5 +913,66 @@ if Platform.developer then
 			local def = MapSettings_Meteor:new{storm_radius = 1000}
 			MeteorsDisaster(def, "single", IsValid(SelectedObj) and SelectedObj:GetVisualPos() or GetTerrainCursor())
 		end)
+	end
+end
+
+local kill_thread = false
+all_objs_to_kill = false
+all_cbls_to_rebuild = false
+all_pipes_to_rebuild = false
+
+function KillCablesAndPipesAndRebuildThemExec()
+	UICity:SetCableCascadeDeletion(false, "killingandrebuildingsupplygrid")
+	SuspendPassEdits("killingandrebuildingsupplygrid")
+	for i = 1, #all_objs_to_kill do
+		if IsValid(all_objs_to_kill[i]) then
+			DoneObject(all_objs_to_kill[i])
+		end
+	end
+	
+	if #all_pipes_to_rebuild > 0 then
+		RebuildSupplyGridObjects(all_pipes_to_rebuild, "LifeSupportGridElement")
+	end
+	
+	if #all_cbls_to_rebuild > 0 then
+		RebuildSupplyGridObjects(all_cbls_to_rebuild, "ElectricityGridElement")
+	end
+	
+	ResumePassEdits("killingandrebuildingsupplygrid")
+	UICity:SetCableCascadeDeletion(true, "killingandrebuildingsupplygrid")
+	all_objs_to_kill = false
+	all_pipes_to_rebuild = false
+	all_cbls_to_rebuild = false
+	kill_thread = false
+end
+
+local function append_data(t1, d)
+	for i = 1, #d do
+		if not table.find(t1, 4, d[i][4]) then
+			t1[#t1 + 1] = d[i]
+		end
+	end
+end
+
+local function helper_pick_table(t1, tnew)
+	if not t1 or #t1 <= 0 then
+		t1 = tnew
+	else
+		if IsValid(t1[1]) then
+			table.append_unique(t1, tnew)
+		else
+			append_data(t1, tnew)
+		end
+	end
+	
+	return t1
+end
+
+function KillCablesAndPipesAndRebuildThem(objs_to_kill, cbls_to_rebuild, pipes_to_rebuild)
+	all_objs_to_kill = helper_pick_table(all_objs_to_kill, objs_to_kill)
+	all_cbls_to_rebuild = helper_pick_table(all_cbls_to_rebuild, cbls_to_rebuild)
+	all_pipes_to_rebuild = helper_pick_table(all_pipes_to_rebuild, pipes_to_rebuild)
+	if not kill_thread then
+		kill_thread = CreateGameTimeThread(KillCablesAndPipesAndRebuildThemExec)
 	end
 end

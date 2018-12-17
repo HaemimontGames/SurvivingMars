@@ -37,7 +37,7 @@ end
 
 DefineClass.StatusEffect =  {
 	__parents = { "PropertyObject"},
-	display_name = T{3868, "Status effect"},
+	display_name = T(3868, "Status effect"),
 	description = "",
 	display_icon = "", --in infopanel
 	sign = "", -- sign placed on top 
@@ -64,8 +64,8 @@ end
 -------------------------------------------------------------
 DefineClass.StatusEffect_Homeless =  {
 	__parents = { "StatusEffect"},
-	display_name = T{3869, "Homeless"},
-	description = T{3870, "Homeless Colonist"},
+	display_name = T(3869, "Homeless"),
+	description = T(3870, "Homeless Colonist"),
 	sign = "UnitSignHomeless",
 	selection_arrow = "UnitArrowHomeless",
 	priority = 75,
@@ -73,8 +73,8 @@ DefineClass.StatusEffect_Homeless =  {
 
 DefineClass.StatusEffect_Unemployed =  {
 	__parents = { "StatusEffect"},
-	display_name = T{6859, "Unemployed"},
-	description = T{6860, "Unemployed Colonist"},
+	display_name = T(6859, "Unemployed"),
+	description = T(6860, "Unemployed Colonist"),
 	sign = "UnitSignUnemployed",
 	selection_arrow = "UnitArrowUnemployed",
 	priority = 45,
@@ -124,8 +124,8 @@ end
 
 DefineClass.StatusEffect_Irradiated =  {
 	__parents = { "StatusEffect_Shock"},
-	display_name = T{6861, "Irradiated"},
-	description = T{6862, "Loses health over time."},
+	display_name = T(6861, "Irradiated"),
+	description = T(6862, "Loses health over time."),
 	sign = "UnitSignIrradiated",
 	selection_arrow = "UnitArrowIrradiated",
 	priority = 75,
@@ -137,8 +137,8 @@ DefineClass.StatusEffect_Irradiated =  {
 
 DefineClass.StatusEffect_Suffocating = {
 	__parents = { "StatusEffect_Shock"},
-	display_name = T{3871, "Suffocating"},
-	description = T{3872, "Suffocating Colonist"},
+	display_name = T(3871, "Suffocating"),
+	description = T(3872, "Suffocating Colonist"),
 	priority = 100,
 	sign = "UnitSignSuffocating",
 	selection_arrow = "UnitArrowSuffocating",
@@ -160,8 +160,8 @@ DefineClass.StatusEffect_Suffocating_Outside = {
 ---------------------------------------------------
 DefineClass.StatusEffect_Dehydrated = {
 	__parents = { "StatusEffect_Shock"},
-	display_name = T{3873, "Dehydrated"},
-	description = T{3874, "Dehydrated Colonist"},
+	display_name = T(3873, "Dehydrated"),
+	description = T(3874, "Dehydrated Colonist"),
 	sign = "UnitSignThirsty",
 	selection_arrow = "UnitArrowThirsty",
 	priority = 90,
@@ -175,8 +175,8 @@ DefineClass.StatusEffect_Dehydrated = {
 ----------------------------------
 DefineClass.StatusEffect_Freezing = {
 	__parents = { "StatusEffect_Shock"},
-	display_name = T{3875, "Freezing"},
-	description = T{3876, "Freezing Colonist"},
+	display_name = T(3875, "Freezing"),
+	description = T(3876, "Freezing Colonist"),
 	sign = "UnitSignFreezing",
 	selection_arrow = "UnitArrowFreezing",
 	priority = 95,
@@ -196,7 +196,7 @@ end)
 
 DefineClass.StatusEffect_Starving = {
 	__parents = { "StatusEffect_Shock"},
-	display_name = T{3877, "Starving"},
+	display_name = T(3877, "Starving"),
 	sign = "UnitSignStarving",
 	selection_arrow = "UnitArrowHungry",
 	priority = 85,
@@ -231,7 +231,7 @@ end
 ---------------------------
 DefineClass.StatusEffect_StressedOut = {
 	__parents = { "StatusEffect" },
-	display_name = T{3878, "Stressed Out"},
+	display_name = T(3878, "Stressed Out"),
 	sign = "UnitSignInsane",
 	selection_arrow = "UnitArrowInsane",
 	priority = 60,
@@ -264,7 +264,7 @@ end)
 
 DefineClass.StatusEffect_Earthsick = {
 	__parents = { "StatusEffect" },
-	display_name = T{3879, "Earthsick"},
+	display_name = T(3879, "Earthsick"),
 	sign = "UnitSignEarthsick",
 	selection_arrow = "UnitArrowEarthsick",
 	priority = 50,
@@ -284,23 +284,23 @@ StatusEffectsList = {}
 StatusEffectsShock = {}
 
 ColonistTraitsWarnings = {
-	["Renegade"]                 = T{8946, "This Colonist is a Renegade. Renegades will cause trouble, unless countered by Security Stations."},
-	["Infected"]                 = T{8947, "This Colonist is infected and will lose Health over time."},
+	["Renegade"]                 = T(8946, "This Colonist is a Renegade. Renegades will cause trouble, unless countered by Security Stations."),
+	["Infected"]                 = T(8947, "This Colonist is infected and will lose Health over time."),
 }
 ColonistStatusEffectsWarnings = {
-	["StatusEffect_Irradiated"]  = T{8948, "This Colonist is irradiated and will lose Health over time."},
-	["StatusEffect_Suffocating"] = T{8949, "This Colonist is suffocating and needs Oxygen to survive."}, 
-	["StatusEffect_Dehydrated"]  = T{8950, "This Colonist is dehydrated and needs Water to survive."}, 
-	["StatusEffect_Freezing"]    = T{8951, "This Colonist is freezing. Restore Dome Power to resolve the issue."}, 
-	["StatusEffect_Starving"]    = T{8952, "This Colonist is starving and needs Food to survive."},
-	["StatusEffect_StressedOut"] = T{8953, "This Colonist is stressed out due to low Sanity and temporarily unable to work."}, 
-	["StatusEffect_Earthsick"]   = T{8954, "This Colonist is Earthsick due to low comfort. Earthsick colonists can't work and will try to return to Earth."},
+	["StatusEffect_Irradiated"]  = T(8948, "This Colonist is irradiated and will lose Health over time."),
+	["StatusEffect_Suffocating"] = T(8949, "This Colonist is suffocating and needs Oxygen to survive."), 
+	["StatusEffect_Dehydrated"]  = T(8950, "This Colonist is dehydrated and needs Water to survive."), 
+	["StatusEffect_Freezing"]    = T(8951, "This Colonist is freezing. Restore Dome Power to resolve the issue."), 
+	["StatusEffect_Starving"]    = T(8952, "This Colonist is starving and needs Food to survive."),
+	["StatusEffect_StressedOut"] = T(8953, "This Colonist is stressed out due to low Sanity and temporarily unable to work."), 
+	["StatusEffect_Earthsick"]   = T(8954, "This Colonist is Earthsick due to low comfort. Earthsick colonists can't work and will try to return to Earth."),
 }
 
 IronColonistsColonistStatusEffectsWarningsOverrides = {
-	["StatusEffect_Suffocating"] = T{10533, "This Colonist is suffocating and would have needed Oxygen to survive if not for the Iron Colonists rule."},
-	["StatusEffect_Dehydrated"] = T{10534, "This Colonist is dehydrated and would have needed Water to survive if not for the Iron Colonists rule."},
-	["StatusEffect_Starving"] = T{10535, "This Colonists is starving and would have needed Food to survive if not for the Iron Colonists rule."},
+	["StatusEffect_Suffocating"] = T(10533, "This Colonist is suffocating and would have needed Oxygen to survive if not for the Iron Colonists rule."),
+	["StatusEffect_Dehydrated"] = T(10534, "This Colonist is dehydrated and would have needed Water to survive if not for the Iron Colonists rule."),
+	["StatusEffect_Starving"] = T(10535, "This Colonists is starving and would have needed Food to survive if not for the Iron Colonists rule."),
 }
 
 function GetColonistStatusEffectWarning(status_effect)

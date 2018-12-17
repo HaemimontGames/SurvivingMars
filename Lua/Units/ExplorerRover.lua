@@ -2,8 +2,8 @@ DefineClass.ExplorerRover = {
 	__parents = {  "BaseRover", "ComponentAttach" },
 	entity = "RoverExplorer",
 	
-	display_name = T{1684, "RC Explorer"},
-	description = T{4455, "A remote-controlled exploration vehicle that can analyze Anomalies."},
+	display_name = T(1684, "RC Explorer"),
+	description = T(4455, "A remote-controlled exploration vehicle that can analyze Anomalies."),
 	display_icon = "UI/Icons/Buildings/rover_human.tga",
 	
 	collision_radius = 540,

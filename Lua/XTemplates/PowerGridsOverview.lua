@@ -7,12 +7,12 @@ PlaceObj('XTemplate', {
 		'__context', function (parent, context) return context or {} end,
 		'__template', "NewOverlayDlg",
 		'MinWidth', 500,
-		'InitialMode', "transportation",
-		'InternalModes', "transportation",
+		'InitialMode', "powergrids",
+		'InternalModes', "powergrids",
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "CommandCenterTitle",
-			'Title', T{682644919979, --[[XTemplate PowerGridsOverview Title]] "POWER GRIDS"},
+			'Title', T(682644919979, --[[XTemplate PowerGridsOverview Title]] "POWER GRIDS"),
 		}),
 		PlaceObj('XTemplateWindow', {
 			'comment', "content",
@@ -37,7 +37,7 @@ PlaceObj('XTemplate', {
 						'MaxWidth', 250,
 						'TextStyle', "OverviewItemSection",
 						'Translate', true,
-						'Text', T{550311643207, --[[XTemplate PowerGridsOverview Text]] "Name"},
+						'Text', T(550311643207, --[[XTemplate PowerGridsOverview Text]] "Name"),
 					}),
 					PlaceObj('XTemplateWindow', {
 						'comment', "production",
@@ -46,7 +46,7 @@ PlaceObj('XTemplate', {
 						'MaxWidth', 150,
 						'TextStyle', "OverviewItemSection",
 						'Translate', true,
-						'Text', T{996334672198, --[[XTemplate PowerGridsOverview Text]] "Production"},
+						'Text', T(996334672198, --[[XTemplate PowerGridsOverview Text]] "Production"),
 						'TextHAlign', "center",
 					}),
 					PlaceObj('XTemplateWindow', {
@@ -56,7 +56,7 @@ PlaceObj('XTemplate', {
 						'MaxWidth', 150,
 						'TextStyle', "OverviewItemSection",
 						'Translate', true,
-						'Text', T{400347448588, --[[XTemplate PowerGridsOverview Text]] "Consumption"},
+						'Text', T(400347448588, --[[XTemplate PowerGridsOverview Text]] "Consumption"),
 						'TextHAlign', "center",
 					}),
 					PlaceObj('XTemplateWindow', {
@@ -66,7 +66,7 @@ PlaceObj('XTemplate', {
 						'MaxWidth', 150,
 						'TextStyle', "OverviewItemSection",
 						'Translate', true,
-						'Text', T{562101525799, --[[XTemplate PowerGridsOverview Text]] "Stored Power"},
+						'Text', T(562101525799, --[[XTemplate PowerGridsOverview Text]] "Stored Power"),
 						'TextHAlign', "center",
 					}),
 					PlaceObj('XTemplateWindow', {
@@ -76,7 +76,7 @@ PlaceObj('XTemplate', {
 						'MaxWidth', 150,
 						'TextStyle', "OverviewItemSection",
 						'Translate', true,
-						'Text', T{655663611091, --[[XTemplate PowerGridsOverview Text]] "Change"},
+						'Text', T(655663611091, --[[XTemplate PowerGridsOverview Text]] "Change"),
 						'TextHAlign', "center",
 					}),
 					}),
@@ -138,7 +138,7 @@ end,
 						'HandleMouse', false,
 						'TextStyle', "InGameTitle",
 						'Translate', true,
-						'Text', T{591853191640, --[[XTemplate PowerGridsOverview Text]] "Empty list"},
+						'Text', T(591853191640, --[[XTemplate PowerGridsOverview Text]] "Empty list"),
 					}),
 					PlaceObj('XTemplateCode', {
 						'run', function (self, parent, context)
@@ -151,7 +151,7 @@ end,
 			}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "back",
-			'ActionName', T{4254, --[[XTemplate PowerGridsOverview ActionName]] "BACK"},
+			'ActionName', T(4254, --[[XTemplate PowerGridsOverview ActionName]] "BACK"),
 			'ActionToolbar', "ActionBar",
 			'ActionShortcut', "Escape",
 			'ActionGamepad', "ButtonB",

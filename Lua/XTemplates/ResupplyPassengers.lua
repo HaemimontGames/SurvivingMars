@@ -42,7 +42,7 @@ end,
 				'__template', "DialogTitleNew",
 				'Id', "",
 				'Margins', box(55, 0, 0, 0),
-				'Title', T{723122513032, --[[XTemplate ResupplyPassengers Title]] "SELECT COLONISTS"},
+				'Title', T(723122513032, --[[XTemplate ResupplyPassengers Title]] "SELECT COLONISTS"),
 				'SmallImage', true,
 			}),
 			PlaceObj('XTemplateWindow', {
@@ -83,7 +83,7 @@ end,
 						'MouseCursor', "UI/Cursors/Rollover.tga",
 						'TextStyle', "PGLandingPosDetails",
 						'Translate', true,
-						'Text', T{454729036303, --[[XTemplate ResupplyPassengers Text]] "<RocketName>"},
+						'Text', T(454729036303, --[[XTemplate ResupplyPassengers Text]] "<RocketName>"),
 						'Shorten', true,
 						'TextHAlign', "right",
 					}, {
@@ -118,7 +118,7 @@ end,
 							'Padding', box(0, 0, 0, 0),
 							'TextStyle', "PGLandingPosDetails",
 							'Translate', true,
-							'Text', T{945506235214, --[[XTemplate ResupplyPassengers Text]] "Rocket Capacity"},
+							'Text', T(945506235214, --[[XTemplate ResupplyPassengers Text]] "Rocket Capacity"),
 						}),
 						PlaceObj('XTemplateWindow', {
 							'__condition', function (parent, context) return UICity and UICity.launch_mode == "passenger_pod" end,
@@ -126,21 +126,21 @@ end,
 							'Padding', box(0, 0, 0, 0),
 							'TextStyle', "PGLandingPosDetails",
 							'Translate', true,
-							'Text', T{189122132072, --[[XTemplate ResupplyPassengers Text]] "Pod Capacity"},
+							'Text', T(189122132072, --[[XTemplate ResupplyPassengers Text]] "Pod Capacity"),
 						}),
 						PlaceObj('XTemplateWindow', {
 							'__class', "XText",
 							'Padding', box(0, 0, 0, 0),
 							'TextStyle', "PGLandingPosDetails",
 							'Translate', true,
-							'Text', T{475005233850, --[[XTemplate ResupplyPassengers Text]] "Matching Applicants"},
+							'Text', T(475005233850, --[[XTemplate ResupplyPassengers Text]] "Matching Applicants"),
 						}),
 						PlaceObj('XTemplateWindow', {
 							'__class', "XText",
 							'Padding', box(0, 0, 0, 0),
 							'TextStyle', "PGLandingPosDetails",
 							'Translate', true,
-							'Text', T{914238670538, --[[XTemplate ResupplyPassengers Text]] "Available Residences on Mars"},
+							'Text', T(914238670538, --[[XTemplate ResupplyPassengers Text]] "Available Residences on Mars"),
 						}),
 						}),
 					PlaceObj('XTemplateWindow', {
@@ -174,7 +174,7 @@ end,
 				}, {
 					PlaceObj('XTemplateAction', {
 						'ActionId', "buyApplicants",
-						'ActionName', T{5455, --[[XTemplate ResupplyPassengers ActionName]] "BUY APPLICANTS"},
+						'ActionName', T(5455, --[[XTemplate ResupplyPassengers ActionName]] "BUY APPLICANTS"),
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "LeftTrigger",
 						'OnAction', function (self, host, source)
@@ -184,7 +184,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "back",
-						'ActionName', T{4254, --[[XTemplate ResupplyPassengers ActionName]] "BACK"},
+						'ActionName', T(4254, --[[XTemplate ResupplyPassengers ActionName]] "BACK"),
 						'ActionToolbar', "ActionBar",
 						'ActionShortcut', "Escape",
 						'ActionGamepad', "ButtonB",
@@ -192,7 +192,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "clear",
-						'ActionName', T{5448, --[[XTemplate ResupplyPassengers ActionName]] "CLEAR"},
+						'ActionName', T(5448, --[[XTemplate ResupplyPassengers ActionName]] "CLEAR"),
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonY",
 						'ActionState', function (self, host)
@@ -250,7 +250,7 @@ end,
 						}, {
 							PlaceObj('XTemplateCode', {
 								'run', function (self, parent, context)
-parent:ResolveId("idTitle"):SetText(T{1117, "CATEGORIES"})
+parent:ResolveId("idTitle"):SetText(T(1117, "CATEGORIES"))
 end,
 							}),
 							PlaceObj('XTemplateForEach', {
@@ -297,7 +297,7 @@ end,
 				}, {
 					PlaceObj('XTemplateAction', {
 						'ActionId', "back",
-						'ActionName', T{4254, --[[XTemplate ResupplyPassengers ActionName]] "BACK"},
+						'ActionName', T(4254, --[[XTemplate ResupplyPassengers ActionName]] "BACK"),
 						'ActionToolbar', "ActionBar",
 						'ActionShortcut', "Escape",
 						'ActionGamepad', "ButtonB",
@@ -305,7 +305,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "clear",
-						'ActionName', T{5448, --[[XTemplate ResupplyPassengers ActionName]] "CLEAR"},
+						'ActionName', T(5448, --[[XTemplate ResupplyPassengers ActionName]] "CLEAR"),
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonY",
 						'ActionState', function (self, host)
@@ -417,7 +417,7 @@ end,
 				}, {
 					PlaceObj('XTemplateAction', {
 						'ActionId', "back",
-						'ActionName', T{4254, --[[XTemplate ResupplyPassengers ActionName]] "BACK"},
+						'ActionName', T(4254, --[[XTemplate ResupplyPassengers ActionName]] "BACK"),
 						'ActionToolbar', "ActionBar",
 						'ActionShortcut', "Escape",
 						'ActionGamepad', "ButtonB",
@@ -426,7 +426,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "filter",
-						'ActionName', T{5460, --[[XTemplate ResupplyPassengers ActionName]] "FILTER"},
+						'ActionName', T(5460, --[[XTemplate ResupplyPassengers ActionName]] "FILTER"),
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "RightTrigger",
 						'OnActionEffect', "mode",
@@ -434,7 +434,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "launch",
-						'ActionName', T{4253, --[[XTemplate ResupplyPassengers ActionName]] "LAUNCH"},
+						'ActionName', T(4253, --[[XTemplate ResupplyPassengers ActionName]] "LAUNCH"),
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonX",
 						'OnAction', function (self, host, source)
@@ -474,7 +474,7 @@ end,
 								'HandleMouse', false,
 								'TextStyle', "MediumHeader",
 								'Translate', true,
-								'Text', T{914430779802, --[[XTemplate ResupplyPassengers Text]] "SELECTED <ApprovedColonists>/<PassengerCapacity>"},
+								'Text', T(914430779802, --[[XTemplate ResupplyPassengers Text]] "SELECTED <ApprovedColonists>/<PassengerCapacity>"),
 							}),
 							PlaceObj('XTemplateWindow', {
 								'Margins', box(0, 30, 0, 20),
@@ -572,7 +572,7 @@ end,
 								'HandleMouse', false,
 								'TextStyle', "MediumHeader",
 								'Translate', true,
-								'Text', T{794457706937, --[[XTemplate ResupplyPassengers Text]] "MATCHING APPLICANTS <MatchingColonistsCount>"},
+								'Text', T(794457706937, --[[XTemplate ResupplyPassengers Text]] "MATCHING APPLICANTS <MatchingColonistsCount>"),
 							}),
 							PlaceObj('XTemplateWindow', {
 								'Margins', box(0, 30, 0, 20),
@@ -617,7 +617,9 @@ end,
 										'func', function (self, ...)
 local list = #self > 0 and self or self:ResolveId("idRightList")
 list:SetFocus()
-list:SetSelection(1)
+if GetUIStyleGamepad() then
+	list:SetSelection(1)
+end
 XContentTemplateList.Open(self, ...)
 end,
 									}),

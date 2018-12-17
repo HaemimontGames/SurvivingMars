@@ -3,7 +3,7 @@ DefineClass.NetworkNode =
 	__parents = { "SpireBase", "ElectricityConsumer", "Workplace" },
 	
 	properties = {
-		{ template = true, category = "Spire", name = T{679, "Performance boost"}, id = "performance_boost", editor = "number", default = 20, help = "Performance boost (int percent) to all research buildings in the same dome (for 100% performance of this building)" }
+		{ template = true, category = "Spire", name = T(679, "Performance boost"), id = "performance_boost", editor = "number", default = 20, help = "Performance boost (int percent) to all research buildings in the same dome (for 100% performance of this building)" }
 	},
 	
 	modifier = false,

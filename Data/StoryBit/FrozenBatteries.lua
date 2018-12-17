@@ -27,18 +27,18 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	ScriptDone = true,
-	Text = T{434575933005, --[[StoryBit FrozenBatteries Text]] "The temperatures have dropped to a new all-time low, well outside the operational range of our Power Accumulators. Batteries outside of heated zones will begin to freeze and stop working for the duration of the Cold Wave."},
+	Text = T(434575933005, --[[StoryBit FrozenBatteries Text]] "The temperatures have dropped to a new all-time low, well outside the operational range of our Power Accumulators. Existing batteries will shut down and stop working for the duration of the Cold Wave unless we do something quickly."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{133503274607, --[[StoryBit FrozenBatteries Title]] "Frozen Batteries"},
+	Title = T(133503274607, --[[StoryBit FrozenBatteries Title]] "Frozen Batteries"),
 	Trigger = "ColdWave",
-	VoicedText = T{945924979440, --[[voice:narrator]] "The morning is particularly chilly. Sipping your cup of tea, you survey the frozen landscape just in time to see the warning lights of several accumulators flash red."},
+	VoicedText = T(945924979440, --[[voice:narrator]] "The morning is particularly chilly. Sipping your cup of tea, you survey the frozen landscape just in time to see the warning lights of several accumulators flash red."),
 	group = "Disasters",
 	id = "FrozenBatteries",
 	PlaceObj('StoryBitReply', {
-		'Text', T{471620908577, --[[StoryBit FrozenBatteries Text]] "Increase the voltage to heat the grid."},
+		'Text', T(471620908577, --[[StoryBit FrozenBatteries Text]] "Increase the voltage to heat the grid."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{994275456673, --[[StoryBit FrozenBatteries CustomOutcomeText]] "cause cable faults"},
+		'CustomOutcomeText', T(994275456673, --[[StoryBit FrozenBatteries CustomOutcomeText]] "cause cable faults"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -50,9 +50,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{463270204896, --[[StoryBit FrozenBatteries Text]] "Install heater units."},
+		'Text', T(463270204896, --[[StoryBit FrozenBatteries Text]] "Install heater units."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{496923911490, --[[StoryBit FrozenBatteries CustomOutcomeText]] "each Accumulator will need <electronics(maintenance)> emergency maintenance"},
+		'CustomOutcomeText', T(496923911490, --[[StoryBit FrozenBatteries CustomOutcomeText]] "each Accumulator will need <electronics(maintenance)> emergency maintenance"),
 	}),
 	PlaceObj('StoryBitParamResource', {
 		'Name', "maintenance",
@@ -82,12 +82,15 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{918784541030, --[[StoryBit FrozenBatteries Text]] "We can manage without our Power reserves for now."},
+		'Text', T(918784541030, --[[StoryBit FrozenBatteries Text]] "We can manage without our Power reserves for now."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{656980410328, --[[StoryBit FrozenBatteries CustomOutcomeText]] "all Accumulators will freeze"},
+		'CustomOutcomeText', T(656980410328, --[[StoryBit FrozenBatteries CustomOutcomeText]] "all Accumulators will stop working until the end of the Cold Wave"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
+		'Enables', {
+			"FrozenBatteries_EndEffect",
+		},
 		'Effects', {
 			PlaceObj('ForEachExecuteEffects', {
 				'Label', "Building",
@@ -100,7 +103,7 @@ PlaceObj('StoryBit', {
 					}),
 				},
 				'Effects', {
-					PlaceObj('FreezeBuilding', nil),
+					PlaceObj('SetBuildingEnabledState', nil),
 				},
 			}),
 		},

@@ -81,7 +81,7 @@ function SetPlanetCamera(planet, state)
 			})
 			cameraMax.Activate(1)
 			cameraMax.SetCamera(unpack_params(PlanetCameras[planet]))
-			camera.SetAutoFovX(1, 0, 70*60, 16, 9, 140*60, 7, 1)
+			camera.SetAutoFovX(1, 0, 70*60, 16, 9, 170*60, 7, 1)
 			WaitNextFrame(1)
 			DestroyAllRenderObjs()
 		end
@@ -227,8 +227,8 @@ function RoundCoordToFullDegrees(coord)
 end
 
 function FormatCoordinates(latitude, longitude)
-	local latitude_dir = latitude > 0 and T{6886, "S"} or T{6887, "N"}
-	local longitude_dir = longitude > 0 and T{6888, "E"} or T{6889, "W"}
+	local latitude_dir = latitude > 0 and T(6886, "S") or T(6887, "N")
+	local longitude_dir = longitude > 0 and T(6888, "E") or T(6889, "W")
 	latitude = abs(latitude)
 	longitude = abs(longitude)
 	return latitude, longitude, latitude_dir, longitude_dir
@@ -239,7 +239,7 @@ function PlanetFormatStringCoords(lat, long, spot_name, spot_style, hint, challe
 	local longd = 1 + 180 + long / 60
 	local lat_dir, long_dir
 	lat, long, lat_dir, long_dir = FormatCoordinates(lat, long)
-	spot_name = spot_name or T{1103, "Colony Site"}
+	spot_name = spot_name or T(1103, "Colony Site")
 	local style = spot_style or "<style LandingPosName>"
 	local name = T{4128, "<stl><name></style><completed><newline>", stl = style,  name = spot_name, completed = type(challenge) == "table" and challenge:GetCompletedText() or ""}
 	
@@ -256,7 +256,7 @@ function PlanetFormatStringCoords(lat, long, spot_name, spot_style, hint, challe
 		if GetUIStyleGamepad() then
 			return T{11173, "<style PlanetCoordinatesHint><control_img> Move spot</style>", control_img = TLookupTag("<LS>")}
 		else
-			return T{11174, "<style PlanetCoordinatesHint><left_click> Move spot<newline><right_click> Rotate</style>"}
+			return T(11174, "<style PlanetCoordinatesHint><left_click> Move spot<newline><right_click> Rotate</style>")
 		end
 	end
 	if type(challenge) == "table" then
@@ -290,10 +290,10 @@ end
 DefineClass.LandingSpot = {
 	__parents = { "Preset" },
 	properties = {
-		{ id = "latitude", name = T{6890, "Latitude"}, editor = "number", default = 0, min = -70, max = 70, help = T{6891, "-70 to 70"}, },
-		{ id = "longitude", name = T{6892, "Longitude"}, editor = "number", default = 0, min = -180, max = 180, help = T{6893, "-180 to 180"}, },
-		{ id = "display_name", name = T{1153, "Display Name"}, editor = "text", default = "", translate = true, },
-		{ id = "quickstart", name = T{6894, "Quickstart"}, editor = "bool", default = false, },
+		{ id = "latitude", name = T(6890, "Latitude"), editor = "number", default = 0, min = -70, max = 70, help = T(6891, "-70 to 70"), },
+		{ id = "longitude", name = T(6892, "Longitude"), editor = "number", default = 0, min = -180, max = 180, help = T(6893, "-180 to 180"), },
+		{ id = "display_name", name = T(1153, "Display Name"), editor = "text", default = "", translate = true, },
+		{ id = "quickstart", name = T(6894, "Quickstart"), editor = "bool", default = false, },
 	},
 	PropertyTranslation = true,
 	EditorMenubarName = "Landing Spots",
@@ -309,31 +309,31 @@ end
 
 local function MapChallengeRatingToDifficulty(rating)
 	if rating <= 59 then
-		return T{4154, "Relatively Flat"}
+		return T(4154, "Relatively Flat")
 	elseif rating <= 99 then
-		return T{4155, "Rough"}
+		return T(4155, "Rough")
 	elseif rating <= 139 then
-		return T{4156, "Steep"}
+		return T(4156, "Steep")
 	else
-		return T{4157, "Mountainous"}
+		return T(4157, "Mountainous")
 	end
 end
 
 DefineClass.LandingSiteObject = {
 	__parents = { "PropertyObject" },
 	properties = {
-		{id = "TerrainType",    name = T{4134, "Terrain"},    grid_filename = "UI/Data/Overlays/MarsTerrainType.jpg", editor = "landing_param", default = 0},
-		{id = "Altitude",       name = T{4135, "Altitude"},        grid_filename = "UI/Data/Overlays/MarsTopography.jpg", editor = "landing_param", default = 0},
-		{id = "Metals",         name = T{3514, "Metals"},          grid_filename = "UI/Data/Overlays/MarsIron.jpg",        category = "Resources", resource = true, editor = "landing_param", default = 0, challenge_mod = {15, 10, 5, 0}, rollover = {title = T{3514, "Metals"},          descr = T{4136, "Metals and Rare metals. Metals are important for field buildings while Rare Metals are exported to Earth and used in the production of Electronics."}} },
-		{id = "Concrete",       name = T{3513, "Concrete"},        grid_filename = "UI/Data/Overlays/MarsRegolith.jpg",    category = "Resources", resource = true, editor = "landing_param", default = 0, challenge_mod = {15, 10, 5, 0}, rollover = {title = T{3513, "Concrete"},        descr = T{4137, "Concrete is used in the construction of many Colony buildings, especially in the interior of the Domes"}} },
-		{id = "Water",          name = T{681, "Water"},           grid_filename = "UI/Data/Overlays/MarsWater.jpg",       category = "Resources", resource = true, editor = "landing_param", default = 0, challenge_mod = {15, 10, 5, 0}, rollover = {title = T{681, "Water"},           descr = T{4138, "Most vital resource for sustaining humans on Mars. Water can be extracted from deposits using prefab Moisture Vaporators transported from Earth"}} },
-		{id = "PreciousMetals", name = T{4139, "Rare Metals"},     grid_filename = "UI/Data/Overlays/MarsIron.jpg",									resource = true, editor = "landing_param", default = 0, challenge_mod = {15, 10, 5, 0}, rollover = {title = T{4139, "Rare Metals"}, descr = T{4140, "Rare Metals can be exported by refueled Rockets that return to Earth, increasing the Funding for the Colony. They are also used for creating Electronics"}} },
-		{id = "Temperature",    name = T{4141, "Temperature"},     grid_filename = "UI/Data/Overlays/MarsTemperature.jpg", editor = "landing_param", default = 0},
-		{id = "DustDevils",     name = T{4142, "Dust Devils"},     grid_filename = "UI/Data/Overlays/MarsTopography.jpg",  category = "Threats", threat = true, editor = "landing_param", default = 0,   challenge_mod = {[-1] = 0, 0, 5, 10, 15, 0}, rollover = {title = T{4142, "Dust Devils"},     descr = T{4143, "Dust Devils contaminate buildings in their area with Martian Sand. Contaminated buildings require maintenance and may malfunction. Dust devils contaminate nearby buildings quickly, but disappear relatively fast."}} },
-		{id = "DustStorm",      name = T{4144, "Dust Storms"},     grid_filename = "UI/Data/Overlays/MarsDust.jpg",        category = "Threats", threat = true, editor = "landing_param", default = 0,   challenge_mod = {[-1] = 0, 0, 10, 20, 30, 0}, rollover = {title = T{4144, "Dust Storms"},     descr = T{4145, "Dust Storms contaminate all field buildings with dust and can last several Sols. Colonies in areas with intense Dust Storms will require shorter maintenance cycles. MOXIEs and Moisture Vaporators are not operational during Dust Storms."}} },
-		{id = "Meteor",         name = T{4146, "Meteors"},         grid_filename = "UI/Data/Overlays/MarsMeteors.jpg",     category = "Threats", threat = true, editor = "landing_param", default = 0,   challenge_mod = {[-1] = 0, 0, 10, 20, 30, 0}, rollover = {title = T{4146, "Meteors"},         descr = T{4147, "Meteors can destroy or damage structures, colonists and vehicles in their impact area. Some meteors are composed of useful resources like Metal or Polymers."}} },
-		{id = "ColdWave",       name = T{4148, "Cold Waves"},      grid_filename = "UI/Data/Overlays/MarsTemperature.jpg", category = "Threats", threat = true, editor = "landing_param", default = 0,   challenge_mod = {[-1] = 0, 0, 10, 20, 30, 0}, rollover = {title = T{4149, "Cold Wave"},       descr = T{4150, "Cold Waves last several Sols, increasing the power consumption of vehicles, Drones and many field buildings. Water Towers are frozen during Cold Waves."}} },
-		{id = "Locales",        name = T{4151, "Mars Locales"},    grid_filename = "UI/Data/Overlays/MarsLocales.jpg", editor = "landing_param", default = 0},
+		{id = "TerrainType",    name = T(4134, "Terrain"),    grid_filename = "UI/Data/Overlays/MarsTerrainType.jpg", editor = "landing_param", default = 0},
+		{id = "Altitude",       name = T(4135, "Altitude"),        grid_filename = "UI/Data/Overlays/MarsTopography.jpg", editor = "landing_param", default = 0},
+		{id = "Metals",         name = T(3514, "Metals"),          grid_filename = "UI/Data/Overlays/MarsIron.jpg",        category = "Resources", resource = true, editor = "landing_param", default = 0, challenge_mod = {15, 10, 5, 0}, rollover = {title = T(3514, "Metals"),          descr = T(4136, "Metals and Rare metals. Metals are important for field buildings while Rare Metals are exported to Earth and used in the production of Electronics.")} },
+		{id = "Concrete",       name = T(3513, "Concrete"),        grid_filename = "UI/Data/Overlays/MarsRegolith.jpg",    category = "Resources", resource = true, editor = "landing_param", default = 0, challenge_mod = {15, 10, 5, 0}, rollover = {title = T(3513, "Concrete"),        descr = T(4137, "Concrete is used in the construction of many Colony buildings, especially in the interior of the Domes")} },
+		{id = "Water",          name = T(681, "Water"),           grid_filename = "UI/Data/Overlays/MarsWater.jpg",       category = "Resources", resource = true, editor = "landing_param", default = 0, challenge_mod = {15, 10, 5, 0}, rollover = {title = T(681, "Water"),           descr = T(4138, "Most vital resource for sustaining humans on Mars. Water can be extracted from deposits using prefab Moisture Vaporators transported from Earth")} },
+		{id = "PreciousMetals", name = T(4139, "Rare Metals"),     grid_filename = "UI/Data/Overlays/MarsIron.jpg",									resource = true, editor = "landing_param", default = 0, challenge_mod = {15, 10, 5, 0}, rollover = {title = T(4139, "Rare Metals"), descr = T(4140, "Rare Metals can be exported by refueled Rockets that return to Earth, increasing the Funding for the Colony. They are also used for creating Electronics")} },
+		{id = "Temperature",    name = T(4141, "Temperature"),     grid_filename = "UI/Data/Overlays/MarsTemperature.jpg", editor = "landing_param", default = 0},
+		{id = "DustDevils",     name = T(4142, "Dust Devils"),     grid_filename = "UI/Data/Overlays/MarsTopography.jpg",  category = "Threats", threat = true, editor = "landing_param", default = 0,   challenge_mod = {[-1] = 0, 0, 5, 10, 15, 0}, rollover = {title = T(4142, "Dust Devils"),     descr = T(4143, "Dust Devils contaminate buildings in their area with Martian Sand. Contaminated buildings require maintenance and may malfunction. Dust devils contaminate nearby buildings quickly, but disappear relatively fast.")} },
+		{id = "DustStorm",      name = T(4144, "Dust Storms"),     grid_filename = "UI/Data/Overlays/MarsDust.jpg",        category = "Threats", threat = true, editor = "landing_param", default = 0,   challenge_mod = {[-1] = 0, 0, 10, 20, 30, 0}, rollover = {title = T(4144, "Dust Storms"),     descr = T(4145, "Dust Storms contaminate all field buildings with dust and can last several Sols. Colonies in areas with intense Dust Storms will require shorter maintenance cycles. MOXIEs and Moisture Vaporators are not operational during Dust Storms.")} },
+		{id = "Meteor",         name = T(4146, "Meteors"),         grid_filename = "UI/Data/Overlays/MarsMeteors.jpg",     category = "Threats", threat = true, editor = "landing_param", default = 0,   challenge_mod = {[-1] = 0, 0, 10, 20, 30, 0}, rollover = {title = T(4146, "Meteors"),         descr = T(4147, "Meteors can destroy or damage structures, colonists and vehicles in their impact area. Some meteors are composed of useful resources like Metal or Polymers.")} },
+		{id = "ColdWave",       name = T(4148, "Cold Waves"),      grid_filename = "UI/Data/Overlays/MarsTemperature.jpg", category = "Threats", threat = true, editor = "landing_param", default = 0,   challenge_mod = {[-1] = 0, 0, 10, 20, 30, 0}, rollover = {title = T(4149, "Cold Wave"),       descr = T(4150, "Cold Waves last several Sols, increasing the power consumption of vehicles, Drones and many field buildings. Water Towers are frozen during Cold Waves.")} },
+		{id = "Locales",        name = T(4151, "Mars Locales"),    grid_filename = "UI/Data/Overlays/MarsLocales.jpg", editor = "landing_param", default = 0},
 	},
 	dialog = false,
 	anim_duration = false,
@@ -382,6 +382,9 @@ function LandingSiteObject.new(class, obj)
 	local object = PropertyObject.new(class, obj)
 	object.map_params = object.map_params or g_CurrentMapParams
 	object.threat_resource_levels = {}
+	object.spot_logo_selection_size = point(UIL.MeasureImage(object.spot_logo_selection))
+	object.selector_image_size = point(UIL.MeasureImage(object.selector_image))
+	object.spot_image_size = point(UIL.MeasureImage(object.spot_image))
 	return object
 end
 
@@ -405,20 +408,17 @@ function LandingSiteObject:InitData(dialog)
 		self:MoveToSelection(self.lat, self.long)
 	end
 	self:StartVisibilityThread()
-	self.spot_logo_selection_size = point(UIL.MeasureImage(self.spot_logo_selection))
-	self.selector_image_size = point(UIL.MeasureImage(self.selector_image))
-	self.spot_image_size = point(UIL.MeasureImage(self.spot_image))
 end
 
 function LandingSiteObject:GetCoord()
 	if self.planetary_view then
 		local text = self.snapped_id and self.coord_text
-		return text or T{4153, "<style LandingPosName><name></style>",  name = T{11175, "Select a Point of Interest"}}
+		return text or T{4153, "<style LandingPosName><name></style>",  name = T(11175, "Select a Point of Interest")}
 	elseif self.challenge_mode then
 		local text = self.snapped_id and self.coord_text
-		return text or T{4153, "<style LandingPosName><name></style>",  name = T{10923, "Select a Challenge"}}
+		return text or T{4153, "<style LandingPosName><name></style>",  name = T(10923, "Select a Challenge")}
 	else
-		return self.coord_text or T{4153, "<style LandingPosName><name></style>",  name = T{4152, "Select a Colony Site"}}
+		return self.coord_text or T{4153, "<style LandingPosName><name></style>",  name = T(4152, "Select a Colony Site")}
 	end
 end
 
@@ -469,7 +469,7 @@ function LandingSiteObject:GetGameRulesList()
 		end
 	end
 	
-	return T{6761, "None"}
+	return T(6761, "None")
 end
 
 function LandingSiteObject:GetDeadlinePerfected()
@@ -528,7 +528,7 @@ function LandingSiteObject:GetGameRuleEffects()
 		for _, id in ipairs(ids) do
 			local rule = id and GameRulesMap[id]
 			if rule then
-				names[#names + 1] = T{10415, "- "} .. rule.description
+				names[#names + 1] = T(10415, "- ") .. rule.description
 			end
 		end
 		if #names > 0 then
@@ -539,18 +539,24 @@ function LandingSiteObject:GetGameRuleEffects()
 end
 
 function LandingSiteObject:Random()
-	local lat, long = GenerateRandomLandingLocation()
+	local lat, long
+	while true do
+		lat, long = GenerateRandomLandingLocation()
+		if lat >= -70 * 60 and lat <= 70 * 60 then
+			break
+		end
+	end
 	self:MoveToSelection(lat, long, nil, true)
 	self:CalcMarkersVisibility()
 end
 
 function LandingSiteObject:Custom()
-	CreateMarsRenameControl(self.dialog, T{4092, "Custom coordinates"}, self.input_prompt,
+	CreateMarsRenameControl(self.dialog, T(4092, "Custom coordinates"), self.input_prompt,
 		function(new_val)
 			if self.dialog.window_state ~= "destroying" then
 				local result, lat, long = self:ConvertStrLocationToCoords(new_val)
 				if not result then
-					CreateMarsMessageBox(T{6885, "Error"}, T{4093, "Invalid coordinates."}, T{1000136, "OK"})
+					CreateMarsMessageBox(T(6885, "Error"), T(4093, "Invalid coordinates."), T(1000136, "OK"))
 					return
 				end
 				self:MoveToSelection(lat, long, nil, true)
@@ -874,8 +880,8 @@ function LandingSiteObject:AttachPredefinedSpots()
 			for k, v in ipairs(presets) do
 				local marker_id = "idMarker" .. idx
 				self:CreateLandingMarker(template, marker_id, v.latitude * 60, v.longitude * 60)
-				self.marker_id_to_spot_id[marker_id] = v.id
-				self.spot_id_to_marker_id[v.id] = marker_id
+				self.marker_id_to_spot_id[marker_id] = v.id or k
+				self.spot_id_to_marker_id[v.id or k] = marker_id
 				idx = idx + 1
 			end
 		end
@@ -1259,7 +1265,7 @@ function LandingSiteObject:SetUIAnomalyParams()
 		if next(requirements) then
 			if requirements.num_crew then
 				local specialization = const.ColonistSpecialization[requirements.crew_specialization]
-				local name = specialization and specialization.display_name or T{3609, "Any"}
+				local name = specialization and specialization.display_name or T(3609, "Any")
 				local crew = self.dialog:ResolveId("idCrew")
 				if crew then crew:SetText(T{11539, "<colonist(colonists)>", colonists = requirements.num_crew}) end
 				local spec = self.dialog:ResolveId("idSpecialization")
@@ -1348,7 +1354,7 @@ function LandingSiteObject:GetAvailableRockets()
 	local available = 0
 	local total = #rockets
 	for i = 1, total do
-		if rockets[i]:IsAvailable() then
+		if not rockets[i]:IsKindOf("SupplyPod") and rockets[i]:IsAvailable() then
 			available = available + 1
 		end
 	end
@@ -1465,7 +1471,6 @@ function GenerateRandomLandingLocation()
 	long = long - 180 * 60
 	lat = RoundCoordToFullDegrees(lat)
 	long = RoundCoordToFullDegrees(long)
-	lat = Clamp(lat, -70*60, 70*60)
 	return lat, long
 end
 

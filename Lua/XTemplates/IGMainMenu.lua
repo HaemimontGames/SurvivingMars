@@ -20,6 +20,7 @@ end, self, mode, mode_param)
 end,
 		}),
 		PlaceObj('XTemplateLayer', {
+			'__condition', function (parent, context) return GameState.gameplay end,
 			'layer', "ScreenBlur",
 			'layer_id', "idBlur",
 		}),

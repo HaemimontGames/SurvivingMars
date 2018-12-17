@@ -7,7 +7,7 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateTemplate', {
 		'__template', "DialogTitleNew",
 		'Margins', box(115, 0, 0, 0),
-		'Title', T{431862968979, --[[XTemplate CommandCenterTitle Title]] "COMMAND CENTER"},
+		'Title', T(431862968979, --[[XTemplate CommandCenterTitle Title]] "COMMAND CENTER"),
 	}),
 })
 

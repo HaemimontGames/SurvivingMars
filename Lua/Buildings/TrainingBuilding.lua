@@ -2,12 +2,12 @@ DefineClass.TrainingBuilding = {
 	__parents = {"ShiftsBuilding", "Holder", "DomeOutskirtBld"},
 	
 	properties = {		
-		{template = true, id = "max_visitors",     name = T{823, "Max visitors per shift"},        default = 5,     category = "TrainingBuilding", editor = "number", min = 1, modifiable = true}, 	
+		{template = true, id = "max_visitors",     name = T(823, "Max visitors per shift"),        default = 5,     category = "TrainingBuilding", editor = "number", min = 1, modifiable = true}, 	
 		
-		{template = true, id = "usable_by_children",name = T{735, "Usable by children"},  default = false, category = "TrainingBuilding", editor = "bool"},
-		{template = true, id = "children_only",    name = T{736, "Children Only"},        default = false, category = "TrainingBuilding", editor = "bool"},
-		{template = true, id = "gain_point",       name = T{824, "Min points per Sol"},       default = 20,   category = "TrainingBuilding", editor = "number"},
-		{template = true, id = "evaluation_points",name = T{825, "Points to evaluate"},   default = -1, category = "TrainingBuilding", editor = "number", modifiable = true},
+		{template = true, id = "usable_by_children",name = T(735, "Usable by children"),  default = false, category = "TrainingBuilding", editor = "bool"},
+		{template = true, id = "children_only",    name = T(736, "Children Only"),        default = false, category = "TrainingBuilding", editor = "bool"},
+		{template = true, id = "gain_point",       name = T(824, "Min points per Sol"),       default = 20,   category = "TrainingBuilding", editor = "number"},
+		{template = true, id = "evaluation_points",name = T(825, "Points to evaluate"),   default = -1, category = "TrainingBuilding", editor = "number", modifiable = true},
 
 	},
 	visitors = false,  -- visitors arrays in shifts
@@ -118,16 +118,16 @@ end
 
 function TrainingBuilding:ColonistCanInteract(col)
 	if not self:CanTrain(col) then 
-		return false, T{8739, "<red>Cannot be trained here</red>"}
+		return false, T(8739, "<red>Cannot be trained here</red>")
 	end
 	if col.workplace == self then
-		return false, T{8740, "Currently training here"}
+		return false, T(8740, "Currently training here")
 	end
 	if not col:CanReachBuilding(self) then
-		return false, T{4308, "<red>Out of reach</red>"}
+		return false, T(4308, "<red>Out of reach</red>")
 	end
 	if not self:HasOpenTrainSlots() then
-		return false, T{4312, "<red>Current work shift is closed</red>"}
+		return false, T(4312, "<red>Current work shift is closed</red>")
 	end
 	return true, T{8741, "<UnitMoveControl('ButtonA', interaction_mode)>: Set Training", self}
 end

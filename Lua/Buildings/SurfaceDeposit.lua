@@ -39,9 +39,9 @@ end
 DefineClass.SurfaceDepositMarker = {
 	__parents = { "DepositMarker" },
 	properties = {
-		{ category = "Deposit", name = T{15, "Resource"},               id = "resource",        editor = "combo",  default = "Metals", items = SurfaceDeposits, object_update = true, },		
-		{ category = "Deposit", name = T{803, "Max Drones"},             id = "max_drones",      editor = "number", default = 5, min = 1, max = 100 },
-		{ category = "Deposit", name = T{804, "Deposit Entity Variant"}, id = "entity_variant",  editor = "combo",  default = "random", items = function(deposit) return GetDepositVariationsCombo(deposit) end},
+		{ category = "Deposit", name = T(15, "Resource"),               id = "resource",        editor = "combo",  default = "Metals", items = SurfaceDeposits, object_update = true, },		
+		{ category = "Deposit", name = T(803, "Max Drones"),             id = "max_drones",      editor = "number", default = 5, min = 1, max = 100 },
+		{ category = "Deposit", name = T(804, "Deposit Entity Variant"), id = "entity_variant",  editor = "combo",  default = "random", items = function(deposit) return GetDepositVariationsCombo(deposit) end},
 	},
 }
 
@@ -95,11 +95,11 @@ DefineClass.SurfaceDeposit = {
 	__parents = { "TaskRequester", "Shapeshifter", "AutoAttachObject", "Deposit", "UngridedObstacle", "SyncObject" },
 	game_flags = { gofTemporalConstructionBlock = true },
 	properties = {
-		{ category = "Deposit", name = T{803, "Max Drones"}, id = "max_drones", editor = "number", default = 5, min = 1, max = 100 },
-		{ category = "Deposit", name = T{804, "Deposit Entity Variant"},id = "entity_variant", editor = "combo", default = "random", items = function(deposit) return GetDepositVariationsCombo(deposit) end},
+		{ category = "Deposit", name = T(803, "Max Drones"), id = "max_drones", editor = "number", default = 5, min = 1, max = 100 },
+		{ category = "Deposit", name = T(804, "Deposit Entity Variant"),id = "entity_variant", editor = "combo", default = "random", items = function(deposit) return GetDepositVariationsCombo(deposit) end},
 	},
 	max_amount = 0,
-	display_name = T{805, "<resource(resource)> Surface Deposit"},
+	display_name = T(805, "<resource(resource)> Surface Deposit"),
 	display_icon = "UI/Icons/bmb_demo.tga",
 	instant_build = true,
 	supply_dist_modifier = 1500, -- surface deposits are considered 50% further than storages
@@ -109,7 +109,7 @@ DefineClass.SurfaceDeposit = {
 	entity = "Hex1_Placeholder",
 	
 	-- pin section
-	pin_rollover = T{806, "<description><newline><newline><ResourceName><right><resource(Amount,max_amount,resource)>"},
+	pin_rollover = T(806, "<description><newline><newline><ResourceName><right><resource(Amount,max_amount,resource)>"),
 	pin_progress_value = "Amount",
 	pin_progress_max = "max_amount",
 	
@@ -285,24 +285,24 @@ DefineClass("SurfaceDepositMetals",
 { __parents = {"SurfaceDeposit"},
 	resource = "Metals",
 	display_icon = "UI/Icons/Buildings/deposit_metal.tga",
-	display_name = T{811, "Metals Deposit"},
-	description = T{812, "Scattered Metals. Harvested by Drones or RC Transports."},	
+	display_name = T(811, "Metals Deposit"),
+	description = T(812, "Scattered Metals. Harvested by Drones or RC Transports."),	
 })
 
 DefineClass("SurfaceDepositConcrete",
 { __parents = {"SurfaceDeposit"},
 	resource = "Concrete",
 	display_icon = "UI/Icons/Buildings/deposit_concrete.tga",
-	display_name = T{813, "Regolith Deposit"},
-	description = T{814, "Sulfur-rich regolith. Processed into Concrete by a Concrete Extractor"},
+	display_name = T(813, "Regolith Deposit"),
+	description = T(814, "Sulfur-rich regolith. Processed into Concrete by a Concrete Extractor"),
 })
 
 DefineClass("SurfaceDepositPolymers",
 { __parents = {"SurfaceDeposit"},
 	resource = "Polymers",
 	display_icon = "UI/Icons/Buildings/deposit_polymers.tga",
-	display_name = T{815, "Polymers Deposit"},
-	description = T{816, "Scattered Polymers. Harvested by Drones or RC Transports."},
+	display_name = T(815, "Polymers Deposit"),
+	description = T(816, "Scattered Polymers. Harvested by Drones or RC Transports."),
 })
 
 ----

@@ -30,11 +30,11 @@ PlaceObj('StoryBit', {
 		PlaceObj('SupplyMissionsEnabled', nil),
 	},
 	ScriptDone = true,
-	Text = T{236847981261, --[[StoryBit ApplicantProfiling Text]] "This in a golden opportunity for us to attract more applicants to join our cause.\n"},
+	Text = T(236847981261, --[[StoryBit ApplicantProfiling Text]] "This in a golden opportunity for us to attract more applicants to join our cause.\n"),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{501606335985, --[[StoryBit ApplicantProfiling Title]] "Applicants Profiling"},
-	VoicedText = T{582542899282, --[[voice:narrator]] "Our efforts and triumphs on Mars have not gone unnoticed back on Earth. A hit movie based on real events from the early days of the Martian colony just broke the all time box office record."},
+	Title = T(501606335985, --[[StoryBit ApplicantProfiling Title]] "Applicants Profiling"),
+	VoicedText = T(582542899282, --[[voice:narrator]] "Our efforts and triumphs on Mars have not gone unnoticed back on Earth. A hit movie based on real events from the early days of the Martian colony just broke the all time box office record."),
 	group = "Sponsor",
 	id = "ApplicantProfiling",
 	PlaceObj('StoryBitParamNumber', {
@@ -46,9 +46,9 @@ PlaceObj('StoryBit', {
 		'Value', 100,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{349057879254, --[[StoryBit ApplicantProfiling Text]] "Attract as many new applicants as possible."},
+		'Text', T(349057879254, --[[StoryBit ApplicantProfiling Text]] "Attract as many new applicants as possible."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{169781298392, --[[StoryBit ApplicantProfiling CustomOutcomeText]] "adds <random_applicants> random applicants"},
+		'CustomOutcomeText', T(169781298392, --[[StoryBit ApplicantProfiling CustomOutcomeText]] "adds <random_applicants> random applicants"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -59,9 +59,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{310613834993, --[[StoryBit ApplicantProfiling Text]] "Attract specialists."},
+		'Text', T(310613834993, --[[StoryBit ApplicantProfiling Text]] "Attract specialists."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{140066723894, --[[StoryBit ApplicantProfiling CustomOutcomeText]] "adds <specialists_applicants> applicants with various specializations"},
+		'CustomOutcomeText', T(140066723894, --[[StoryBit ApplicantProfiling CustomOutcomeText]] "adds <specialists_applicants> applicants with various specializations"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -93,9 +93,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{663474664512, --[[StoryBit ApplicantProfiling Text]] "Attract some truly exceptional people."},
+		'Text', T(663474664512, --[[StoryBit ApplicantProfiling Text]] "Attract some truly exceptional people."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{784809964510, --[[StoryBit ApplicantProfiling CustomOutcomeText]] "adds a Genius, a Celebrity and a Guru applicant"},
+		'CustomOutcomeText', T(784809964510, --[[StoryBit ApplicantProfiling CustomOutcomeText]] "adds a Genius, a Celebrity and a Guru applicant"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -115,9 +115,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{999237412498, --[[StoryBit ApplicantProfiling Text]] "We don't need more applicants, we will rely on our own Martianborn!"},
+		'Text', T(999237412498, --[[StoryBit ApplicantProfiling Text]] "We don't need more applicants, we will rely on our own Martianborn!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{313021678820, --[[StoryBit ApplicantProfiling CustomOutcomeText]] "Morale boost for all Martianborn"},
+		'CustomOutcomeText', T(313021678820, --[[StoryBit ApplicantProfiling CustomOutcomeText]] "Morale boost for all Martianborn"),
 	}),
 	PlaceObj('StoryBitParamNumber', {
 		'Name', "morale_boost",

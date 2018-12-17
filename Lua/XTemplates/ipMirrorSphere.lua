@@ -6,12 +6,12 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateTemplate', {
 		'__context_of_kind', "MirrorSphere",
 		'__template', "Infopanel",
-		'Description', T{313911890683, --[[XTemplate ipMirrorSphere Description]] "<description>"},
+		'Description', T(313911890683, --[[XTemplate ipMirrorSphere Description]] "<description>"),
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelSection",
-			'RolloverText', T{1197, --[[XTemplate ipMirrorSphere RolloverText]] "Progress <right><percent(ProgressPct)>"},
-			'RolloverTitle', T{1196, --[[XTemplate ipMirrorSphere RolloverTitle]] "Sphere Powering Up"},
+			'RolloverText', T(1197, --[[XTemplate ipMirrorSphere RolloverText]] "Progress <right><percent(ProgressPct)>"),
+			'RolloverTitle', T(1196, --[[XTemplate ipMirrorSphere RolloverTitle]] "Sphere Powering Up"),
 			'Icon', "UI/Icons/Sections/electricity_4.tga",
 		}, {
 			PlaceObj('XTemplateWindow', {

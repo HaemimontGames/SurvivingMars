@@ -7,9 +7,9 @@ ResourceStates = {
 
 ResourceStatesUI = {
 	--val should correspond to ResourceStates[idx] in order for UIPropAutoTransportStateSetter to work
-	{value = 1, text = T{669, "Auto"}},
-	{value = 2, text = T{1000049, "Import"}},
-	{value = 3, text = T{419, "Export"}},
+	{value = 1, text = T(669, "Auto")},
+	{value = 2, text = T(1000049, "Import")},
+	{value = 3, text = T(419, "Export")},
 }
 
 --visual box only.
@@ -62,9 +62,9 @@ DefineClass.ResourceStockpileBase = {
 		{ id = "additional_demand_flags", editor = "number", default = 0, no_edit = true },
 		{ id = "destroy_when_empty", editor = "bool", default = false, no_edit = true },
 		
-		{ id = "DesiredAmountSlider", name = T{10368, "DesiredAmount"}, category = "Storage Space", default = 0, editor = "number", min = 0, max = function(self) return self.desire_slider_max end, dont_save = true },
-		{ template = true, id = "desire_slider_max", name = T{10369, "Desire Slider Max"}, category = "Storage Space", default = 10000, editor = "number"},
-		{ template = true, id = "desired_amount", name = T{10370, "Desire Amount"}, category = "Storage Space", default = 0, editor = "number", scale = const.ResourceScale},
+		{ id = "DesiredAmountSlider", name = T(10368, "DesiredAmount"), category = "Storage Space", default = 0, editor = "number", min = 0, max = function(self) return self.desire_slider_max end, dont_save = true },
+		{ template = true, id = "desire_slider_max", name = T(10369, "Desire Slider Max"), category = "Storage Space", default = 10000, editor = "number"},
+		{ template = true, id = "desired_amount", name = T(10370, "Desire Amount"), category = "Storage Space", default = 0, editor = "number", scale = const.ResourceScale},
 	},
 	
 	gamepad_auto_deselect = true,
@@ -98,8 +98,8 @@ DefineClass.ResourceStockpileBase = {
 	adjacent_stockpile = false, --keeps track if there is another stockpile placed next to us, so we can avoid large getobj queries.
 	
 	--ui
-	display_name = T{692, "Resources"},
-	description = T{693, "A pile of processed resources, available for your Drones."},
+	display_name = T(692, "Resources"),
+	description = T(693, "A pile of processed resources, available for your Drones."),
 	
 	fx_actor_class = "ResourceStockpile",
 	
@@ -714,7 +714,7 @@ end
 
 function ResourceStockpileBase:GetDisplayName()
 	if self.resource == "WasteRock" then
-		return T{694, "Waste Rock Pile"}
+		return T(694, "Waste Rock Pile")
 	else 
 		return self.display_name
 	end
@@ -722,7 +722,7 @@ end
 
 function ResourceStockpileBase:GetDescription()
 	if self.resource == "WasteRock" then
-		return T{695, "A pile of waste rock that can be stored in a Dumping Site."}
+		return T(695, "A pile of waste rock that can be stored in a Dumping Site.")
 	else 
 		return self.description
 	end
@@ -899,7 +899,7 @@ end
 DefineClass.SharedStorageBaseVisualOnly = {
 	__parents = { "ResourceStockpileBase" },
 		properties = {
-		{ template = true, name = T{696, "Max Shared Storage"},  category = "Storage Space", id = "max_shared_storage",  editor = "number", default = 120000, scale = const.ResourceScale },
+		{ template = true, name = T(696, "Max Shared Storage"),  category = "Storage Space", id = "max_shared_storage",  editor = "number", default = 120000, scale = const.ResourceScale },
 		{ id = "storable_resources", editor = "prop table", no_edit = true },
 		{ id = "StoredAmount", editor = false },
 		

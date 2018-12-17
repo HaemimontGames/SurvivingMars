@@ -3,10 +3,10 @@ DefineClass.Drone =
 	__parents = { "DroneBase", "Shapeshifter", "ComponentAttach", "PinnableObject", "Demolishable", "SkinChangeable" },
 	
 	properties = {
-		{ category = "Drone", name = T{4388, "Drone Battery Capacity"}, id = "battery_max",       default = const.DroneBatteryMax, scale = 100, editor = "number", modifiable = true },
-		{ category = "Drone", name = T{666, "Freeze Time"},            id = "freeze_time", default = const.DefaultFreezeTime, editor = "number", modifiable = true },
-		{ category = "Drone", name = T{667, "Freeze Heat"},            id = "freeze_heat", default = const.DefaultFreezeHeat, editor = "number", min = 0, max = const.MaxHeat, slider = true, modifiable = true },
-		{ category = "Drone", name = T{4389, "Freeze Chance Die"},      id = "freeze_chance_die", default = 10, editor = "number", modifiable = true },
+		{ category = "Drone", name = T(4388, "Drone Battery Capacity"), id = "battery_max",       default = const.DroneBatteryMax, scale = 100, editor = "number", modifiable = true },
+		{ category = "Drone", name = T(666, "Freeze Time"),            id = "freeze_time", default = const.DefaultFreezeTime, editor = "number", modifiable = true },
+		{ category = "Drone", name = T(667, "Freeze Heat"),            id = "freeze_heat", default = const.DefaultFreezeHeat, editor = "number", min = 0, max = const.MaxHeat, slider = true, modifiable = true },
+		{ category = "Drone", name = T(4389, "Freeze Chance Die"),      id = "freeze_chance_die", default = 10, editor = "number", modifiable = true },
 		{ id = "CommandCenter", editor = "object", default = false, no_edit = true },
 	},
 	
@@ -30,12 +30,12 @@ DefineClass.Drone =
 	picked_up_from_req = false,
 	request_amount = 0,
 
-	display_name = T{1681, "Drone"},
-	description = T{4390, "An automated unit controlled by a Drone Hub, Rocket or RC Commander. Gathers resources, constructs buildings and performs maintenance."},
+	display_name = T(1681, "Drone"),
+	description = T(4390, "An automated unit controlled by a Drone Hub, Rocket or RC Commander. Gathers resources, constructs buildings and performs maintenance."),
 	display_icon = "UI/Icons/Buildings/drone.tga",
 	
 	-- pin section
-	pin_rollover = T{4391, "<description><newline><newline>Current status: <em><ui_command></em><newline>Battery<right><power(battery,battery_max)>"},
+	pin_rollover = T(4391, "<description><newline><newline>Current status: <em><ui_command></em><newline>Battery<right><power(battery,battery_max)>"),
 	pin_summary1 = "",
 	pin_progress_value = "battery",
 	pin_progress_max = "battery_max",
@@ -135,8 +135,11 @@ function Drone:Done()
 	elseif self.command_center and IsValid(self.command_center) then
 		table.remove_entry(self.command_center.drones, self)
 	end
+	if self.is_broken then
+		table.remove_entry(g_BrokenDrones, self)
+	end
 	
-	table.remove_entry(g_DestroyedDrones, self)
+	table.remove_entry(g_DestroyedVehicles, self)
 end
 
 function Drone:RemoveFromLabels()
@@ -250,15 +253,25 @@ function Drone:FindDroneToRepair()
 	local closest_drone
 	local command_center = self.command_center
 	local best_dist = command_center.work_radius + 1
+	local rem
 	assert(command_center)
 	for _, drone in ipairs(g_BrokenDrones) do
-		if not drone.repair_drone and drone.command ~= "Dead" then --nobody is currently repairing him
-			local dist = HexAxialDistance(drone, self)
-			if dist < best_dist then
-				closest_drone = drone
-				best_dist = dist
+		if IsValid(drone) then
+			if not drone.repair_drone and drone.command ~= "Dead" then --nobody is currently repairing him
+				local dist = HexAxialDistance(drone, self)
+				if dist < best_dist then
+					closest_drone = drone
+					best_dist = dist
+				end
 			end
+		else
+			rem = rem or {}
+			table.insert(rem, drone)
 		end
+	end
+	
+	for i = 1, #(rem or "") do
+		table.remove_entry(g_BrokenDrones, rem[i])
 	end
 	return closest_drone
 end
@@ -594,6 +607,20 @@ function Drone:GoHome(min, max, pos, ui_str_override)
 	self:PopAndCallDestructor()
 end
 
+function SavegameFixups.ReOrphanDrones()
+	MapForEach("map", "Drone", function(o)
+		if o.command == "WaitingCommand" and
+			not o.is_orphan then
+			o.is_orphan = true
+			table.insert(g_OrphanedDrones, o)
+			o:SetCommand("WaitingCommand")
+		end
+	end)
+end
+
+function Drone:OnStartWaitingCommand()
+end
+
 function Drone:WaitingCommand() --orphanned drone command, not broken drones without command center should have this command.
 	assert(self.command_center == false or not IsValid(self.command_center))
 	local new_dcc = self:TryFindNewCommandCenter()
@@ -601,6 +628,7 @@ function Drone:WaitingCommand() --orphanned drone command, not broken drones wit
 		self:SetCommandCenter(new_dcc)
 		return
 	end
+	self:OnStartWaitingCommand()
 	self:StartFX("WaitingCommand")
 	self:PushDestructor(function(self)
 		if IsValid(self) and not self:IsDead() then
@@ -1274,7 +1302,7 @@ function Drone:Dead(already_dead, meteor)
 		--rem from command center
 		self:SetCommandCenter(false)
 		if not g_Tutorial then
-			table.insert(g_DestroyedDrones, self)
+			table.insert(g_DestroyedVehicles, self)
 		end
 	end
 
@@ -1322,20 +1350,10 @@ end
 function Drone:Freeze()
 	self:StartFX("Freeze")
 	self:SetState("breakDown")
-	self:RogueDieAfterDelay()
 	self:SetHeat(0)
-	self:PushDestructor(function(self)
-		if not IsValid(self) then return end
-		self:SetHeat(255)
-	end)
 	local hour_duration = const.HourDuration
-	local chance = self.freeze_chance_die
 	while true do
 		Sleep(hour_duration)
-		if self:Random(100) < chance then
-			self:PopDestructor()
-			self:SetCommand("Dead")
-		end
 	end
 end
 
@@ -1587,14 +1605,14 @@ function Drone:ToggleReassignInteractionMode_Update(button)
 		"UI/Icons/IPButtons/reassign.tga"
 		or "UI/Icons/IPButtons/cancel.tga")
 	button:SetEnabled(self:CanBeControlled())
-	button:SetRolloverText(T{4428, "Assign to target Hub, Commander or Rocket."})
+	button:SetRolloverText(T(4428, "Assign to target Hub, Commander or Rocket."))
 	local shortcuts = GetShortcuts("actionReassignDrone")
 	local hint = ""
 	if shortcuts and (shortcuts[1] or shortcuts[2]) then
-		hint = T{10926, " / <em><ShortcutName('actionReassignDrone', 'keyboard')></em>"}
+		hint = T(10926, " / <em><ShortcutName('actionReassignDrone', 'keyboard')></em>")
 	end
-	button:SetRolloverHint(to_mode and T{10925, "<left_click><hint> Select target mode", hint = hint} or T{7510, "<left_click> on target to select it  <right_click> Cancel"})
-	button:SetRolloverHintGamepad(to_mode and T{7511, "<ButtonA> Select target mode"} or T{7512, "<ButtonA> Cancel"})
+	button:SetRolloverHint(to_mode and T{10925, "<left_click><hint> Select target mode", hint = hint} or T(7510, "<left_click> on target to select it  <right_click> Cancel"))
+	button:SetRolloverHintGamepad(to_mode and T(7511, "<ButtonA> Select target mode") or T(7512, "<ButtonA> Cancel"))
 end
 
 function Drone:ToggleReassignAllInteractionMode_Update(button)
@@ -1603,9 +1621,9 @@ function Drone:ToggleReassignAllInteractionMode_Update(button)
 		"UI/Icons/IPButtons/reassign_all.tga"
 		or "UI/Icons/IPButtons/cancel.tga")
 	button:SetEnabled(self:CanBeControlled())
-	button:SetRolloverText(T{8719, "Assign as many drones to target Hub, Commander or Rocket as possible."})
-	button:SetRolloverHint(to_mode and T{7509, "<left_click> Select target mode"} or T{7510, "<left_click> on target to select it  <right_click> Cancel"})
-	button:SetRolloverHintGamepad(to_mode and T{7511, "<ButtonA> Select target mode"} or T{7512, "<ButtonA> Cancel"})
+	button:SetRolloverText(T(8719, "Assign as many drones to target Hub, Commander or Rocket as possible."))
+	button:SetRolloverHint(to_mode and T(7509, "<left_click> Select target mode") or T(7510, "<left_click> on target to select it  <right_click> Cancel"))
+	button:SetRolloverHintGamepad(to_mode and T(7511, "<ButtonA> Select target mode") or T(7512, "<ButtonA> Cancel"))
 end
 
 function Drone:GetCarriedResource()
@@ -1646,14 +1664,14 @@ function Drone:GetDropCarriedResourceFromUIDisabledRollover()
 	if self:CanBeControlled() then
 		if not self:GetCarriedResource() then
 			--operational, no resource
-			return T{8535, "No resource loaded."}
+			return T(8535, "No resource loaded.")
 		else
 			--operational, carries resources (this case should be impossible)
-			return T{221351751895, "Vehicle inactive."}
+			return T(221351751895, "Vehicle inactive.")
 		end
 	else
 		--upoperational
-		return T{221351751895, "Vehicle inactive."}
+		return T(221351751895, "Vehicle inactive.")
 	end
 end
 
@@ -1827,10 +1845,10 @@ function Drone:InteractionObjCheck_Construct(obj)
 		local next_req, source = parse_cs_reqs_and_find_source(self, obj)
 		
 		if not next_req then
-			txt = T{4399, "<red>Too many Drones are already constructing this building</red>"}
+			txt = T(4399, "<red>Too many Drones are already constructing this building</red>")
 			ret = false
 		elseif not source then
-			txt = T{11248, "Can't find the required resources"}
+			txt = T(11248, "Can't find the required resources")
 			ret = false
 		else
 			txt = T{4398, "<UnitMoveControl('ButtonA',interaction_mode)>: Work on this construction", self}
@@ -1839,7 +1857,7 @@ function Drone:InteractionObjCheck_Construct(obj)
 		--check if it can assign? it can probably assign..
 		txt = T{4398, "<UnitMoveControl('ButtonA',interaction_mode)>: Work on this construction", self}
 	else
-		txt = T{4399, "<red>Too many Drones are already constructing this building</red>"}
+		txt = T(4399, "<red>Too many Drones are already constructing this building</red>")
 		ret = false
 	end
 	
@@ -1900,13 +1918,13 @@ function Drone:InteractionObjCheck_PickupFromRCTransport(obj)
 	local txt
 	if obj.command == "Dead" then
 		result = false
-		txt = T{11605, "<red>Transport Destroyed</red>"}
+		txt = T(11605, "<red>Transport Destroyed</red>")
 	elseif obj.command == "LoadingComplete" or not obj.auto_connect then
 		result = false
-		txt = T{11606, "<red>Resources Reserved</red>"}
+		txt = T(11606, "<red>Resources Reserved</red>")
 	elseif obj:GetStoredAmount() <= 0 then
 		result = false
-		txt = T{11249, "<red>Transport Empty</red>"}
+		txt = T(11249, "<red>Transport Empty</red>")
 	else
 		result = true
 		txt = T{4397, "<UnitMoveControl('ButtonA',interaction_mode)>: Get resources", self}
@@ -1967,7 +1985,7 @@ function Drone:Interaction_RepairSupplyGridElement(obj)
 end
 
 function Drone:CanInteractWithObject(obj)
-	if self:IsDisabled() then return false, T{4392, "This Drone is disabled"} end
+	if self:IsDisabled() then return false, T(4392, "This Drone is disabled") end
 	RebuildInfopanel(self)
 	if self.interaction_mode == false or self.interaction_mode == "default" or self.interaction_mode == "move" then
 		if not IsKindOfClasses(obj, "Building", "DroneBase", "ResourceStockpileBase", "SurfaceDeposit", "ResourcePile", "Tunnel", "ElectricityGridElement", "LifeSupportGridElement") then
@@ -1989,7 +2007,7 @@ function Drone:CanInteractWithObject(obj)
 			elseif IsKindOf(obj, "AttackRover") and not UICity.mystery.enable_rover_repair then
 				return false, ""
 			else
-				return false, T{7589, "<red>Too many Drones are repairing this vehicle</red>"}, true
+				return false, T(7589, "<red>Too many Drones are repairing this vehicle</red>"), true
 			end
 		elseif (IsKindOf(obj, "RechargeStation") or
 				(IsKindOfClasses(obj, "RechargeStationBase", "DroneHub") and obj == self.command_center)) --if we select our own command center go charge there
@@ -1997,7 +2015,11 @@ function Drone:CanInteractWithObject(obj)
 			return true, T{9633, "<UnitMoveControl('ButtonA',interaction_mode)>: Recharge self", self}
 		elseif obj ~= self.command_center and IsKindOf(obj, "DroneControl") and obj.can_control_drones then
 			if not obj:CanHaveMoreDrones() then
-				return false, T{4401, "<red>At full capacity</red>"}, true
+				if IsKindOf(obj, "SupplyRocket") and not obj.landed then
+					return false, nil, true
+				else
+					return false, T(4401, "<red>At full capacity</red>"), true
+				end
 			else
 				return true, T{9632, "<UnitMoveControl('ButtonY',interaction_mode)>: Assign to this command center",self}
 			end
@@ -2049,7 +2071,11 @@ function Drone:CanInteractWithObject(obj)
 			if obj:CanHaveMoreDrones() then
 				return true, T{4400, "<UnitMoveControl('ButtonA',interaction_mode)>: Assign to this command center",self}
 			else
-				return false, T{4401, "<red>At full capacity</red>"}
+				if IsKindOf(obj, "SupplyRocket") and not obj.landed then
+					return false
+				else
+					return false, T(4401, "<red>At full capacity</red>")
+				end
 			end	
 		end
 	elseif self.interaction_mode == "maintenance" then
@@ -2084,7 +2110,7 @@ function Drone:CanInteractWithObject(obj)
 			elseif IsKindOf(obj, "AttackRover") and not UICity.mystery.enable_rover_repair then
 				return false, ""
 			else
-				return false, T{7589, "<red>Too many Drones are repairing this vehicle</red>"}, true
+				return false, T(7589, "<red>Too many Drones are repairing this vehicle</red>"), true
 			end
 		end
 	else
@@ -2365,15 +2391,15 @@ function Drone:GetResource()
 		return Untranslated(self.resource)
 	end	
 	
-	return self.resource and Resources[self.resource] and Resources[self.resource].display_name or T{720, "Nothing"}
+	return self.resource and Resources[self.resource] and Resources[self.resource].display_name or T(720, "Nothing")
 end
 function Drone:GetResourceAmount() 
-	return Resources[self.resource] and T{7395, "<resource(amount,resource)>"} or T{720, "Nothing"}
+	return Resources[self.resource] and T(7395, "<resource(amount,resource)>") or T(720, "Nothing")
 end
 
 function Drone:GetTarget()
 	local target = self.target or self.goto_target
-	if IsPoint(target) then return T{7396, "Location"} end
+	if IsPoint(target) then return T(7396, "Location") end
 	while IsValid(target) and target:HasMember("parent") and target.parent and target.parent ~= target do
 		target = target.parent
 	end
@@ -2392,12 +2418,12 @@ function Drone:SelectTarget()
 end
 
 function Drone:GetDestName()
-	return self:GetTarget() ~= "" and T{4439, "Going to<right><h SelectTarget InfopanelSelect><Target></h>"} or T{7397, "No particular destination"}
+	return self:GetTarget() ~= "" and T(4439, "Going to<right><h SelectTarget InfopanelSelect><Target></h>") or T(7397, "No particular destination")
 end
 
 function Drone:GetCommandCenterName()
 	local obj = self.command_center
-	return obj and obj:GetDisplayName() or T{6761, "None"}
+	return obj and obj:GetDisplayName() or T(6761, "None")
 end
 
 function Drone:SelectCommandCenter()
@@ -2430,31 +2456,31 @@ function Drone:CheatRechargeBattery()
 end
 
 local DroneCommands = {
-	Goto = T{63, "Travelling"},
-	GotoFromUser = T{63, "Travelling"},
-	Malfunction = T{65, "Malfunctioned"},
-	NoBattery = T{4406, "Out of Power"},
-	Charge = T{4407, "Recharging"},
-	Idle = T{6939, "Idle"},
-	RepairDrone = T{4408, "Repairing Drone"},
-	RechargeDrone = T{8503, "Recharging Drone"},
-	Work = T{76, "Performing maintenance"},
-	mine = T{4409, "Working in mine"},
-	construct = T{57, "Constructing"},
-	WaitingCommand = T{4410, "Waiting for tasks"},
-	Deliver = T{7398, "Delivering <Resource>"},
-	PickUp = T{4411, "Going to pick up <SRequestResource>"},
-	Freeze = T{7813, "<red>This unit is frozen and will suffer a critical malfunction unless repaired quickly.</red>"},
-	Dead = T{4413, "<red>This unit has been destroyed. It can be salvaged for materials.</red>"},
-	GoHome = T{4414, "Deploying"},
-	ReturningToController = T{8105, "Returning to controller"}, --gohome alt str
-	Embark = T{9799, "Inside RC Commander"},
-	RecallToRover = T{4416, "Returning to RC Commander"},
-	DestroyingBlackCubes = T{4417, "Destroying Black Cubes"},
-	UseTunnel = T{6723, "Going through a tunnel"},
-	Dismantle = T{8106, "Dismantling target"},
-	DespawnAtHub = T{8663, "Returning to Drone Hub to be dismantled into a Drone Prefab"},
-	GotoAndEmbark =  T{11216, "Boarding Rocket"},
+	Goto = T(63, "Travelling"),
+	GotoFromUser = T(63, "Travelling"),
+	Malfunction = T(65, "Malfunctioned"),
+	NoBattery = T(4406, "Out of Power"),
+	Charge = T(4407, "Recharging"),
+	Idle = T(6939, "Idle"),
+	RepairDrone = T(4408, "Repairing Drone"),
+	RechargeDrone = T(8503, "Recharging Drone"),
+	Work = T(76, "Performing maintenance"),
+	mine = T(4409, "Working in mine"),
+	construct = T(57, "Constructing"),
+	WaitingCommand = T(4410, "Waiting for tasks"),
+	Deliver = T(7398, "Delivering <Resource>"),
+	PickUp = T(4411, "Going to pick up <SRequestResource>"),
+	Freeze = T(7813, "<red>This unit is frozen and will suffer a critical malfunction unless repaired quickly.</red>"),
+	Dead = T(4413, "<red>This unit has been destroyed. It can be salvaged for materials.</red>"),
+	GoHome = T(4414, "Deploying"),
+	ReturningToController = T(8105, "Returning to controller"), --gohome alt str
+	Embark = T(9799, "Inside RC Commander"),
+	RecallToRover = T(4416, "Returning to RC Commander"),
+	DestroyingBlackCubes = T(4417, "Destroying Black Cubes"),
+	UseTunnel = T(6723, "Going through a tunnel"),
+	Dismantle = T(8106, "Dismantling target"),
+	DespawnAtHub = T(8663, "Returning to Drone Hub to be dismantled into a Drone Prefab"),
+	GotoAndEmbark =  T(11216, "Boarding Rocket"),
 }
 
 function Drone:GetSRequestResource()
@@ -2543,7 +2569,7 @@ function Drone:Getui_command()
 		return DroneCommands.Dead
 	elseif (not self.command_center or not self.command_center.working)
 			and (self.command == "Idle" or self.command == "WaitingCommand") then
-		return T{4418, "No orders"}
+		return T(4418, "No orders")
 	else 
 		local resource = DroneCommands[self.resource]
 		if resource then
@@ -2552,17 +2578,17 @@ function Drone:Getui_command()
 		local command = self.override_ui_status or self.command
 		if command == "EmergencyPower" then
 			return  self.going_to_recharger and 
-				T{8504, "Going to recharge batteries"} or
+				T(8504, "Going to recharge batteries") or
 				self.queued_at_recharger and 
-				T{4420, "Waiting for recharge station to become available"} or 
-				T{4421, "Searching for a recharge station"}
+				T(4420, "Waiting for recharge station to become available") or 
+				T(4421, "Searching for a recharge station")
 		end
 		
 		if command == "Work" and IsKindOf(self.target, "BlackCubeStockpileBase") then
 			return DroneCommands.DestroyingBlackCubes
 		end
 		
-		return DroneCommands[command] or T{77, "Unknown"}
+		return DroneCommands[command] or T(77, "Unknown")
 	end
 end
 

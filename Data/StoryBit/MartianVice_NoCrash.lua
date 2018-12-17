@@ -15,7 +15,7 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	Enables = {},
-	NotificationText = T{11378, --[[StoryBit MartianVice_NoCrash NotificationText]] "Another shuttle race has occurred"},
+	NotificationText = T(11378, --[[StoryBit MartianVice_NoCrash NotificationText]] "Another shuttle race has occurred"),
 	Prerequisites = {},
 	ScriptDone = true,
 	SuppressTime = 1440000,

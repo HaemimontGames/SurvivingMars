@@ -8,8 +8,8 @@ DefineClass.ResourcePile = {
 	entity = "Resource",
 	amount = 0,
 	transport_request = false,
-	display_name = T{692, "Resources"},
-	description = T{693, "A pile of processed resources, available for your Drones."},
+	display_name = T(692, "Resources"),
+	description = T(693, "A pile of processed resources, available for your Drones."),
 	ip_template = "ipResourcePile",
 	
 	parent_dome = false,
@@ -45,7 +45,7 @@ end
 
 function ResourcePile:GetDisplayName()
 	if self.resource == "WasteRock" then
-		return T{694, "Waste Rock Pile"}
+		return T(694, "Waste Rock Pile")
 	else 
 		return self.display_name
 	end
@@ -53,7 +53,7 @@ end
 
 function ResourcePile:GetDescription()
 	if self.resource == "WasteRock" then
-		return T{3673, "A pile of Waste Rock"}
+		return T(3673, "A pile of Waste Rock")
 	else 
 		return self.description
 	end

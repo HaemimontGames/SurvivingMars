@@ -10,7 +10,7 @@ PlaceObj('StoryBit', {
 	Enables = {
 		"Masterpiece_PeriodicFunding",
 	},
-	NotificationText = T{11042, --[[StoryBit Masterpiece_PeriodicFunding NotificationText]] "Received <funds> from art sales"},
+	NotificationText = T(11042, --[[StoryBit Masterpiece_PeriodicFunding NotificationText]] "Received <funds> from art sales"),
 	Prerequisites = {},
 	ScriptDone = true,
 	SuppressTime = 3600000,

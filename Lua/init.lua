@@ -11,6 +11,7 @@ end
 
 function ResetGameSession()
 	CloseAllDialogs()
+	InitNewGameMissionParams()
 	if GetMap() ~= "" then
 		if mapdata.GameLogic then
 			TelemetryEndSession("main_menu")

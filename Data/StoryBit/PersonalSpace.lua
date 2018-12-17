@@ -13,13 +13,18 @@ PlaceObj('StoryBit', {
 			'Condition', ">=",
 			'Amount', 30,
 		}),
+		PlaceObj('CheckTechStatus', {
+			'Field', "Social",
+			'TechId', "HomeCollective",
+			'Negate', true,
+		}),
 	},
 	ScriptDone = true,
-	Text = T{477346266344, --[[StoryBit PersonalSpace Text]] 'You arrive at the scene just to see a chair flying out of the window, smashing right in front of the crowd of concerned citizens. You hear the hysterical cries from inside: "Leave me alone! I don’t need to see any of you!"\n\nAs you come closer, the crowd turns towards you.'},
+	Text = T(477346266344, --[[StoryBit PersonalSpace Text]] 'You arrive at the scene just to see a chair flying out of the window, smashing right in front of the crowd of concerned citizens. You hear the hysterical cries from inside: "Leave me alone! I don’t need to see any of you!"\n\nAs you come closer, the crowd turns towards you.'),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{317075983830, --[[StoryBit PersonalSpace Title]] "Personal Space"},
-	VoicedText = T{916015661721, --[[voice:narrator]] "A Colonist has snapped. They demand more personal space and are barricaded inside their house until their demands are met."},
+	Title = T(317075983830, --[[StoryBit PersonalSpace Title]] "Personal Space"),
+	VoicedText = T(916015661721, --[[voice:narrator]] "A Colonist has snapped. They demand more personal space and are barricaded inside their house until their demands are met."),
 	group = "Colonists",
 	id = "PersonalSpace",
 	PlaceObj('StoryBitParamNumber', {
@@ -43,9 +48,9 @@ PlaceObj('StoryBit', {
 		'Value', 50,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{406456092282, --[[StoryBit PersonalSpace Text]] "He's right. We all need more personal space."},
+		'Text', T(406456092282, --[[StoryBit PersonalSpace Text]] "He's right. We all need more personal space."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{980781990422, --[[StoryBit PersonalSpace CustomOutcomeText]] "all residences will grant more Comfort, but provide less living space"},
+		'CustomOutcomeText', T(980781990422, --[[StoryBit PersonalSpace CustomOutcomeText]] "all residences will grant more Comfort, but provide less living space"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -63,9 +68,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{201055595548, --[[StoryBit PersonalSpace Text]] "Personal space is a luxury we cannot afford."},
+		'Text', T(201055595548, --[[StoryBit PersonalSpace Text]] "Personal space is a luxury we cannot afford."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{249584970646, --[[StoryBit PersonalSpace CustomOutcomeText]] "all Colonists lose Comfort"},
+		'CustomOutcomeText', T(249584970646, --[[StoryBit PersonalSpace CustomOutcomeText]] "all Colonists lose Comfort"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -83,9 +88,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{305006395090, --[[StoryBit PersonalSpace Text]] "No problems! We will just build more residences!"},
+		'Text', T(305006395090, --[[StoryBit PersonalSpace Text]] "No problems! We will just build more residences!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{557165901802, --[[StoryBit PersonalSpace CustomOutcomeText]] "Residences costs are decreased permanently"},
+		'CustomOutcomeText', T(557165901802, --[[StoryBit PersonalSpace CustomOutcomeText]] "Residences costs are decreased permanently"),
 		'Prerequisite', PlaceObj('IsCommander', {
 			'CommanderProfile', "citymayor",
 		}),
@@ -116,9 +121,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{452114444171, --[[StoryBit PersonalSpace Text]] "We must harmonize the living environment!"},
+		'Text', T(452114444171, --[[StoryBit PersonalSpace Text]] "We must harmonize the living environment!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{373007909943, --[[StoryBit PersonalSpace CustomOutcomeText]] "Home Collective tech research cost is reduced"},
+		'CustomOutcomeText', T(373007909943, --[[StoryBit PersonalSpace CustomOutcomeText]] "Home Collective tech research cost is reduced"),
 		'Prerequisite', PlaceObj('IsCommander', {
 			'CommanderProfile', "psychologist",
 		}),

@@ -12,12 +12,12 @@ PlaceObj('StoryBit', {
 	Prerequisites = {},
 	ScriptDone = true,
 	SuppressTime = 1080000,
-	Text = T{591311707474, --[[StoryBit LiveFromEarth Text]] "Streaming the games to Mars is technically possible but will take bandwidth that we normally use for research data from Earth."},
+	Text = T(591311707474, --[[StoryBit LiveFromEarth Text]] "Streaming the games to Mars is technically possible but will take bandwidth that we normally use for research data from Earth."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{779725052209, --[[StoryBit LiveFromEarth Title]] "Live From Earth"},
+	Title = T(779725052209, --[[StoryBit LiveFromEarth Title]] "Live From Earth"),
 	Trigger = "RocketLanded",
-	VoicedText = T{613330784177, --[[voice:narrator]] "The Olympics are about to begin on Earth and the excitement among the colonists is tangible."},
+	VoicedText = T(613330784177, --[[voice:narrator]] "The Olympics are about to begin on Earth and the excitement among the colonists is tangible."),
 	group = "Colonists",
 	id = "LiveFromEarth",
 	PlaceObj('StoryBitParamSols', {
@@ -41,9 +41,9 @@ PlaceObj('StoryBit', {
 		'Value', 15,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{950812209567, --[[StoryBit LiveFromEarth Text]] "Not watching the Olympics was never on the table. Do it! "},
+		'Text', T(950812209567, --[[StoryBit LiveFromEarth Text]] "Not watching the Olympics was never on the table. Do it! "),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{808202649235, --[[StoryBit LiveFromEarth CustomOutcomeText]] "all Colonists get Morale boost, research from Earth suspended for <sols(big_timeframe)> Sols"},
+		'CustomOutcomeText', T(808202649235, --[[StoryBit LiveFromEarth CustomOutcomeText]] "all Colonists get Morale boost, research from Earth suspended for <sols(big_timeframe)> Sols"),
 		'Prerequisite', PlaceObj('IsSponsor', {
 			'SponsorName', "BlueSun",
 			'Negate', true,
@@ -68,9 +68,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{582916197049, --[[StoryBit LiveFromEarth Text]] "Our survival depends on getting research done as quickly as possible. Even the most eager sport fans will understand."},
+		'Text', T(582916197049, --[[StoryBit LiveFromEarth Text]] "Our survival depends on getting research done as quickly as possible. Even the most eager sport fans will understand."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{721759884281, --[[StoryBit LiveFromEarth CustomOutcomeText]] "all Colonists get Morale penalty"},
+		'CustomOutcomeText', T(721759884281, --[[StoryBit LiveFromEarth CustomOutcomeText]] "all Colonists get Morale penalty"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -84,9 +84,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{564481017497, --[[StoryBit LiveFromEarth Text]] "Some kind of compromise should be possible – broadcast the games for a few Sols. "},
+		'Text', T(564481017497, --[[StoryBit LiveFromEarth Text]] "Some kind of compromise should be possible – broadcast the games for a few Sols. "),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{115114777460, --[[StoryBit LiveFromEarth CustomOutcomeText]] "all Colonists get Morale boost, research from Earth suspended for <sols(small_timeframe)> Sols"},
+		'CustomOutcomeText', T(115114777460, --[[StoryBit LiveFromEarth CustomOutcomeText]] "all Colonists get Morale boost, research from Earth suspended for <sols(small_timeframe)> Sols"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -107,9 +107,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{806151591322, --[[StoryBit LiveFromEarth Text]] "We’ll watch the games, alright – but with holograms! "},
+		'Text', T(806151591322, --[[StoryBit LiveFromEarth Text]] "We’ll watch the games, alright – but with holograms! "),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{976120687786, --[[StoryBit LiveFromEarth CustomOutcomeText]] "Colonists get large Morale boost, research from Earth suspended for <sols(big_timeframe)> Sols"},
+		'CustomOutcomeText', T(976120687786, --[[StoryBit LiveFromEarth CustomOutcomeText]] "Colonists get large Morale boost, research from Earth suspended for <sols(big_timeframe)> Sols"),
 		'Prerequisite', PlaceObj('IsCommander', {
 			'CommanderProfile', "author",
 		}),

@@ -24,13 +24,13 @@ function GameOver(reason)
 		local idx = 1
 		local has_savegames = WaitCountSaveGames() > 0
 		if has_savegames then
-			params["choice" .. idx] = T{1009, "Load Game"}
+			params["choice" .. idx] = T(1009, "Load Game")
 			idx = idx + 1
 		end
-		params["choice" .. idx] = T{1010, "Main Menu"}
+		params["choice" .. idx] = T(1010, "Main Menu")
 		idx = idx + 1
 		if Platform.developer then
-			params["choice" .. idx] = T{1011, "Close"}
+			params["choice" .. idx] = T(1011, "Close")
 		end
 		local gameover_popup = (g_ColonyNotViableUntil == -1) and "GameOver_PostFounder" or "GameOver"
 		local res = WaitPopupNotification(gameover_popup, params)

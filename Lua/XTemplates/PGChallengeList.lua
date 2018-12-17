@@ -37,7 +37,7 @@ PlaceObj('XTemplate', {
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "back",
-			'ActionName', T{4254, --[[XTemplate PGChallengeList ActionName]] "BACK"},
+			'ActionName', T(4254, --[[XTemplate PGChallengeList ActionName]] "BACK"),
 			'ActionToolbar', "ActionBar",
 			'ActionShortcut', "Escape",
 			'ActionGamepad', "ButtonB",
@@ -59,8 +59,8 @@ end,
 				PlaceObj('XTemplateTemplate', {
 					'__template', "DialogTitleNew",
 					'Margins', box(55, 0, 0, 0),
-					'Title', T{761033847359, --[[XTemplate PGChallengeList Title]] "CHALLENGES"},
-					'Subtitle', T{545701017966, --[[XTemplate PGChallengeList Subtitle]] "Completed <CompletedChallenges>/<TotalChallenges>"},
+					'Title', T(761033847359, --[[XTemplate PGChallengeList Title]] "CHALLENGES"),
+					'Subtitle', T(545701017966, --[[XTemplate PGChallengeList Subtitle]] "Completed <CompletedChallenges>/<TotalChallenges>"),
 				}),
 				PlaceObj('XTemplateWindow', {
 					'Margins', box(0, 10, 0, 10),

@@ -10,7 +10,7 @@ DefineClass.Deposit = {
 	},
 	display_name = "",
 	display_icon = "",
-	description = T{634, "<resource(resource)> Deposit"},
+	description = T(634, "<resource(resource)> Deposit"),
 	
 	pin_summary1 = "",
 	pin_on_start = false,
@@ -111,10 +111,10 @@ DefineClass.DepositMarker = {
 	entity = "Hex1_Placeholder",
 	resource = "",
 	properties = {
-		{ category = "Debug", name = T{8927, "Deposit"},      id = "Deposit",     editor = "object", default = false, developer = true, read_only = true, dont_save = true},
-		{ category = "Debug", name = T{635, "Feature"}, id = "dbg_feature", editor = "object", default = false, developer = true},
-		{ category = "Debug", name = T{636, "Cluster"}, id = "dbg_cluster", editor = "number", default = -1, developer = true},
-		{ category = "Debug", name = T{637, "Prefab"},  id = "dbg_prefab",  editor = "text", default = "", developer = true},
+		{ category = "Debug", name = T(8927, "Deposit"),      id = "Deposit",     editor = "object", default = false, developer = true, read_only = true, dont_save = true},
+		{ category = "Debug", name = T(635, "Feature"), id = "dbg_feature", editor = "object", default = false, developer = true},
+		{ category = "Debug", name = T(636, "Cluster"), id = "dbg_cluster", editor = "number", default = -1, developer = true},
+		{ category = "Debug", name = T(637, "Prefab"),  id = "dbg_prefab",  editor = "text", default = "", developer = true},
 	},
 	is_placed = false,
 	placed_obj = false, -- can still be false if is_placed = true, means the placement was obstructed and the deposit is lost

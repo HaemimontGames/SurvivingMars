@@ -19,7 +19,7 @@ PlaceObj('StoryBit', {
 	Enables = {
 		"RenegateVigilante_KillRenegades",
 	},
-	NotificationText = T{11384, --[[StoryBit RenegateVigilante_KillRenegades NotificationText]] "The vigilante takes another victim"},
+	NotificationText = T(11384, --[[StoryBit RenegateVigilante_KillRenegades NotificationText]] "The vigilante strikes again"),
 	Prerequisites = {
 		PlaceObj('CheckObjectCount', {
 			'Label', "Colonist",

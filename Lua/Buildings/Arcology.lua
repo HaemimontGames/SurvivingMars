@@ -55,7 +55,7 @@ function Arcology:ApplyHiveMindBonus()
 	local bonus = self:GetHiveMindBonus()
 	local display_name = TechDef["HiveMind"].display_name
 	for _, unit in ipairs(self.colonists) do
-		unit:SetModifier("performance", "hive mind", bonus, 0, T{8570, "<green>Hive Mind <FormatSignInt(amount)></color>"})
+		unit:SetModifier("performance", "hive mind", bonus, 0, T(8570, "<green>Hive Mind <FormatSignInt(amount)></color>"))
 	end
 end
 

@@ -31,7 +31,7 @@ function SplashScreen:Init()
 			self:Close()
 		end,
 	}, self.idContent)
-	button:SetText(T{7976, "SKIP"})
+	button:SetText(T(7976, "SKIP"))
 	button:SetVisible(false)
 	if GetUIStyleGamepad() then
 		local image_path, scale = GetPlatformSpecificImagePath("ButtonB")
@@ -47,7 +47,7 @@ function SplashScreen:Init()
 			VAlign = "center",
 			Translate = true,
 		}, button)
-		label:SetText(T{1000159, "Escape"})
+		label:SetText(T(1000159, "Escape"))
 	end
 end
 

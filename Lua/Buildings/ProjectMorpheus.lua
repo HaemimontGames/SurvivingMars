@@ -23,5 +23,5 @@ function ProjectMorpheus:GetUISectionProjectMorpheusRollover()
 		local trait = TraitPresets[trait_id]
 		items[#items + 1] = T{432, "<trait_name><right><value>", trait_name = trait.display_name, value = val}
 	end	
-	return next(items) and table.concat(items, "<newline><left>") or T{433, "Information about the traits developed by Colonists under the effect of Project Morpheus"}
+	return next(items) and table.concat(items, "<newline><left>") or T(433, "Information about the traits developed by Colonists under the effect of Project Morpheus")
 end

@@ -75,7 +75,7 @@ if next(context) then
 		local context = self.context
 		size:SetVisible(context.FileSize)
 		if context.FileSize then
-			size:SetText(T{10487, "<FormatSize(FileSize, 2)>"})
+			size:SetText(T(10487, "<FormatSize(FileSize, 2)>"))
 		end
 	end
 elseif obj.counted then
@@ -455,7 +455,7 @@ end,
 						'FoldWhenHidden', true,
 						'TextStyle', "ModsUIItemStatusEnabledConsole",
 						'Translate', true,
-						'Text', T{259958195040, --[[XTemplate ModsUIBrowseListItem Text]] "ENABLED"},
+						'Text', T(259958195040, --[[XTemplate ModsUIBrowseListItem Text]] "ENABLED"),
 					}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XLabel",
@@ -467,7 +467,7 @@ end,
 						'FoldWhenHidden', true,
 						'TextStyle', "ModsUIItemStatusdisabledConsole",
 						'Translate', true,
-						'Text', T{815663365744, --[[XTemplate ModsUIBrowseListItem Text]] "DISABLED"},
+						'Text', T(815663365744, --[[XTemplate ModsUIBrowseListItem Text]] "DISABLED"),
 					}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XText",

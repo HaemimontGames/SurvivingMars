@@ -7,11 +7,11 @@ PlaceObj('XTemplate', {
 		'__context_of_kind', "Building",
 		'__condition', function (parent, context) return context:ShowUISectionConsumption() end,
 		'__template', "InfopanelSection",
-		'RolloverText', T{792334033908, --[[XTemplate sectionConsumption RolloverText]] "<UISectionConsumptionRollover>"},
+		'RolloverText', T(792334033908, --[[XTemplate sectionConsumption RolloverText]] "<UISectionConsumptionRollover>"),
 		'OnContextUpdate', function (self, context, ...)
 context:UpdateUISectionConsumption(self)
 end,
-		'Title', T{425713963756, --[[XTemplate sectionConsumption Title]] "Consumption"},
+		'Title', T(425713963756, --[[XTemplate sectionConsumption Title]] "Consumption"),
 		'Icon', "UI/Icons/Sections/grid.tga",
 	}, {
 		PlaceObj('XTemplateTemplate', {

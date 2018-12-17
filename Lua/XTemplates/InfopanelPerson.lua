@@ -7,7 +7,7 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateWindow', {
 		'__class', "XTextButton",
 		'RolloverTemplate', "Rollover",
-		'RolloverTitle', T{840063956526, --[[XTemplate InfopanelPerson RolloverTitle]] "<DisplayName>"},
+		'RolloverTitle', T(840063956526, --[[XTemplate InfopanelPerson RolloverTitle]] "<DisplayName>"),
 		'Margins', box(-9, 0, -9, 0),
 		'ScaleModifier', point(700, 700),
 		'Background', RGBA(0, 0, 0, 0),

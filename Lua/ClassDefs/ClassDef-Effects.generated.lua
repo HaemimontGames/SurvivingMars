@@ -69,12 +69,8 @@ DefineClass.AddTrait = {
 
 function AddTrait:Execute(colonist, context)
 	if self.Trait and IsValid(colonist) and not colonist:IsDying() then
-		if const.ColonistSpecialization[self.Trait] then
-			colonist:SetSpecialization(self.Trait)
-		else 
-			colonist:RemoveIncompatibleTraitsWith(self.Trait)
-			colonist:AddTrait(self.Trait)
-		end
+		colonist:RemoveIncompatibleTraitsWith(self.Trait)
+		colonist:AddTrait(self.Trait)
 	end
 end
 
@@ -217,9 +213,9 @@ DefineClass.CreatePlanetaryAnomaly = {
 		{ id = "description", 
 			editor = "text", default = false, translate = true, },
 		{ id = "latitude", 
-			editor = "number", default = -2147483648, },
+			editor = "number", default = false, },
 		{ id = "longitude", 
-			editor = "number", default = -2147483648, },
+			editor = "number", default = false, },
 		{ id = "required_crew", 
 			editor = "number", default = 0, },
 		{ id = "required_drones", 
@@ -228,15 +224,46 @@ DefineClass.CreatePlanetaryAnomaly = {
 			editor = "combo", default = false, items = function (self) return ColonistSpecializationCombo end, },
 		{ id = "required_rover", 
 			editor = "combo", default = false, items = function (self) return RoverTypesCombo end, },
+		{ id = "associate", 
+			editor = "bool", default = false, },
+		{ id = "reward", 
+			editor = "choice", default = "", items = function (self) return PlaneteryAnomalyRewardTypeCombo() end, },
 	},
 	Description = Untranslated("Create planetary anomaly with name <display_name>"),
 }
 
 function CreatePlanetaryAnomaly:Execute(obj, context)
-	local lat = self.latitude ~= min_int and self.latitude or nil
-	local lon = self.longitude ~= min_int and self.longitude or nil
+	local latitude = (self.latitude or min_int) ~= min_int and self.latitude or nil
+	local longitude = (self.longitude or min_int) ~= min_int and self.longitude or nil
+	local num_crew = self.required_crew or 0
+	local num_drones = self.required_drones or 0
+	local rover_type = self.required_rover or ""
+	local crew_specialization = self.required_crew_specialization or ""
 	
-	StoryBits_CreatePlanetaryAnomaly(self.id, self.display_name, self.description, lon, lat, self.required_crew, self.required_crew_specialization, self.required_rover, self.required_drones)
+	local requirements = {
+			num_crew = num_crew > 0 and num_crew or nil,
+			num_drones = num_drones > 0 and num_drones or nil,
+			rover_type = rover_type ~= "" and rover_type or nil,
+			crew_specialization = crew_specialization ~= "" and crew_specialization or nil,
+		}
+	
+	if not longitude or not latitude then
+		latitude, longitude = GenerateMarsScreenPoI("anomaly")
+end
+
+	local anomaly = PlaceObject("PlanetaryAnomaly", {
+					custom_id = self.id,
+					display_name = self.display_name,
+					init_name = not self.display_name,
+					description = self.description,
+					reward = self.reward,
+					longitude = longitude,
+					latitude = latitude,
+					requirements = requirements,})
+					
+	if self.associate then
+		context.object = anomaly
+	end
 end
 
 UndefineClass('DelayExpedition')
@@ -341,7 +368,7 @@ DefineClass.DiscoverTech = {
 		{ id = "Cost", name = "Cost (RP)", 
 			editor = "number", default = -1, },
 	},
-	Description = T{352987824047, "<GetDescription>"},
+	Description = T(352987824047, "<GetDescription>"),
 }
 
 function DiscoverTech:Execute(obj, context)
@@ -503,6 +530,12 @@ DefineClass.EraseObject = {
 }
 
 function EraseObject:Execute(obj, context)
+	if obj:IsKindOf("SupplyRocket") and obj:IsValidPos() then
+		obj:EjectColonists()
+		if obj.disembarking then
+			Sleep(#obj.disembarking * 1500)
+		end
+	end
 	DoneObject(obj)
 end
 
@@ -620,7 +653,7 @@ DefineClass.ForEachExecuteEffects = {
 		{ id = "Effects", 
 			editor = "nested_list", default = false, base_class = "Effect", },
 		{ id = "Description", help = "Custom description for this effect to be used for displaying it to the player", 
-			editor = "text", default = T{10900, "For each <ObjName>: <EffectsList>"}, translate = true, },
+			editor = "text", default = T(10900, "For each <ObjName>: <EffectsList>"), translate = true, },
 	},
 }
 
@@ -700,7 +733,7 @@ DefineClass.ForEachResident = {
 		{ id = "Effects", 
 			editor = "nested_list", default = false, base_class = "Effect", },
 		{ id = "Description", help = "Custom description for this effect to be used for displaying it to the player", 
-			editor = "text", default = T{782971730643, "For each resident: <EffectsList>"}, translate = true, },
+			editor = "text", default = T(782971730643, "For each resident: <EffectsList>"), translate = true, },
 	},
 	RequiredObjClasses = {
 	"Residence",
@@ -757,7 +790,7 @@ DefineClass.ForEachWorker = {
 		{ id = "Effects", 
 			editor = "nested_list", default = false, base_class = "Effect", },
 		{ id = "Description", help = "Custom description for this effect to be used for displaying it to the player", 
-			editor = "text", default = T{814803812237, "For each worker: <EffectsList>"}, translate = true, },
+			editor = "text", default = T(814803812237, "For each worker: <EffectsList>"), translate = true, },
 	},
 	RequiredObjClasses = {
 	"Workplace",
@@ -886,7 +919,7 @@ DefineClass.LockUnlockBuildingFromBuildMenu = {
 		{ id = "Lock", 
 			editor = "bool", default = false, },
 		{ id = "Message", 
-			editor = "text", default = T{401896326435, "You can't construct this building at this time"}, translate = true, },
+			editor = "text", default = T(401896326435, "You can't construct this building at this time"), translate = true, },
 	},
 	Description = Untranslated("<LockText> <Building> from building menu"),
 }
@@ -894,6 +927,7 @@ DefineClass.LockUnlockBuildingFromBuildMenu = {
 function LockUnlockBuildingFromBuildMenu:Execute(obj, context)
 	local bld = self.Building or obj.template_name
 	BuildMenuPrerequisiteOverrides[bld] = self.Lock and self.Message or nil
+	RefreshXBuildMenu()
 end
 
 function LockUnlockBuildingFromBuildMenu:GetLockText(obj, context)
@@ -908,7 +942,7 @@ DefineClass.LoseFundingPercent = {
 			editor = "number", default = 10, 
 			buttons = { { "Param", "PickParam" } }, scale = "%", },
 	},
-	Description = T{160558783655, "Lose <funding(LostFunding)> in funding"},
+	Description = T(160558783655, "Lose <funding(LostFunding)> in funding"),
 	EditorView = Untranslated("Lose <Percent>% in funding"),
 }
 
@@ -952,7 +986,6 @@ DefineClass.MalfunctionRocket = {
 }
 
 function MalfunctionRocket:Execute(rocket, context)
-	table.insert_unique(g_LandedRocketsInNeedOfFuel, rocket)
 	local amount = self:ResolveValue("Amount", context)
 	rocket:SetCommand("WaitMaintenance", self.Resource, amount)
 end
@@ -1143,7 +1176,7 @@ DefineClass.ModifyColonistStat = {
 			editor = "number", default = false, 
 			buttons = { { "Param", "PickParam" } }, },
 		{ id = "Reason", 
-			editor = "text", default = T{532997211205, "Special effect"}, translate = true, },
+			editor = "text", default = T(532997211205, "Special effect"), translate = true, },
 	},
 	Description = Untranslated("Change <Stat>"),
 	RequiredObjClasses = {
@@ -1216,9 +1249,9 @@ DefineClass.ModifyLabel = {
 		{ id = "ModifyId", help = "Used to reference the same modification later", 
 			editor = "text", default = false, },
 		{ id = "Reason", help = "Used in the UI", 
-			editor = "text", default = T{367924149812, "Special effect <opt_amount(amount)> <opt_percent(percent)>"}, translate = true, },
+			editor = "text", default = T(367924149812, "Special effect <opt_amount(amount)> <opt_percent(percent)>"), translate = true, },
 		{ id = "Description", help = "Custom description for this effect to be used for displaying it to the player", 
-			editor = "text", default = T{11167, "<u(DomeText)><u(Label)>.<u(Prop)> <opt_amount(Amount)> <opt_percent(Percent)>"}, translate = true, },
+			editor = "text", default = T(11167, "<u(DomeText)><u(Label)>.<u(Prop)> <opt_amount(Amount)> <opt_percent(Percent)>"), translate = true, },
 	},
 }
 
@@ -1239,7 +1272,7 @@ function ModifyLabel:Execute(obj, context)
 			amount = amount,
 			percent = percent,
 			id = "ModifyLabel_effect",
-			display_text =  T{11670, "<color_tag><reason></color>", color_tag = amount >=0 and TLookupTag("<green>") or TLookupTag("<red>"), reason = T{self.Reason, amount = unscaled_amount, percent = percent}},
+			display_text =  T{11856, "<color_tag><reason></color>", color_tag = (amount >=0 and percent >= 0) and TLookupTag("<green>") or TLookupTag("<red>"), reason = T{self.Reason, amount = unscaled_amount, percent = percent}},
 		}
 	end
 	local id = self
@@ -1279,7 +1312,7 @@ DefineClass.ModifyObject = {
 		{ id = "ModifyId", help = "Used to reference the same modification later", 
 			editor = "text", default = false, },
 		{ id = "Reason", help = "Used in the UI", 
-			editor = "text", default = T{367924149812, "Special effect <opt_amount(amount)> <opt_percent(percent)>"}, translate = true, },
+			editor = "text", default = T(367924149812, "Special effect <opt_amount(amount)> <opt_percent(percent)>"), translate = true, },
 	},
 	Description = Untranslated("<u(Prop)> <opt_amount(Amount)> <opt_percent(Percent)>"),
 	RequiredObjClasses = {
@@ -1301,7 +1334,7 @@ function ModifyObject:Execute(obj, context)
 	local unscaled_amount = self:ResolveValue("Amount", context) 
 	local amount = unscaled_amount * scale
 	local percent = self:ResolveValue("Percent", context)
-	obj:SetModifier(self.Prop, id, amount, percent, T{11670, "<color_tag><reason></color>", color_tag = amount >=0 and TLookupTag("<green>") or TLookupTag("<red>"), reason = T{self.Reason, amount = unscaled_amount, percent = percent}})
+	obj:SetModifier(self.Prop, id, amount, percent, T{11856, "<color_tag><reason></color>", color_tag = (amount >=0 and percent >= 0) and TLookupTag("<green>") or TLookupTag("<red>"), reason = T{self.Reason, amount = unscaled_amount, percent = percent}})
 	local duration = self:ResolveValue("Sols", context)
 	if (amount ~= 0 or percent ~= 0) and duration > 0 then
 		CreateGameTimeThread(function()
@@ -1352,11 +1385,11 @@ DefineClass.PauseResearch = {
 		{ id = "ResearchType", 
 			editor = "choice", default = "sponsor", items = function (self) return {{value = "sponsor", text = T{11168, "sponsor"}}, {value = "outsource", text = T{11169, "outsource"}}} end, },
 	},
-	Description = T{202067797176, "Pause <ResearchTypeText> research"},
+	Description = T(202067797176, "Pause <ResearchTypeText> research"),
 }
 
 function PauseResearch:Execute(obj, context)
-	local paused_time = const.DayDuration * self:ResolveValue("Time", context)
+	local paused_time = self:ResolveValue("Time", context)
 	local rtype = self.ResearchType
 	if rtype == "" or rtype == "outsource" then
 		UICity.paused_outsource_research_end_time = (UICity.paused_outsource_research_end_time or GameTime()) + paused_time
@@ -1383,8 +1416,8 @@ DefineClass.PayFunding = {
 			editor = "number", default = 1000000000, 
 			buttons = { { "Param", "PickParam" } }, },
 	},
-	Description = T{407408618445, "<funding(Amount)>"},
-	EditorView = T{665594954399, "Pay funding: <Amount>"},
+	Description = T(407408618445, "<funding(Amount)>"),
+	EditorView = T(665594954399, "Pay funding: <Amount>"),
 }
 
 function PayFunding:Execute(obj, context)
@@ -1525,7 +1558,7 @@ DefineClass.RenameAssociatedObject = {
 
 function RenameAssociatedObject:Execute(obj, context)
 	if self.Name then
-		obj.name = self.Name
+		obj.name = _InternalTranslate(self.Name)
 	end
 end
 
@@ -1538,7 +1571,7 @@ DefineClass.RenameObject = {
 		{ id = "Filters", 
 			editor = "nested_list", default = false, base_class = "Condition", },
 		{ id = "Description", help = "Custom description for this effect to be used for displaying it to the player", 
-			editor = "text", default = T{700526274387, "Rename object"}, translate = true, },
+			editor = "text", default = T(700526274387, "Rename object"), translate = true, },
 		{ id = "Name", 
 			editor = "text", default = false, translate = true, },
 	},
@@ -1596,7 +1629,7 @@ DefineClass.ResidenceExecuteEffect = {
 		{ id = "Effects", 
 			editor = "nested_list", default = false, base_class = "Effect", },
 		{ id = "Description", help = "Custom description for this effect to be used for displaying it to the player", 
-			editor = "text", default = T{631895865983, "Execute effect for the residence of the colonist"}, translate = true, },
+			editor = "text", default = T(631895865983, "Execute effect for the residence of the colonist"), translate = true, },
 	},
 	RequiredObjClasses = {
 	"Colonist",
@@ -1669,7 +1702,7 @@ DefineClass.RewardApplicants = {
 		{ id = "Specialization", 
 			editor = "choice", default = false, items = function (self) return GetColonistSpecializationCombo() end, },
 	},
-	Description = T{633926826952, "<Amount> <opt(display_name('TraitPresets',Trait), '', ' ')><opt(display_name('TraitPresets',Specialization), '', ' ')>Applicants"},
+	Description = T(633926826952, "<Amount> <opt(display_name('TraitPresets',Trait), '', ' ')><opt(display_name('TraitPresets',Specialization), '', ' ')>Applicants"),
 }
 
 function RewardApplicants:Execute(obj, context)
@@ -1697,7 +1730,7 @@ DefineClass.RewardExportPrice = {
 		{ id = "ModifyId", help = "Used to reference the same modification later", 
 			editor = "text", default = false, },
 	},
-	Description = T{595472204584, "+<Percent>% price of Rare Metals"},
+	Description = T(595472204584, "+<Percent>% price of Rare Metals"),
 	RequiredObjClasses = false,
 	ForbiddenObjClasses = false,
 }
@@ -1716,8 +1749,8 @@ DefineClass.RewardFunding = {
 			editor = "number", default = 1000000000, 
 			buttons = { { "Param", "PickParam" } }, },
 	},
-	Description = T{219156110632, "<funding(Amount)>"},
-	EditorView = T{996860432020, "Funding: <Amount>"},
+	Description = T(219156110632, "<funding(Amount)>"),
+	EditorView = T(996860432020, "Funding: <Amount>"),
 }
 
 function RewardFunding:Execute(obj, context)
@@ -1727,7 +1760,7 @@ end
 UndefineClass('RewardNewRocket')
 DefineClass.RewardNewRocket = {
 	__parents = { "Effect", },
-	Description = T{239752697318, "New rocket"},
+	Description = T(239752697318, "New rocket"),
 }
 
 function RewardNewRocket:Execute(obj, context)
@@ -1744,7 +1777,8 @@ DefineClass.RewardPrefab = {
 		{ id = "Prefab", 
 			editor = "choice", default = false, items = function (self) return PrefabsCombo{value = false, text = T{10998, "-associated object-"}} end, },
 	},
-	Description = Untranslated("<Amount> <PrefabText>"),
+	Description = Untranslated("<Amount> <Drone><Building> <PrefabText>"),
+	EditorView = Untranslated("Reward Prefab  <Amount> <Prefab>"),
 }
 
 function RewardPrefab:Execute(obj, context)
@@ -1757,22 +1791,31 @@ function RewardPrefab:Execute(obj, context)
 	end
 end
 
-function RewardPrefab:GetPrefabText(obj, context)
-	if not self.Prefab and not obj then return "(no prefab selcted)" end
+function RewardPrefab:GetDrone(obj, context)
 	local prefab = self.Prefab or obj.template_name
-	local desc
 	if prefab == "DronePrefab" then
-		desc = T{1681, "Drone"}
+		return T{1681, "Drone"}
 	else
-		desc = BuildingTemplates[prefab].display_name or ""
+		return ""
 	end
+end
+
+function RewardPrefab:GetBuilding(obj, context)
+	local prefab = self.Prefab or obj.template_name
+	if prefab ~= "DronePrefab" then
+		return BuildingTemplates[prefab].display_name
+	else
+		return ""
+	end
+end
+
+function RewardPrefab:GetPrefabText(obj, context)
 	local amount = self:ResolveValue("Amount", context)
 	if amount == 1 then
-		desc = desc.." "..T{11170, "prefab"}
+		return T{11170, "prefab"}
 	else
-		desc = desc.." "..T{11171, "prefabs"}
+		return T{11171, "prefabs"}
 	end
-	return desc
 end
 
 UndefineClass('RewardResearchPoints')
@@ -1783,7 +1826,7 @@ DefineClass.RewardResearchPoints = {
 			editor = "number", default = 0, 
 			buttons = { { "Param", "PickParam" } }, },
 	},
-	Description = T{445913619019, "<research(ResearchPoints)>"},
+	Description = T(445913619019, "<research(ResearchPoints)>"),
 	EditorView = Untranslated("Reward <Amount> research points"),
 }
 
@@ -1805,7 +1848,7 @@ DefineClass.RewardSponsorResearch = {
 		{ id = "ModifyId", help = "Used to reference the same modification later", 
 			editor = "text", default = false, },
 	},
-	Description = T{532190223825, "<research(Amount)> Sponsor Research"},
+	Description = T(532190223825, "<research(Amount)> Sponsor Research"),
 	RequiredObjClasses = false,
 	ForbiddenObjClasses = false,
 }
@@ -1824,7 +1867,7 @@ DefineClass.RewardSupplyPods = {
 			editor = "number", default = false, 
 			buttons = { { "Param", "PickParam" } }, },
 	},
-	Description = T{522988558818, "<Amount> free supply pods"},
+	Description = T(522988558818, "<Amount> free supply pods"),
 }
 
 function RewardSupplyPods:Execute(obj, context)
@@ -1858,13 +1901,13 @@ function RewardTech:Execute(obj, context)
 end
 
 function RewardTech:GetResearchText(obj, context)
-	if self.Research == "random" then return T{11671, "random tech"} end
+	if self.Research == "random" then return T(11857, "random tech") end
 	local desc = TechDef[self.Research]
 	return desc and desc.display_name or ""
 end
 
 function RewardTech:GetFieldText(obj, context)
-	if self.Field == "random" then return T{11672, "random field"} end
+	if self.Field == "random" then return T(11858, "random field") end
 	local field = TechFields[self.Field]
 	return field and field.display_name or ""
 end
@@ -1902,14 +1945,14 @@ function RewardTechBoost:Execute(obj, context)
 end
 
 function RewardTechBoost:GetResearchText(obj, context)
-	if self.Research == "" then return T{11673, "all techs"} end
-	if self.Research == "random" then return T{11671, "random tech"} end
+	if self.Research == "" then return T(11859, "all techs") end
+	if self.Research == "random" then return T(11857, "random tech") end
 	local desc = TechDef[self.Research]
 	return desc and desc.display_name or ""
 end
 
 function RewardTechBoost:GetFieldText(obj, context)
-	if self.Field == "random" then return T{11672, "random field"} end
+	if self.Field == "random" then return T(11858, "random field") end
 	local field = TechFields[self.Field]
 	return field and field.display_name or ""
 end
@@ -1975,7 +2018,9 @@ function SetBuildingEnabledState:Execute(building, context)
 		CreateGameTimeThread(function()
 			building:Setexceptional_circumstances(not self.Enabled)		
 			Sleep(duration)
-			building:Setexceptional_circumstances(self.Enabled)
+			if IsValid(building) then
+				building:Setexceptional_circumstances(self.Enabled)
+			end
 		end)
 	else
 		building:Setexceptional_circumstances(not self.Enabled)
@@ -2039,15 +2084,15 @@ DefineClass.SpawnColonist = {
 		{ id = "Specialization", 
 			editor = "choice", default = false, items = function (self) return GetColonistSpecializationCombo() end, },
 		{ id = "Trait1", 
-			editor = "choice", default = false, items = function (self) return PresetsCombo("TraitPreset") end, },
+			editor = "choice", default = false, items = function (self) return PresetsCombo("TraitPreset", nil, nil, function(preset, obj) return preset.group~= "Specialization" end) end, },
 		{ id = "Trait2", 
-			editor = "choice", default = false, items = function (self) return PresetsCombo("TraitPreset") end, },
+			editor = "choice", default = false, items = function (self) return  PresetsCombo("TraitPreset", nil, nil, function(preset, obj) return preset.group~= "Specialization" end) end, },
 		{ id = "Trait3", 
-			editor = "choice", default = false, items = function (self) return PresetsCombo("TraitPreset") end, },
+			editor = "choice", default = false, items = function (self) return PresetsCombo("TraitPreset", nil, nil, function(preset, obj) return preset.group~= "Specialization" end) end, },
 		{ id = "AssociateWithStoryBit", name = "Associate with StoryBit", 
 			editor = "bool", default = false, },
 	},
-	Description = T{387767984070, "Receive a colonist"},
+	Description = T(387767984070, "Receive a colonist"),
 }
 
 function SpawnColonist:Execute(obj, context)
@@ -2075,7 +2120,7 @@ function SpawnColonist:Execute(obj, context)
 		local params = {}
 		params.entity_gender = self.Gender=="OtherGender" and (Random(1, 100) <= 50 and "Male" or "Female") or self.Gender
 		params.gender = self.Gender
-		local colonist = GenerateColonistData(UICity, self.Age, false, params )
+		local colonist = GenerateColonistData(UICity, self.Age, nil, params )
 		if #available_domes > 0 then
 			local dome = available_domes[UICity:Random(1, #available_domes)]
 			dome:SpawnColonist(colonist, true)
@@ -2090,7 +2135,7 @@ function SpawnColonist:Execute(obj, context)
 		else
 			assert(false, "Colonist could not be placed in a dome or a rocket")
 		end
-		if self.Specialization then colonist:SetSpecialization(self.Specialization) end
+		if self.Specialization then colonist:AddTrait(self.Specialization) end
 		if self.Trait1 then colonist:AddTrait(self.Trait1) end
 		if self.Trait2 then colonist:AddTrait(self.Trait2) end
 		if self.Trait3 then colonist:AddTrait(self.Trait3) end
@@ -2179,7 +2224,7 @@ DefineClass.SpawnRefugeeRocket = {
 		{ id = "AssociateWithStoryBit", name = "Associate with StoryBit", 
 			editor = "bool", default = false, },
 	},
-	Description = T{263683247323, "Receive <RefugeeCount> Refugees"},
+	Description = T(263683247323, "Receive <RefugeeCount> Refugees"),
 }
 
 function SpawnRefugeeRocket:Execute(obj, context)
@@ -2465,7 +2510,7 @@ DefineClass.WorkplaceExecuteEffect = {
 		{ id = "Effects", 
 			editor = "nested_list", default = false, base_class = "Effect", },
 		{ id = "Description", help = "Custom description for this effect to be used for displaying it to the player", 
-			editor = "text", default = T{720933904817, "Execute effect for the workplace of the colonist"}, translate = true, },
+			editor = "text", default = T(720933904817, "Execute effect for the workplace of the colonist"), translate = true, },
 	},
 	RequiredObjClasses = {
 	"Colonist",

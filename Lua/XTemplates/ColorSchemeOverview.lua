@@ -12,7 +12,7 @@ PlaceObj('XTemplate', {
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "CommandCenterTitle",
-			'Title', T{208980427650, --[[XTemplate ColorSchemeOverview Title]] "BUILDING COLORS"},
+			'Title', T(208980427650, --[[XTemplate ColorSchemeOverview Title]] "BUILDING COLORS"),
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XContentTemplate",
@@ -74,7 +74,7 @@ end
 end,
 							'Image', "UI/CommonNew/ccc_categories_small.tga",
 							'IconColumns', 2,
-							'Text', T{437462750091, --[[XTemplate ColorSchemeOverview Text]] "<display_name>"},
+							'Text', T(437462750091, --[[XTemplate ColorSchemeOverview Text]] "<display_name>"),
 						}),
 						}),
 					PlaceObj('XTemplateCode', {
@@ -95,7 +95,7 @@ end,
 			}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "back",
-			'ActionName', T{4254, --[[XTemplate ColorSchemeOverview ActionName]] "BACK"},
+			'ActionName', T(4254, --[[XTemplate ColorSchemeOverview ActionName]] "BACK"),
 			'ActionToolbar', "ActionBar",
 			'ActionShortcut', "Escape",
 			'ActionGamepad', "ButtonB",

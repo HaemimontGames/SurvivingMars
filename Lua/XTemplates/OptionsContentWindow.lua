@@ -34,7 +34,7 @@ PlaceObj('XTemplate', {
 				}, {
 					PlaceObj('XTemplateCode', {
 						'run', function (self, parent, context)
-local title = T{1131, --[[XTemplate OptionsDlg Title]] "OPTIONS"}
+local title = T(1131, --[[XTemplate OptionsDlg Title]] "OPTIONS")
 if GameState.gameplay then
 	parent:ResolveId("idTitle"):SetTitle(title)
 else
@@ -122,7 +122,7 @@ end,
 						}),
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-parent.idValue:SetText(Platform.ps4 and T{7874, "Wireless Controller Layout"} or T{1142, "Controller Layout"})
+parent.idValue:SetText(Platform.ps4 and T(7874, "Wireless Controller Layout") or T(1142, "Controller Layout"))
 end,
 						}),
 						PlaceObj('XTemplateWindow', {

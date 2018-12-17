@@ -174,7 +174,7 @@ end
 
 function QuitGame(parent)
 	CreateRealTimeThread(function(parent)
-		if WaitMarsQuestion(parent, T{4167, "Return to Earth?"}, T{8718, "Please don't go. The drones need you. They look up to you.<newline><newline>Are you sure you want to exit the game?"}, T{1138, "Yes"}, T{1139, "No"}, "UI/Messages/space.tga") == "ok" then
+		if WaitMarsQuestion(parent, T(4167, "Return to Earth?"), T(8718, "Please don't go. The drones need you. They look up to you.<newline><newline>Are you sure you want to exit the game?"), T(1138, "Yes"), T(1139, "No"), "UI/Messages/space.tga") == "ok" then
 			quit()
 		end
 	end, parent)
@@ -200,7 +200,7 @@ function DurangoTitleScreen:Init()
 		TextStyle = "TitleScreen",
 		Translate = true,
 	}, self)
-	label:SetText(T{4263, "Press any button"})
+	label:SetText(T(4263, "Press any button"))
 	self:SetFocus()
 	self.idStartText:AddInterpolation{
 		type = const.intAlpha,
@@ -249,9 +249,9 @@ function DurangoTitleScreen:OnXButtonDown(button, controller_id)
 		ClearParadoxParams()
 		LoadingScreenClose("idLoadingScreen", "DurangoSignIn")
 		if not signed then
-			CreateMarsMessageBox(T{""}, T{1000623, "You are not signed into a profile. You will be unable to save any game content until you sign in."}, T{1000136, "OK"}, terminal.desktop)
+			CreateMarsMessageBox(T{""}, T(1000623, "You are not signed into a profile. You will be unable to save any game content until you sign in."), T(1000136, "OK"), terminal.desktop)
 		elseif guest then
-			CreateMarsMessageBox(T{""}, DurangoGuestMessage, T{1000136, "OK"}, terminal.desktop)
+			CreateMarsMessageBox(T{""}, DurangoGuestMessage, T(1000136, "OK"), terminal.desktop)
 		end
 	end)
 	return "break"

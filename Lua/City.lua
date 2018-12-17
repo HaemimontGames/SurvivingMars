@@ -361,7 +361,7 @@ function City:SetGoals()
 						local context = {param1 = param1, param2 = param2, param3 = param3}
 						local reward = sponsor:GetProperty("reward_effect_"..i)
 						reward:Execute()
-						AddOnScreenNotification("GoalCompleted", OpenMissionProfileDlg, {reward_description = T{reward.Description, reward}, context = context, rollover_title = T{4773, "<em>Goal:</em> "}, rollover_text = goal.description})
+						AddOnScreenNotification("GoalCompleted", OpenMissionProfileDlg, {reward_description = T{reward.Description, reward}, context = context, rollover_title = T(4773, "<em>Goal:</em> "), rollover_text = goal.description})
 						Msg("GoalComplete", goal)
 						if AreAllSponsorGoalsCompleted() then
 							Msg("MissionEvaluationDone")
@@ -476,7 +476,7 @@ function City:StartChallenge()
 	self.challenge_timeout_thread = CreateGameTimeThread(function(self, challenge, params_tbl)
 		-- add notification with countdown
 		params_tbl.expiration2 = challenge.time_perfected
-		params_tbl.additional_text = T{10489, "<newline>Perfect time: <countdown2>"}
+		params_tbl.additional_text = T(10489, "<newline>Perfect time: <countdown2>")
 		if challenge.TrackProgress then
 			params_tbl.rollover_text = challenge.description .. Untranslated("<newline><newline>") .. T{challenge.ProgressText, params_tbl}
 		end
@@ -624,7 +624,7 @@ function City:UpdatePlanetaryAnomalies(day)
 	for i = 1, num do
 		lat, long = GenerateMarsScreenPoI("anomaly")
 		local obj = PlaceObject("PlanetaryAnomaly", {
-			display_name = T{11234, "Planetary Anomaly"},
+			display_name = T(11234, "Planetary Anomaly"),
 			longitude = long,
 			latitude = lat,			
 		})
@@ -1408,10 +1408,10 @@ function CalcInsufficientResourcesNotifParams(displayed_in_notif)
 	for _, name in ipairs(displayed_in_notif) do
 		resource_names[#resource_names + 1] = TLookupTag("<icon_" .. name .. ">")
 	end
-	params.low_on_resource_text = #resource_names == 1 and T{839, "Resource:"} or T{840, "Resources:"}
+	params.low_on_resource_text = #resource_names == 1 and T(839, "Resource:") or T(840, "Resources:")
 	params.resources = table.concat(resource_names, " ")
-	params.rollover_title = T{5640, "Low Storage"}
-	params.rollover_text = T{10371, "Stored resources expected to last less than 3 Sols."}
+	params.rollover_title = T(5640, "Low Storage")
+	params.rollover_text = T(10371, "Stored resources expected to last less than 3 Sols.")
 	return params
 end
 
@@ -1433,7 +1433,7 @@ function OnMsg.NewHour(hour)
 	end
 	-- food
 	local consumed = ResourceOverviewObj:GetFoodConsumedByConsumptionYesterday()
-	local data = next(ResourceOverviewObj.data) and ResourceOverviewObj.data 
+	local data = ResourceOverviewObj.data and next(ResourceOverviewObj.data) and ResourceOverviewObj.data 
 	if not data then
 		data = {}
 		GatherResourceOverviewData(data)	

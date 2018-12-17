@@ -54,7 +54,7 @@ end,
 				'__template', "DialogTitleNew",
 				'Id', "",
 				'Margins', box(55, 0, 0, 0),
-				'Title', T{668912375628, --[[XTemplate PGChallengePayload Title]] "ROCKET PAYLOAD"},
+				'Title', T(668912375628, --[[XTemplate PGChallengePayload Title]] "ROCKET PAYLOAD"),
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XContentTemplate",
@@ -71,7 +71,7 @@ end,
 						'MouseCursor', "UI/Cursors/Rollover.tga",
 						'TextStyle', "PGLandingPosDetails",
 						'Translate', true,
-						'Text', T{454729036303, --[[XTemplate PGChallengePayload Text]] "<RocketName>"},
+						'Text', T(454729036303, --[[XTemplate PGChallengePayload Text]] "<RocketName>"),
 						'Shorten', true,
 					}, {
 						PlaceObj('XTemplateFunc', {
@@ -84,7 +84,7 @@ end,
 						}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "back",
-						'ActionName', T{4254, --[[XTemplate PGChallengePayload ActionName]] "BACK"},
+						'ActionName', T(4254, --[[XTemplate PGChallengePayload ActionName]] "BACK"),
 						'ActionToolbar', "ActionBar",
 						'ActionShortcut', "Escape",
 						'ActionGamepad', "ButtonB",
@@ -93,7 +93,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "rename",
-						'ActionName', T{10120, --[[XTemplate PGChallengePayload ActionName]] "RENAME"},
+						'ActionName', T(10120, --[[XTemplate PGChallengePayload ActionName]] "RENAME"),
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "RightThumbClick",
 						'OnAction', function (self, host, source)
@@ -103,7 +103,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "start",
-						'ActionName', T{537700422104, --[[XTemplate PGChallengePayload ActionName]] "START"},
+						'ActionName', T(537700422104, --[[XTemplate PGChallengePayload ActionName]] "START"),
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonX",
 						'OnAction', function (self, host, source)
@@ -124,7 +124,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "back",
-						'ActionName', T{4254, --[[XTemplate PGChallengePayload ActionName]] "BACK"},
+						'ActionName', T(4254, --[[XTemplate PGChallengePayload ActionName]] "BACK"),
 						'ActionToolbar', "ActionBar",
 						'ActionShortcut', "Escape",
 						'ActionGamepad', "ButtonB",
@@ -146,14 +146,14 @@ end,
 						'Padding', box(0, 0, 0, 0),
 						'TextStyle', "PGLandingPosDetails",
 						'Translate', true,
-						'Text', T{3499, --[[XTemplate PGChallengePayload Text]] "Cargo Capacity"},
+						'Text', T(3499, --[[XTemplate PGChallengePayload Text]] "Cargo Capacity"),
 					}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XText",
 						'Padding', box(0, 0, 0, 0),
 						'TextStyle', "PGLandingPosDetails",
 						'Translate', true,
-						'Text', T{3613, --[[XTemplate PGChallengePayload Text]] "Funding"},
+						'Text', T(3613, --[[XTemplate PGChallengePayload Text]] "Funding"),
 					}),
 					}),
 				PlaceObj('XTemplateWindow', {
@@ -164,14 +164,14 @@ end,
 						'Padding', box(0, 0, 0, 0),
 						'TextStyle', "PGChallengeDescription",
 						'Translate', true,
-						'Text', T{270405570569, --[[XTemplate PGChallengePayload Text]] "<Capacity> kg"},
+						'Text', T(270405570569, --[[XTemplate PGChallengePayload Text]] "<Capacity> kg"),
 					}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XText",
 						'Padding', box(0, 0, 0, 0),
 						'TextStyle', "PGChallengeDescription",
 						'Translate', true,
-						'Text', T{134782360990, --[[XTemplate PGChallengePayload Text]] "<funding(Funding)>"},
+						'Text', T(134782360990, --[[XTemplate PGChallengePayload Text]] "<funding(Funding)>"),
 					}),
 					}),
 				}),
@@ -213,7 +213,7 @@ end,
 					}, {
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-parent:ResolveId("idTitle"):SetTitle(T{11442, "SELECT PAYLOAD"})
+parent:ResolveId("idTitle"):SetTitle(T(11442, "SELECT PAYLOAD"))
 end,
 						}),
 						PlaceObj('XTemplateForEach', {
@@ -256,7 +256,7 @@ end,
 					}, {
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-parent:ResolveId("idTitle"):SetTitle(T{4068, "PREFABS"})
+parent:ResolveId("idTitle"):SetTitle(T(4068, "PREFABS"))
 end,
 						}),
 						PlaceObj('XTemplateForEach', {

@@ -20,7 +20,7 @@ PlaceObj('XTemplate', {
 			'VAlign', "top",
 			'TextStyle', "OverviewItemSection",
 			'Translate', true,
-			'Text', T{857640145534, --[[XTemplate Graph Text]] "<caption>"},
+			'Text', T(857640145534, --[[XTemplate Graph Text]] "<caption>"),
 		}),
 		PlaceObj('XTemplateWindow', {
 			'comment', "graph elements",
@@ -332,7 +332,7 @@ end,
 					'HandleMouse', false,
 					'TextStyle', "GraphScale",
 					'Translate', true,
-					'Text', T{774267355675, --[[XTemplate Graph Text]] "Sol"},
+					'Text', T(774267355675, --[[XTemplate Graph Text]] "Sol"),
 					'TextHAlign', "center",
 				}),
 				PlaceObj('XTemplateWindow', {

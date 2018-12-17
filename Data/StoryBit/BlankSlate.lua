@@ -18,11 +18,11 @@ PlaceObj('StoryBit', {
 		PlaceObj('SupplyMissionsEnabled', nil),
 	},
 	ScriptDone = true,
-	Text = T{465583094158, --[[StoryBit BlankSlate Text]] "People whisper with fear about an applicant who has been subjected to the Space Rehabilitation treatment and suffered a terrible fate, losing all memories and personality traits! Now the Applicants have started resigning from the program, which threatens our public face on Earth.\n\nIt is all a fabrication, but how can we convince the applicants?"},
+	Text = T(465583094158, --[[StoryBit BlankSlate Text]] "People whisper with fear about an applicant who has been subjected to the Space Rehabilitation treatment and suffered a terrible fate, losing all memories and personality traits! Now the Applicants have started resigning from the program, which threatens our public face on Earth.\n\nIt is all a fabrication, but how can we convince the applicants?"),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{575189948636, --[[StoryBit BlankSlate Title]] "Blank Slate"},
-	VoicedText = T{650388033312, --[[voice:narrator]] "A dark rumor is spreading among the applicants who want to join our Colony on Mars."},
+	Title = T(575189948636, --[[StoryBit BlankSlate Title]] "Blank Slate"),
+	VoicedText = T(650388033312, --[[voice:narrator]] "A dark rumor is spreading among the applicants who want to join our Colony on Mars."),
 	group = "Breakthroughs",
 	id = "BlankSlate",
 	PlaceObj('StoryBitParamNumber', {
@@ -38,9 +38,9 @@ PlaceObj('StoryBit', {
 		'Value', 3600000,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{411254030290, --[[StoryBit BlankSlate Text]] "Remind them of their contracts."},
+		'Text', T(411254030290, --[[StoryBit BlankSlate Text]] "Remind them of their contracts."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{791068462909, --[[StoryBit BlankSlate CustomOutcomeText]] "no Applicants leave the Applicants Pool, all Colonists lose <morale_lost> Morale for <sols(morale_down_sols)> Sols"},
+		'CustomOutcomeText', T(791068462909, --[[StoryBit BlankSlate CustomOutcomeText]] "no Applicants leave the Applicants Pool, all Colonists lose <morale_lost> Morale for <sols(morale_down_sols)> Sols"),
 		'Prerequisite', PlaceObj('IsSponsor', {
 			'SponsorName', "BlueSun",
 		}),
@@ -70,9 +70,9 @@ PlaceObj('StoryBit', {
 		'Value', 10,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{760594442814, --[[StoryBit BlankSlate Text]] "Financial stimulus for the best!"},
+		'Text', T(760594442814, --[[StoryBit BlankSlate Text]] "Financial stimulus for the best!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{560772568652, --[[StoryBit BlankSlate CustomOutcomeText]] "<applicants_lost> will leave but <paid_applicants> Applicants with Perks join the Applicants Pool"},
+		'CustomOutcomeText', T(560772568652, --[[StoryBit BlankSlate CustomOutcomeText]] "<applicants_lost> will leave but <paid_applicants> Applicants with Perks join the Applicants Pool"),
 		'Cost', "<financial_cost>",
 	}),
 	PlaceObj('StoryBitOutcome', {
@@ -89,9 +89,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{837120646476, --[[StoryBit BlankSlate Text]] "Attract desperate souls!"},
+		'Text', T(837120646476, --[[StoryBit BlankSlate Text]] "Attract desperate souls!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{143596743417, --[[StoryBit BlankSlate CustomOutcomeText]] "<applicants_lost> will leave but <idiots_gained> Applicants with Flaws will join the Applicants Pool"},
+		'CustomOutcomeText', T(143596743417, --[[StoryBit BlankSlate CustomOutcomeText]] "<applicants_lost> will leave but <idiots_gained> Applicants with Flaws will join the Applicants Pool"),
 	}),
 	PlaceObj('StoryBitParamNumber', {
 		'Name', "idiots_gained",

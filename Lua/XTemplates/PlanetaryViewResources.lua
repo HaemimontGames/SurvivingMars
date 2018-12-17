@@ -20,7 +20,7 @@ PlaceObj('XTemplate', {
 				'HandleMouse', false,
 				'TextStyle', "PGLandingPosDetails",
 				'Translate', true,
-				'Text', T{259960110713, --[[XTemplate PlanetaryViewResources Text]] "Standing"},
+				'Text', T(259960110713, --[[XTemplate PlanetaryViewResources Text]] "Standing"),
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__condition', function (parent, context) return context.selected_spot and context.selected_spot.spot_type == "our_colony" end,
@@ -29,7 +29,7 @@ PlaceObj('XTemplate', {
 				'HandleMouse', false,
 				'TextStyle', "PGLandingPosDetails",
 				'Translate', true,
-				'Text', T{3474, --[[XTemplate PlanetaryViewResources Text]] "Mission Sponsor"},
+				'Text', T(3474, --[[XTemplate PlanetaryViewResources Text]] "Mission Sponsor"),
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__condition', function (parent, context) return context.selected_spot and context.selected_spot.spot_type == "our_colony" end,
@@ -38,7 +38,7 @@ PlaceObj('XTemplate', {
 				'HandleMouse', false,
 				'TextStyle', "PGLandingPosDetails",
 				'Translate', true,
-				'Text', T{3478, --[[XTemplate PlanetaryViewResources Text]] "Commander Profile"},
+				'Text', T(3478, --[[XTemplate PlanetaryViewResources Text]] "Commander Profile"),
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XText",
@@ -46,7 +46,7 @@ PlaceObj('XTemplate', {
 				'HandleMouse', false,
 				'TextStyle', "PGLandingPosDetails",
 				'Translate', true,
-				'Text', T{3613, --[[XTemplate PlanetaryViewResources Text]] "Funding"},
+				'Text', T(3613, --[[XTemplate PlanetaryViewResources Text]] "Funding"),
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XText",
@@ -54,7 +54,7 @@ PlaceObj('XTemplate', {
 				'HandleMouse', false,
 				'TextStyle', "PGLandingPosDetails",
 				'Translate', true,
-				'Text', T{547, --[[XTemplate PlanetaryViewResources Text]] "Colonists"},
+				'Text', T(547, --[[XTemplate PlanetaryViewResources Text]] "Colonists"),
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XText",
@@ -62,7 +62,7 @@ PlaceObj('XTemplate', {
 				'HandleMouse', false,
 				'TextStyle', "PGLandingPosDetails",
 				'Translate', true,
-				'Text', T{3980, --[[XTemplate PlanetaryViewResources Text]] "Buildings"},
+				'Text', T(3980, --[[XTemplate PlanetaryViewResources Text]] "Buildings"),
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XText",
@@ -70,7 +70,7 @@ PlaceObj('XTemplate', {
 				'HandleMouse', false,
 				'TextStyle', "PGLandingPosDetails",
 				'Translate', true,
-				'Text', T{494, --[[XTemplate PlanetaryViewResources Text]] "Basic Resources"},
+				'Text', T(494, --[[XTemplate PlanetaryViewResources Text]] "Basic Resources"),
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XText",
@@ -78,7 +78,7 @@ PlaceObj('XTemplate', {
 				'HandleMouse', false,
 				'TextStyle', "PGLandingPosDetails",
 				'Translate', true,
-				'Text', T{500, --[[XTemplate PlanetaryViewResources Text]] "Advanced Resources"},
+				'Text', T(500, --[[XTemplate PlanetaryViewResources Text]] "Advanced Resources"),
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XText",
@@ -86,7 +86,7 @@ PlaceObj('XTemplate', {
 				'HandleMouse', false,
 				'TextStyle', "PGLandingPosDetails",
 				'Translate', true,
-				'Text', T{3618, --[[XTemplate PlanetaryViewResources Text]] "Grid Resources"},
+				'Text', T(3618, --[[XTemplate PlanetaryViewResources Text]] "Grid Resources"),
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XText",
@@ -94,7 +94,7 @@ PlaceObj('XTemplate', {
 				'HandleMouse', false,
 				'TextStyle', "PGLandingPosDetails",
 				'Translate', true,
-				'Text', T{311, --[[XTemplate PlanetaryViewResources Text]] "Research"},
+				'Text', T(311, --[[XTemplate PlanetaryViewResources Text]] "Research"),
 			}),
 			}),
 		PlaceObj('XTemplateWindow', {
@@ -117,7 +117,7 @@ PlaceObj('XTemplate', {
 				'HandleMouse', false,
 				'TextStyle', "PGChallengeDescription",
 				'Translate', true,
-				'Text', T{557585078425, --[[XTemplate PlanetaryViewResources Text]] "<MissionSponsor>"},
+				'Text', T(557585078425, --[[XTemplate PlanetaryViewResources Text]] "<MissionSponsor>"),
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__condition', function (parent, context) return context.selected_spot and context.selected_spot.spot_type == "our_colony" end,
@@ -126,7 +126,7 @@ PlaceObj('XTemplate', {
 				'HandleMouse', false,
 				'TextStyle', "PGChallengeDescription",
 				'Translate', true,
-				'Text', T{682229755647, --[[XTemplate PlanetaryViewResources Text]] "<CommanderProfile>"},
+				'Text', T(682229755647, --[[XTemplate PlanetaryViewResources Text]] "<CommanderProfile>"),
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XText",

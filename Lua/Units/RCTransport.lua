@@ -4,8 +4,8 @@ DefineClass.RCTransport = {
 	game_flags = { gofPermanent = true },
 
 	properties = {
-		{ template = true, name = T{765, "Pin Rollover"}, id = "pin_rollover", category = "Pin",  editor = "text", translate = true, dont_save = true},
-		{ id = "max_shared_storage", default = 30 * const.ResourceScale, scale = const.ResourceScale, name = T{4460, "Max RC Transport resource capacity"}, modifiable = true, editor = "number" , no_edit = true},
+		{ template = true, name = T(765, "Pin Rollover"), id = "pin_rollover", category = "Pin",  editor = "text", translate = true, dont_save = true},
+		{ id = "max_shared_storage", default = 30 * const.ResourceScale, scale = const.ResourceScale, name = T(4460, "Max RC Transport resource capacity"), modifiable = true, editor = "number" , no_edit = true},
 	},
 
 	gamepad_auto_deselect = false,
@@ -40,15 +40,15 @@ DefineClass.RCTransport = {
 	DroneApproach = BaseRover.DroneApproach,
 	
 	--ui
-	display_name = T{1683, "RC Transport"},
-	description = T{4461, "Remote-controlled vehicle that transports resources. Use it to establish permanent supply routes or to gather resources from surface deposits."},
+	display_name = T(1683, "RC Transport"),
+	description = T(4461, "Remote-controlled vehicle that transports resources. Use it to establish permanent supply routes or to gather resources from surface deposits."),
 	display_icon = "UI/Icons/Buildings/rover_transport.tga",
 	
 	malfunction_start_state = "malfunction",
 	malfunction_idle_state = "malfunctionIdle",
 	malfunction_end_state = "malfunctionEnd",
 	
-	pin_rollover = T{4462, "<Description><newline><newline><left>Concrete<right><concrete(Stored_Concrete)><newline><left>Metals<right><metals(Stored_Metals)><newline><left>Polymers<right><polymers(Stored_Polymers)><newline><left>Food<right><food(Stored_Food)><newline><left>Electronics<right><electronics(Stored_Electronics)><newline><left>Machine Parts<right><machineparts(Stored_MachineParts)><newline><left>Rare Metals<right><preciousmetals(Stored_PreciousMetals)><newline><left>Fuel<right><fuel(Stored_Fuel)>"},
+	pin_rollover = T(4462, "<Description><newline><newline><left>Concrete<right><concrete(Stored_Concrete)><newline><left>Metals<right><metals(Stored_Metals)><newline><left>Polymers<right><polymers(Stored_Polymers)><newline><left>Food<right><food(Stored_Food)><newline><left>Electronics<right><electronics(Stored_Electronics)><newline><left>Machine Parts<right><machineparts(Stored_MachineParts)><newline><left>Rare Metals<right><preciousmetals(Stored_PreciousMetals)><newline><left>Fuel<right><fuel(Stored_Fuel)>"),
 	encyclopedia_id = "RCTransport",
 
 	palette = {"rover_accent","rover_base","rover_dark","none"} ,
@@ -391,22 +391,22 @@ function RCTransport:LoadResource_Update(button)
 	button:SetIcon(to_mode and "UI/Icons/IPButtons/load.tga" or "UI/Icons/IPButtons/cancel.tga")
 	local enabled = false
 	if not self:CanBeControlled() then
-		button:SetRolloverDisabledText(T{266581508662, --[[XTemplate ipRover RolloverDisabledText]] "Vehicle inactive."})
+		button:SetRolloverDisabledText(T(266581508662, --[[XTemplate ipRover RolloverDisabledText]] "Vehicle inactive."))
 	elseif self:IsStorageFull() then
-		button:SetRolloverDisabledText(T{10890, "Transport full."})
+		button:SetRolloverDisabledText(T(10890, "Transport full."))
 	else
 		enabled = true
 	end
 	button:SetEnabled(enabled)
-	button:SetRolloverTitle(T{7554, "Load resources"})
-	button:SetRolloverText(T{4499, "Give command to load or gather resources."})
+	button:SetRolloverTitle(T(7554, "Load resources"))
+	button:SetRolloverText(T(4499, "Give command to load or gather resources."))
 	local shortcuts = GetShortcuts("actionLoadResources")
 	local hint = ""
 	if shortcuts and (shortcuts[1] or shortcuts[2]) then
-		hint = T{10928, " / <em><ShortcutName('actionLoadResources', 'keyboard')></em>"}
+		hint = T(10928, " / <em><ShortcutName('actionLoadResources', 'keyboard')></em>")
 	end
-	button:SetRolloverHint(to_mode and T{10925, "<left_click><hint> Select target mode", hint = hint} or T{7510, "<left_click> on target to select it  <right_click> Cancel"})
-	button:SetRolloverHintGamepad(to_mode and T{7511, "<ButtonA> Select target mode"} or T{7512, "<ButtonA> Cancel"})
+	button:SetRolloverHint(to_mode and T{10925, "<left_click><hint> Select target mode", hint = hint} or T(7510, "<left_click> on target to select it  <right_click> Cancel"))
+	button:SetRolloverHintGamepad(to_mode and T(7511, "<ButtonA> Select target mode") or T(7512, "<ButtonA> Cancel"))
 end
 
 function RCTransport:UnloadResource()
@@ -418,22 +418,22 @@ function RCTransport:UnloadResource_Update(button)
 	button:SetIcon(to_mode and "UI/Icons/IPButtons/unload.tga" or "UI/Icons/IPButtons/cancel.tga")
 	local enabled = false
 	if not self:CanBeControlled() then
-		button:SetRolloverDisabledText(T{266581508662, --[[XTemplate ipRover RolloverDisabledText]] "Vehicle inactive."})
+		button:SetRolloverDisabledText(T(266581508662, --[[XTemplate ipRover RolloverDisabledText]] "Vehicle inactive."))
 	elseif self:IsStorageEmpty() then
-		button:SetRolloverDisabledText(T{10891, "Nothing to unload."})
+		button:SetRolloverDisabledText(T(10891, "Nothing to unload."))
 	else
 		enabled = true
 	end
 	button:SetEnabled(enabled)
-	button:SetRolloverTitle(T{4501, "Unload resources"})
-	button:SetRolloverText(T{4502, "Give command to unload resources on a storage depot or on the ground."})
+	button:SetRolloverTitle(T(4501, "Unload resources"))
+	button:SetRolloverText(T(4502, "Give command to unload resources on a storage depot or on the ground."))
 	local shortcuts = GetShortcuts("actionUnloadResources")
 	local hint = ""
 	if shortcuts and (shortcuts[1] or shortcuts[2]) then
-		hint = T{10929, " / <em><ShortcutName('actionUnloadResources', 'keyboard')></em>"}
+		hint = T(10929, " / <em><ShortcutName('actionUnloadResources', 'keyboard')></em>")
 	end
-	button:SetRolloverHint(to_mode and T{10925, "<left_click><hint> Select target mode", hint = hint} or T{7510, "<left_click> on target to select it  <right_click> Cancel"})
-	button:SetRolloverHintGamepad(to_mode and T{7511, "<ButtonA> Select target mode"} or T{7512, "<ButtonA> Cancel"})
+	button:SetRolloverHint(to_mode and T{10925, "<left_click><hint> Select target mode", hint = hint} or T(7510, "<left_click> on target to select it  <right_click> Cancel"))
+	button:SetRolloverHintGamepad(to_mode and T(7511, "<ButtonA> Select target mode") or T(7512, "<ButtonA> Cancel"))
 end
 
 function RCTransport:CountLoadedResourceTypes()
@@ -1329,10 +1329,10 @@ function RCTransport:GetSelectorItems(dataset)
 												end
 												return table.concat(lines, "<newline>")
 											end,},
-								hint = transport_mode ~= "route" and T{8507, "Ctrl + <left_click> load 5, <left_click> load all and exit, <right_click> confirm and exit."} 
-																			or T{8508, "<left_click> to select resource for the transport route, <right_click> exit."},
-								gamepad_hint = transport_mode ~= "route" and T{8509, "<ButtonX> load 5, <ButtonA> load all and exit, <ButtonB> confirm and exit."} 
-																			or T{8510, "<ButtonA> to select resource for the transport route, <ButtonB> exit."},
+								hint = transport_mode ~= "route" and T(8507, "Ctrl + <left_click> load 5, <left_click> load all and exit, <right_click> confirm and exit.") 
+																			or T(8508, "<left_click> to select resource for the transport route, <right_click> exit."),
+								gamepad_hint = transport_mode ~= "route" and T(8509, "<ButtonX> load 5, <ButtonA> load all and exit, <ButtonB> confirm and exit.") 
+																			or T(8510, "<ButtonA> to select resource for the transport route, <ButtonB> exit."),
 								action = function(dataset, is_meta_pressed)
 									if transport_mode == "route" then
 										self.transport_resource = res_id
@@ -1358,8 +1358,8 @@ function RCTransport:GetSelectorItems(dataset)
 			table.insert(items, {
 				name = "all",
 				icon = "UI/Icons/Buildings/res_all.tga",
-				display_name = T{4493, "All"},
-				description  = T{4494, "Order the transport to load all resources."},
+				display_name = T(4493, "All"),
+				description  = T(4494, "Order the transport to load all resources."),
 				action = function(dataset, is_meta_pressed)
 					if is_meta_pressed then return end
 					self.transport_resource = all_resources
@@ -1374,8 +1374,8 @@ function RCTransport:GetSelectorItems(dataset)
 				table.insert(items, {
 				name = "all_construction",
 				icon = "UI/Icons/Buildings/res_all.tga",
-				display_name = T{10418, "Construction Resources"},
-				description  = T{10419, "Order the transport to load all construction resources"},
+				display_name = T(10418, "Construction Resources"),
+				description  = T(10419, "Order the transport to load all construction resources"),
 				action = function(dataset, is_meta_pressed)
 					if is_meta_pressed then return end
 					self.transport_resource = construction_resources
@@ -1402,7 +1402,7 @@ function RCTransport:GetSelectorItems(dataset)
 						display_name = res.display_name,
 						description  = T{4496, "Order the transport to unload <resource_name>.<warning>", 
 							resource_name = res.display_name, 
-							warning = dataset.target and dataset.target:GetEmptyStorage(res_id) <= 0 and T{8107, "<newline><red>Not enough space to unload.</red>"} or T{""}
+							warning = dataset.target and dataset.target:GetEmptyStorage(res_id) <= 0 and T(8107, "<newline><red>Not enough space to unload.</red>") or T{""}
 						},
 						action = function(dataset, is_meta_pressed)
 							if is_meta_pressed then return end
@@ -1421,10 +1421,10 @@ function RCTransport:GetSelectorItems(dataset)
 		if  #all_resources>1 then
 			table.insert(items, {
 				name = "all", 
-				display_name = T{4493, "All"},
+				display_name = T(4493, "All"),
 				icon = "UI/Icons/Buildings/res_all.tga",
 				description  = T{4497, "Order the transport to unload all resources.<warning>", 
-					warning = dataset.target and dataset.target:GetEmptyStorage() <= 0 and T{4495, "<newline><red>Not enough space to unload</red>"} or T{""}
+					warning = dataset.target and dataset.target:GetEmptyStorage() <= 0 and T(4495, "<newline><red>Not enough space to unload</red>") or T{""}
 				},
 				action = function(dataset, is_meta_pressed)
 					if is_meta_pressed then return end
@@ -1475,11 +1475,11 @@ function RCTransport:ToggleCreateRouteMode_Update(button)
 	local to_mode = self.interaction_mode ~= "route"
 	button:SetIcon(to_mode and "UI/Icons/IPButtons/transport_route.tga" or "UI/Icons/IPButtons/cancel.tga")
 	button:SetEnabled(self:CanBeControlled())
-	button:SetRolloverTitle(T{4504, "Create Transport Route"})
-	button:SetRolloverText(T{4505, "Create an automatic transport route. Selected resource will be collected near the origin point and delivered to the destination. The route will be active until all sources are exhausted or there is no more room at the destination."})
-	button:SetRolloverHint(to_mode and T{7555, "<left_click> Create route mode"} 
-		or T{7408, "<left_click>Set Source  <em><left_click> (again)</em> Set Destination<newline><right_click> Cancel"})
-	button:SetRolloverHintGamepad(to_mode and T{7556, "<ButtonA> Create route mode"} or T{7512, "<ButtonA> Cancel"})
+	button:SetRolloverTitle(T(4504, "Create Transport Route"))
+	button:SetRolloverText(T(4505, "Create an automatic transport route. Selected resource will be collected near the origin point and delivered to the destination. The route will be active until all sources are exhausted or there is no more room at the destination."))
+	button:SetRolloverHint(to_mode and T(7555, "<left_click> Create route mode") 
+		or T(7408, "<left_click>Set Source  <em><left_click> (again)</em> Set Destination<newline><right_click> Cancel"))
+	button:SetRolloverHintGamepad(to_mode and T(7556, "<ButtonA> Create route mode") or T(7512, "<ButtonA> Cancel"))
 end
 
 function RCTransport:GetDisplayName()

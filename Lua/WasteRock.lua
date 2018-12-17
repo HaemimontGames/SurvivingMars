@@ -42,7 +42,7 @@ DefineClass.WasteRockObstructor = {
 	initialized = false,
 	
 	--ui
-	display_name = T{4518, "Waste Rock"},
+	display_name = T(4518, "Waste Rock"),
 	GetDisplayName = function(self) return self.display_name end
 }
 
@@ -516,11 +516,29 @@ function SavegameFixups.SetupSupplyToDumpingSites()
 	MapForEach("map", "WasteRockDumpSite",
 		function(o)
 			local amount = o:GetStored_WasteRock()
-			o:DisconnectFromCommandCenters()
-			o.supply["WasteRock"] = o:AddSupplyRequest("WasteRock", amount, const.rfStorageDepot)
-			o:ConnectToCommandCenters()
+			if not o.supply["WasteRock"] then
+				o:DisconnectFromCommandCenters()
+				o.supply["WasteRock"] = o:AddSupplyRequest("WasteRock", amount, const.rfStorageDepot)
+				o:ConnectToCommandCenters()
+			end
+			if amount < 0 then
+				o:InterruptDrones(nil, function(drone)
+					if drone.target == o or
+						drone.d_request == o.demand.WasteRock or
+						drone.s_request == o.supply.Concrete or
+						drone.s_request == o.supply.WasteRock then
+							return drone
+					end
+				end)
+				CreateGameTimeThread(function()
+					Sleep(1) --needs time for drones to reset
+					o:AddDepotResource(-amount, "WasteRock")
+				end)
+			end
 		end)
 end
+
+SavegameFixups.SetupSupplyToDumpingSitesAgain = SavegameFixups.SetupSupplyToDumpingSites
 
 function DumpSiteWithAttachedVisualPilesBase:GetNextStockpileIndex(stockpiles, adding_resource)
 	stockpiles = stockpiles or self.stockpiles
@@ -552,7 +570,7 @@ DefineClass.WasteRockDumpSite = {
 	exclude_from_lr_transportation = false,
 	landing_spot_name = "Workrover",
 	properties = {
-		{ template = true, name = T{4519, "Max Amount Waste Rock"},  category = "Storage Space", id = "max_amount_WasteRock",  editor = "number", default = 45000, scale = const.ResourceScale },
+		{ template = true, name = T(4519, "Max Amount Waste Rock"),  category = "Storage Space", id = "max_amount_WasteRock",  editor = "number", default = 45000, scale = const.ResourceScale },
 	},
 }
 
@@ -613,6 +631,8 @@ function SavegameFixups.TurnOffOldWasteRockLiquification()
 		end
 	end
 end
+
+SavegameFixups.TurnOffOldWasteRockLiquificationAgain = SavegameFixups.TurnOffOldWasteRockLiquification
 
 function WasteRockDumpSite:CreateResourceRequests()
 	Building.CreateResourceRequests(self)

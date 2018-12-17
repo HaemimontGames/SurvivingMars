@@ -29,11 +29,11 @@ PlaceObj('StoryBit', {
 		PlaceObj('SupplyMissionsEnabled', nil),
 	},
 	ScriptDone = true,
-	Text = T{380399730133, --[[StoryBit MutualInterests Text]] "The offer goes like this:\n\n<funding(offered_funding)> in exchange for <base_price_reduction>% of all revenue earned from any Rare Metal exports we make in the future.  "},
+	Text = T(380399730133, --[[StoryBit MutualInterests Text]] "The offer goes like this:\n\n<funding(offered_funding)> in exchange for <base_price_reduction>% of all revenue earned from any Rare Metal exports we make in the future.  "),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{986839457225, --[[StoryBit MutualInterests Title]] "Mutual Interests"},
-	VoicedText = T{773465986129, --[[voice:narrator]] "A multi-billionaire and entrepreneur from Earth has caught wind of our financial troubles and is willing to lend a helping hand. For a price, of course."},
+	Title = T(986839457225, --[[StoryBit MutualInterests Title]] "Mutual Interests"),
+	VoicedText = T(773465986129, --[[voice:narrator]] "A multi-billionaire and entrepreneur from Earth has caught wind of our financial troubles and is willing to lend a helping hand. For a price, of course."),
 	group = "Sponsor",
 	id = "MutualInterests",
 	PlaceObj('StoryBitParamFunding', {
@@ -53,7 +53,7 @@ PlaceObj('StoryBit', {
 		'Value', -5,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{626591313491, --[[StoryBit MutualInterests Text]] "We are not in the position to bargain. Agree to their terms"},
+		'Text', T(626591313491, --[[StoryBit MutualInterests Text]] "We are not in the position to bargain. Agree to their terms."),
 		'Comment', "if we decide we can make the price lower only for a limited duration",
 	}),
 	PlaceObj('StoryBitOutcome', {
@@ -70,7 +70,7 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{388265064266, --[[StoryBit MutualInterests Text]] "Heh, I know them. We offer <oligarch_price_reduction>% commission and their secrets will remain such."},
+		'Text', T(388265064266, --[[StoryBit MutualInterests Text]] "Heh, I know them. We offer <oligarch_price_reduction>% commission and their secrets will remain such."),
 		'Prerequisite', PlaceObj('IsCommander', {
 			'CommanderProfile', "oligarch",
 		}),
@@ -89,7 +89,7 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{250524918480, --[[StoryBit MutualInterests Text]] "These vultures want to take advantage of us. Decline!"},
+		'Text', T(250524918480, --[[StoryBit MutualInterests Text]] "These vultures want to take advantage of us. Decline!"),
 	}),
 })
 

@@ -6,8 +6,8 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateTemplate', {
 		'__context_of_kind', "Mine",
 		'__template', "InfopanelSection",
-		'RolloverText', T{604012311372, --[[XTemplate sectionMine RolloverText]] "<UISectionMineRollover>"},
-		'Title', T{80, --[[XTemplate sectionMine Title]] "Production"},
+		'RolloverText', T(604012311372, --[[XTemplate sectionMine RolloverText]] "<UISectionMineRollover>"),
+		'Title', T(80, --[[XTemplate sectionMine Title]] "Production"),
 		'Icon', "UI/Icons/Sections/facility.tga",
 	}, {
 		PlaceObj('XTemplateCode', {
@@ -17,15 +17,15 @@ end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelText",
-			'Text', T{472, --[[XTemplate sectionMine Text]] "Production per Sol<right><resource(PredictedDailyProduction, GetResourceProduced)>"},
+			'Text', T(472, --[[XTemplate sectionMine Text]] "Production per Sol<right><resource(PredictedDailyProduction, GetResourceProduced)>"),
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelText",
-			'Text', T{473, --[[XTemplate sectionMine Text]] "Stored <resource(exploitation_resource)><right><resource(GetAmountStored,max_storage,exploitation_resource)>"},
+			'Text', T(473, --[[XTemplate sectionMine Text]] "Stored <resource(exploitation_resource)><right><resource(GetAmountStored,max_storage,exploitation_resource)>"),
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelText",
-			'Text', T{474, --[[XTemplate sectionMine Text]] "Stored Waste Rock<right><wasterock(GetWasterockAmountStored,wasterock_max_storage)>"},
+			'Text', T(474, --[[XTemplate sectionMine Text]] "Stored Waste Rock<right><wasterock(GetWasterockAmountStored,wasterock_max_storage)>"),
 		}),
 		}),
 })

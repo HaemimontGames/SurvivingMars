@@ -9,13 +9,13 @@ PlaceObj('XTemplate', {
 		'OnContextUpdate', function (self, context, ...)
 self:SetVisible(context.dust_storm_boost)
 end,
-		'Title', T{277, --[[XTemplate sectionWindTurbineBoost Title]] "Attention"},
+		'Title', T(277, --[[XTemplate sectionWindTurbineBoost Title]] "Attention"),
 		'Icon', "UI/Icons/Sections/attention.tga",
 		'TitleHAlign', "stretch",
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelText",
-			'Text', T{677612553229, --[[XTemplate sectionWindTurbineBoost Text]] "Power production increased due to Dust Storm"},
+			'Text', T(677612553229, --[[XTemplate sectionWindTurbineBoost Text]] "Power production increased due to Dust Storm"),
 		}),
 		}),
 })

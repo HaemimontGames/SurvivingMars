@@ -26,11 +26,11 @@ PlaceObj('StoryBit', {
 		PlaceObj('SupplyMissionsEnabled', nil),
 	},
 	ScriptDone = true,
-	Text = T{410008407981, --[[StoryBit RockScape Text]] "They will tour all the different colonies on Mars and have got their own transportation covered. All RockScape's management needs from us is permission to play and to prepare a Dome for the event. "},
+	Text = T(410008407981, --[[StoryBit RockScape Text]] "They will tour all the different colonies on Mars and have got their own transportation covered. All RockScape's management needs from us is permission to play and to prepare a Dome for the event. "),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{696204225880, --[[StoryBit RockScape Title]] "RockScape"},
-	VoicedText = T{228017878512, --[[voice:narrator]] "A famous rock band called RockScape wishes to bring their music to Mars for a live performance."},
+	Title = T(696204225880, --[[StoryBit RockScape Title]] "RockScape"),
+	VoicedText = T(228017878512, --[[voice:narrator]] "A famous rock band called RockScape wishes to bring their music to Mars for a live performance."),
 	group = "Default",
 	id = "RockScape",
 	PlaceObj('StoryBitParamNumber', {
@@ -46,9 +46,9 @@ PlaceObj('StoryBit', {
 		'Value', 100000000,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{982876057335, --[[StoryBit RockScape Text]] "Rock'n'Roll, baby!"},
+		'Text', T(982876057335, --[[StoryBit RockScape Text]] "Rock'n'Roll, baby!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{335367414277, --[[StoryBit RockScape CustomOutcomeText]] "all Colonists gain <morale_boost> Morale for <sols(moraleboost_period)> Sols"},
+		'CustomOutcomeText', T(335367414277, --[[StoryBit RockScape CustomOutcomeText]] "all Colonists gain <morale_boost> Morale for <sols(moraleboost_period)> Sols"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -70,12 +70,12 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{906031307867, --[[StoryBit RockScape Text]] "We have enough troubles. Don't rock the boat I say."},
+		'Text', T(906031307867, --[[StoryBit RockScape Text]] "We have enough troubles. Don't rock the boat I say."),
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{824937946497, --[[StoryBit RockScape Text]] "We will need to prepare a Dome to withstand the noise levels an event like this suggests."},
+		'Text', T(824937946497, --[[StoryBit RockScape Text]] "We will need to prepare a Dome to withstand the noise levels an event like this suggests."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{673706997571, --[[StoryBit RockScape CustomOutcomeText]] "all Colonists gain <morale_boost> Morale for <sols(moraleboost_period)> Sols"},
+		'CustomOutcomeText', T(673706997571, --[[StoryBit RockScape CustomOutcomeText]] "all Colonists gain <morale_boost> Morale for <sols(moraleboost_period)> Sols"),
 		'Cost', "<prepare_dome>",
 		'Prerequisite', PlaceObj('IsCommander', {
 			'CommanderProfile', "citymayor",

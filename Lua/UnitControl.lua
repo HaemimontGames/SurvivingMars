@@ -175,15 +175,15 @@ end
 
 local interaction_mode_cursor_text = {
 	--["move"] = T{7972, "Select Target"},
-	["route"] = T{7972, "Select Target"},
-	["reassign"] = T{4427, "Reassign"},
-	["reassign_all"] = T{4427, "Reassign"},
-	["maintenance"] = T{4433, "Perform Maintenance"},
-	["recharge"] = T{7973, "Select target"},
-	["load"] = T{7974, "Load Resource"},
-	["unload"] = T{7975, "Unload Resource"},
-	["assign_to_bld"] = T{7972, "Select Target"},
-	["build"] = T{9800, "Build"},
+	["route"] = T(7972, "Select Target"),
+	["reassign"] = T(4427, "Reassign"),
+	["reassign_all"] = T(4427, "Reassign"),
+	["maintenance"] = T(4433, "Perform Maintenance"),
+	["recharge"] = T(7973, "Select target"),
+	["load"] = T(7974, "Load Resource"),
+	["unload"] = T(7975, "Unload Resource"),
+	["assign_to_bld"] = T(7972, "Select Target"),
+	["build"] = T(9800, "Build"),
 }
 
 function UnitDirectionModeDialog:HideMouseCursorText(pos)

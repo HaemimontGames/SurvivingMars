@@ -49,7 +49,7 @@ function MissionProfileDlg:GetMissonProfileText()
 
 	local rules = g_CurrentMissionParams.idGameRules or empty_table
 	if next(rules) then
-		texts[#texts +1 ] = T{8800, "Game Rules"}
+		texts[#texts +1 ] = T(8800, "Game Rules")
 		for rule_id,_ in pairs(rules) do
 			local rule = GameRulesMap[rule_id]
 			texts[#texts + 1] = T{10106, "- <em><display_name></em> - <description>", rule}
@@ -131,7 +131,7 @@ function MissionProfileDlg:FillGoalItem(sponsor, idx, item)
 		item.idPinIcon:SetImage(icon)
 	end
 	local reward = sponsor:GetProperty("reward_effect_"..idx)
-	item.idReward:SetText(reward and T{reward.Description, reward} or T{6761, "None"})
+	item.idReward:SetText(reward and T{reward.Description, reward} or T(6761, "None"))
 	local res = SponsorGoalProgress[idx].state
 	item.idGoalResult:SetImage(res == "fail" and "UI/Common/mission_no.tga" or res and "UI/Common/mission_yes.tga" or "")
 	if res == "fail" then

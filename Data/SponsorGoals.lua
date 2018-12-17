@@ -10,7 +10,7 @@ while state.progress < state.target do
 end
 return true
 end,
-	description = T{556832090808, --[[SponsorGoals AnalyzeAnomalies description]] "Analyze <param1> map Anomalies"},
+	description = T(556832090808, --[[SponsorGoals AnalyzeAnomalies description]] "Analyze <param1> map Anomalies"),
 	group = "Default",
 	id = "AnalyzeAnomalies",
 })
@@ -25,7 +25,7 @@ while state.progress < state.target do
 end
 return true
 end,
-	description = T{304927814784, --[[SponsorGoals AnalyzePlanetaryAnomalies description]] "Analyze <param1> Planetary Anomalies"},
+	description = T(304927814784, --[[SponsorGoals AnalyzePlanetaryAnomalies description]] "Analyze <param1> Planetary Anomalies"),
 	group = "Default",
 	id = "AnalyzePlanetaryAnomalies",
 })
@@ -40,7 +40,7 @@ while state.progress < state.target do
 end
 return true
 end,
-	description = T{10328, --[[SponsorGoals BuildingsVolume description]] "Have a total of <param1> buildings"},
+	description = T(10328, --[[SponsorGoals BuildingsVolume description]] "Have a total of <param1> buildings"),
 	group = "Default",
 	id = "BuildingsVolume",
 })
@@ -59,7 +59,7 @@ while true do
 	end
 end
 end,
-	description = T{794512515050, --[[SponsorGoals ChildBorn description]] "Have a Martianborn Colonist"},
+	description = T(794512515050, --[[SponsorGoals ChildBorn description]] "Have a Martianborn Colonist"),
 	group = "Default",
 	id = "ChildBorn",
 })
@@ -75,7 +75,7 @@ while state.progress < state.target do
 end
 return true
 end,
-	description = T{172647140078, --[[SponsorGoals Colonists description]] "Have <param1> Colonists on Mars"},
+	description = T(172647140078, --[[SponsorGoals Colonists description]] "Have <param1> Colonists on Mars"),
 	id = "Colonists",
 })
 
@@ -101,7 +101,7 @@ while true do
 	Sleep(7000)
 end
 end,
-	description = T{375497544349, --[[SponsorGoals ColonistsEducate description]] "Have <param1> specialists"},
+	description = T(375497544349, --[[SponsorGoals ColonistsEducate description]] "Have <param1> specialists"),
 	group = "Default",
 	id = "ColonistsEducate",
 })
@@ -133,7 +133,7 @@ while true do
 	Sleep(7000)
 end
 end,
-	description = T{953122483010, --[[SponsorGoals ColonistsNeeds description]] "Have <param1> Colonists with all needs above <param2>"},
+	description = T(953122483010, --[[SponsorGoals ColonistsNeeds description]] "Have <param1> Colonists with all needs above <param2>"),
 	group = "Default",
 	id = "ColonistsNeeds",
 })
@@ -160,7 +160,7 @@ while true do
 	Sleep(7000)
 end
 end,
-	description = T{980509416293, --[[SponsorGoals ColonistsSpecialists description]] "Have <param1> <param2>"},
+	description = T(980509416293, --[[SponsorGoals ColonistsSpecialists description]] "Have <param1> <param2>"),
 	group = "Default",
 	id = "ColonistsSpecialists",
 })
@@ -182,7 +182,7 @@ while state.progress < state.target do
 end
 return true
 end,
-	description = T{802936482385, --[[SponsorGoals ColonistsWithTrait description]] "Have <param1> Colonists with the <param2> Trait"},
+	description = T(802936482385, --[[SponsorGoals ColonistsWithTrait description]] "Have <param1> Colonists with the <param2> Trait"),
 	group = "Default",
 	id = "ColonistsWithTrait",
 })
@@ -191,16 +191,23 @@ PlaceObj('SponsorGoals', {
 	Completed = function (self, state,  param1, param2, param3)
 state.target = tonumber(param1) 
 state.progress = 0
-while state.progress < state.target do
-	local ok, tech_id, city = WaitMsg("TechResearched")
-	local tech = TechDef[tech_id]
-	if ok and tech and tech.group == "Breakthroughs" and GameTime() > 1 then
-		state.progress = state.progress + 1
+while true do
+	local defs = TechDef
+	local progress = 0
+	for tech, status in pairs(UICity.tech_status) do
+		local def = defs[tech]
+		if def and def.group == "Breakthroughs" and status.researched then
+			progress = progress + 1
+		end
 	end
+	state.progress = progress
+	if progress >= state.target and GameTime() > 1 then
+		return true
+	end
+	WaitMsg("TechResearched", 10000)
 end
-return true
 end,
-	description = T{960724987608, --[[SponsorGoals CompleteBreakthroughs description]] "Research <param1> Breakthrough technologies"},
+	description = T(960724987608, --[[SponsorGoals CompleteBreakthroughs description]] "Research <param1> Breakthrough technologies"),
 	group = "Default",
 	id = "CompleteBreakthroughs",
 })
@@ -223,7 +230,7 @@ while state.progress < state.target do
 end
 return true
 end,
-	description = T{655611441668, --[[SponsorGoals CompleteFieldTechs description]] "Research <param1> <param2> technologies"},
+	description = T(655611441668, --[[SponsorGoals CompleteFieldTechs description]] "Research <param1> <param2> technologies"),
 	group = "Default",
 	id = "CompleteFieldTechs",
 })
@@ -232,22 +239,22 @@ PlaceObj('SponsorGoals', {
 	Completed = function (self, state,  param1, param2, param3)
 state.target = tonumber(param1) 
 state.progress = 0
-for _, field_name in ipairs(table.keys(TechFields)) do
-	for idx, tech in ipairs(UICity.tech_field[field_name]) do
-		if UICity.tech_status[tech].researched then
-			state.progress = state.progress + 1
+while true do
+	local defs = TechDef
+	local progress = 0
+	for tech, status in pairs(UICity.tech_status) do
+		if status.researched and defs[tech] then
+			progress = progress + 1
 		end
 	end
-end
-while state.progress < state.target do	
-	local ok, tech_id, city = WaitMsg("TechResearched")
-	if ok and TechDef[tech_id] and GameTime() > 1 then
-		 state.progress = state.progress + 1
+	state.progress = progress
+	if progress >= state.target and GameTime() > 1 then
+		return true
 	end
+	WaitMsg("TechResearched", 10000)
 end
-return true
 end,
-	description = T{555751287934, --[[SponsorGoals CompleteTechs description]] "Research <param1> technologies"},
+	description = T(555751287934, --[[SponsorGoals CompleteTechs description]] "Research <param1> technologies"),
 	group = "Default",
 	id = "CompleteTechs",
 })
@@ -266,7 +273,7 @@ while true do
 	WaitMsg("ConstructionComplete", wait_time)
 end
 end,
-	description = T{187481407346, --[[SponsorGoals ConstructDomeTimmed description]] "Construct a Dome by the end of Sol <param1>"},
+	description = T(187481407346, --[[SponsorGoals ConstructDomeTimmed description]] "Construct a Dome by the end of Sol <param1>"),
 	group = "Default",
 	id = "ConstructDomeTimmed",
 })
@@ -287,7 +294,7 @@ while progress <  param1_num do
 end
 return true
 end,
-	description = T{164286480196, --[[SponsorGoals ConvertWasteRock description]] "Convert <param1> Waste Rock to useful materials"},
+	description = T(164286480196, --[[SponsorGoals ConvertWasteRock description]] "Convert <param1> Waste Rock to useful materials"),
 	group = "Default",
 	id = "ConvertWasteRock",
 })
@@ -304,7 +311,7 @@ while true do
 	Sleep(1000)
 end
 end,
-	description = T{141555589306, --[[SponsorGoals DeepScanSectors description]] "Deep scan <param1> Sectors"},
+	description = T(141555589306, --[[SponsorGoals DeepScanSectors description]] "Deep scan <param1> Sectors"),
 	group = "Default",
 	id = "DeepScanSectors",
 })
@@ -325,7 +332,7 @@ while true do
 	WaitMsg("DepositDepleted", wait_time)
 end
 end,
-	description = T{842272011718, --[[SponsorGoals DepleteUndergroundDepositsTimed description]] "Deplete <param1> underground Deposits by Sol <param2>"},
+	description = T(842272011718, --[[SponsorGoals DepleteUndergroundDepositsTimed description]] "Deplete <param1> underground Deposits by Sol <param2>"),
 	group = "Default",
 	id = "DepleteUndergroundDepositsTimed",
 })
@@ -343,7 +350,7 @@ while state.progress < state.target do
 end
 return true
 end,
-	description = T{541471610030, --[[SponsorGoals Deposits description]] "Discover <param1> underground Deposits"},
+	description = T(541471610030, --[[SponsorGoals Deposits description]] "Discover <param1> underground Deposits"),
 	group = "Default",
 	id = "Deposits",
 })
@@ -365,7 +372,7 @@ while true do
 	Sleep(5000)
 end
 end,
-	description = T{733600960133, --[[SponsorGoals DomeResidents description]] "Have a Dome with more than <param1> Colonists"},
+	description = T(733600960133, --[[SponsorGoals DomeResidents description]] "Have a Dome with more than <param1> Colonists"),
 	group = "Default",
 	id = "DomeResidents",
 })
@@ -399,7 +406,7 @@ while true do
 	end
 end
 end,
-	description = T{691160612158, --[[SponsorGoals DomeSpires description]] "Have <param1> Domes with Spires"},
+	description = T(691160612158, --[[SponsorGoals DomeSpires description]] "Have <param1> Domes with Spires"),
 	group = "Default",
 	id = "DomeSpires",
 })
@@ -415,7 +422,7 @@ while true do
 	WaitMsg("FundingChanged")
 end
 end,
-	description = T{625462310436, --[[SponsorGoals ExportProfit description]] "Export <funding(param1)> worth of Rare Metals"},
+	description = T(625462310436, --[[SponsorGoals ExportProfit description]] "Export <funding(param1)> worth of Rare Metals"),
 	group = "Default",
 	id = "ExportProfit",
 })
@@ -425,7 +432,7 @@ PlaceObj('SponsorGoals', {
 local timeout = tonumber(param2)
 state.target = tonumber(param1)
 while true do
-	if UICity.day >= timeout then 
+	if UICity.day > timeout then 
 		return false
 	end
 	state.progress = (UICity.total_export or 0)/const.ResourceScale
@@ -434,7 +441,7 @@ while true do
 	WaitMsg("MarkPreciousMetalsExport", wait_time)
 end
 end,
-	description = T{818037974162, --[[SponsorGoals ExportRareMetalsTimed description]] "Export <param1> Rare Metals by the end of Sol <param2>"},
+	description = T(818037974162, --[[SponsorGoals ExportRareMetalsTimed description]] "Export <param1> Rare Metals by the end of Sol <param2>"),
 	group = "Default",
 	id = "ExportRareMetalsTimed",
 })
@@ -462,7 +469,7 @@ while true do
 	Sleep(500)
 end
 end,
-	description = T{618829033661, --[[SponsorGoals ExtractorPerformance description]] "Have <param1> Extractors working at <param2> Performance"},
+	description = T(618829033661, --[[SponsorGoals ExtractorPerformance description]] "Have <param1> Extractors working at <param2> Performance"),
 	group = "Default",
 	id = "ExtractorPerformance",
 })
@@ -496,7 +503,7 @@ while true do
 	Sleep(4000)
 end
 end,
-	description = T{782556327763, --[[SponsorGoals FoundersComfort description]] "Have <param1> Founders at <param2> Comfort"},
+	description = T(782556327763, --[[SponsorGoals FoundersComfort description]] "Have <param1> Founders at <param2> Comfort"),
 	group = "Default",
 	id = "FoundersComfort",
 })
@@ -512,7 +519,7 @@ while state.progress < param1_num do
 end
 return true
 end,
-	description = T{616145140930, --[[SponsorGoals GenerateDailyRP description]] "Generate <research(param1)> per Sol"},
+	description = T(616145140930, --[[SponsorGoals GenerateDailyRP description]] "Generate <research(param1)> per Sol"),
 	group = "Default",
 	id = "GenerateDailyRP",
 })
@@ -536,7 +543,7 @@ while state.progress < state.target do
 end
 return true
 end,
-	description = T{852428145709, --[[SponsorGoals GenerateFunding description]] "Generate <funding(param1)>"},
+	description = T(852428145709, --[[SponsorGoals GenerateFunding description]] "Generate <funding(param1)>"),
 	group = "Default",
 	id = "GenerateFunding",
 })
@@ -575,7 +582,7 @@ while true do
 	end
 end
 end,
-	description = T{486938222863, --[[SponsorGoals GenerateFundingTimed description]] "Generate <funding(param1)> within <param2> Sols"},
+	description = T(486938222863, --[[SponsorGoals GenerateFundingTimed description]] "Generate <funding(param1)> within <param2> Sols"),
 	group = "Default",
 	id = "GenerateFundingTimed",
 })
@@ -597,7 +604,7 @@ while true do
 	end
 end
 end,
-	description = T{651961761276, --[[SponsorGoals GeneratePower description]] "Generate <power(param1)>"},
+	description = T(651961761276, --[[SponsorGoals GeneratePower description]] "Generate <power(param1)>"),
 	group = "Default",
 	id = "GeneratePower",
 })
@@ -622,7 +629,7 @@ while state.progress < state.target do
 end
 return true
 end,
-	description = T{627638836229, --[[SponsorGoals HaveConnectedDomes description]] "Have a Dome connected to <param1> other Domes"},
+	description = T(627638836229, --[[SponsorGoals HaveConnectedDomes description]] "Have a Dome connected to <param1> other Domes"),
 	group = "Default",
 	id = "HaveConnectedDomes",
 })
@@ -634,7 +641,7 @@ local wait_time = const.DayDuration - (UICity.hour*const.HourDuration + UICity.m
 local ok = WaitMsg("ColonistsLanded", wait_time+ (param1_num - 2)*const.DayDuration)
 return ok
 end,
-	description = T{347382462924, --[[SponsorGoals LandColonistsBySol description]] "Land a Colonist on Mars by Sol <param1>"},
+	description = T(347382462924, --[[SponsorGoals LandColonistsBySol description]] "Land a Colonist on Mars by Sol <param1>"),
 	group = "Default",
 	id = "LandColonistsBySol",
 })
@@ -654,7 +661,7 @@ while true do
 	WaitMsg("ColonistBorn")
 end
 end,
-	description = T{222780100659, --[[SponsorGoals Martianborn description]] "Have <param1> Martianborn Colonists"},
+	description = T(222780100659, --[[SponsorGoals Martianborn description]] "Have <param1> Martianborn Colonists"),
 	group = "Default",
 	id = "Martianborn",
 })
@@ -679,7 +686,7 @@ while true do
 	Sleep(7000)
 end
 end,
-	description = T{155985857436, --[[SponsorGoals MartianbornEducate description]] "Have <param1> Martianborn specialists"},
+	description = T(155985857436, --[[SponsorGoals MartianbornEducate description]] "Have <param1> Martianborn specialists"),
 	group = "Default",
 	id = "MartianbornEducate",
 })
@@ -704,7 +711,7 @@ while true do
 	Sleep(7000)
 end
 end,
-	description = T{166463872760, --[[SponsorGoals MartianbornSpecialists description]] "Have <param1> Martianborn <param2>"},
+	description = T(166463872760, --[[SponsorGoals MartianbornSpecialists description]] "Have <param1> Martianborn <param2>"),
 	group = "Default",
 	id = "MartianbornSpecialists",
 })
@@ -727,7 +734,7 @@ while true do
 	WaitMsg("ColonistBorn",wait_time)
 end
 end,
-	description = T{796650385521, --[[SponsorGoals MartianbornTimed description]] "Have <param1> Martianborn Colonists by the end of Sol <param2>"},
+	description = T(796650385521, --[[SponsorGoals MartianbornTimed description]] "Have <param1> Martianborn Colonists by the end of Sol <param2>"),
 	group = "Default",
 	id = "MartianbornTimed",
 })
@@ -749,7 +756,7 @@ while true do
 	WaitMsg("ConstructionComplete")
 end
 end,
-	description = T{133445615586, --[[SponsorGoals MultipleBuildings description]] "Have <param1> <param2>"},
+	description = T(133445615586, --[[SponsorGoals MultipleBuildings description]] "Have <param1> <param2>"),
 	group = "Default",
 	id = "MultipleBuildings",
 })
@@ -779,7 +786,7 @@ while true do
 	WaitMsg("ConstructionComplete")
 end
 end,
-	description = T{412460165603, --[[SponsorGoals OneOfEachFactory description]] "Build a Machine Parts Factory, a Polymer Factory and an Electronics Factory"},
+	description = T(412460165603, --[[SponsorGoals OneOfEachFactory description]] "Build a Machine Parts Factory, a Polymer Factory and an Electronics Factory"),
 	group = "Default",
 	id = "OneOfEachFactory",
 })
@@ -796,7 +803,7 @@ while state.progress < state.target do
 end	
 return true
 end,
-	description = T{150467907921, --[[SponsorGoals ProduceAdvancedResources description]] "Produce <param1> advanced resources"},
+	description = T(150467907921, --[[SponsorGoals ProduceAdvancedResources description]] "Produce <param1> advanced resources"),
 	group = "Default",
 	id = "ProduceAdvancedResources",
 })
@@ -815,7 +822,7 @@ while true do
 	Sleep(1000)
 end
 end,
-	description = T{695856253366, --[[SponsorGoals ProduceResource description]] "Produce <param1> <param2>"},
+	description = T(695856253366, --[[SponsorGoals ProduceResource description]] "Produce <param1> <param2>"),
 	group = "Default",
 	id = "ProduceResource",
 })
@@ -839,7 +846,7 @@ while state.progress < state.target do
 end
 return true
 end,
-	description = T{687648534870, --[[SponsorGoals ProduceResourceInASol description]] "Produce <param1> <param2> in a single Sol"},
+	description = T(687648534870, --[[SponsorGoals ProduceResourceInASol description]] "Produce <param1> <param2> in a single Sol"),
 	group = "Default",
 	id = "ProduceResourceInASol",
 })
@@ -858,7 +865,7 @@ while state.progress < state.target do
 end
 return true
 end,
-	description = T{205028046460, --[[SponsorGoals ProduceUndergroundResource description]] "Extract <param1> <param2> from an underground deposit"},
+	description = T(205028046460, --[[SponsorGoals ProduceUndergroundResource description]] "Extract <param1> <param2> from an underground deposit"),
 	group = "Default",
 	id = "ProduceUndergroundResource",
 })
@@ -868,7 +875,7 @@ PlaceObj('SponsorGoals', {
 WaitMsg("RocketRefueledInADay")
 return true
 end,
-	description = T{867818526841, --[[SponsorGoals RefuelRocketInASol description]] "Refuel a rocket the same Sol it lands"},
+	description = T(867818526841, --[[SponsorGoals RefuelRocketInASol description]] "Refuel a rocket the same Sol it lands"),
 	group = "Default",
 	id = "RefuelRocketInASol",
 })
@@ -882,7 +889,7 @@ while true do
 	WaitMsg("ConstructionComplete")
 end
 end,
-	description = T{196634243926, --[[SponsorGoals SingleBuilding description]] "Construct a <param1>"},
+	description = T(196634243926, --[[SponsorGoals SingleBuilding description]] "Construct a <param1>"),
 	group = "Default",
 	id = "SingleBuilding",
 })
@@ -900,7 +907,7 @@ while true do
 	Sleep(500)
 end
 end,
-	description = T{572604186609, --[[SponsorGoals SpecialistWith2Traits description]] "Have a <param1>, <param2> <param3>"},
+	description = T(572604186609, --[[SponsorGoals SpecialistWith2Traits description]] "Have a <param1>, <param2> <param3>"),
 	group = "Default",
 	id = "SpecialistWith2Traits",
 })
@@ -917,7 +924,7 @@ while state.progress < state.target do
 end
 return true
 end,
-	description = T{925006846011, --[[SponsorGoals SpendFunding description]] "Spend <funding(param1)> Funding"},
+	description = T(925006846011, --[[SponsorGoals SpendFunding description]] "Spend <funding(param1)> Funding"),
 	group = "Default",
 	id = "SpendFunding",
 })
@@ -940,7 +947,7 @@ while true do
 	Sleep(500)
 end
 end,
-	description = T{869557804837, --[[SponsorGoals WorkingDomes description]] "Have <param1> operational Domes"},
+	description = T(869557804837, --[[SponsorGoals WorkingDomes description]] "Have <param1> operational Domes"),
 	group = "Default",
 	id = "WorkingDomes",
 })

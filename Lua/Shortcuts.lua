@@ -20,13 +20,13 @@ if FirstLoad then
 	}
 
 	MouseButtonNames = {
-		MouseL = T{3839, "Left Mouse Button"},
-		MouseR = T{3840, "Right Mouse Button"},
-		MouseM = T{3841, "Middle Mouse Button"},
-		MouseX1 = T{3842, "Mouse Button 4"},
-		MouseX2 = T{3843, "Mouse Button 5"},
-		MouseWheelFwd = T{3844, "Mouse Wheel Forward"},
-		MouseWheelBack = T{3845, "Mouse Wheel Back"},
+		MouseL = T(3839, "Left Mouse Button"),
+		MouseR = T(3840, "Right Mouse Button"),
+		MouseM = T(3841, "Middle Mouse Button"),
+		MouseX1 = T(3842, "Mouse Button 4"),
+		MouseX2 = T(3843, "Mouse Button 5"),
+		MouseWheelFwd = T(3844, "Mouse Wheel Forward"),
+		MouseWheelBack = T(3845, "Mouse Wheel Back"),
 	}
 	
 	ForbiddenShortcutKeys = {
@@ -42,7 +42,7 @@ end
 
 TFormat.GamepadShortcutName = function(context_obj, shortcut)
 	if not shortcut or shortcut == "" then
-		return T{3847, "<red>Unassigned</red>"}
+		return T(3847, "<red>Unassigned</red>")
 	end
 	local buttons = SplitShortcut(shortcut)
 	for i, button in ipairs(buttons) do
@@ -68,7 +68,7 @@ TFormat.ShortcutName = function(context_obj,action_id,source)
 				return T{3846, "<name>", name = text}
 			end
 		else
-			return T{3847, "<red>Unassigned</red>"}
+			return T(3847, "<red>Unassigned</red>")
 		end
 	end
 end

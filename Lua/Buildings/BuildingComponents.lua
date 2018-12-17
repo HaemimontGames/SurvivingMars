@@ -11,7 +11,7 @@ DefineClass.DepositExploiter = {
 	__parents = { "Object" },
 	
 	properties = {
-		{ template = true, category = "Deposit Requirements", name = T{211, "Required Deposit Resource"},   id = "exploitation_resource",   editor = "dropdownlist", items = ResourcesDropDownListItems, default = ResourcesDropDownListItems[1].value},
+		{ template = true, category = "Deposit Requirements", name = T(211, "Required Deposit Resource"),   id = "exploitation_resource",   editor = "dropdownlist", items = ResourcesDropDownListItems, default = ResourcesDropDownListItems[1].value},
 	},
 }
 
@@ -38,7 +38,7 @@ DefineClass.BuildingDepositExploiterComponent = {
 	__parents = { "DepositExploiter" },
 	
 	properties = {
-		{ template = true, category = "Deposit Requirements", name = T{212, "Deposit Search Radius"}, id = "exploitation_radius",     editor = "number", default = 4, min = 1, max = const.RangeToCheckForExploitersOnDepositReveal, help = "This is the radius around the origin of the building from where resources will be extracted. This value is in hexes. Construction warnings will also be based on this number.", },
+		{ template = true, category = "Deposit Requirements", name = T(212, "Deposit Search Radius"), id = "exploitation_radius",     editor = "number", default = 4, min = 1, max = const.RangeToCheckForExploitersOnDepositReveal, help = "This is the radius around the origin of the building from where resources will be extracted. This value is in hexes. Construction warnings will also be based on this number.", },
 	},
 	
 	nearby_deposits = false,
@@ -279,11 +279,11 @@ function AvailableDeposits(bld, items)
 			end
 		end
 	end
-	items[#items+1] = T{297, "<newline><center><em>Deposits</em>"}
+	items[#items+1] = T(297, "<newline><center><em>Deposits</em>")
 	if amount > 0 then
 		items[#items+1] = T{298, "Available deposits<right><resource(amount,resource)>", amount = amount, resource = resource, bld}
 	else
-		items[#items+1] = T{299, "Available deposits<right><red>Depleted</red>"}
+		items[#items+1] = T(299, "Available deposits<right><red>Depleted</red>")
 	end
 end
 
@@ -749,7 +749,7 @@ function ResourceProducer:GetUISectionResourceProducerRollover()
 			resource = resource, LifetimeProduction = producer.lifetime_production, producer}
 	end
 	
-	t[#t + 1] = T{469, "<newline><center><em>Storage</em>"}
+	t[#t + 1] = T(469, "<newline><center><em>Storage</em>")
 	for i,producer in ipairs(self.producers) do
 		local resource = Resources[producer:GetResourceProduced()].name
 		t[#t + 1] = T{7620, "<resource(resource)><right><resource(GetAmountStored,max_storage,resource)>",
@@ -774,8 +774,8 @@ DefineClass.SingleResourceProducer = {
 	__parents = { "Object", "StockpileController", "Modifiable" },
 	
 	properties = {
-		{ template = true, category = "SingleResourceProducer", name = T{6731, "Maximum Storage"},    id = "max_storage",        editor = "number", default = 20000, min = 1, max = 9999999, scale = const.ResourceScale, help = "The amount of resource the building can store.",},
-		{ template = true, category = "SingleResourceProducer", name = T{6732, "Production per Sol"}, id = "production_per_day", editor = "number", default = 1000,  min = 1, max = 9999999, scale = const.ResourceScale, help = "Amount produced per Sol.", modifiable = true },
+		{ template = true, category = "SingleResourceProducer", name = T(6731, "Maximum Storage"),    id = "max_storage",        editor = "number", default = 20000, min = 1, max = 9999999, scale = const.ResourceScale, help = "The amount of resource the building can store.",},
+		{ template = true, category = "SingleResourceProducer", name = T(6732, "Production per Sol"), id = "production_per_day", editor = "number", default = 1000,  min = 1, max = 9999999, scale = const.ResourceScale, help = "Amount produced per Sol.", modifiable = true },
 	},
 	
 	--mandatory parameters

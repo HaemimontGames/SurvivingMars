@@ -2,6 +2,10 @@
 
 PlaceObj('StoryBit', {
 	ActivationEffects = {
+		PlaceObj('ResetBuildingExtraCost', {
+			'Resource', "Metals",
+			'BuildingClass', "MOXIE",
+		}),
 		PlaceObj('ModifyLabel', {
 			'Label', "MOXIE",
 			'Prop', "maintenance_threshold_base",
@@ -40,7 +44,7 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	ScriptDone = true,
-	Text = T{818790438441, --[[StoryBit BadMoxie_Finale Text]] "The new MOXIE 2.0 design is finally ready and we have updated all current MOXIEs to the new specs. MOXIE 2.0 also has increased air production.\n\n<effect>All negative effects on MOXIEs have been removed."},
+	Text = T(818790438441, --[[StoryBit BadMoxie_Finale Text]] "The new MOXIE 2.0 design is finally ready and we have updated all current MOXIEs to the new specs. MOXIE 2.0 also has increased air production.\n\n<effect>All negative effects on MOXIEs have been removed."),
 	TextReadyForValidation = true,
 	TextsDone = true,
 	Trigger = "TechResearchedTrigger",

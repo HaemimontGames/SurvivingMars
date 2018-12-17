@@ -178,8 +178,8 @@ DefineClass.ColdArea =
 	__parents = { "EditorMarker", "BaseHeater", "EditorRangeObject" },
 	properties =
 	{
-		{ category = "Cold", name = T{643, "Range"},        id = "Range",       editor = "number", default = 512*guim, scale = guim, min = 0, max = 2048 * guim, slider = true, buttons = {{"Apply", "Reapply"}}},
-		{ category = "Cold", name = T{841, "Ice Strength"}, id = "IceStrength", editor = "number", default = 100, min = 0, max = 100, slider = true},
+		{ category = "Cold", name = T(643, "Range"),        id = "Range",       editor = "number", default = 512*guim, scale = guim, min = 0, max = 2048 * guim, slider = true, buttons = {{"Apply", "Reapply"}}},
+		{ category = "Cold", name = T(841, "Ice Strength"), id = "IceStrength", editor = "number", default = 100, min = 0, max = 100, slider = true},
 	},
 	Scale = 1000,
 	heat = -const.MaxHeat,

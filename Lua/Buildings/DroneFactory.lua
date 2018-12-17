@@ -286,8 +286,8 @@ function DroneFactory:GetConstructResourceTotal()
 end
 
 local ConstructionStatus = {
-	["Drone"] = T{8521, "Constructing a Drone"},
-	["Android"] = T{8522, "Constructing a Biorobot"},
+	["Drone"] = T(8521, "Constructing a Drone"),
+	["Android"] = T(8522, "Constructing a Biorobot"),
 }
 
 function DroneFactory:GetUIConstructionStatus()

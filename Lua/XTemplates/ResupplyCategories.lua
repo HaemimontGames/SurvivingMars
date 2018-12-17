@@ -29,7 +29,7 @@ end,
 			PlaceObj('XTemplateTemplate', {
 				'__template', "DialogTitleNew",
 				'Margins', box(55, 0, 0, 0),
-				'Title', T{561537249557, --[[XTemplate ResupplyCategories Title]] "RESUPPLY"},
+				'Title', T(561537249557, --[[XTemplate ResupplyCategories Title]] "RESUPPLY"),
 				'SmallImage', true,
 			}),
 			PlaceObj('XTemplateWindow', {
@@ -47,7 +47,7 @@ end,
 						'HandleMouse', false,
 						'TextStyle', "ListItem1",
 						'Translate', true,
-						'Text', T{3499, --[[XTemplate ResupplyCategories Text]] "Cargo Capacity"},
+						'Text', T(3499, --[[XTemplate ResupplyCategories Text]] "Cargo Capacity"),
 					}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XText",
@@ -55,7 +55,7 @@ end,
 						'HandleMouse', false,
 						'TextStyle', "ListItem1",
 						'Translate', true,
-						'Text', T{3613, --[[XTemplate ResupplyCategories Text]] "Funding"},
+						'Text', T(3613, --[[XTemplate ResupplyCategories Text]] "Funding"),
 					}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XText",
@@ -63,7 +63,7 @@ end,
 						'HandleMouse', false,
 						'TextStyle', "ListItem1",
 						'Translate', true,
-						'Text', T{620347027255, --[[XTemplate ResupplyCategories Text]] "Available Rockets"},
+						'Text', T(620347027255, --[[XTemplate ResupplyCategories Text]] "Available Rockets"),
 					}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XText",
@@ -71,16 +71,16 @@ end,
 						'HandleMouse', false,
 						'TextStyle', "ListItem1",
 						'Translate', true,
-						'Text', T{602355606532, --[[XTemplate ResupplyCategories Text]] "Available Supply Pods"},
+						'Text', T(602355606532, --[[XTemplate ResupplyCategories Text]] "Available Supply Pods"),
 					}),
 					PlaceObj('XTemplateWindow', {
-						'__condition', function (parent, context) return GetMissionSponsor().passenger_pod_class end,
+						'__condition', function (parent, context) return rawget(GetMissionSponsor(), "passenger_pod_class") end,
 						'__class', "XText",
 						'Padding', box(0, 0, 0, 0),
 						'HandleMouse', false,
 						'TextStyle', "ListItem1",
 						'Translate', true,
-						'Text', T{704448862257, --[[XTemplate ResupplyCategories Text]] "Passenger Pods"},
+						'Text', T(704448862257, --[[XTemplate ResupplyCategories Text]] "Passenger Pods"),
 					}),
 					}),
 				PlaceObj('XTemplateWindow', {
@@ -92,7 +92,7 @@ end,
 						'HandleMouse', false,
 						'TextStyle', "ListItem4",
 						'Translate', true,
-						'Text', T{270405570569, --[[XTemplate ResupplyCategories Text]] "<Capacity> kg"},
+						'Text', T(270405570569, --[[XTemplate ResupplyCategories Text]] "<Capacity> kg"),
 					}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XText",
@@ -100,7 +100,7 @@ end,
 						'HandleMouse', false,
 						'TextStyle', "ListItem4",
 						'Translate', true,
-						'Text', T{134782360990, --[[XTemplate ResupplyCategories Text]] "<funding(Funding)>"},
+						'Text', T(134782360990, --[[XTemplate ResupplyCategories Text]] "<funding(Funding)>"),
 					}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XText",
@@ -108,7 +108,7 @@ end,
 						'HandleMouse', false,
 						'TextStyle', "ListItem4",
 						'Translate', true,
-						'Text', T{778838088243, --[[XTemplate ResupplyCategories Text]] "<AvailableRockets>/<TotalRockets>"},
+						'Text', T(778838088243, --[[XTemplate ResupplyCategories Text]] "<AvailableRockets>/<TotalRockets>"),
 					}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XText",
@@ -116,16 +116,16 @@ end,
 						'HandleMouse', false,
 						'TextStyle', "ListItem4",
 						'Translate', true,
-						'Text', T{443216200399, --[[XTemplate ResupplyCategories Text]] "<AvailableSupplyPods>/<TotalSupplyPods>"},
+						'Text', T(443216200399, --[[XTemplate ResupplyCategories Text]] "<AvailableSupplyPods>/<TotalSupplyPods>"),
 					}),
 					PlaceObj('XTemplateWindow', {
-						'__condition', function (parent, context) return GetMissionSponsor().passenger_pod_class end,
+						'__condition', function (parent, context) return rawget(GetMissionSponsor(), "passenger_pod_class") end,
 						'__class', "XText",
 						'Padding', box(0, 0, 0, 0),
 						'HandleMouse', false,
 						'TextStyle', "ListItem4",
 						'Translate', true,
-						'Text', T{115432375938, --[[XTemplate ResupplyCategories Text]] "<AvailablePassengerPods>"},
+						'Text', T(115432375938, --[[XTemplate ResupplyCategories Text]] "<AvailablePassengerPods>"),
 					}),
 					}),
 				}),
@@ -151,7 +151,7 @@ end,
 					'HandleMouse', false,
 					'TextStyle', "MediumHeader",
 					'Translate', true,
-					'Text', T{4067, --[[XTemplate ResupplyCategories Text]] "SELECT ROCKET"},
+					'Text', T(4067, --[[XTemplate ResupplyCategories Text]] "SELECT ROCKET"),
 					'HideOnEmpty', true,
 				}),
 				}),
@@ -190,8 +190,8 @@ end,
 				}, {
 					PlaceObj('XTemplateTemplate', {
 						'__template', "ResupplyCategoryItem",
-						'RolloverDisabledText', T{628712416014, --[[XTemplate ResupplyCategories RolloverDisabledText]] "Rockets unavailable."},
-						'RolloverDisabledTitle', T{1115, --[[XTemplate ResupplyCategories RolloverDisabledTitle]] "Cargo Rocket"},
+						'RolloverDisabledText', T(628712416014, --[[XTemplate ResupplyCategories RolloverDisabledText]] "Rockets unavailable."),
+						'RolloverDisabledTitle', T(1115, --[[XTemplate ResupplyCategories RolloverDisabledTitle]] "Cargo Rocket"),
 						'Id', "idCargo",
 						'OnContextUpdate', function (self, context, ...)
 if g_UIAvailableRockets <= 0 or (g_Tutorial and not g_Tutorial.EnableCargoRockets) then
@@ -210,12 +210,12 @@ local host = GetDialog(self)
 host:SetMode("cargo", "resupply")
 end,
 						'Icon', "UI/CommonNew/re_icon_rocket.tga",
-						'Text', T{357083234594, --[[XTemplate ResupplyCategories Text]] "CARGO ROCKET"},
+						'Text', T(357083234594, --[[XTemplate ResupplyCategories Text]] "CARGO ROCKET"),
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'__template', "ResupplyCategoryItem",
-						'RolloverDisabledText', T{8541, --[[XTemplate ResupplyCategories RolloverDisabledText]] "<PassengerRocketDisabledRolloverText>"},
-						'RolloverDisabledTitle', T{8542, --[[XTemplate ResupplyCategories RolloverDisabledTitle]] "<PassengerRocketDisabledRolloverTitle>"},
+						'RolloverDisabledText', T(8541, --[[XTemplate ResupplyCategories RolloverDisabledText]] "<PassengerRocketDisabledRolloverText>"),
+						'RolloverDisabledTitle', T(8542, --[[XTemplate ResupplyCategories RolloverDisabledTitle]] "<PassengerRocketDisabledRolloverTitle>"),
 						'Id', "idPassenger",
 						'OnContextUpdate', function (self, context, ...)
 if g_UIAvailableRockets <= 0 or not AreNewColonistsAccepted() then
@@ -230,19 +230,14 @@ local host = GetDialog(self)
 host:SetMode("passengers")
 end,
 						'Icon', "UI/CommonNew/re_icon_rocket.tga",
-						'Text', T{11630, --[[XTemplate ResupplyCategories Text]] "PASSENGER ROCKET"},
+						'Text', T(11630, --[[XTemplate ResupplyCategories Text]] "PASSENGER ROCKET"),
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'__condition', function (parent, context) return UICity and #(UICity.labels.SpaceElevator or empty_table) > 0 and UICity.labels.SpaceElevator[1].working end,
 						'__template', "ResupplyCategoryItem",
-						'RolloverDisabledText', T{10457, --[[XTemplate ResupplyCategories RolloverDisabledText]] "Space Elevator is unavailable"},
-						'RolloverDisabledTitle', T{1120, --[[XTemplate ResupplyCategories RolloverDisabledTitle]] "Space Elevator"},
+						'RolloverDisabledText', T(10457, --[[XTemplate ResupplyCategories RolloverDisabledText]] "Space Elevator is unavailable"),
+						'RolloverDisabledTitle', T(1120, --[[XTemplate ResupplyCategories RolloverDisabledTitle]] "Space Elevator"),
 						'Id', "idElevator",
-						'OnContextUpdate', function (self, context, ...)
-if g_UIAvailableRockets <= 0 or not AreNewColonistsAccepted() then
-	self:SetEnabled(false)
-end
-end,
 						'OnPress', function (self, gamepad)
 if UICity then
 	UICity.launch_mode = "elevator"
@@ -255,13 +250,13 @@ local host = GetDialog(self)
 host:SetMode("cargo", "resupply")
 end,
 						'Icon', "UI/CommonNew/re_icon_space_elevator.tga",
-						'Text', T{11631, --[[XTemplate ResupplyCategories Text]] "SPACE ELEVATOR"},
+						'Text', T(11631, --[[XTemplate ResupplyCategories Text]] "SPACE ELEVATOR"),
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'__condition', function (parent, context) return GetMissionSponsor().pod_class end,
 						'__template', "ResupplyCategoryItem",
-						'RolloverDisabledText', T{10872, --[[XTemplate ResupplyCategories RolloverDisabledText]] "Pods are unavailable."},
-						'RolloverDisabledTitle', T{10873, --[[XTemplate ResupplyCategories RolloverDisabledTitle]] "<PodItemText>"},
+						'RolloverDisabledText', T(10872, --[[XTemplate ResupplyCategories RolloverDisabledText]] "Pods are unavailable."),
+						'RolloverDisabledTitle', T(10873, --[[XTemplate ResupplyCategories RolloverDisabledTitle]] "<PodItemText>"),
 						'Id', "idCargoPod",
 						'OnContextUpdate', function (self, context, ...)
 if context:GetNumAvailablePods("SupplyPod") == 0 and UICity.funding < GetMissionSponsor().pod_price then
@@ -285,14 +280,14 @@ local host = GetDialog(self)
 host:SetMode("cargo", "resupply")
 end,
 						'Icon', "UI/CommonNew/re_icon_drop_pod.tga",
-						'Text', T{10873, --[[XTemplate ResupplyCategories Text]] "<PodItemText>"},
+						'Text', T(10873, --[[XTemplate ResupplyCategories Text]] "<PodItemText>"),
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'__template', "AddAdditionalSupplyCategories",
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "close",
-						'ActionName', T{4523, --[[XTemplate ResupplyCategories ActionName]] "CLOSE"},
+						'ActionName', T(4523, --[[XTemplate ResupplyCategories ActionName]] "CLOSE"),
 						'ActionToolbar', "ActionBar",
 						'ActionShortcut', "Escape",
 						'ActionGamepad', "ButtonB",
@@ -302,7 +297,7 @@ end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "buyRocket",
-						'ActionName', T{5454, --[[XTemplate ResupplyCategories ActionName]] "BUY ROCKET"},
+						'ActionName', T(5454, --[[XTemplate ResupplyCategories ActionName]] "BUY ROCKET"),
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonY",
 						'OnAction', function (self, host, source)

@@ -2,8 +2,8 @@
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropRiceGiant",
-	Desc = T{8115, --[[CropPreset Mystery9_GanymedeRice Desc]] "Rice engineered on Ganymede. Grows very fast and has high yield."},
-	DisplayName = T{8114, --[[CropPreset Mystery9_GanymedeRice DisplayName]] "Ganymede Rice"},
+	Desc = T(8115, --[[CropPreset Mystery9_GanymedeRice Desc]] "Rice engineered on Ganymede. Grows very fast and has high yield."),
+	DisplayName = T(8114, --[[CropPreset Mystery9_GanymedeRice DisplayName]] "Ganymede Rice"),
 	FarmClass = "FarmHydroponic",
 	FoodOutput = 6000,
 	GrowthTime = 720000,
@@ -19,8 +19,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropRice",
-	Desc = T{7008, --[[CropPreset Giant Rice Desc]] "Great yield but grows slowly and requires more Water"},
-	DisplayName = T{7009, --[[CropPreset Giant Rice DisplayName]] "Giant Rice"},
+	Desc = T(7008, --[[CropPreset Giant Rice Desc]] "Great yield but grows slowly and requires more Water"),
+	DisplayName = T(7009, --[[CropPreset Giant Rice DisplayName]] "Giant Rice"),
 	FarmClass = "FarmHydroponic",
 	FoodOutput = 20000,
 	OxygenProduction = 100,
@@ -34,8 +34,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropQuinoa",
-	Desc = T{7020, --[[CropPreset Quinoa Desc]] "Average yield but grows fast and requires less Water"},
-	DisplayName = T{7019, --[[CropPreset Quinoa DisplayName]] "Quinoa"},
+	Desc = T(7020, --[[CropPreset Quinoa Desc]] "Average yield but grows fast and requires less Water"),
+	DisplayName = T(7019, --[[CropPreset Quinoa DisplayName]] "Quinoa"),
 	FarmClass = "FarmConventional",
 	FoodOutput = 22000,
 	GrowthTime = 1440000,
@@ -51,8 +51,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropRice",
-	Desc = T{7008, --[[CropPreset Rice Desc]] "Great yield but grows slowly and requires more Water"},
-	DisplayName = T{7007, --[[CropPreset Rice DisplayName]] "Rice"},
+	Desc = T(7008, --[[CropPreset Rice Desc]] "Great yield but grows slowly and requires more Water"),
+	DisplayName = T(7007, --[[CropPreset Rice DisplayName]] "Rice"),
 	FarmClass = "FarmHydroponic",
 	FoodOutput = 15000,
 	OxygenProduction = 100,
@@ -66,8 +66,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropSpinachGiant",
-	Desc = T{6988, --[[CropPreset Giant Leaf Crops Desc]] "Good yield but slow growth"},
-	DisplayName = T{6989, --[[CropPreset Giant Leaf Crops DisplayName]] "Giant Leaf Crops"},
+	Desc = T(6988, --[[CropPreset Giant Leaf Crops Desc]] "Good yield but slow growth"),
+	DisplayName = T(6989, --[[CropPreset Giant Leaf Crops DisplayName]] "Giant Leaf Crops"),
 	FarmClass = "FarmHydroponic",
 	FoodOutput = 16000,
 	OxygenProduction = 100,
@@ -81,8 +81,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropWheatGiant",
-	Desc = T{7001, --[[CropPreset Giant Wheat Desc]] "Low yield but grows fast and requires less Water"},
-	DisplayName = T{7002, --[[CropPreset Giant Wheat DisplayName]] "Giant Wheat"},
+	Desc = T(7001, --[[CropPreset Giant Wheat Desc]] "Low yield but grows fast and requires less Water"),
+	DisplayName = T(7002, --[[CropPreset Giant Wheat DisplayName]] "Giant Wheat"),
 	FarmClass = "FarmConventional",
 	FoodOutput = 23000,
 	GrowthTime = 1440000,
@@ -98,8 +98,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropCornGiant",
-	Desc = T{7015, --[[CropPreset Giant Corn Desc]] "Great yield but grows slowly and depletes the soil, reducing the yield of the next crop"},
-	DisplayName = T{7016, --[[CropPreset Giant Corn DisplayName]] "Giant Corn"},
+	Desc = T(7015, --[[CropPreset Giant Corn Desc]] "Great yield but grows slowly and depletes the soil, reducing the yield of the next crop"),
+	DisplayName = T(7016, --[[CropPreset Giant Corn DisplayName]] "Giant Corn"),
 	FarmClass = "FarmConventional",
 	FoodOutput = 110000,
 	GrowthTime = 3600000,
@@ -116,8 +116,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropLettuce",
-	Desc = T{6988, --[[CropPreset Leaf Crops Desc]] "Good yield but slow growth"},
-	DisplayName = T{6987, --[[CropPreset Leaf Crops DisplayName]] "Leaf Crops"},
+	Desc = T(6988, --[[CropPreset Leaf Crops Desc]] "Good yield but slow growth"),
+	DisplayName = T(6987, --[[CropPreset Leaf Crops DisplayName]] "Leaf Crops"),
 	FarmClass = "FarmHydroponic",
 	FoodOutput = 12000,
 	OxygenProduction = 100,
@@ -131,8 +131,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropWheat",
-	Desc = T{7001, --[[CropPreset Wheat Desc]] "Low yield but grows fast and requires less Water"},
-	DisplayName = T{7000, --[[CropPreset Wheat DisplayName]] "Wheat"},
+	Desc = T(7001, --[[CropPreset Wheat Desc]] "Low yield but grows fast and requires less Water"),
+	DisplayName = T(7000, --[[CropPreset Wheat DisplayName]] "Wheat"),
 	FarmClass = "FarmConventional",
 	FoodOutput = 17000,
 	GrowthTime = 1440000,
@@ -148,8 +148,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropCorn",
-	Desc = T{7015, --[[CropPreset Corn Desc]] "Great yield but grows slowly and depletes the soil, reducing the yield of the next crop"},
-	DisplayName = T{7014, --[[CropPreset Corn DisplayName]] "Corn"},
+	Desc = T(7015, --[[CropPreset Corn Desc]] "Great yield but grows slowly and depletes the soil, reducing the yield of the next crop"),
+	DisplayName = T(7014, --[[CropPreset Corn DisplayName]] "Corn"),
 	FarmClass = "FarmConventional",
 	FoodOutput = 70000,
 	GrowthTime = 3600000,
@@ -166,8 +166,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropPotatoesGiant",
-	Desc = T{6996, --[[CropPreset Giant Potatoes Desc]] "Good yield but grows slowly and depletes the soil, causing reduced yield of the next crop"},
-	DisplayName = T{6997, --[[CropPreset Giant Potatoes DisplayName]] "Giant Potatoes"},
+	Desc = T(6996, --[[CropPreset Giant Potatoes Desc]] "Good yield but grows slowly and depletes the soil, causing reduced yield of the next crop"),
+	DisplayName = T(6997, --[[CropPreset Giant Potatoes DisplayName]] "Giant Potatoes"),
 	FarmClass = "FarmConventional",
 	FoodOutput = 80000,
 	GrowthTime = 3600000,
@@ -184,8 +184,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropHerb",
-	Desc = T{6991, --[[CropPreset Microgreens Desc]] "Low yield and slow growth, but require less Water"},
-	DisplayName = T{6990, --[[CropPreset Microgreens DisplayName]] "Microgreens"},
+	Desc = T(6991, --[[CropPreset Microgreens Desc]] "Low yield and slow growth, but require less Water"),
+	DisplayName = T(6990, --[[CropPreset Microgreens DisplayName]] "Microgreens"),
 	FarmClass = "FarmHydroponic",
 	FoodOutput = 10000,
 	OxygenProduction = 100,
@@ -199,8 +199,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropCucumber",
-	Desc = T{7011, --[[CropPreset Vegetables Desc]] "Good yield and grows slowly but requires less Water"},
-	DisplayName = T{7010, --[[CropPreset Vegetables DisplayName]] "Vegetables"},
+	Desc = T(7011, --[[CropPreset Vegetables Desc]] "Good yield and grows slowly but requires less Water"),
+	DisplayName = T(7010, --[[CropPreset Vegetables DisplayName]] "Vegetables"),
 	FarmClass = "FarmHydroponic",
 	FoodOutput = 12500,
 	GrowthSequence = "idle3,idle4",
@@ -216,8 +216,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropPotatoes",
-	Desc = T{8470, --[[CropPreset Cure Desc]] "Extract the cure for the Wildfire Infection from these potatoes."},
-	DisplayName = T{8069, --[[CropPreset Cure DisplayName]] "Curetatos"},
+	Desc = T(8470, --[[CropPreset Cure Desc]] "Extract the cure for the Wildfire Infection from these potatoes."),
+	DisplayName = T(8069, --[[CropPreset Cure DisplayName]] "Curetatos"),
 	FarmClass = "FarmConventional",
 	FoodOutput = 10000,
 	GrowthTime = 3600000,
@@ -236,8 +236,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropApples",
-	Desc = T{7018, --[[CropPreset Fruit Trees Desc]] "Good yield and grows very slowly but improves the soil, increasing the yield of the next crop"},
-	DisplayName = T{7017, --[[CropPreset Fruit Trees DisplayName]] "Fruit Trees"},
+	Desc = T(7018, --[[CropPreset Fruit Trees Desc]] "Good yield and grows very slowly but improves the soil, increasing the yield of the next crop"),
+	DisplayName = T(7017, --[[CropPreset Fruit Trees DisplayName]] "Fruit Trees"),
 	FarmClass = "FarmConventional",
 	FoodOutput = 88000,
 	GrowthSequence = "idle3,idle4",
@@ -255,8 +255,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropPotatoes",
-	Desc = T{6996, --[[CropPreset Potatoes Desc]] "Good yield but grows slowly and depletes the soil, causing reduced yield of the next crop"},
-	DisplayName = T{6995, --[[CropPreset Potatoes DisplayName]] "Potatoes"},
+	Desc = T(6996, --[[CropPreset Potatoes Desc]] "Good yield but grows slowly and depletes the soil, causing reduced yield of the next crop"),
+	DisplayName = T(6995, --[[CropPreset Potatoes DisplayName]] "Potatoes"),
 	FarmClass = "FarmConventional",
 	FoodOutput = 55000,
 	GrowthTime = 3600000,
@@ -273,8 +273,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropWheatGrassGiant",
-	Desc = T{6993, --[[CropPreset Giant Wheat Grass Desc]] "Low yield but grows very fast"},
-	DisplayName = T{6994, --[[CropPreset Giant Wheat Grass DisplayName]] "Giant Wheat Grass"},
+	Desc = T(6993, --[[CropPreset Giant Wheat Grass Desc]] "Low yield but grows very fast"),
+	DisplayName = T(6994, --[[CropPreset Giant Wheat Grass DisplayName]] "Giant Wheat Grass"),
 	FarmClass = "FarmHydroponic",
 	FoodOutput = 3500,
 	GrowthTime = 720000,
@@ -290,8 +290,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropAlgae",
-	Desc = T{7004, --[[CropPreset Algae Desc]] "Very low yield but produces Oxygen"},
-	DisplayName = T{7003, --[[CropPreset Algae DisplayName]] "Algae"},
+	Desc = T(7004, --[[CropPreset Algae Desc]] "Very low yield but produces Oxygen"),
+	DisplayName = T(7003, --[[CropPreset Algae DisplayName]] "Algae"),
 	FarmClass = "FarmHydroponic",
 	FoodOutput = 2000,
 	GrowthTime = 720000,
@@ -305,8 +305,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropRapeseed",
-	Desc = T{7006, --[[CropPreset Cover Crops Desc]] "Very low yield but increases soil quality significantly, improving the yield of the next crop"},
-	DisplayName = T{7005, --[[CropPreset Cover Crops DisplayName]] "Cover Crops"},
+	Desc = T(7006, --[[CropPreset Cover Crops Desc]] "Very low yield but increases soil quality significantly, improving the yield of the next crop"),
+	DisplayName = T(7005, --[[CropPreset Cover Crops DisplayName]] "Cover Crops"),
 	FarmClass = "FarmConventional",
 	FoodOutput = 12000,
 	GrowthTime = 3600000,
@@ -322,8 +322,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropKelp",
-	Desc = T{7013, --[[CropPreset Kelp Desc]] "Average yield but grows very fast and produces Oxygen"},
-	DisplayName = T{7012, --[[CropPreset Kelp DisplayName]] "Kelp"},
+	Desc = T(7013, --[[CropPreset Kelp Desc]] "Average yield but grows very fast and produces Oxygen"),
+	DisplayName = T(7012, --[[CropPreset Kelp DisplayName]] "Kelp"),
 	FarmClass = "FarmHydroponic",
 	FoodOutput = 3200,
 	GrowthSequence = "idle2,idle3",
@@ -340,8 +340,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropSoybeans",
-	Desc = T{6999, --[[CropPreset Soybeans Desc]] "Low yield and grows slowly but improves the soil, increasing the yield of the next crop"},
-	DisplayName = T{6998, --[[CropPreset Soybeans DisplayName]] "Soybeans"},
+	Desc = T(6999, --[[CropPreset Soybeans Desc]] "Low yield and grows slowly but improves the soil, increasing the yield of the next crop"),
+	DisplayName = T(6998, --[[CropPreset Soybeans DisplayName]] "Soybeans"),
 	FarmClass = "FarmConventional",
 	FoodOutput = 40000,
 	GrowthTime = 3600000,
@@ -357,8 +357,8 @@ PlaceObj('CropPreset', {
 
 PlaceObj('CropPreset', {
 	CropEntity = "CropWheatGrass",
-	Desc = T{6993, --[[CropPreset Wheat Grass Desc]] "Low yield but grows very fast"},
-	DisplayName = T{6992, --[[CropPreset Wheat Grass DisplayName]] "Wheat Grass"},
+	Desc = T(6993, --[[CropPreset Wheat Grass Desc]] "Low yield but grows very fast"),
+	DisplayName = T(6992, --[[CropPreset Wheat Grass DisplayName]] "Wheat Grass"),
 	FarmClass = "FarmHydroponic",
 	FoodOutput = 2500,
 	GrowthTime = 720000,

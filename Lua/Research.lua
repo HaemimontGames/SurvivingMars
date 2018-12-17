@@ -606,28 +606,18 @@ function City:OutsourceResearch(points, time, orders)
 end
 
 function City:GetEstimatedRP()
-	local estimate = self:GetEstimatedRP_ResearchLab()
-		+ self:GetEstimatedRP_ScienceInstitute()
+	local estimate = self:GetEstimatedRP_ResearchBuildings()
 		+ self:GetEstimatedRP_Genius()
 		+ self:GetEstimatedRP_Sponsor()
 		+ self:GetEstimatedRP_Outsource()
 		+ self:GetEstimatedRP_Explorer()
 		+ self:GetEstimatedRP_SuperconductingComputing()
-		+ self:GetEstimatedRP_LowGLab()
 	return self:ModifyResearchPoints(estimate)
 end
 
-function City:GetEstimatedRP_ResearchLab()
+function City:GetEstimatedRP_ResearchBuildings()
 	local total = 0
-	for _, lab in ipairs(self.labels.ResearchLab or empty_table) do
-		total = total + lab:GetEstimatedDailyProduction()
-	end
-	return total
-end
-
-function City:GetEstimatedRP_ScienceInstitute()
-	local total = 0
-	for _, lab in ipairs(self.labels.ScienceInstitute or empty_table) do
+	for _, lab in ipairs(self.labels.ResearchBuildings or empty_table) do
 		total = total + lab:GetEstimatedDailyProduction()
 	end
 	return total
@@ -673,14 +663,6 @@ function City:GetEstimatedRP_SuperconductingComputing()
 		return rp
 	end
 	return 0
-end
-
-function City:GetEstimatedRP_LowGLab()
-	local total = 0
-	for _, lab in ipairs(self.labels.LowGLab or empty_table) do
-		total = total + lab:GetEstimatedDailyProduction()
-	end
-	return total
 end
 
 function City:CalcExplorerResearchPoints(dt, log)
@@ -730,7 +712,7 @@ end
 function City:GetUIResearchProject()
 	local research = self:GetResearchInfo()
 	if research then return TechDef[research].display_name end
-	return T{7350, "<red>No active research</red>"}
+	return T(7350, "<red>No active research</red>")
 end
 
 ----
@@ -997,9 +979,9 @@ end
 function XTechControl:GetRolloverTitle()
 	local tech_id = self.context.id
 	if UICity:IsTechDiscovered(tech_id) then
-		return T{3917, "<display_name> (<FieldDisplayName>)"}
+		return T(3917, "<display_name> (<FieldDisplayName>)")
 	else
-		return T{3918, "Unknown Tech (<FieldDisplayName>)"}
+		return T(3918, "Unknown Tech (<FieldDisplayName>)")
 	end
 end
 
@@ -1009,19 +991,19 @@ function XTechControl:GetRolloverText()
 	local researched = UICity:IsTechResearched(tech_id)
 
 	if not discovered and not researched then
-		return T{3919, "<FieldDescription><newline><newline>To unlock, research more technologies in this field or use the Explorer rover to analyze anomalies."}
+		return T(3919, "<FieldDescription><newline><newline>To unlock, research more technologies in this field or use the Explorer rover to analyze anomalies.")
 	elseif researched and not UICity:IsTechRepeatable(tech_id) then
-		return T{3920, "<description><newline><newline><em>Researched</em>"}
+		return T(3920, "<description><newline><newline><em>Researched</em>")
 	end
 	local percent = (UICity.TechBoostPerTech[tech_id] or 0) + (UICity.TechBoostPerField[TechDef[tech_id].group] or 0)
 	local percent_check = percent > 0
 	return T{10980, "<description><newline><newline>Research cost<right><ResearchPoints(cost)><if(percent_check)><newline><left>Cost reduction<right><percent>%</if>", percent = percent, percent_check = percent_check }
 end
 
-local queue = T{3923, "<left><left_click> Queue for research<right><em>Ctrl+<left_click></em> Queue on top"}
-local dequeue = T{7775, "<right_click> Remove from research queue"} 
+local queue = T(3923, "<left><left_click> Queue for research<right><em>Ctrl+<left_click></em> Queue on top")
+local dequeue = T(7775, "<right_click> Remove from research queue") 
 local queue_dequeue = queue .. "<newline><center>" .. dequeue
-local first_inqueue = T{8534, "<em>Ctrl+<left_click></em> Queue on top"}
+local first_inqueue = T(8534, "<em>Ctrl+<left_click></em> Queue on top")
 function XTechControl:GetRolloverHint()
 	local tech_id = self.context.id
 	if UICity:IsTechResearchable(tech_id) then
@@ -1036,10 +1018,10 @@ function XTechControl:GetRolloverHint()
 	return ""
 end
 
-local gamepad_queue = T{3925, "<left><ButtonA> Queue for research<right><RightTrigger><ButtonA> Queue on top"}
-local gamepad_dequeue = T{3924, "<ButtonX> Remove from research queue"}
+local gamepad_queue = T(3925, "<left><ButtonA> Queue for research<right><RightTrigger><ButtonA> Queue on top")
+local gamepad_dequeue = T(3924, "<ButtonX> Remove from research queue")
 local gamepad_queue_dequeue = gamepad_queue .. "<newline><center>" .. gamepad_dequeue
-local gamepad_first_inqueue = T{8659, "<RightTrigger><ButtonA> Queue on top"}
+local gamepad_first_inqueue = T(8659, "<RightTrigger><ButtonA> Queue on top")
 function XTechControl:GetRolloverHintGamepad()
 	local tech_id = self.context.id
 	if UICity:IsTechResearchable(tech_id) then

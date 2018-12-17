@@ -14,69 +14,69 @@ DefineClass.PlanetaryAnomaly = {
 	init_name = true,
 	
 	anomaly_names = {
-		T{11105, "Project Alfa"},
-		T{11106, "Project Archimedes"},
-		T{11107, "Project Armstrong"},
-		T{11108, "Project Atoll"},
-		T{11109, "Project Babylon"},
-		T{11110, "Project Bluesky"},
-		T{11111, "Project Castille"},
-		T{11112, "Project Cavalcade"},
-		T{11113, "Project Champion"},
-		T{11114, "Project Chariot"},
-		T{11115, "Project Cobalt"},
-		T{11116, "Project Commodore"},
-		T{11117, "Project Crossroads"},
-		T{11118, "Project Dawn"},
-		T{11119, "Project Demeter"},
-		T{11120, "Project Element"},
-		T{11121, "Project Excalibur"},
-		T{11122, "Project Fahrenheit"},
-		T{11123, "Project Fedora"},
-		T{11124, "Project Flamingo"},
-		T{11125, "Project Hinterland"},
-		T{11126, "Project Iridium"},
-		T{11127, "Project Kappa"},
-		T{11128, "Project Komodo"},
-		T{11129, "Project Lightbulb"},
-		T{11130, "Project Limegrass"},
-		T{11131, "Project Lyric"},
-		T{11132, "Project Mist"},
-		T{11133, "Project Monarch"},
-		T{11134, "Project Monsoon"},
-		T{11135, "Project Niagara"},
-		T{11136, "Project Ocean"},
-		T{11137, "Project Oracle"},
-		T{11138, "Project Pharaoh"},
-		T{11139, "Project Picnic"},
-		T{11140, "Project Portier"},
-		T{11141, "Project Purity"},
-		T{11142, "Project Race"},
-		T{11143, "Project Redwood"},
-		T{11144, "Project Reign"},
-		T{11145, "Project Revere"},
-		T{11146, "Project Rope"},
-		T{11147, "Project Sanctuary"},
-		T{11148, "Project Savannah"},
-		T{11149, "Project Seal"},
-		T{11150, "Project Shape"},
-		T{11151, "Project Solar"},
-		T{11152, "Project Spring"},
-		T{11153, "Project Steed"},
-		T{11154, "Project Swanlake"},
-		T{11155, "Project Titanium"},
-		T{11156, "Project Trophy"},
-		T{11157, "Project Tungsten"},
-		T{11158, "Project Wayfarer"},
-		T{11159, "Project Yukon"},
+		T(11105, "Project Alfa"),
+		T(11106, "Project Archimedes"),
+		T(11107, "Project Armstrong"),
+		T(11108, "Project Atoll"),
+		T(11109, "Project Babylon"),
+		T(11110, "Project Bluesky"),
+		T(11111, "Project Castille"),
+		T(11112, "Project Cavalcade"),
+		T(11113, "Project Champion"),
+		T(11114, "Project Chariot"),
+		T(11115, "Project Cobalt"),
+		T(11116, "Project Commodore"),
+		T(11117, "Project Crossroads"),
+		T(11118, "Project Dawn"),
+		T(11119, "Project Demeter"),
+		T(11120, "Project Element"),
+		T(11121, "Project Excalibur"),
+		T(11122, "Project Fahrenheit"),
+		T(11123, "Project Fedora"),
+		T(11124, "Project Flamingo"),
+		T(11125, "Project Hinterland"),
+		T(11126, "Project Iridium"),
+		T(11127, "Project Kappa"),
+		T(11128, "Project Komodo"),
+		T(11129, "Project Lightbulb"),
+		T(11130, "Project Limegrass"),
+		T(11131, "Project Lyric"),
+		T(11132, "Project Mist"),
+		T(11133, "Project Monarch"),
+		T(11134, "Project Monsoon"),
+		T(11135, "Project Niagara"),
+		T(11136, "Project Ocean"),
+		T(11137, "Project Oracle"),
+		T(11138, "Project Pharaoh"),
+		T(11139, "Project Picnic"),
+		T(11140, "Project Portier"),
+		T(11141, "Project Purity"),
+		T(11142, "Project Race"),
+		T(11143, "Project Redwood"),
+		T(11144, "Project Reign"),
+		T(11145, "Project Revere"),
+		T(11146, "Project Rope"),
+		T(11147, "Project Sanctuary"),
+		T(11148, "Project Savannah"),
+		T(11149, "Project Seal"),
+		T(11150, "Project Shape"),
+		T(11151, "Project Solar"),
+		T(11152, "Project Spring"),
+		T(11153, "Project Steed"),
+		T(11154, "Project Swanlake"),
+		T(11155, "Project Titanium"),
+		T(11156, "Project Trophy"),
+		T(11157, "Project Tungsten"),
+		T(11158, "Project Wayfarer"),
+		T(11159, "Project Yukon"),
 	},
 	anomaly_descriptions = {
-		T{11160, "Orbital sensor have detected strange readings on these coordinates."},
-		T{11161, "After analyzing complex data, our scientists have suggested an expedition to this area."},
-		T{11162, "We have identified strange spectrographic readings on this location."},
-		T{11163, "Strange signal anomaly has been detected near these coordinates."},
-		T{11164, "Unexplicable visual data from this sector has sparked the interest of our scientists."},
-		T{11165, "Unusual physical anomalies have been detected on this location."},
+		T(11160, "Orbital sensor have detected strange readings on these coordinates."),
+		T(11161, "After analyzing complex data, our scientists have suggested an expedition to this area."),
+		T(11162, "We have identified strange spectrographic readings on this location."),
+		T(11163, "Strange signal anomaly has been detected near these coordinates."),
+		T(11164, "Unexplicable visual data from this sector has sparked the interest of our scientists."),
+		T(11165, "Unusual physical anomalies have been detected on this location."),
 	},
 }
 
@@ -85,6 +85,7 @@ function PlanetaryAnomaly:Init()
 	self:InitRequirements()
 	
 	if self.init_name then --custom display name from story bit
+		local count = 0
 		repeat
 			self.display_name = table.rand(self.anomaly_names) -- should these be exhausted?
 			local name_in_use = false
@@ -94,7 +95,8 @@ function PlanetaryAnomaly:Init()
 					break
 				end
 			end
-		until not name_in_use
+			count = count + 1
+		until not name_in_use or count >= 100
 	end
 	
 	if not self.description then --custom desc from story bit
@@ -116,37 +118,40 @@ end
 
 function PlaneteryAnomalyRewardTypeCombo()
 	return {
-		{ value = "", text = T{3609, "Any"} },
-		{ value = "research", text = T{311, "Research"} },
-		{ value = "breakthrough", text = T{11451, "Breakthrough"} },
-		{ value = "tech unlock", text = T{11452, "Tech Unlock"} },
-		{ value = "resources", text = T{692, "Resources"} },
-		{ value = "event", text = T{11453, "Event"} },
+		{ value = "", text = T(3609, "Any") },
+		{ value = "custom", text = T(1000240, "Custom") },
+		{ value = "research", text = T(311, "Research") },
+		{ value = "breakthrough", text = T(11451, "Breakthrough") },
+		{ value = "tech unlock", text = T(11452, "Tech Unlock") },
+		{ value = "resources", text = T(692, "Resources") },
+		{ value = "event", text = T(11453, "Event") },
 	}
 end
 
 function PlaneteryAnomalyRewardResourceCombo()
 	return {
-		{ value = "", text = T{3609, "Any"} },
-		{ value = "Metals", text = T{3514, "Metals"} },
-		{ value = "Polymers", text = T{3515, "Polymers"} },
-		{ value = "PreciousMetals", text = T{4139, "Rare Metals"} },
+		{ value = "", text = T(3609, "Any") },
+		{ value = "Metals", text = T(3514, "Metals") },
+		{ value = "Polymers", text = T(3515, "Polymers") },
+		{ value = "PreciousMetals", text = T(4139, "Rare Metals") },
 	}
 end
 
 function PlaneteryAnomalyRequirementTypeCombo()
 	return {
-		{ value = "", text = T{3609, "Any"} },
-		{ value = "specialists", text = T{11454, "Specialist Crew"} },
-		{ value = "colonists", text = T{11455, "Colonist Crew"} },
-		{ value = "drones", text = T{517, "Drones"} },
-		{ value = "rover", text = T{10147, "Rover"} },
+		{ value = "", text = T(3609, "Any") },
+		{ value = "specialists", text = T(11454, "Specialist Crew") },
+		{ value = "colonists", text = T(11455, "Colonist Crew") },
+		{ value = "drones", text = T(517, "Drones") },
+		{ value = "rover", text = T(10147, "Rover") },
 	}
 end
 
 function PlanetaryAnomaly:InitReward()
 	local roll = UICity:Random(100) -- todo: stable somehow
-	
+	if (self.reward or "") ~= "" then
+		return
+	end
 	if roll < 25 then
 		self.reward = "research"
 	elseif roll < 35 then
@@ -283,16 +288,17 @@ function PlanetaryAnomaly:Scan(rocket)
 		elseif reward == "event" then
 			FireExpedtionStoryBit(rocket)
 			Msg("PlanetaryAnomalyEvent", rocket)
-		else
+		elseif reward ~= "custom" then
 			assert(false, "unknown reward type")
 		end
 	end
 	g_ScannedPlanetaryAnomaly = g_ScannedPlanetaryAnomaly + 1
-	Msg("PlanetaryAnomalyAnalyzed")
+	Msg("PlanetaryAnomalyAnalyzed", self)
 	DoneObject(self)
 end
 
 DefineStoryBitTrigger("PlanetaryAnomalyEvent", "PlanetaryAnomalyEvent")
+DefineStoryBitTrigger("PlanetaryAnomalyAnalyzed", "PlanetaryAnomalyAnalyzed")
 
 function PlanetaryAnomaly:AddExpeditionTime(t)
 	if self.rocket then

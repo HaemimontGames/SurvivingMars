@@ -7,8 +7,9 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateWindow', {
 		'__class', "XPopupList",
 		'Id', "idPopup",
-		'Margins', box(20, 0, 0, 0),
+		'Margins', box(-12, 0, 0, 0),
 		'BorderWidth', 0,
+		'Padding', box(32, 32, 32, 42),
 		'MinWidth', 190,
 		'MinHeight', 80,
 		'Background', RGBA(240, 240, 240, 0),

@@ -17,9 +17,9 @@ function PGTitleObject:GetTitleText()
 	if dlg and dlg.Mode == "Challenge" then
 		local mode = dlg.idContent.PGChallenge.Mode
 		if mode == "landing" then
-			return T{10880, "CHALLENGES"} .. Untranslated("<newline>") .. T{10881, "<white>Completed <CompletedChallenges>/<TotalChallenges></white>", self}
+			return T(10880, "CHALLENGES") .. Untranslated("<newline>") .. T{10881, "<white>Completed <CompletedChallenges>/<TotalChallenges></white>", self}
 		elseif mode == "payload" then
-			return T{4159, "PAYLOAD"}
+			return T(4159, "PAYLOAD")
 		else
 			return ""
 		end
@@ -27,11 +27,11 @@ function PGTitleObject:GetTitleText()
 	if dlg and dlg.Mode == "Mission" then
 		local mode = dlg.idContent.PGMission and dlg.idContent.PGMission.Mode or false
 		if mode == "sponsor" then
-			return T{10892, "MISSION PARAMETERS"} .. Untranslated("<newline>") .. T{10893, "<white>Difficulty Challenge <percent(DifficultyBonus)></white>", self}
+			return T(10892, "MISSION PARAMETERS") .. Untranslated("<newline>") .. T{10893, "<white>Difficulty Challenge <percent(DifficultyBonus)></white>", self}
 		elseif mode == "payload" then
-			return T{4159, "PAYLOAD"} .. Untranslated("<newline>") .. T{10893, "<white>Difficulty Challenge <percent(DifficultyBonus)></white>", self}
+			return T(4159, "PAYLOAD") .. Untranslated("<newline>") .. T{10893, "<white>Difficulty Challenge <percent(DifficultyBonus)></white>", self}
 		elseif mode == "landing" then
-			return T{10894, "COLONY SITE"} .. Untranslated("<newline>") .. T{10893, "<white>Difficulty Challenge <percent(DifficultyBonus)></white>", self}
+			return T(10894, "COLONY SITE") .. Untranslated("<newline>") .. T{10893, "<white>Difficulty Challenge <percent(DifficultyBonus)></white>", self}
 		else
 			return ""
 		end
@@ -39,7 +39,7 @@ function PGTitleObject:GetTitleText()
 	
 	local dlg = GetDialog("Resupply")
 	if dlg then
-		return T{4159, "PAYLOAD"} .. Untranslated("<newline>") .. T{10893, "<white>Difficulty Challenge <percent(DifficultyBonus)></white>", self}
+		return T(4159, "PAYLOAD") .. Untranslated("<newline>") .. T{10893, "<white>Difficulty Challenge <percent(DifficultyBonus)></white>", self}
 	end
 	return ""
 end
@@ -255,7 +255,7 @@ function RocketRenameObject:SetRocketName(rocket_name)
 end
 
 function RocketRenameObject:RenameRocket(host, func)
-	CreateMarsRenameControl(host, T{4069, "Rename"}, self:GetRocketName(), 
+	CreateMarsRenameControl(host, T(4069, "Rename"), self:GetRocketName(), 
 		function(name) 
 			local prev = self:GetRocketName()			
 			self:SetRocketName(name) 
@@ -272,7 +272,7 @@ function RocketRenameObject:GetRocketHyperlink()
 		return BuildingTemplates.SpaceElevator.display_name
 	end
 	local base = T{6898, "<h RenameRocket Rename>< image <img> 2000 > ", img = Untranslated(self.rename_image)}
-	return T{11250, "<base><name><end_link>", base = base, name = Untranslated(self.rocket_name), end_link = T{4162, "</h>"}}
+	return T{11250, "<base><name><end_link>", base = base, name = Untranslated(self.rocket_name), end_link = T(4162, "</h>")}
 end
 
 function InitRocketRenameObject(pregame, new_instance)
@@ -340,7 +340,7 @@ function BuyRocket(host)
 	CreateRealTimeThread(function()
 		local price = GetMissionSponsor().rocket_price
 		if UICity and (UICity:GetFunding() - g_CargoCost) >= price then
-			if WaitMarsQuestion(host, T{6880, "Warning"}, T{6881, "Are you sure you want to buy a new Rocket for <funding(price)>?", price = price}, T{1138, "Yes"}, T{1139, "No"}, "UI/Messages/rocket.tga") == "ok" then
+			if WaitMarsQuestion(host, T(6880, "Warning"), T{6881, "Are you sure you want to buy a new Rocket for <funding(price)>?", price = price}, T(1138, "Yes"), T(1139, "No"), "UI/Messages/rocket.tga") == "ok" then
 				g_UIAvailableRockets = g_UIAvailableRockets + 1
 				g_UITotalRockets = g_UITotalRockets + 1
 				UICity:ChangeFunding(-price, "Rocket")
@@ -351,7 +351,7 @@ function BuyRocket(host)
 				ObjModified(obj)
 			end
 		else
-			CreateMarsMessageBox(T{6902, "Warning"}, T{7546, "Insufficient funding! You need <funding(price)> to purchase a Rocket!", price = price}, T{1000136, "OK"}, host)
+			CreateMarsMessageBox(T(6902, "Warning"), T{7546, "Insufficient funding! You need <funding(price)> to purchase a Rocket!", price = price}, T(1000136, "OK"), host)
 		end
 	end)
 end
@@ -396,7 +396,7 @@ end
 DefineClass.RocketPayloadObject = {
 	__parents = { "PropertyObject" },
 	properties = {
-		{ id = "idPrefabs", category = "Payload", name = T{1109, "Prefab Buildings"}, editor = "payload", default = 0, submenu = true, }
+		{ id = "idPrefabs", category = "Payload", name = T(1109, "Prefab Buildings"), editor = "payload", default = 0, submenu = true, }
 	},
 }
 
@@ -562,31 +562,31 @@ end
 
 function RocketPayloadObject:PassengerRocketDisabledRolloverTitle()
 	if IsGameRuleActive("TheLastArk") then
-		return T{972855831022, "The Last Ark"}
+		return T(972855831022, "The Last Ark")
 	elseif not AreNewColonistsAccepted() then
-		return T{10446, "Colonization Temporarily Suspended"}
+		return T(10446, "Colonization Temporarily Suspended")
 	else
-		return T{1116, "Passenger Rocket"}
+		return T(1116, "Passenger Rocket")
 	end
 end
 
 function RocketPayloadObject:PassengerRocketDisabledRolloverText()
 	if IsGameRuleActive("TheLastArk") then
-		return T{10447, "Can call a Passenger Rocket only once."}
+		return T(10447, "Can call a Passenger Rocket only once.")
 	elseif not AreNewColonistsAccepted() then
 		return T{8537, "<SponsorDisplayName> has to make sure the Colony is sustainable before allowing more Colonists to come to Mars. Make sure the Founders are supplied with Water, Oxygen, and Food for 10 Sols after they arrive on Mars.", SponsorDisplayName = GetMissionSponsor().display_name or ""}
 	else
-		return T{8538, "Rockets unavailable."}
+		return T(8538, "Rockets unavailable.")
 	end
 end
 
 function RocketPayloadObject:GetPrefabsTitle()
-	local name = T{4068, "PREFABS"}
+	local name = T(4068, "PREFABS")
 	return GetCargoSumTitle(name)
 end
 
 function RocketPayloadObject:GetRocketTypeTitle()
-	local name = T{4067, "SELECT ROCKET"}
+	local name = T(4067, "SELECT ROCKET")
 	return GetCargoSumTitle(name)
 end
 
@@ -730,10 +730,10 @@ end
 function RocketPayloadObject:GetRollover(id)
 	if id == "idPrefabs" then
 		return {
-			title = T{1110, "Prefab Buildings"},
-			descr = T{1111, "Prefabricated parts needed for the construction of certain buildings on Mars."},
-			hint =  T{1112, "<left_click> Browse Prefab Buildings"},
-			gamepad_hint = T{1113, "<ButtonA> Browse Prefab Buildings"},
+			title = T(1110, "Prefab Buildings"),
+			descr = T(1111, "Prefabricated parts needed for the construction of certain buildings on Mars."),
+			hint =  T(1112, "<left_click> Browse Prefab Buildings"),
+			gamepad_hint = T(1113, "<ButtonA> Browse Prefab Buildings"),
 		}
 	end
 	local item = RocketPayload_GetMeta(id)
@@ -751,19 +751,19 @@ function RocketPayloadObject:GetRollover(id)
 	return {
 		title = display_name,
 		descr = description,
-		gamepad_hint = T{7580, "<DPadLeft> Change value <DPadRight>"},
+		gamepad_hint = T(7580, "<DPadLeft> Change value <DPadRight>"),
 	}
 end
 
 function RocketPayloadObject:GetPodItemText()
 	local pod_class = GetMissionSponsor().pod_class
 	local template = pod_class and BuildingTemplates[pod_class]
-	local name = template and template.display_name or T{824938247285, "Supply Pod"}
+	local name = template and template.display_name or T(824938247285, "Supply Pod")
 	
 	if self:GetNumAvailablePods("SupplyPod") > 0 then
-		return T{11439, "<new_in('gagarin')>"} .. name
+		return T(11439, "<new_in('gagarin')>") .. name
 	end
-	return T{11439, "<new_in('gagarin')>"} .. T{10860, "<name> ($<cost> M)", name = name, cost = GetMissionSponsor().pod_price / (1000*1000)}
+	return T(11439, "<new_in('gagarin')>") .. T{10860, "<name> ($<cost> M)", name = name, cost = GetMissionSponsor().pod_price / (1000*1000)}
 end
 
 function RocketPayloadObjectCreateAndLoad(pregame)

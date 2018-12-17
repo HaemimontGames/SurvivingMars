@@ -148,7 +148,7 @@ end
 	@result void
 ]]
 function LockBuilding(template_name, lock_type, disable_reason)
-	disable_reason = IsT(disable_reason) and disable_reason or T{3709, "This building has been disabled"}
+	disable_reason = IsT(disable_reason) and disable_reason or T(3709, "This building has been disabled")
 	if not lock_type or lock_type ~= "disable" then
 		BuildMenuPrerequisiteOverrides[template_name] = "hide"
 	elseif lock_type == "disable" then
@@ -326,18 +326,18 @@ The final value of a property is calculated using the formula: _original * (100 
 See also: [ChangeLabelModifier](#ChangeLabelModifier) and [RemoveLabelModifier](#RemoveLabelModifier)
 ]]
 function CreateLabelModifier(id, label, property, amount, percent)
-	if type(id) ~= "string" then ModLog(T{8678, "Creating modifier with invalid ID."}) return end
-	if not UICity then ModLog(T{8679, "Creating modifier outside of a running game."}) return end
+	if type(id) ~= "string" then ModLog(T(8678, "Creating modifier with invalid ID.")) return end
+	if not UICity then ModLog(T(8679, "Creating modifier outside of a running game.")) return end
 	
 	local scale = ModifiablePropScale[property]
 	if not scale then
-		ModLog(T{8680, "Trying to modify a non-modifiable property."})
+		ModLog(T(8680, "Trying to modify a non-modifiable property."))
 		return
 	end
 	
 	local unique_id = property .. id
 	if UICity.label_modifiers[label] and UICity.label_modifiers[label][unique_id] then
-		ModLog(T{8681, "Modifier with that ID already exists."})
+		ModLog(T(8681, "Modifier with that ID already exists."))
 		return
 	end
 	
@@ -360,12 +360,12 @@ Change an already existing label property modifier.
 See also: [CreateLabelModifier](#CreateLabelModifier) and [RemoveLabelModifier](#RemoveLabelModifier)
 ]]
 function ChangeLabelModifier(id, label, property, new_amount, new_percent)
-	if type(id) ~= "string" then ModLog(T{8682, "Changing modifier with invalid ID."}) return end
-	if not UICity then ModLog(T{8683, "Changing modifier outside of a running game."}) return end
+	if type(id) ~= "string" then ModLog(T(8682, "Changing modifier with invalid ID.")) return end
+	if not UICity then ModLog(T(8683, "Changing modifier outside of a running game.")) return end
 
 	local unique_id = property .. id
 	if not (UICity.label_modifiers[label] and UICity.label_modifiers[label][unique_id]) then
-		ModLog(T{8684, "Changing a non-existing modifier."})
+		ModLog(T(8684, "Changing a non-existing modifier."))
 		return
 	end
 	
@@ -387,12 +387,12 @@ Removes an already existing label property modifier.
 See also: [CreateLabelModifier](#CreateLabelModifier) and [ChangeLabelModifier](#ChangeLabelModifier)
 ]]
 function RemoveLabelModifier(id, label, property)
-	if type(id) ~= "string" then ModLog(T{8685, "Removing modifier with invalid ID."}) return end
-	if not UICity then ModLog(T{8686, "Removing modifier outside of a running game."}) return end
+	if type(id) ~= "string" then ModLog(T(8685, "Removing modifier with invalid ID.")) return end
+	if not UICity then ModLog(T(8686, "Removing modifier outside of a running game.")) return end
 	
 	local unique_id = property .. id
 	if not (UICity.label_modifiers[label] and UICity.label_modifiers[label][unique_id]) then
-		ModLog(T{8687, "Removing a non-existing modifier."})
+		ModLog(T(8687, "Removing a non-existing modifier."))
 		return
 	end
 	

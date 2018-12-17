@@ -11,16 +11,16 @@ PlaceObj('StoryBit', {
 	InheritsObject = false,
 	Prerequisites = {},
 	ScriptDone = true,
-	Text = T{164476060825, --[[StoryBit BadMOXIE_SecondTime Text]] "Once again, a MOXIE unit has shut down and stopped producing Oxygen. Drones report that many of the internal parts of the MOXIE have suffered structural damage much earlier than expected."},
+	Text = T(164476060825, --[[StoryBit BadMOXIE_SecondTime Text]] "Once again, a MOXIE unit has shut down and stopped producing Oxygen. Drones report that many of the internal parts of the MOXIE have suffered structural damage much earlier than expected."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	VoicedText = T{536896361272, --[[voice:narrator]] "A yellow light starts flashing on your terminal. Sure enough it is one of those damned MOXIE units again."},
+	VoicedText = T(536896361272, --[[voice:narrator]] "A yellow light starts flashing on your terminal. Sure enough it is one of those damned MOXIE units again."),
 	group = "Disasters",
 	id = "BadMOXIE_SecondTime",
 	PlaceObj('StoryBitReply', {
-		'Text', T{335704931889, --[[StoryBit BadMOXIE_SecondTime Text]] "Reinforce the failing parts."},
+		'Text', T(335704931889, --[[StoryBit BadMOXIE_SecondTime Text]] "Reinforce the failing parts."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{411896115173, --[[StoryBit BadMOXIE_SecondTime CustomOutcomeText]] "MOXIE cost increased by <metals(cost_increase)>, existing MOXIEs will need emergency maintenance"},
+		'CustomOutcomeText', T(411896115173, --[[StoryBit BadMOXIE_SecondTime CustomOutcomeText]] "MOXIE cost increased by <metals(cost_increase)>, existing MOXIEs will need emergency maintenance"),
 	}),
 	PlaceObj('StoryBitParamResource', {
 		'Name', "cost_increase",
@@ -48,9 +48,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{573967371988, --[[StoryBit BadMOXIE_SecondTime Text]] "Reduce the pressure in the system."},
+		'Text', T(573967371988, --[[StoryBit BadMOXIE_SecondTime Text]] "Reduce the pressure in the system."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{616017426323, --[[StoryBit BadMOXIE_SecondTime CustomOutcomeText]] "<o2_production_reduction>% MOXIE Oxygen production"},
+		'CustomOutcomeText', T(616017426323, --[[StoryBit BadMOXIE_SecondTime CustomOutcomeText]] "<o2_production_reduction>% MOXIE Oxygen production"),
 		'Prerequisite', PlaceObj('IsCommander', {
 			'CommanderProfile', "hydroengineer",
 		}),
@@ -71,9 +71,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{595570821891, --[[StoryBit BadMOXIE_SecondTime Text]] "Keep repairing the MOXIEs as problems occur."},
+		'Text', T(595570821891, --[[StoryBit BadMOXIE_SecondTime Text]] "Keep repairing the MOXIEs as problems occur."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{899898739102, --[[StoryBit BadMOXIE_SecondTime CustomOutcomeText]] "MOXIE maintenance increased by <metals(increased_maintenance)> permanently"},
+		'CustomOutcomeText', T(899898739102, --[[StoryBit BadMOXIE_SecondTime CustomOutcomeText]] "MOXIE maintenance increased by <metals(increased_maintenance)> permanently"),
 	}),
 	PlaceObj('StoryBitParamResource', {
 		'Name', "increased_maintenance",

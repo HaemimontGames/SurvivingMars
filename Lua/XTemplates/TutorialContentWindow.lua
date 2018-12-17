@@ -27,7 +27,7 @@ PlaceObj('XTemplate', {
 		}, {
 			PlaceObj('XTemplateAction', {
 				'ActionId', "close",
-				'ActionName', T{4523, --[[XTemplate TutorialContentWindow ActionName]] "CLOSE"},
+				'ActionName', T(4523, --[[XTemplate TutorialContentWindow ActionName]] "CLOSE"),
 				'ActionToolbar', "ActionBar",
 				'ActionShortcut', "Escape",
 				'ActionGamepad', "ButtonB",
@@ -61,8 +61,8 @@ end,
 					PlaceObj('XTemplateTemplate', {
 						'__template', "MenuEntrySmall",
 						'RolloverTemplate', "Rollover",
-						'RolloverText', T{463510675096, --[[XTemplate TutorialContentWindow RolloverText]] "<description>"},
-						'RolloverTitle', T{384759114882, --[[XTemplate TutorialContentWindow RolloverTitle]] "<display_name>"},
+						'RolloverText', T(463510675096, --[[XTemplate TutorialContentWindow RolloverText]] "<description>"),
+						'RolloverTitle', T(384759114882, --[[XTemplate TutorialContentWindow RolloverTitle]] "<display_name>"),
 						'Id', "idbutton",
 						'Padding', box(0, 0, 0, 0),
 						'Dock', "right",
@@ -70,7 +70,7 @@ end,
 						'OnPress', function (self, gamepad)
 CreateRealTimeThread(StartTutorial, self.context.id)
 end,
-						'Text', T{175928588179, --[[XTemplate TutorialContentWindow Text]] "<display_name>"},
+						'Text', T(175928588179, --[[XTemplate TutorialContentWindow Text]] "<display_name>"),
 					}),
 					}),
 				}),

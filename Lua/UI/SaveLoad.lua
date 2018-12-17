@@ -113,7 +113,7 @@ function SaveLoadObject:ShowNewSavegameNamePopup(host, item)
 	if not host:IsThreadRunning("rename") then
 		host:CreateThread("rename", function(host, item)
 			local initial_text = item and _InternalTranslate(item.text) or self:CalcDefaultSaveName()
-			CreateMarsRenameControl(host, T{4181, "New Savegame"}, initial_text, 
+			CreateMarsRenameControl(host, T(4181, "New Savegame"), initial_text, 
 			--OK callback
 			function(savename)
 				SaveSavegame(item, savename, host)
@@ -195,15 +195,15 @@ function ShowSavegameDescription(item, dialog)
 				data.active_mods = GetLoadedModsSavegameData()
 				data.active_game_rules = g_CurrentMissionParams.idGameRules
 				data.elapsed_sols = UICity and UICity.day or 0
-				data.displayname = T{4182, "<<< New Savegame >>>"}
+				data.displayname = T(4182, "<<< New Savegame >>>")
 				data.timestamp = os.time()
 				data.playtime = GetCurrentPlaytime()
 			else
 				err = GetFullMetadata(metadata, "reload")
 				if metadata.corrupt then
-					data.displayname = T{6907, "Damaged savegame"}
+					data.displayname = T(6907, "Damaged savegame")
 				elseif metadata.incompatible then
-					data.displayname = T{8648, "Incompatible savegame"}
+					data.displayname = T(8648, "Incompatible savegame")
 				else
 					data = table.copy(metadata)
 					data.displayname = Untranslated(data.displayname)
@@ -263,7 +263,7 @@ function ShowSavegameDescription(item, dialog)
 			end
 			local missing_dlcs = TList(dlcs_list)
 			
-			local playtime = T{77, "Unknown"}
+			local playtime = T(77, "Unknown")
 			if data.playtime then
 				local h, m, s = FormatElapsedTime(data.playtime, "hms")
 				local hours = Untranslated(string.format("%02d", h))
@@ -277,53 +277,53 @@ function ShowSavegameDescription(item, dialog)
 			
 			local problem_text = ""
 			if metadata and metadata.corrupt then
-				problem_text = T{4194, "<red><value></red>", value = T{4193, "Save file is corrupted!"}}
+				problem_text = T{4194, "<red><value></red>", value = T(4193, "Save file is corrupted!")}
 			elseif metadata and metadata.incompatible then
-				problem_text = T{4194, "<red><value></red>", value = T{8649, "Please update the game to the latest version to load this savegame."}}
+				problem_text = T{4194, "<red><value></red>", value = T(8649, "Please update the game to the latest version to load this savegame.")}
 			elseif missing_dlcs and missing_dlcs ~= "" then
 				problem_text = T{8502, "<red>Missing downloadable content: <dlcs></red>", dlcs = Untranslated(missing_dlcs)}
 			elseif mods_missing then
-				problem_text = T{4195, "<red>There are missing mods!</red>"}
+				problem_text = T(4195, "<red>There are missing mods!</red>")
 			end
 			dialog.idProblem:SetText(problem_text)
 			
 			if data.latitude and data.longitude then
-				dialog.idCoordinates:SetText(T{11457, "Coordinates"})
+				dialog.idCoordinates:SetText(T(11457, "Coordinates"))
 				dialog.idCoordinatesVal:SetText(T{4199, "<lat>°<lat_dir> <long>°<long_dir>", lat = data.latitude, lat_dir = data.lat_dir, long = data.longitude, long_dir = data.long_dir})
 			else
 				dialog.idCoordinates:SetText("")
 				dialog.idCoordinatesVal:SetText("")
 			end
 			if data.elapsed_sols and data.elapsed_sols > 0 then
-				dialog.idSols:SetText(T{4196, "Sols on Mars"})
+				dialog.idSols:SetText(T(4196, "Sols on Mars"))
 				dialog.idSolsVal:SetText(T{4341, "<value>", value = data.elapsed_sols})
 			else
 				dialog.idSols:SetText("")
 				dialog.idSolsVal:SetText("")
 			end
 			if sponsor_data then
-				dialog.idSponsor:SetText(T{3474, "Mission Sponsor"})
-				dialog.idSponsorVal:SetText(sponsor_data.display_name or T{130, "N/A"})
+				dialog.idSponsor:SetText(T(3474, "Mission Sponsor"))
+				dialog.idSponsorVal:SetText(sponsor_data.display_name or T(130, "N/A"))
 			else
 				dialog.idSponsor:SetText("")
 				dialog.idSponsorVal:SetText("")
 			end
 			if commander_data then
-				dialog.idCommanderProfile:SetText(T{3478, "Commander Profile"})
-				dialog.idCommanderProfileVal:SetText(T{4341, "<value>", value = commander_data.display_name or T{130, "N/A"}})
+				dialog.idCommanderProfile:SetText(T(3478, "Commander Profile"))
+				dialog.idCommanderProfileVal:SetText(T{4341, "<value>", value = commander_data.display_name or T(130, "N/A")})
 			else
 				dialog.idCommanderProfile:SetText("")
 				dialog.idCommanderProfileVal:SetText("")
 			end
 			if mods_string and mods_string ~= "" then
-				dialog.idActiveMods:SetText(T{4200, "Active mods"})
+				dialog.idActiveMods:SetText(T(4200, "Active mods"))
 				dialog.idActiveModsVal:SetText(T{4341, "<value>", value = Untranslated(mods_string)})
 			else
 				dialog.idActiveMods:SetText("")
 				dialog.idActiveModsVal:SetText("")
 			end
 			if game_rules_string and game_rules_string ~= "" then
-				dialog.idActiveGameRules:SetText(T{8800, "Game Rules"})
+				dialog.idActiveGameRules:SetText(T(8800, "Game Rules"))
 				dialog.idActiveGameRulesVal:SetText(game_rules_string)
 			else
 				dialog.idActiveGameRules:SetText("")
@@ -333,7 +333,7 @@ function ShowSavegameDescription(item, dialog)
 			if GetUIStyleGamepad() then
 				dialog.idDelInfo:SetVisible(false)
 			else
-				local del_hint = metadata and T{4191, "DEL to delete. "} or T{""}
+				local del_hint = metadata and T(4191, "DEL to delete. ") or T{""}
 				dialog.idDelInfo:SetText(del_hint)
 			end
 			
@@ -367,7 +367,7 @@ function DeleteSaveGame(dialog)
 	if item and not item.dummy then
 		local savename = item.savename
 		CreateRealTimeThread(function(dialog, savename)
-			if WaitMarsQuestion(dialog.parent, T{6905, "Warning"}, T{4189, "Are you sure you want to delete the savegame <savename>?", savename = '"' .. item.text .. '"'}, T{1138, "Yes"}, T{1139, "No"}, "UI/Messages/space.tga") == "ok" then
+			if WaitMarsQuestion(dialog.parent, T(6905, "Warning"), T{4189, "Are you sure you want to delete the savegame <savename>?", savename = '"' .. item.text .. '"'}, T(1138, "Yes"), T(1139, "No"), "UI/Messages/space.tga") == "ok" then
 				LoadingScreenOpen("idDeleteScreen", "delete savegame")
 				local err = DeleteGame(savename)
 				if not err then
@@ -403,7 +403,7 @@ function LoadSaveGame(dialog)
 			if metadata and not metadata.corrupt and not metadata.incompatible then
 				local in_game = GameState.gameplay -- this might change during loading
 				local parent = dialog.parent --get this here, it might not be accessible afterwards
-				local res = in_game and WaitMarsQuestion(parent, T{6901, "Warning"}, T{7729, "Are you sure you want to load this savegame? You will lose your current game progress."}, T{1138, "Yes"}, T{1139, "No"}, "UI/Messages/space.tga") or "ok"
+				local res = in_game and WaitMarsQuestion(parent, T(6901, "Warning"), T(7729, "Are you sure you want to load this savegame? You will lose your current game progress."), T(1138, "Yes"), T(1139, "No"), "UI/Messages/space.tga") or "ok"
 				if res == "ok" then
 					err = LoadGame(savename)
 					if not err then
@@ -441,7 +441,7 @@ function SaveSavegame(item, name, dialog)
 		g_SaveLoadThread = IsValidThread(g_SaveLoadThread) and g_SaveLoadThread or CreateRealTimeThread(function(dialog, name, item)
 			local err, savename
 			if item then
-				if WaitMarsQuestion(dialog.parent, T{6901, "Warning"}, T{4183, "Are you sure you want to overwrite <savename>?", savename = '"' .. item.text .. '"'}, T{1138, "Yes"}, T{1139, "No"}, "UI/Messages/space.tga") == "ok" then
+				if WaitMarsQuestion(dialog.parent, T(6901, "Warning"), T{4183, "Are you sure you want to overwrite <savename>?", savename = '"' .. item.text .. '"'}, T(1138, "Yes"), T(1139, "No"), "UI/Messages/space.tga") == "ok" then
 					err = DeleteGame(item.savename)
 				else
 					return

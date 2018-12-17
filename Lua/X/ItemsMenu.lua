@@ -184,9 +184,18 @@ function ItemMenuBase:SetInitFocus(set_focus)
 end
 
 function ItemMenuBase:OpenItemsInterpolation(bFirst, set_focus)
+	if self.window_state=="destroying" then
+		return
+	end	
+	if self:IsThreadRunning("OpenAnimation") then
+		return
+	end	
+	if self:IsThreadRunning("CloseAnimation") then
+		self:DeleteThread("CloseAnimation")
+	end
 	self.idButtonsList:SetMargins(self.idButtonsList:GetMargins())
 	self:SetFocus()
-	self:CreateThread(function()
+	self:CreateThread("OpenAnimation", function()
 		if bFirst then
 			local ctrl = self.idBackground
 			ctrl:SetVisible(false, "instant")
@@ -204,7 +213,13 @@ function ItemMenuBase:OpenItemsInterpolation(bFirst, set_focus)
 end
 
 function ItemMenuBase:CloseItemsInterpolation()
-	self:CreateThread(function()
+	if self:IsThreadRunning("CloseAnimation") then
+		return
+	end
+	if self:IsThreadRunning("OpenAnimation") then
+		self:DeleteThread("OpenAnimation")
+	end
+	self:CreateThread("CloseAnimation", function()
 		if not self.hide_single_category then
 			EdgeAnimation(false, self.idCategoryList, 0, self.box:sizey() - self.idCategoryList.idCatBkg.box:miny())
 		end	

@@ -16,7 +16,7 @@ PlaceObj('XTemplate', {
 			'MouseCursor', "UI/Cursors/Rollover.tga",
 			'RelativeFocusOrder', "new-line",
 			'TextStyle', "LogInEdit",
-			'ConsoleKeyboardTitle', T{10485, --[[XTemplate ModsUIPCGamepadSearch ConsoleKeyboardTitle]] "Search mods..."},
+			'ConsoleKeyboardTitle', T(10485, --[[XTemplate ModsUIPCGamepadSearch ConsoleKeyboardTitle]] "Search mods..."),
 			'MaxLen', 128,
 			'AutoSelectAll', true,
 			'NegFilter', "<>",
@@ -36,7 +36,7 @@ end,
 				'func', function (self, ...)
 XEdit.OnTextChanged(self, ...)
 local text = self:GetText()
-if text == _InternalTranslate(T{10485, "Search mods..."}) then
+if text == _InternalTranslate(T(10485, "Search mods...")) then
 	text = ""
 end
 local dlg = GetDialog(self)

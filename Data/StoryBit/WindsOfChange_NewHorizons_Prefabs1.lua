@@ -10,14 +10,14 @@ PlaceObj('StoryBit', {
 	Image = "UI/Messages/Events/03_discussion.tga",
 	Prerequisites = {},
 	ScriptDone = true,
-	Text = T{498104112595, --[[StoryBit WindsOfChange_NewHorizons_Prefabs1 Text]] "The prefabs are in early state and we can command the Nanites to use the resources they have gathered to create whatever we need."},
+	Text = T(498104112595, --[[StoryBit WindsOfChange_NewHorizons_Prefabs1 Text]] "The prefabs are in early state and we can command the Nanites to use the resources they have gathered to create whatever we need."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	VoicedText = T{784091228074, --[[voice:narrator]] "Tamed Nanites crafted new prefabs!"},
+	VoicedText = T(784091228074, --[[voice:narrator]] "Tamed Nanites crafted new prefabs!"),
 	group = "Breakthroughs",
 	id = "WindsOfChange_NewHorizons_Prefabs1",
 	PlaceObj('StoryBitReply', {
-		'Text', T{181568953799, --[[StoryBit WindsOfChange_NewHorizons_Prefabs1 Text]] "Create Stirling Generators."},
+		'Text', T(181568953799, --[[StoryBit WindsOfChange_NewHorizons_Prefabs1 Text]] "Create Stirling Generators."),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -29,7 +29,7 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{807804120827, --[[StoryBit WindsOfChange_NewHorizons_Prefabs1 Text]] "Create Drone Prefabs."},
+		'Text', T(807804120827, --[[StoryBit WindsOfChange_NewHorizons_Prefabs1 Text]] "Create Drone Prefabs."),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -41,7 +41,7 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{770528057910, --[[StoryBit WindsOfChange_NewHorizons_Prefabs1 Text]] "Create Life Support Buildings."},
+		'Text', T(770528057910, --[[StoryBit WindsOfChange_NewHorizons_Prefabs1 Text]] "Create Life Support Buildings."),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -65,7 +65,7 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{124164018325, --[[StoryBit WindsOfChange_NewHorizons_Prefabs1 Text]] "Create resource Extractors."},
+		'Text', T(124164018325, --[[StoryBit WindsOfChange_NewHorizons_Prefabs1 Text]] "Create resource Extractors."),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},

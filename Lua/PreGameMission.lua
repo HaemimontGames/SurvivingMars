@@ -13,47 +13,47 @@ end
 
 MissionParams = {
 	idMissionSponsor = {
-		display_name = T{3474, "Mission Sponsor"},
-		display_name_caps = T{3475, "MISSION SPONSOR"},
-		descr = T{3476, "The patron country or organization standing behind the Mars mission. Grants funding, research and other benefits to colony."},
-		gamepad_hint = T{3477, "<ButtonA> Choose Sponsor"},
+		display_name = T(3474, "Mission Sponsor"),
+		display_name_caps = T(3475, "MISSION SPONSOR"),
+		descr = T(3476, "The patron country or organization standing behind the Mars mission. Grants funding, research and other benefits to colony."),
+		gamepad_hint = T(3477, "<ButtonA> Choose Sponsor"),
 		SortKey = 10000,
 		empty_on_start = true,
 	},
 	idCommanderProfile = {
-		display_name = T{3478, "Commander Profile"},
-		display_name_caps = T{3479, "COMMANDER PROFILE"},
-		descr = T{3480, "The mission commander grants various benefits to the colony."},
-		gamepad_hint = T{3481, "<ButtonA> Choose Commander"},
+		display_name = T(3478, "Commander Profile"),
+		display_name_caps = T(3479, "COMMANDER PROFILE"),
+		descr = T(3480, "The mission commander grants various benefits to the colony."),
+		gamepad_hint = T(3481, "<ButtonA> Choose Commander"),
 		SortKey = 20000,
 		empty_on_start = true,
 	},
 
 	idMissionLogo = {
-		display_name = T{3482, "Colony Logo"},
-		display_name_caps = T{3483, "COLONY LOGO"},
-		descr = T{3484, "This is an aesthetic choice that has no effect on gameplay."},
-		gamepad_hint = T{3485, "<ButtonA> Choose Logo"},
+		display_name = T(3482, "Colony Logo"),
+		display_name_caps = T(3483, "COLONY LOGO"),
+		descr = T(3484, "This is an aesthetic choice that has no effect on gameplay."),
+		gamepad_hint = T(3485, "<ButtonA> Choose Logo"),
 		SortKey = 30000,
 	},
 	
 	idMystery = {
-		display_name = T{3486, "Mystery"},
-		display_name_caps = T{3487, "MYSTERY"},
-		descr = T{3488, "Select an active storyline for this playthrough."},
-		gamepad_hint = T{3489, "<ButtonA> Choose Mystery"},
+		display_name = T(3486, "Mystery"),
+		display_name_caps = T(3487, "MYSTERY"),
+		descr = T(3488, "Select an active storyline for this playthrough."),
+		gamepad_hint = T(3489, "<ButtonA> Choose Mystery"),
 		items = {
-			{id = "random", display_name = T{3490, "Random"}, rollover_text = T{7904, "Chooses a random mystery, preferably one you have not played yet."}},
-			{id = "none", display_name = T{6839, "None"}},
+			{id = "random", display_name = T(3490, "Random"), rollover_text = T(7904, "Chooses a random mystery, preferably one you have not played yet.")},
+			{id = "none", display_name = T(6839, "None")},
 		},
 		SortKey = 40000,
 	},
 	
 	idGameRules = {
-		display_name = T{8800, "Game Rules"},
-		display_name_caps = T{8801, "GAME RULES"},
-		descr = T{8804, "Select game rules you want to activate for this playthrough."}, 
-		gamepad_hint = T{8903, "<ButtonA> Choose Game Rules"},
+		display_name = T(8800, "Game Rules"),
+		display_name_caps = T(8801, "GAME RULES"),
+		descr = T(8804, "Select game rules you want to activate for this playthrough."), 
+		gamepad_hint = T(8903, "<ButtonA> Choose Game Rules"),
 		SortKey = 50000,
 		empty_on_start = true,
 	},
@@ -192,7 +192,7 @@ function InitNewGameMissionParams()
 	g_CurrentMissionParams = {}
 	for k, v in pairs(MissionParams) do
 		if not MissionParams[k].empty_on_start then
-			local items = v.items
+			local items = v.items or empty_table
 			for i=1,#items do
 				local item = items[i]
 				if item.filter == nil or item.filter == true or (type(item.filter) == "function" and item:filter()) then
@@ -373,8 +373,8 @@ end
 function LockStatusCombo()
 	return {
 		{ value = false, text = "" },
-		{ value = "locked",   text = T{8056, "Locked"} },
-		{ value = "unlocked", text = T{8690, "Unlocked"} },
+		{ value = "locked",   text = T(8056, "Locked") },
+		{ value = "unlocked", text = T(8690, "Unlocked") },
 	}
 end
 
@@ -578,7 +578,7 @@ function GetSponsorDescr(sponsor, include_flavor, include_rockets, include_comma
 	end
 	local additional_rockets = commander_profile.bonus_rockets and commander_profile.bonus_rockets or 0
 	context.initial_rockets = context.initial_rockets + additional_rockets
-	local txtsponsor = include_sponsor and T{10521, "<em>Mission Sponsor:</em>"}..Untranslated("\n") or ""
+	local txtsponsor = include_sponsor and T(10521, "<em>Mission Sponsor:</em>")..Untranslated("\n") or ""
 	local start = T{10061, "Difficulty: <em><difficulty></em><newline>Funding: $<funding> M<newline>", context}
 	local rockets = include_rockets and T{10062, "Starting Rockets: <initial_rockets><newline>", context} or ""
 	local applicants = T{10063, "Starting Applicants: <applicants><newline><newline>", applicants = context.ApplicantsPoolStartingSize, context}
@@ -594,7 +594,7 @@ function GetSponsorEntryRollover(param_t)
 		id = param_t.display_name,
 		title = param_t.display_name,
 		descr = GetSponsorDescr(param_t, "include flavor", false),
-		gamepad_hint = T{3545, "<ButtonA> Select"},
+		gamepad_hint = T(3545, "<ButtonA> Select"),
 	}
 end
 
@@ -611,7 +611,7 @@ function GetEntryRollover(param_t)
 	end
 	rollover.descr = descr
 	rollover.id = rollover.title
-	rollover.gamepad_hint = T{3545, "<ButtonA> Select"}
+	rollover.gamepad_hint = T(3545, "<ButtonA> Select")
 	return rollover
 end
 
@@ -624,7 +624,7 @@ function GetDescrEffects()
 	local lines = {}
 	local rules = g_CurrentMissionParams.idGameRules or empty_table
 	if next(rules) then
-		lines[#lines + 1] = T{10523, "<em>Game Rules:</em>"}
+		lines[#lines + 1] = T(10523, "<em>Game Rules:</em>")
 		ForEachPreset("GameRules", function(preset, group, lines, rules)
 			if rules[preset.id] then
 				lines[#lines + 1] = T{10106, "- <em><display_name></em> - <description>", preset}
@@ -641,7 +641,7 @@ function GetDescrEffects()
 				lines[#lines + 1] = GetSponsorDescr(entry, false, "include rockets", true, true)
 			elseif effect ~= "" then
 				if id == "idCommanderProfile" then 				
-					lines[#lines + 1] = T{10522, "<em>Commander Profile:</em>" }
+					lines[#lines + 1] = T(10522, "<em>Commander Profile:</em>")
 				end	
 				lines[#lines + 1] = T{ effect, entry }
 			end
@@ -787,14 +787,15 @@ function SponsorCombo()
 end
 
 function ChooseToPlayTutorial(host)
-	if not AccountStorage.CompletedTutorials then
-		local choice = WaitPopupNotification("Tutorial_FirstTimePlayers", nil, nil, host)
-		AccountStorage.CompletedTutorials = {}
-		SaveAccountStorage(5000)
-		if choice == 1 then
-			host:SetMode("Tutorial")
-			return true
-		end
+	if (AccountStorage.CompletedTutorials and next(AccountStorage.CompletedTutorials)) or AccountStorage.DisablePlayTutorialPopup then
+		return false
+	end	
+	local choice = WaitPopupNotification("Tutorial_FirstTimePlayers", nil, nil, host)		
+	AccountStorage.CompletedTutorials = {}
+	SaveAccountStorage(5000)
+	if choice == 1 then
+		host:SetMode("Tutorial")
+		return true
 	end
 	return false
 end 

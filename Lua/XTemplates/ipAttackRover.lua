@@ -6,13 +6,13 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateTemplate', {
 		'__context_of_kind', "AttackRover",
 		'__template', "Infopanel",
-		'Description', T{10, --[[XTemplate ipAttackRover Description]] "<Description>"},
+		'Description', T(10, --[[XTemplate ipAttackRover Description]] "<Description>"),
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'comment', "move",
 			'__condition', function (parent, context) return context.reclaimed and not context:CanBeRepaired() end,
 			'__template', "InfopanelButton",
-			'RolloverTitle', T{4422, --[[XTemplate ipAttackRover RolloverTitle]] "Move / Interact"},
+			'RolloverTitle', T(4422, --[[XTemplate ipAttackRover RolloverTitle]] "Move / Interact"),
 			'OnPressParam', "ToggleControlMode",
 		}),
 		PlaceObj('XTemplateTemplate', {
@@ -26,13 +26,13 @@ PlaceObj('XTemplate', {
 			'__context_of_kind', "Demolishable",
 			'__condition', function (parent, context) return context:ShouldShowDemolishButton() end,
 			'__template', "InfopanelButton",
-			'RolloverTitle', T{3973, --[[XTemplate ipAttackRover RolloverTitle]] "Salvage"},
-			'RolloverHintGamepad', T{7657, --[[XTemplate ipAttackRover RolloverHintGamepad]] "<ButtonY> Activate"},
+			'RolloverTitle', T(3973, --[[XTemplate ipAttackRover RolloverTitle]] "Salvage"),
+			'RolloverHintGamepad', T(7657, --[[XTemplate ipAttackRover RolloverHintGamepad]] "<ButtonY> Activate"),
 			'OnContextUpdate', function (self, context, ...)
 local refund = context:GetRefundResources() or empty_table
-local rollover = T{7825, "Destroy this Rover."}
+local rollover = T(7825, "Destroy this Rover.")
 if #refund > 0 then
-	rollover = rollover .. "<newline><newline>" .. T{7823, "<UIRefundRes> will be refunded upon salvage."}
+	rollover = rollover .. "<newline><newline>" .. T(7823, "<UIRefundRes> will be refunded upon salvage.")
 end
 self:SetRolloverText(rollover)
 context:ToggleDemolish_Update(self)
@@ -65,12 +65,12 @@ end,
 			}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelSection",
-			'Title', T{49, --[[XTemplate ipAttackRover Title]] "Status"},
+			'Title', T(49, --[[XTemplate ipAttackRover Title]] "Status"),
 			'Icon', "UI/Icons/Sections/sensor.tga",
 		}, {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
-				'Text', T{51, --[[XTemplate ipAttackRover Text]] "<ui_command>"},
+				'Text', T(51, --[[XTemplate ipAttackRover Text]] "<ui_command>"),
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__condition', function (parent, context) return context.command == "Malfunction" end,
@@ -88,8 +88,8 @@ end,
 		PlaceObj('XTemplateTemplate', {
 			'__condition', function (parent, context) return UICity.mystery and UICity.mystery.can_shoot_rovers end,
 			'__template', "InfopanelSection",
-			'RolloverText', T{944541850261, --[[XTemplate ipAttackRover RolloverText]] "The structural integrity of this vehicle will decrease on each missile hit. The vehicle will be disabled at 0 integrity."},
-			'RolloverTitle', T{678706263894, --[[XTemplate ipAttackRover RolloverTitle]] "Structural Integrity <percent(current_health, max_health)>"},
+			'RolloverText', T(944541850261, --[[XTemplate ipAttackRover RolloverText]] "The structural integrity of this vehicle will decrease on each missile hit. The vehicle will be disabled at 0 integrity."),
+			'RolloverTitle', T(678706263894, --[[XTemplate ipAttackRover RolloverTitle]] "Structural Integrity <percent(current_health, max_health)>"),
 			'Icon', "UI/Icons/Sections/construction.tga",
 		}, {
 			PlaceObj('XTemplateWindow', {

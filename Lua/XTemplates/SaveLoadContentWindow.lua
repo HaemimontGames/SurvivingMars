@@ -37,7 +37,7 @@ end,
 				'HandleMouse', false,
 				'TextStyle', "PGListItemInactive",
 				'Translate', true,
-				'Text', T{836192190578, --[[XTemplate SaveLoadContentWindow Text]] "<SyncInfo>"},
+				'Text', T(836192190578, --[[XTemplate SaveLoadContentWindow Text]] "<SyncInfo>"),
 				'HideOnEmpty', true,
 			}),
 			PlaceObj('XTemplateWindow', {
@@ -106,8 +106,8 @@ end,
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
 local dlg = GetDialog(parent)
-dlg.idTitle:SetTitle(T{1133, "SAVE GAME"})
-parent.idNewSave.idValue:SetText(T{4182, "<<< New Savegame >>>"})
+dlg.idTitle:SetTitle(T(1133, "SAVE GAME"))
+parent.idNewSave.idValue:SetText(T(4182, "<<< New Savegame >>>"))
 parent.idNewSave:SetFocus()
 dlg.idList:SetSelection(false)
 dlg.idList:SetGamepadInitialSelection(false)
@@ -116,7 +116,7 @@ end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "save",
-							'ActionName', T{5467, --[[XTemplate SaveLoadContentWindow ActionName]] "SAVE"},
+							'ActionName', T(5467, --[[XTemplate SaveLoadContentWindow ActionName]] "SAVE"),
 							'ActionToolbar', "ActionBar",
 							'ActionGamepad', "ButtonA",
 							'OnAction', function (self, host, source)
@@ -131,7 +131,7 @@ end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "delete",
-							'ActionName', T{5451, --[[XTemplate SaveLoadContentWindow ActionName]] "DELETE"},
+							'ActionName', T(5451, --[[XTemplate SaveLoadContentWindow ActionName]] "DELETE"),
 							'ActionToolbar', "ActionBar",
 							'ActionGamepad', "ButtonY",
 							'ActionState', function (self, host)
@@ -143,7 +143,7 @@ end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "cancel",
-							'ActionName', T{5450, --[[XTemplate SaveLoadContentWindow ActionName]] "CANCEL"},
+							'ActionName', T(5450, --[[XTemplate SaveLoadContentWindow ActionName]] "CANCEL"),
 							'ActionToolbar', "ActionBar",
 							'ActionShortcut', "Escape",
 							'ActionGamepad', "ButtonB",
@@ -155,12 +155,12 @@ end,
 					}, {
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-parent:ResolveId("idTitle"):SetTitle(T{1128, "LOAD GAME"})
+parent:ResolveId("idTitle"):SetTitle(T(1128, "LOAD GAME"))
 end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "load",
-							'ActionName', T{5466, --[[XTemplate SaveLoadContentWindow ActionName]] "LOAD"},
+							'ActionName', T(5466, --[[XTemplate SaveLoadContentWindow ActionName]] "LOAD"),
 							'ActionToolbar', "ActionBar",
 							'ActionGamepad', "ButtonA",
 							'ActionState', function (self, host)
@@ -174,7 +174,7 @@ end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "delete",
-							'ActionName', T{5451, --[[XTemplate SaveLoadContentWindow ActionName]] "DELETE"},
+							'ActionName', T(5451, --[[XTemplate SaveLoadContentWindow ActionName]] "DELETE"),
 							'ActionToolbar', "ActionBar",
 							'ActionGamepad', "ButtonY",
 							'ActionState', function (self, host)
@@ -186,7 +186,7 @@ end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "cancel",
-							'ActionName', T{5450, --[[XTemplate SaveLoadContentWindow ActionName]] "CANCEL"},
+							'ActionName', T(5450, --[[XTemplate SaveLoadContentWindow ActionName]] "CANCEL"),
 							'ActionToolbar', "ActionBar",
 							'ActionShortcut', "Escape",
 							'ActionGamepad', "ButtonB",
@@ -198,7 +198,7 @@ end,
 					}, {
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-parent:ResolveId("idTitle"):SetTitle(T{5471, "DELETE GAME"})
+parent:ResolveId("idTitle"):SetTitle(T(5471, "DELETE GAME"))
 local dlg = GetDialog(parent)
 dlg.idList:SetGamepadInitialSelection(true)
 dlg.idList:SetForceInitialSelection(true)
@@ -206,7 +206,7 @@ end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "delete",
-							'ActionName', T{5451, --[[XTemplate SaveLoadContentWindow ActionName]] "DELETE"},
+							'ActionName', T(5451, --[[XTemplate SaveLoadContentWindow ActionName]] "DELETE"),
 							'ActionToolbar', "ActionBar",
 							'ActionGamepad', "ButtonA",
 							'ActionState', function (self, host)
@@ -220,7 +220,7 @@ end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "cancel",
-							'ActionName', T{5450, --[[XTemplate SaveLoadContentWindow ActionName]] "CANCEL"},
+							'ActionName', T(5450, --[[XTemplate SaveLoadContentWindow ActionName]] "CANCEL"),
 							'ActionToolbar', "ActionBar",
 							'ActionShortcut', "Escape",
 							'ActionGamepad', "ButtonB",

@@ -5,7 +5,7 @@ DefineClass.UIRangeBuilding =
 	properties =
 	{
 		-- prop only for UI purposes
-		{id = "UIRange", name = T{643, "Range"}, editor = "number", default = 3, min = 3, max = 8, no_edit = true, dont_save = true},
+		{id = "UIRange", name = T(643, "Range"), editor = "number", default = 3, min = 3, max = 8, no_edit = true, dont_save = true},
 	},
 	
 	incoming_range = false,

@@ -24,17 +24,17 @@ PlaceObj('StoryBit', {
 		PlaceObj('SupplyMissionsEnabled', nil),
 	},
 	ScriptDone = true,
-	Text = T{271424986819, --[[StoryBit BlackPR Text]] "Perhaps it all started on a slow news days, perhaps journalists on Earth are just bitter, but various prominent news networks all over the globe have been openly criticizing our mission and questioning every aspect of it – from its economic feasibility to its necessity for the future of the human race.\n\nOur sponsor is deflecting blows left and right and has formally requested that we break our silence and hold a press conference."},
+	Text = T(271424986819, --[[StoryBit BlackPR Text]] "Perhaps it all started on a slow news days, perhaps journalists on Earth are just bitter, but various prominent news networks all over the globe have been openly criticizing our mission and questioning every aspect of it – from its economic feasibility to its necessity for the future of the human race.\n\nOur sponsor is deflecting blows left and right and has formally requested that we break our silence and hold a press conference."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{753343622372, --[[StoryBit BlackPR Title]] "Black PR"},
-	VoicedText = T{912519929383, --[[voice:narrator]] "Our colony has come under media fire by a global news conglomerate. "},
+	Title = T(753343622372, --[[StoryBit BlackPR Title]] "Black PR"),
+	VoicedText = T(912519929383, --[[voice:narrator]] "Our colony has come under media fire by a global news conglomerate. "),
 	group = "Sponsor",
 	id = "BlackPR",
 	PlaceObj('StoryBitReply', {
-		'Text', T{951841540318, --[[StoryBit BlackPR Text]] "We will dare to dream!"},
+		'Text', T(951841540318, --[[StoryBit BlackPR Text]] "We will dare to dream!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{922240221345, --[[StoryBit BlackPR CustomOutcomeText]] "attract Applicants"},
+		'CustomOutcomeText', T(922240221345, --[[StoryBit BlackPR CustomOutcomeText]] "attract Applicants"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -49,9 +49,9 @@ PlaceObj('StoryBit', {
 		'Value', 500000000,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{891962457395, --[[StoryBit BlackPR Text]] "Yes, there are challenges to overcome, but humanity is ready for the ultimate test."},
+		'Text', T(891962457395, --[[StoryBit BlackPR Text]] "Yes, there are challenges to overcome, but humanity is ready for the ultimate test."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{303564073505, --[[StoryBit BlackPR CustomOutcomeText]] "get <funding(reward_funding)>"},
+		'CustomOutcomeText', T(303564073505, --[[StoryBit BlackPR CustomOutcomeText]] "get <funding(reward_funding)>"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -62,9 +62,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{554550946036, --[[StoryBit BlackPR Text]] "Your faith can move mountains and your doubt can create them."},
+		'Text', T(554550946036, --[[StoryBit BlackPR Text]] "Your faith can move mountains and your doubt can create them."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{256582095446, --[[StoryBit BlackPR CustomOutcomeText]] "get <funding(reward_newark)>"},
+		'CustomOutcomeText', T(256582095446, --[[StoryBit BlackPR CustomOutcomeText]] "get <funding(reward_newark)>"),
 		'Prerequisite', PlaceObj('IsSponsor', {
 			'SponsorName', "NewArk",
 		}),
@@ -82,9 +82,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{129762610121, --[[StoryBit BlackPR Text]] "As a great man once said, humans need to be a multiplanetary species."},
+		'Text', T(129762610121, --[[StoryBit BlackPR Text]] "As a great man once said, humans need to be a multiplanetary species."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{263503051645, --[[StoryBit BlackPR CustomOutcomeText]] "get factory Prefabs"},
+		'CustomOutcomeText', T(263503051645, --[[StoryBit BlackPR CustomOutcomeText]] "get factory Prefabs"),
 		'Prerequisite', PlaceObj('IsSponsor', {
 			'SponsorName', "SpaceY",
 		}),
@@ -107,9 +107,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{309878440227, --[[StoryBit BlackPR Text]] "We would not grace them with a reply."},
+		'Text', T(309878440227, --[[StoryBit BlackPR Text]] "We would not grace them with a reply."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{979805883702, --[[StoryBit BlackPR CustomOutcomeText]] "no effect"},
+		'CustomOutcomeText', T(979805883702, --[[StoryBit BlackPR CustomOutcomeText]] "no effect"),
 	}),
 })
 

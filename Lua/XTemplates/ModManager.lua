@@ -49,7 +49,7 @@ end,
 				PlaceObj('XTemplateTemplate', {
 					'__template', "DialogTitleNew",
 					'Margins', box(55, 0, 0, 0),
-					'Title', T{1129, --[[XTemplate ModManager Title]] "MOD MANAGER"},
+					'Title', T(1129, --[[XTemplate ModManager Title]] "MOD MANAGER"),
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XContentTemplate",
@@ -99,7 +99,7 @@ end,
 								}),
 								PlaceObj('XTemplateAction', {
 									'ActionId', "filter",
-									'ActionName', T{5460, --[[XTemplate ModManager ActionName]] "FILTER"},
+									'ActionName', T(5460, --[[XTemplate ModManager ActionName]] "FILTER"),
 									'ActionToolbar', "ActionBar",
 									'ActionGamepad', "ButtonX",
 									'OnActionEffect', "mode",
@@ -108,7 +108,7 @@ end,
 								}),
 								PlaceObj('XTemplateAction', {
 									'ActionId', "all_on",
-									'ActionName', T{5458, --[[XTemplate ModManager ActionName]] "ALL ON"},
+									'ActionName', T(5458, --[[XTemplate ModManager ActionName]] "ALL ON"),
 									'ActionToolbar', "ActionBar",
 									'ActionGamepad', "LeftTrigger",
 									'OnAction', function (self, host, source)
@@ -118,7 +118,7 @@ end,
 								}),
 								PlaceObj('XTemplateAction', {
 									'ActionId', "all_off",
-									'ActionName', T{5459, --[[XTemplate ModManager ActionName]] "ALL OFF"},
+									'ActionName', T(5459, --[[XTemplate ModManager ActionName]] "ALL OFF"),
 									'ActionToolbar', "ActionBar",
 									'ActionGamepad', "RightTrigger",
 									'OnAction', function (self, host, source)
@@ -128,7 +128,7 @@ end,
 								}),
 								PlaceObj('XTemplateAction', {
 									'ActionId', "back",
-									'ActionName', T{4254, --[[XTemplate ModManager ActionName]] "BACK"},
+									'ActionName', T(4254, --[[XTemplate ModManager ActionName]] "BACK"),
 									'ActionToolbar', "ActionBar",
 									'ActionShortcut', "Escape",
 									'ActionGamepad', "ButtonB",
@@ -147,13 +147,13 @@ end,
 								PlaceObj('XTemplateCode', {
 									'run', function (self, parent, context)
 local host = GetDialog(parent)
-host.idTitleSmall:SetTitle(T{5460, "FILTER"})
+host.idTitleSmall:SetTitle(T(5460, "FILTER"))
 host.idModInfo:SetVisible(false)
 end,
 								}),
 								PlaceObj('XTemplateAction', {
 									'ActionId', "back",
-									'ActionName', T{4254, --[[XTemplate ModManager ActionName]] "BACK"},
+									'ActionName', T(4254, --[[XTemplate ModManager ActionName]] "BACK"),
 									'ActionToolbar', "ActionBar",
 									'ActionShortcut', "Escape",
 									'ActionGamepad', "ButtonB",

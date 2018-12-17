@@ -46,15 +46,17 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	ScriptDone = true,
-	Text = T{279719620496, --[[StoryBit GearsOfCrime Text]] "A short investigation into the matter has revealed that a Renegade Engineer has actively been sabotaging repair parts used in the maintenance of these factories.\n\nCiting the bad conditions and contempt they feel for the leadership of the colony as reasons for their behavior, they though that sabotaging the mission would somehow advance their cause."},
+	Text = T(279719620496, --[[StoryBit GearsOfCrime Text]] "A short investigation into the matter has revealed that a Renegade Engineer has actively been sabotaging repair parts used in the maintenance of these factories.\n\nCiting the bad conditions and contempt they feel for the leadership of the colony as reasons for their behavior, they though that sabotaging the mission would somehow advance their cause."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{616417254122, --[[StoryBit GearsOfCrime Title]] "Renegades: Gears of Crime"},
-	VoicedText = T{441775588556, --[[voice:narrator]] "Our factories have began eating up a lot of electricity."},
+	Title = T(616417254122, --[[StoryBit GearsOfCrime Title]] "Renegades: Gears of Crime"),
+	VoicedText = T(441775588556, --[[voice:narrator]] "Our factories have began eating up a lot of electricity."),
 	group = "Renegades",
 	id = "GearsOfCrime",
 	PlaceObj('StoryBitReply', {
-		'Text', T{428264166418, --[[StoryBit GearsOfCrime Text]] "Great stuff..."},
+		'Text', T(428264166418, --[[StoryBit GearsOfCrime Text]] "Great stuff..."),
+		'OutcomeText', "custom",
+		'CustomOutcomeText', T(735009949626, --[[StoryBit GearsOfCrime CustomOutcomeText]] "All Factories closed for repairs after sabotage."),
 	}),
 })
 

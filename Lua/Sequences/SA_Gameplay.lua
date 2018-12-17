@@ -1,7 +1,7 @@
 DefineDataInstance("Label",
 	{
-		{ id = "display_name", name = T{1153, "Display Name"}, editor = "text", translate = true, default = "" },
-		{ id = "building", name = T{3702, "A building label"}, editor = "bool", default = true },
+		{ id = "display_name", name = T(1153, "Display Name"), editor = "text", translate = true, default = "" },
+		{ id = "building", name = T(3702, "A building label"), editor = "bool", default = true },
 	},
 	"Editors.Game", "Labels")
 	
@@ -99,7 +99,7 @@ function GetColonistLabels(ret, used)
 	ForEachPreset(TraitPreset, function(trait, group_list)
 		table.insert(ret, { value = trait_prefix .. trait.id, text = T{3703, "Trait: <display_name>", trait} })
 	end)
-	table.insert(ret, { value = "Working-age", text = T{7906, "Working-age Colonists"} })
+	table.insert(ret, { value = "Working-age", text = T(7906, "Working-age Colonists") })
 	return ret
 end
 
@@ -182,17 +182,17 @@ end
 GlobalVar( "BuildMenuPrerequisiteOverrides", {} )
 
 BuildMenuPrerequisitesBehavior = {
-	{ value = "always", text = T{3704, "Always Available"} },
-	{ value = "never", text = T{3705, "Not Available"} },
-	{ value = "default", text = T{3706, "Use Game Logic"} },
+	{ value = "always", text = T(3704, "Always Available") },
+	{ value = "never", text = T(3705, "Not Available") },
+	{ value = "default", text = T(3706, "Use Game Logic") },
 }
 
 DefineClass.SA_ControlBuildingPrerequisites = {
 	__parents = { "SequenceAction" },
 	properties = {
-		{ id = "Label", name = T{3689, "Label"}, editor = "dropdownlist", items = function() return GetBuildingLabelsCombo() end, default = "" },
-		{ id = "Behavior", name = T{3707, "Behavior"}, editor = "dropdownlist", items = BuildMenuPrerequisitesBehavior, default = "default" },
-		{ id = "DisableReason", name = T{3708, "Disable reason"}, help = "If not available, what to show in the build menu as a rollover explanation", editor = "text", translate = true, default = T{3709, "This building has been disabled"} },
+		{ id = "Label", name = T(3689, "Label"), editor = "dropdownlist", items = function() return GetBuildingLabelsCombo() end, default = "" },
+		{ id = "Behavior", name = T(3707, "Behavior"), editor = "dropdownlist", items = BuildMenuPrerequisitesBehavior, default = "default" },
+		{ id = "DisableReason", name = T(3708, "Disable reason"), help = "If not available, what to show in the build menu as a rollover explanation", editor = "text", translate = true, default = T(3709, "This building has been disabled") },
 	},
 	Menu = "Gameplay",
 	MenuName = "Control Building Prerequisites",
@@ -221,8 +221,8 @@ end
 DefineClass.SA_ForEachBuilding = {
 	__parents = { "SequenceAction" },
 	properties = {
-		{ id = "Label", name = T{3689, "Label"}, editor = "dropdownlist", items = function() return GetBuildingLabelsCombo() end, default = "" },
-		{ id = "Number", name = T{3710, "Number"}, editor = "text", default = "-1" },
+		{ id = "Label", name = T(3689, "Label"), editor = "dropdownlist", items = function() return GetBuildingLabelsCombo() end, default = "" },
+		{ id = "Number", name = T(3710, "Number"), editor = "text", default = "-1" },
 	},
 }
 
@@ -256,7 +256,7 @@ end
 DefineClass.SA_DamageBuildings = {
 	__parents = { "SA_ForEachBuilding" },
 	properties = {
-		{ id = "Demolish", name = T{3711, "Demolish"}, editor = "bool", default = false },
+		{ id = "Demolish", name = T(3711, "Demolish"), editor = "bool", default = false },
 	},
 	Menu = "Gameplay",
 	MenuName = "Damage Buildings",
@@ -279,7 +279,7 @@ end
 DefineClass.SA_DustBuildings = {
 	__parents = { "SA_ForEachBuilding" },
 	properties = {
-		{ id = "Dust", name = T{3712, "Amount of dust"}, editor = "number", default = 0 },
+		{ id = "Dust", name = T(3712, "Amount of dust"), editor = "number", default = 0 },
 	},
 	Menu = "Gameplay",
 	MenuName = "Accumulate Dust",
@@ -300,8 +300,8 @@ end
 DefineClass.SA_AddDrones = {
 	__parents = { "SequenceAction" },
 	properties = {
-		{ id = "Label", name = T{3689, "Label"}, editor = "dropdownlist", items = function() return GetDroneHubLabels() end, default = "" },
-		{ id = "Number", name = T{3710, "Number"}, help = "-1 to fill", editor = "text", default = "1" },
+		{ id = "Label", name = T(3689, "Label"), editor = "dropdownlist", items = function() return GetDroneHubLabels() end, default = "" },
+		{ id = "Number", name = T(3710, "Number"), help = "-1 to fill", editor = "text", default = "1" },
 	},
 	Menu = "Gameplay",
 	MenuName = "Add Drones",
@@ -332,9 +332,9 @@ end
 DefineClass.SA_DamageDrones = {
 	__parents = { "SequenceAction" },
 	properties = {
-		{ id = "Label", name = T{3689, "Label"}, editor = "dropdownlist", items = function() return GetDroneLabels() end, default = "" },
-		{ id = "Number", name = T{3710, "Number"}, help = "-1 to fill", editor = "text", default = "1" },
-		{ id = "Destroy", name = T{697, "Destroy"}, editor = "bool", default = false },
+		{ id = "Label", name = T(3689, "Label"), editor = "dropdownlist", items = function() return GetDroneLabels() end, default = "" },
+		{ id = "Number", name = T(3710, "Number"), help = "-1 to fill", editor = "text", default = "1" },
+		{ id = "Destroy", name = T(697, "Destroy"), editor = "bool", default = false },
 	},
 	Menu = "Gameplay",
 	MenuName = "Damage Drones",
@@ -376,8 +376,8 @@ end
 DefineClass.SA_AddColonist = {
 	__parents = { "SequenceAction" },
 	properties = {
-		{ id = "Label", name = T{3689, "Label"}, editor = "dropdownlist", items = function() return GetDomeLabels() end, default = "" },
-		{ id = "Number", name = T{3710, "Number"}, editor = "number", default = 1 },
+		{ id = "Label", name = T(3689, "Label"), editor = "dropdownlist", items = function() return GetDomeLabels() end, default = "" },
+		{ id = "Number", name = T(3710, "Number"), editor = "number", default = 1 },
 	},
 }
 
@@ -397,9 +397,9 @@ end
 DefineClass.SA_ForEachColonist = {
 	__parents = { "SequenceAction" },
 	properties = {
-		{ id = "Label", name = T{3689, "Label"}, editor = "dropdownlist", items = function() return GetColonistLabels() end, default = "", help = "If the register property is empty, take colonists from this label" },
-		{ id = "Register", name = T{3690, "Register"}, editor = "text", default = "", help = "Register to take colonists from; if empty, take colonists from label" },
-		{ id = "Number", name = T{3710, "Number"}, help = "-1 for everyone", editor = "text", default = "-1" },
+		{ id = "Label", name = T(3689, "Label"), editor = "dropdownlist", items = function() return GetColonistLabels() end, default = "", help = "If the register property is empty, take colonists from this label" },
+		{ id = "Register", name = T(3690, "Register"), editor = "text", default = "", help = "Register to take colonists from; if empty, take colonists from label" },
+		{ id = "Number", name = T(3710, "Number"), help = "-1 for everyone", editor = "text", default = "-1" },
 	},
 	
 	short_description_verb = "Foreaches",
@@ -456,7 +456,7 @@ end
 DefineClass.SA_KillColonist = {
 	__parents = {"SA_ForEachColonist"},
 	properties = {
-		{ id = "DeathReason", name = T{3713, "Cause of Death"}, editor = "text", translate = true, default = T{3714, "Killed by unforeseen circumstances"} },
+		{ id = "DeathReason", name = T(3713, "Cause of Death"), editor = "text", translate = true, default = T(3714, "Killed by unforeseen circumstances") },
 	},
 	short_description_verb = "Kills",
 	MenuName = "Kill Colonist",
@@ -469,17 +469,17 @@ end
 DefineClass.SA_ChangeStat = {
 	__parents = {"SA_ForEachColonist"},
 	properties = {
-		{ id = "Stat",   name = T{3715, "Stat"},  editor = "combo", default = "", items = function() return StatCombo()() end, },
-		{ id = "Amount", name = T{1000100, "Amount"}, editor = "text", default = tostring(10*const.Scale.Stat), scale = "Stat"},
-		{ id = "Duration", name = T{3716, "Duration hours (only for morale, -1 forever)"}, editor = "number", default = 6*const.HourDuration, scale = "Hours"},
-		{ id = "MoraleReason", name = T{3717, "Reason for Morale change"}, editor = "text", translate = true, default = "" },
+		{ id = "Stat",   name = T(3715, "Stat"),  editor = "combo", default = "", items = function() return StatCombo()() end, },
+		{ id = "Amount", name = T(1000100, "Amount"), editor = "text", default = tostring(10*const.Scale.Stat), scale = "Stat"},
+		{ id = "Duration", name = T(3716, "Duration hours (only for morale, -1 forever)"), editor = "number", default = 6*const.HourDuration, scale = "Hours"},
+		{ id = "MoraleReason", name = T(3717, "Reason for Morale change"), editor = "text", translate = true, default = "" },
 	},
 	MenuName = "Satisfy Stat",
 }
 
 function SA_ChangeStat:ShortDescription()
 	local group = self.Register ~= "" and string.format("reg '%s'", self.Register) or string.format("label '%s'", self.Label)
-	return string.format( "Satisfy %s colonists of %s: %s with %s", self.Number == "-1" and "all" or tostring(self.Number), group, self.Stat or T{3718, "NONE"}, tostring(self.Amount))
+	return string.format( "Satisfy %s colonists of %s: %s with %s", self.Number == "-1" and "all" or tostring(self.Number), group, self.Stat or T(3718, "NONE"), tostring(self.Amount))
 end
 
 function SA_ChangeStat:Process(seq_player, registers, colonist)
@@ -502,7 +502,7 @@ end
 DefineClass.SA_MakeSpecialist = {
 	__parents = {"SA_ForEachColonist"},
 	properties = {
-		{ id = "Specialist", name = T{834, "Specialist"}, editor = "combo", default = "none", items = GetColonistSpecializationCombo()},
+		{ id = "Specialist", name = T(834, "Specialist"), editor = "combo", default = "none", items = GetColonistSpecializationCombo()},
 	},
 	MenuName = "Make Specialist",
 }
@@ -513,7 +513,7 @@ function SA_MakeSpecialist:ShortDescription()
 end
 
 function SA_MakeSpecialist:Process(seq_player, registers, colonist)
-	colonist:SetSpecialization(self.Specialist)
+	colonist:AddTrait(self.Specialist)
 end
 
 DefineClass.SA_DemoteSpecialist = {
@@ -523,16 +523,16 @@ DefineClass.SA_DemoteSpecialist = {
 }
 
 function SA_DemoteSpecialist:Process(seq_player, registers, colonist)
-	colonist:SetSpecialization("none")
+	colonist:AddTrait("none")
 end
 
 --------------------------
 DefineClass.SA_ForEachDrone = {
 	__parents = { "SequenceAction" },
 	properties = {
-		{ id = "Register", name = T{3690, "Register"}, editor = "text", default = "", help = "Register to take colonists from; if empty, take colonists from label" },
-		{ id = "Number", name = T{3710, "Number"}, help = "-1 for everyone", editor = "text", default = "-1" },
-		{ id = "ExcludeDead", name = T{3719, "Exclude Dead"}, editor = "bool", default = true },
+		{ id = "Register", name = T(3690, "Register"), editor = "text", default = "", help = "Register to take colonists from; if empty, take colonists from label" },
+		{ id = "Number", name = T(3710, "Number"), help = "-1 for everyone", editor = "text", default = "-1" },
+		{ id = "ExcludeDead", name = T(3719, "Exclude Dead"), editor = "bool", default = true },
 	},
 	
 	default_label = "Drone",
@@ -599,7 +599,7 @@ end
 DefineClass.SA_GoRogue = {
 	__parents = {"SA_ForEachDrone"},
 	properties = {
-		{ id = "Command", name = T{6852, "Command"}, editor = "dropdownlist", default = "GoRogue", items = {"GoRogue", "RogueRevertToNormal" },  },
+		{ id = "Command", name = T(6852, "Command"), editor = "dropdownlist", default = "GoRogue", items = {"GoRogue", "RogueRevertToNormal" },  },
 	},
 	
 	short_description_verb = "Go Rogue",
@@ -614,8 +614,8 @@ DefineClass.SA_HostileRoverCommand = {
 	__parents = { "SA_ForEachDrone" },
 	
 	properties = {
-		{ id = "Command", name = T{6852, "Command"}, editor = "dropdownlist", default = "", items = {"Attack", "Malfunction" },  },
-		{ id = "Param", name = T{3949, "Parameter"}, editor = "number", default = -1},
+		{ id = "Command", name = T(6852, "Command"), editor = "dropdownlist", default = "", items = {"Attack", "Malfunction" },  },
+		{ id = "Param", name = T(3949, "Parameter"), editor = "number", default = -1},
 	},
 	short_description_verb = "Hostile Rover Command",
 	MenuName = "Hostile Rover Command",
@@ -634,7 +634,7 @@ end
 DefineClass.SA_AddTrait = {
 	__parents = {"SA_ForEachColonist"},
 	properties = {
-		{ id = "Trait", name = T{3720, "Trait"}, editor = "dropdownlist", default = "", items = function() return TraitsCombo(nil, nil, "no specializations") end},
+		{ id = "Trait", name = T(3720, "Trait"), editor = "dropdownlist", default = "", items = function() return TraitsCombo(nil, nil, "no specializations") end},
 	},
 	MenuName = "Add Trait",
 }
@@ -653,7 +653,7 @@ end
 DefineClass.SA_RemoveTrait = {
 	__parents = {"SA_ForEachColonist"},
 	properties = {
-		{ id = "Trait", name = T{3720, "Trait"}, editor = "dropdownlist", default = "", items = function()return TraitsCombo(nil, nil, "nospecializations") end},
+		{ id = "Trait", name = T(3720, "Trait"), editor = "dropdownlist", default = "", items = function()return TraitsCombo(nil, nil, "nospecializations") end},
 	},
 	MenuName = "Remove Trait",
 }
@@ -672,8 +672,8 @@ end
 DefineClass.SA_AddApplicants = {
 	__parents = { "SequenceAction" },
 	properties = {
-		{ id = "Number", name = T{3710, "Number"}, editor = "text", default = "1" },
-		{ id = "Trait",  name = T{3720, "Trait"}, editor = "dropdownlist", default = "", 
+		{ id = "Number", name = T(3710, "Number"), editor = "text", default = "1" },
+		{ id = "Trait",  name = T(3720, "Trait"), editor = "dropdownlist", default = "", 
 			items = function() 
 				local traits = TraitsCombo(nil, nil, "no specialziations") 
 				table.insert(traits, {value = "random_positive", text = "Random Positive"})
@@ -683,7 +683,7 @@ DefineClass.SA_AddApplicants = {
 				table.insert(traits, {value = "random", text = "Random"})
 				return traits
 			end},
-		{ id = "Specialization",  name = T{240, "Specialization"}, editor = "dropdownlist", default = "any", 
+		{ id = "Specialization",  name = T(240, "Specialization"), editor = "dropdownlist", default = "any", 
 			items = function() 
 				local items = GetColonistSpecializationCombo("empty")()
 				table.insert(items, 1, {value = "any", text = "Random Specialization"})
@@ -742,10 +742,10 @@ end
 DefineClass.SA_GrantResearchPts = {
 	__parents = {"SequenceAction"},
 	properties = {
-		{ id = "Amount",   name = T{1000100, "Amount"},  editor = "number",       default = 1000,},
-		{ id = "Field",    name = T{3721, "Field"},      editor = "dropdownlist", default = "", items = ResearchFieldsCombo },
-		{ id = "Research", name = T{311, "Research"},    editor = "dropdownlist", default = "", items = ResearchTechsCombo },
-		{ id = "Percent",  name = T{1000099, "Percent"}, editor = "number",       default = 0, help = "Takes priority over 'Amount'" },
+		{ id = "Amount",   name = T(1000100, "Amount"),  editor = "number",       default = 1000,},
+		{ id = "Field",    name = T(3721, "Field"),      editor = "dropdownlist", default = "", items = ResearchFieldsCombo },
+		{ id = "Research", name = T(311, "Research"),    editor = "dropdownlist", default = "", items = ResearchTechsCombo },
+		{ id = "Percent",  name = T(1000099, "Percent"), editor = "number",       default = 0, help = "Takes priority over 'Amount'" },
 	},
 	
 	Menu = "Research",
@@ -777,8 +777,8 @@ end
 DefineClass.SA_GrantTech = {
 	__parents = {"SequenceAction"},
 	properties = {
-		{ id = "Field",    name = T{3721, "Field"},    editor = "dropdownlist", items = ResearchFieldsCombo, default = "" },
-		{ id = "Research", name = T{311, "Research"}, editor = "dropdownlist", items = ResearchTechsCombo,  default = "" },
+		{ id = "Field",    name = T(3721, "Field"),    editor = "dropdownlist", items = ResearchFieldsCombo, default = "" },
+		{ id = "Research", name = T(311, "Research"), editor = "dropdownlist", items = ResearchTechsCombo,  default = "" },
 	},
 	
 	Menu = "Research",
@@ -830,9 +830,9 @@ end
 DefineClass.SA_GrantTechBoost = {
 	__parents = {"SequenceAction"},
 	properties = {
-		{ id = "Field",    name = T{3721, "Field"},    editor = "dropdownlist", items = ResearchFieldsCombo, default = "" },
-		{ id = "Research", name = T{311, "Research"}, editor = "dropdownlist", items = ResearchTechsCombo,  default = "" },
-		{ id = "Amount",   name = T{1000100, "Amount"},   editor = "number",       default = 0 },
+		{ id = "Field",    name = T(3721, "Field"),    editor = "dropdownlist", items = ResearchFieldsCombo, default = "" },
+		{ id = "Research", name = T(311, "Research"), editor = "dropdownlist", items = ResearchTechsCombo,  default = "" },
+		{ id = "Amount",   name = T(1000100, "Amount"),   editor = "number",       default = 0 },
 	},
 	
 	Menu = "Research",
@@ -857,9 +857,9 @@ DefineClass.SA_WaitResearch = {
 	__parents = { "SA_WaitBase" },
 	
 	properties = {
-		{ id = "Field",    name = T{3721, "Field"},    editor = "dropdownlist", items = ResearchFieldsCombo, default = "" },
-		{ id = "Research", name = T{311, "Research"}, editor = "dropdownlist", items = ResearchTechsCombo,  default = "" },
-		{ id = "State",    name = T{3722, "State"},    editor = "dropdownlist", items = {"Available","Researched","In Progress"},  default = "" },
+		{ id = "Field",    name = T(3721, "Field"),    editor = "dropdownlist", items = ResearchFieldsCombo, default = "" },
+		{ id = "Research", name = T(311, "Research"), editor = "dropdownlist", items = ResearchTechsCombo,  default = "" },
+		{ id = "State",    name = T(3722, "State"),    editor = "dropdownlist", items = {"Available","Researched","In Progress"},  default = "" },
 	},
 	
 	Menu = "Research",
@@ -900,9 +900,9 @@ DefineClass.SA_CheckResearch = {
 	__parents = { "SA_Condition" },
 	
 	properties = {
-		{ id = "Field",    name = T{3721, "Field"},    editor = "dropdownlist", items = ResearchFieldsCombo, default = "" },
-		{ id = "Research", name = T{311, "Research"}, editor = "dropdownlist", items = ResearchTechsCombo,  default = "" },
-		{ id = "State",    name = T{3722, "State"},    editor = "dropdownlist", items = {"Available","Researched"},  default = "" },
+		{ id = "Field",    name = T(3721, "Field"),    editor = "dropdownlist", items = ResearchFieldsCombo, default = "" },
+		{ id = "Research", name = T(311, "Research"), editor = "dropdownlist", items = ResearchTechsCombo,  default = "" },
+		{ id = "State",    name = T(3722, "State"),    editor = "dropdownlist", items = {"Available","Researched"},  default = "" },
 	},
 	
 	Menu = "Research",
@@ -943,9 +943,9 @@ DefineClass.SA_AppendToLog = {
 	__parents = { "SequenceAction" },
 
 	properties = {
-		{ id = "register", name = T{3690, "Register"}, editor = "text", default = "_log", help = "Sequence register to hold the log" },
-		{ id = "text",   name = T{3723, "New body text"},   editor = "multi_line_text", translate = true, default = "", help = "Add or replace text in notification body" },
-		{ id = "trim_log", name = T{3724, "Limit log to"}, editor = "number", default = 6, help = "After appending, trim log to this many entries" },
+		{ id = "register", name = T(3690, "Register"), editor = "text", default = "_log", help = "Sequence register to hold the log" },
+		{ id = "text",   name = T(3723, "New body text"),   editor = "multi_line_text", translate = true, default = "", help = "Add or replace text in notification body" },
+		{ id = "trim_log", name = T(3724, "Limit log to"), editor = "number", default = 6, help = "After appending, trim log to this many entries" },
 	},
 	
 	Menu = "Gameplay",
@@ -974,20 +974,20 @@ DefineClass.SA_CustomNotification = {
 	__parents = { "SequenceAction" },
 	
 	properties = {
-		{ id = "id",         name = T{3725, "Notification ID"}, editor = "dropdownlist", items = PresetsCombo("OnScreenNotificationPreset"), default = "",  help = "Notification preset ID" },
-		{ id = "autoupdate", name = T{6853, "Auto Update"},           editor = "bool",   default = false, help = "If <value> expression will be updated automatically and periodically" },
-		{ id = "expression", name = T{3726, "Expression"},      editor = "text",   default = "1", help = "Expression to be evaluation for <value>", no_edit = function(self) return not self.autoupdate end },
-		{ id = "interval",   name = T{3727, "Upd. Interval"},   editor = "number", default = 10,  help = "Update interval in seconds", no_edit = function(self) return not self.autoupdate end },
-		{ id = "text",       name = T{1000145, "Text"},            editor = "multi_line_text", default = "", translate = true, help = "Text to override the default notification text" },
-		{ id = "register",   name = T{3728, "Text Register"},   editor = "text", default = "", help = "Sequence register holding the text to replace the default notification text" },
-		{ id = "popup_text",     name = T{7308, "Popup Text"},          editor = "multi_line_text", default = "", translate = true, help = "Text to override the default popup notification text (the on-screen notification preset must trigger a popup notification)" },
-		{ id = "popup_register", name = T{7309, "Popup Text Register"}, editor = "text",            default = "",                   help = "Sequence register holding the text to replace the default popup notification text (the on-screen notification preset must trigger a popup notification)" },
-		{ id = "reg_param1", name = T{3801, "Reg Param 1"},     editor = "combo", default = "", help = T{3802, "This is a register name, ref as reg_param1 in the body"}, refs_object_of_type = "register" },
-		{ id = "reg_param2", name = T{3803, "Reg Param 2"},     editor = "combo", default = "", help = T{3804, "This is a register name, ref as reg_param2 in the body"}, refs_object_of_type = "register" },
-		{ id = "expiration", name = T{3729, "Countdown Hours"}, editor = "number", default = 0, scale = const.HourDuration, help = "Expiration" },
-		{ id = "exp_reg",	  name = T{3730, "Countdown Register"},editor = "text", default = "", help = "Sequence register holding the expiration to replace the default expiration" },
-		{ id = "pos_reg",	  name = T{3731, "Position Register"},editor = "text", default = "", help = "Sequence register holding the position the camera will move to if notif is clicked" },
-		{ id = "dismissable", name = T{4101, "Dismissable"}, editor = "dropdownlist", items = { "dismissable", "not dismissable", "no change" }, default = "no change", }
+		{ id = "id",         name = T(3725, "Notification ID"), editor = "dropdownlist", items = PresetsCombo("OnScreenNotificationPreset"), default = "",  help = "Notification preset ID" },
+		{ id = "autoupdate", name = T(6853, "Auto Update"),           editor = "bool",   default = false, help = "If <value> expression will be updated automatically and periodically" },
+		{ id = "expression", name = T(3726, "Expression"),      editor = "text",   default = "1", help = "Expression to be evaluation for <value>", no_edit = function(self) return not self.autoupdate end },
+		{ id = "interval",   name = T(3727, "Upd. Interval"),   editor = "number", default = 10,  help = "Update interval in seconds", no_edit = function(self) return not self.autoupdate end },
+		{ id = "text",       name = T(1000145, "Text"),            editor = "multi_line_text", default = "", translate = true, help = "Text to override the default notification text" },
+		{ id = "register",   name = T(3728, "Text Register"),   editor = "text", default = "", help = "Sequence register holding the text to replace the default notification text" },
+		{ id = "popup_text",     name = T(7308, "Popup Text"),          editor = "multi_line_text", default = "", translate = true, help = "Text to override the default popup notification text (the on-screen notification preset must trigger a popup notification)" },
+		{ id = "popup_register", name = T(7309, "Popup Text Register"), editor = "text",            default = "",                   help = "Sequence register holding the text to replace the default popup notification text (the on-screen notification preset must trigger a popup notification)" },
+		{ id = "reg_param1", name = T(3801, "Reg Param 1"),     editor = "combo", default = "", help = T(3802, "This is a register name, ref as reg_param1 in the body"), refs_object_of_type = "register" },
+		{ id = "reg_param2", name = T(3803, "Reg Param 2"),     editor = "combo", default = "", help = T(3804, "This is a register name, ref as reg_param2 in the body"), refs_object_of_type = "register" },
+		{ id = "expiration", name = T(3729, "Countdown Hours"), editor = "number", default = 0, scale = const.HourDuration, help = "Expiration" },
+		{ id = "exp_reg",	  name = T(3730, "Countdown Register"),editor = "text", default = "", help = "Sequence register holding the expiration to replace the default expiration" },
+		{ id = "pos_reg",	  name = T(3731, "Position Register"),editor = "text", default = "", help = "Sequence register holding the position the camera will move to if notif is clicked" },
+		{ id = "dismissable", name = T(4101, "Dismissable"), editor = "dropdownlist", items = { "dismissable", "not dismissable", "no change" }, default = "no change", }
 	},
 	
 	Menu = "Gameplay",
@@ -1104,7 +1104,7 @@ end
 DefineClass.SA_SetMystery = {
 	__parents = {"SequenceAction"},
 	properties = {
-		{ id = "mystery", name = T{3486, "Mystery"}, editor = "dropdownlist", default = false, items = function() return ClassDescendantsList("MysteryBase") end },
+		{ id = "mystery", name = T(3486, "Mystery"), editor = "dropdownlist", default = false, items = function() return ClassDescendantsList("MysteryBase") end },
 	},
 	
 	Menu = "Gameplay",
@@ -1144,8 +1144,8 @@ end
 DefineClass.SA_BumpTechDiscover = {
 	__parents = {"SequenceAction"},
 	properties = {
-		{ id = "field", name = T{3721, "Field"}, editor = "dropdownlist", default = "", items = DiscoverableTechFields },
-		{ id = "count", name = T{3732, "Count"}, editor = "number", default = 1, min = 1 },
+		{ id = "field", name = T(3721, "Field"), editor = "dropdownlist", default = "", items = DiscoverableTechFields },
+		{ id = "count", name = T(3732, "Count"), editor = "number", default = 1, min = 1 },
 	},
 	
 	Menu = "Research",
@@ -1184,7 +1184,7 @@ end
 
 function RevealableTechs()
 	local techs = {
-		{value = "", text = T{3733, "Random Breakthrough"}},
+		{value = "", text = T(3733, "Random Breakthrough")},
 	}
 	for id, field in sorted_pairs(TechFields) do
 		if not field.discoverable then
@@ -1200,8 +1200,8 @@ end
 DefineClass.SA_RevealTech = {
 	__parents = {"SequenceAction"},
 	properties = {
-		{ id = "tech", name = T{3734, "Tech"}, editor = "dropdownlist", default = "", items = RevealableTechs },
-		{ id = "cost", name = T{6854, "Cost (RP)"}, editor = "number", default = -1 },
+		{ id = "tech", name = T(3734, "Tech"), editor = "dropdownlist", default = "", items = RevealableTechs },
+		{ id = "cost", name = T(6854, "Cost (RP)"), editor = "number", default = -1 },
 	},
 	
 	Menu = "Gameplay",
@@ -1268,16 +1268,16 @@ local function ClassNameItems()
 end
 local function CheckDomeCombo()
 	return {
-		{value = false, text = T{3735, "Anywhere"}},
-		{value = "inside", text = T{3736, "Inside Dome"}},
-		{value = "outside", text = T{3737, "Outside Dome"}},
+		{value = false, text = T(3735, "Anywhere")},
+		{value = "inside", text = T(3736, "Inside Dome")},
+		{value = "outside", text = T(3737, "Outside Dome")},
 	}
 end
 local function CheckExplorationCombo()
 	return {
-		{value = false, text = T{3735, "Anywhere"}},
-		{value = "explored", text = T{8899, "Explored Areas Only"}},
-		{value = "unexplored", text = T{8900, "Unexplored Areas Only"}},
+		{value = false, text = T(3735, "Anywhere")},
+		{value = "explored", text = T(8899, "Explored Areas Only")},
+		{value = "unexplored", text = T(8900, "Unexplored Areas Only")},
 	}
 end
 local function RandomPosLabelCombo()
@@ -1295,15 +1295,15 @@ DefineClass.PositionFinder = {
 	__parents = {"PropertyObject"},
 	
 	properties = {
-		{ id = "check_passability", name = T{3738, "Check passability?"}, editor = "bool", default = false, },
-		{ id = "check_buildable", name = T{3739, "Check buildable?"}, editor = "bool", default = false, },
-		{ id = "check_playable", name = T{3740, "Check playable?"}, editor = "bool", default = false, },
-		{ id = "check_dome", name = T{3741, "Check Dome"}, editor = "dropdownlist", default = false, items = CheckDomeCombo},
-		{ id = "check_terran_deposit", name = T{3742, "Check Terran Deposit"}, editor = "bool", default = false},
-		{ id = "check_exploration", name = T{8901, "Check Exploration"}, editor = "dropdownlist", default = false, items = CheckExplorationCombo},
-		{ id = "exclude_class_name", name = T{3743, "Exclude class in buildable checks"}, editor = "dropdownlist", default = false, items = ExcludeClassNameCombo, help = "The class selected here will be excluded when doing build checks. Whats more objects of this type found in the hex shape during placement will be destroyed.", },
-		{ id = "random_pos_label", name = T{3744, "Random pos is near label"}, editor = "combo", default = false, items = RandomPosLabelCombo, },
-		{ id = "random_pos_label_dist", name = T{3745, "Random pos label max distance"}, editor = "number", default = 0, scale = guim,},
+		{ id = "check_passability", name = T(3738, "Check passability?"), editor = "bool", default = false, },
+		{ id = "check_buildable", name = T(3739, "Check buildable?"), editor = "bool", default = false, },
+		{ id = "check_playable", name = T(3740, "Check playable?"), editor = "bool", default = false, },
+		{ id = "check_dome", name = T(3741, "Check Dome"), editor = "dropdownlist", default = false, items = CheckDomeCombo},
+		{ id = "check_terran_deposit", name = T(3742, "Check Terran Deposit"), editor = "bool", default = false},
+		{ id = "check_exploration", name = T(8901, "Check Exploration"), editor = "dropdownlist", default = false, items = CheckExplorationCombo},
+		{ id = "exclude_class_name", name = T(3743, "Exclude class in buildable checks"), editor = "dropdownlist", default = false, items = ExcludeClassNameCombo, help = "The class selected here will be excluded when doing build checks. Whats more objects of this type found in the hex shape during placement will be destroyed.", },
+		{ id = "random_pos_label", name = T(3744, "Random pos is near label"), editor = "combo", default = false, items = RandomPosLabelCombo, },
+		{ id = "random_pos_label_dist", name = T(3745, "Random pos label max distance"), editor = "number", default = 0, scale = guim,},
 	},
 }
 
@@ -1354,13 +1354,16 @@ function PositionFinder:TestPos(pt_pos, q, r, angle, class_def, building_shape, 
 			if check_for_buildable and not ConstructionController.IsTerrainFlatForPlacement(nil, shape_data, pt_pos, angle * 60) then
 				return
 			end
-			if check_terran_deposit and TerrainDeposit_Check(shape_data, pt_pos, angle * 60, TerrainDepositGrid) then
-				return
-			end
 			for _, shape_pt in ipairs(shape_data) do
 				local x, y = shape_pt:xy()
 				x, y = HexRotate(x, y, dir)
 				x, y = x + q, y + r
+				if check_terran_deposit then
+					local t_d = MapGet(point(x, y), MaxTerrainDepositRadius, "TerrainDeposit")
+					if #t_d > 0 then
+						return
+					end
+				end
 				if check_for_buildable then
 					local blds = HexGridGetObjects(ObjectGrid, x, y, nil, nil, function(o)
 						if IsKindOfClasses(o, "DoesNotObstructConstruction", classes_excluded_in_build_checks) then
@@ -1522,31 +1525,31 @@ end
 DefineClass.SA_PlaceObject = {
 	__parents = {"SequenceAction", "PositionFinder"},
 	properties = {
-		{ id = "class_name", name = T{3746, "Class name"}, editor = "dropdownlist", default = false, items = ClassNameItems, },
+		{ id = "class_name", name = T(3746, "Class name"), editor = "dropdownlist", default = false, items = ClassNameItems, },
 		--position priority => random pos, register pos, placement pos
-		{ id = "placement_pos", name = T{3747, "Placement pos"}, editor = "point", default = point30, },
-		{ id = "register_placement_pos", name = T{3748, "Use pos from register:"}, editor = "text", default = "", },
-		{ id = "use_random_pos", name = T{3749, "Use random pos?"}, editor = "bool", default = false,},
+		{ id = "placement_pos", name = T(3747, "Placement pos"), editor = "point", default = point30, },
+		{ id = "register_placement_pos", name = T(3748, "Use pos from register:"), editor = "text", default = "", },
+		{ id = "use_random_pos", name = T(3749, "Use random pos?"), editor = "bool", default = false,},
 
-		{ id = "is_construction_site", name = T{3750, "Place as construction site?"}, editor = "bool", default = false},
+		{ id = "is_construction_site", name = T(3750, "Place as construction site?"), editor = "bool", default = false},
 		
-		{ id = "store_pos", name = T{3751, "Store pos in register"}, editor = "text", default = "", help = "Will store the position of the obj placed in this register."},
-		{ id = "store_pos_spot_name", name = T{3752, "Stored pos is of spot name?"}, editor = "text", default = "", help = "When storing spawned obj pos in reg, it will be the pos of the spot name given here rather then origin pos."},
-		{ id = "store_obj", name = T{3753, "Store spawned obj in register"}, editor = "text", default = "", help = "If diff from empty str, will store spawned object in this register."},
-		{ id = "store_obj_append", name = T{3754, "Append to register?"}, editor = "bool", default = false, help = "Check to append to register, leave unchecked to replace register contents."},
+		{ id = "store_pos", name = T(3751, "Store pos in register"), editor = "text", default = "", help = "Will store the position of the obj placed in this register."},
+		{ id = "store_pos_spot_name", name = T(3752, "Stored pos is of spot name?"), editor = "text", default = "", help = "When storing spawned obj pos in reg, it will be the pos of the spot name given here rather then origin pos."},
+		{ id = "store_obj", name = T(3753, "Store spawned obj in register"), editor = "text", default = "", help = "If diff from empty str, will store spawned object in this register."},
+		{ id = "store_obj_append", name = T(3754, "Append to register?"), editor = "bool", default = false, help = "Check to append to register, leave unchecked to replace register contents."},
 		
-		{ id = "force_z_terrain_relative", name = T{3755, "Force pos Z, terrain relative"}, editor = "number", default = 0, help = "Values != from zero will force obj's pos' z to that val + terrain height at pos. Also ignored for constructions!",},
-		{ id = "skip_cable_cleanup", name = T{3756, "Force skip cable cleanup"}, editor = "bool", default = false, help = "If true and placeing a GridObject, will not remove cables underneath.", },
+		{ id = "force_z_terrain_relative", name = T(3755, "Force pos Z, terrain relative"), editor = "number", default = 0, help = "Values != from zero will force obj's pos' z to that val + terrain height at pos. Also ignored for constructions!",},
+		{ id = "skip_cable_cleanup", name = T(3756, "Force skip cable cleanup"), editor = "bool", default = false, help = "If true and placeing a GridObject, will not remove cables underneath.", },
 		--dbg param
-		{ id = "show_me_spawned_obj", name = T{3757, "Show me spawned obj (dbg)"}, editor = "bool", default = false,},
+		{ id = "show_me_spawned_obj", name = T(3757, "Show me spawned obj (dbg)"), editor = "bool", default = false,},
 		
 		--passed to placed obj
-		{ id = "par_name_1", name = T{3758, "Param Name 1"}, editor = "text", default = "", },
-		{ id = "par_val_1", name = T{3759, "Param Value 1"}, editor = "text", default = "", },
-		{ id = "par_name_2", name = T{3760, "Param Name 2"}, editor = "text", default = "", },
-		{ id = "par_val_2", name = T{3761, "Param Value 2"}, editor = "text", default = "", },
-		{ id = "par_name_3", name = T{3762, "Param Name 3"}, editor = "text", default = "", },
-		{ id = "par_val_3", name = T{3763, "Param Value 3"}, editor = "text", default = "", },
+		{ id = "par_name_1", name = T(3758, "Param Name 1"), editor = "text", default = "", },
+		{ id = "par_val_1", name = T(3759, "Param Value 1"), editor = "text", default = "", },
+		{ id = "par_name_2", name = T(3760, "Param Name 2"), editor = "text", default = "", },
+		{ id = "par_val_2", name = T(3761, "Param Value 2"), editor = "text", default = "", },
+		{ id = "par_name_3", name = T(3762, "Param Name 3"), editor = "text", default = "", },
+		{ id = "par_val_3", name = T(3763, "Param Value 3"), editor = "text", default = "", },
 	},
 	
 	Menu = "Gameplay",
@@ -1808,13 +1811,13 @@ DefineClass.SA_DestroyObjects = {
 	__parents = {"SA_PickRandomObject"},
 	properties = {
 		--obj pickage priority => will try label first, class second
-		{ id = "obj_count", name = T{3767, "Number of objects to destroy"}, editor = "number", default = 1, min = 1 },
-		{ id = "destroy_all", name = T{3768, "Destroy all?"}, editor = "bool", default = false },
-		{ id = "return_resource", name = T{3769, "Return resources?"}, editor = "bool", default = false},
-		{ id = "store_pos", name = T{3751, "Store pos in register"}, editor = "text", default = "", help = "Will store the position of the first obj destroyed in this register."},
+		{ id = "obj_count", name = T(3767, "Number of objects to destroy"), editor = "number", default = 1, min = 1 },
+		{ id = "destroy_all", name = T(3768, "Destroy all?"), editor = "bool", default = false },
+		{ id = "return_resource", name = T(3769, "Return resources?"), editor = "bool", default = false},
+		{ id = "store_pos", name = T(3751, "Store pos in register"), editor = "text", default = "", help = "Will store the position of the first obj destroyed in this register."},
 		
-		{ category = "FX", id = "fx_action", name = T{3770, "FX Action"}, editor = "text", default = "", help = "If both fx fields are filled will fire fx event using provided action and moment and destroyed obj as actor for each destroyed object."},
-		{ category = "FX", id = "fx_moment", name = T{3771, "FX Moment"}, editor = "text", default = "", help = "If both fx fields are filled will fire fx event using provided action and moment and destroyed obj as actor for each destroyed object."},
+		{ category = "FX", id = "fx_action", name = T(3770, "FX Action"), editor = "text", default = "", help = "If both fx fields are filled will fire fx event using provided action and moment and destroyed obj as actor for each destroyed object."},
+		{ category = "FX", id = "fx_moment", name = T(3771, "FX Moment"), editor = "text", default = "", help = "If both fx fields are filled will fire fx event using provided action and moment and destroyed obj as actor for each destroyed object."},
 	},
 	
 	store_obj = "",
@@ -1901,15 +1904,48 @@ function IsInRangeOfLabel(obj, label_name, dist)
 	end
 end
 
+DefineClass.SA_PickRandomNoDomeBuilding = {
+	__parents = {"SA_PickRandomObject"},
+	properties = { 
+		{ no_edit = true, id = "obj_label", name = T(3764, "Pick object from label"), editor = "text", default = "BuildingNoDomes", },
+		{ no_edit = true, id = "obj_class", name = T(3765, "Pick object from class"), editor = "text", default = "Building", },
+		{ no_edit = true, id = "obj_reg", name = T(3766, "Pick object from register"), editor = "text", default = false},
+	},
+	
+	MenuName = "Pick Random No Dome Building",
+}
+
+function SA_PickRandomNoDomeBuilding:GatherObjects(seq_player, ip, seq, registers)
+	local city = UICity
+	local objects
+
+	if self.obj_label then
+		objects = city.labels[self.obj_label]
+		local class = self.obj_class
+		local filtered = {}
+		for i=1,#objects do
+			local obj = objects[i]
+			if IsKindOf(obj, class) and obj.count_as_building then
+				if not self.visible_only or obj:GetVisible() then
+					filtered[#filtered + 1] = obj
+				end
+			end
+		end
+		objects = filtered
+	end
+	
+	return objects
+end
+
 DefineClass.SA_PickRandomObject = {
 	__parents = {"SequenceAction"},
 	properties = {
 		--obj pickage priority => will try label first, class second
-		{ id = "obj_label", name = T{3764, "Pick object from label"}, editor = "dropdownlist", default = false, items = obj_label_combo, },
-		{ id = "obj_class", name = T{3765, "Pick object from class"}, editor = "dropdownlist", default = false, items = function() local t = ClassNameItems();table.insert(t, 1, false);return t end, },
-		{ id = "obj_reg",   name = T{3766, "Pick object from register"}, editor = "text", default = false,  },
-		{ id = "store_obj",       name = T{8037, "Store object in register"}, editor = "text", default = "RandomObject",  },
-		{ id = "visible_only",    name = T{8038, "Visible only"}, editor = "bool", default = false },
+		{ id = "obj_label", name = T(3764, "Pick object from label"), editor = "dropdownlist", default = false, items = obj_label_combo, },
+		{ id = "obj_class", name = T(3765, "Pick object from class"), editor = "dropdownlist", default = false, items = function() local t = ClassNameItems();table.insert(t, 1, false);return t end, },
+		{ id = "obj_reg",   name = T(3766, "Pick object from register"), editor = "text", default = false,  },
+		{ id = "store_obj",       name = T(8037, "Store object in register"), editor = "text", default = "RandomObject",  },
+		{ id = "visible_only",    name = T(8038, "Visible only"), editor = "bool", default = false },
 	},
 	
 	Menu = "Gameplay",
@@ -2001,18 +2037,18 @@ DefineClass.SA_SpawnObjectAt = {
 	__parents = {"SequenceAction", "PositionFinder"},
 	properties = {
 		--placement
-		{ id = "placement_pos", name = T{3747, "Placement pos"}, editor = "point", default = point30, },
-		{ id = "register_placement_pos", name = T{3748, "Use pos from register:"}, editor = "text", default = "", },
-		{ id = "use_random_pos", name = T{3749, "Use random pos?"}, editor = "bool", default = false,},
+		{ id = "placement_pos", name = T(3747, "Placement pos"), editor = "point", default = point30, },
+		{ id = "register_placement_pos", name = T(3748, "Use pos from register:"), editor = "text", default = "", },
+		{ id = "use_random_pos", name = T(3749, "Use random pos?"), editor = "bool", default = false,},
 		
-		{ id = "attach_to_obj_in_reg", name = T{3772, "Attach to object in register"}, editor = "text", default = "", help = "If this is filled, will ignore all other placement options and directly attach the newly created anomally to the given obj."},
-		{ id = "attach_obj_spot", name = T{3773, "Attach to object's spot"}, editor = "text", default = "", help = "Only has meaning if attach obj is provided, in that case will attach to the given spot."},
+		{ id = "attach_to_obj_in_reg", name = T(3772, "Attach to object in register"), editor = "text", default = "", help = "If this is filled, will ignore all other placement options and directly attach the newly created anomally to the given obj."},
+		{ id = "attach_obj_spot", name = T(3773, "Attach to object's spot"), editor = "text", default = "", help = "Only has meaning if attach obj is provided, in that case will attach to the given spot."},
 		
-		{ id = "store_obj", name = T{3753, "Store spawned obj in register"}, editor = "text", default = "", help = "If diff from empty str, will store spawned object in this register."},
-		{ id = "store_obj_append", name = T{3754, "Append to register?"}, editor = "bool", default = false, help = "Check to append to register, leave unchecked to replace register contents."},
+		{ id = "store_obj", name = T(3753, "Store spawned obj in register"), editor = "text", default = "", help = "If diff from empty str, will store spawned object in this register."},
+		{ id = "store_obj_append", name = T(3754, "Append to register?"), editor = "bool", default = false, help = "Check to append to register, leave unchecked to replace register contents."},
 		
 		--dbg param
-		{ id = "show_me_spawned_obj", name = T{3757, "Show me spawned obj (dbg)"}, editor = "bool", default = false,},
+		{ id = "show_me_spawned_obj", name = T(3757, "Show me spawned obj (dbg)"), editor = "bool", default = false,},
 	},
 	
 	check_passability = true,
@@ -2114,14 +2150,14 @@ DefineClass.SA_SpawnAnomaly = {
 	properties = {
 		
 		--anomaly props
-		{ category = "Anomaly", name = T{1153, "Display Name"}, id = "display_name", editor = "text", default = "", translate = true},
-		{ category = "Anomaly", name = T{1000017, "Description"}, id = "description", editor = "text", default = "", translate = true},
+		{ category = "Anomaly", name = T(1153, "Display Name"), id = "display_name", editor = "text", default = "", translate = true},
+		{ category = "Anomaly", name = T(1000017, "Description"), id = "description", editor = "text", default = "", translate = true},
 		
 		
-		{ category = "Anomaly", name = T{3774, "Generate Breakthrough Tech"}, id = "is_breakthrough", editor = "bool", default = false},
-		{ category = "Anomaly", name = T{3775, "Sequence List"}, 				id = "sequence_list", default = "",    editor = "dropdownlist", items = function() return table.map(DataInstances.Scenario, "name") end, },
-		{ category = "Anomaly", name = T{5, "Sequence"},                id = "sequence", editor = "dropdownlist", items = function(self) return self.sequence_list == "" and {} or table.map(DataInstances.Scenario[self.sequence_list], "name") end, default = "", help = "Sequence to start when the anomaly is scanned" },
-		{ category = "Anomaly", name = T{8696, "Expiration Time"},                id = "expiration_time", editor = "number", default = 0, scale = const.HourDuration, help = "If > 0 the anomaly will expire and disappear in this many hours." },
+		{ category = "Anomaly", name = T(3774, "Generate Breakthrough Tech"), id = "is_breakthrough", editor = "bool", default = false},
+		{ category = "Anomaly", name = T(3775, "Sequence List"), 				id = "sequence_list", default = "",    editor = "dropdownlist", items = function() return table.map(DataInstances.Scenario, "name") end, },
+		{ category = "Anomaly", name = T(5, "Sequence"),                id = "sequence", editor = "dropdownlist", items = function(self) return self.sequence_list == "" and {} or table.map(DataInstances.Scenario[self.sequence_list], "name") end, default = "", help = "Sequence to start when the anomaly is scanned" },
+		{ category = "Anomaly", name = T(8696, "Expiration Time"),                id = "expiration_time", editor = "number", default = 0, scale = const.HourDuration, help = "If > 0 the anomaly will expire and disappear in this many hours." },
 	},
 	
 	Menu = "Gameplay",
@@ -2168,19 +2204,19 @@ DefineClass.SA_WaitMarsTime = {
 	__parents = { "SA_WaitBase" },
 	
 	properties = {
-		{ id = "wait_type", name = T{3777, "Wait type"}, editor = "dropdownlist", items = function() return wait_types end, default = wait_types[1],},
+		{ id = "wait_type", name = T(3777, "Wait type"), editor = "dropdownlist", items = function() return wait_types end, default = wait_types[1],},
 		
 		--hours/days
-		{ id = "fake_dur", name = function(self) return self.wait_type == "Hours" and T{3778, "Hours"} or T{3779, "Sols"} end, editor = "number", default = 0, no_edit = function(self) return self.wait_type ~= "Sols" and self.wait_type ~= "Hours" end, dont_save = true,},
-		{ id = "fake_rand_dur", name = function(self) return self.wait_type == "Hours" and T{3780, "Random Hours"} or T{3781, "Random Sols"} end, editor = "number", default = 0, no_edit = function(self) return self.wait_type ~= "Sols" and self.wait_type ~= "Hours" end, dont_save = true,},
+		{ id = "fake_dur", name = function(self) return self.wait_type == "Hours" and T(3778, "Hours") or T(3779, "Sols") end, editor = "number", default = 0, no_edit = function(self) return self.wait_type ~= "Sols" and self.wait_type ~= "Hours" end, dont_save = true,},
+		{ id = "fake_rand_dur", name = function(self) return self.wait_type == "Hours" and T(3780, "Random Hours") or T(3781, "Random Sols") end, editor = "number", default = 0, no_edit = function(self) return self.wait_type ~= "Sols" and self.wait_type ~= "Hours" end, dont_save = true,},
 		{ id = "duration", editor = "number", name = "", no_edit = true,},
 		{ id = "rand_duration", name = "", editor = "number", no_edit = true, },
 		{ id = "loops", name = "", editor = "number", default = 0, no_edit = true, },
 		--specific hours/days
-		{ id = "target_hour", name = T{3782, "Target hour"}, no_edit = function(self) return self.wait_type ~= "Specific Hour" end, editor = "number", default = 0, min = 0, max = 24},
-		{ id = "target_sol", name = T{3783, "Target Sol"}, no_edit = function(self) return self.wait_type ~= "Specific Sol" end, editor = "number", default = 0,},
+		{ id = "target_hour", name = T(3782, "Target hour"), no_edit = function(self) return self.wait_type ~= "Specific Hour" end, editor = "number", default = 0, min = 0, max = 24},
+		{ id = "target_sol", name = T(3783, "Target Sol"), no_edit = function(self) return self.wait_type ~= "Specific Sol" end, editor = "number", default = 0,},
 		--daytime props
-		{ id = "wait_subtype", name = T{3784, "Wait subtype"}, editor = "dropdownlist", items = function() return daytime_wait_types end, default = daytime_wait_types[1], no_edit = function(self) return self.wait_type ~= "Daytime" end, },
+		{ id = "wait_subtype", name = T(3784, "Wait subtype"), editor = "dropdownlist", items = function() return daytime_wait_types end, default = daytime_wait_types[1], no_edit = function(self) return self.wait_type ~= "Daytime" end, },
 		{ id = "target_workshift", name = T{""}, editor = "number", default = 1, no_edit = true, },
 	},
 	
@@ -2423,24 +2459,24 @@ end
 DefineClass.SA_CallTradeRocket = {
 	__parents = {"SequenceAction"},
 	properties = {
-		{ id = "rocket_id", name = T{93, --[[Post-Cert]] "ID"}, editor = "text", default = "", },
-		{ id = "display_name", name = T{1153, --[[Post-Cert]] "Display Name"}, editor = "text", default = "", translate = true },
-		{ id = "description", name = T{1000017, --[[Post-Cert]] "Description"}, editor = "text", default = "", translate = true },
+		{ id = "rocket_id", name = T(93, --[[Post-Cert]] "ID"), editor = "text", default = "", },
+		{ id = "display_name", name = T(1153, --[[Post-Cert]] "Display Name"), editor = "text", default = "", translate = true },
+		{ id = "description", name = T(1000017, --[[Post-Cert]] "Description"), editor = "text", default = "", translate = true },
 
-		{ id = "resource1", name = T{15, --[[Post-Cert]] "Resource"}, editor = "dropdownlist", default = "", items = ResourcesDropDownListItems },
-		{ id = "amount1", name = T{1000100, --[[Post-Cert]] "Amount"}, editor = "number", scale = const.ResourceScale, default = 0 },
-		{ id = "resource2", name = T{15, --[[Post-Cert]] "Resource"}, editor = "dropdownlist", default = "", items = ResourcesDropDownListItems },
-		{ id = "amount2", name = T{1000100, --[[Post-Cert]] "Amount"}, editor = "number", scale = const.ResourceScale, default = 0 },
-		{ id = "resource3", name = T{15, --[[Post-Cert]] "Resource"}, editor = "dropdownlist", default = "", items = ResourcesDropDownListItems },
-		{ id = "amount3", name = T{1000100, --[[Post-Cert]] "Amount"}, editor = "number", scale = const.ResourceScale, default = 0 },
-		{ id = "resource4", name = T{15, --[[Post-Cert]] "Resource"}, editor = "dropdownlist", default = "", items = ResourcesDropDownListItems },
-		{ id = "amount4", name = T{1000100, --[[Post-Cert]] "Amount"}, editor = "number", scale = const.ResourceScale, default = 0 },
-		{ id = "resource5", name = T{15, --[[Post-Cert]] "Resource"}, editor = "dropdownlist", default = "", items = ResourcesDropDownListItems },
-		{ id = "amount5", name = T{1000100, --[[Post-Cert]] "Amount"}, editor = "number", scale = const.ResourceScale, default = 0 },
+		{ id = "resource1", name = T(15, --[[Post-Cert]] "Resource"), editor = "dropdownlist", default = "", items = ResourcesDropDownListItems },
+		{ id = "amount1", name = T(1000100, --[[Post-Cert]] "Amount"), editor = "number", scale = const.ResourceScale, default = 0 },
+		{ id = "resource2", name = T(15, --[[Post-Cert]] "Resource"), editor = "dropdownlist", default = "", items = ResourcesDropDownListItems },
+		{ id = "amount2", name = T(1000100, --[[Post-Cert]] "Amount"), editor = "number", scale = const.ResourceScale, default = 0 },
+		{ id = "resource3", name = T(15, --[[Post-Cert]] "Resource"), editor = "dropdownlist", default = "", items = ResourcesDropDownListItems },
+		{ id = "amount3", name = T(1000100, --[[Post-Cert]] "Amount"), editor = "number", scale = const.ResourceScale, default = 0 },
+		{ id = "resource4", name = T(15, --[[Post-Cert]] "Resource"), editor = "dropdownlist", default = "", items = ResourcesDropDownListItems },
+		{ id = "amount4", name = T(1000100, --[[Post-Cert]] "Amount"), editor = "number", scale = const.ResourceScale, default = 0 },
+		{ id = "resource5", name = T(15, --[[Post-Cert]] "Resource"), editor = "dropdownlist", default = "", items = ResourcesDropDownListItems },
+		{ id = "amount5", name = T(1000100, --[[Post-Cert]] "Amount"), editor = "number", scale = const.ResourceScale, default = 0 },
 		
-		{ id = "travel_time_mars", name = T{7884, --[[Post-Cert]] "Travel time (to Mars)"}, editor = "number", scale = const.HourDuration, default = -1 * const.HourDuration},
-		{ id = "travel_time_earth", name = T{7885, --[[Post-Cert]] "Travel time (to Earth)"}, editor = "number", scale = const.HourDuration, default = -1 * const.HourDuration},
-		{ id = "fuel_amount", name = T{7886, --[[Post-Cert]] "Fuel Amount"}, editor = "number", scale = const.ResourceScale, default = -1 * const.ResourceScale},
+		{ id = "travel_time_mars", name = T(7884, --[[Post-Cert]] "Travel time (to Mars)"), editor = "number", scale = const.HourDuration, default = -1 * const.HourDuration},
+		{ id = "travel_time_earth", name = T(7885, --[[Post-Cert]] "Travel time (to Earth)"), editor = "number", scale = const.HourDuration, default = -1 * const.HourDuration},
+		{ id = "fuel_amount", name = T(7886, --[[Post-Cert]] "Fuel Amount"), editor = "number", scale = const.ResourceScale, default = -1 * const.ResourceScale},
 	},
 	
 	
@@ -2525,8 +2561,8 @@ DefineClass.SA_WaitTradeRocket = {
 	__parents = { "SA_WaitBase" },
 	
 	properties = {
-		{ id = "rocket_id", name = T{93, --[[Post-Cert]] "ID"}, editor = "text", default = "", },
-		{ id = "wait_status", name = T{7887, --[[Post-Cert]] "Wait status"}, editor = "dropdownlist", items = RocketWaitStatuses, default = "on earth" },
+		{ id = "rocket_id", name = T(93, --[[Post-Cert]] "ID"), editor = "text", default = "", },
+		{ id = "wait_status", name = T(7887, --[[Post-Cert]] "Wait status"), editor = "dropdownlist", items = RocketWaitStatuses, default = "on earth" },
 	},
 		
 	--ui
@@ -2569,22 +2605,22 @@ end
 DefineClass.SA_CallRefugeeRocket = {
 	__parents = {"SequenceAction"},
 	properties = {
-		{ id = "rocket_id", name = T{93, --[[Post-Cert]] "ID"}, editor = "text", default = "", },
-		{ id = "display_name", name = T{1153, --[[Post-Cert]] "Display Name"}, editor = "text", default = "", translate = true },
-		{ id = "description", name = T{1000017, --[[Post-Cert]] "Description"}, editor = "text", default = "", translate = true },
+		{ id = "rocket_id", name = T(93, --[[Post-Cert]] "ID"), editor = "text", default = "", },
+		{ id = "display_name", name = T(1153, --[[Post-Cert]] "Display Name"), editor = "text", default = "", translate = true },
+		{ id = "description", name = T(1000017, --[[Post-Cert]] "Description"), editor = "text", default = "", translate = true },
 
-		{ id = "travel_time_mars", name = T{7884, --[[Post-Cert]] "Travel time (to Mars)"}, editor = "number", scale = const.HourDuration, default = -1 * const.HourDuration},
+		{ id = "travel_time_mars", name = T(7884, --[[Post-Cert]] "Travel time (to Mars)"), editor = "number", scale = const.HourDuration, default = -1 * const.HourDuration},
 		
 		-- refugees
-		{ id = "timeout", name = T{8457, "Passenger Orbit Lifetime"}, editor = "number", default = -1*const.HourDuration, scale = const.HourDuration, },
-		{ id = "num_refugees", name = T{8083, "Num Refugees"}, editor = "number", min = 1, default = 10},
-		{ id = "refugee",  name = T{8084, "Add Refugee Trait"}, editor = "bool", default = true },
-		{ id = "trait1", name = T{8085, "Trait 1"}, editor = "dropdownlist", items = function() return BaseTraitsCombo(UICity, true) end, default = "", },
-		{ id = "chance1", name = T{8086, "Trait 1 chance"}, editor = "number", min = 0, max = 100, default = 0 },
-		{ id = "trait2", name = T{8087, "Trait 2"}, editor = "dropdownlist", items = function() return BaseTraitsCombo(UICity, true) end, default = "", },
-		{ id = "chance2", name = T{8088, "Trait 2 chance"}, editor = "number", min = 0, max = 100, default = 0 },
-		{ id = "trait3", name = T{8089, "Trait 3"}, editor = "dropdownlist", items = function() return BaseTraitsCombo(UICity, true) end, default = "", },
-		{ id = "chance3", name = T{8090, "Trait 3 chance"}, editor = "number", min = 0, max = 100, default = 0 },
+		{ id = "timeout", name = T(8457, "Passenger Orbit Lifetime"), editor = "number", default = -1*const.HourDuration, scale = const.HourDuration, },
+		{ id = "num_refugees", name = T(8083, "Num Refugees"), editor = "number", min = 1, default = 10},
+		{ id = "refugee",  name = T(8084, "Add Refugee Trait"), editor = "bool", default = true },
+		{ id = "trait1", name = T(8085, "Trait 1"), editor = "dropdownlist", items = function() return BaseTraitsCombo(UICity, true) end, default = "", },
+		{ id = "chance1", name = T(8086, "Trait 1 chance"), editor = "number", min = 0, max = 100, default = 0 },
+		{ id = "trait2", name = T(8087, "Trait 2"), editor = "dropdownlist", items = function() return BaseTraitsCombo(UICity, true) end, default = "", },
+		{ id = "chance2", name = T(8088, "Trait 2 chance"), editor = "number", min = 0, max = 100, default = 0 },
+		{ id = "trait3", name = T(8089, "Trait 3"), editor = "dropdownlist", items = function() return BaseTraitsCombo(UICity, true) end, default = "", },
+		{ id = "chance3", name = T(8090, "Trait 3 chance"), editor = "number", min = 0, max = 100, default = 0 },
 	},
 	
 	
@@ -2657,7 +2693,7 @@ DefineClass.SA_WaitRefugeeRocket = {
 	__parents = { "SA_WaitBase" },
 	
 	properties = {
-		{ id = "rocket_id", name = T{93, --[[Post-Cert]] "ID"}, editor = "text", default = "", help = T{8091, "g_RefugeeOutcome[id] will be either 'success' or 'timeout' after this."} },
+		{ id = "rocket_id", name = T(93, --[[Post-Cert]] "ID"), editor = "text", default = "", help = T(8091, "g_RefugeeOutcome[id] will be either 'success' or 'timeout' after this.") },
 	},
 		
 	--ui

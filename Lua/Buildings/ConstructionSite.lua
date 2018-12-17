@@ -8,7 +8,7 @@ DefineClass.ConstructionSite = {
 	enum_flags = { efSelectable = true, efWalkable = false},
 	game_flags = { gofUnderConstruction = true, },
 	class_flags = { cfNoHeightSurfs = true, cfComponentCustomData = true },
-	display_name = T{606, "Construction Site"},
+	display_name = T(606, "Construction Site"),
 	building_class = false,
 	building_update_time = 5*1000,
 	
@@ -331,7 +331,7 @@ function ConstructionSite:OnSetWorking(working)
 end
 
 function ConstructionSite:ToggleWorking_Update(button)
-	button:SetRolloverText(T{619, "Construction sites that are turned off are not serviced.<newline><newline>Current status: <em><UIWorkingStatus></em>"})
+	button:SetRolloverText(T(619, "Construction sites that are turned off are not serviced.<newline><newline>Current status: <em><UIWorkingStatus></em>"))
 	Building.ToggleWorking_Update(self, button)
 end
 
@@ -2474,7 +2474,7 @@ end
 
 -- provide stub for all missing classes
 function UnpersistedMissingClass:GetDisplayName()
-	return T{77, "Unknown"}
+	return T(77, "Unknown")
 end
 
 function ConstructionSite:GetDisplayName()
@@ -2494,7 +2494,7 @@ end
 
 function ConstructionSite:GetIPStatus()
 	if not self:IsBlockerClearenceCompleteUIOnly() then
-		local ret = T{627, "The construction site is being cleared."}
+		local ret = T(627, "The construction site is being cleared.")
 		if not self.construction_group or not self.construction_group[1].instant_build then
 			ret = ret .. 
 					"<newline>" ..

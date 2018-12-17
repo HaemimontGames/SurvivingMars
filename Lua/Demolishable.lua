@@ -7,8 +7,8 @@ DefineClass.Demolishable = {
 	__parents = { "Object" },
 
 	properties = {
-		{ template = true, category = "Demolish", name = T{934, "Can demolish?"}, id = "can_demolish", editor = "bool", default = true, help = "Specify if the building can be destroyed by demolishing." },
-		{ template = true, category = "Demolish", name = T{175, "Use demolished state?"}, id = "use_demolished_state", editor = "bool", default = false, object_update = true, help = "If true, the destroyed target will transofrm into ruins, instead of disappearing after destruction." },
+		{ template = true, category = "Demolish", name = T(934, "Can demolish?"), id = "can_demolish", editor = "bool", default = true, help = "Specify if the building can be destroyed by demolishing." },
+		{ template = true, category = "Demolish", name = T(175, "Use demolished state?"), id = "use_demolished_state", editor = "bool", default = false, object_update = true, help = "If true, the destroyed target will transofrm into ruins, instead of disappearing after destruction." },
 	},
 
 	demolishing = false,
@@ -71,18 +71,18 @@ function Demolishable:ToggleDemolish_Update(button)
 	local shortcuts = GetShortcuts("actionToggleDemolish")
 	local binding = ""
 	if shortcuts and (shortcuts[1] or shortcuts[2]) then
-		binding = T{10906, " / <em><ShortcutName('actionToggleDemolish', 'keyboard')></em>"}
+		binding = T(10906, " / <em><ShortcutName('actionToggleDemolish', 'keyboard')></em>")
 	end
 	if self:IsKindOf("ConstructionSite") then
 		if g_Tutorial then
 			button:SetEnabled(false)
 		end
 		button:SetRolloverHint(T{7573, "<left_click><binding> Cancel construction", binding = binding})
-		button:SetRolloverHintGamepad(T{7574, "<ButtonY> Cancel construction"})
+		button:SetRolloverHintGamepad(T(7574, "<ButtonY> Cancel construction"))
 		return
 	end
 	button:SetRolloverHint(not self.demolishing and T{7575, "<left_click><binding> Salvage", binding = binding} or T{7576, "<left_click><binding> Cancel Salvage", binding = binding})
-	button:SetRolloverHintGamepad(not self.demolishing and T{7577, "<ButtonY> Salvage"} or T{7578, "<ButtonY> Cancel Salvage"})
+	button:SetRolloverHintGamepad(not self.demolishing and T(7577, "<ButtonY> Salvage") or T(7578, "<ButtonY> Cancel Salvage"))
 end
 
 function Demolishable:DoDemolish()

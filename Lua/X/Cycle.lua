@@ -87,7 +87,7 @@ function HomelessCycle(obj)
 	local objs = city.labels.Homeless or empty_table
 	local index = type(objs) == "table" and table.find(objs, obj)
 	if index then
-		return index, objs, T{7679, "<name><right><index> / <max>", name = T{3869, "Homeless"}, index = index, max = #objs}
+		return index, objs, T{7679, "<name><right><index> / <max>", name = T(3869, "Homeless"), index = index, max = #objs}
 	end
 end
 
@@ -96,7 +96,7 @@ function UnemployedCycle(obj)
 	local objs = city.labels.Unemployed or empty_table
 	local index = type(objs) == "table" and table.find(objs, obj)
 	if index then
-		return index, objs, T{7679, "<name><right><index> / <max>", name = T{6859, "Unemployed"}, index = index, max = #objs}
+		return index, objs, T{7679, "<name><right><index> / <max>", name = T(6859, "Unemployed"), index = index, max = #objs}
 	end
 end
 

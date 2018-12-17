@@ -17,52 +17,52 @@ ConstructionStatusColors = {
 }
 
 ConstructionStatus = {
-	OnTopOfResourceSign =             { type = "warning", priority = 99,  text = T{7571, "May block access to deposit."}, short = T{7572, "Overlaps deposit"} }, --on top of deposit sign
-	ElectricityRequired =             { type = "warning", priority = 93,  text = T{842, "This building requires Power."}, short = T{843, "No cable connection"}}, --no grids nearby
-	ElectricityGridNotEnoughPower =   { type = "warning", priority = 92,  text = T{844, "Not enough Power for this building."}, short =  T{193, "Not enough Power"} }, --there are grids nearby, but they do not produce enough.
-	VaporatorInRange =                { type = "warning", priority = 99, text = T{847, "Producing <water(number)> less than optimal due to the presence of other Moisture Vaporators in the vicinity."}, short =  T{848, "Vaporator nearby"}},
-	ColdSensitive =                   { type = "warning", priority = 96,  text = T{849, "The building will consume <red><percent(pct)></red> more Power in cold areas."}, short = T{850, "Cold terrain"}},
-	NoNearbyDome =                    { type = "warning", priority = 98, text = T{7702, "No operational Domes in walking distance."}, short =  T{7703, "Far from operational Domes"}}, --no dome nearby
-	UnexploredSector =                { type = "warning", priority = 97, text = T{852, "This sector is not yet scanned. The construction will possibly make resource deposits or Anomalies unreachable."} , short =  T{853, "Unexplored sector"}},
+	OnTopOfResourceSign =             { type = "warning", priority = 99,  text = T(7571, "May block access to deposit."), short = T(7572, "Overlaps deposit") }, --on top of deposit sign
+	ElectricityRequired =             { type = "warning", priority = 93,  text = T(842, "This building requires Power."), short = T(843, "No cable connection")}, --no grids nearby
+	ElectricityGridNotEnoughPower =   { type = "warning", priority = 92,  text = T(844, "Not enough Power for this building."), short =  T(193, "Not enough Power") }, --there are grids nearby, but they do not produce enough.
+	VaporatorInRange =                { type = "warning", priority = 99, text = T(847, "Producing <water(number)> less than optimal due to the presence of other Moisture Vaporators in the vicinity."), short =  T(848, "Vaporator nearby")},
+	ColdSensitive =                   { type = "warning", priority = 96,  text = T(849, "The building will consume <red><percent(pct)></red> more Power in cold areas."), short = T(850, "Cold terrain")},
+	NoNearbyDome =                    { type = "warning", priority = 98, text = T(7702, "No operational Domes in walking distance."), short =  T(7703, "Far from operational Domes")}, --no dome nearby
+	UnexploredSector =                { type = "warning", priority = 97, text = T(852, "This sector is not yet scanned. The construction will possibly make resource deposits or Anomalies unreachable.") , short =  T(853, "Unexplored sector")},
 
-	NoDroneHub =                      { type = "problem", priority = 100,  text = T{845, "Too far from working Drone commander."}, short =  T{8016, "Too far from working Drone commander"}}, --outside the range of any drone command center
+	NoDroneHub =                      { type = "problem", priority = 100,  text = T(845, "Too far from working Drone commander."), short =  T(8016, "Too far from working Drone commander")}, --outside the range of any drone command center
 	
-	RequiresCable =                   { type = "error", priority = 90, text = T{854, "Must be constructed over a power cable."}, short = T{855, "Must be built on a cable"}},
-	RequiresCompletedCable =          { type = "error", priority = 90, text = T{9833, "Must be constructed over a completed power cable."}, short = T{9834, "Must be built on a completed cable"}},
-	RequiresPipe =                    { type = "error", priority = 90, text = T{856, "Must be constructed over a pipe."}, short = T{857, "Must be built on a pipe"}},
-	RequiresCompletedPipe =           { type = "error", priority = 90, text = T{9835, "Must be constructed over completed a pipe."}, short = T{9836, "Must be built on a completed pipe"}},
-	RequiresPassage =                 { type = "error", priority = 90, text = T{8770, "Must be constructed over a passage."}, short = T{8771, "Must be built on a passage"}},
-	RequiresCompletedPassage =        { type = "error", priority = 90, text = T{9758, "Must be constructed over a completed passage."}, short = T{9759, "Must be built on a completed passage"}},
-	DontBuildHere =                   { type = "error", priority = 92, text = T{858, "Can't build on dust geysers."}, short = T{7953, "Blocking objects"}},
-	BlockingObjects =                 { type = "error", priority = 97, text = T{860, "Objects underneath are blocking construction."}, short = T{7953, "Blocking objects"}},
-	NoPlaceForSpire =                 { type = "error", priority = 97, text = T{9619, "No Spire Slot."}, short = T{9620, "No Spire Slot"}},
-	UnevenTerrain =                   { type = "error", priority = 96, text = T{861, "Uneven terrain."}, short = T{7954, "Uneven terrain"}},
-	ResourceRequired =                { type = "error", priority = 95, text = T{862, "There is none of the required resource nearby."},short =  T{863, "Requires a deposit"} }, --no resource nearby.
-	ResourceTechnologyRequired =      { type = "error", priority = 95, text = T{864, "You lack the technology to exploit nearby resources."}, short = T{865, "Unexploitable deposits"}}, --no resource nearby.
-	DomeRequired =                    { type = "error", priority = 94, text = T{866, "Must be placed under a functioning Dome."}, short =  T{867, "Requires a Dome"} },
-	DomeCanNotInteract =              { type = "error", priority = 94, text = T{11235, "Construction in Rogue Domes is forbidden."}, short =  T{11236, "Rogue Dome"} },
-	NonBuildableInterior =            { type = "error", priority = 94, text = T{868, "Unbuildable area."}, short = T{7955, "Unbuildable area"}},
-	DomeProhibited =                  { type = "error", priority = 93, text = T{869, "Cannot be placed in a Dome."}, short =  T{870, "Outside building"}},
-	DomeCeilingTooLow =               { type = "error", priority = 93, text = T{871, "Cannot be placed at this location due to height constraints."}, short =  T{872, "Too tall"}},
-	ParentFarmRequired =              { type = "error", priority = 98, text = T{873, "Must be placed adjacent to the farm or its fields."}, },
-	LineTooLong =                     { type = "error", priority = 95, text = T{874, "Section is too long."}, short  =  T{875, "Too long"}}, --cable/pipe too long
-	NoNearbyWorkers =                 { type = "error", priority = 100, text = T{190, "This building requires Colonists and is too far from your Domes."}, short =  T{876, "Too far from Domes"}}, --no workers nearby
-	TooFarFromTunnelEntrance =        { type = "error", priority = 100, text = T{6773, "Too far from tunnel entrance."}, short =  T{846, "Too far"}},
-	RocketLandingDustStorm =          { type = "error", priority = 90, text = T{8524, "Rockets can't land during dust storms."}, short = T{8525, "Can't Land"}},
-	PassageRequiresTwoDomes = 		    { type = "error", priority = 90, text = T{8772, "Passage must start and end in a dome."}, short = T{8773, "No dome"}},
-	PassageRequiresDifferentDomes =   { type = "error", priority = 90, text = T{8928, "Passage must start and end in different domes."}, short = T{8929, "Same dome"}},
-	PassageTooCloseToEntrance =       { type = "error", priority = 90, text = T{8774, "Too close to dome entrance."}, short = T{8775, "Dome entrance blocking"}},
-	PassageTooCloseToLifeSupport =    { type = "error", priority = 90, text = T{9760, "Too close to pipe link."}, short = T{9761, "Pipe blocking"}},
-	PassageAngleToSteep = 				 { type = "error", priority = 91, text = T{8930, "Too sharp curve."}, short = T{8931, "Sharp curve"}},
+	RequiresCable =                   { type = "error", priority = 90, text = T(854, "Must be constructed over a power cable."), short = T(855, "Must be built on a cable")},
+	RequiresCompletedCable =          { type = "error", priority = 90, text = T(9833, "Must be constructed over a completed power cable."), short = T(9834, "Must be built on a completed cable")},
+	RequiresPipe =                    { type = "error", priority = 90, text = T(856, "Must be constructed over a pipe."), short = T(857, "Must be built on a pipe")},
+	RequiresCompletedPipe =           { type = "error", priority = 90, text = T(9835, "Must be constructed over a completed pipe."), short = T(9836, "Must be built on a completed pipe")},
+	RequiresPassage =                 { type = "error", priority = 90, text = T(8770, "Must be constructed over a passage."), short = T(8771, "Must be built on a passage")},
+	RequiresCompletedPassage =        { type = "error", priority = 90, text = T(9758, "Must be constructed over a completed passage."), short = T(9759, "Must be built on a completed passage")},
+	DontBuildHere =                   { type = "error", priority = 92, text = T(858, "Can't build on dust geysers."), short = T(7953, "Blocking objects")},
+	BlockingObjects =                 { type = "error", priority = 97, text = T(860, "Objects underneath are blocking construction."), short = T(7953, "Blocking objects")},
+	NoPlaceForSpire =                 { type = "error", priority = 97, text = T(9619, "No Spire Slot."), short = T(9620, "No Spire Slot")},
+	UnevenTerrain =                   { type = "error", priority = 96, text = T(861, "Uneven terrain."), short = T(7954, "Uneven terrain")},
+	ResourceRequired =                { type = "error", priority = 95, text = T(862, "There is none of the required resource nearby."),short =  T(863, "Requires a deposit") }, --no resource nearby.
+	ResourceTechnologyRequired =      { type = "error", priority = 95, text = T(864, "You lack the technology to exploit nearby resources."), short = T(865, "Unexploitable deposits")}, --no resource nearby.
+	DomeRequired =                    { type = "error", priority = 94, text = T(866, "Must be placed under a functioning Dome."), short =  T(867, "Requires a Dome") },
+	DomeCanNotInteract =              { type = "error", priority = 94, text = T(11235, "Construction in Rogue Domes is forbidden."), short =  T(11236, "Rogue Dome") },
+	NonBuildableInterior =            { type = "error", priority = 94, text = T(868, "Unbuildable area."), short = T(7955, "Unbuildable area")},
+	DomeProhibited =                  { type = "error", priority = 93, text = T(869, "Cannot be placed in a Dome."), short =  T(870, "Outside building")},
+	DomeCeilingTooLow =               { type = "error", priority = 93, text = T(871, "Cannot be placed at this location due to height constraints."), short =  T(872, "Too tall")},
+	ParentFarmRequired =              { type = "error", priority = 98, text = T(873, "Must be placed adjacent to the farm or its fields."), },
+	LineTooLong =                     { type = "error", priority = 95, text = T(874, "Section is too long."), short  =  T(875, "Too long")}, --cable/pipe too long
+	NoNearbyWorkers =                 { type = "error", priority = 100, text = T(190, "This building requires Colonists and is too far from your Domes."), short =  T(876, "Too far from Domes")}, --no workers nearby
+	TooFarFromTunnelEntrance =        { type = "error", priority = 100, text = T(6773, "Too far from tunnel entrance."), short =  T(846, "Too far")},
+	RocketLandingDustStorm =          { type = "error", priority = 90, text = T(8524, "Rockets can't land during dust storms."), short = T(8525, "Can't Land")},
+	PassageRequiresTwoDomes = 		    { type = "error", priority = 90, text = T(8772, "Passage must start and end in a dome."), short = T(8773, "No dome")},
+	PassageRequiresDifferentDomes =   { type = "error", priority = 90, text = T(8928, "Passage must start and end in different domes."), short = T(8929, "Same dome")},
+	PassageTooCloseToEntrance =       { type = "error", priority = 90, text = T(8774, "Too close to dome entrance."), short = T(8775, "Dome entrance blocking")},
+	PassageTooCloseToLifeSupport =    { type = "error", priority = 90, text = T(9760, "Too close to pipe link."), short = T(9761, "Pipe blocking")},
+	PassageAngleToSteep = 				 { type = "error", priority = 91, text = T(8930, "Too sharp curve."), short = T(8931, "Sharp curve")},
 	
-	DepositInfo =                     { type = "info",  priority = 97, text = T{877, "Available resource<right><resource><newline><left>Grade<right><grade><left>"} },
+	DepositInfo =                     { type = "info",  priority = 97, text = T(877, "Available resource<right><resource><newline><left>Grade<right><grade><left>") },
 	
-	BeautyDepositNearby =             { type = "warning", priority = 95, text = T{11586, "Vista - Comfort of residences will be boosted."}, short = T{11458, "Vista"} },
-	ResearchDepositNearby =           { type = "warning", priority = 95, text = T{11587, "Research Site - all Research will be boosted."}, short = T{11461, "Research Site"} },
+	BeautyDepositNearby =             { type = "warning", priority = 95, text = T(11586, "Vista - Comfort of residences will be boosted."), short = T(11458, "Vista") },
+	ResearchDepositNearby =           { type = "warning", priority = 95, text = T(11587, "Research Site - all Research will be boosted."), short = T(11461, "Research Site") },
 
 	-- tutorial-ralated
-	TooFarFromTarget = 		 		    { type = "error", priority = 90, text = T{8932, "Too far from target location."}, short = T{846, "Too far"}},
-	WrongBuilding = 			 		    { type = "error", priority = 90, text = T{8933, "Wrong building selected."}, short = T{8934, "Wrong building"}},
+	TooFarFromTarget = 		 		    { type = "error", priority = 90, text = T(8932, "Too far from target location."), short = T(846, "Too far")},
+	WrongBuilding = 			 		    { type = "error", priority = 90, text = T(8933, "Wrong building selected."), short = T(8934, "Wrong building")},
 }
 
 
@@ -85,7 +85,7 @@ function TryCloseAfterPlace(self)
 	local shift, left_trigger
 	local is_wonder = self.template and ClassTemplates.Building[self.template].wonder
 	if not is_wonder then
-		shift = Platform.desktop and terminal.IsKeyPressed(const.vkShift)
+		shift = terminal.IsKeyPressed(const.vkShift)
 		
 		if GetUIStyleGamepad() then
 			local function CheckForGamepadState(state_idx)
@@ -488,7 +488,7 @@ function CursorBuilding:GameInit()
 		self:SetState(class.construction_state)
 		local a = self:GetAttaches()
 		for i = 1, #(a or "") do
-			if a[i]:HasState(class.construction_state) then
+			if a[i].entity and a[i]:HasState(class.construction_state) then
 				a[i]:SetState(class.construction_state)
 			end
 		end
@@ -612,6 +612,7 @@ DefineClass.ConstructionController = {
 	template_variants = false,
 	markers = false,
 	ui_callback = false, -- function to call when the construction is placed; only works for placing through the UI
+	is_template = false,
 	
 	dome_required = false,
 	dome_forbidden = false,
@@ -844,7 +845,7 @@ function ConstructionController:Deactivate()
 	
 	self.cursor_obj = false
 	self.template_obj = false
-	self:ColorRocks({})
+	self:ColorRocks()
 	self:ClearColorFromAllConstructionObstructors()
 	self.construction_obstructors = false
 	
@@ -875,7 +876,7 @@ function ConstructionController:ChangeCursorObj(dir)
 		PlayFX("ConstructionCursor", "end", self.cursor_obj, self.template_obj.class)
 		self.cursor_obj:delete()
 	end
-	self:ColorRocks({})
+	self:ColorRocks()
 	self:ClearColorFromAllConstructionObstructors()
 	self.construction_obstructors = false
 	self.cursor_obj = self:CreateCursorObj({entity = new_entity, palette = new_palette})
@@ -1019,7 +1020,7 @@ function ConstructionController:SetColorToAllConstructionObstructors(color)
 			assert(false, "Building is unexpectedly deleted.")
 		end
 	end
-	if not ignore_domes then
+	if not ignore_domes and IsValid(self.cursor_obj) then
 		local inside_dome = GetDomeAtPoint(self.cursor_obj)
 		if inside_dome then table.insert(domes, inside_dome) end
 		
@@ -1028,14 +1029,15 @@ function ConstructionController:SetColorToAllConstructionObstructors(color)
 end
 
 function ConstructionController:CloseSelectedDomes(domes)
-	for i = 1, #self.selected_domes do
-		if UICity.selected_dome ~= self.selected_domes[i] and not table.find(domes, self.selected_domes[i]) then
-			self.selected_domes[i]:Close()
+	local selected_domes = self.selected_domes or empty_table
+	for i = 1, #selected_domes do
+		if UICity.selected_dome ~= selected_domes[i] and not table.find(domes, selected_domes[i]) then
+			selected_domes[i]:Close()
 		end
 	end
 	
 	for i = 1, #domes do
-		if not table.find(self.selected_domes, domes[i]) then
+		if not table.find(selected_domes, domes[i]) then
 			domes[i]:Open()
 		end
 	end
@@ -1193,6 +1195,7 @@ function ConstructionController:ClearDomeWithObstructedRoads()
 end
 
 function ConstructionController:ColorRocks(new_rocks)
+	new_rocks = new_rocks or {}
 	local old_rocks = self.rocks_underneath
 	
 	for i = 1, #(old_rocks or "") do
@@ -1990,7 +1993,7 @@ function ConstructionController:Getconstruction_statuses_property()
 			local domes = GetDomesInWalkableDistance(UICity, self.cursor_obj:GetPos())
 			items[#items+1] = T{7688, "<green>Domes in walkable distance: <number></color></shadowcolor>", number = #domes}
 		else
-			items[#items+1] = T{880, "<green>All Clear!</green>"}
+			items[#items+1] = T(880, "<green>All Clear!</green>")
 		end
 	end
 	return table.concat(items, "\n")
@@ -2023,7 +2026,7 @@ function ConstructionController:GetConstructionCost()
 	if #items > 0 then
 		return table.concat(items, "<newline><left>")
 	else
-		return T{902, "Doesn't require construction resources"}
+		return T(902, "Doesn't require construction resources")
 	end
 end
 
@@ -3424,7 +3427,7 @@ function GridConstructionController:Deactivate(pt)
 		self.total_cost = false
 		self:DoneVisuals()
 		self:UpdateCursorObject(true)
-		self:ColorRocks({})
+		self:ColorRocks()
 		local terrain_pos = GetPosHelper()
 		if terrain.IsPointInBounds(terrain_pos) then --update at new pos
 			self:UpdateCursor(terrain_pos)
@@ -3434,7 +3437,7 @@ function GridConstructionController:Deactivate(pt)
 		if self.mode == "passage_grid" then
 			self:ClearDomeWithObstructedRoads()
 		end
-		self:ColorRocks({})
+		self:ColorRocks()
 		self:DoneHelpers()
 		if IsValid(self.cursor_obj) then
 			DoneObject(self.cursor_obj)
@@ -3517,15 +3520,15 @@ function GridConstructionController:UpdateShortConstructionStatus(last_data)
 	
 	local new_skin = false
 	if bld then
-		txt = T{8019, "Connected to building"}
+		txt = T(8019, "Connected to building")
 		if not IsKindOf(bld, "ConstructionSite") and IsKindOf(bld, "LifeSupportGridObject") then
 			new_skin = bld.water and bld.water.grid and bld.water.grid.element_skin
 		end
 	elseif pipe then
-		txt = T{8020, "Connected to pipe"}
+		txt = T(8020, "Connected to pipe")
 		new_skin = pipe.water and pipe.water.grid and pipe.water.grid.element_skin
 	else
-		txt = T{8021, "<yellow>Not connected</color>"}
+		txt = T(8021, "<yellow>Not connected</color>")
 	end
 	
 	if new_skin and not self.starting_point then
@@ -3603,7 +3606,7 @@ function GridConstructionController:Getconstruction_statuses_property()
 			items[#items+1] = T{879, "<col><text></color>", col = ConstructionStatusColors[st.type].color_tag, text = st.text}
 		end
 	else
-		items[#items+1] = T{880, "<green>All Clear!</green>"}
+		items[#items+1] = T(880, "<green>All Clear!</green>")
 	end
 	return table.concat(items, "\n")
 end
@@ -3617,7 +3620,7 @@ function GridConstructionController:Getconstruction_costs_property()
 	end
 	
 	if next(t) then
-		text = T{263, "Cost: "} .. table.concat(t , " ")
+		text = T(263, "Cost: ") .. table.concat(t , " ")
 	end
 	
 	return text
@@ -3625,21 +3628,21 @@ end
 
 function GridConstructionController:GetDisplayName()
 	if self.mode == "electricity_grid" then
-		return T{881, "Power Cables"}
+		return T(881, "Power Cables")
 	elseif self.mode == "life_support_grid" then
-		return T{882, "Pipes"}
+		return T(882, "Pipes")
 	elseif self.mode == "passage_grid" then
-		return T{8776, "Passages"}
+		return T(8776, "Passages")
 	end
 end
 
 function GridConstructionController:GetDescription()
 	if self.mode == "electricity_grid" then
-		return T{883, "Cables connect adjacent buildings to the power grid when constructed."}
+		return T(883, "Cables connect adjacent buildings to the power grid when constructed.")
 	elseif self.mode == "life_support_grid" then
-		return T{884, "Pipes transport Oxygen and Water and have to be connected to buildings on the spots indicated with a pipe connection icon."}
+		return T(884, "Pipes transport Oxygen and Water and have to be connected to buildings on the spots indicated with a pipe connection icon.")
 	elseif self.mode == "passage_grid" then
-		return T{8777, "Connect two domes by placing both ends of the Passage on empty hexes inside two nearby domes."}
+		return T(8777, "Connect two domes by placing both ends of the Passage on empty hexes inside two nearby domes.")
 	end
 end
 
@@ -3885,7 +3888,7 @@ function GridSwitchConstructionController:Deactivate(pt)
 	self.construction_obstructors = false
 	
 	self:ClearDomeWithObstructedRoads()
-	self:ColorRocks({})
+	self:ColorRocks()
 	
 	return true --kill me
 end
@@ -3920,6 +3923,12 @@ function GridSwitchConstructionController:UpdateConstructionStatuses(pt)
 			self.construction_statuses[#self.construction_statuses + 1] = ConstructionStatus.RequiresPassage
 		elseif IsKindOf(p, "ConstructionSite") then
 			self.construction_statuses[#self.construction_statuses + 1] = ConstructionStatus.RequiresCompletedPassage
+		end
+		
+		local to = self.template_obj
+		local co = self.cursor_obj
+		if not self:IsTerrainFlatForPlacement(to:GetBuildShape(), co:GetPos(), co:GetAngle()) then
+			self.construction_statuses[#self.construction_statuses + 1] = ConstructionStatus.UnevenTerrain
 		end
 		
 		if self.template_obj.dome_forbidden and GetDomeAtHex(q, r) then
@@ -3976,21 +3985,21 @@ end
 
 function GridSwitchConstructionController:GetDisplayName()
 	if self.mode == "electricity_switch" then
-		return T{885, "Power Switch"}
+		return T(885, "Power Switch")
 	elseif self.mode == "lifesupport_switch" then
-		return T{886, "Pipe Valve"}
+		return T(886, "Pipe Valve")
 	elseif self.mode == "passage_ramp" then
-		return T{8813, "Passage Ramp"}
+		return T(8813, "Passage Ramp")
 	end
 end
 
 function GridSwitchConstructionController:GetDescription()
 	if self.mode == "electricity_switch" then
-		return T{887, "Place a power switch"}
+		return T(887, "Place a power switch")
 	elseif self.mode == "lifesupport_switch" then
-		return T{888, "Place a pipe valve"}
+		return T(888, "Place a pipe valve")
 	elseif self.mode == "passage_ramp" then
-		return T{8778, "Place a passage ramp"}
+		return T(8778, "Place a passage ramp")
 	end
 end
 ----------------------------------------------------------------------------------------------------------------------
@@ -4225,7 +4234,7 @@ function TunnelConstructionController:Deactivate(pt)
 			self.cursor_obj = false
 		end
 		
-		self:ColorRocks({})
+		self:ColorRocks()
 		self:ClearColorFromAllConstructionObstructors()
 		return true --kill me
 	end
@@ -4274,9 +4283,9 @@ end
 
 ---gui
 maintenance_props = {
-	{"electricity_consumption", "Power", T{79, "Power"}},
-	{"air_consumption", "Air", T{891, "Air"}},
-	{"water_consumption", "Water", T{681, "Water"}},
+	{"electricity_consumption", "Power", T(79, "Power")},
+	{"air_consumption", "Air", T(891, "Air")},
+	{"water_consumption", "Water", T(681, "Water")},
 }
 
 function OnMsg.GatherFXActions(list)

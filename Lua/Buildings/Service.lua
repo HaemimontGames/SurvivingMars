@@ -2,10 +2,10 @@ local stat_scale = const.Scale.Stat
 DefineClass.StatsChange = {
 	__parents = { "Building"},
 	properties = {
-		{ category = "Service", template = true, modifiable = true, id = "health_change", name = T{728, "Health change on visit"}, default = 0, scale = "Stat", editor = "number" },
-		{ category = "Service", template = true, modifiable = true, id = "sanity_change", name = T{729, "Sanity change on visit"}, default = 0, scale = "Stat", editor = "number" },
-		{ category = "Service", template = true, modifiable = true, id = "service_comfort", name = T{730, "Service Comfort"}, default = 40*stat_scale, editor = "number", scale = "Stat" },
-		{ category = "Service", template = true, modifiable = true, id = "comfort_increase", name = T{731, "Comfort increase on visit"}, default = 10*stat_scale, editor = "number", scale = "Stat"},
+		{ category = "Service", template = true, modifiable = true, id = "health_change", name = T(728, "Health change on visit"), default = 0, scale = "Stat", editor = "number" },
+		{ category = "Service", template = true, modifiable = true, id = "sanity_change", name = T(729, "Sanity change on visit"), default = 0, scale = "Stat", editor = "number" },
+		{ category = "Service", template = true, modifiable = true, id = "service_comfort", name = T(730, "Service Comfort"), default = 40*stat_scale, editor = "number", scale = "Stat" },
+		{ category = "Service", template = true, modifiable = true, id = "comfort_increase", name = T(731, "Comfort increase on visit"), default = 10*stat_scale, editor = "number", scale = "Stat"},
 	},
 }
 
@@ -59,21 +59,21 @@ DefineClass.Service = {
 	__parents = { "StatsChange", "Holder" },
 	
 	properties = {
-		{  category = "Service", template = true, id = "interest1",   name = T{732, "Service interest"}, default = "",  editor = "combo", items = function() return ServiceInterestsList end},
-		{  category = "Service", template = true, id = "interest2",   name = T{732, "Service interest"}, default = "",  editor = "combo", items = function() return ServiceInterestsList end},
-		{  category = "Service", template = true, id = "interest3",   name = T{732, "Service interest"}, default = "",  editor = "combo", items = function() return ServiceInterestsList end},
-		{  category = "Service", template = true, id = "interest4",   name = T{732, "Service interest"}, default = "",  editor = "combo", items = function() return ServiceInterestsList end},
-		{  category = "Service", template = true, id = "interest5",   name = T{732, "Service interest"}, default = "",  editor = "combo", items = function() return ServiceInterestsList end},
-		{  category = "Service", template = true, id = "interest6",   name = T{732, "Service interest"}, default = "",  editor = "combo", items = function() return ServiceInterestsList end},
-		{  category = "Service", template = true, id = "interest7",   name = T{732, "Service interest"}, default = "",  editor = "combo", items = function() return ServiceInterestsList end},
-		{  category = "Service", template = true, id = "interest8",   name = T{732, "Service interest"}, default = "",  editor = "combo", items = function() return ServiceInterestsList end},
-		{  category = "Service", template = true, id = "interest9",   name = T{732, "Service interest"}, default = "",  editor = "combo", items = function() return ServiceInterestsList end},
-		{  category = "Service", template = true, id = "interest10",   name = T{732, "Service interest"}, default = "",  editor = "combo", items = function() return ServiceInterestsList end},
-		{  category = "Service", template = true, id = "interest11",   name = T{732, "Service interest"}, default = "",  editor = "combo", items = function() return ServiceInterestsList end},
-		{  category = "Service", template = true, id = "max_visitors",    name = T{733, "Visitor slots per shift"}, default = 5,  editor = "number", min = 1, modifiable = true}, 	
-		{  category = "Service", template = true, id = "visit_duration",  name = T{734, "Visit duration"},        	 default = 5,  editor = "number", min = 1, max = 10,  slider = true, modifiable = true}, 	
-		{  category = "Service", template = true, id = "usable_by_children",name = T{735, "Usable by children"},      default = false, editor = "bool"},
-		{  category = "Service", template = true, id = "children_only",   name = T{736, "Children Only"},           default = false, editor = "bool"},
+		{  category = "Service", template = true, id = "interest1",   name = T(732, "Service interest"), default = "",  editor = "combo", items = function() return ServiceInterestsList end},
+		{  category = "Service", template = true, id = "interest2",   name = T(732, "Service interest"), default = "",  editor = "combo", items = function() return ServiceInterestsList end},
+		{  category = "Service", template = true, id = "interest3",   name = T(732, "Service interest"), default = "",  editor = "combo", items = function() return ServiceInterestsList end},
+		{  category = "Service", template = true, id = "interest4",   name = T(732, "Service interest"), default = "",  editor = "combo", items = function() return ServiceInterestsList end},
+		{  category = "Service", template = true, id = "interest5",   name = T(732, "Service interest"), default = "",  editor = "combo", items = function() return ServiceInterestsList end},
+		{  category = "Service", template = true, id = "interest6",   name = T(732, "Service interest"), default = "",  editor = "combo", items = function() return ServiceInterestsList end},
+		{  category = "Service", template = true, id = "interest7",   name = T(732, "Service interest"), default = "",  editor = "combo", items = function() return ServiceInterestsList end},
+		{  category = "Service", template = true, id = "interest8",   name = T(732, "Service interest"), default = "",  editor = "combo", items = function() return ServiceInterestsList end},
+		{  category = "Service", template = true, id = "interest9",   name = T(732, "Service interest"), default = "",  editor = "combo", items = function() return ServiceInterestsList end},
+		{  category = "Service", template = true, id = "interest10",   name = T(732, "Service interest"), default = "",  editor = "combo", items = function() return ServiceInterestsList end},
+		{  category = "Service", template = true, id = "interest11",   name = T(732, "Service interest"), default = "",  editor = "combo", items = function() return ServiceInterestsList end},
+		{  category = "Service", template = true, id = "max_visitors",    name = T(733, "Visitor slots per shift"), default = 5,  editor = "number", min = 1, modifiable = true}, 	
+		{  category = "Service", template = true, id = "visit_duration",  name = T(734, "Visit duration"),        	 default = 5,  editor = "number", min = 1, max = 10,  slider = true, modifiable = true}, 	
+		{  category = "Service", template = true, id = "usable_by_children",name = T(735, "Usable by children"),      default = false, editor = "bool"},
+		{  category = "Service", template = true, id = "children_only",   name = T(736, "Children Only"),           default = false, editor = "bool"},
 
 	},
 	visitors = false,  -- colonists arrays in this service building

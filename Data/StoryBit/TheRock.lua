@@ -23,17 +23,17 @@ PlaceObj('StoryBit', {
 		PlaceObj('SupplyMissionsEnabled', nil),
 	},
 	ScriptDone = true,
-	Text = T{434622504972, --[[StoryBit TheRock Text]] "Several influencers on the social networks had asked about your viewpoint. What would you reply?"},
+	Text = T(434622504972, --[[StoryBit TheRock Text]] "Several influencers on the social networks have asked about your viewpoint. What would you reply?"),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{250539297830, --[[StoryBit TheRock Title]] "The Rock"},
-	VoicedText = T{230630993939, --[[voice:narrator]] "A huge chunk of rock has been spotted near the planet. It has a highly unusual shape and the Internet has gone crazy with speculations about its nature."},
+	Title = T(250539297830, --[[StoryBit TheRock Title]] "The Rock"),
+	VoicedText = T(230630993939, --[[voice:narrator]] "A huge chunk of rock has been spotted near the planet. It has a highly unusual shape and the Internet has gone crazy with speculations about its nature."),
 	group = "Earth",
 	id = "TheRock",
 	PlaceObj('StoryBitReply', {
-		'Text', T{146557117171, --[[StoryBit TheRock Text]] "Actually, our colleague <DisplayName> can explain this better."},
+		'Text', T(146557117171, --[[StoryBit TheRock Text]] "Actually, our colleague <DisplayName> can explain this better."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{705966573496, --[[StoryBit TheRock CustomOutcomeText]] "they become a Celebrity"},
+		'CustomOutcomeText', T(705966573496, --[[StoryBit TheRock CustomOutcomeText]] "they become a Celebrity"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -44,9 +44,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{210613657044, --[[StoryBit TheRock Text]] "Come and see yourselves!"},
+		'Text', T(210613657044, --[[StoryBit TheRock Text]] "Come and see for yourselves!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{770522775412, --[[StoryBit TheRock CustomOutcomeText]] "<tourist_people> Tourist applicants"},
+		'CustomOutcomeText', T(770522775412, --[[StoryBit TheRock CustomOutcomeText]] "<tourist_people> Tourist applicants"),
 		'Prerequisite', PlaceObj('CheckBuildingCount', {
 			'Building', "OmegaTelescope",
 			'Amount', 1,
@@ -66,9 +66,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{955209688256, --[[StoryBit TheRock Text]] "A plain rock. Ideal for carving names on it - for a price!"},
+		'Text', T(955209688256, --[[StoryBit TheRock Text]] "A plain rock. Ideal for carving names on it - for a price!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{522030725423, --[[StoryBit TheRock CustomOutcomeText]] "gain <funding(funding_gain)>"},
+		'CustomOutcomeText', T(522030725423, --[[StoryBit TheRock CustomOutcomeText]] "gain <funding(funding_gain)>"),
 		'Prerequisite', PlaceObj('CheckBuildingCount', {
 			'Building', "MDSLaser",
 			'Amount', 5,
@@ -87,9 +87,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{435026120945, --[[StoryBit TheRock Text]] "We'll place it in orbit so people can admire it forever. Because it's cool!"},
+		'Text', T(435026120945, --[[StoryBit TheRock Text]] "We'll place it in orbit so people can admire it forever. Because it's cool!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{543016386869, --[[StoryBit TheRock CustomOutcomeText]] "gain <enthusiasts> Enthusiast applicants and <funding(cool_funding)>"},
+		'CustomOutcomeText', T(543016386869, --[[StoryBit TheRock CustomOutcomeText]] "gain <enthusiasts> Enthusiast applicants and <funding(cool_funding)>"),
 		'Prerequisite', PlaceObj('IsCommander', {
 			'CommanderProfile', "rocketscientist",
 		}),

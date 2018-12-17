@@ -1,10 +1,10 @@
 RocketTypeNames = {
-	Passenger = T{1116, "Passenger Rocket"},
-	Cargo = T{1115, "Cargo Rocket"},
-	Trade = T{8029, "Trade Rocket"},
-	Refugee = T{8123, "Refugee Rocket"},
-	ForeignAid = T{11194, "Foreign Aid Rocket"},
-	Fallback = T{1685, "Rocket"},
+	Passenger = T(1116, "Passenger Rocket"),
+	Cargo = T(1115, "Cargo Rocket"),
+	Trade = T(8029, "Trade Rocket"),
+	Refugee = T(8123, "Refugee Rocket"),
+	ForeignAid = T(11194, "Foreign Aid Rocket"),
+	Fallback = T(1685, "Rocket"),
 }
 
 DefineClass.FXRocket = {
@@ -16,13 +16,13 @@ DefineClass.SupplyRocket = {
 	__parents = { "PinnableObject", "UniversalStorageDepot", "DroneControl", "WaypointsObj", "Renamable", "RechargeStationBase", "CommandObject"},
 		
 	properties = {
-		{ category = "Rocket", id = "name", name = T{1000037, "Name"}, editor = "text", default = ""},
-		{ template = true, category = "Rocket", name = T{702, "Launch Fuel"},      	id = "launch_fuel",      	editor = "number", default = 10*const.ResourceScale, min = 0*const.ResourceScale, max = 1000*const.ResourceScale, scale = const.ResourceScale, modifiable = true, help = "The amount of fuel it takes to launch the rocket.",},	
-		{ template = true, category = "Rocket", name = T{758, "Max Export Storage"}, id = "max_export_storage", editor = "number", scale = const.ResourceScale, default = 100*const.ResourceScale, min = 0, modifiable = true },
-		{ template = true, category = "Rocket", name = T{8457, "Passenger Orbit Lifetime"}, id = "passenger_orbit_life",      	editor = "number", default = 120*const.HourDuration, min = 1*const.HourDuration, scale = const.HourDuration, modifiable = true, help = "Passengers on board will die if the rocket doesn't land this many hours after arriving in orbit.",},
-		{ template = true, category = "Rocket", name = T{9830, "Sponsor Selectable"}, id = "sponsor_selectable", editor = "bool", default = true },
-		{ template = true, category = "Rocket", name = T{9831, "Travel Time (to Mars)"}, id = "custom_travel_time_mars", editor = "number", default = 0, scale = const.HourDuration },
-		{ template = true, category = "Rocket", name = T{9832, "Travel Time (to Earth)"}, id = "custom_travel_time_earth", editor = "number", default = 0, scale = const.HourDuration },
+		{ category = "Rocket", id = "name", name = T(1000037, "Name"), editor = "text", default = ""},
+		{ template = true, category = "Rocket", name = T(702, "Launch Fuel"),      	id = "launch_fuel",      	editor = "number", default = 10*const.ResourceScale, min = 0*const.ResourceScale, max = 1000*const.ResourceScale, scale = const.ResourceScale, modifiable = true, help = "The amount of fuel it takes to launch the rocket.",},	
+		{ template = true, category = "Rocket", name = T(758, "Max Export Storage"), id = "max_export_storage", editor = "number", scale = const.ResourceScale, default = 100*const.ResourceScale, min = 0, modifiable = true },
+		{ template = true, category = "Rocket", name = T(8457, "Passenger Orbit Lifetime"), id = "passenger_orbit_life",      	editor = "number", default = 120*const.HourDuration, min = 1*const.HourDuration, scale = const.HourDuration, modifiable = true, help = "Passengers on board will die if the rocket doesn't land this many hours after arriving in orbit.",},
+		{ template = true, category = "Rocket", name = T(9830, "Sponsor Selectable"), id = "sponsor_selectable", editor = "bool", default = true },
+		{ template = true, category = "Rocket", name = T(9831, "Travel Time (to Mars)"), id = "custom_travel_time_mars", editor = "number", default = 0, scale = const.HourDuration },
+		{ template = true, category = "Rocket", name = T(9832, "Travel Time (to Earth)"), id = "custom_travel_time_earth", editor = "number", default = 0, scale = const.HourDuration },
 		
 		{ id = "landed",	editor = "bool", default = false, no_edit = true }, -- true if working on Mars (controlling drones)
 		{ id = "auto_export",	editor = "bool", default = false, no_edit = true },
@@ -33,15 +33,15 @@ DefineClass.SupplyRocket = {
 	},
 			
 	display_icon = "UI/Icons/Buildings/orbital_probe.tga",
-	pin_rollover = T{8030, "Carries supplies or passengers  from Earth. Can travel back to Earth when refueled."},
-	pin_rollover_hint = T{7351, "<left_click> Place Rocket"},
-	pin_rollover_hint_xbox = T{7352, "<ButtonA> Place Rocket"},
+	pin_rollover = T(8030, "Carries supplies or passengers  from Earth. Can travel back to Earth when refueled."),
+	pin_rollover_hint = T(7351, "<left_click> Place Rocket"),
+	pin_rollover_hint_xbox = T(7352, "<ButtonA> Place Rocket"),
 	pin_progress_value = "",
 	pin_progress_max = "",
 	pin_obvious_blink = true,
 	
-	pin_rollover_arriving = T{707, "<RocketType><newline><image UI/Icons/pin_rocket_incoming.tga 1500>Travelling to Mars.<newline>Flight progress: <em><ArrivalTimePercent></em>%.<newline>Payload:<newline><CargoManifest>"},
-	pin_rollover_in_orbit = T{710, "<image UI/Icons/pin_rocket_orbiting.tga 1500>Ready to land.<newline>Payload:<newline><CargoManifest>"},
+	pin_rollover_arriving = T(707, "<RocketType><newline><image UI/Icons/pin_rocket_incoming.tga 1500>Travelling to Mars.<newline>Flight progress: <em><ArrivalTimePercent></em>%.<newline>Payload:<newline><CargoManifest>"),
+	pin_rollover_in_orbit = T(710, "<image UI/Icons/pin_rocket_orbiting.tga 1500>Ready to land.<newline>Payload:<newline><CargoManifest>"),
 
 	-- landing/takeoff parameters
 	orbital_altitude = 2500*guim,
@@ -599,28 +599,61 @@ function SupplyRocket:WaitForResources()
 	self.waiting_resources = false
 end
 
+function SupplyRocket:ForceInterruptIncomingDrones()
+	self:InterruptDrones(nil, function(drone)
+									if (drone.target == self) or 
+										(drone.d_request and drone.d_request:GetBuilding() == self) or
+										(drone.s_request and drone.s_request:GetBuilding() == self) then
+										return drone
+									end
+								end)
+end
+
 function SupplyRocket:WaitMaintenance(resource, amount)
 	if not IsValid(self.landing_site) then
 		assert(false, "Missing landing site for Maintenance")
 		self:SetCommand("OnEarth")
 	end
-	self:InterruptDrones(nil, function(drone)
-										if (drone.target == self) or 
-											(drone.d_request and drone.d_request:GetBuilding() == self) or
-											(drone.s_request and drone.s_request:GetBuilding() == self) then
-											return drone
-										end
-									end)
-	self:DisconnectFromCommandCenters()
+	
+	if self.auto_connect then
+		self:ForceInterruptIncomingDrones()
+		self:DisconnectFromCommandCenters()
+	end
+	
 	self.maintenance_request = self:AddDemandRequest(resource, amount, 0)
 	self.maintenance_requirements = {resource = resource, amount = amount}
 	self:UpdateStatus("maintenance")
-	self:ConnectToCommandCenters()
-	self:OpenDoor()
+	
+	if self.auto_connect then
+		self:ConnectToCommandCenters()
+	else
+		table.insert_unique(g_LandedRocketsInNeedOfFuel, self)
+		self:StartDroneControl()
+		self:OpenDoor()
+	end
+	
 	while not self:MaintenanceDone() do
-		WaitMsg("RocketMaintenanceDone")
+		assert(self.maintenance_request and self.maintenance_request:GetActualAmount() > 0)
+		assert(self.auto_connect)
+		WaitMsg("RocketMaintenanceDone", 10000)
 	end
 	self:SetCommand("WaitLaunchOrder")
+end
+
+function SavegameFixups.UnstuckStuckMaintenanceRockets()
+	MapGet("map", "SupplyRocket", function(o)
+				if o.command == "WaitMaintenance" and not o.auto_connect then
+					--rem any connections
+					o:ForceInterruptIncomingDrones()
+					o:DisconnectFromCommandCenters()
+					--reconnect proper
+					CreateGameTimeThread(function(o)
+						table.insert_unique(g_LandedRocketsInNeedOfFuel, o)
+						o:StartDroneControl()
+						o:OpenDoor()
+					end, o)
+				end
+			end)
 end
 
 function SupplyRocket:WaitLaunchOrder()
@@ -709,6 +742,7 @@ end
 
 function SupplyRocket:Countdown()
 	self:UpdateStatus("countdown")
+	Sleep(100) --give time so RocketManualLaunch trigger story bits can interrupt us before we do any actual work
 	self:InterruptIncomingDronesAndDisconnect()
 	self:CloseDoor()
 	local export_amount = self:GetStoredExportResourceAmount()
@@ -939,7 +973,7 @@ end
 
 function SupplyRocket:BuildingUpdate(dt, day, hour)	
 	if GetMissionSponsor().id == "IMM" and self.command == "Refuel" then
-		self.accumulated_fuel = self.accumulated_fuel + MulDivRound(dt, self.launch_fuel/10, const.DayDuration)
+		self.accumulated_fuel = self.accumulated_fuel + MulDivRound(dt, self:GetLaunchFuel()/10, const.DayDuration)
 		local amount = self.accumulated_fuel - self.accumulated_fuel % const.ResourceScale
 		self.accumulated_fuel = self.accumulated_fuel - amount
 		self.refuel_request:AddAmount( -Min(amount, self.refuel_request:GetTargetAmount() ) )
@@ -1070,7 +1104,7 @@ function SupplyRocket:OnDemolish()
 	self:ReturnStockpiledResources()
 	-- check for loaded fuel/metals & return
 	if self.refuel_request then
-		local amount = self.launch_fuel - self.refuel_request:GetActualAmount()
+		local amount = self:GetLaunchFuel() - self.refuel_request:GetActualAmount()
 		if amount > 0 then
 			PlaceResourceStockpile_Delayed(self:GetVisualPos(), "Fuel", amount, self:GetAngle(), true)
 		end
@@ -1130,7 +1164,7 @@ end
 function SupplyRocket:UIStatusArrive(template)
 	self.pin_blink = false
 	self.pin_rollover = self.pin_rollover_arriving
-	self.pin_summary1 = T{708, "<ArrivalTimePercent>%"}
+	self.pin_summary1 = T(708, "<ArrivalTimePercent>%")
 	self.pin_rollover_hint = ""
 	self.pin_rollover_hint_xbox = ""
 	self.pin_status_img = "UI/Icons/pin_rocket_incoming.tga"
@@ -1146,7 +1180,7 @@ function SupplyRocket:UIStatusInOrbit(template)
 		self.pin_rollover_hint_xbox = template.pin_rollover_hint_xbox
 	end
 	if self.orbit_arrive_time then
-		self.pin_rollover = self.pin_rollover .. "<newline><newline>" .. T{8052, "Passengers on board will die if the rocket doesn't land in <em><UIOrbitTimeLeft> h</em>."}
+		self.pin_rollover = self.pin_rollover .. "<newline><newline>" .. T(8052, "Passengers on board will die if the rocket doesn't land in <em><UIOrbitTimeLeft> h</em>.")
 	end
 	self.pin_summary1 = nil
 	self.pin_status_img = "UI/Icons/pin_rocket_orbiting.tga"
@@ -1162,9 +1196,9 @@ function SupplyRocket:UIStatusSuspendedInOrbit(template)
 			self.pin_rollover_hint_xbox = template.pin_rollover_hint_xbox
 		end
 		if self.orbit_arrive_time then
-			self.pin_rollover = self.pin_rollover .. "<newline><newline>" .. T{8052, "Passengers on board will die if the rocket doesn't land in <em><UIOrbitTimeLeft> h</em>."}
+			self.pin_rollover = self.pin_rollover .. "<newline><newline>" .. T(8052, "Passengers on board will die if the rocket doesn't land in <em><UIOrbitTimeLeft> h</em>.")
 		end
-		self.pin_rollover = self.pin_rollover .. "<newline><newline>" .. T{8523, "<red>Rockets can't land during dust storms.</red>"}
+		self.pin_rollover = self.pin_rollover .. "<newline><newline>" .. T(8523, "<red>Rockets can't land during dust storms.</red>")
 		self.pin_summary1 = nil
 		self.pin_status_img = "UI/Icons/pin_rocket_orbiting.tga"
 		self:TogglePin("force", true)
@@ -1179,9 +1213,9 @@ function SupplyRocket:UIStatusLandingDisabled(template)
 		self.pin_rollover_hint_xbox = template.pin_rollover_hint_xbox
 	end
 	if self.orbit_arrive_time then
-		self.pin_rollover = self.pin_rollover .. "<newline><newline>" .. T{8052, "Passengers on board will die if the rocket doesn't land in <em><UIOrbitTimeLeft> h</em>."}
+		self.pin_rollover = self.pin_rollover .. "<newline><newline>" .. T(8052, "Passengers on board will die if the rocket doesn't land in <em><UIOrbitTimeLeft> h</em>.")
 	end
-	self.pin_rollover = self.pin_rollover .. "<newline><newline>" .. T{11166, "<red>Rocket landing is suspended.</red>"}
+	self.pin_rollover = self.pin_rollover .. "<newline><newline>" .. T(11166, "<red>Rocket landing is suspended.</red>")
 	self.pin_summary1 = nil
 	if self.is_pinned then
 		self:TogglePin("force", true)
@@ -1192,7 +1226,7 @@ function SupplyRocket:UIStatusLandingDisabled(template)
 end
 function SupplyRocket:UIStatusLanding(template)
 	self.pin_blink = false
-	self.pin_rollover = T{711, "Landing in progress."}
+	self.pin_rollover = T(711, "Landing in progress.")
 	if template then
 		self.pin_rollover_hint = ""
 		self.pin_rollover_hint_xbox = ""
@@ -1291,10 +1325,10 @@ function SupplyRocket:UIStatusCountdown(template)
 end
 function SupplyRocket:UIStatusTakeoff(template)
 	self.pin_blink = false
-	self.pin_rollover = T{713, "<image UI/Icons/pin_rocket_outgoing.tga 1500>Take-off in progress."}
+	self.pin_rollover = T(713, "<image UI/Icons/pin_rocket_outgoing.tga 1500>Take-off in progress.")
 	if template then
-		self.pin_rollover_hint = T{714, "Taking off..."}
-		self.pin_rollover_hint_xbox = T{714, "Taking off..."}
+		self.pin_rollover_hint = T(714, "Taking off...")
+		self.pin_rollover_hint_xbox = T(714, "Taking off...")
 	end
 	self.pin_summary1 = nil
 	self.pin_status_img = "UI/Icons/pin_rocket_outgoing.tga"
@@ -1306,11 +1340,11 @@ function SupplyRocket:UIStatusTakeoff(template)
 end
 function SupplyRocket:UIStatusDeparting(template)
 	self.pin_blink = false
-	self.pin_rollover = T{715, "<image UI/Icons/pin_rocket_outgoing.tga 1500>Travelling to Earth.<newline>Flight progress: <em><ArrivalTimePercent></em>%."}
+	self.pin_rollover = T(715, "<image UI/Icons/pin_rocket_outgoing.tga 1500>Travelling to Earth.<newline>Flight progress: <em><ArrivalTimePercent></em>%.")
 	if (self.exported_amount or 0) > 0 then
 		self.pin_rollover = self.pin_rollover .. "<newline>" .. T{7674, "Exporting <resource(amount,res)>", amount = self.exported_amount, res = "PreciousMetals"}
 	end
-	self.pin_summary1 = T{708, "<ArrivalTimePercent>%"}
+	self.pin_summary1 = T(708, "<ArrivalTimePercent>%")
 	self.pin_rollover_hint = ""
 	self.pin_rollover_hint_xbox = ""
 	self.pin_status_img = "UI/Icons/pin_rocket_outgoing.tga"
@@ -1361,8 +1395,8 @@ function PrepareApplicantsForTravel(city, host, capacity)
 		local popup_id = "LaunchIssue_NoPassengers"
 		if host.context:GetMatchingColonistsCount() <= 0 then popup_id = "LaunchIssue_NoMatchingApplicants" end
 		local params = {
-			choice1 = T{717, "Launch anyway"}, 
-			choice2 = T{718, "Abort"},
+			choice1 = T(717, "Launch anyway"), 
+			choice2 = T(718, "Abort"),
 		}
 		local res = WaitPopupNotification(popup_id, params, false, host)
 		if res == 2 then
@@ -1373,11 +1407,11 @@ function PrepareApplicantsForTravel(city, host, capacity)
 		local params = {
 			number1 = filtered_applicants_count,
 			number2 = free,
-			choice1 = T{717, "Launch anyway"}, 
-			choice2 = (free > 0) and T{719, "Launch with <em><number></em> passengers", number = free} or T{718, "Abort"},
+			choice1 = T(717, "Launch anyway"), 
+			choice2 = (free > 0) and T{719, "Launch with <em><number></em> passengers", number = free} or T(718, "Abort"),
 		}
 		if free > 0 then
-			params.choice3 = T{718, "Abort"}
+			params.choice3 = T(718, "Abort")
 		end
 		local res = WaitPopupNotification("LaunchIssue_Housing", params, false, host)
 			
@@ -1404,7 +1438,8 @@ end
 function SupplyRocket:CanBeUnpinned()
 	if self.command == "OnEarth" or 
 		self.command == "FlyToMars" or 
-		self.command == "FlyToEarth" or 		
+		self.command == "FlyToEarth" or 
+		self.command == "FlyToColony" or
 		self.command == "Takeoff" or
 		self.command == "WaitInOrbit"
 	then
@@ -1422,6 +1457,7 @@ function SupplyRocket:OnPinClicked(gamepad)
 	if self.command == "OnEarth" or 
 		self.command == "FlyToMars" or 
 		self.command == "FlyToEarth" or 		
+		self.command == "FlyToColony" or
 		self.command == "Takeoff" or
 		self.command == "LandingDisabled" or
 		self:IsLandAutomated() -- will land on its own
@@ -1550,6 +1586,10 @@ end
 const.RocketMaxDrones = 20 --needs to be accounted for in resupply menu
 function SupplyRocket:GetMaxDrones()
 	return const.RocketMaxDrones
+end
+
+function SupplyRocket:CanHaveMoreDrones()
+	return self.landed and DroneControl.CanHaveMoreDrones(self)
 end
 
 function SupplyRocket:OnWaypointStartGoto(drone, pos, next_pos)
@@ -1762,6 +1802,10 @@ function SupplyRocket:GetRequestUnitCount(max_storage)
 	return 3 + (max_storage / (const.ResourceScale * 5)) -- 1 per 5 + 3
 end
 
+function SupplyRocket:GetLaunchFuel()
+	return self.launch_fuel
+end
+
 function SupplyRocket:CreateResourceRequests()
 	UniversalStorageDepot.CreateResourceRequests(self)
 	
@@ -1775,8 +1819,8 @@ function SupplyRocket:CreateResourceRequests()
 		v:AddFlags(const.rfPostInQueue)
 	end
 	
-	local unit_count = self:GetRequestUnitCount(self.launch_fuel)
-	self.refuel_request = self:AddDemandRequest("Fuel", self.launch_fuel, const.rfRestrictorRocket, unit_count)
+	local unit_count = self:GetRequestUnitCount(self:GetLaunchFuel())
+	self.refuel_request = self:AddDemandRequest("Fuel", self:GetLaunchFuel(), const.rfRestrictorRocket, unit_count)
 	
 	self:CreateExportRequests()
 	
@@ -1801,7 +1845,7 @@ function SupplyRocket:ResetDemandRequests(skip_exports)
 		self:InterruptIncomingDronesAndDisconnect()
 	end
 	
-	self.refuel_request:ResetAmount(self.launch_fuel)
+	self.refuel_request:ResetAmount(self:GetLaunchFuel())
 	if self.unload_request then
 		table.remove_entry(self.task_requests, self.unload_request)
 		self.unload_request = nil
@@ -2141,6 +2185,25 @@ function SupplyRocket:DroneLoadResource(drone, request, resource, amount)
 	drone:PopAndCallDestructor()
 end
 
+function SavegameFixups.FixRocketsWaitingOnDisembarkedColonists()
+	MapForEach("map", "SupplyRocket", function(o)
+		if not IsKindOf(o, "RocketExpedition") and o.command == "Unload" then
+			o:CheckDisembarkationTable()
+		end
+	end)
+end
+
+function SupplyRocket:CheckDisembarkationTable()
+	local t = (self.disembarking or "")
+	for i = #t, 1, -1 do
+		local c = t[i]
+		if not IsValid(c) or
+			not (c.command == false or c.command == "Arrive" or (c.command == "Idle" and c.arriving == self)) then
+			table.remove(t, i)
+		end
+	end
+end
+
 function SupplyRocket:GenerateArrivals(amount, applicants)
 	if (amount or 0) <= 0 then
 		return
@@ -2179,7 +2242,7 @@ function SupplyRocket:GenerateArrivals(amount, applicants)
 		applicant.emigration_dome = dome -- the colonist will try to reach the dome by foot:
 		applicant.city = dome and dome.city or city
 		applicant.arriving = self
-		
+		assert(not IsValid(applicant))
 		local colonist = Colonist:new(applicant)
 		self.disembarking[#self.disembarking + 1] = colonist
 		local colonist_funding = GetMissionSponsor().colonist_funding_on_arrival or 0
@@ -2191,6 +2254,7 @@ function SupplyRocket:GenerateArrivals(amount, applicants)
 	end
 	
 	while #self.disembarking > 0 do
+		self:CheckDisembarkationTable()
 		Sleep(100)
 	end
 	self.disembarking = nil
@@ -2201,6 +2265,31 @@ function SupplyRocket:GenerateArrivals(amount, applicants)
 	end
 	if amount > 0 then
 		Msg("ColonistsLanded")
+	end
+end
+
+function SupplyRocket:EjectColonists()
+	for _, item in ipairs(self.cargo or empty_table) do
+		if item.class == "Passengers" then
+			local applicants = item.applicants_data
+			local amount = #applicants
+			for i = 1, amount do
+				local applicant = table.remove(applicants)
+				local domes, safety_dome = GetDomesInWalkableDistance(UICity, self:GetPos())
+				local free_space = {}
+				local dome = ChooseDome(applicant.traits, domes, safety_dome, free_space)
+				applicant.emigration_dome = dome
+				applicant.city = dome and dome.city or UICity	
+				local space = free_space[dome] or 0
+				if space > 0 then
+					free_space[dome] = space - 1
+				end
+				local colonist = Colonist:new(applicant)
+				local pt = GetRandomPassableAround(self:GetPos(), 10 * guim)
+				colonist:SetPos(pt)
+				colonist.outside_start = GameTime()
+			end
+		end
 	end
 end
 
@@ -2318,8 +2407,8 @@ function SupplyRocket:UILaunch() -- blizzard promised no broadcast
 		elseif issue == "cargo" then	
 			CreateRealTimeThread(function(rocket)
 				local res = WaitPopupNotification("LaunchIssue_Cargo", {
-						choice1 = T{8013, "Launch anyway (resources will be lost)."}, 
-						choice2 = T{8014, "Abort the launch sequence."},
+						choice1 = T(8013, "Launch anyway (resources will be lost)."), 
+						choice2 = T(8014, "Abort the launch sequence."),
 					}, false, host)
 					
 				if res and res == 1 then
@@ -2384,7 +2473,7 @@ end
 
 -- ui getters
 function SupplyRocket:GetRefuelProgress()
-	return MulDivRound(self.launch_fuel - self.refuel_request:GetActualAmount(), 100, Max(1, self.launch_fuel))
+	return MulDivRound(self:GetLaunchFuel() - self.refuel_request:GetActualAmount(), 100, Max(1, self:GetLaunchFuel()))
 end
 
 function SupplyRocket:GetArrivalTimePercent()
@@ -2397,7 +2486,7 @@ end
 
 function SupplyRocket:GetCargoManifest()
 	if not self.cargo or #self.cargo == 0 then
-		return T{720, "Nothing"}
+		return T(720, "Nothing")
 	end
 	
 	local texts, resources = {}, {}
@@ -2428,7 +2517,7 @@ function SupplyRocket:GetCargoManifest()
 		texts[#texts + 1] = table.concat(resources, " ")
 	end
 	if #texts == 0 then
-		return T{10887, "No Cargo"}
+		return T(10887, "No Cargo")
 	end
 	return table.concat(texts, "<newline>")	
 end
@@ -2444,7 +2533,7 @@ function SupplyRocket:GetUIOrbitTimeLeft()
 	
 	local ttd = (self.orbit_arrive_time + self.passenger_orbit_life - GameTime()) / const.HourDuration
 	if ttd <= 0 then
-		return T{8053, "< 1"}
+		return T(8053, "< 1")
 	end	
 	return ttd
 end
@@ -2487,6 +2576,7 @@ function SupplyRocket:ToggleAutoExport()
 end
 
 function SupplyRocket:ToggleAllowExport(broadcast)
+	
 	local allow = not self.allow_export
 	
 	if broadcast then
@@ -2568,29 +2658,29 @@ end
 
 function SupplyRocket:GetUIExportStatus()
 	if self.allow_export then
-		return T{286, "Gathering exports<right><preciousmetals(StoredExportResourceAmount, max_export_storage)>"}
+		return T(286, "Gathering exports<right><preciousmetals(StoredExportResourceAmount, max_export_storage)>")
 	elseif self:GetStoredExportResourceAmount() > 0 then
-		return T{11470, "Unloading <right><preciousmetals(StoredExportResourceAmount, max_export_storage)>"}
+		return T(11470, "Unloading <right><preciousmetals(StoredExportResourceAmount, max_export_storage)>")
 	end
 end
 
 function SupplyRocket:GetUIRocketStatus()
 	if self.command == "FlyToMars" or self.command == "FlyToEarth" then
-		return T{709, "In transit"}
+		return T(709, "In transit")
 	end
 	if self.command == "LandOnMars" then
-		return T{7897, "<green>Landing</green>"}
+		return T(7897, "<green>Landing</green>")
 	end
 	if self.command == "Unload" then
-		return T{7898, "<green>Unloading cargo</green>"}
+		return T(7898, "<green>Unloading cargo</green>")
 	end
 	if self.exported_amount and self.command == "FlyToEarth" then
-		return T{284, "<green>Exporting</green><right><preciousmetals(exported_amount, max_export_storage)>"}
+		return T(284, "<green>Exporting</green><right><preciousmetals(exported_amount, max_export_storage)>")
 	end
 	local extra = self.unload_fuel_request and self.unload_fuel_request:GetActualAmount() or 0	
 	local items = {}
-	if self.launch_fuel~=0 then
-		items[#items +1] = T{285, "Refueling<right><current>/<fuel(launch_fuel)>", current = (self.launch_fuel - self.refuel_request:GetActualAmount() + extra) / const.ResourceScale}
+	if self:GetLaunchFuel()~=0 then
+		items[#items +1] = T{285, "Refueling<right><current>/<fuel(launch_fuel)>", current = (self:GetLaunchFuel() - self.refuel_request:GetActualAmount() + extra) / const.ResourceScale}
 	end	
 	local export_status = self:GetUIExportStatus()
 	if export_status then
@@ -2598,55 +2688,55 @@ function SupplyRocket:GetUIRocketStatus()
 	end
 	
 	if self.command == "Refuel" then
-		items[#items+1] = T{7901, "<green>Waiting to refuel</green>"}
+		items[#items+1] = T(7901, "<green>Waiting to refuel</green>")
 	elseif self.command == "WaitLaunchOrder" then	
 		if self:GetStoredAmount() > 0 then
-			items[#items+1] = T{7899, "<green>Waiting for resource unload</green>"}
+			items[#items+1] = T(7899, "<green>Waiting for resource unload</green>")
 		elseif self:IsLaunchAutomated() and self:HasCargoSpaceLeft() then
-			items[#items+1] = T{8493, "Waiting cargo"}
+			items[#items+1] = T(8493, "Waiting cargo")
 		elseif self.departures and #self.departures > 0 then
-			items[#items+1] = T{288, "<green>Waiting departures</green>"}
+			items[#items+1] = T(288, "<green>Waiting departures</green>")
 		else
-			items[#items+1] = T{8033, "<green>Ready for take-off</green>"}
+			items[#items+1] = T(8033, "<green>Ready for take-off</green>")
 		end
 	elseif self.command == "WaitMaintenance" then
 		local maintenance_request = self.maintenance_request
 		local maintenance_requirements = self.maintenance_requirements
 		items[#items + 1] = T{11067, "Maintenance<right><current>/<resource(maintenance_amount, maintenance_resource)>", current = (maintenance_requirements.amount - maintenance_request:GetActualAmount()) / const.ResourceScale, maintenance_amount = maintenance_requirements.amount, maintenance_resource = maintenance_requirements.resource}
 	elseif self.command == "Countdown" then
-		items[#items+1] = T{7900, "<green>Take-off in progress</green>"}
+		items[#items+1] = T(7900, "<green>Take-off in progress</green>")
 	elseif self.command == "Takeoff" then
-		items[#items+1] = T{7900, "<green>Take-off in progress</green>"}
+		items[#items+1] = T(7900, "<green>Take-off in progress</green>")
 	end
 	return table.concat(items, "<newline><left>")
 end
 
 function SupplyRocket:GetUILaunchStatus()
 	if self.command == "FlyToMars" or self.command == "FlyToEarth" then
-		return T{709, "In transit"}
+		return T(709, "In transit")
 	end
 	if self.command == "LandOnMars" then
-		return T{282, "Landing"}
+		return T(282, "Landing")
 	end
 	if self.command == "Unload" then
-		return T{11409, "Unloading cargo"}
+		return T(11409, "Unloading cargo")
 	end
 	if self.command == "Countdown" or self.command == "Takeoff" then
-		return T{289, "Take-off in progress"}
+		return T(289, "Take-off in progress")
 	end
 	if self.command == "Refuel" then
-		return T{7353, "Waiting to refuel"}
+		return T(7353, "Waiting to refuel")
 	end
 	if self.command == "WaitMaintenance" then
-		return T{11068, "Waiting for maintenance"}
+		return T(11068, "Waiting for maintenance")
 	end
 	if self.command == "WaitLaunchOrder" and self:GetStoredAmount() > 0 then
-		return T{287, "Waiting for resource unload"}
+		return T(287, "Waiting for resource unload")
 	end
 	if self:IsLaunchAutomated() and self:HasCargoSpaceLeft() then
-		return T{8493, "Waiting cargo"}
+		return T(8493, "Waiting cargo")
 	end
-	return T{8015, "Ready for take-off"}
+	return T(8015, "Ready for take-off")
 end
 
 function SupplyRocket:GetDronesCount()
@@ -2690,7 +2780,7 @@ function RocketLandingSite:GameInit()
 	local q, r = WorldToHex(site_pos)
 	local blds = HexGridGetObjects(ObjectGrid, q, r)
 	for _, bld in ipairs(blds) do
-		if IsKindOf(bld, "LandingPad") then
+		if IsKindOf(bld, "LandingPad") or IsKindOf(bld, "TradePad") then
 			self.landing_pad = bld
 			break
 		end
@@ -2730,13 +2820,7 @@ end
 
 function LandingPad:OnDemolish()
 	Building.OnDemolish(self)
-	
-	local rockets = UICity.labels.AllRockets or empty_table
-	for _, rocket in ipairs(rockets) do
-		if rocket.landing_site and rocket.landing_site.landing_pad == self then
-			rocket.landing_site.landing_pad = nil
-		end
-	end
+	RemovePadFromLandingSite(self)
 end
 
 function LandingPad:HasRocket()
@@ -2825,6 +2909,15 @@ local function StartSuggestedResupplyMissionPopupThread(delay)
 	end
 end
 
+function RemovePadFromLandingSite(pad)
+	local rockets = UICity.labels.AllRockets or empty_table
+	for _, rocket in ipairs(rockets) do
+		if rocket.landing_site and rocket.landing_site.landing_pad == pad then
+			rocket.landing_site.landing_pad = nil
+		end
+	end
+end
+
 function OnMsg.LoadGame()
 	if not SuggestedResupplyMissionPopupThread then
 		local day = const.DayDuration
@@ -2849,8 +2942,8 @@ end
 DefineClass.RocketCargoItem = {
 	__parents = { "PropertyObject" },
 	properties = {
-		{ id = "cargo", name = T{11220, "Cargo"}, editor = "dropdownlist", items = PresetsCombo("Cargo"), default = "" },
-		{ id = "amount", name = T{1000100, "Amount"}, editor = "number", default = 0, min = 0 },
+		{ id = "cargo", name = T(11220, "Cargo"), editor = "dropdownlist", items = PresetsCombo("Cargo"), default = "" },
+		{ id = "amount", name = T(1000100, "Amount"), editor = "number", default = 0, min = 0 },
 	},
 }
 
@@ -2863,3 +2956,7 @@ DefineStoryBitTrigger("RocketLaunchedEvent", "RocketLaunchedEvent")
 function OnMsg.RocketLaunched(rocket)
 	Msg("RocketLaunchedEvent", rocket)
 end
+
+-- dlc stubs
+DefineClass("TradePad")
+DefineClass("ForeignTradeRocket")

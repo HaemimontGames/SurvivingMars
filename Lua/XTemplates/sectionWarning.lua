@@ -9,13 +9,13 @@ PlaceObj('XTemplate', {
 		'OnContextUpdate', function (self, context, ...)
 self:SetVisible(ResolveValue(context, "UIWarning") and true)
 end,
-		'Title', T{47, --[[XTemplate sectionWarning Title]] "<red>Warning</red>"},
+		'Title', T(47, --[[XTemplate sectionWarning Title]] "<red>Warning</red>"),
 		'Icon', "UI/Icons/Sections/warning.tga",
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelText",
 			'HAlign', "left",
-			'Text', T{584, --[[XTemplate sectionWarning Text]] "<UIWarning>"},
+			'Text', T(584, --[[XTemplate sectionWarning Text]] "<UIWarning>"),
 		}),
 		PlaceObj('XTemplateCode', {
 			'run', function (self, parent, context)

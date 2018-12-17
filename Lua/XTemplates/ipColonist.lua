@@ -6,17 +6,17 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateTemplate', {
 		'__context_of_kind', "Colonist",
 		'__template', "Infopanel",
-		'Description', T{10, --[[XTemplate ipColonist Description]] "<Description>"},
+		'Description', T(10, --[[XTemplate ipColonist Description]] "<Description>"),
 	}, {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelButton",
-			'RolloverDisabledText', T{8762, --[[XTemplate ipColonist RolloverDisabledText]] "Can't be assigned."},
+			'RolloverDisabledText', T(8762, --[[XTemplate ipColonist RolloverDisabledText]] "Can't be assigned."),
 			'OnPressParam', "ToggleInteraction",
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelButton",
-			'RolloverText', T{116030124982, --[[XTemplate ipColonist RolloverText]] "Selects the previous colonist in the group."},
-			'RolloverTitle', T{102770097492, --[[XTemplate ipColonist RolloverTitle]] "Previous Colonist"},
+			'RolloverText', T(116030124982, --[[XTemplate ipColonist RolloverText]] "Selects the previous colonist in the group."),
+			'RolloverTitle', T(102770097492, --[[XTemplate ipColonist RolloverTitle]] "Previous Colonist"),
 			'Id', "idPrev",
 			'OnContextUpdate', function (self, context, ...)
 InfopanelCycleUpdate(self:ResolveId("node"))
@@ -31,8 +31,8 @@ end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelButton",
-			'RolloverText', T{232261691824, --[[XTemplate ipColonist RolloverText]] "Selects the next colonist in the group."},
-			'RolloverTitle', T{388769879592, --[[XTemplate ipColonist RolloverTitle]] "Next Colonist"},
+			'RolloverText', T(232261691824, --[[XTemplate ipColonist RolloverText]] "Selects the next colonist in the group."),
+			'RolloverTitle', T(388769879592, --[[XTemplate ipColonist RolloverTitle]] "Next Colonist"),
 			'Id', "idNext",
 			'OnPress', function (self, gamepad)
 local obj = self.context
@@ -45,41 +45,41 @@ end,
 		PlaceObj('XTemplateTemplate', {
 			'__condition', function (parent, context) return context:IsDying() end,
 			'__template', "InfopanelSection",
-			'RolloverText', T{4352, --[[XTemplate ipColonist RolloverText]] "The cause of death of this Colonist."},
-			'Title', T{4351, --[[XTemplate ipColonist Title]] "Cause of death"},
+			'RolloverText', T(4352, --[[XTemplate ipColonist RolloverText]] "The cause of death of this Colonist."),
+			'Title', T(4351, --[[XTemplate ipColonist Title]] "Cause of death"),
 			'Icon', "UI/Icons/Sections/colonist.tga",
 		}, {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
 				'HAlign', "center",
-				'Text', T{766618008675, --[[XTemplate ipColonist Text]] "<UIDeathReason>"},
+				'Text', T(766618008675, --[[XTemplate ipColonist Text]] "<UIDeathReason>"),
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelSection",
-			'RolloverText', T{298540224971, --[[XTemplate ipColonist RolloverText]] "<UIInfo>"},
-			'Title', T{4290, --[[XTemplate ipColonist Title]] "Colonist"},
+			'RolloverText', T(298540224971, --[[XTemplate ipColonist RolloverText]] "<UIInfo>"),
+			'Title', T(4290, --[[XTemplate ipColonist Title]] "Colonist"),
 			'Icon', "UI/Icons/Sections/colonist.tga",
 		}, {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
-				'Text', T{4358, --[[XTemplate ipColonist Text]] "Age Group<right><Age>"},
+				'Text', T(4358, --[[XTemplate ipColonist Text]] "Age Group<right><Age>"),
 			}),
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
-				'Text', T{4359, --[[XTemplate ipColonist Text]] "Specialization<right><Specialization>"},
+				'Text', T(4359, --[[XTemplate ipColonist Text]] "Specialization<right><Specialization>"),
 			}),
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
-				'Text', T{9612, --[[XTemplate ipColonist Text]] "Dome<right><h SelectDome InfopanelSelect><DomeDisplayName></h>"},
+				'Text', T(9612, --[[XTemplate ipColonist Text]] "Dome<right><h SelectDome InfopanelSelect><DomeDisplayName></h>"),
 			}),
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
-				'Text', T{4360, --[[XTemplate ipColonist Text]] "Residence<right><h SelectResidence InfopanelSelect><ResidenceDisplayName></h>"},
+				'Text', T(4360, --[[XTemplate ipColonist Text]] "Residence<right><h SelectResidence InfopanelSelect><ResidenceDisplayName></h>"),
 			}),
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
-				'Text', T{213479829949, --[[XTemplate ipColonist Text]] "<UIWorkplaceLine>"},
+				'Text', T(213479829949, --[[XTemplate ipColonist Text]] "<UIWorkplaceLine>"),
 			}),
 			}),
 		PlaceObj('XTemplateForEach', {
@@ -108,13 +108,13 @@ end,
 			}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelSection",
-			'RolloverText', T{100898279423, --[[XTemplate ipColonist RolloverText]] "<UITraitsRollover>"},
-			'Title', T{235, --[[XTemplate ipColonist Title]] "Traits"},
+			'RolloverText', T(100898279423, --[[XTemplate ipColonist RolloverText]] "<UITraitsRollover>"),
+			'Title', T(235, --[[XTemplate ipColonist Title]] "Traits"),
 			'Icon', "UI/Icons/Sections/colonist.tga",
 		}, {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
-				'Text', T{868555682819, --[[XTemplate ipColonist Text]] "<UITraitsList>"},
+				'Text', T(868555682819, --[[XTemplate ipColonist Text]] "<UITraitsList>"),
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {

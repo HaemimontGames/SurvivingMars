@@ -15,7 +15,7 @@ PlaceObj('XTemplate', {
 				'name', "Open",
 				'func', function (self, ...)
 local title = self.parent:ResolveId("idTitle")
-title:SetText(T{10387, "Thank you!"})
+title:SetText(T(10387, "Thank you!"))
 title:SetHAlign("center")
 title:SetMargins(title:GetMargins() + box(0,60,0,0))
 XWindow.Open(self, ...)

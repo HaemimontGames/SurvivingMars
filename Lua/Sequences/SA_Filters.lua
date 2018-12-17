@@ -5,10 +5,10 @@ DefineClass.SA_Filter = {
 DefineClass.SA_GetLabelToRegister = {
 	__parents = {"SequenceAction"},
 	properties = {
-		{ id = "label", name = T{3689, "Label"}, editor = "combo", default = "", items = function() return LabelsCombo() end, },
-		{ id = "register", name = T{3690, "Register"}, editor = "text", default = ""},
-		{ id = "random_count", name = T{3691, "Random number"}, help = "Pick only this many objects from label, but no more than percent; 0 for all", editor = "number", default = 0 },
-		{ id = "random_percent", name = T{3692, "Random percent"}, help = "Pick only this percent of objects, but no more than number", editor = "number", default = 100 },
+		{ id = "label", name = T(3689, "Label"), editor = "combo", default = "", items = function() return LabelsCombo() end, },
+		{ id = "register", name = T(3690, "Register"), editor = "text", default = ""},
+		{ id = "random_count", name = T(3691, "Random number"), help = "Pick only this many objects from label, but no more than percent; 0 for all", editor = "number", default = 0 },
+		{ id = "random_percent", name = T(3692, "Random percent"), help = "Pick only this percent of objects, but no more than number", editor = "number", default = 100 },
 	},
 
 	Menu = "Gameplay",
@@ -49,9 +49,9 @@ end
 DefineClass.SA_FilterRegister = {
 	__parents = {"SequenceAction"},
 	properties = {
-		{ id = "register_in", name = T{3693, "Input register"}, help = "Input register to filter", editor = "text", default = "" },
-		{ id = "register_out", name = T{3694, "Output register"}, help = "Output register from filter (leave blank for output to same register", editor = "text", default = "" },
-		{ id = "invert", name = T{3695, "NOT"}, help = "Invert condition", editor = "bool", default = false },
+		{ id = "register_in", name = T(3693, "Input register"), help = "Input register to filter", editor = "text", default = "" },
+		{ id = "register_out", name = T(3694, "Output register"), help = "Output register from filter (leave blank for output to same register", editor = "text", default = "" },
+		{ id = "invert", name = T(3695, "NOT"), help = "Invert condition", editor = "bool", default = false },
 	},
 	MenuSection = "Filter",
 	Menu = "Gameplay",
@@ -111,7 +111,7 @@ end
 DefineClass.SA_FilterRegister_Class = {
 	__parents = {"SA_FilterRegister"},
 	properties = {
-		{ id = "filter_class", name = T{3696, "Class"}, help = "Class to test", editor = "text", default = "" },
+		{ id = "filter_class", name = T(3696, "Class"), help = "Class to test", editor = "text", default = "" },
 	},
 	MenuName = "Filter register by class",
 }
@@ -131,7 +131,7 @@ end
 DefineClass.SA_FilterRegister_Register = {
 	__parents = {"SA_FilterRegister"},
 	properties = {
-		{ id = "register_other", name = T{3697, "Other register"}, help = "Register to test", editor = "text", default = "" },
+		{ id = "register_other", name = T(3697, "Other register"), help = "Register to test", editor = "text", default = "" },
 	},
 	MenuName = "Filter register by register",
 }
@@ -151,8 +151,8 @@ end
 DefineClass.SA_FilterRegister_RegisterRange = {
 	__parents = {"SA_FilterRegister"},
 	properties = {
-		{ id = "register_other", name = T{3697, "Other register"}, help = "Register to test against", editor = "text", default = "" },
-		{ id = "range", name = T{643, "Range"}, help = "Range to test distance against", editor = "number", default = 100*guim, scale = guim },
+		{ id = "register_other", name = T(3697, "Other register"), help = "Register to test against", editor = "text", default = "" },
+		{ id = "range", name = T(643, "Range"), help = "Range to test distance against", editor = "number", default = 100*guim, scale = guim },
 	},
 	MenuName = "Filter register by range",
 }
@@ -203,11 +203,11 @@ end
 DefineClass.SA_FilterRegister_Property = {
 	__parents = {"SA_FilterRegister"},
 	properties = {
-		{ id = "base_class", name = T{3698, "Base Class"}, help = "", editor = "dropdownlist", default = "", items = GetBaseClasses() , object_update = true },
-		{ id = "child_class", name = T{3696, "Class"}, help = "", editor = "dropdownlist", default = "", items = GetChildClasses , object_update = true },
-		{ id = "property", name = T{3699, "Property"}, help = "Property to compare against", editor = "combo", default = "", items = GetClassProperties , object_update = true},
-		{ id = "value", name = T{3700, "Value"}, help = "Value to compare against", editor = "text", default = "" },
-		{ id = "op", name = T{3701, "Op"}, help = "Comparison operator", editor = "combo", items = { "equal to", "less than", "less than or equal to"}, default = "equal to" },
+		{ id = "base_class", name = T(3698, "Base Class"), help = "", editor = "dropdownlist", default = "", items = GetBaseClasses() , object_update = true },
+		{ id = "child_class", name = T(3696, "Class"), help = "", editor = "dropdownlist", default = "", items = GetChildClasses , object_update = true },
+		{ id = "property", name = T(3699, "Property"), help = "Property to compare against", editor = "combo", default = "", items = GetClassProperties , object_update = true},
+		{ id = "value", name = T(3700, "Value"), help = "Value to compare against", editor = "text", default = "" },
+		{ id = "op", name = T(3701, "Op"), help = "Comparison operator", editor = "combo", items = { "equal to", "less than", "less than or equal to"}, default = "equal to" },
 	},
 	MenuName = "Filter register by property",
 }

@@ -12,7 +12,7 @@ function CloningVats:BuildingUpdate(dt, ...)
 		local points = MulDivRound(self.performance,g_Consts.cloning_points, 100)
 		self.progress = self.progress + points
 		if self.progress >= 1000 then
-			local colonist_table = GenerateColonistData(self.city, "Child")
+			local colonist_table = GenerateColonistData(self.city, "Child", "martianborn")
 			colonist_table.dome = self.parent_dome
 			colonist_table.traits["Clone"] = true
 			if UICity.mystery and UICity.mystery:IsKindOf("DreamMystery") then

@@ -5,7 +5,7 @@ PlaceObj('XTemplate', {
 	id = "CrashTest",
 	PlaceObj('XTemplateAction', {
 		'ActionId', "idCrashTest",
-		'ActionName', T{11628, --[[XTemplate CrashTest ActionName]] "CRASH TEST"},
+		'ActionName', T(11628, --[[XTemplate CrashTest ActionName]] "CRASH TEST"),
 		'ActionToolbar', "mainmenu",
 		'OnAction', function (self, host, source)
 CloseIngameMainMenu()

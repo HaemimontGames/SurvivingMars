@@ -61,7 +61,7 @@ end,
 			'FXPressDisabled', "UIDisabledButtonPressed",
 			'TextStyle', "PGListItemName",
 			'Translate', true,
-			'Text', T{714247552511, --[[XTemplate MysteryItem Text]] "<text>"},
+			'Text', T(714247552511, --[[XTemplate MysteryItem Text]] "<text>"),
 			'Shorten', true,
 			'TextVAlign', "center",
 		}, {

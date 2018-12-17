@@ -6,14 +6,14 @@ PlaceObj('StoryBit', {
 	Effects = {},
 	Prerequisites = {},
 	ScriptDone = true,
-	Text = T{782723864648, --[[StoryBit WatcherInTheSky_Riddle_2 Text]] "Who am I?"},
+	Text = T(782723864648, --[[StoryBit WatcherInTheSky_Riddle_2 Text]] "Who am I?"),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	VoicedText = T{129204299226, --[[voice:narrator]] "I am a god. I am a planet, and I measure heat."},
+	VoicedText = T(129204299226, --[[voice:narrator]] "I am a god. I am a planet, and I measure heat."),
 	group = "Colonists",
 	id = "WatcherInTheSky_Riddle_2",
 	PlaceObj('StoryBitReply', {
-		'Text', T{545299403584, --[[StoryBit WatcherInTheSky_Riddle_2 Text]] "Mars."},
+		'Text', T(545299403584, --[[StoryBit WatcherInTheSky_Riddle_2 Text]] "Mars."),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -24,7 +24,7 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{432161367463, --[[StoryBit WatcherInTheSky_Riddle_2 Text]] "Mercury."},
+		'Text', T(432161367463, --[[StoryBit WatcherInTheSky_Riddle_2 Text]] "Mercury."),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -35,7 +35,7 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{521669663784, --[[StoryBit WatcherInTheSky_Riddle_2 Text]] "Kelvin.\n"},
+		'Text', T(521669663784, --[[StoryBit WatcherInTheSky_Riddle_2 Text]] "Kelvin."),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -46,7 +46,7 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{790900673594, --[[StoryBit WatcherInTheSky_Riddle_2 Text]] "Triton."},
+		'Text', T(790900673594, --[[StoryBit WatcherInTheSky_Riddle_2 Text]] "Triton."),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},

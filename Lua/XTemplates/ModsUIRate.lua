@@ -92,7 +92,7 @@ end,
 			}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "back",
-			'ActionName', T{4165, --[[XTemplate ModsUIRate ActionName]] "Back"},
+			'ActionName', T(4165, --[[XTemplate ModsUIRate ActionName]] "Back"),
 			'ActionToolbar', "ActionBarRight",
 			'ActionShortcut', "Escape",
 			'OnAction', function (self, host, source)

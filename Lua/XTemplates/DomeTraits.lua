@@ -67,7 +67,7 @@ end,
 					'HAlign', "right",
 					'TextStyle', "DomeName",
 					'Translate', true,
-					'Text', T{347194033198, --[[XTemplate DomeTraits Text]] "<DomeName>"},
+					'Text', T(347194033198, --[[XTemplate DomeTraits Text]] "<DomeName>"),
 					'WordWrap', false,
 					'Shorten', true,
 					'TextHAlign', "right",
@@ -78,7 +78,7 @@ end,
 					'HAlign', "right",
 					'TextStyle', "PGLandingPosDetails",
 					'Translate', true,
-					'Text', T{837650465667, --[[XTemplate DomeTraits Text]] "<DomeSubtitle>"},
+					'Text', T(837650465667, --[[XTemplate DomeTraits Text]] "<DomeSubtitle>"),
 					'TextHAlign', "right",
 				}),
 				PlaceObj('XTemplateWindow', {
@@ -136,7 +136,7 @@ end,
 						}, {
 							PlaceObj('XTemplateCode', {
 								'run', function (self, parent, context)
-parent:ResolveId("idTitle"):SetText(T{1117, "CATEGORIES"})
+parent:ResolveId("idTitle"):SetText(T(1117, "CATEGORIES"))
 end,
 							}),
 							PlaceObj('XTemplateForEach', {
@@ -256,7 +256,7 @@ end,
 				}),
 			PlaceObj('XTemplateAction', {
 				'ActionId', "prev",
-				'ActionName', T{5446, --[[XTemplate DomeTraits ActionName]] "PREVIOUS DOME"},
+				'ActionName', T(5446, --[[XTemplate DomeTraits ActionName]] "PREVIOUS DOME"),
 				'ActionToolbar', "ActionBar",
 				'ActionGamepad', "LeftTrigger",
 				'OnAction', function (self, host, source)
@@ -271,7 +271,7 @@ end,
 			}),
 			PlaceObj('XTemplateAction', {
 				'ActionId', "next",
-				'ActionName', T{5445, --[[XTemplate DomeTraits ActionName]] "NEXT DOME"},
+				'ActionName', T(5445, --[[XTemplate DomeTraits ActionName]] "NEXT DOME"),
 				'ActionToolbar', "ActionBar",
 				'ActionGamepad', "RightTrigger",
 				'OnAction', function (self, host, source)
@@ -286,7 +286,7 @@ end,
 			}),
 			PlaceObj('XTemplateAction', {
 				'ActionId', "clear",
-				'ActionName', T{5448, --[[XTemplate DomeTraits ActionName]] "CLEAR"},
+				'ActionName', T(5448, --[[XTemplate DomeTraits ActionName]] "CLEAR"),
 				'ActionToolbar', "ActionBar",
 				'ActionGamepad', "ButtonY",
 				'ActionState', function (self, host)
@@ -303,7 +303,7 @@ end,
 			}),
 			PlaceObj('XTemplateAction', {
 				'ActionId', "apply",
-				'ActionName', T{5447, --[[XTemplate DomeTraits ActionName]] "APPLY"},
+				'ActionName', T(5447, --[[XTemplate DomeTraits ActionName]] "APPLY"),
 				'ActionToolbar', "ActionBar",
 				'ActionGamepad', "ButtonA",
 				'ActionState', function (self, host)
@@ -327,7 +327,7 @@ end,
 				}, {
 					PlaceObj('XTemplateAction', {
 						'ActionId', "close",
-						'ActionName', T{4523, --[[XTemplate DomeTraits ActionName]] "CLOSE"},
+						'ActionName', T(4523, --[[XTemplate DomeTraits ActionName]] "CLOSE"),
 						'ActionToolbar', "ActionBar",
 						'ActionShortcut', "Escape",
 						'ActionGamepad', "ButtonB",
@@ -344,7 +344,7 @@ end,
 				}, {
 					PlaceObj('XTemplateAction', {
 						'ActionId', "back",
-						'ActionName', T{4254, --[[XTemplate DomeTraits ActionName]] "BACK"},
+						'ActionName', T(4254, --[[XTemplate DomeTraits ActionName]] "BACK"),
 						'ActionToolbar', "ActionBar",
 						'ActionShortcut', "Escape",
 						'ActionGamepad', "ButtonB",

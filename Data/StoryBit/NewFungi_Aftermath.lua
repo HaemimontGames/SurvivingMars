@@ -8,17 +8,9 @@ PlaceObj('StoryBit', {
 			'Percent', 15,
 			'ModifyId', "NewFungi",
 		}),
-		PlaceObj('ForEachExecuteEffects', {
-			'Label', "FungalFarm",
-			'Filters', {},
-			'Effects', {
-				PlaceObj('SetBuildingEnabledState', {
-					'Enabled', true,
-				}),
-			},
-		}),
 	},
 	Effects = {},
+	NotificationText = T(11730, --[[StoryBit NewFungi_Aftermath NotificationText]] "Fungal Farms production increased"),
 	Prerequisites = {},
 	ScriptDone = true,
 	SuppressTime = 7200000,

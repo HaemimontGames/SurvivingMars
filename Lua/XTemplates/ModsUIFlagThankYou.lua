@@ -15,7 +15,7 @@ PlaceObj('XTemplate', {
 				'name', "Open",
 				'func', function (self, ...)
 local title = self.parent:ResolveId("idTitle")
-title:SetText(T{10387, "Thank you!"})
+title:SetText(T(10387, "Thank you!"))
 title:SetHAlign("center")
 title:SetMargins(title:GetMargins() + box(0,60,0,0))
 XWindow.Open(self, ...)
@@ -29,7 +29,7 @@ end,
 				'HandleMouse', false,
 				'TextStyle', "ModsUIMsgText",
 				'Translate', true,
-				'Text', T{10398, --[[XTemplate ModsUIFlagThankYou Text]] "You have successfully flagged this mod for review.\nThank you for making Paradox better and safer."},
+				'Text', T(10398, --[[XTemplate ModsUIFlagThankYou Text]] "You have successfully flagged this mod for review.\nThank you for making Paradox better and safer."),
 				'TextHAlign', "center",
 			}),
 			}),

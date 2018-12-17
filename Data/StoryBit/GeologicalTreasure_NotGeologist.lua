@@ -7,7 +7,7 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	Effects = {},
-	NotificationText = T{11001, --[[StoryBit GeologicalTreasure_NotGeologist NotificationText]] "Gained <research(reward_rp)>. The Excavator is back in operation."},
+	NotificationText = T(11001, --[[StoryBit GeologicalTreasure_NotGeologist NotificationText]] "Gained <research(reward_rp)>. The Excavator is back in operation."),
 	Prerequisites = {},
 	ScriptDone = true,
 	SuppressTime = 7200000,

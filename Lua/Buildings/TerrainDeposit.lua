@@ -71,12 +71,12 @@ end
 DefineClass.TerrainDepositMarker = {
 	__parents = { "DepositMarker" },
 	properties = {
-		{ category = "Deposit", name = T{817, "Resource "}, id = "resource",    editor = "combo",        default = TerrainDeposits[1] or "", items = TerrainDeposits, buttons = {{"Reapply", "ActionDepositReapply"}} },	
-		{ category = "Deposit", name = T{1000100, "Amount"},    id = "max_amount",  editor = "number",       default = 1000*rscale, min = 0, scale = rscale, help = "Used for the procedural generation only" },
-		{ category = "Deposit", name = T{16, "Grade"},     id = "grade",       editor = "dropdownlist", default = "Average", items = DepositGradesTable, object_update = true },
-		{ category = "Deposit", name = T{637, "Prefab"},    id = "prefab",      editor = "combo",        default = "", items = PrefabDepositMarkers },
-		{ category = "Deposit", name = T{818, "Density 1"}, id = "density",     editor = "number",       default = -1 },
-		{ category = "Deposit", name = T{819, "Density 2"}, id = "density2",    editor = "number",       default = -1 },
+		{ category = "Deposit", name = T(817, "Resource "), id = "resource",    editor = "combo",        default = TerrainDeposits[1] or "", items = TerrainDeposits, buttons = {{"Reapply", "ActionDepositReapply"}} },	
+		{ category = "Deposit", name = T(1000100, "Amount"),    id = "max_amount",  editor = "number",       default = 1000*rscale, min = 0, scale = rscale, help = "Used for the procedural generation only" },
+		{ category = "Deposit", name = T(16, "Grade"),     id = "grade",       editor = "dropdownlist", default = "Average", items = DepositGradesTable, object_update = true },
+		{ category = "Deposit", name = T(637, "Prefab"),    id = "prefab",      editor = "combo",        default = "", items = PrefabDepositMarkers },
+		{ category = "Deposit", name = T(818, "Density 1"), id = "density",     editor = "number",       default = -1 },
+		{ category = "Deposit", name = T(819, "Density 2"), id = "density2",    editor = "number",       default = -1 },
 	},
 	deposit = false,
 	new_pos_if_obstruct = false,
@@ -335,8 +335,8 @@ DefineClass.TerrainDeposit = {
 	__parents = { "Deposit", "EditorRangeObject" },
 	enum_flags = { efWalkable = false, efCollision = false, efApplyToGrids = false },
 	properties = {
-		{ category = "Deposit", name = T{782, "Max amount"}, id = "max_amount", editor = "number", default = 50000, scale = const.ResourceScale, read_only = true},	 --quantity
-		{ category = "Deposit", name = T{16, "Grade"},      id = "grade",      editor = "text", default = "Average", read_only = true },
+		{ category = "Deposit", name = T(782, "Max amount"), id = "max_amount", editor = "number", default = 50000, scale = const.ResourceScale, read_only = true},	 --quantity
+		{ category = "Deposit", name = T(16, "Grade"),      id = "grade",      editor = "text", default = "Average", read_only = true },
 	},
 	
 	entity = "WayPoint",
@@ -345,11 +345,11 @@ DefineClass.TerrainDeposit = {
 	revealed = true,
 	
 	--ui
-	display_name = T{783, "Deep <resource(resource)>"},
+	display_name = T(783, "Deep <resource(resource)>"),
 	display_icon = "UI/Icons/Buildings/drone.tga",
 	
 	-- pin section
-	pin_rollover = T{820, "<Description><newline><newline><ResourceName><right><resource(Amount,max_amount,resource)><newline><left>Grade<right><grade_name>"},
+	pin_rollover = T(820, "<Description><newline><newline><ResourceName><right><resource(Amount,max_amount,resource)><newline><left>Grade<right><grade_name>"),
 	pin_progress_value = "Amount",
 	pin_progress_max = "max_amount",
 	
@@ -550,8 +550,8 @@ DefineClass("TerrainDepositConcrete",
 	resource = "Concrete",
 	display_icon = "UI/Icons/Buildings/deposit_concrete.tga",
 	entity = "SignConcreteDeposit",
-	display_name = T{821, "Concrete Deposit"},
-	description = T{822, "A Regolith-rich terrain that can be processed into Concrete. Can be exploited by a <em>Concrete Extractor</em>."},
+	display_name = T(821, "Concrete Deposit"),
+	description = T(822, "A Regolith-rich terrain that can be processed into Concrete. Can be exploited by a <em>Concrete Extractor</em>."),
 })
 
 ----

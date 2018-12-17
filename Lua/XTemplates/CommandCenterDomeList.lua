@@ -25,7 +25,7 @@ local dlg = GetDialog(self)
 dlg.context.dome = nil
 SetBackDialogMode(self)
 end,
-			'Text', T{596159635934, --[[XTemplate CommandCenterDomeList Text]] "Entire Colony"},
+			'Text', T(596159635934, --[[XTemplate CommandCenterDomeList Text]] "Entire Colony"),
 		}),
 		PlaceObj('XTemplateForEach', {
 			'comment', "domes",
@@ -39,12 +39,12 @@ local dlg = GetDialog(self)
 dlg.context.dome = self.context
 SetBackDialogMode(self)
 end,
-				'Text', T{7412, --[[XTemplate CommandCenterDomeList Text]] "<DisplayName>"},
+				'Text', T(7412, --[[XTemplate CommandCenterDomeList Text]] "<DisplayName>"),
 			}),
 			}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "back",
-			'ActionName', T{4254, --[[XTemplate CommandCenterDomeList ActionName]] "BACK"},
+			'ActionName', T(4254, --[[XTemplate CommandCenterDomeList ActionName]] "BACK"),
 			'ActionToolbar', "ActionBar",
 			'ActionShortcut', "Escape",
 			'ActionGamepad', "ButtonB",

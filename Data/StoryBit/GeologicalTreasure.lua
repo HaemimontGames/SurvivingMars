@@ -17,11 +17,11 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	ScriptDone = true,
-	Text = T{164344231102, --[[StoryBit GeologicalTreasure Text]] "The formation hints of active lava flows during a time when they were considered to have been geologically dead for millions of years. \n\nCalls from geologists, both from Earth and Mars to cease work of the Extractor until the formation is properly studied, are mounting."},
+	Text = T(164344231102, --[[StoryBit GeologicalTreasure Text]] "The formation hints of active lava flows during a time when they were considered to have been geologically dead for millions of years. \n\nCalls from geologists - both from Earth and Mars - to cease work of the Extractor until the formation is properly studied, are mounting."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{888732991901, --[[StoryBit GeologicalTreasure Title]] "Geological Treasure"},
-	VoicedText = T{792209125412, --[[voice:narrator]] "The Excavator has unearthed a rare geological formation which challenges our understanding of Mars."},
+	Title = T(888732991901, --[[StoryBit GeologicalTreasure Title]] "Geological Treasure"),
+	VoicedText = T(792209125412, --[[voice:narrator]] "The Excavator has unearthed a rare geological formation which challenges our understanding of Mars."),
 	group = "Wonders",
 	id = "GeologicalTreasure",
 	PlaceObj('StoryBitParamSols', {
@@ -33,9 +33,9 @@ PlaceObj('StoryBit', {
 		'Value', 15000,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{328584950902, --[[StoryBit GeologicalTreasure Text]] "Disable the Excavator for <sols(disable_duration)> Sols."},
+		'Text', T(328584950902, --[[StoryBit GeologicalTreasure Text]] "Disable the Excavator for <sols(disable_duration)> Sols."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{865307225585, --[[StoryBit GeologicalTreasure CustomOutcomeText]] "get <research(reward_rp)>afterwards"},
+		'CustomOutcomeText', T(865307225585, --[[StoryBit GeologicalTreasure CustomOutcomeText]] "get <research(reward_rp)>afterwards"),
 		'Prerequisite', PlaceObj('IsCommander', {
 			'CommanderProfile', "astrogeologist",
 			'Negate', true,
@@ -61,9 +61,9 @@ PlaceObj('StoryBit', {
 		'Value', 5,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{800125679398, --[[StoryBit GeologicalTreasure Text]] "Continue excavating - we need the resources."},
+		'Text', T(800125679398, --[[StoryBit GeologicalTreasure Text]] "Continue excavating - we need the resources."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{481672845398, --[[StoryBit GeologicalTreasure CustomOutcomeText]] "<number_of_geologist> become Alcoholics"},
+		'CustomOutcomeText', T(481672845398, --[[StoryBit GeologicalTreasure CustomOutcomeText]] "<number_of_geologist> become Alcoholics"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -81,9 +81,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{450534072037, --[[StoryBit GeologicalTreasure Text]] "Perhaps there is something more to be discovered there. Disable the Excavator for <sols(disable_duration)> Sols."},
+		'Text', T(450534072037, --[[StoryBit GeologicalTreasure Text]] "Perhaps there is something more to be discovered there. Disable the Excavator for <sols(disable_duration)> Sols."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{737239476656, --[[StoryBit GeologicalTreasure CustomOutcomeText]] "get a random Breakthrough"},
+		'CustomOutcomeText', T(737239476656, --[[StoryBit GeologicalTreasure CustomOutcomeText]] "get a random Breakthrough"),
 		'Prerequisite', PlaceObj('IsCommander', {
 			'CommanderProfile', "astrogeologist",
 		}),

@@ -14,7 +14,7 @@ PlaceObj('XTemplate', {
 		'LayoutMethod', "VList",
 	}, {
 		PlaceObj('XTemplateLayer', {
-			'__condition', function (parent, context) return not GetDialog("PlanetaryView") end,
+			'__condition', function (parent, context) return not GetDialog("PlanetaryView") and GameState.gameplay end,
 			'layer', "ScreenBlur",
 			'layer_id', "idBlur",
 		}),
@@ -100,9 +100,9 @@ end,
 					PlaceObj('XTemplateTemplate', {
 						'__condition', function (parent, context) return GameState.gameplay and not context.no_ccc_button end,
 						'__template', "HUDButtonTemplate",
-						'RolloverText', T{8980, --[[XTemplate MarsMessageBox RolloverText]] "Provides historical stats and tools to inspect and manage Buildings, Domes, Colonists and transportation."},
-						'RolloverTitle', T{137542936955, --[[XTemplate MarsMessageBox RolloverTitle]] "Command Center"},
-						'RolloverHint', T{568152691543, --[[XTemplate MarsMessageBox RolloverHint]] "<em><ShortcutName('actionColonyControlCenter')></em> Тoggle Command Center"},
+						'RolloverText', T(8980, --[[XTemplate MarsMessageBox RolloverText]] "Provides historical stats and tools to inspect and manage Buildings, Domes, Colonists and transportation."),
+						'RolloverTitle', T(137542936955, --[[XTemplate MarsMessageBox RolloverTitle]] "Command Center"),
+						'RolloverHint', T(568152691543, --[[XTemplate MarsMessageBox RolloverHint]] "<em><ShortcutName('actionColonyControlCenter')></em> Тoggle Command Center"),
 						'Id', "idCommandControlCenter",
 						'Dock', "right",
 						'Image', "UI/HUD/command_center.tga",

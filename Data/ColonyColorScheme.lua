@@ -2,7 +2,7 @@
 
 PlaceObj('ColonyColorScheme', {
 	SortKey = -1,
-	display_name = T{1079, --[[ColonyColorScheme default display_name]] "Surviving Mars"},
+	display_name = T(1079, --[[ColonyColorScheme default display_name]] "Surviving Mars"),
 	dome_base = 2209066747,
 	electro_accent_1 = 2196030942,
 	electro_accent_2 = 1792320026,
@@ -42,7 +42,7 @@ PlaceObj('ColonyColorScheme', {
 
 PlaceObj('ColonyColorScheme', {
 	cables_base = 2993492511,
-	display_name = T{11555, --[[ColonyColorScheme blue_sky display_name]] "Blue Sky"},
+	display_name = T(11555, --[[ColonyColorScheme blue_sky display_name]] "Blue Sky"),
 	dome_base = 2187894897,
 	electro_accent_1 = 2215054937,
 	electro_accent_2 = 2986060593,
@@ -85,7 +85,7 @@ PlaceObj('ColonyColorScheme', {
 })
 
 PlaceObj('ColonyColorScheme', {
-	display_name = T{11657, --[[ColonyColorScheme cherry_blossom display_name]] "Cherry Blossom"},
+	display_name = T(11657, --[[ColonyColorScheme cherry_blossom display_name]] "Cherry Blossom"),
 	dome_base = 2210145407,
 	electro_accent_1 = 2209816831,
 	electro_accent_2 = 2212113187,
@@ -125,7 +125,7 @@ PlaceObj('ColonyColorScheme', {
 })
 
 PlaceObj('ColonyColorScheme', {
-	display_name = T{11658, --[[ColonyColorScheme rainforest display_name]] "Rainforest"},
+	display_name = T(11658, --[[ColonyColorScheme rainforest display_name]] "Rainforest"),
 	dome_base = 2210948661,
 	electro_accent_1 = 2722292775,
 	electro_accent_2 = 3118757050,
@@ -164,7 +164,7 @@ PlaceObj('ColonyColorScheme', {
 
 PlaceObj('ColonyColorScheme', {
 	cables_base = 2993443875,
-	display_name = T{11659, --[[ColonyColorScheme red_steel display_name]] "Red Steel"},
+	display_name = T(11659, --[[ColonyColorScheme red_steel display_name]] "Red Steel"),
 	dome_base = 3531950818,
 	electro_accent_1 = 3305556062,
 	electro_accent_2 = 2852571230,

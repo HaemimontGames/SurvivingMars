@@ -10,11 +10,11 @@ PlaceObj('StoryBit', {
 		PlaceObj('SupplyMissionsEnabled', nil),
 	},
 	ScriptDone = true,
-	Text = T{340078552814, --[[StoryBit FoodFight Text]] 'Would you like a diet soda with your triple burger? For free! Your only obligation is to make the colonists eat (and supposedly enjoy) the branded meals.\n\n<if(is_commander("oligarch"))>[<commander_profile>] Reading the fine print, the proposed contract excludes any demands for the quality of the served food.</if>'},
+	Text = T(340078552814, --[[StoryBit FoodFight Text]] 'Would you like a diet soda with your triple burger? For free! Your only obligation is to make the colonists eat (and supposedly enjoy) the branded meals.\n\n<if(is_commander("oligarch"))>[<commander_profile>] Reading the fine print, the proposed contract excludes any demands for the quality of the served food.</if>'),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	Title = T{852599856217, --[[StoryBit FoodFight Title]] "Food Fight"},
-	VoicedText = T{899341899630, --[[voice:narrator]] "Two of the largest fast food chains have filed simultaneous requests to serve the colonists."},
+	Title = T(852599856217, --[[StoryBit FoodFight Title]] "Food Fight"),
+	VoicedText = T(899341899630, --[[voice:narrator]] "Two of the largest fast food chains have filed simultaneous requests to serve the colonists."),
 	group = "Colonists",
 	id = "FoodFight",
 	PlaceObj('StoryBitParamNumber', {
@@ -34,9 +34,9 @@ PlaceObj('StoryBit', {
 		'Value', -100,
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{772551534327, --[[StoryBit FoodFight Text]] "Mars food will always be Bio and Organic!"},
+		'Text', T(772551534327, --[[StoryBit FoodFight Text]] "Mars food will always be Bio and Organic!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{245340088679, --[[StoryBit FoodFight CustomOutcomeText]] "Food service buildings grant more Comfort"},
+		'CustomOutcomeText', T(245340088679, --[[StoryBit FoodFight CustomOutcomeText]] "Food service buildings grant more Comfort"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -56,12 +56,17 @@ PlaceObj('StoryBit', {
 				'Prop', "service_comfort",
 				'Amount', "<foodservice_bonus_reject>",
 			}),
+			PlaceObj('ModifyLabel', {
+				'Label', "MegaMall",
+				'Prop', "service_comfort",
+				'Amount', "<foodservice_bonus_reject>",
+			}),
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{482974937853, --[[StoryBit FoodFight Text]] "Give the permission to WcRonalds."},
+		'Text', T(482974937853, --[[StoryBit FoodFight Text]] "Give the permission to WcRonalds."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{173770897397, --[[StoryBit FoodFight CustomOutcomeText]] "Food import cost greatly reduced"},
+		'CustomOutcomeText', T(173770897397, --[[StoryBit FoodFight CustomOutcomeText]] "Food import cost greatly reduced"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -84,6 +89,11 @@ PlaceObj('StoryBit', {
 				'Amount', "<foodservice_penalty_accept>",
 			}),
 			PlaceObj('ModifyLabel', {
+				'Label', "MegaMall",
+				'Prop', "service_comfort",
+				'Amount', "<foodservice_penalty_accept>",
+			}),
+			PlaceObj('ModifyLabel', {
 				'Label', "ShopsFood_Small",
 				'Prop', "service_comfort",
 				'Amount', "<foodservice_penalty_accept>",
@@ -92,9 +102,9 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{147867267465, --[[StoryBit FoodFight Text]] "Give the permission to Burglar King."},
+		'Text', T(147867267465, --[[StoryBit FoodFight Text]] "Give the permission to Burglar King."),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{341773789732, --[[StoryBit FoodFight CustomOutcomeText]] "free construction of Food service buildings"},
+		'CustomOutcomeText', T(341773789732, --[[StoryBit FoodFight CustomOutcomeText]] "free construction of Food service buildings"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -138,12 +148,22 @@ PlaceObj('StoryBit', {
 				'Prop', "construction_cost_Concrete",
 				'Percent', "<foodservice_construction_reduction>",
 			}),
+			PlaceObj('ModifyLabel', {
+				'Label', "MegaMall_Construction",
+				'Prop', "construction_cost_Concrete",
+				'Percent', "<foodservice_construction_reduction>",
+			}),
+			PlaceObj('ModifyLabel', {
+				'Label', "MegaMall_Construction",
+				'Prop', "construction_cost_Polymers",
+				'Percent', "<foodservice_construction_reduction>",
+			}),
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{909197729552, --[[StoryBit FoodFight Text]] "Let them compete, take bids from both!"},
+		'Text', T(909197729552, --[[StoryBit FoodFight Text]] "Let them compete, take bids from both!"),
 		'OutcomeText', "custom",
-		'CustomOutcomeText', T{166465090294, --[[StoryBit FoodFight CustomOutcomeText]] "get both benefits"},
+		'CustomOutcomeText', T(166465090294, --[[StoryBit FoodFight CustomOutcomeText]] "get both benefits"),
 		'Prerequisite', PlaceObj('IsCommander', {
 			'CommanderProfile', "oligarch",
 		}),
@@ -193,6 +213,21 @@ PlaceObj('StoryBit', {
 				'Label', "ShopsFood_Small_Construction",
 				'Prop', "construction_cost_Concrete",
 				'Percent', "<food_cost_reduction>",
+			}),
+			PlaceObj('ModifyLabel', {
+				'Label', "MegaMall",
+				'Prop', "service_comfort",
+				'Amount', "<foodservice_penalty_accept>",
+			}),
+			PlaceObj('ModifyLabel', {
+				'Label', "MegaMall_Construction",
+				'Prop', "construction_cost_Polymers",
+				'Percent', "<foodservice_construction_reduction>",
+			}),
+			PlaceObj('ModifyLabel', {
+				'Label', "MegaMall_Construction",
+				'Prop', "construction_cost_Concrete",
+				'Percent', "<foodservice_construction_reduction>",
 			}),
 		},
 	}),

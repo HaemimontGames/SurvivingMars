@@ -5354,6 +5354,94 @@ EntityData["DecLogo_14"] = {
 		material_type = "Rock",
 	},
 }
+EntityData["DecLogoGagarin_01"] = {
+	category_Decals = true,
+	entity = {
+		class_parent = "Decal",
+		fade_category = "Never",
+		material_type = "Rock",
+	},
+}
+EntityData["DecLogoGagarin_02"] = {
+	category_Decals = true,
+	entity = {
+		class_parent = "Decal",
+		fade_category = "Never",
+		material_type = "Rock",
+	},
+}
+EntityData["DecLogoGagarin_03"] = {
+	category_Decals = true,
+	entity = {
+		class_parent = "Decal",
+		fade_category = "Never",
+		material_type = "Rock",
+	},
+}
+EntityData["DecLogoGagarin_04"] = {
+	category_Decals = true,
+	entity = {
+		class_parent = "Decal",
+		fade_category = "Never",
+		material_type = "Rock",
+	},
+}
+EntityData["DecLogoGagarin_05"] = {
+	category_Decals = true,
+	entity = {
+		class_parent = "Decal",
+		fade_category = "Never",
+		material_type = "Rock",
+	},
+}
+EntityData["DecLogoGagarin_06"] = {
+	category_Decals = true,
+	entity = {
+		class_parent = "Decal",
+		fade_category = "Never",
+		material_type = "Rock",
+	},
+}
+EntityData["DecLogoGagarin_07"] = {
+	category_Decals = true,
+	entity = {
+		class_parent = "Decal",
+		fade_category = "Never",
+		material_type = "Rock",
+	},
+}
+EntityData["DecLogoGagarin_08"] = {
+	category_Decals = true,
+	entity = {
+		class_parent = "Decal",
+		fade_category = "Never",
+		material_type = "Rock",
+	},
+}
+EntityData["DecLogoGagarin_09"] = {
+	category_Decals = true,
+	entity = {
+		class_parent = "Decal",
+		fade_category = "Never",
+		material_type = "Rock",
+	},
+}
+EntityData["DecLogoGagarin_10"] = {
+	category_Decals = true,
+	entity = {
+		class_parent = "Decal",
+		fade_category = "Never",
+		material_type = "Rock",
+	},
+}
+EntityData["DecLogoGagarin_11"] = {
+	category_Decals = true,
+	entity = {
+		class_parent = "Decal",
+		fade_category = "Never",
+		material_type = "Rock",
+	},
+}
 EntityData["ArrowEarthsick"] = {
 	category_Decors = true,
 	entity = {

@@ -2,8 +2,8 @@ DefineClass.ShiftsBuilding = {
 	__parents = { "Building"},
 	
 	properties = {		
-		{ template = true,id = "active_shift",    name = T{738, "Single Active shift"},   default = 0, category = "ShiftsBuilding", editor = "number"},
-		{ template = true,id = "closed_shifts_persist",    name = T{739, "Persisted closed shift"},  no_edit = true, editor = "text", default = ""},
+		{ template = true,id = "active_shift",    name = T(738, "Single Active shift"),   default = 0, category = "ShiftsBuilding", editor = "number"},
+		{ template = true,id = "closed_shifts_persist",    name = T(739, "Persisted closed shift"),  no_edit = true, editor = "text", default = ""},
 	},
 	
 	max_shifts = 3,
@@ -12,9 +12,9 @@ DefineClass.ShiftsBuilding = {
 }
 
 local shift_names = {
-	T{740, "Start Shift Enabled 1"},
-	T{741, "Start Shift Enabled 2"},
-	T{742, "Start Shift Enabled 3"},
+	T(740, "Start Shift Enabled 1"),
+	T(741, "Start Shift Enabled 2"),
+	T(742, "Start Shift Enabled 3"),
 }
 
 for i = 1, ShiftsBuilding.max_shifts do

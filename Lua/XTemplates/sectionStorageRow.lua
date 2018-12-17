@@ -7,10 +7,10 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateTemplate', {
 		'__condition', function (parent, context) return context[1]:DoesAcceptResource(context.res) end,
 		'__template', "InfopanelActiveSection",
-		'RolloverText', T{376908863267, --[[XTemplate sectionStorageRow RolloverText]] "Toggle storage of this resource.\n\nStatus: <on_off(IsResourceEnabled(res))>"},
-		'RolloverTitle', T{883661504598, --[[XTemplate sectionStorageRow RolloverTitle]] "<resource(res)>"},
-		'RolloverHint', T{934659949775, --[[XTemplate sectionStorageRow RolloverHint]] "<left_click> Toggle <newline><em>Ctrl + <left_click></em>Toggle for all <display_name_pl>"},
-		'RolloverHintGamepad', T{454042608125, --[[XTemplate sectionStorageRow RolloverHintGamepad]] "<ButtonA> Toggle <newline><ButtonX> Toggle for all <display_name_pl>"},
+		'RolloverText', T(376908863267, --[[XTemplate sectionStorageRow RolloverText]] "Toggle storage of this resource.\n\nStatus: <on_off(IsResourceEnabled(res))>"),
+		'RolloverTitle', T(883661504598, --[[XTemplate sectionStorageRow RolloverTitle]] "<resource(res)>"),
+		'RolloverHint', T(934659949775, --[[XTemplate sectionStorageRow RolloverHint]] "<left_click> Toggle <newline><em>Ctrl + <left_click></em>Toggle for all <display_name_pl>"),
+		'RolloverHintGamepad', T(454042608125, --[[XTemplate sectionStorageRow RolloverHintGamepad]] "<ButtonA> Toggle <newline><ButtonX> Toggle for all <display_name_pl>"),
 		'OnContextUpdate', function (self, context, ...)
 if context[1]:IsResourceEnabled(context.res) then
 	self:SetIcon("UI/Icons/Sections/resource_accept.tga")
@@ -20,7 +20,7 @@ else
 	self.idSectionTitle:SetTextStyle("InfopanelResourceNoAccept")
 end
 end,
-		'Title', T{615073837286, --[[XTemplate sectionStorageRow Title]] "<resource(res)><right><resource(GetStoredAmount(res),GetMaxStorage(res),res)>"},
+		'Title', T(615073837286, --[[XTemplate sectionStorageRow Title]] "<resource(res)><right><resource(GetStoredAmount(res),GetMaxStorage(res),res)>"),
 		'Icon', "UI/Icons/Sections/workshifts_active.tga",
 		'TitleHAlign', "stretch",
 	}, {

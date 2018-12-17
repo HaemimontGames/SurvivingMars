@@ -949,3 +949,8 @@ function SavegameFixups.MysteryRocketCategory()
 		rocket.category = "refugee"
 	end
 end
+
+function SavegameFixups.DisablePlayTutorialPopup()
+	AccountStorage.DisablePlayTutorialPopup = AccountStorage.DisablePlayTutorialPopup or g_ColonyNotViableUntil>=-2
+	SaveAccountStorage(5000)
+end

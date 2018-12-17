@@ -52,7 +52,7 @@ PlaceObj('XTemplate', {
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "ok",
-			'ActionName', T{6895, --[[XTemplate MarsRenameControl ActionName]] "OK"},
+			'ActionName', T(6895, --[[XTemplate MarsRenameControl ActionName]] "OK"),
 			'ActionToolbar', "RenameActionBar",
 			'ActionShortcut', "Enter",
 			'ActionGamepad', "ButtonA",
@@ -60,21 +60,21 @@ PlaceObj('XTemplate', {
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "rename",
-			'ActionName', T{10120, --[[XTemplate MarsRenameControl ActionName]] "RENAME"},
+			'ActionName', T(10120, --[[XTemplate MarsRenameControl ActionName]] "RENAME"),
 			'ActionToolbar', "RenameActionBar",
 			'ActionGamepad', "ButtonY",
 			'__condition', function (parent, context) return Platform.console and context and context.console_show end,
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "rename",
-			'ActionName', T{11465, --[[XTemplate MarsRenameControl ActionName]] "VIRTUAL KEYBOARD"},
+			'ActionName', T(11465, --[[XTemplate MarsRenameControl ActionName]] "VIRTUAL KEYBOARD"),
 			'ActionToolbar', "RenameActionBar",
 			'ActionGamepad', "ButtonY",
 			'__condition', function (parent, context) return Platform.steam and GetUIStyleGamepad() and context and context.console_show end,
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "cancel",
-			'ActionName', T{5450, --[[XTemplate MarsRenameControl ActionName]] "CANCEL"},
+			'ActionName', T(5450, --[[XTemplate MarsRenameControl ActionName]] "CANCEL"),
 			'ActionToolbar', "RenameActionBar",
 			'ActionShortcut', "Escape",
 			'ActionGamepad', "ButtonB",

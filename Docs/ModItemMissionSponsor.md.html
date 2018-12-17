@@ -29,17 +29,20 @@ Breakthrough Funding (M) (self.funding_per_breakthrough)
 Breakthrough applicants (self.applicants_per_breakthrough)
 : The number of new applicants that are added to waiting ones  for each researched breakthrough tech.
 
+Cargo Capacity (self.cargo)
+: The maximum payload (in kg) of a resupply Rocket.
+
 Starting Rockets (self.initial_rockets)
 : Number of available rockets at game start.
 
 Rocket price (M) (self.rocket_price)
 : Rocket price, set to 0 for free rockets.
 
+Pod price (M) (self.pod_price)
+: Pod price, set to 0 for free pods.
+
 Applicants price (M) (self.applicants_price)
 : Applicants price when not enough and buy new ones for resupply.Set to 0 for getting them free.
-
-Cargo Capacity (self.cargo)
-: The maximum payload (in kg) of a resupply Rocket.
 
 Starting Techs to research (self.initial_techs_unlocked)
 : The number of initially available Techs to research.
@@ -51,6 +54,24 @@ Trait given to colonists (self.trait)
 **Bonus event Anomalies (self.anomaly_bonus_event)**<br>
 **Bonus free Tech Anomalies (self.anomaly_bonus_free_tech)**<br>
 : When generating a new map anomalies are placed depending on some chance range. These properties increase the probabilities.
+
+Export Price Precious Metals (self.precious_metals_export_price)
+: Price at which a unit of Precious Metals will be exported.
+
+Research Points per Sol (self.research_points)
+: Points points granted each Sol.
+
+Applicants Pool Starting Size (self.initial_applicants)
+: The starting size for the pool of applicants.
+
+Sponsor Funding per Interval (self.funding_per_interval)
+: Funding received on a reguler interval. The interval is determined by `g_Consts.SponsorFundingInterval`.
+
+Research points granted on exploring a sector (self.research_points_per_explored_sector)
+: Research points granted on exploring a sector.
+
+Funding granted on colonist arrival on Mars (self.colonist_funding_on_arrival)
+: Funding granted on colonist arrival on Mars.
 
 Effect (self.effect)
 : Text description for users of this sponsor effects. Add implementation in 'Game Apply' function.
@@ -76,6 +97,16 @@ if IsGameRuleActive("ColonyPrefab") then
 	city:AddPrefabs("Farm", 2)
 end
 ~~~~~~~~~
+
+Colony Color Scheme (self.colony_color_scheme)
+: The Building Colors associated with this sponsor.
+
+Banner Entities Postfix (self.banners_name) *Space Race only*
+: When determining the entity name of a sponsor banner, this text will be appended to the base name for the flag class.
+: For the Small Banner, when playing with Internation Mars Mission, the entity name will be "Flag_01_" .. "IMM".
+: Here's a list of all built-in banner names: "BlueSun", "Brazil", "China", "Europe", "IMM", "India", "Japan", "NewArk", "Russia", "SpaceY", "USA".
+: The three banner name prefixes are "Flag_01_", "Flag_02_" and "Flag_03_", which is useful when creating custom sponsor banners.
+: When this property has it's default value, the sponsor ID is used instead.
 
 (insert footer.md.html here)
 <!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>

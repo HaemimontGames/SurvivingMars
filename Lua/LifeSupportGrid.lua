@@ -157,7 +157,7 @@ end
 function WaterGrid:GetUISectionWaterGridRollover()
 	local ret = 
 	{
-		T{537, "Life support grid parameters. Water and Oxygen are consumed only when demanded.<newline>"},
+		T(537, "Life support grid parameters. Water and Oxygen are consumed only when demanded.<newline>"),
 		T{330, "Max production<right><water(production)>", self},
 		T{331, "Water consumption<right><water(current_consumption)>", current_consumption = self.current_consumption},
 	}
@@ -176,7 +176,7 @@ end
 function AirGridFragment:GetUISectionAirGridRollover()
 	local ret = 
 	{
-		T{537, "Life support grid parameters. Water and Oxygen are consumed only when demanded.<newline>"},
+		T(537, "Life support grid parameters. Water and Oxygen are consumed only when demanded.<newline>"),
 		T{325, "Max production<right><air(production)>", self},
 		T{538, "Oxygen consumption<right><air(current_consumption)>", current_consumption = self.current_consumption},
 	}
@@ -469,9 +469,9 @@ DefineClass.LifeSupportGridElement = {
 	construction_cost_Metals = 1 * const.ResourceScale,
 	build_points = 1000,
 	--construction ui
-	description = T{3972, "Transport Water and Oxygen."},
-	display_name = T{1064, "Life Support Pipe"},
-	display_name_pl = T{11674, "Life Support Pipes"},
+	description = T(3972, "Transport Water and Oxygen."),
+	display_name = T(1064, "Life Support Pipe"),
+	display_name_pl = T(11674, "Life Support Pipes"),
 	display_icon = "UI/Icons/Buildings/pipes.tga", --pin dialog icon during construction
 	
 	enum_flags = { efApplyToGrids = false },
@@ -549,7 +549,7 @@ end
 
 function LifeSupportGridElement:GetDisplayName()
 	if self.repair_resource_request then
-		return T{3891, "Pipe Leak"}
+		return T(3891, "Pipe Leak")
 	else
 		return SupplyGridSwitch.GetDisplayName(self)
 	end
@@ -1363,7 +1363,7 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 DefineClass.WaterProducer = {
 	__parents = { "Building", "LifeSupportGridObject" },
 	properties = {
-		{ template = true, id = "water_production", name = T{1065, "Water production"}, category = "Water Production", editor = "number", default = 10000, help = Untranslated("This is the amount produced per hour."), scale = const.ResourceScale, modifiable = true },
+		{ template = true, id = "water_production", name = T(1065, "Water production"), category = "Water Production", editor = "number", default = 10000, help = Untranslated("This is the amount produced per hour."), scale = const.ResourceScale, modifiable = true },
 	},
 	
 	is_tall = true,
@@ -1451,7 +1451,7 @@ function WaterProducer:GetUISectionWaterProductionRollover()
 	}	
 	AvailableDeposits(self, lines)
 	if self:HasMember("wasterock_producer") and self.wasterock_producer then
-		lines[#lines +1] = T{469, "<newline><center><em>Storage</em>"}
+		lines[#lines +1] = T(469, "<newline><center><em>Storage</em>")
 		lines[#lines +1] = T{471, "Waste Rock<right><wasterock(GetWasterockAmountStored,wasterock_max_storage)>", self}
 	end
 	return table.concat(lines, "<newline><left>")
@@ -1467,7 +1467,7 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 DefineClass.AirProducer = {
 	__parents = { "Building", "LifeSupportGridObject" },
 	properties = {
-		{ template = true, id = "air_production", name = T{1066, "Oxygen production"}, category = "Oxygen production", editor = "number", default = 10000, scale = const.ResourceScale, modifiable = true  },
+		{ template = true, id = "air_production", name = T(1066, "Oxygen production"), category = "Oxygen production", editor = "number", default = 10000, scale = const.ResourceScale, modifiable = true  },
 	},
 	
 	is_tall = true,
@@ -1554,8 +1554,8 @@ DefineClass.LifeSupportConsumer = {
 	__parents = { "Building", "LifeSupportGridObject"},
 
 	properties = {
-		{ template = true, id = "water_consumption", name = T{656, "Water consumption"},  category = "Consumption", editor = "number", default = 10000, scale = const.ResourceScale, modifiable = true, min = 0, },
-		{ template = true, id = "air_consumption",   name = T{1067, "Oxygen consumption"}, category = "Consumption", editor = "number", default = 10000, scale = const.ResourceScale, modifiable = true, min = 0, },
+		{ template = true, id = "water_consumption", name = T(656, "Water consumption"),  category = "Consumption", editor = "number", default = 10000, scale = const.ResourceScale, modifiable = true, min = 0, },
+		{ template = true, id = "air_consumption",   name = T(1067, "Oxygen consumption"), category = "Consumption", editor = "number", default = 10000, scale = const.ResourceScale, modifiable = true, min = 0, },
 	},
 	
 	is_tall = true,
@@ -1679,11 +1679,11 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 DefineClass.WaterStorage = {
 	__parents = {"Building", "LifeSupportGridObject"},
 	properties = {
-		{ template = true, id = "max_water_charge", name = T{29, "Max water consumption while charging"}, category = "Storage", editor = "number", default = 1000, help = "This is the amount of water the battery can charge per hour.", scale = const.ResourceScale  },
-		{ template = true, id = "max_water_discharge", name = T{1068, "Max water output while discharging"}, category = "Storage", editor = "number", default = 1000, help = "This is the amount of air the battery can discharge per hour.", scale = const.ResourceScale  },
-		{ template = true, id = "water_conversion_efficiency", name = T{1069, "Conversion efficiency % of water (charging)"}, category = "Storage", editor = "number", default = 100, help = "(100 - this number)% will go to waste when charging." },
-		{ template = true, id = "water_capacity", name = T{30, "Water Capacity"}, editor = "number", category = "Storage", default = 10000, scale = const.ResourceScale, modifiable = true  },
-		{ id = "StoredWater", name = T{33, "Stored Water"}, editor = "number", default = 0, scale = const.ResourceScale, no_edit = true },
+		{ template = true, id = "max_water_charge", name = T(29, "Max water consumption while charging"), category = "Storage", editor = "number", default = 1000, help = "This is the amount of water the battery can charge per hour.", scale = const.ResourceScale  },
+		{ template = true, id = "max_water_discharge", name = T(1068, "Max water output while discharging"), category = "Storage", editor = "number", default = 1000, help = "This is the amount of air the battery can discharge per hour.", scale = const.ResourceScale  },
+		{ template = true, id = "water_conversion_efficiency", name = T(1069, "Conversion efficiency % of water (charging)"), category = "Storage", editor = "number", default = 100, help = "(100 - this number)% will go to waste when charging." },
+		{ template = true, id = "water_capacity", name = T(30, "Water Capacity"), editor = "number", category = "Storage", default = 10000, scale = const.ResourceScale, modifiable = true  },
+		{ id = "StoredWater", name = T(33, "Stored Water"), editor = "number", default = 0, scale = const.ResourceScale, no_edit = true },
 	},
 	
 	is_tall = true,
@@ -1777,11 +1777,11 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 DefineClass.AirStorage = {
 	__parents = {"Building", "LifeSupportGridObject"},
 	properties = {
-		{ template = true, id = "max_air_charge", name = T{1070, "Max Oxygen consumption while charging"}, category = "Storage", editor = "number", default = 1000, help = "This is the amount of Oxygen the battery can charge per hour.", scale = const.ResourceScale  },
-		{ template = true, id = "max_air_discharge", name = T{1071, "Max Oxygen output while discharging"}, category = "Storage", editor = "number", default = 1000, help = "This is the amount of Oxygen the battery can discharge per hour.", scale = const.ResourceScale  },
-		{ template = true, id = "air_conversion_efficiency", name = T{1072, "Conversion Oxygen efficiency % (charging)"}, category = "Storage", editor = "number", default = 100, help = "(100 - this number)% will go to waste when charging." },
-		{ template = true, id = "air_capacity", name = T{1073, "Oxygen Capacity"}, editor = "number", category = "Storage", default = 10000, scale = const.ResourceScale, modifiable = true  },
-		{ id = "StoredAir", name = T{1074, "Stored Air"}, editor = "number", default = 0, scale = const.ResourceScale, no_edit = true },
+		{ template = true, id = "max_air_charge", name = T(1070, "Max Oxygen consumption while charging"), category = "Storage", editor = "number", default = 1000, help = "This is the amount of Oxygen the battery can charge per hour.", scale = const.ResourceScale  },
+		{ template = true, id = "max_air_discharge", name = T(1071, "Max Oxygen output while discharging"), category = "Storage", editor = "number", default = 1000, help = "This is the amount of Oxygen the battery can discharge per hour.", scale = const.ResourceScale  },
+		{ template = true, id = "air_conversion_efficiency", name = T(1072, "Conversion Oxygen efficiency % (charging)"), category = "Storage", editor = "number", default = 100, help = "(100 - this number)% will go to waste when charging." },
+		{ template = true, id = "air_capacity", name = T(1073, "Oxygen Capacity"), editor = "number", category = "Storage", default = 10000, scale = const.ResourceScale, modifiable = true  },
+		{ id = "StoredAir", name = T(1074, "Stored Air"), editor = "number", default = 0, scale = const.ResourceScale, no_edit = true },
 	},
 	
 	is_tall = true,

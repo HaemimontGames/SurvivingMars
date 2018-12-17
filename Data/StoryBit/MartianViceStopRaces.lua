@@ -5,9 +5,11 @@ PlaceObj('StoryBit', {
 	Disables = {
 		"MartianVice_Crash",
 		"MartianVice_NoCrash",
+		"MartianVice_NoRenegades",
+		"MartianVice_NoShuttlesLeft",
 	},
 	Effects = {},
-	NotificationText = T{11429, --[[StoryBit MartianViceStopRaces NotificationText]] "The races have ceased"},
+	NotificationText = T(11429, --[[StoryBit MartianViceStopRaces NotificationText]] "The races have ceased"),
 	Prerequisites = {},
 	ScriptDone = true,
 	SuppressTime = 7200000,

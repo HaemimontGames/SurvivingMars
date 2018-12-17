@@ -20,7 +20,7 @@ PlaceObj('StoryBit', {
 	Prerequisites = {},
 	ScriptDone = true,
 	SuppressTime = 120000,
-	Text = T{505538847985, --[[StoryBit WinterWonderland_SaveKidShuttle Text]] "The first attempt was a failure and we lost the Shuttle. Luckily the second one was successful and little <DisplayName> is back safe and sound with just a couple of cuts and bruises.\n\n<effect><morale_boost> Morale for <sols(morale_boost_duration)> Sols"},
+	Text = T(505538847985, --[[StoryBit WinterWonderland_SaveKidShuttle Text]] "The first attempt was a failure and we lost the Shuttle. Luckily the second one was successful and little <DisplayName> is back safe and sound with just a couple of cuts and bruises.\n\n<effect><morale_boost> Morale for <sols(morale_boost_duration)> Sols"),
 	TextReadyForValidation = true,
 	TextsDone = true,
 	group = "Disasters",

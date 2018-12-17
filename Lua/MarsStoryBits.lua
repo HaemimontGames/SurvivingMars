@@ -163,30 +163,8 @@ end
 
 function StoryBits_GetMaintenanceResourcesDropDownItems()
 	local ret = GetMaintenanceResourcesDropDownItems()	
-	table.insert(ret, 1, {text = T{11033, "Default maintenance"}, value = "default"})
+	table.insert(ret, 1, {text = T(11033, "Default maintenance"), value = "default"})
 	return ret
-end
-
-function StoryBits_CreatePlanetaryAnomaly(id, display_name, description, longitude, latitude, required_crew, required_crew_spec, required_rover_type, required_drones)
-	local requirements = {
-			num_crew = (required_crew and required_crew > 0) and required_crew or nil,
-			num_drones = (required_drones and required_drones > 0) and required_drones or nil,
-			rover_type = (required_rover_type and required_rover_type ~= "") and required_rover_type or nil,
-			crew_specialization = (required_crew_spec and required_crew_spec ~= "") and required_crew_spec or nil,
-		}
-	
-	if not longitude or not latitude then
-		latitude, longitude = GenerateMarsScreenPoI("anomaly")
-	end
-	
-	return PlaceObject("PlanetaryAnomaly", {
-					custom_id = id,
-					display_name = display_name,
-					init_name = not display_name,
-					description = description,
-					longitude = longitude,
-					latitude = latitude,
-					requirements = requirements,})
 end
 
 local ColonistSpecializationComboList

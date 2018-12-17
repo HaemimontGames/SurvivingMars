@@ -15,7 +15,7 @@ PlaceObj('StoryBit', {
 	Enables = {
 		"EthicsRevised_KillColonists",
 	},
-	NotificationText = T{11059, --[[StoryBit EthicsRevised_KillColonists NotificationText]] "<number_of_killed> colonists have died in research experiments"},
+	NotificationText = T(11059, --[[StoryBit EthicsRevised_KillColonists NotificationText]] "<number_of_killed> colonists have died in research experiments"),
 	Prerequisites = {},
 	ScriptDone = true,
 	SuppressTime = 2880000,

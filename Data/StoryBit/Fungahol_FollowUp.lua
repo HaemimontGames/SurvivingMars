@@ -26,10 +26,10 @@ PlaceObj('StoryBit', {
 	Prerequisites = {},
 	ScriptDone = true,
 	SuppressTime = 3600000,
-	Text = T{146666217749, --[[StoryBit Fungahol_FollowUp Text]] "The Colonist smiled shyly, hiccupped, and said: “Well, BUUURP, you need it r-right now?” Seems that your Colonists enjoy quite a bit the new Fungahol you allowed for production.\n\n<effect>Alcoholic Colonists gain +50 Sanity and +10 Morale for 5 Sols."},
+	Text = T(146666217749, --[[StoryBit Fungahol_FollowUp Text]] "The Colonist smiled shyly, hiccupped, and said: “Well, BUUURP, you need it r-right now?” Seems that your Colonists enjoy quite a bit the new Fungahol you allowed for production.\n\n<effect>Alcoholic Colonists gain +50 Sanity and +10 Morale for 5 Sols."),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	VoicedText = T{172614484358, --[[voice:narrator]] "Today you met a Colonist on the street and asked about their name."},
+	VoicedText = T(172614484358, --[[voice:narrator]] "Today you met a Colonist on the street and asked about their name."),
 	group = "Colonists",
 	id = "Fungahol_FollowUp",
 	PlaceObj('StoryBitParamNumber', {

@@ -22,10 +22,10 @@ function RebindKeys(idx, prop_ctrl)
 		if MouseButtonNames[last_key] and not prop_meta.mouse_bindable then
 			local parent = dlg.parent
 			dlg:Close()
-			CreateMarsMessageBox(T{4080, "Conflicting controls"},
+			CreateMarsMessageBox(T(4080, "Conflicting controls"),
 				T{4081, "<key> cannot be used for <action>.",
 				key = MouseButtonNames[last_key] or T{last_key}, action = prop_name},
-				T{1000136, "OK"}, parent)
+				T(1000136, "OK"), parent)
 			return
 		end
 		if shortcut then
@@ -40,14 +40,14 @@ function RebindKeys(idx, prop_ctrl)
 							local parent = dlg.parent
 							dlg:Close()
 							local res = WaitMarsQuestion(parent,
-								T{4080, "Conflicting controls"},
+								T(4080, "Conflicting controls"),
 								T{4082, "Do you want to rebind <key> from <old_action> to <new_action>?",
 									key = ShortcutKeysToText(keys),
 									old_action = old_action,
 									new_action = new_action
 								},
-								T{1138, "Yes"},
-								T{1139, "No"}
+								T(1138, "Yes"),
+								T(1139, "No")
 							)
 							if res == "ok" then
 								-- clear binding
@@ -88,7 +88,7 @@ function ApplyOptions(host)
 		if not mode_param then return end
 		local category = mode_param.id
 		if not obj:WaitApplyOptions(original_obj) then
-			WaitMarsMessage(nil, T{6884, "Warning"}, T{4091, "Changes could not be applied and will be reverted."}, T{1000136, "OK"})
+			WaitMarsMessage(nil, T(6884, "Warning"), T(4091, "Changes could not be applied and will be reverted."), T(1000136, "OK"))
 		else
 			local old_save_to_cloud = original_obj.AutosaveToCloud
 			obj:CopyCategoryTo(original_obj, category)
@@ -130,7 +130,7 @@ function ApplyDisplayOptions(host)
 		local original_obj = ResolvePropObj(host.idOriginalOptions.context)
 		local ok = obj:ApplyVideoMode()
 		if ok == "confirmation" then
-			ok = WaitMarsQuestion(nil, T{4089, "Video mode change"}, T{4090, "The video mode has been changed. Keep changes?"}, T{1138, "Yes"}, T{1139, "No"}) == "ok"
+			ok = WaitMarsQuestion(nil, T(4089, "Video mode change"), T(4090, "The video mode has been changed. Keep changes?"), T(1138, "Yes"), T(1139, "No")) == "ok"
 		end
 		--options obj should always show the current resolution
 		obj:SetProperty("Resolution", point(GetResolution()))
@@ -184,7 +184,7 @@ function ToggleFullscreen()
 		SetProperty(original_obj, "FullscreenMode", new_mode)
 		local ok = original_obj:ApplyVideoMode()
 		if ok == "confirmation" then
-			ok = WaitMarsQuestion(nil, T{4089, "Video mode change"}, T{4090, "The video mode has been changed. Keep changes?"}, T{1138, "Yes"}, T{1139, "No"}) == "ok"
+			ok = WaitMarsQuestion(nil, T(4089, "Video mode change"), T(4090, "The video mode has been changed. Keep changes?"), T(1138, "Yes"), T(1139, "No")) == "ok"
 		end
 		if ok then
 			--update options menu if it is open

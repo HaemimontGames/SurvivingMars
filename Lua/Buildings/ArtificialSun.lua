@@ -2,12 +2,12 @@ DefineClass.ArtificialSun = {
 	__parents = { "Building", "LifeSupportConsumer", "ElectricityProducer", "BaseHeater" },
 	
 	properties = {
-		{ template = true, id = "max_water_charge", name = T{29, "Max water consumption while charging"}, category = "Artificial Sun", editor = "number", default = 100*const.ResourceScale, scale = const.ResourceScale, modifiable = true },
-		{ template = true, id = "water_capacity", name = T{30, "Water Capacity"}, editor = "number", category = "Artificial Sun", default = 1000*const.ResourceScale, scale = const.ResourceScale, modifiable = true },
-		{ template = true, id = "effect_range", name = T{31, "Effect Range"}, editor = "number", category = "Artificial Sun", default = 8, min = 1, max = 20 },
-		{ id = "power_production", name = T{32, "Power Production"}, editor = "number", default = 0, no_edit = true },
-		{ id = "stored_water", name = T{33, "Stored Water"}, editor = "number", default = 0, no_edit = true },
-		{ id = "work_state", name = T{34, "Work State"}, editor = "text", default = "", no_edit = true },
+		{ template = true, id = "max_water_charge", name = T(29, "Max water consumption while charging"), category = "Artificial Sun", editor = "number", default = 100*const.ResourceScale, scale = const.ResourceScale, modifiable = true },
+		{ template = true, id = "water_capacity", name = T(30, "Water Capacity"), editor = "number", category = "Artificial Sun", default = 1000*const.ResourceScale, scale = const.ResourceScale, modifiable = true },
+		{ template = true, id = "effect_range", name = T(31, "Effect Range"), editor = "number", category = "Artificial Sun", default = 8, min = 1, max = 20 },
+		{ id = "power_production", name = T(32, "Power Production"), editor = "number", default = 0, no_edit = true },
+		{ id = "stored_water", name = T(33, "Stored Water"), editor = "number", default = 0, no_edit = true },
+		{ id = "work_state", name = T(34, "Work State"), editor = "text", default = "", no_edit = true },
 	},
 	is_tall = true,
 	heat = 2*const.MaxHeat,

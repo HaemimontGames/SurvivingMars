@@ -2,7 +2,7 @@ DefineClass.SecurityStation =
 {
 	__parents = { "ElectricityConsumer", "Workplace" },
 	properties = {
-		{ id = "negated_renegades", default = 5, name = T{726, "Neutralized Renegades"}, modifiable = true, editor = "number"},
+		{ id = "negated_renegades", default = 5, name = T(726, "Neutralized Renegades"), modifiable = true, editor = "number"},
 	},
 }
 

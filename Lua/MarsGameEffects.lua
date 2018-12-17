@@ -15,9 +15,9 @@ DefineClass.Effect_Code = {
 	__parents = { "Tech_Effect" },
 	properties = {
 		{ category = "General", id = "OnInitEffect", editor = "func", params = "self, city, parent", max_lines = 60, 
-			name = T{1000725, "OnInitEffect"}, help = T{1000726, "Called early during the player setup - player structures not fully inited."}, },
+			name = T(1000725, "OnInitEffect"), help = T(1000726, "Called early during the player setup - player structures not fully inited."), },
 		{ category = "General", id = "OnApplyEffect", editor = "func", params = "self, city, parent", max_lines = 60,
-			name = T{1000727, "OnApplyEffect"}, help = T{1000728, "Called when the effect needs to be applied."}, },
+			name = T(1000727, "OnApplyEffect"), help = T(1000728, "Called when the effect needs to be applied."), },
 	},
 	EditorName = "Code effect",
 }
@@ -32,7 +32,7 @@ DefineClass.Effect_TechUnlockBuilding = {
 		{ category = "General", id = "HideBuilding", name = "Hide Building",    editor = "bool",         default = false,  },
 	},
 	EditorName = "UnlockBuilding",
-	Description = T{8781, "<Building>"},
+	Description = T(8781, "<Building>"),
 }
 
 function Effect_TechUnlockBuilding:OnDataLoaded(parent)
@@ -54,7 +54,7 @@ DefineClass.Effect_Funding = {
 		{ category = "General", id = "Reason", name = "Reason", editor = "combo", default = "", items = function() return FundingSourceCombo() end },
 	},
 	EditorName = "Funding",
-	Description = T{8782, "<Funding>"},
+	Description = T(8782, "<Funding>"),
 }
 
 function Effect_Funding:OnApplyEffect(city)
@@ -71,7 +71,7 @@ DefineClass.Effect_TechBoost = {
 		{ category = "General", id = "Percent", name = "Boost (%)", editor = "number", default = 0, },
 	},
 	EditorName = "Boost research",
-	Description = T{8783, "<u(Field)> <opt_percent(Percent)>"},
+	Description = T(8783, "<u(Field)> <opt_percent(Percent)>"),
 }
 
 function Effect_TechBoost:OnApplyEffect(city)
@@ -95,7 +95,7 @@ DefineClass.Effect_UnlockUpgrade = {
 		{ category = "General", id = "Upgrade", name = "Upgrade", editor = "choice", default = "", items = function() return UpgradeIdListCombo() end },
 	},
 	EditorName = "Unlock upgrade",
-	Description = T{8784, "<u(Upgrade)>"},
+	Description = T(8784, "<u(Upgrade)>"),
 }
 
 function Effect_UnlockUpgrade:OnApplyEffect(city)
@@ -114,7 +114,7 @@ DefineClass.Effect_ModifyUpgrade = {
 		{ category = "General", id = "Percent", editor = "number", default = 0, },	
 	},
 	EditorName = "Modify upgrade",
-	Description = T{8785, "<u(Upgrade)>.<u(Prop)> <opt_amount(Amount)> <opt_percent(Percent)>"},
+	Description = T(8785, "<u(Upgrade)>.<u(Prop)> <opt_amount(Amount)> <opt_percent(Percent)>"),
 }
 
 function Effect_ModifyUpgrade:OnApplyEffect(city)
@@ -133,7 +133,7 @@ DefineClass.Effect_ModifyLabel = {
 		{ category = "General", id = "Percent", editor = "number", default = 0, min = -100, max = 100, slider = true },
 	},
 	EditorName = "Modify label",
-	Description = T{8786, "<u(Label)>.<u(Prop)> <opt_amount(Amount)> <opt_percent(Percent)>"},
+	Description = T(8786, "<u(Label)>.<u(Prop)> <opt_amount(Amount)> <opt_percent(Percent)>"),
 }
 
 function Effect_ModifyLabel:OnApplyEffect(city, parent)
@@ -175,7 +175,7 @@ DefineClass.Effect_ModifyLabelOverTime = {
 		{ category = "General", id = "Repetitions", name = "Repetitions", editor = "number", default = 0 },
 	},
 	EditorName = "Modify label over time",
-	Description = T{8786, "<u(Label)>.<u(Prop)> <opt_amount(Amount)> <opt_percent(Percent)>"},
+	Description = T(8786, "<u(Label)>.<u(Prop)> <opt_amount(Amount)> <opt_percent(Percent)>"),
 }
 
 function Effect_ModifyLabelOverTime:OnApplyEffect(city, parent)
@@ -210,7 +210,7 @@ DefineClass.Effect_CompoundEfficiency = {
 		{ category = "Modify", id = "Percent",   name = "Percent",  editor = "number", default = 0, min = -100, max = 100, slider = true },
 	},
 	EditorName = "Compound Efficiency",
-	Description = T{8787, "<u(Label)>.<u(Prop)> <opt_amount(Threshold)> <opt_amount(Amount)> <opt_percent(Percent)>"},
+	Description = T(8787, "<u(Label)>.<u(Prop)> <opt_amount(Threshold)> <opt_amount(Amount)> <opt_percent(Percent)>"),
 }
 
 function Effect_CompoundEfficiency:OnApplyEffect(city, parent)
@@ -233,11 +233,11 @@ DefineClass.Effect_ModifyResupplyParam = {
 	__parents = { "Tech_Effect" },
 	properties = {
 		{ category = "Modify", id = "Item",    name = "Item",    editor = "combo",  default = "", items = function() return ResupplyItemsCombo() end },
-		{ category = "Modify", id = "Param", name = "Parameter", editor = "choice", default = "price", items = { {value = "price", text = T{3926, "Price"}}, { value = "weight", text = T{3596, "Weight"} } }, },
+		{ category = "Modify", id = "Param", name = "Parameter", editor = "choice", default = "price", items = { {value = "price", text = T(3926, "Price")}, { value = "weight", text = T(3596, "Weight") } }, },
 		{ category = "Modify", id = "Percent",  name = "Percent",  editor = "number", default = 0, min = -100, max = 100, slider = true },
 	},
 	EditorName = "Modify Resupply Parameter",
-	Description = T{8788, "<u(Item)>.<u(Param)> <opt_percent(Percent)>"},
+	Description = T(8788, "<u(Item)>.<u(Param)> <opt_percent(Percent)>"),
 }
 
 function Effect_ModifyResupplyParam:OnApplyEffect(city, parent)
@@ -252,7 +252,7 @@ DefineClass.Effect_UnlockResupplyItem = {
 		{ category = "Modify", id = "Item",    name = "Item",    editor = "combo",  default = "", items = function() return ResupplyItemsCombo() end },
 	},
 	EditorName = "Unlock Resupply Item",
-	Description = T{8789, "<u(Item)>"},
+	Description = T(8789, "<u(Item)>"),
 }
 
 function Effect_UnlockResupplyItem:OnApplyEffect(city, parent)
@@ -274,7 +274,7 @@ DefineClass.Effect_UnlockTrait = {
 		{ category = "Unlock", id = "Trait", name = "Trait", editor = "choice", default = "", items = DataInstanceCombo("Trait") },
 	},
 	EditorName = "Unlock Trait",
-	Description = T{8790, "<u(Trait)>"},
+	Description = T(8790, "<u(Trait)>"),
 }
 
 function Effect_UnlockTrait:OnInitEffect(city, parent)
@@ -295,7 +295,7 @@ DefineClass.Effect_UnlockDeeperDeposits = {
 		{ category = "Unlock", id = "depth_levels", name = "Depth Levels to unlock:", editor = "number", default = 1, min = 1, max = 5, help = "Added to city's current max deposit depth exploitation val."} ,
 	},
 	EditorName = "Unlock Deeper Deposits",
-	Description = T{8791, "<opt_amount(depth_levels)>"},
+	Description = T(8791, "<opt_amount(depth_levels)>"),
 }
 
 function Effect_UnlockDeeperDeposits:OnApplyEffect(city, parent)
@@ -315,7 +315,7 @@ DefineClass.Effect_ModifyConstructionCost = {
 		{ category = "Construction", name = "Percent",  id = "Percent",  editor = "number", default = 0 },	
 	},
 	EditorName = "Modify Construction Cost",
-	Description = T{8792, "<Building> <u(Stage)> <u(Resource)> <opt_percent(Percent)>"},
+	Description = T(8792, "<Building> <u(Stage)> <u(Resource)> <opt_percent(Percent)>"),
 }
 
 function Effect_ModifyConstructionCost:OnApplyEffect(city, parent)
@@ -360,12 +360,12 @@ end
 DefineClass.Effect_GrantTech = {
 	__parents = { "Tech_Effect" },
 	properties = {
-		{ category = "Unlock", id = "Field",    name = T{3721, "Field"},    editor = "choice", items = function() return ResearchFieldsCombo() end, default = "", editor_update = true, },
-		{ category = "Unlock", id = "Research", name = T{311, "Research"}, editor = "choice", items = function(obj) return ResearchTechsCombo(obj) end,  default = "" },
+		{ category = "Unlock", id = "Field",    name = T(3721, "Field"),    editor = "choice", items = function() return ResearchFieldsCombo() end, default = "", editor_update = true, },
+		{ category = "Unlock", id = "Research", name = T(311, "Research"), editor = "choice", items = function(obj) return ResearchTechsCombo(obj) end,  default = "" },
 		--{ category = "Unlock", id = "Count",    name = T{3732, "Count"},    editor = "number", default = 1 },
 	},
 	EditorName = "Grant Tech",
-	Description = T{8793, "<u(Field)>.<u(Research)>"},
+	Description = T(8793, "<u(Field)>.<u(Research)>"),
 }
 
 function Effect_GrantTech:OnApplyEffect(city, parent)

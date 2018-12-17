@@ -19,7 +19,7 @@ PlaceObj('StoryBit', {
 	},
 	Prerequisites = {},
 	ScriptDone = true,
-	Text = T{817294870240, --[[StoryBit WinterWonderland_SaveKidHero Text]] "Colonist <DisplayName> managed to get to the kid just in time and escape the ravine intact. The entire colony sings high praises of the heroic rescuer.\n\n<effect><DisplayName> has gained the Celebrity trait."},
+	Text = T(817294870240, --[[StoryBit WinterWonderland_SaveKidHero Text]] "Colonist <DisplayName> managed to get to the kid just in time and escape the ravine intact. The entire colony sings high praises of the heroic rescuer.\n\n<effect><DisplayName> has gained the Celebrity trait."),
 	TextReadyForValidation = true,
 	TextsDone = true,
 	group = "Disasters",

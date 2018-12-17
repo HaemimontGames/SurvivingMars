@@ -8,8 +8,8 @@ function GetMaintenanceResourcesDropDownItems()
 	table.remove_entry(ret, "value", "WasteRock")
 	
 	--add maintenance specific stuff
-	table.insert(ret, 1, {text = T{122, "No maintenance"}, value = "no_maintenance"})
-	table.insert(ret, 1, {text = T{123, "No resource"}, value = "no_resource"})
+	table.insert(ret, 1, {text = T(122, "No maintenance"), value = "no_maintenance"})
+	table.insert(ret, 1, {text = T(123, "No resource"), value = "no_resource"})
 	
 	return ret
 end
@@ -23,11 +23,11 @@ DefineClass.RequiresMaintenance = {
 	__parents = { "TaskRequester", "BuildingVisualDustComponent" }, --we use dust visuals to represent accumulated maintenance pnts
 	
 	properties = {
-		{template = true, category = "Maintenance", name = T{124, "Maintenance Resource Type"},  id = "maintenance_resource_type", editor = "dropdownlist", items = GetMaintenanceResourcesDropDownItems(), default = GetMaintenanceResourcesDropDownItems()[2].value, help = "The type of resource associated with maintenance demands.",},
-		{template = true, category = "Maintenance", name = T{125, "Maintenance Resource Amount"},id = "maintenance_resource_amount", editor = "number", scale = const.ResourceScale, default = const.ResourceScale, modifiable = true, help = "The amount of resources required to maintain this building in working order.",},
-		{template = true, category = "Maintenance", name = T{126, "Maintenance Threshold"},      id = "maintenance_threshold_base", editor = "number",  default = const.MaxMaintenance, modifiable = true, help = "This base value is randomized within 50% - 150% range to determine the maintenance threshold. When the threshold is reached the building requests maintenance." },
-		{template = true, category = "Maintenance", name = T{127, "Maintenance Build Up Per Hr"},id = "maintenance_build_up_per_hr", editor = "number",  default = const.DefaultMaintenanceBuildUpPerHour, modifiable = true, help = "Amount of maintenance pnts accumulated per hr.", no_edit = true, },
-		{template = true, category = "Maintenance", name = T{128, "Disable Maintenance"},        id = "disable_maintenance", no_edit = true, modifiable = true, editor = "number", default = 0, help = "So maintenance can be turned off with modifiers"},
+		{template = true, category = "Maintenance", name = T(124, "Maintenance Resource Type"),  id = "maintenance_resource_type", editor = "dropdownlist", items = GetMaintenanceResourcesDropDownItems(), default = GetMaintenanceResourcesDropDownItems()[2].value, help = "The type of resource associated with maintenance demands.",},
+		{template = true, category = "Maintenance", name = T(125, "Maintenance Resource Amount"),id = "maintenance_resource_amount", editor = "number", scale = const.ResourceScale, default = const.ResourceScale, modifiable = true, help = "The amount of resources required to maintain this building in working order.",},
+		{template = true, category = "Maintenance", name = T(126, "Maintenance Threshold"),      id = "maintenance_threshold_base", editor = "number",  default = const.MaxMaintenance, modifiable = true, help = "This base value is randomized within 50% - 150% range to determine the maintenance threshold. When the threshold is reached the building requests maintenance." },
+		{template = true, category = "Maintenance", name = T(127, "Maintenance Build Up Per Hr"),id = "maintenance_build_up_per_hr", editor = "number",  default = const.DefaultMaintenanceBuildUpPerHour, modifiable = true, help = "Amount of maintenance pnts accumulated per hr.", no_edit = true, },
+		{template = true, category = "Maintenance", name = T(128, "Disable Maintenance"),        id = "disable_maintenance", no_edit = true, modifiable = true, editor = "number", default = 0, help = "So maintenance can be turned off with modifiers"},
 	},
 	
 	
@@ -234,7 +234,7 @@ end
 
 local function MaintenanceNeededParamFunc(displayed_in_notif)
 	local rollover_text = GetBuildingsParamInNotification(displayed_in_notif) or empty_table
-	return {count = #displayed_in_notif, rollover_title = T{10878, "Maintenance needed"}, rollover_text = rollover_text}
+	return {count = #displayed_in_notif, rollover_title = T(10878, "Maintenance needed"), rollover_text = rollover_text}
 end
 
 GlobalVar("g_MaintenanceNeededBuildings", {})
@@ -296,6 +296,7 @@ function RequiresMaintenance:Repair()
 		self:SetModifier("maintenance_resource_amount", "exceptional_circumstances_maintenance",0, 0 )
 		self:Setexceptional_circumstances(false)
 		self.maintenance_resource_type = nil
+		self.maintenance_resource_request:ChangeResource(self.maintenance_resource_type)
 		self:CreateResourceRequest()
 	end	
 	
@@ -397,6 +398,10 @@ end
 
 function RequiresMaintenance:SetExceptionalCircumstancesMaintenance(resource, amount)
 	if resource == "default" then -- does not change resource or amount
+		self.exceptional_circumstances_maintenance = true
+		self:AccumulateMaintenancePoints(self.maintenance_threshold_current)
+		self:SetModifier("maintenance_resource_amount", "exceptional_circumstances_maintenance",amount, -100 )
+		RebuildInfopanel(self)
 		return 
 	end
 	local old_resource = self.maintenance_resource_type
@@ -515,18 +520,18 @@ function RequiresMaintenance:GetMaintenanceProgress()
 end
 
 function RequiresMaintenance:GetLastMaintenance()
-	return self.last_maintenance_serviced_ts and T{129, "<n> h", n = (GameTime() - self.last_maintenance_serviced_ts) / const.HourDuration} or T{130, "N/A"}
+	return self.last_maintenance_serviced_ts and T{129, "<n> h", n = (GameTime() - self.last_maintenance_serviced_ts) / const.HourDuration} or T(130, "N/A")
 end
 
 function RequiresMaintenance:GetMaintenanceText()
 	local has_assigned_drones = self.maintenance_phase	and 
 			(self.maintenance_work_request:GetTargetAmount() ~= self.maintenance_work_request:GetActualAmount() or
 			self.maintenance_resource_request:GetTargetAmount() ~= self.maintenance_resource_request:GetActualAmount())
-	return has_assigned_drones and Untranslated("\n")..T{7878, --[[XTemplate sectionMaintenance Text]] "A drone is on the way to repair this building."} or ""
+	return has_assigned_drones and Untranslated("\n")..T(7878, --[[XTemplate sectionMaintenance Text]] "A drone is on the way to repair this building.") or ""
 end
 
 function RequiresMaintenance:GetMaintenanceRolloverText()
-	return T{241499798174, --[[XTemplate sectionMaintenance RolloverText]] "The condition of buildings deteriorates over time. Martian dust and disasters contribute to deterioration of outside buildings. Deteriorated buildings will need to be serviced by a Drone and supplied with their required maintenance resource or they will malfunction.<EasyMaintenanceText(true)><newline><newline>Current deterioration<right><percent(MaintenanceProgress)><newline><left>Last serviced<right><LastMaintenance>\n<MaintenanceText>"}
+	return T(241499798174, --[[XTemplate sectionMaintenance RolloverText]] "The condition of buildings deteriorates over time. Martian dust and disasters contribute to deterioration of outside buildings. Deteriorated buildings will need to be serviced by a Drone and supplied with their required maintenance resource or they will malfunction.<EasyMaintenanceText(true)><newline><newline>Current deterioration<right><percent(MaintenanceProgress)><newline><left>Last serviced<right><LastMaintenance>\n<MaintenanceText>")
 end
 
 function RequiresMaintenance:OnSetUIWorking(working)

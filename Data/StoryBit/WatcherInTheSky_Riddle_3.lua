@@ -6,14 +6,14 @@ PlaceObj('StoryBit', {
 	Effects = {},
 	Prerequisites = {},
 	ScriptDone = true,
-	Text = T{111632145192, --[[StoryBit WatcherInTheSky_Riddle_3 Text]] "No one ever saw me, nor ever will. And yet I am the confidence of all, to live and breathe on any terrestrial ball.\n\nWhat am I?"},
+	Text = T(111632145192, --[[StoryBit WatcherInTheSky_Riddle_3 Text]] "No one ever saw me, nor ever will. \n\nAnd yet I am the confidence of all, to live and breathe on any terrestrial ball.\n\nWhat am I?"),
 	TextReadyForValidation = true,
 	TextsDone = true,
-	VoicedText = T{711577254378, --[[voice:narrator]] "I never was, am always to be. "},
+	VoicedText = T(711577254378, --[[voice:narrator]] "I never was, am always to be."),
 	group = "Colonists",
 	id = "WatcherInTheSky_Riddle_3",
 	PlaceObj('StoryBitReply', {
-		'Text', T{715744969837, --[[StoryBit WatcherInTheSky_Riddle_3 Text]] "Tomorrow."},
+		'Text', T(715744969837, --[[StoryBit WatcherInTheSky_Riddle_3 Text]] "Tomorrow."),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -24,7 +24,7 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{195576610768, --[[StoryBit WatcherInTheSky_Riddle_3 Text]] "Death."},
+		'Text', T(195576610768, --[[StoryBit WatcherInTheSky_Riddle_3 Text]] "Death."),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -35,7 +35,7 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{886011805980, --[[StoryBit WatcherInTheSky_Riddle_3 Text]] "God."},
+		'Text', T(886011805980, --[[StoryBit WatcherInTheSky_Riddle_3 Text]] "God."),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
@@ -46,7 +46,7 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T{599460294888, --[[StoryBit WatcherInTheSky_Riddle_3 Text]] "Time."},
+		'Text', T(599460294888, --[[StoryBit WatcherInTheSky_Riddle_3 Text]] "Time."),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},

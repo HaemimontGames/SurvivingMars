@@ -112,9 +112,9 @@ PlaceObj('XTemplate', {
 				'__context', function (parent, context) return context:HasMember("construction_group") and context.construction_group and context.construction_group[1] or context end,
 				'__condition', function (parent, context) return context.prio_button end,
 				'__template', "InfopanelButton",
-				'RolloverText', T{370449987367, --[[XTemplate ipBuilding RolloverText]] "Priority affects how often this building is serviced by Drones as well as its share of Power and life support. Notifications are not shown for buildings with low priority.<newline><newline>Current priority: <em><UIPriority></em>"},
-				'RolloverTitle', T{369, --[[XTemplate ipBuilding RolloverTitle]] "Change Priority"},
-				'RolloverHintGamepad', T{7659, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> Change priority<newline><ButtonX> Change priority of all <display_name_pl>"},
+				'RolloverText', T(370449987367, --[[XTemplate ipBuilding RolloverText]] "Priority affects how often this building is serviced by Drones as well as its share of Power and life support. Notifications are not shown for buildings with low priority.<newline><newline>Current priority: <em><UIPriority></em>"),
+				'RolloverTitle', T(369, --[[XTemplate ipBuilding RolloverTitle]] "Change Priority"),
+				'RolloverHintGamepad', T(7659, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> Change priority<newline><ButtonX> Change priority of all <display_name_pl>"),
 				'Id', "idPriority",
 				'OnContextUpdate', function (self, context, ...)
 if context.priority == 1 then
@@ -127,7 +127,7 @@ end
 local shortcuts = GetShortcuts("actionPriority")
 local binding = ""
 if shortcuts and (shortcuts[1] or shortcuts[2]) then
-	binding = T{10950, "<newline><center><em><ShortcutName('actionPriority', 'keyboard')></em> Increase Priority"}
+	binding = T(10950, "<newline><center><em><ShortcutName('actionPriority', 'keyboard')></em> Increase Priority")
 end
 self:SetRolloverHint(T{10951, "<left><left_click> Increase priority<right><right_click> Decrease priority<binding><newline><center><em>Ctrl + <left_click></em> Change priority of all <display_name_pl>", binding = binding})
 end,
@@ -151,11 +151,11 @@ end,
 				'comment', "on/off",
 				'__condition', function (parent, context) return context.on_off_button and not (IsKindOf(context, "ConstructionSite") and context.building_class == "BlackCubeMonolith") end,
 				'__template', "InfopanelButton",
-				'RolloverText', T{382329017655, --[[XTemplate ipBuilding RolloverText]] "Buildings that are turned off do not function and never consume Power or resources.<newline><newline>Current status: <em><UIWorkingStatus></em>"},
-				'RolloverDisabledText', T{10553, --[[XTemplate ipBuilding RolloverDisabledText]] "This building is currently disabled."},
-				'RolloverTitle', T{627191661712, --[[XTemplate ipBuilding RolloverTitle]] "Turn On/Off"},
-				'RolloverHint', T{238148642034, --[[XTemplate ipBuilding RolloverHint]] "<left_click> Activate <newline><em>Ctrl + <left_click></em> Activate for all <display_name_pl>"},
-				'RolloverHintGamepad', T{919224409562, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> Activate <newline><ButtonX> Activate for all <display_name_pl>"},
+				'RolloverText', T(382329017655, --[[XTemplate ipBuilding RolloverText]] "Buildings that are turned off do not function and never consume Power or resources.<newline><newline>Current status: <em><UIWorkingStatus></em>"),
+				'RolloverDisabledText', T(10553, --[[XTemplate ipBuilding RolloverDisabledText]] "This building is currently disabled."),
+				'RolloverTitle', T(627191661712, --[[XTemplate ipBuilding RolloverTitle]] "Turn On/Off"),
+				'RolloverHint', T(238148642034, --[[XTemplate ipBuilding RolloverHint]] "<left_click> Activate <newline><em>Ctrl + <left_click></em> Activate for all <display_name_pl>"),
+				'RolloverHintGamepad', T(919224409562, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> Activate <newline><ButtonX> Activate for all <display_name_pl>"),
 				'OnPressParam', "ToggleWorking",
 				'OnPress', function (self, gamepad)
 self.context:ToggleWorking(not gamepad and IsMassUIModifierPressed())
@@ -177,10 +177,10 @@ end,
 				'comment', "tunnel",
 				'__condition', function (parent, context) return IsKindOf(context, "Tunnel") end,
 				'__template', "InfopanelButton",
-				'RolloverText', T{8629, --[[XTemplate ipBuilding RolloverText]] "Move the camera to the other side of the tunnel."},
-				'RolloverTitle', T{8630, --[[XTemplate ipBuilding RolloverTitle]] "View Exit"},
-				'RolloverHint', T{8631, --[[XTemplate ipBuilding RolloverHint]] "<left_click> View"},
-				'RolloverHintGamepad', T{7605, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> View"},
+				'RolloverText', T(8629, --[[XTemplate ipBuilding RolloverText]] "Move the camera to the other side of the tunnel."),
+				'RolloverTitle', T(8630, --[[XTemplate ipBuilding RolloverTitle]] "View Exit"),
+				'RolloverHint', T(8631, --[[XTemplate ipBuilding RolloverHint]] "<left_click> View"),
+				'RolloverHintGamepad', T(7605, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> View"),
 				'OnPress', function (self, gamepad)
 ViewAndSelectObject(self.context.linked_obj)
 end,
@@ -191,14 +191,14 @@ end,
 				'__context_of_kind', "Demolishable",
 				'__condition', function (parent, context) return context:ShouldShowDemolishButton() end,
 				'__template', "InfopanelButton",
-				'RolloverTitle', T{3973, --[[XTemplate ipBuilding RolloverTitle]] "Salvage"},
-				'RolloverHintGamepad', T{7657, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonY> Activate"},
+				'RolloverTitle', T(3973, --[[XTemplate ipBuilding RolloverTitle]] "Salvage"),
+				'RolloverHintGamepad', T(7657, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonY> Activate"),
 				'Id', "idSalvage",
 				'OnContextUpdate', function (self, context, ...)
 local refund = context:GetRefundResources() or empty_table
-local rollover = T{7822, "Destroy this building."}
+local rollover = T(7822, "Destroy this building.")
 if #refund > 0 then
-	rollover = rollover .. "<newline><newline>" .. T{7823, "<UIRefundRes> will be refunded upon salvage."}
+	rollover = rollover .. "<newline><newline>" .. T(7823, "<UIRefundRes> will be refunded upon salvage.")
 end
 self:SetRolloverText(rollover)
 context:ToggleDemolish_Update(self)
@@ -234,10 +234,10 @@ end,
 			'comment', "toggle lrt",
 			'__condition', function (parent, context) return IsKindOfClasses(context, "StorageDepot", "MechanizedDepot") and not IsKindOf(context, "SupplyRocket") end,
 			'__template', "InfopanelButton",
-			'RolloverText', T{11233, --[[XTemplate ipBuilding RolloverText]] "Storages with forbidden Shuttle Access are never serviced by Shuttles.<newline><newline>Current status: <em><on_off(user_include_in_lrt)></em>"},
-			'RolloverTitle', T{11254, --[[XTemplate ipBuilding RolloverTitle]] "Shuttle Access"},
-			'RolloverHint', T{11255, --[[XTemplate ipBuilding RolloverHint]] "<left_click> Toggle <newline><em>Ctrl + <left_click></em> Toggle for all <display_name_pl>"},
-			'RolloverHintGamepad', T{454042608125, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> Toggle <newline><ButtonX> Toggle for all <display_name_pl>"},
+			'RolloverText', T(11233, --[[XTemplate ipBuilding RolloverText]] "Storages with forbidden Shuttle Access are never serviced by Shuttles.<newline><newline>Current status: <em><on_off(user_include_in_lrt)></em>"),
+			'RolloverTitle', T(11254, --[[XTemplate ipBuilding RolloverTitle]] "Shuttle Access"),
+			'RolloverHint', T(11255, --[[XTemplate ipBuilding RolloverHint]] "<left_click> Toggle <newline><em>Ctrl + <left_click></em> Toggle for all <display_name_pl>"),
+			'RolloverHintGamepad', T(454042608125, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> Toggle <newline><ButtonX> Toggle for all <display_name_pl>"),
 			'Id', "ToggleLRTServiceButton",
 			'FoldWhenHidden', true,
 			'OnPressParam', "ToggleLRTService",
@@ -256,10 +256,10 @@ end,
 			PlaceObj('XTemplateTemplate', {
 				'comment', "rebuild",
 				'__template', "InfopanelButton",
-				'RolloverText', T{593, --[[XTemplate ipBuilding RolloverText]] "Rebuild this building."},
-				'RolloverTitle', T{592, --[[XTemplate ipBuilding RolloverTitle]] "Rebuild"},
-				'RolloverHint', T{238148642034, --[[XTemplate ipBuilding RolloverHint]] "<left_click> Activate <newline><em>Ctrl + <left_click></em> Activate for all <display_name_pl>"},
-				'RolloverHintGamepad', T{919224409562, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> Activate <newline><ButtonX> Activate for all <display_name_pl>"},
+				'RolloverText', T(593, --[[XTemplate ipBuilding RolloverText]] "Rebuild this building."),
+				'RolloverTitle', T(592, --[[XTemplate ipBuilding RolloverTitle]] "Rebuild"),
+				'RolloverHint', T(238148642034, --[[XTemplate ipBuilding RolloverHint]] "<left_click> Activate <newline><em>Ctrl + <left_click></em> Activate for all <display_name_pl>"),
+				'RolloverHintGamepad', T(919224409562, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> Activate <newline><ButtonX> Activate for all <display_name_pl>"),
 				'FoldWhenHidden', true,
 				'OnContextUpdate', function (self, context, ...)
 self:SetEnabled(not g_Tutorial or g_Tutorial.EnableRebuild)
@@ -281,11 +281,11 @@ end,
 			PlaceObj('XTemplateTemplate', {
 				'comment', "clear",
 				'__template', "InfopanelButton",
-				'RolloverText', T{595, --[[XTemplate ipBuilding RolloverText]] "Remove the remains of this building."},
-				'RolloverDisabledText', T{596, --[[XTemplate ipBuilding RolloverDisabledText]] "You need the Decommission Protocol (Engineering) Tech to remove these building remains."},
-				'RolloverTitle', T{594, --[[XTemplate ipBuilding RolloverTitle]] "Clear"},
-				'RolloverHint', T{238148642034, --[[XTemplate ipBuilding RolloverHint]] "<left_click> Activate <newline><em>Ctrl + <left_click></em> Activate for all <display_name_pl>"},
-				'RolloverHintGamepad', T{919224409562, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> Activate <newline><ButtonX> Activate for all <display_name_pl>"},
+				'RolloverText', T(595, --[[XTemplate ipBuilding RolloverText]] "Remove the remains of this building."),
+				'RolloverDisabledText', T(596, --[[XTemplate ipBuilding RolloverDisabledText]] "You need the Decommission Protocol (Engineering) Tech to remove these building remains."),
+				'RolloverTitle', T(594, --[[XTemplate ipBuilding RolloverTitle]] "Clear"),
+				'RolloverHint', T(238148642034, --[[XTemplate ipBuilding RolloverHint]] "<left_click> Activate <newline><em>Ctrl + <left_click></em> Activate for all <display_name_pl>"),
+				'RolloverHintGamepad', T(919224409562, --[[XTemplate ipBuilding RolloverHintGamepad]] "<ButtonA> Activate <newline><ButtonX> Activate for all <display_name_pl>"),
 				'Id', "idDecommission",
 				'FoldWhenHidden', true,
 				'OnContextUpdate', function (self, context, ...)

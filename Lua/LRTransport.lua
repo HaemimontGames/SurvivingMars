@@ -1,32 +1,4 @@
---[[
-local transport_threshold = 3
-local LRDepotClasses = { "StorageDepotConcrete", "StorageDepotMetals", "StorageDepotPolymers", "StorageDepotFood" } -- exclude waste rock
-GlobalGameTimeThread("LRWarehouseTransport", function()
-	while 1 do
-		Sleep(10000)
-		for _, class in ipairs(LRDepotClasses) do
-			local depots = UICity.labels[class] or empty_table
-			for _, resource in ipairs(AllResourcesList) do
-				local dest = 1 -- index of a warehouse without the resource
-				local amount = Resources[resource].unit_amount
-				for src = 1, #depots do
-					local request = depots[src].supply[resource]
-					while request and dest <= #depots and request:GetTargetAmount() > transport_threshold * amount do
-						local dest_request = depots[dest].supply[resource]
-						if dest_request:GetTargetAmount() < amount then
-							depots[src]:AddDepotResource(resource, -amount)
-							depots[dest]:AddDepotResource(resource, amount)
-						end
-						dest = dest + 1
-					end
-				end
-			end
-		end
-	end
-end)
-]]
-
-------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------
 local dbg_prints = false
 GlobalObj("LRManagerInstance", "LRManager")
 GlobalVar("StorableResources", false)
@@ -296,6 +268,25 @@ local function CheckMinDist(bld1, bld2)
 		return not did_reach or len > dist_threshold 
 	end
 	return true
+end
+
+function SavegameFixups.CleanLRManagerQueues()
+	local tbl = LRManagerInstance.demand_queues
+	for k, v in pairs(tbl) do
+		for i = #v, 1, -1 do
+			if not IsValid(v[i]:GetBuilding()) then
+				table.remove(v, i)
+			end
+		end
+	end
+	tbl = LRManagerInstance.supply_queues
+	for k, v in pairs(tbl) do
+		for i = #v, 1, -1 do
+			if not IsValid(v[i]:GetBuilding()) then
+				table.remove(v, i)
+			end
+		end
+	end
 end
 
 local hystory_time = 3*const.HourDuration

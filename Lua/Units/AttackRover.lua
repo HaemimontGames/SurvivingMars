@@ -11,12 +11,12 @@ DefineClass.AttackRover = {
 
 	properties = {
 		{ id = "can_repair",	editor = "bool", default = true, no_edit = true }, -- to forbid repair individually when it is globally allowed
-		{ template = true, category = "Attack Rover", name = T{673, "Protect Range"},	id = "protect_range",	editor = "number", default = 20, help = "If meteors would fall within dist range it can be destroyed by the rocket (in hexes)" },
+		{ template = true, category = "Attack Rover", name = T(673, "Protect Range"),	id = "protect_range",	editor = "number", default = 20, help = "If meteors would fall within dist range it can be destroyed by the rocket (in hexes)" },
 	},
 	
-	display_name = T{6921, "Experimental Vehicle"},
-	description = T{6922, "A remote-controlled vehicle, property of EsoCorp."},
-	reclaimed_description = T{6923, "A remote-controlled combat vehicle, reclaimed by the Colony. Protects against meteor strikes and EsoCorp vehicles."},
+	display_name = T(6921, "Experimental Vehicle"),
+	description = T(6922, "A remote-controlled vehicle, property of EsoCorp."),
+	reclaimed_description = T(6923, "A remote-controlled combat vehicle, reclaimed by the Colony. Protects against meteor strikes and EsoCorp vehicles."),
 	display_icon = "UI/Icons/Buildings/rover_combat.tga",
 
 	accumulate_dust = false,
@@ -542,12 +542,12 @@ function AttackRover:ToggleRepair_Update(button)
 	if count > 0 then
 		local repair = not self.is_repair_request_initialized
 		button:SetIcon(repair and "UI/Icons/IPButtons/rebuild.tga" or "UI/Icons/IPButtons/cancel.tga")
-		button:SetRolloverTitle(repair and T{6924, "Repair"} or T{6720, "Cancel"})
-		button:SetRolloverText(repair and T{6925, "Send Drones to this vehicle."} or T{6926, "Cancel repairs."})
+		button:SetRolloverTitle(repair and T(6924, "Repair") or T(6720, "Cancel"))
+		button:SetRolloverText(repair and T(6925, "Send Drones to this vehicle.") or T(6926, "Cancel repairs."))
 	else
 		button:SetIcon("UI/Icons/IPButtons/rebuild.tga")
-		button:SetRolloverTitle(T{6924, "Repair"})
-		button:SetRolloverText(T{632, "Outside Drone commander range."})
+		button:SetRolloverTitle(T(6924, "Repair"))
+		button:SetRolloverText(T(632, "Outside Drone commander range."))
 	end
 	button:SetEnabled(count > 0)
 end

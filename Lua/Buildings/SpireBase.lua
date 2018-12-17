@@ -6,7 +6,7 @@ DefineClass.SpireBase = {
 	__parents = { "Building" },
 	
 	properties = {
-		{template = true, name = T{764, "Spire Frame Entity"}, id = "spire_frame_entity", editor = "text", category = "Misc", default = "none"},
+		{template = true, name = T(764, "Spire Frame Entity"), id = "spire_frame_entity", editor = "text", category = "Misc", default = "none"},
 	},
 }
 

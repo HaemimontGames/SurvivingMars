@@ -19,8 +19,20 @@ PlaceObj('StoryBit', {
 				50,
 			},
 		}),
+		PlaceObj('ForEachExecuteEffects', {
+			'Label', "Colonist",
+			'Filters', {
+				PlaceObj('HasTrait', {
+					'Trait', "Renegade",
+				}),
+			},
+			'RandomCount', 1,
+			'Effects', {
+				PlaceObj('KillColonist', nil),
+			},
+		}),
 	},
-	NotificationText = T{11377, --[[StoryBit MartianVice_Crash NotificationText]] "Another shuttle race - another crash"},
+	NotificationText = T(11377, --[[StoryBit MartianVice_Crash NotificationText]] "Another shuttle race - another crash"),
 	Prerequisites = {},
 	ScriptDone = true,
 	SuppressTime = 1440000,

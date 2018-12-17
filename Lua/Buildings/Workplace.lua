@@ -2,11 +2,11 @@ DefineClass.Workplace = {
 	__parents = { "ShiftsBuilding", "Holder", "DomeOutskirtBld"},
 	
 	properties = {		
-		{template = true, id = "max_workers",     name = T{833, "Max workers per shift"},        default = 5,     category = "Workplace", editor = "number", min = 0, max = 20, slider = true, modifiable = true}, 	
-		{template = true, id = "specialist",      name = T{834, "Specialist"},                   default = "none",category = "Workplace", editor = "combo",  items = GetColonistSpecializationCombo()},
-		{                 id = "performance",     name = T{835, "Current performance"}, default = 100, modifiable = true, editor = "number" , no_edit = true},
-		{template = true, id = "automation",      name = T{836, "Workplace Automation"},        default = 0,     category = "Workplace", editor = "number", modifiable = true, help = "Can work without workers if > 0"},
-		{template = true, id = "auto_performance",name = T{837, "Workplace Auto Performance"},  default = 0,     category = "Workplace", editor = "number", modifiable = true, help = "Performance when working in automation mode"}, 	
+		{template = true, id = "max_workers",     name = T(833, "Max workers per shift"),        default = 5,     category = "Workplace", editor = "number", min = 0, max = 20, slider = true, modifiable = true}, 	
+		{template = true, id = "specialist",      name = T(834, "Specialist"),                   default = "none",category = "Workplace", editor = "combo",  items = GetColonistSpecializationCombo()},
+		{                 id = "performance",     name = T(835, "Current performance"), default = 100, modifiable = true, editor = "number" , no_edit = true},
+		{template = true, id = "automation",      name = T(836, "Workplace Automation"),        default = 0,     category = "Workplace", editor = "number", modifiable = true, help = "Can work without workers if > 0"},
+		{template = true, id = "auto_performance",name = T(837, "Workplace Auto Performance"),  default = 0,     category = "Workplace", editor = "number", modifiable = true, help = "Performance when working in automation mode"}, 	
 	},
 	
 	workers = false,  -- workers arrays in shifts
@@ -85,27 +85,27 @@ function Workplace:ToggleSpecialistEnforce_Update(button)
 	local specialist = self.specialist or "none"
 	if not enforce then
 		button:SetIcon("UI/Icons/IPButtons/specialization_all.tga")
-		button:SetRolloverTitle(T{8742, "Workforce: No Restrictions"})
-		button:SetRolloverText(T{8743, "Set accepted workforce for this building.<newline><newline>Current status: <em>No restrictions</em>"})
+		button:SetRolloverTitle(T(8742, "Workforce: No Restrictions"))
+		button:SetRolloverText(T(8743, "Set accepted workforce for this building.<newline><newline>Current status: <em>No restrictions</em>"))
 	elseif specialist == "none" then
 		button:SetIcon("UI/Icons/IPButtons/specialization_off.tga")
-		button:SetRolloverTitle(T{8744, "Workforce: Reject Specialists"})
-		button:SetRolloverText(T{8745, "Set accepted workforce for this building.<newline><newline>Current status: <em>Specialists not accepted</em>"})
+		button:SetRolloverTitle(T(8744, "Workforce: Reject Specialists"))
+		button:SetRolloverText(T(8745, "Set accepted workforce for this building.<newline><newline>Current status: <em>Specialists not accepted</em>"))
 	else
 		button:SetIcon("UI/Icons/IPButtons/specialization_on.tga")
-		button:SetRolloverTitle(T{8746, "Workforce: Enforce Specialists"})
-		button:SetRolloverText(T{8747, "Set accepted workforce for this building.<newline><newline>Current status: <em>Only specialists accepted</em>"})
+		button:SetRolloverTitle(T(8746, "Workforce: Enforce Specialists"))
+		button:SetRolloverText(T(8747, "Set accepted workforce for this building.<newline><newline>Current status: <em>Only specialists accepted</em>"))
 	end
 	
 	if enforce then
-		button:SetRolloverHint(T{8748, "<left_click> No restrictions <newline><em>Ctrl + <left_click></em> No restrictions for all <display_name_pl>"})
-		button:SetRolloverHintGamepad(T{8749, "<ButtonA> No restrictions <newline><ButtonX> No restrictions for all <display_name_pl>"})
+		button:SetRolloverHint(T(8748, "<left_click> No restrictions <newline><em>Ctrl + <left_click></em> No restrictions for all <display_name_pl>"))
+		button:SetRolloverHintGamepad(T(8749, "<ButtonA> No restrictions <newline><ButtonX> No restrictions for all <display_name_pl>"))
 	elseif specialist == "none" then
-		button:SetRolloverHint(T{8750, "<left_click> Reject specialists <newline><em>Ctrl + <left_click></em> Reject specialists for all <display_name_pl>"})
-		button:SetRolloverHintGamepad(T{8751, "<ButtonA> Reject specialists <newline><ButtonX> Reject specialists for all <display_name_pl>"})
+		button:SetRolloverHint(T(8750, "<left_click> Reject specialists <newline><em>Ctrl + <left_click></em> Reject specialists for all <display_name_pl>"))
+		button:SetRolloverHintGamepad(T(8751, "<ButtonA> Reject specialists <newline><ButtonX> Reject specialists for all <display_name_pl>"))
 	else
-		button:SetRolloverHint(T{8752, "<left_click> Enforce specialists <newline><em>Ctrl + <left_click></em> Enforce specialists for all <display_name_pl>"})
-		button:SetRolloverHintGamepad(T{8753, "<ButtonA> Enforce specialists <newline><ButtonX> Enforce specialists for all <display_name_pl>"})
+		button:SetRolloverHint(T(8752, "<left_click> Enforce specialists <newline><em>Ctrl + <left_click></em> Enforce specialists for all <display_name_pl>"))
+		button:SetRolloverHintGamepad(T(8753, "<ButtonA> Enforce specialists <newline><ButtonX> Enforce specialists for all <display_name_pl>"))
 	end
 end
 
@@ -223,7 +223,7 @@ function Workplace:GetPerformanceReasons(shift)
 	-- workers
 	if self.max_workers <= 0 then
 		if self.automation > 0 then
-			texts[#texts +1] = T{7628, "<green>Automation +<auto_performance></green>"}--	automation,self.automation > 0 and self.auto_performance or 0
+			texts[#texts +1] = T(7628, "<green>Automation +<auto_performance></green>")--	automation,self.automation > 0 and self.auto_performance or 0
 		end	
 	else
 		local shift = self.active_shift > 0 and self.active_shift or shift
@@ -445,19 +445,19 @@ end
 
 function Workplace:ColonistCanInteract(col)
 	if col.traits.Child or (col.traits.Senior and not g_SeniorsCanWork) then 
-		return false, T{4310, "<red>Seniors and children can't be assigned to work</red>"}
+		return false, T(4310, "<red>Seniors and children can't be assigned to work</red>")
 	end
 	if self.specialist_enforce_mode and (self.specialist or "none") ~= (col.specialist or "none") then
-		return false, T{8769, "Required specialization mismatch"}
+		return false, T(8769, "Required specialization mismatch")
 	end
 	if col.workplace == self then
-		return false, T{4311, "Current Workplace"}
+		return false, T(4311, "Current Workplace")
 	end
 	if not col:CanReachBuilding(self) then
-		return false, T{4308, "<red>Out of reach</red>"}
+		return false, T(4308, "<red>Out of reach</red>")
 	end
 	if not self:HasOpenWorkSlots() then
-		return false, T{4312, "<red>Current work shift is closed</red>"}
+		return false, T(4312, "<red>Current work shift is closed</red>")
 	end
 	return true, T{4313, "<UnitMoveControl('ButtonA', interaction_mode)>: Set Workplace", col}
 end
@@ -1051,32 +1051,32 @@ function Workplace:GetUISpecialization()
 end
 
 local WorkerSlot = {
-	"RolloverTitle", T{7305, "<DisplayName>"},
-	"RolloverText", T{6768, "A colonist working in this building.<newline><newline>Specialization: <em><Specialization></em><newline>Worker Performance: <em><performance></em><newline><PerformanceReasons><TraitsWarnings>"},
-	"RolloverHint", T{7527, "<left_click> Select  <right_click> Fire this worker"},
-	"RolloverHintGamepad", T{7528, "<ButtonA> Select  <ButtonX> Fire this worker"},
+	"RolloverTitle", T(7305, "<DisplayName>"),
+	"RolloverText", T(6768, "A colonist working in this building.<newline><newline>Specialization: <em><Specialization></em><newline>Worker Performance: <em><performance></em><newline><PerformanceReasons><TraitsWarnings>"),
+	"RolloverHint", T(7527, "<left_click> Select  <right_click> Fire this worker"),
+	"RolloverHintGamepad", T(7528, "<ButtonA> Select  <ButtonX> Fire this worker"),
 }
 
 local OpenSlot = {
 	"Icon", "UI/Infopanel/colonist_empty.tga",
-	"RolloverTitle", T{4218, "Free Work Slot"},
-	"RolloverText", T{4219, "Free work slot. Unemployed Workers automatically seek jobs within their Dome.<newline><newline><red>Free work slots reduce workplace performance.</red>"},
-	"RolloverHint", T{7529, "<right_click> Close this work slot"},
-	"RolloverHintGamepad", T{4220, "<ButtonX> Close this work slot"},
+	"RolloverTitle", T(4218, "Free Work Slot"),
+	"RolloverText", T(4219, "Free work slot. Unemployed Workers automatically seek jobs within their Dome.<newline><newline><red>Free work slots reduce workplace performance.</red>"),
+	"RolloverHint", T(7529, "<right_click> Close this work slot"),
+	"RolloverHintGamepad", T(4220, "<ButtonX> Close this work slot"),
 }
 
 local ClosedSlot = {
 	"Icon", "UI/Infopanel/colonist_closed.tga",
-	"RolloverTitle", T{4222, "Closed Work Slot"},
-	"RolloverText", T{4223, "This work slot is closed. Workers will never occupy it.<newline><newline><red>Closed work slots reduce workplace performance.</red>"},
-	"RolloverHint", T{7530, "<right_click> Open this work slot"},
-	"RolloverHintGamepad", T{4224, "<ButtonX> Open this work slot"},
+	"RolloverTitle", T(4222, "Closed Work Slot"),
+	"RolloverText", T(4223, "This work slot is closed. Workers will never occupy it.<newline><newline><red>Closed work slots reduce workplace performance.</red>"),
+	"RolloverHint", T(7530, "<right_click> Open this work slot"),
+	"RolloverHintGamepad", T(4224, "<ButtonX> Open this work slot"),
 }
 
 local shift_names = {
-	T{541987944858, --[[sectionWorkshifts RolloverTitle]] "First Shift"},
-	T{159665176435, --[[sectionWorkshifts RolloverTitle]] "Second Shift"},
-	T{994186128274, --[[sectionWorkshifts RolloverTitle]] "Night shift"},
+	T(541987944858, --[[sectionWorkshifts RolloverTitle]] "First Shift"),
+	T(159665176435, --[[sectionWorkshifts RolloverTitle]] "Second Shift"),
+	T(994186128274, --[[sectionWorkshifts RolloverTitle]] "Night shift"),
 }
 
 
@@ -1099,14 +1099,14 @@ function UIWorkshiftUpdate(self, building, shift)
 	if shift_closed then
 		if single_shift then
 			self:SetIcon("UI/Icons/Sections/workshifts_stop.tga")
-			self:SetTitle(T{130, "N/A"})
+			self:SetTitle(T(130, "N/A"))
 		else
 			self:SetIcon("UI/Icons/Sections/workshifts_pause.tga")
-			self:SetTitle((workplace or training) and T{7359, "Stopped Work Shift"} or T{6771, "<red>OFF</red>"})
+			self:SetTitle((workplace or training) and T(7359, "Stopped Work Shift") or T(6771, "<red>OFF</red>"))
 		end
 	else
 		self:SetIcon("UI/Icons/Sections/workshifts_active.tga")
-		self:SetTitle((workplace or training) and "" or T{6772, "<green>ON</green>"})
+		self:SetTitle((workplace or training) and "" or T(6772, "<green>ON</green>"))
 	end
 	rawset(self, "ProcessToggle", function(self, context, broadcast)
 		local building = ResolvePropObj(context)
@@ -1188,35 +1188,35 @@ function UIWorkshiftUpdate(self, building, shift)
 			self.idOvertime:AddInterpolation{id = "desat", type = const.intDesaturation, startValue = 255}
 		end
 		self.idOvertime:SetRow(shift_active and 2 or 1)
-		self.context.UIOvertimeText = shift_overtime and T{4212, "Heavy workload"} or T{4213, "Normal workload"}
+		self.context.UIOvertimeText = shift_overtime and T(4212, "Heavy workload") or T(4213, "Normal workload")
 	end
 	-- rollover
 	self.GetRolloverText = function (self)
 		local shift = self.context.shift
 		local building = ResolvePropObj(self.context)
 		local items = {
-			T{7360, "Toggle the current work shift ON or OFF. The building will operate only during active work shifts."}
+			T(7360, "Toggle the current work shift ON or OFF. The building will operate only during active work shifts.")
 		}
 		local is_workplace = building:IsKindOf("Workplace")
 		if is_workplace then
 			if building.active_shift > 0 then
-				items[#items + 1] = T{228, "<em>This building operates on a single work shift</em>"}
+				items[#items + 1] = T(228, "<em>This building operates on a single work shift</em>")
 			else
-				items[#items + 1] = T{7361, "You’ll need a separate crew of workers for each shift."}
+				items[#items + 1] = T(7361, "You’ll need a separate crew of workers for each shift.")
 			end
 			if building.active_shift > 0 or shift == 3 then
 				items[#items + 1] = ""
 				if shift == 3 then
-					items[#items + 1] = T{7362, "<em>Workers will lose Sanity if they work during the night shift.</em>"}
+					items[#items + 1] = T(7362, "<em>Workers will lose Sanity if they work during the night shift.</em>")
 				end
 			end
 		end
 		items[#items + 1] = ""
 		items[#items + 1] = T{7363, "Working hours<right><number1>-<number2>h", number1 = const.DefaultWorkshifts[shift][1], number2 = const.DefaultWorkshifts[shift][2]}
-		items[#items + 1] = T{7364, "Status: <status>", status = building:IsClosedShift(shift) and T{6771, "<red>OFF</red>"} or T{6772, "<green>ON</green>"}}
+		items[#items + 1] = T{7364, "Status: <status>", status = building:IsClosedShift(shift) and T(6771, "<red>OFF</red>") or T(6772, "<green>ON</green>")}
 		if is_workplace and not building:IsClosedShift(shift) then
 			items[#items + 1] = Untranslated("\n")
-			items[#items + 1] = shift==building.current_shift and T{7634, "Building performance<right><performance>"} or T{7635, "Building performance"}
+			items[#items + 1] = shift==building.current_shift and T(7634, "Building performance<right><performance>") or T(7635, "Building performance")
 			local texts = building:GetPerformanceReasons(shift)
 			texts = table.concat(texts,'\n')
 			items[#items + 1] = T{texts, building}

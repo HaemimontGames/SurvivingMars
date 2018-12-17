@@ -162,10 +162,10 @@ end
 DefineClass.ModItemRadioStation = { --Kept for backwards compatibility (mods with DataInstances, instead of Presets)
 	__parents = { "ModItem" },
 	properties = {
-		{ category = "General", id = "display_name", name = T{1000067, "Display Name"}, editor = "text", default = "", translate = true },
-		{ category = "General", id = "folder", name = T{3593, "Folder"}, editor = "text", default = "" },
-		{ category = "General", id = "silence", name = T{3594, "Silence between tracks (sec)"}, default = DefaultMusicSilenceDuration / 1000, editor = "number" },
-		{ category = "General", id = "play", name = T{7905, "Play"}, editor = "func", default = false },
+		{ category = "General", id = "display_name", name = T(1000067, "Display Name"), editor = "text", default = "", translate = true },
+		{ category = "General", id = "folder", name = T(3593, "Folder"), editor = "text", default = "" },
+		{ category = "General", id = "silence", name = T(3594, "Silence between tracks (sec)"), default = DefaultMusicSilenceDuration / 1000, editor = "number" },
+		{ category = "General", id = "play", name = T(7905, "Play"), editor = "func", default = false },
 	},
 	EditorMenubarName = "",
 }

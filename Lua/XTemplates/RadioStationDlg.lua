@@ -13,6 +13,7 @@ PlaceObj('XTemplate', {
 		'InternalModes', "radio",
 	}, {
 		PlaceObj('XTemplateLayer', {
+			'__condition', function (parent, context) return GameState.gameplay end,
 			'layer', "ScreenBlur",
 			'layer_id', "idBlur",
 		}),
@@ -30,12 +31,12 @@ end,
 		PlaceObj('XTemplateTemplate', {
 			'__template', "DialogTitleNew",
 			'Margins', box(115, 0, 0, 0),
-			'Title', T{702142953137, --[[XTemplate RadioStationDlg Title]] "RADIO STATION"},
+			'Title', T(702142953137, --[[XTemplate RadioStationDlg Title]] "RADIO STATION"),
 			'SmallImage', true,
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "close",
-			'ActionName', T{4523, --[[XTemplate RadioStationDlg ActionName]] "CLOSE"},
+			'ActionName', T(4523, --[[XTemplate RadioStationDlg ActionName]] "CLOSE"),
 			'ActionToolbar', "ActionBar",
 			'ActionShortcut', "Escape",
 			'ActionGamepad', "ButtonB",
@@ -90,7 +91,7 @@ end,
 GetDialog(self).context:SetRadioStation(self.context.id)
 end,
 						'TextStyle', "ListItem3",
-						'Text', T{460245435559, --[[XTemplate RadioStationDlg Text]] "<display_name>"},
+						'Text', T(460245435559, --[[XTemplate RadioStationDlg Text]] "<display_name>"),
 					}, {
 						PlaceObj('XTemplateWindow', {
 							'__condition', function (parent, context) return context.id == ActiveRadioStation end,
@@ -148,7 +149,7 @@ end,
 					'Padding', box(0, 0, 0, 0),
 					'TextStyle', "ListItem5",
 					'Translate', true,
-					'Text', T{717950591874, --[[XTemplate RadioStationDlg Text]] "Volume"},
+					'Text', T(717950591874, --[[XTemplate RadioStationDlg Text]] "Volume"),
 				}, {
 					PlaceObj('XTemplateFunc', {
 						'name', "CalcTextColor",

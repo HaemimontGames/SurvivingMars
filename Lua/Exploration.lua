@@ -5,10 +5,10 @@ GlobalVar("g_InitialSector", false)
 GlobalVar("g_MapArea", false)
 
 SectorStatusToDisplay = {
-	["unexplored"] = T{976, "Unexplored"},
-	["scanned"] = T{977, "Scanned"},
-	["deep scanned"] = T{978, "Deep Scanned"},
-	["deep available"] = T{979, "<em>Scanned, scan again for deep deposits and Anomalies</em>"},
+	["unexplored"] = T(976, "Unexplored"),
+	["scanned"] = T(977, "Scanned"),
+	["deep scanned"] = T(978, "Deep Scanned"),
+	["deep available"] = T(979, "<em>Scanned, scan again for deep deposits and Anomalies</em>"),
 }
 
 DefineClass.RevealedMapSector = {
@@ -255,7 +255,7 @@ function MapSector:Scan(status, scanner)
 		
 		local results
 		if #texts == 0 then
-			results = T{980, "No resources"}
+			results = T(980, "No resources")
 		else		
 			results = table.concat(texts, " ")
 		end
@@ -323,14 +323,13 @@ function MapSector:RemoveFromQueue()
 end
 
 function MapSector:SetScanFx(enable, initial)
-	if enable then
+	if enable and not IsValid(self.scan_obj) then
 		self.scan_obj = PlaceParticles("SensorTower_Sector_Scan")
 		self.scan_obj:SetPos(self:GetPos())
 		if not initial then
 			PlayFX("SectorScan", "start") -- for sound
 		end
-		DeleteOnLoadSavegame(self.scan_obj)
-	else
+	elseif not enable then
 		if IsValid(self.scan_obj) then
 			DoneObject(self.scan_obj)
 			self.scan_obj = nil

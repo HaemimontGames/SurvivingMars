@@ -67,11 +67,11 @@ PlaceObj('StoryBit', {
 	},
 	Prerequisites = {},
 	ScriptDone = true,
-	Text = T{591787829966, --[[StoryBit LongWinter_End Text]] "We have survived the Cold Wave. People are celebrating in the streets. \n\nIt was quite an ordeal but we've learned a lot about surviving in the cold. Some of our Engineers have come up with a way to improve our Subsurface Heaters.\n\n<effect><morale_bonus> Morale for <sols(morale_bonus_duration)> Sols. Subsurface Heaters power consumption halved."},
+	Text = T(591787829966, --[[StoryBit LongWinter_End Text]] "We have survived the Cold Wave. People are celebrating in the streets. \n\nIt was quite an ordeal but we've learned a lot about surviving in the cold. Some of our Engineers have come up with a way to improve our Subsurface Heaters.\n\n<effect><morale_bonus> Morale for <sols(morale_bonus_duration)> Sols. Subsurface Heaters power consumption halved."),
 	TextReadyForValidation = true,
 	TextsDone = true,
 	Trigger = "ColdWaveEnded",
-	VoicedText = T{936109222821, --[[voice:narrator]] "You never thought that you’d be so happy to see the red dust of Mars again. The long winter is over."},
+	VoicedText = T(936109222821, --[[voice:narrator]] "You never thought that you’d be so happy to see the red dust of Mars again. The long winter is over."),
 	group = "Disasters",
 	id = "LongWinter_End",
 	PlaceObj('StoryBitParamNumber', {

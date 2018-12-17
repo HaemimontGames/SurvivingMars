@@ -9,6 +9,10 @@ PlaceObj('StoryBit', {
 					'Trait', "DustSickness",
 					'Negate', true,
 				}),
+				PlaceObj('HasTrait', {
+					'Trait', "Child",
+					'Negate', true,
+				}),
 			},
 			'RandomCount', 6,
 			'Effects', {
@@ -33,7 +37,7 @@ PlaceObj('StoryBit', {
 	},
 	Effects = {},
 	Enables = {
-		"DustSickness_GeneratSick",
+		"DustSickness_GeneratSickNotWorking",
 	},
 	Prerequisites = {},
 	ScriptDone = true,

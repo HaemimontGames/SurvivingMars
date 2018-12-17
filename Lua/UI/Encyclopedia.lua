@@ -1,9 +1,9 @@
 EncyclopediaCategoryNames = {
-	{value = "Buildings", text = T{3980, "Buildings"}},
-	{value = "Units", text = T{3981, "Units"}},
-	{value = "Deposits", text = T{3982, "Deposits"}},
-	{value = "Disasters", text = T{3983, "Disasters"}},
-	{value = "Anomalies", text = T{3984, "Anomalies"}},
+	{value = "Buildings", text = T(3980, "Buildings")},
+	{value = "Units", text = T(3981, "Units")},
+	{value = "Deposits", text = T(3982, "Deposits")},
+	{value = "Disasters", text = T(3983, "Disasters")},
+	{value = "Anomalies", text = T(3984, "Anomalies")},
 }
 
 
@@ -49,7 +49,7 @@ function Encyclopedia:Init(parent, context)
 	local ctrl = XTemplateSpawn("DialogTitleNew", container, self.context)
 	ctrl:SetId("idTitle")
 	ctrl:SetMargins(box(55, 0, 0, 0))
-	ctrl:SetTitle(T{5473, "ENCYCLOPEDIA"})
+	ctrl:SetTitle(T(5473, "ENCYCLOPEDIA"))
 	--action bar
 	ctrl = XTemplateSpawn("ActionBarNew", container, self.context)
 	ctrl:SetMargins(box(55, 0, 0, 0))
@@ -106,6 +106,18 @@ function Encyclopedia:Init(parent, context)
 		VAlign = "top",
 		MaxHeight = 403,
 	}, win)
+	XVideo:new({
+		Id = "idVideo",
+		Dock = "top",
+		HAlign = "left",
+		FoldWhenHidden = true,
+		Margins = box(20, 20, 20, 20),
+		MinWidth = 512,
+		MaxWidth = 512,
+		MinHeight = 384,
+		MaxHeight = 384,
+		Looping = true,
+	}, win)
 	local scroll_area = XScrollArea:new({
 		Id = "idDescrTextArea",
 		IdNode = false,
@@ -136,7 +148,7 @@ function Encyclopedia:Open(...)
 		end)
 		cat_id = article and article.group
 		cat_id = cat_id or BuildingTemplates[enc_id] and "Buildings"
-		cat_id = cat_id or table.find(DataInstances.OnScreenHint, "name", enc_id) and "Hints"
+		cat_id = cat_id or OnScreenHintPresets[enc_id] and "Hints"
 	end
 	XDialog.Open(self, ...)
 	self:SetMode(cat_id and "items" or "categories", {category_id = cat_id})
@@ -146,7 +158,7 @@ function Encyclopedia:OnDialogModeChange(mode, dialog)
 	self:RespawnListContent()
 	self:RebuildActionbar()
 	if mode == "categories" then
-		self.idTitle:SetSubtitle(T{1117, "CATEGORIES"})
+		self.idTitle:SetSubtitle(T(1117, "CATEGORIES"))
 	elseif mode == "items" then
 		self.idTitle:SetSubtitle(self.mode_param.title_text_upper)
 	end
@@ -259,7 +271,7 @@ function Encyclopedia:RebuildActionbar()
 	local close_effect = self.parent ~= self.desktop and "mode" or "close"
 	if self.mode_param and self.mode_param.category_id then
 		XAction:new({
-			ActionName = T{4254, "BACK"},
+			ActionName = T(4254, "BACK"),
 			ActionId = "back",
 			ActionToolbar = "ActionBar",
 			ActionShortcut = "Escape",
@@ -268,7 +280,7 @@ function Encyclopedia:RebuildActionbar()
 			OnActionParam = "categories",
 		}, self)
 		XAction:new({
-			ActionName = T{4523, "CLOSE"},
+			ActionName = T(4523, "CLOSE"),
 			ActionId = "close",
 			ActionToolbar = "ActionBar",
 			ActionGamepad = "ButtonX",
@@ -276,7 +288,7 @@ function Encyclopedia:RebuildActionbar()
 		}, self)
 	else
 		XAction:new({
-			ActionName = T{4523, "CLOSE"},
+			ActionName = T(4523, "CLOSE"),
 			ActionId = "close",
 			ActionToolbar = "ActionBar",
 			ActionShortcut = "Escape",
@@ -308,11 +320,26 @@ end
 function Encyclopedia:SetDescription(article)
 	self.idDescrTextArea:ScrollTo(0, 0)
 	self.idArticleTitle:SetText(article.title_text)
-	local has_image = article.image and article.image ~= ""
-	if has_image then
-		self.idImage:SetImage(article.image)
+	local has_image
+	--images are overriden by videos and videos are looked up in the corresponding hint preset (if any)
+	local hint_preset = OnScreenHintPresets[article.id]
+	local video = hint_preset and hint_preset:GetVideoFilename()
+	video = video ~= "" and video
+	if video then
+		self.idVideo.resolution = point(512, 384)
+		if video ~= self.idVideo:GetFileName() or self.idVideo.state ~= "playing" then
+			self.idVideo:SetFileName(video)
+			self.idVideo:Play()
+		end
+	else
+		self.idVideo:Stop()
+		has_image = article.image and article.image ~= ""
+		if has_image then
+			self.idImage:SetImage(article.image)
+		end
 	end
-	self.idImage:SetVisible(has_image)
+	self.idVideo:SetVisible(video)
+	self.idImage:SetVisible(not video and has_image)
 	self.idDescription:SetText(article.text)
 	self.idDescrWindow:SetVisible(true)
 end
@@ -323,7 +350,7 @@ function Encyclopedia:GetListItems()
 	local cat_id = param and param.category_id
 	if cat_id then
 		if cat_id == "Buildings" then
-			param.title_text_upper = T{1152, "BUILDINGS"}
+			param.title_text_upper = T(1152, "BUILDINGS")
 			local buildings = table.values(BuildingTemplates or empty_table)
 			TSort(buildings, "display_name")
 			for _, template in ipairs(buildings) do
@@ -349,18 +376,17 @@ function Encyclopedia:GetListItems()
 				end	
 			end
 		elseif cat_id == "Hints" then
-			param.title_text_upper = T{5402, "HINTS"}
-			local hints = DataInstances.OnScreenHint
+			param.title_text_upper = T(5402, "HINTS")
 			local tutorial = g_Tutorial and g_Tutorial.Map or "none"
 			local check_if_passed = (tutorial ~= "none")
-			for k, v in ipairs(hints) do
+			ForEachPreset(OnScreenHint, function(v)
 				if v.tutorial == tutorial then
-					if not check_if_passed or g_ActiveHints[v.name] then
+					if not check_if_passed or g_ActiveHints[v.id] then
 						local body_text = (GetUIStyleGamepad() and v.gamepad_text ~= "") and v.gamepad_text or v.text
-						body_text = T{body_text, g_Classes[v.name]}
+						body_text = T{body_text, g_Classes[v.id]}
 						local text = (v.voiced_text ~= "") and (v.voiced_text.."\n\n"..body_text) or body_text
 						items[#items + 1] = {
-							id = v.name,
+							id = v.id,
 							title_text = v.title,
 							text = text,
 							image = v.encyclopedia_image ~= "" and v.encyclopedia_image or "UI/Encyclopedia/Hints.tga",
@@ -368,7 +394,7 @@ function Encyclopedia:GetListItems()
 						}
 					end
 				end
-			end
+			end)
 		else
 			ForEachPreset(EncyclopediaArticle, function(article, list)
 				if article.group == cat_id then

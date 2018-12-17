@@ -140,12 +140,12 @@ DefineClass.Dome = {
 	enum_flags = { efWalkable = true },
 	
 	properties = {
-		{ id = "name", name = T{638, "Dome name"}, editor = "text", category = "Dome", default = ""},
+		{ id = "name", name = T(638, "Dome name"), editor = "text", category = "Dome", default = ""},
 		{ id = "ColonistCount", editor = "number", default = 0, no_edit = true },
 		
-		{ id = "ColonistExtraComfort", name = T{639, "Colonist Extra Comfort"}, editor = "number", default = 0, scale = "Stat", modifiable = true },
-		{ id = "ColonistExtraMorale", name = T{640, "Colonist Extra Morale"}, editor = "number", default = 0, scale = "Stat", modifiable = true },
-		{ template = true, id = "DailySanityRecoverDome", name = T{641, "Colonist Sanity Recover per Sol"}, editor = "number", default = 0, scale = "Stat", modifiable = true },
+		{ id = "ColonistExtraComfort", name = T(639, "Colonist Extra Comfort"), editor = "number", default = 0, scale = "Stat", modifiable = true },
+		{ id = "ColonistExtraMorale", name = T(640, "Colonist Extra Morale"), editor = "number", default = 0, scale = "Stat", modifiable = true },
+		{ template = true, id = "DailySanityRecoverDome", name = T(641, "Colonist Sanity Recover per Sol"), editor = "number", default = 0, scale = "Stat", modifiable = true },
 	},
 	
 	building_update_time = const.HourDuration,
@@ -1182,7 +1182,7 @@ local function CalcFertility(c)
 end
 
 function Dome:SpawnChild(dreamer_chance)
-	local colonist = GenerateColonistData(self.city, "Child")
+	local colonist = GenerateColonistData(self.city, "Child", "martianborn")
 	colonist.dome = self
 	if IsDreamMystery() then
 		assert(self.labels.Colonist)
@@ -1565,16 +1565,16 @@ function Dome:CalcIntersetsFails()
 end
 
 local ServiceFailTexts = {
-	[1] = 	T{7894, "<red>Missing service building (<interest_name>)<right><colonist(number)></red>"},
-	[2] = 	T{11431, "<red>Service buildings are not working (<interest_name>)<right><colonist(number)></red>"},
-	[3] = 	T{7895, "<red>Service buildings are full (<interest_name>)<right><colonist(number)></red>"},
-	[4] = 	T{11432, "<red>Service buildings were not supplied with resources(<interest_name>)<right><colonist(number)></red>"},
+	[1] = 	T(7894, "<red>Missing service building (<interest_name>)<right><colonist(number)></red>"),
+	[2] = 	T(11431, "<red>Service buildings are not working (<interest_name>)<right><colonist(number)></red>"),
+	[3] = 	T(7895, "<red>Service buildings are full (<interest_name>)<right><colonist(number)></red>"),
+	[4] = 	T(11432, "<red>Service buildings were not supplied with resources(<interest_name>)<right><colonist(number)></red>"),
 }
 
 function Dome:GetComfortRollover()
 	local iterests_fails = self:CalcIntersetsFails()
 	local texts = {}
-	texts[#texts+1] = T{7893, --[[XTemplate sectionDome RolloverText]] "The average <em>Comfort</em> of all Colonists living in this Dome."}
+	texts[#texts+1] = T(7893, --[[XTemplate sectionDome RolloverText]] "The average <em>Comfort</em> of all Colonists living in this Dome.")
 	if next(iterests_fails) then
 		--fail  -- 0 - not tried, 1 - not found, 2 - closed, 3 - full, 4 - CanService failed
 		for j = 1, 4 do --failed reasons
@@ -1647,7 +1647,7 @@ function Dome:ToggleWorkInConnected(broadcast)
 end
 
 function Dome:UIWorkInConnected()
-	return self.allow_work_in_connected and T{8883, "Allowed"} or T{8884, "Forbidden"}
+	return self.allow_work_in_connected and T(8883, "Allowed") or T(8884, "Forbidden")
 end
 
 function Dome:ToggleServiceInConnected(broadcast)
@@ -1655,7 +1655,7 @@ function Dome:ToggleServiceInConnected(broadcast)
 end
 
 function Dome:UIServiceInConnected()
-	return self.allow_service_in_connected and T{8883, "Allowed"} or T{8884, "Forbidden"}
+	return self.allow_service_in_connected and T(8883, "Allowed") or T(8884, "Forbidden")
 end
 
 GlobalVar("DomeTraitsCameraParams", false)
@@ -1728,9 +1728,9 @@ function Dome:GetEmploymentMessage()
 	elseif vacant_off > 0 then
 		return T{568, "Disabled work slots<right><work(number)>", number = vacant_off}
 	elseif self.labels.Colonist and #self.labels.Colonist > 0 then
-		return T{569, "No unemployment, no vacant workplaces"}
+		return T(569, "No unemployment, no vacant workplaces")
 	elseif not self:HasAnyWorkers() then
-		return T{570, "This Dome is not operational due to lack of Colonists"}
+		return T(570, "This Dome is not operational due to lack of Colonists")
 	end
 	return ""
 end
@@ -2702,7 +2702,7 @@ end
 
 function Dome:GetBirthText()
 	local texts = {
-		T{559, "<newline><center><em>Births</em>"},
+		T(559, "<newline><center><em>Births</em>"),
 		T{7701, "Birth Threshold<right><resource(MinComfortBirth, Comfort)> Comfort", self},
 		T{560, "Males who want children<right><colonist(fertile_male)>", self},
 		T{561, "Females who want children<right><colonist(fertile_female)>", self},
@@ -2714,13 +2714,13 @@ function Dome:GetBirthText()
 	end
 	local alert = ""
 	if self:GetHomelessBirthRatePenalty()==100 then
-		texts[#texts + 1] = T{8571, "<red>Too many homeless Colonists. No more children will be born</red>"}
+		texts[#texts + 1] = T(8571, "<red>Too many homeless Colonists. No more children will be born</red>")
 	elseif self.daily_birth_progress <= 0 then
-		texts[#texts + 1] = T{563, "<red>No children will be born. The average Comfort of all fertile couples is too low.</red>"}
+		texts[#texts + 1] = T(563, "<red>No children will be born. The average Comfort of all fertile couples is too low.</red>")
 	elseif self.allow_birth then
-		texts[#texts + 1] = T{564, "<green>Children will be born. The Dome is comfortable enough.</green>"}
+		texts[#texts + 1] = T(564, "<green>Children will be born. The Dome is comfortable enough.</green>")
 	else
-		texts[#texts + 1] = T{8738, "<green>Children will be born if births are allowed.</green>"}	
+		texts[#texts + 1] = T(8738, "<green>Children will be born if births are allowed.</green>")	
 	end
 	
 	return table.concat(texts, "<newline><left>")
@@ -2745,7 +2745,7 @@ function Dome:GetUISectionCitizensRollover()
 	end
 	
 	local texts = {
-		T{11710, "<center><em>Jobs</em>"},
+		T(11710, "<center><em>Jobs</em>"),
 		T{548, "Unemployed, seeking work<right><unemployed(number)>", number = self.labels.Unemployed and #self.labels.Unemployed or 0, empty_table},
 		T{549, "Vacant work slots<right><work(number)>",  number = ui_on_vacant},
 		T{550, "Disabled work slots<right><work(number)>",  number = ui_off_vacant},
@@ -2754,12 +2754,12 @@ function Dome:GetUISectionCitizensRollover()
 		T{11701, "Tourists<right><colonist(number)>", number = tourists},
 		T{11702, "Temporary ill<right><colonist(number)>", number = ill},
 
-		T{7623, "<newline><center><em>Living space</em>"},
+		T(7623, "<newline><center><em>Living space</em>"),
 		T{552, "Vacant residential slots<right><home(number)>", number = free_adult},
 		T{7624, "Vacant nursery slots<right><home(number)>", number = free_all - free_adult},
 		T{551, "Homeless<right><homeless(number)>",   number = self.labels.Homeless and #self.labels.Homeless or 0},
 		
-		T{553, "<newline><center><em>Age Groups</em>"},
+		T(553, "<newline><center><em>Age Groups</em>"),
 		T{554, "Children<right><colonist(number)>",   number = self.labels.Child and #self.labels.Child or 0},
 		T{555, "Youth<right><colonist(number)>",      number = self.labels.Youth and #self.labels.Youth or 0},
 		T{556, "Adults<right><colonist(number)>",     number = self.labels.Adult and #self.labels.Adult or 0},
@@ -2780,7 +2780,7 @@ function Dome:GetUIWarning()
 end
 
 function Dome:ToggleWorking_Update(button)
-	button:SetRolloverText(T{10549, "Domes that are turned off do not accept Colonists and do not consume Power, Oxygen or Water. When a Dome is turned off, all buildings inside are turned off as well.<newline><newline>Current status: <em><UIWorkingStatus></em>"})
+	button:SetRolloverText(T(10549, "Domes that are turned off do not accept Colonists and do not consume Power, Oxygen or Water. When a Dome is turned off, all buildings inside are turned off as well.<newline><newline>Current status: <em><UIWorkingStatus></em>"))
 	Building.ToggleWorking_Update(self, button)
 end
 
@@ -2792,6 +2792,9 @@ function Dome:TriggerFireworks(time, count, particle)
 		local firework_count = 0
 		PlayFX("Fireworks", "start", self)
 		while firework_count < count do
+			if not IsValid(dome) then
+				return
+			end
 			firework_count = firework_count + 1
 			local i, pos, dir = GetRandomFirework(dome, particle)
 			PlayFX("Fireworks_" .. i, "start", nil, nil, pos, dir)
@@ -2826,30 +2829,30 @@ DefineClass.DomeSkins = {
 	__parents = { "Preset" },
 	
 	properties = {
-		{ id = "preset", name = T{3567, "Preset"}, editor = "combo", default = "Basic", items = DomeSkinsPresetsCombo },
-		{ id = "dome_type", name = T{6751, "Dome type"}, editor = "combo", items = function() return ClassDescendantsList("Dome") end, default = "DomeBasic", },
-		{ id = "entity", name = T{155, "Entity"}, editor = "combo", default = invalid_entity, items = function() return GetBuildingEntities(invalid_entity) end, },
+		{ id = "preset", name = T(3567, "Preset"), editor = "combo", default = "Basic", items = DomeSkinsPresetsCombo },
+		{ id = "dome_type", name = T(6751, "Dome type"), editor = "combo", items = function() return ClassDescendantsList("Dome") end, default = "DomeBasic", },
+		{ id = "entity", name = T(155, "Entity"), editor = "combo", default = invalid_entity, items = function() return GetBuildingEntities(invalid_entity) end, },
 		
-		{ id = "road_connection", name = T{8050, "Road Connection Type"}, editor = "text", default = "DomeRoadConnection", },
+		{ id = "road_connection", name = T(8050, "Road Connection Type"), editor = "text", default = "DomeRoadConnection", },
 		
-		{ id = "cupola_entity", name = T{6752, "Cupola entity"}, editor = "combo", default = invalid_entity, items = function() return GetBuildingEntities(invalid_entity) end, },
-		{ id = "cupola_attach_spot", name = T{6753, "Cupola attach spot"}, editor = "text", default = "Origin", },
+		{ id = "cupola_entity", name = T(6752, "Cupola entity"), editor = "combo", default = invalid_entity, items = function() return GetBuildingEntities(invalid_entity) end, },
+		{ id = "cupola_attach_spot", name = T(6753, "Cupola attach spot"), editor = "text", default = "Origin", },
 		
-		{ id = "entrance_entity", name = T{6754, "Entrance entity"}, editor = "combo", default = invalid_entity, items = function() return GetBuildingEntities(invalid_entity) end, },
-		{ id = "entrance_attach_spot", name = T{6755, "Entrance attach spot"}, editor = "text", default = "Entrance", },
+		{ id = "entrance_entity", name = T(6754, "Entrance entity"), editor = "combo", default = invalid_entity, items = function() return GetBuildingEntities(invalid_entity) end, },
+		{ id = "entrance_attach_spot", name = T(6755, "Entrance attach spot"), editor = "text", default = "Entrance", },
 		
-		{ id = "tube_entrance_entity", name = T{6756, "Tube entrance entity"}, editor = "combo", default = invalid_entity, items = function() return GetBuildingEntities(invalid_entity) end, },
-		{ id = "tube_entrance_attach_spot", name = T{6757, "Tube entrance attach spot"}, editor = "text", default = "Entrancetube", },
+		{ id = "tube_entrance_entity", name = T(6756, "Tube entrance entity"), editor = "combo", default = invalid_entity, items = function() return GetBuildingEntities(invalid_entity) end, },
+		{ id = "tube_entrance_attach_spot", name = T(6757, "Tube entrance attach spot"), editor = "text", default = "Entrancetube", },
 		
-		{ id = "cupola_entity_opt", name = T{6758, "Second cupola (optional)"}, editor = "combo", default = invalid_entity, items = function() return GetBuildingEntities(invalid_entity) end, },
-		{ id = "cupola_attach_spot_opt", name = T{6759, "Second cupola attach spot"}, editor = "text", default = "Origin", },
+		{ id = "cupola_entity_opt", name = T(6758, "Second cupola (optional)"), editor = "combo", default = invalid_entity, items = function() return GetBuildingEntities(invalid_entity) end, },
+		{ id = "cupola_attach_spot_opt", name = T(6759, "Second cupola attach spot"), editor = "text", default = "Origin", },
 		
-		{ id = "construction_entity", name = T{8647, "Dome entity during construction"}, editor = "text", default = "", help = "Should have full block pass, all configurable attaches should be auto attaches for this entity"},
+		{ id = "construction_entity", name = T(8647, "Dome entity during construction"), editor = "text", default = "", help = "Should have full block pass, all configurable attaches should be auto attaches for this entity"},
 		
-		{ name = T{11561, "Palette color 1"}, id = "palette_color1", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
-		{ name = T{11562, "Palette color 2"}, id = "palette_color2", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
-		{ name = T{11563, "Palette color 3"}, id = "palette_color3", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
-		{ name = T{11564, "Palette color 4"}, id = "palette_color4", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+		{ name = T(11561, "Palette color 1"), id = "palette_color1", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+		{ name = T(11562, "Palette color 2"), id = "palette_color2", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+		{ name = T(11563, "Palette color 3"), id = "palette_color3", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
+		{ name = T(11564, "Palette color 4"), id = "palette_color4", editor = "combo", items = ColonyColorSchemeColorNames, default = "none" },
 	},
 	
 	EditorName = "Dome Skin",
@@ -2970,6 +2973,7 @@ function TriggerFireworks()
 end
 
 function GetRandomFirework(dome, particle)
+	assert(IsValid(dome))
 	local i = particle or UICity:Random(18) + 1
 	local hex_pos = point(WorldToHex(dome)) + UICity:TableRand(dome:GetBuildShape())
 	local world_x, world_y = HexToWorld(hex_pos:xy())
@@ -2979,6 +2983,12 @@ function GetRandomFirework(dome, particle)
 	local angle_adjust_z = MulDivRound(dir:Len2D2(), 4000, dir:Len2())
 	dir = dir:AddZ(angle_adjust_z)
 	return i, world_pos, dir
+end
+
+function SavegameFixups.RemoveStuckHexRanges()
+	MapForEach("map", "RangeHexRadius", function(o)
+		DoneObject(o)
+	end)
 end
 
 OnMsg.NewMapLoaded = DomeSoundEnhance

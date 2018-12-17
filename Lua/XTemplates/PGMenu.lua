@@ -257,7 +257,7 @@ CreateRealTimeThread(function()
 	host:SetMode("ModManager")
 end)
 end,
-						'__condition', function (parent, context) return Platform.steam or Platform.pc end,
+						'__condition', function (parent, context) return Platform.steam or Platform.pc or Platform.linux or Platform.osx end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idModEditor",

@@ -105,5 +105,16 @@ end,
 				}),
 			}),
 		}),
+	PlaceObj('XTemplateCode', {
+		'run', function (self, parent, context)
+parent.override_valign = "stretch"
+end,
+	}),
+	PlaceObj('XTemplateFunc', {
+		'name', "RecalculateMargins",
+		'func', function (self, ...)
+self:SetMargins(GetSafeMargins())
+end,
+	}),
 })
 

@@ -28,7 +28,7 @@ if corrupted == nil then
 	end
 end
 self.idWarning:SetText(warning or "")
-self.idWarning:SetVisible(corrupted)
+self.idWarning:SetVisible((warning or "") ~= "")
 local enabled = obj.enabled[mod_id]
 if not corrupted then
 	if not GetUIStyleGamepad() and rawget(self.idEnabled, "idEnabled") then

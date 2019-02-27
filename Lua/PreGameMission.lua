@@ -786,6 +786,23 @@ function SponsorCombo()
 	end
 end
 
+function WaitWarnTutorialWithMods(host)
+	if AccountStorage and AccountStorage.LoadMods and next(AccountStorage.LoadMods) ~= nil then
+		local choice = WaitPopupNotification("Tutorial_ActiveMods", nil, nil, host)
+		if choice == 1 then
+			LoadingScreenOpen("idLoadingScreen", "AllModsOff")
+			AllModsOff()
+			SaveAccountStorage(5000)
+			WaitDisableAllPDXMods()
+			g_ParadoxModsContextObj = false
+			if ModsLoaded then
+				ModsReloadItems()
+			end
+			LoadingScreenClose("idLoadingScreen", "AllModsOff")
+		end
+	end
+end
+
 function ChooseToPlayTutorial(host)
 	if (AccountStorage.CompletedTutorials and next(AccountStorage.CompletedTutorials)) or AccountStorage.DisablePlayTutorialPopup then
 		return false
@@ -794,6 +811,7 @@ function ChooseToPlayTutorial(host)
 	AccountStorage.CompletedTutorials = {}
 	SaveAccountStorage(5000)
 	if choice == 1 then
+		WaitWarnTutorialWithMods(host)
 		host:SetMode("Tutorial")
 		return true
 	end

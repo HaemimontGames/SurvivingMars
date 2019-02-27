@@ -1453,7 +1453,7 @@ function RCTransport:ToggleCreateRouteMode()
 	if not self:CanBeControlled() then
 		return 
 	end
-	if Platform.desktop and terminal.IsKeyPressed(const.vkC) then --ignore the button while c is down
+	if terminal.IsKeyPressed(const.vkC) then --ignore the button while c is down
 		return
 	end
 	if unit_ctrl_dlg.unit ~= self then return end

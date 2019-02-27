@@ -195,7 +195,7 @@ function PhotoModeTake()
 		if g_PhotoModeChallengeId then
 			GalleryTakeScreenshot()
 			if dlg and dlg.window_state ~= "destroying" then
-				dlg:BlinkFilePath(_InternalTranslate(T{1000015, "Success"}))
+				dlg:BlinkFilePath(_InternalTranslate(T(1000015, "Success")))
 			end
 		else
 			g_PhotoModeShotNum = g_PhotoModeShotNum or 0
@@ -270,18 +270,18 @@ DefineClass.PhotoModeObject = {
 	__parents = {"PropertyObject"},
 	properties =
 	{
-		{ name = T{3451, "FOV"}, id = "fov", editor = "number", default = const.Camera.DefaultFovX_16_9, slider = true, min = 20*60, max = 120*60, scale = 60, step = function() return GetUIStyleGamepad() and 300 or 1 end, dpad_only = true, },
-		{ name = T{3452, "Time of day"}, id = "timeOfDay", editor = "number", default = 0, slider = true, min = 0, max = const.HoursPerDay * const.MinutesPerHour, dont_save = true, filter = function() return GetTimeFactor() == 0 end, step = function() return GetUIStyleGamepad() and 20 or 1 end, dpad_only = true, },
-		{ name = T{3453, "Gameplay Indicators"}, id = "toggleSigns", editor = "bool", default = true },
-		{ name = T{8712, "Free Camera"}, id = "freeCamera", editor = "bool", default = false, dont_save = true, },
-		{ name = T{3454, "Photo Filter"}, id = "filter", editor = "dropdown", default = "None", items = GetPhotoModeFilters },
-		{ name = T{3455, "Vignette"}, id = "vignette", editor = "number", slider = true, default = 0, min = 0, max = 255, step = function() return GetUIStyleGamepad() and 10 or 1 end, dpad_only = true, },
-		{ name = T{3456, "Exposure"}, id = "exposure", editor = "number", slider = true, default = 0, min = -255, max = 255, step = function() return GetUIStyleGamepad() and 20 or 1 end, dpad_only = true, },
-		{ name = T{3457, "Fog Density"}, id = "fogDensity", editor = "number", slider = true, default = 0, min = 0, max = 1000, step = function() return GetUIStyleGamepad() and 50 or 1 end, dpad_only = true, },
-		{ name = T{8656, "Depth of Field"}, id = "depthOfField", editor = "number", slider = true, default = 50, min = 0, max = 100, step = 1, dpad_only = true },
-		{ name = T{8657, "Focus Depth"}, id = "focusDepth", editor = "number", slider = true, default = 50, min = 0, max = 100, step = 1, dpad_only = true },
-		{ name = T{8658, "Defocus Strength"}, id = "defocusStrength", editor = "number", slider = true, default = 0, min = 0, max = 100, step = 1, dpad_only = true },
-		{ name = T{3458, "Bloom Strength"}, id = "bloomStrength", editor = "number", slider = true, default = 0, min = 0, max = 100, step = function() return GetUIStyleGamepad() and 5 or 1 end, dpad_only = true, },
+		{ name = T(3451, "FOV"), id = "fov", editor = "number", default = const.Camera.DefaultFovX_16_9, slider = true, min = 20*60, max = 120*60, scale = 60, step = function() return UseGamepadUI() and 300 or 1 end, dpad_only = true, },
+		{ name = T(3452, "Time of day"), id = "timeOfDay", editor = "number", default = 0, slider = true, min = 0, max = const.HoursPerDay * const.MinutesPerHour, dont_save = true, filter = function() return GetTimeFactor() == 0 end, step = function() return UseGamepadUI() and 20 or 1 end, dpad_only = true, },
+		{ name = T(3453, "Gameplay Indicators"), id = "toggleSigns", editor = "bool", default = true },
+		{ name = T(8712, "Free Camera"), id = "freeCamera", editor = "bool", default = false, dont_save = true, },
+		{ name = T(3454, "Photo Filter"), id = "filter", editor = "dropdown", default = "None", items = GetPhotoModeFilters },
+		{ name = T(3455, "Vignette"), id = "vignette", editor = "number", slider = true, default = 0, min = 0, max = 255, step = function() return UseGamepadUI() and 10 or 1 end, dpad_only = true, },
+		{ name = T(3456, "Exposure"), id = "exposure", editor = "number", slider = true, default = 0, min = -255, max = 255, step = function() return UseGamepadUI() and 20 or 1 end, dpad_only = true, },
+		{ name = T(3457, "Fog Density"), id = "fogDensity", editor = "number", slider = true, default = 0, min = 0, max = 1000, step = function() return UseGamepadUI() and 50 or 1 end, dpad_only = true, },
+		{ name = T(8656, "Depth of Field"), id = "depthOfField", editor = "number", slider = true, default = 50, min = 0, max = 100, step = 1, dpad_only = true },
+		{ name = T(8657, "Focus Depth"), id = "focusDepth", editor = "number", slider = true, default = 50, min = 0, max = 100, step = 1, dpad_only = true },
+		{ name = T(8658, "Defocus Strength"), id = "defocusStrength", editor = "number", slider = true, default = 0, min = 0, max = 100, step = 1, dpad_only = true },
+		{ name = T(3458, "Bloom Strength"), id = "bloomStrength", editor = "number", slider = true, default = 0, min = 0, max = 100, step = function() return UseGamepadUI() and 5 or 1 end, dpad_only = true, },
 	},
 	initial_time_factor = 0,
 }

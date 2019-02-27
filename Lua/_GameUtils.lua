@@ -57,41 +57,8 @@ function RandomizePercent(value, percent, step)
 end
 
 --------------------------------------------------- format functions ---------------------------------
-function FormatNone(value)
-	return value
-end
-
-function FormatPercent(context_obj, value, max)
-	if not max then
-		return T{4834, "<percentage>%", percentage = value, context_obj}
-	else
-		local percent = MulDivRound(value, 100, max)
-		return T{4834, "<percentage>%", percentage = percent,context_obj}
-	end
-end
-
 function FormatResourceIconSmall(value, resource)
 	return T{4835, "<value><resource_icon>", value = value, resource_icon = TLookupTag("<icon_" .. resource .."_small>") } 	
-end
-
-function FormatAsFloat(precision, mul, prefix, postfix)
-	prefix = prefix or ""
-	postfix = postfix or ""
-	if precision == 0 then
-		return function(v)
-			return T{4836, "<prefix><n><postfix>", n = v / mul, prefix = prefix, postfix = postfix}
-		end
-	elseif precision == 1 then
-		return function(v)
-			return T{4837, "<prefix><n>.<d1><postfix>", n = v / mul, d1 = MulDivTrunc(v, 10, mul) % 10, prefix = prefix, postfix = postfix}
-		end
-	elseif precision == 2 then
-		return function(v)
-			return T{4838, "<prefix><n>.<d1><d2><postfix>", n = v / mul, d1 = MulDivTrunc(v, 10, mul) % 10, d2 = MulDivTrunc(v, 100, mul) % 10, prefix = prefix, postfix = postfix}
-		end
-	else
-		assert(false, "FormatAsFloat: precision not supported")
-	end
 end
 
 local rs = const.ResourceScale
@@ -157,7 +124,7 @@ function FormatResourceValueMaxResource(context_obj, value, max, resource)
 	end
 
 	local frac 
-	if value~=0 and value_int==0 then
+	if value ~= 0 and value_int == 0 then
 		if value<(rs/100) then
 			frac = Untranslated("00".. tostring(value%rs))
 		elseif value<(rs/10) then
@@ -174,100 +141,6 @@ function FormatResourceValueMaxResource(context_obj, value, max, resource)
 end
 
 FormatResource = FormatResourceValueMaxResource
-
-function FormatInt(value, precision, size)
-	if value < 1000 then
-		if size then
-			return T{10465, "<value>B", value = value}
-		end
-		return Untranslated(value)
-	end
-	
-	if value<1000000 then
-		local dev = 1000
-		if not precision or precision == 0 then
-			if size then
-				return T{10466, "<value>kB", value = value / dev}
-			end
-			return T{4847, "<value>k", value = value / dev}
-		elseif precision == 1 then
-			if size then
-				return T{10467, "<value>.<rem>kB", value = value / dev, rem = (value%dev)/(dev/10)}
-			end
-			return T{4848, "<value>.<rem>k", value = value / dev, rem = (value%dev)/(dev/10)}
-		elseif precision == 2 then
-			local rem = (value%dev)/(dev/100)
-			if size then
-				return T{10467, "<value>.<rem>kB", value = value / dev, rem = rem>0 and rem or Untranslated("00")}
-			end
-			return T{4849, "<value>.<rem>K", value = value / dev, rem = rem>0 and rem or Untranslated("00")}
-		else
-			assert(false, "FormatInt: precision not supported")
-		end	
-	elseif value<1000000000 then
-		local dev = 1000000
-		if not precision or precision == 0 then
-			if size then
-				return T{10468, "<value>MB", value = value / dev}
-			end
-			return T{4850, "<value>M", value = value / dev}
-		elseif precision == 1 then
-			if size then
-				return T{10469, "<value>.<rem>MB", value = value / dev, rem = (value%dev)/(dev/10)}
-			end
-			return T{4851, "<value>.<rem>M", value = value / dev, rem = (value%dev)/(dev/10)}
-		elseif precision == 2 then
-			local rem = (value%dev)/(dev/100)
-			if size then
-				return T{10469, "<value>.<rem>MB", value = value / dev, rem = rem>0 and rem or Untranslated("00")}
-			end
-			return T{4851, "<value>.<rem>M", value = value / dev, rem = rem>0 and rem or Untranslated("00")}
-		else
-			assert(false, "FormatInt: precision not supported")
-		end		
-	else
-		local dev = 1000000000
-		if not precision or precision == 0 then
-			if size then
-				return T{10470, "<value>GB", value = value / dev}
-			end
-			return T{4852, "<value>G", value = value / dev}
-		elseif precision == 1 then
-			if size then
-				return T{10471, "<value>.<rem>GB", value = value / dev, rem = (value%dev)/(dev/10)}
-			end
-			return T{4853, "<value>.<rem>G", value = value / dev, rem = (value%dev)/(dev/10)}
-		elseif precision == 2 then
-			local rem = (value%dev)/(dev/100)
-			if size then
-				return T{10471, "<value>.<rem>GB", value = value / dev, rem = rem>0 and rem or Untranslated("00")}
-			end
-			return T{4853, "<value>.<rem>G", value = value / dev, rem = rem>0 and rem or Untranslated("00")}
-		else
-			assert(false, "FormatInt: precision not supported")
-		end		
-	end
-end
-
-function FormatSize(value, precision)
-	return FormatInt(value, precision, true)
-end
-
-function FormatSignInt(value, precision)
-	local txt = FormatInt(abs(value), precision)
-	if txt and value > 0 then
-		txt = Untranslated('+') .. txt
-	end
-	return txt
-end
-
-function FormatScale(value, scale, round)
-	return round and DivRound(value, scale) or (value/scale)
-end
-
-function FormatIndex(index, context_obj)
-	return T{4854, "#<index>", index = index, context_obj}
-end
 
 FormattableResources = {}
 FormattableResourcesWithoutRP = {}
@@ -304,7 +177,6 @@ function FormatResourceName(resource)
 end
 
 TFormat.FormatDuration = function(context_obj, ...) return FormatDuration(...) end
-TFormat.percent = function(...) return FormatPercent(...) end
 TFormat.resource = function(context_obj, param1,...)
 	if type(param1)=="string" then
 		return FormatResourceName(param1)
@@ -340,13 +212,6 @@ TFormat.FormatResourceName = function(...)
 	return TFormat.resource(...)
 end	
 
-
-TFormat.FormatIndex   = function(context_obj,...) return FormatIndex(...)   end
-TFormat.FormatAsFloat = function(context_obj,...) return FormatAsFloat(...) end
-TFormat.FormatInt     = function(context_obj,...) return FormatInt(...)     end
-TFormat.FormatSize    = function(context_obj,...) return FormatSize(...)    end
-TFormat.FormatSignInt = function(context_obj,...) return FormatSignInt(...) end
-TFormat.FormatScale   = function(context_obj,...) return FormatScale(...)   end
 TFormat.Sol = function() return UICity and UICity.day or 0 end
 TFormat.ColonistName = function(context_obj, x) 
 	if not x or not IsKindOf(x, "Colonist") then
@@ -392,13 +257,6 @@ end
 TFormat.FormatFunding = function(...)
 	assert(false, "Obsolete format function. Use 'funding' function instead.")
 	return TFormat.funding(...)
-end
-
-TFormat.display_name = function(context_obj, presets_table, value, field)
-	if type(value) ~= "string" then return "" end
-	presets_table = Presets[presets_table] and Presets[presets_table].Default or rawget(_G, presets_table)
-	local preset = presets_table[value]
-	return preset and preset[field or "display_name"]
 end
 
 TFormat.new_in = function(context_obj, version)
@@ -712,76 +570,9 @@ function GetFreeLivingSpace(city, count_children)
 	return free
 end
 
-function RomanNumeral(number)
-	-- GRATIA STACCVM SVPERFLVVM
-    if number < 1 then return "" end
-    if number >= 1000 then return "M" .. RomanNumeral(number - 1000) end
-    if number >= 900 then return "CM" .. RomanNumeral(number - 900) end
-    if number >= 500 then return "D" .. RomanNumeral(number - 500) end
-    if number >= 400 then return "CD" .. RomanNumeral(number - 400) end
-    if number >= 100 then return "C" .. RomanNumeral(number - 100) end
-    if number >= 90 then return "XC" .. RomanNumeral(number - 90) end
-    if number >= 50 then return "L" .. RomanNumeral(number - 50) end
-    if number >= 40 then return "XL" .. RomanNumeral(number - 40) end
-    if number >= 10 then return "X" .. RomanNumeral(number - 10) end
-    if number >= 9 then return "IX" .. RomanNumeral(number - 9) end
-    if number >= 5 then return "V" .. RomanNumeral(number - 5) end
-    if number >= 4 then return "IV" .. RomanNumeral(number - 4) end
-    if number >= 1 then return "I" .. RomanNumeral(number - 1) end
-end
-
-function TFormat.roman(context_obj, number)
-	if number then
-		return Untranslated(RomanNumeral(number))
-	end
-	return ""
-end
-
-function TFormat.abs(context_obj, number)
-	if type(number) == "number" then
-		return abs(number)
-	else
-		local n = tonumber(number)
-		return n and abs(n) or number
-	end
-end
-
-function TFormat.cut_if_platform(context_obj, platform)
-	if Platform[platform] then
-		return false
-	end
-	return ""
-end
-
-function TFormat.cut_if_not_platform(context_obj, platform)
-	if not Platform[platform] then
-		return false
-	end
-	return ""
-end		
-
-function TFormat.opt_amount(context_obj, amount)
-	if not amount or amount == 0 then return "" end
-	if type(amount) == "number" and amount < 0 then
-		return Untranslated("" .. amount)
-	else
-		return Untranslated("+" .. amount)
-	end
-end
-
-function TFormat.opt_percent(context_obj, percent)
-	if not percent or percent == 0 then return "" end
-	local pattern = type(percent) == "number" and percent < 0 and "%s%%" or "+%s%%"
-	return Untranslated(string.format(pattern, tostring(percent)))
-end
-
 -- "<on_off(IsResourceAvailable(res))>"
 TFormat.on_off = function (context_obj, var)
 	return (var and var ~= "") and T(6772, "<green>ON</green>") or T(6771, "<red>OFF</red>")
-end
-
-TFormat.has_dlc = function (context_obj, dlc)
-	return IsDlcAvailable(dlc)
 end
 
 TFormat.is_sponsor = function (context_obj, sponsor_name)

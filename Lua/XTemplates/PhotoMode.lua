@@ -56,7 +56,7 @@ self.idFrame:SetVisible(value)
 self.idTint:SetVisible(value)
 if Platform.console then
 	self.idActionBar:SetVisible(value)
-	self.idFreeCameraWarning:SetVisible(value)
+	self.idFreeCameraWarning:SetVisible(value and cameraFly.IsActive())
 end
 if value then
 	self.idList:SetSelection(self.idList.focused_item or 1)
@@ -92,8 +92,8 @@ end,
 			PlaceObj('XTemplateWindow', {
 				'__class', "XFrame",
 				'Id', "idTint",
+				'Margins', box(0, 0, -650, 0),
 				'Dock', "box",
-				'Transparency', 130,
 				'Image', "UI/CommonNew/menu_background.tga",
 			}),
 			PlaceObj('XTemplateWindow', {
@@ -169,7 +169,6 @@ end,
 										'ZOrder', 0,
 										'Margins', box(-35, -15, 0, -5),
 										'Dock', "box",
-										'HAlign', "left",
 										'MinWidth', 448,
 										'Visible', false,
 										'Image', "UI/CommonNew/pg_selection.tga",
@@ -262,7 +261,7 @@ end,
 				}),
 				}),
 			PlaceObj('XTemplateWindow', {
-				'__condition', function (parent, context) return not GetUIStyleGamepad() end,
+				'__condition', function (parent, context) return not UseGamepadUI() end,
 				'__class', "XText",
 				'Id', "idFreeCameraWarning",
 				'Margins', box(80, 0, 0, 0),
@@ -276,7 +275,7 @@ end,
 				'Text', T(522319645304, --[[XTemplate PhotoMode Text]] "<em><ShortcutName('actionPanUp')>, <ShortcutName('actionPanDown')>, <ShortcutName('actionPanLeft')>, <ShortcutName('actionPanRight')></em> Move, hold <em>Ctrl</em> Move faster, hold <em>Alt</em> Release mouse cursor."),
 			}),
 			PlaceObj('XTemplateWindow', {
-				'__condition', function (parent, context) return GetUIStyleGamepad() end,
+				'__condition', function (parent, context) return UseGamepadUI() and not UseHybridControls() end,
 				'__class', "XText",
 				'Id', "idFreeCameraWarning",
 				'Margins', box(80, 0, 0, 0),
@@ -288,6 +287,20 @@ end,
 				'TextStyle', "PhotoModeWarning",
 				'Translate', true,
 				'Text', T(650277449050, --[[XTemplate PhotoMode Text]] "<LS> - move, <RS> - rotate."),
+			}),
+			PlaceObj('XTemplateWindow', {
+				'__condition', function (parent, context) return UseGamepadUI() and UseHybridControls() end,
+				'__class', "XText",
+				'Id', "idFreeCameraWarning",
+				'Margins', box(80, 0, 0, 0),
+				'Padding', box(0, 0, 0, 0),
+				'HAlign', "left",
+				'VAlign', "bottom",
+				'Visible', false,
+				'HandleMouse', false,
+				'TextStyle', "PhotoModeWarning",
+				'Translate', true,
+				'Text', T(11872, --[[XTemplate PhotoMode Text]] "<LS> - move, <RS> - rotate, hold <LT> - release mouse cursor."),
 			}),
 			PlaceObj('XTemplateAction', {
 				'ActionId', "idReset",

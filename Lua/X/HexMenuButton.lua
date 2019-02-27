@@ -147,7 +147,10 @@ end
 function HexButtonItem:UpdateContent()
 	local prefabs = self.prefabs and UICity:GetPrefabs(self.name)
  	local locked = not self.enabled and not prefabs
-	self.idLock:SetVisible(locked, "true")
+	local lock_ctrl = rawget(self,"idLock")
+	if lock_ctrl then
+		self.idLock:SetVisible(locked, "true")
+	end
 	
 	local show_uses_text = (not not prefabs) and (not self.enabled or prefabs > 0)
 	self.idButton.idNumPrefabs:SetVisible(show_uses_text, "true")
@@ -274,7 +277,7 @@ function HexButtonResource:Init()
 	local parent = GetDialog(self)
 	self.idButton.OnPress = function(this, gamepad)
 		if not self:GetEnabled() then return end
-		local meta = parent.context.meta_key and (gamepad or Platform.desktop and terminal.IsKeyPressed(parent.context.meta_key))
+		local meta = parent.context.meta_key and (gamepad or terminal.IsKeyPressed(parent.context.meta_key))
 		if meta then
 			if self.action then
 				self.action(parent.context, meta)
@@ -304,7 +307,7 @@ function HexButtonResource:FillRollover()
 		local parent = GetDialog(self)
 		parent.idContainer:SetRolloverText(self.description)
 		parent.idContainer:SetRolloverTitle(self.display_name)
-		local gamepad = GetUIStyleGamepad()
+		local gamepad = UseGamepadUI()
 		if gamepad then 
 			parent.idContainer:SetRolloverHint(self.gamepad_hint or T(3545, "<ButtonA> Select"))
 		else
@@ -347,7 +350,7 @@ function HexButtonInfopanel:FillRollover()
 		local parent = GetDialog(self)
 		parent.idContainer:SetRolloverText(self.description)
 		parent.idContainer:SetRolloverTitle(self.display_name)
-		local gamepad = GetUIStyleGamepad()
+		local gamepad = UseGamepadUI()
 		if gamepad then 
 			parent.idContainer:SetRolloverHint(self.gamepad_hint or "")
 		else

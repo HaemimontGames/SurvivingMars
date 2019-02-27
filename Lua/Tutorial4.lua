@@ -39,7 +39,9 @@ g_TutorialScenarios.Tutorial4 = function()
 	PlaceBuilding("SupplyRocket", {city = UICity, custom_travel_time_earth = 6*const.HourDuration, custom_travel_time_mars = 6*const.HourDuration})
 	WaitOneMsGameTime()
 	
-	WaitUIButtonPressed("HUD", "idResupply")
+	WaitUIButtonPressed("HUD", "idResupply", function(arrow)
+		return arrow.button_pressed or Dialogs.Resupply
+	end)
 	
 	local resource_arrow = TutorialUIArrow:new({	
 		AnchorType = "left-center", 
@@ -232,7 +234,9 @@ g_TutorialScenarios.Tutorial4 = function()
 	TutorialNextHint("Tutorial_4_OpenResearch")
 	
 	g_Tutorial.EnableResearch = true
-	WaitUIButtonPressed("HUD", "idResearch")
+	WaitUIButtonPressed("HUD", "idResearch", function(arrow)
+		return arrow.button_pressed or Dialogs.ResearchDlg
+	end)
 	TutorialNextHint("Tutorial_4_Research_2")
 	
 	Sleep(100)

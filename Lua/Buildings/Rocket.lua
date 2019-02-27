@@ -2872,7 +2872,7 @@ function PodsComboItems()
 end
 
 function GetRocketClass()
-	return "SupplyRocket"
+	return GetMissionSponsor().rocket_class or "SupplyRocket"
 end
 
 --Hint about sending another rocket from earth at sol 9

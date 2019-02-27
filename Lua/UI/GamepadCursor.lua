@@ -22,6 +22,10 @@ function HideGamepadCursor(reason)
 	CloseDialog("GamepadCursorDlg")
 end
 
+function IsHybridGamepadCursorHidden()
+	return HideGamepadCursorReasons and HideGamepadCursorReasons["HybridNoInput"]
+end
+
 function LockHRXboxLeftThumb(reason)
 	if not (HideGamepadCursorReasons or empty_table)[reason] then
 		hr.XBoxLeftThumbLocked = hr.XBoxLeftThumbLocked + 1
@@ -61,4 +65,23 @@ end
 
 function OnMsg.GameExitEditor()
 	ShowGamepadCursor("editor")
+end
+
+function UseHybridControls()
+	--hybrid scheme is enabled only while gamepad is active
+	if not GetUIStyleGamepad() then
+		return false
+	end
+	
+	return AccountStorage and AccountStorage.Options and AccountStorage.Options.ControlScheme == "Hybrid"
+end
+
+function UseGamepadUI()
+	return GetUIStyleGamepad() and not (UseHybridControls() and IsHybridGamepadCursorHidden())
+end
+
+function OnMsg.ControlSchemeChanged()
+	if not UseHybridControls() then
+		ShowGamepadCursor("HybridNoInput")
+	end
 end

@@ -51,7 +51,7 @@ function XBuildMenu:RecalculateMargins()
 	--This is temporarily and should be removed when implementing InGameInterface with new UI
 	local hud, hud_margins = GetHUD()
 	if hud then
-		local gamepad = not not GetUIStyleGamepad()
+		local gamepad = GetUIStyleGamepad() and not UseHybridControls()
 		local ui_scale = GetUIScale()
 		local hud_height = Max(hud.idBottom.measure_height, hud.idBottom.MinHeight)
 		hud_height = MulDivRound(hud_height, 100, ui_scale)
@@ -1048,7 +1048,7 @@ function XBuildMenu:FindCategoryOfItem(item_name)
 end		
 
 function OpenXBuildMenu(selected_dome)
-	if g_RightClickOpensBuildMenu and not GetUIStyleGamepad() and
+	if g_RightClickOpensBuildMenu and (not GetUIStyleGamepad() or UseHybridControls()) and
 		not g_BuildMenuRightClickPopupShown and
 		g_BuildMenuRightClicksCount < 10 and
 		g_BuildMenuHUDClicksCount >= 10

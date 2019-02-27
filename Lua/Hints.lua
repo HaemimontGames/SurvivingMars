@@ -694,7 +694,7 @@ DefineClass.HintExplorer = {
 }
 
 function TFormat.UnitMoveControl(context_obj, gamepad_hint_key, interaction_mode)
-	local  gamepad = GetUIStyleGamepad()
+	local  gamepad = UseGamepadUI()
 	if interaction_mode~=nil and interaction_mode~=false and interaction_mode~="default" then
 		return gamepad and T(7518, "<ButtonA>") or T(7519, "<left_click>")
 	end

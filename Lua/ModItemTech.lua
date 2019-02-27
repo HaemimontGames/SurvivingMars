@@ -7,7 +7,7 @@ end
 
 DefineModItemPreset("TechPreset", {
 	properties = {
-		{ category = "Tech", id = "icon", name = T(94, "Icon"), editor = "browse", help = T(448278754672, "Tech Game Icon"), default = "UI/Icons/Research/rm_placeholder.tga", folder = folder_fn, os_path = true, filter = "Image files|*.tga" },
+		{ category = "Tech", id = "icon", name = T(94, "Icon"), editor = "browse", help = T(448278754672, "Tech Game Icon"), default = "UI/Icons/Research/rm_placeholder.tga", folder = folder_fn, os_path = true, filter = "Image files|*.png;*.tga" },
 	},
 	group = "Breakthroughs",
 	EditorName = "Technology",	

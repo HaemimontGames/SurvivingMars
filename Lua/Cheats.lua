@@ -235,6 +235,12 @@ GamepadCheatsList = {
 
 function OnMsg.ChangeMap(map)
 	if not Platform.developer then
-		ConsoleSetEnabled(map == "Mod")
+		if map == "Mod" then
+			print("Press Enter to execute arbitrary Lua code.")
+			print("Press F9 to clear this log.")
+			ConsoleSetEnabled(true)
+		else
+			ConsoleSetEnabled(false)
+		end
 	end
 end

@@ -3,14 +3,6 @@ if FirstLoad then
 end
 
 GlobalVar("g_FXBuildingType", false)
-
-function OnMsg.SelectedObjChange(obj, prev)
-	local dlg = GetInGameInterfaceModeDlg()
-	if not IsKindOf(dlg, "UnitDirectionModeDialog") then
-		return
-	end
-end
-
 GlobalVar("g_HexRanges", {}, weak_keys_meta)
 
 local function update_hex_range(obj)
@@ -328,6 +320,10 @@ function InGameInterface:CheckAboveZoomLimit()
 	end
 
 	return "continue"
+end
+
+function InGameInterface:OnXNewPacket(event, controller_id, last_state, current_state)
+	ShowGamepadCursor("HybridNoInput")
 end
 
 function InGameInterface:CheckBelowZoomLimit()

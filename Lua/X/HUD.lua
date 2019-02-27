@@ -33,7 +33,7 @@ function HUD:RecalculateMargins()
 end
 
 function HUD:UpdateUIStyle()
-	local visible = not GetUIStyleGamepad()
+	local visible = not GetUIStyleGamepad() or UseHybridControls()
 	self.idMiddle:SetVisible(visible)
 	self.idRight:SetVisible(visible)
 end
@@ -58,6 +58,7 @@ function OnMsg.GamepadUIStyleChanged()
 	UpdateHUDUIStyle()
 end
 
+OnMsg.ControlSchemeChanged = UpdateHUDUIStyle
 OnMsg.MouseConnected = UpdateHUDUIStyle
 OnMsg.MouseDisconnected = UpdateHUDUIStyle
 

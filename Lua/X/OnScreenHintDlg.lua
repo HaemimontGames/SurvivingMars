@@ -32,7 +32,7 @@ DefineClass.OnScreenHint = {
 }
 
 function OnScreenHint:GetVideoFilename()
-	if GetUIStyleGamepad() then
+	if UseGamepadUI() then
 		return ShouldShowPS4Images() and self.video_ps4 or self.video_durango
 	else
 		return self.video
@@ -473,7 +473,7 @@ function OnScreenHintDlg:GetVideoFilename(hint)
 end
 
 function OnScreenHintDlg:UpdateVisuals()
-	local gamepad = GetUIStyleGamepad()
+	local gamepad = UseGamepadUI()
 	local data = OnScreenHintPresets[self:CurrentHintId()]
 	--set texts
 	local video

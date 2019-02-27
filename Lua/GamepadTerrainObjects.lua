@@ -20,6 +20,8 @@ DefineClass.GamepadTerrainObjects =
 	last_selection = false, --keeps last selected object
 	pos = false, --cursor terrain pos
 	width = false, --cursor width
+	
+	cursor_disappear_time = 5*1000, --time after last xinput
 }
 
 function PlaceGamepadTerrainObjects()
@@ -30,6 +32,9 @@ function PlaceGamepadTerrainObjects()
 		g_GamepadObjects = PlaceObject("GamepadTerrainObjects")
 	else
 		g_GamepadObjects = false
+	end
+	if UseHybridControls() and IsHybridGamepadCursorHidden() then
+		ShowGamepadCursor("HybridNoInput")
 	end
 end
 
@@ -74,6 +79,19 @@ local function PropagateObjectList(objects)
 end
 
 function GamepadTerrainObjects:Update()
+	if UseHybridControls() and not IsHybridGamepadCursorHidden() then
+		if RealTime() - XInput.LastPressTime > self.cursor_disappear_time then
+			HideGamepadCursor("HybridNoInput")
+		end
+	elseif UseHybridControls() and IsHybridGamepadCursorHidden() and RealTime() - XInput.LastPressTime < self.cursor_disappear_time then
+		ShowGamepadCursor("HybridNoInput")
+	end
+	
+	local xcursor = GetGamepadCursor()
+	if not xcursor then
+		return
+	end
+	
 	local extend = const.GridExtendDist or 0
 	local xpos = GetTerrainGamepadCursor(-extend)
 	if not xpos or xpos == InvalidPos() or not terrain.IsPointInBounds(xpos, -extend) or self.disable_update then
@@ -89,10 +107,6 @@ function GamepadTerrainObjects:Update()
 	
 	-- The divisor can overflow with cos(small fov angles), so we divide twice
 	-- local width = MulDivTrunc(zoom * d / 2, GetXCursorWidth() * s, 1000 * screen_width * c)
-	local xcursor = GetGamepadCursor()
-	if not xcursor then
-		return
-	end
 	
 	local xcursor_width = MulDivRound(xcursor.box:sizex(), 100, GetUIScale())
 	self.width = MulDivTrunc(zoom * d / 2, xcursor_width * s, 100 * screen_width * c) / 10

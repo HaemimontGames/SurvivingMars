@@ -171,7 +171,7 @@ end
 function ItemMenuBase:SetInitFocus(set_focus)
 	if not set_focus then return end
 	
-	if GetUIStyleGamepad() then
+	if UseGamepadUI() then
 		self.idContainer:SetRollover(true)
 		set_focus:SetVisible(true)
 		set_focus:SetFocus()
@@ -427,7 +427,7 @@ function ItemMenuBase:OnMouseButtonDown(pt, button)
 end
 
 function ItemMenuBase:OnMouseEnter(pos)
-	if GetUIStyleGamepad() then return end
+	if UseGamepadUI() then return end
 
 	local igi = GetInGameInterface()
 	local dlg = igi and igi.mode_dialog

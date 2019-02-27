@@ -139,7 +139,16 @@ function GamepadIGMenu:OnXButtonUp(button, controller_id)
 end
 
 function GamepadIGMenu:RecalculateMargins()
-	self:SetMargins(OnScreenHintDlg.Margins + GetSafeMargins())
+	local hud, hud_margins = GetHUD()
+	if hud then
+		local gamepad = GetUIStyleGamepad() and not UseHybridControls()
+		local ui_scale = GetUIScale()
+		local hud_height = Max(hud.idBottom.measure_height, hud.idBottom.MinHeight)
+		hud_height = MulDivRound(hud_height, 100, ui_scale)
+		local bottom_margin = gamepad and 0 or hud_height
+		hud_margins = box(0, 0, 0, bottom_margin)
+	end
+	self:SetMargins(GamepadIGMenu.Margins + hud_margins + GetSafeMargins())
 end
 
 function OnMsg.SafeAreaMarginsChanged()

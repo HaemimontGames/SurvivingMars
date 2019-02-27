@@ -290,14 +290,16 @@ function RequiresMaintenance:Repair()
 		self:UpdateConsumption()
 	end
 	
-	if self.exceptional_circumstances_maintenance then
+	 if self.exceptional_circumstances_maintenance then
 		-- restore default resource and amount for maintenance
 		self.exceptional_circumstances_maintenance = false
 		self:SetModifier("maintenance_resource_amount", "exceptional_circumstances_maintenance",0, 0 )
 		self:Setexceptional_circumstances(false)
 		self.maintenance_resource_type = nil
-		self.maintenance_resource_request:ChangeResource(self.maintenance_resource_type)
 		self:CreateResourceRequest()
+		if self:DoesMaintenanceRequireResources() then
+			self.maintenance_resource_request:ChangeResource(self.maintenance_resource_type)
+		end
 	end	
 	
 	Msg("Repaired", self)

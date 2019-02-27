@@ -287,7 +287,13 @@ function RocketExpedition:RefurbishRocket(orig_rocket, target_rocket, connect_cc
 	if orig_rocket == SelectedObj then
 		SelectObj(target_rocket)
 	end
+	if orig_rocket:IsPinned() then
+		target_rocket.is_pinned = not orig_rocket.is_pinned
+		target_rocket:TogglePin("force",true)
+	end
+
 	DoneObject(orig_rocket)
+	return true
 end
 
 function RocketExpedition:SetTradeAmount(val)
@@ -805,7 +811,7 @@ DefineStoryBitTrigger("ExpeditionReturned", "ExpeditionReturned")
 
 function RocketExpedition:ExpeditionCancel()
 	assert(self.expedition)
-	if self.expedition.canceled then return end
+	if not self.expedition or self.expedition.canceled then return end
 	
 	self.expedition.canceled = true
 	ObjModified(self)

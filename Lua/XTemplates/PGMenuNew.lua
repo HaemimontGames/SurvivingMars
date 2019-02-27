@@ -61,9 +61,9 @@ end,
 						'Id', "idImage",
 						'IdNode', false,
 						'MinWidth', 330,
-						'MinHeight', 235,
+						'MinHeight', 220,
 						'MaxWidth', 330,
-						'MaxHeight', 235,
+						'MaxHeight', 220,
 						'Image', "UI/CommonNew/mm_space_race.tga",
 						'ImageFit', "smallest",
 					}, {
@@ -84,6 +84,7 @@ end,
 								'Dock', "bottom",
 								'HAlign', "center",
 								'VAlign', "center",
+								'MinHeight', 55,
 							}, {
 								PlaceObj('XTemplateWindow', {
 									'__class', "XImage",
@@ -130,16 +131,7 @@ end,
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
 CreateRealTimeThread(function()
-	if AccountStorage and AccountStorage.LoadMods and next(AccountStorage.LoadMods) ~= nil then
-		local choice = WaitPopupNotification("Tutorial_ActiveMods", nil, nil, host)
-		if choice == 1 then
-			AllModsOff()
-			SaveAccountStorage(5000)
-			if ModsLoaded then
-				ModsReloadItems()
-			end
-		end
-	end
+	WaitWarnTutorialWithMods(host)
 	host:SetMode("Tutorial")
 end)
 end,
@@ -201,13 +193,9 @@ end,
 						'ActionName', T(1129, --[[XTemplate PGMenuNew ActionName]] "MOD MANAGER"),
 						'ActionIcon', "UI/Icons/main_menu_mod_manager.tga",
 						'ActionToolbar', "bottommenu",
-						'OnAction', function (self, host, source)
-CreateRealTimeThread(function()
-	ShowParadoxModManagerWarning()
-	host:SetMode("ModManager")
-end)
-end,
-						'__condition', function (parent, context) return Platform.steam or Platform.pc end,
+						'OnActionEffect', "mode",
+						'OnActionParam', "ModManager",
+						'__condition', function (parent, context) return not Platform.ps4 end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idModEditor",

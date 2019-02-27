@@ -297,7 +297,7 @@ end,
 		PlaceObj('XTemplateTemplate', {
 			'__context_of_kind', "RCRover",
 			'__template', "InfopanelSection",
-			'RolloverText', T(4492, --[[XTemplate ipRover RolloverText]] "Total number of Drones in the RC Commander."),
+			'RolloverText', T(12135, --[[XTemplate ipRover RolloverText]] "Total number of Drones in the RC Commander."),
 			'RolloverTitle', T(517, --[[XTemplate ipRover RolloverTitle]] "Drones"),
 			'OnContextUpdate', function (self, context, ...)
 				self:SetVisible(context.command ~= "Dead")

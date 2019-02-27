@@ -1343,7 +1343,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_WaitMessage', {
 			'title', T(6011, --[[Scenario Mystery 2 title]] "The Dredgers: The Koronis Predicament"),
 			'voiced_text', T(7468, --[[voice:narrator]] "A recent detailed analysis of the Dredgers revealed that they're sending signals towards the Koronis asteroid cluster."),
-			'text', T(6012, --[[Scenario Mystery 2 text]] "This occasional discovery was made later rather than sooner, as the emissions are cleverly masked to resemble cosmic rays in their wavelength. It is apparent that the source of the landers is closer than we thought.\n\nThe science team immediately requested permission to “dissect” one of the Dredgers to get their hands on the mysterious device used to send these transmissions.\n\n<effect>A new research is available – Dredger Wavelength Decoding.\n\n<hint>Destroy Dredgers using Drones to reduce the cost of the technology."),
+			'text', T(12126, --[[Scenario Mystery 2 text]] "This occasional discovery was made later rather than sooner, as the emissions are cleverly masked to resemble cosmic rays in their wavelength. It is apparent that the source of the landers is closer than we thought.\n\nThe science team immediately requested permission to “dissect” one of the Dredgers to get their hands on the mysterious device used to send these transmissions.\n\n<effect>A new research is available – Dredger Wavelength Decoding.\n\n<hint>Destroy Dredgers using Drones to reduce the cost of the technology."),
 			'log_entry', true,
 			'image', "UI/Messages/dredgers_mystery_02.tga",
 			'choice1', T(6013, --[[Scenario Mystery 2 choice1]] "Time to stop whistling in the dark."),

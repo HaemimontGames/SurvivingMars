@@ -46,7 +46,7 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	ScriptDone = true,
-	Text = T(279719620496, --[[StoryBit GearsOfCrime Text]] "A short investigation into the matter has revealed that a Renegade Engineer has actively been sabotaging repair parts used in the maintenance of these factories.\n\nCiting the bad conditions and contempt they feel for the leadership of the colony as reasons for their behavior, they though that sabotaging the mission would somehow advance their cause."),
+	Text = T(12127, --[[StoryBit GearsOfCrime Text]] "A short investigation into the matter has revealed that a Renegade Engineer has actively been sabotaging repair parts used in the maintenance of these factories.\n\nCiting the bad conditions and contempt they feel for the leadership of the colony as reasons for their behavior, they though that sabotaging the mission would somehow advance their cause."),
 	TextReadyForValidation = true,
 	TextsDone = true,
 	Title = T(616417254122, --[[StoryBit GearsOfCrime Title]] "Renegades: Gears of Crime"),

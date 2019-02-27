@@ -7,7 +7,7 @@ PlaceObj('OnScreenNotificationPreset', {
 	group = "Anomalies",
 	id = "NewPlanetaryAnomalies",
 	image = "UI/Icons/Notifications/New/new_planetary_anomalies.tga",
-	text = T(155422354340, --[[OnScreenNotificationPreset NewPlanetaryAnomalies text]] "Planetary Anomalies found: <count>"),
+	text = T(11891, --[[OnScreenNotificationPreset NewPlanetaryAnomalies text]] "Planetary Anomalies found: <count>"),
 	title = T(377262147550, --[[OnScreenNotificationPreset NewPlanetaryAnomalies title]] "New Planetary Anomalies"),
 })
 

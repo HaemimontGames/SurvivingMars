@@ -545,7 +545,7 @@ DefineClass.EraseShuttles = {
 	properties = {
 		{ id = "Count", 
 			editor = "number", default = 1, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "LogicalObjectOnly", 
 			editor = "bool", default = true, },
 		{ id = "IdleShuttlesFirst", 
@@ -646,10 +646,10 @@ DefineClass.ForEachExecuteEffects = {
 			editor = "nested_list", default = false, base_class = "Condition", },
 		{ id = "RandomCount", name = "Random count", help = "Zero leaves all objects in", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "RandomPercent", name = "Random percent", 
 			editor = "number", default = 100, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "Effects", 
 			editor = "nested_list", default = false, base_class = "Effect", },
 		{ id = "Description", help = "Custom description for this effect to be used for displaying it to the player", 
@@ -703,7 +703,7 @@ function ForEachExecuteEffects:EffectsList()
 	for _,effect in ipairs(self.Effects or empty_table) do
 		list[#list + 1] = Untranslated(effect.class)
 	end
-	return table.concat(list, T{1000736, ", "})
+	return table.concat(list, T(1000736, ", "))
 end
 
 function ForEachExecuteEffects:GetObjName(obj, context)
@@ -726,10 +726,10 @@ DefineClass.ForEachResident = {
 			editor = "nested_list", default = false, base_class = "Condition", },
 		{ id = "RandomCount", name = "Random count", help = "Zero leaves all objects in", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "RandomPercent", name = "Random percent", 
 			editor = "number", default = 100, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "Effects", 
 			editor = "nested_list", default = false, base_class = "Effect", },
 		{ id = "Description", help = "Custom description for this effect to be used for displaying it to the player", 
@@ -772,7 +772,7 @@ function ForEachResident:EffectsList()
 	for _,effect in ipairs(self.Effects or empty_table) do
 		list[#list + 1] = Untranslated(effect.class)
 	end
-	return table.concat(list, T{1000736, ", "})
+	return table.concat(list, T(1000736, ", "))
 end
 
 UndefineClass('ForEachWorker')
@@ -783,10 +783,10 @@ DefineClass.ForEachWorker = {
 			editor = "nested_list", default = false, base_class = "Condition", },
 		{ id = "RandomCount", name = "Random count", help = "Zero leaves all objects in", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "RandomPercent", name = "Random percent", 
 			editor = "number", default = 100, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "Effects", 
 			editor = "nested_list", default = false, base_class = "Effect", },
 		{ id = "Description", help = "Custom description for this effect to be used for displaying it to the player", 
@@ -835,7 +835,7 @@ function ForEachWorker:EffectsList()
 	for _,effect in ipairs(self.Effects or empty_table) do
 		list[#list + 1] = Untranslated(effect.class)
 	end
-	return table.concat(list, T{1000736, ", "})
+	return table.concat(list, T(1000736, ", "))
 end
 
 UndefineClass('ForceSuicide')
@@ -915,7 +915,7 @@ DefineClass.LockUnlockBuildingFromBuildMenu = {
 	__parents = { "Effect", },
 	properties = {
 		{ id = "Building", 
-			editor = "choice", default = false, items = function (self) return BuildingsCombo{value = false, text = T{10998, "-associated object-"}} end, },
+			editor = "choice", default = false, items = function (self) return BuildingsCombo{value = false, text = T(10998, "-associated object-")} end, },
 		{ id = "Lock", 
 			editor = "bool", default = false, },
 		{ id = "Message", 
@@ -940,7 +940,7 @@ DefineClass.LoseFundingPercent = {
 	properties = {
 		{ id = "Percent", 
 			editor = "number", default = 10, 
-			buttons = { { "Param", "PickParam" } }, scale = "%", },
+			buttons = { { "Param", "StoryBit_PickParam" } }, scale = "%", },
 	},
 	Description = T(160558783655, "Lose <funding(LostFunding)> in funding"),
 	EditorView = Untranslated("Lose <Percent>% in funding"),
@@ -976,7 +976,7 @@ DefineClass.MalfunctionRocket = {
 			editor = "combo", default = false, items = function (self) return ConstructionResourceList end, },
 		{ id = "Amount", 
 			editor = "number", default = false, 
-			buttons = { { "Param", "PickParam" } }, scale = "Resources", },
+			buttons = { { "Param", "StoryBit_PickParam" } }, scale = "Resources", },
 	},
 	Description = Untranslated("Malfunction rocket and require <Amount> <Resource> to be able to launch"),
 	RequiredObjClasses = {
@@ -1137,7 +1137,7 @@ DefineClass.ModifyCargoPrice = {
 			editor = "choice", default = false, items = function (self) return PresetsCombo("Cargo", false, { "-all-", "-associated cargo object-" }) end, },
 		{ id = "Percent", 
 			editor = "number", default = 100, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 	},
 	Description = Untranslated("Modify price of <Cargo> by <Percent>%"),
 }
@@ -1171,10 +1171,10 @@ DefineClass.ModifyColonistStat = {
 			editor = "combo", default = false, items = function (self) return {"Health", "Sanity", "Comfort"} end, },
 		{ id = "Amount", 
 			editor = "number", default = false, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "Percent", 
 			editor = "number", default = false, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "Reason", 
 			editor = "text", default = T(532997211205, "Special effect"), translate = true, },
 	},
@@ -1200,13 +1200,13 @@ DefineClass.ModifyConst = {
 			editor = "choice", default = false, items = function (self) return ClassPropertiesCombo("Consts") end, },
 		{ id = "Amount", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "Percent", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, slider = true, min = -100, max = 100, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, slider = true, min = -100, max = 100, },
 		{ id = "Sols", help = "If positive makes the modification temporary", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, scale = "sols", step = 720000, slider = true, min = 720000, max = 7200000000, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, scale = "sols", step = 720000, slider = true, min = 720000, max = 7200000000, },
 		{ id = "ModifyId", help = "Used to reference the same modification later", 
 			editor = "text", default = false, },
 	},
@@ -1239,13 +1239,13 @@ DefineClass.ModifyLabel = {
 			editor = "combo", default = "", items = function (self) return ModifiablePropsCombo() end, },
 		{ id = "Amount", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "Percent", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, slider = true, min = -100, max = 100, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, slider = true, min = -100, max = 100, },
 		{ id = "Sols", help = "If positive makes the modification temporary", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, scale = "sols", step = 720000, slider = true, min = 720000, max = 7200000000, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, scale = "sols", step = 720000, slider = true, min = 720000, max = 7200000000, },
 		{ id = "ModifyId", help = "Used to reference the same modification later", 
 			editor = "text", default = false, },
 		{ id = "Reason", help = "Used in the UI", 
@@ -1302,13 +1302,13 @@ DefineClass.ModifyObject = {
 			editor = "combo", default = "", items = function (self) return ModifiablePropsCombo() end, },
 		{ id = "Amount", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "Percent", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, slider = true, min = -100, max = 100, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, slider = true, min = -100, max = 100, },
 		{ id = "Sols", help = "If positive makes the modification temporary", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, scale = "sols", step = 720000, slider = true, min = 720000, max = 7200000000, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, scale = "sols", step = 720000, slider = true, min = 720000, max = 7200000000, },
 		{ id = "ModifyId", help = "Used to reference the same modification later", 
 			editor = "text", default = false, },
 		{ id = "Reason", help = "Used in the UI", 
@@ -1381,9 +1381,9 @@ DefineClass.PauseResearch = {
 	properties = {
 		{ id = "Time", 
 			editor = "number", default = 1, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "ResearchType", 
-			editor = "choice", default = "sponsor", items = function (self) return {{value = "sponsor", text = T{11168, "sponsor"}}, {value = "outsource", text = T{11169, "outsource"}}} end, },
+			editor = "choice", default = "sponsor", items = function (self) return {{value = "sponsor", text = T(11168, "sponsor")}, {value = "outsource", text = T(11169, "outsource")}} end, },
 	},
 	Description = T(202067797176, "Pause <ResearchTypeText> research"),
 }
@@ -1401,9 +1401,9 @@ end
 
 function PauseResearch:GetResearchTypeText(obj, context)
 	if self.ResearchType == "sponsor" then
-		return T{11168, "sponsor"}
+		return T(11168, "sponsor")
 	elseif self.ResearchType == "outsource" then
-		return T{11169, "outsource"}
+		return T(11169, "outsource")
 	end
 	return ""
 end
@@ -1414,7 +1414,7 @@ DefineClass.PayFunding = {
 	properties = {
 		{ id = "Amount", 
 			editor = "number", default = 1000000000, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 	},
 	Description = T(407408618445, "<funding(Amount)>"),
 	EditorView = T(665594954399, "Pay funding: <Amount>"),
@@ -1466,7 +1466,7 @@ function PickFromLabelEffect:ConditionsFormat()
 	for _,cond in ipairs(self.Conditions) do
 		t[#t + 1] = Untranslated(cond.class)
 	end
-	return table.concat(t, T{1000736, ", "})
+	return table.concat(t, T(1000736, ", "))
 end
 
 function PickFromLabelEffect:GetObjName(obj, context)
@@ -1648,7 +1648,7 @@ function ResidenceExecuteEffect:EffectsList()
 	for _,effect in ipairs(self.Effects or empty_table) do
 		list[#list + 1] = Untranslated(effect.class)
 	end
-	return table.concat(list, T{1000736, ", "})
+	return table.concat(list, T(1000736, ", "))
 end
 
 UndefineClass('ResumeExpedition')
@@ -1669,7 +1669,7 @@ DefineClass.RevealNextTechInField = {
 			editor = "choice", default = false, items = function (self) return ResearchFieldsCombo() end, },
 		{ id = "Amount", 
 			editor = "number", default = 1, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 	},
 	Description = Untranslated(""),
 	RequiredObjClasses = false,
@@ -1696,7 +1696,7 @@ DefineClass.RewardApplicants = {
 	properties = {
 		{ id = "Amount", 
 			editor = "number", default = false, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "Trait", 
 			editor = "choice", default = false, items = function (self) return TraitsCombo() end, },
 		{ id = "Specialization", 
@@ -1726,7 +1726,7 @@ DefineClass.RewardExportPrice = {
 	properties = {
 		{ id = "Percent", 
 			editor = "number", default = false, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "ModifyId", help = "Used to reference the same modification later", 
 			editor = "text", default = false, },
 	},
@@ -1747,7 +1747,7 @@ DefineClass.RewardFunding = {
 	properties = {
 		{ id = "Amount", 
 			editor = "number", default = 1000000000, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 	},
 	Description = T(219156110632, "<funding(Amount)>"),
 	EditorView = T(996860432020, "Funding: <Amount>"),
@@ -1773,9 +1773,9 @@ DefineClass.RewardPrefab = {
 	properties = {
 		{ id = "Amount", 
 			editor = "number", default = false, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "Prefab", 
-			editor = "choice", default = false, items = function (self) return PrefabsCombo{value = false, text = T{10998, "-associated object-"}} end, },
+			editor = "choice", default = false, items = function (self) return PrefabsCombo{value = false, text = T(10998, "-associated object-")} end, },
 	},
 	Description = Untranslated("<Amount> <Drone><Building> <PrefabText>"),
 	EditorView = Untranslated("Reward Prefab  <Amount> <Prefab>"),
@@ -1794,7 +1794,7 @@ end
 function RewardPrefab:GetDrone(obj, context)
 	local prefab = self.Prefab or obj.template_name
 	if prefab == "DronePrefab" then
-		return T{1681, "Drone"}
+		return T(1681, "Drone")
 	else
 		return ""
 	end
@@ -1812,9 +1812,9 @@ end
 function RewardPrefab:GetPrefabText(obj, context)
 	local amount = self:ResolveValue("Amount", context)
 	if amount == 1 then
-		return T{11170, "prefab"}
+		return T(11170, "prefab")
 	else
-		return T{11171, "prefabs"}
+		return T(11171, "prefabs")
 	end
 end
 
@@ -1824,7 +1824,7 @@ DefineClass.RewardResearchPoints = {
 	properties = {
 		{ id = "Amount", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 	},
 	Description = T(445913619019, "<research(ResearchPoints)>"),
 	EditorView = Untranslated("Reward <Amount> research points"),
@@ -1844,7 +1844,7 @@ DefineClass.RewardSponsorResearch = {
 	properties = {
 		{ id = "Amount", 
 			editor = "number", default = false, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "ModifyId", help = "Used to reference the same modification later", 
 			editor = "text", default = false, },
 	},
@@ -1865,7 +1865,7 @@ DefineClass.RewardSupplyPods = {
 	properties = {
 		{ id = "Amount", 
 			editor = "number", default = false, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 	},
 	Description = T(522988558818, "<Amount> free supply pods"),
 }
@@ -1922,7 +1922,7 @@ DefineClass.RewardTechBoost = {
 			editor = "combo", default = "", items = function (self) return ResearchTechsCombo(self, { value = "", text = "-all tech-" }, { value = "random", text = "-random tech-" }) end, },
 		{ id = "Amount", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 	},
 	Description = Untranslated("Grant <percent(Amount)> research boost for <ResearchText> in <FieldText>"),
 }
@@ -1975,10 +1975,10 @@ DefineClass.SetBuildingBreakdownState = {
 			editor = "choice", default = "Maintenance", items = function (self) return {"Maintenance", "Malfunction"} end, },
 		{ id = "RepairResource", 
 			editor = "choice", default = "default", 
-			buttons = { { "Param", "PickParam" } }, items = function (self) return StoryBits_GetMaintenanceResourcesDropDownItems() end, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, items = function (self) return StoryBits_GetMaintenanceResourcesDropDownItems() end, },
 		{ id = "RepairAmount", 
 			editor = "number", default = 1000, 
-			buttons = { { "Param", "PickParam" } }, scale = "Resources", },
+			buttons = { { "Param", "StoryBit_PickParam" } }, scale = "Resources", },
 		{ id = "EnableBuilding", 
 			editor = "bool", default = true, },
 	},
@@ -2004,7 +2004,7 @@ DefineClass.SetBuildingEnabledState = {
 			editor = "bool", default = false, },
 		{ id = "Duration", help = "Duration in sols", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, scale = "sols", step = 720000, slider = true, min = 0, max = 7200000000, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, scale = "sols", step = 720000, slider = true, min = 0, max = 7200000000, },
 	},
 	Description = Untranslated("Set building enabled state"),
 	RequiredObjClasses = {
@@ -2074,7 +2074,7 @@ DefineClass.SpawnColonist = {
 	properties = {
 		{ id = "Count", 
 			editor = "number", default = 1, 
-			buttons = { { "Param", "PickParam" } }, slider = true, min = 1, max = 30000, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, slider = true, min = 1, max = 30000, },
 		{ id = "Name", 
 			editor = "text", default = false, translate = true, },
 		{ id = "Gender", 
@@ -2206,7 +2206,7 @@ DefineClass.SpawnRefugeeRocket = {
 			editor = "number", default = -1, scale = "hours", },
 		{ id = "RefugeeCount", name = "Refugee Count", 
 			editor = "number", default = 1, 
-			buttons = { { "Param", "PickParam" } }, min = 1, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, min = 1, },
 		{ id = "Refugee", name = "Add Refugee Trait", 
 			editor = "bool", default = true, },
 		{ id = "Trait1", name = "Trait 1", 
@@ -2529,6 +2529,6 @@ function WorkplaceExecuteEffect:EffectsList()
 	for _,effect in ipairs(self.Effects or empty_table) do
 		list[#list + 1] = Untranslated(effect.class)
 	end
-	return table.concat(list, T{1000736, ", "})
+	return table.concat(list, T(1000736, ", "))
 end
 

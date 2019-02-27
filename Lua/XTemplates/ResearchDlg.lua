@@ -67,7 +67,7 @@ end,
 						PlaceObj('XTemplateCode', {
 							'comment', "scroll",
 							'run', function (self, parent, context)
-if GetUIStyleGamepad() then return end
+if GetUIStyleGamepad() and not UseHybridControls() then return end
 parent:CreateThread(function ()
 	while true do
 		Sleep(8)

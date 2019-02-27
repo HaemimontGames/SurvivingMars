@@ -461,7 +461,9 @@ g_TutorialScenarios.Tutorial5 = function()
 	g_Tutorial.EnableResearchWarning = true
 	g_Tutorial.ExtractorAmplification = 200
 	
-	WaitHUDButtonPressed("idResearch")
+	WaitHUDButtonPressed("idResearch", function(arrow)
+		return arrow.button_pressed or Dialogs.ResearchDlg
+	end)
 	WaitResearchQueued("ExtractorAmplification", "close")
 	TutorialNextHint("Tutorial_5_ResearchUpgrade_1")
 	while not UICity:IsTechResearched("ExtractorAmplification") do
@@ -517,7 +519,9 @@ g_TutorialScenarios.Tutorial5 = function()
 	TutorialNextHint("Tutorial_5_CommandCenterUI")
 
 	--Show arrow on Command UI and wait to open  take some time and close
-	WaitHUDButtonPressed("idColonyControlCenter")
+	WaitHUDButtonPressed("idColonyControlCenter", function(arrow)
+		return arrow.button_pressed or Dialogs.ColonyControlCenter
+	end)
 	Sleep(2000)
 	while GetCommandCenterDialog() do
 		Sleep(2000)	

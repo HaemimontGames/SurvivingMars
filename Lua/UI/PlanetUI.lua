@@ -253,21 +253,21 @@ function PlanetFormatStringCoords(lat, long, spot_name, spot_style, hint, challe
 	end
 	
 	if hint_only then
-		if GetUIStyleGamepad() then
+		if UseGamepadUI() then
 			return T{11173, "<style PlanetCoordinatesHint><control_img> Move spot</style>", control_img = TLookupTag("<LS>")}
 		else
 			return T(11174, "<style PlanetCoordinatesHint><left_click> Move spot<newline><right_click> Rotate</style>")
 		end
 	end
 	if type(challenge) == "table" then
-		if hint and GetUIStyleGamepad() then
+		if hint and UseGamepadUI() then
 			return T{10921, "<pos_name><style PlanetCoordinatesHint><control_img> Select</style>", pos_name = name, control_img = TLookupTag("<LS>")}
 		elseif hint then
 			return T{10922, "<pos_name><style PlanetCoordinatesHint><left_click> Select<newline><right_click> Rotate</style>", pos_name = name}
 		end
 		return name
 	end
-	if hint and GetUIStyleGamepad() then
+	if hint and UseGamepadUI() then
 		return T{4129, "<pos_name><lat>°<lat_dir> <long>°<long_dir><newline><style PlanetCoordinatesHint><control_img> Move spot</style>", pos_name = name, lat = lat / 60, lat_dir = lat_dir, long = long / 60, long_dir = long_dir, control_img = TLookupTag("<LS>")}
 	elseif hint then
 		return T{4130, "<pos_name><lat>°<lat_dir> <long>°<long_dir><newline><style PlanetCoordinatesHint><left_click> Move spot<newline><right_click> Rotate</style>", pos_name = name, lat = lat / 60, lat_dir = lat_dir, long = long / 60, long_dir = long_dir}

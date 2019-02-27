@@ -1066,9 +1066,6 @@ PlaceObj('TextStyle', {
 })
 
 PlaceObj('TextStyle', {
-	ShadowColor = -16777216,
-	ShadowSize = 2,
-	ShadowType = "outline",
 	TextColor = -3070683,
 	TextFont = T(9843, --[[TextStyle ModsUIItemStatusWarningConsole TextFont]] "Source Sans Pro, 24, bold, aa"),
 	group = "ModsUI",

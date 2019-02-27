@@ -129,7 +129,7 @@ end,
 				'mode', "ModManager",
 			}, {
 				PlaceObj('XTemplateTemplate', {
-					'__template', "ModManager",
+					'__template', "ModsUIDialog",
 				}),
 				}),
 			}),

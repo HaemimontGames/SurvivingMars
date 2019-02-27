@@ -7,7 +7,7 @@ PlaceObj('PopupNotificationPreset', {
 	group = "Default",
 	id = "AnomalyAnalyzed",
 	image = "UI/Messages/exploration.tga",
-	text = T(5684, --[[PopupNotificationPreset AnomalyAnalyzed text]] "Even the tiniest, simply-looking rock can contain the answers to mysteries which perplexed the human mind for generations. Sometimes it takes just a simple discovery to assure us of the vastness of the Universe, an encouragement to make us look beyond the boundaries of our existence and into the future.\n\n<effect> The following Techs have been revealed on the Research screen:\n<list_text>"),
+	text = T(12125, --[[PopupNotificationPreset AnomalyAnalyzed text]] "Even the tiniest, simply-looking rock can contain the answers to mysteries which perplexed the human mind for generations. Sometimes it takes just a simple discovery to assure us of the vastness of the Universe, an encouragement to make us look beyond the boundaries of our existence and into the future.\n\n<effect> The following Techs have been revealed on the Research screen:\n<list_text>"),
 	title = T(5683, --[[PopupNotificationPreset AnomalyAnalyzed title]] "New Techs Available for Research"),
 	voiced_text = T(7073, --[[voice:narrator]] "There's more to the barren environs of the Red Planet than meets the eye - a veritable treasure trove of undiscovered knowledge and wonder… So long as you know where to look."),
 })
@@ -26,7 +26,7 @@ PlaceObj('PopupNotificationPreset', {
 	group = "Default",
 	id = "SuggestedShortcutBuildMenu",
 	image = "UI/Messages/deposits.tga",
-	text = T(152511844749, --[[PopupNotificationPreset SuggestedShortcutBuildMenu text]] "Commander, did you know that you can open the Build Menu with <right_click> or <em><ShortcutName('actionOpenBuildMenu')></em>?\n\nThis is quicker and more efficient than using the HUD button."),
+	text = T(152511844749, --[[PopupNotificationPreset SuggestedShortcutBuildMenu text]] "Commander, did you know that you can open the Build Menu with <right_click> or <em><ShortcutName('actionOpenBuildMenu', 'keyboard')></em>?\n\nThis is quicker and more efficient than using the HUD button."),
 	title = T(445678751622, --[[PopupNotificationPreset SuggestedShortcutBuildMenu title]] "Opening the Build Menu"),
 })
 

@@ -156,7 +156,9 @@ function ConstructionModeDialog:Init()
 	local construction = CityConstruction[UICity]
 	construction.template_variants = self.template_variants or false
 	construction:Activate(self.template, self.params)
-	HideMouseCursor("InGameInterface")
+	if not Platform.durango then
+		HideMouseCursor("InGameInterface")
+	end
 	HideGamepadCursor("construction")
 	ShowResourceIcons("construction")
 	UICity:SetCableCascadeDeletion(false, "ConstructionModeDialog")
@@ -776,11 +778,7 @@ function ConstructionController:Activate(template,	params)
 	end
 	
 	if IsKindOf(self.template_obj, "Workplace") and self.template_obj.dome_forbidden then
-		if g_FXBuildingType then
-			PlayFXBuildingType("Select", "end", g_FXBuildingType.city, g_FXBuildingType.class)
-		end
-		PlayFXBuildingType("Select", "start", UICity, "Dome")
-		g_FXBuildingType = { city = UICity, class = "Dome" }
+		ShowHexRanges(UICity, "Dome")
 	end
 	
 	local terrain_pos = GetUIStyleGamepad() and GetTerrainGamepadCursor() or GetTerrainCursor()
@@ -799,11 +797,15 @@ function ConstructionController:Activate(template,	params)
 	end
 end
 
+function GetLandscapeTerraceController()
+end
+
 function GetCurrentConstructionControllerDlg()
 	return InGameInterfaceMode == "construction" and CityConstruction[UICity] or 
 			(InGameInterfaceMode == "electricity_grid" or InGameInterfaceMode == "life_support_grid" or InGameInterfaceMode == "passage_grid") and CityGridConstruction[UICity] or
 			(InGameInterfaceMode ==  "passage_ramp" or InGameInterfaceMode ==  "electricity_switch" or InGameInterfaceMode ==  "lifesupport_switch")and CityGridSwitchConstruction[UICity] or 
-			InGameInterfaceMode == "tunnel_construction" and CityTunnelConstruction[UICity]
+			InGameInterfaceMode == "tunnel_construction" and CityTunnelConstruction[UICity] or
+			InGameInterfaceMode == "landscape_terrace" and GetLandscapeTerraceController()
 end
 
 function RefreshConstructionCursor()
@@ -837,10 +839,7 @@ function ConstructionController:Deactivate()
 	end	
 	
 	if IsKindOf(self.template_obj, "Workplace") and self.template_obj.dome_forbidden then
-		if g_FXBuildingType then
-			PlayFXBuildingType("Select", "end", g_FXBuildingType.city, g_FXBuildingType.class)
-			g_FXBuildingType = false
-		end
+		HideHexRanges(UICity, "Dome")
 	end
 	
 	self.cursor_obj = false
@@ -3675,7 +3674,9 @@ end
 
 function GridSwitchConstructionDialog:Open(...)
 	if self.mode_name == "passage_ramp" then
-		HideMouseCursor("InGameInterface")
+		if not Platform.durango then
+			HideMouseCursor("InGameInterface")
+		end
 		HideGamepadCursor("construction")
 		ShowResourceIcons("construction")
 	end
@@ -3760,7 +3761,7 @@ DefineClass.GridSwitchConstructionDialogPipes = {
 DefineClass.GridSwitchConstructionDialogPassageRamp = {
 	__parents = { "GridSwitchConstructionDialog" },
 	mode_name = "passage_ramp",
-	MouseCursor = "UI/Cursors/PipePlacement.tga",
+	MouseCursor = const.DefaultMouseCursor,
 	success_sound = "PipeConstructionSuccess",
 }
 
@@ -4010,7 +4011,7 @@ GlobalVar("CityTunnelConstruction", {})
 
 DefineClass.TunnelConstructionDialog = {
 	__parents = { "InterfaceModeDialog" },
-	Cursor =  "UI/Cursors/CablePlacement.tga",
+	MouseCursor = const.DefaultMouseCursor,
 	mode_name = "tunnel_construction",
 	success_sound = "CableConstructionSuccess",
 	

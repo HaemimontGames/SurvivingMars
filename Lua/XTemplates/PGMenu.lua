@@ -180,16 +180,7 @@ end,
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
 CreateRealTimeThread(function()
-	if AccountStorage and AccountStorage.LoadMods and next(AccountStorage.LoadMods) ~= nil then
-		local choice = WaitPopupNotification("Tutorial_ActiveMods", nil, nil, host)
-		if choice == 1 then
-			AllModsOff()
-			SaveAccountStorage(5000)
-			if ModsLoaded then
-				ModsReloadItems()
-			end
-		end
-	end
+	WaitWarnTutorialWithMods(host)
 	host:SetMode("Tutorial")
 end)
 end,
@@ -251,13 +242,9 @@ end,
 						'ActionName', T(1129, --[[XTemplate PGMenu ActionName]] "MOD MANAGER"),
 						'ActionIcon', "UI/Icons/main_menu_mod_manager.tga",
 						'ActionToolbar', "mainmenu",
-						'OnAction', function (self, host, source)
-CreateRealTimeThread(function()
-	ShowParadoxModManagerWarning()
-	host:SetMode("ModManager")
-end)
-end,
-						'__condition', function (parent, context) return Platform.steam or Platform.pc end,
+						'OnActionEffect', "mode",
+						'OnActionParam', "ModManager",
+						'__condition', function (parent, context) return not Platform.ps4 end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idModEditor",

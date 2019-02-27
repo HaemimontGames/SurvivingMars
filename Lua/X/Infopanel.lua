@@ -165,7 +165,7 @@ function InfopanelDlg:OnKillFocus()
 end
 
 function InfopanelDlg:OnMouseEnter(pos)
-	if GetUIStyleGamepad() then return end
+	if UseGamepadUI() then return end
 
 	local igi = GetInGameInterface()
 	local dlg = igi and igi.mode_dialog
@@ -364,5 +364,5 @@ function ActivateControlModeDlgAction()
 end
 
 function IsMassUIModifierPressed()
-	return Platform.desktop and terminal.IsKeyPressed(const.vkControl)
+	return terminal.IsKeyPressed(const.vkControl)
 end

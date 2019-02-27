@@ -237,6 +237,7 @@ function DurangoTitleScreen:OnXButtonDown(button, controller_id)
 			LoadDlcs()
 		end
 		self:Close()
+		WaitCheckUserCreatedContentPrivilege(XPlayerActive)
 		OpenPreGameMainMenu()
 		local signed = Durango.IsPlayerSigned(XPlayerActive)
 		local guest = Durango.IsPlayerGuest(XPlayerActive)

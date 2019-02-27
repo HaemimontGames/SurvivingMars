@@ -24,24 +24,31 @@ end,
 			'name', "Open",
 			'func', function (self, ...)
 XDialog.Open(self, ...)
-if Platform.steam then
+if Platform.steam or (Platform.durango and not DurangoAllowUserCreatedContent) then
 	self:SetMode("installed")
 end
 ModsUIDialogStart()
+if not DurangoUserContentDisabledWarningShown and Platform.durango and not DurangoAllowUserCreatedContent then
+	-- trigger a system message once
+	CreateRealTimeThread(function()
+		WaitCheckUserCreatedContentPrivilege(XPlayerActive, "show message")
+		DurangoUserContentDisabledWarningShown = true
+	end)
+end
 end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnDelete",
 			'func', function (self, ...)
 ModsUIClosePopup(self)
-ModsUISetSelectedMod(false)
 XDialog.OnDelete(self, ...)
+g_ParadoxModsContextObj = false
 end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnShortcut(self, shortcut, source)",
 			'func', function (self, shortcut, source)
-if not self.context.popup_shown and self.Mode ~= "details" and not Platform.steam then
+if not self.context.popup_shown and self.Mode ~= "details" and not Platform.steam and not (Platform.durango and not DurangoAllowUserCreatedContent) then
 	if shortcut == "LeftTrigger" then
 		self:ResolveId("idBrowse"):Press()
 		return "break"
@@ -92,7 +99,7 @@ self:CreateThread("scrolling", function(self)
 	list = self:ResolveId("idList")
 	if list then
 		if focused_item then
-			list:SetSelection(focused_item)
+			list:SetSelection(Min(#list, focused_item))
 		end
 		list:ScrollTo(x, y)
 	end

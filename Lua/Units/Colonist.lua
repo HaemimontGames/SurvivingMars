@@ -751,7 +751,7 @@ function Colonist:ProjectPhoenixEffect()
 		for trait_id, _ in pairs(traits) do
 			local trait = TraitPresets[trait_id]
 			local category = trait and trait.group or false
-			if category and category~="Age Group" and category~="Gender" then
+			if category and category~="Age Group" and category~="Gender" and category~="Specialization" then
 				heir.traits[trait_id] = true
 			end
 		end

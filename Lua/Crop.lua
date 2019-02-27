@@ -7,7 +7,7 @@ end
 
 DefineModItemPreset("CropPreset", {
 	properties = {
-		{ id = "icon", name = T(94, "Icon"), editor = "browse", default = "UI/Icons/Buildings/crops_empty.tga", help = "Food Game Icon", folder = folder_fn, os_path = true, filter = "Image files|*.tga" },
+		{ id = "icon", name = T(94, "Icon"), editor = "browse", default = "UI/Icons/Buildings/crops_empty.tga", help = "Food Game Icon", folder = folder_fn, os_path = true, filter = "Image files|*.png;*.tga" },
 	},
 	EditorName = "Crop",
 })

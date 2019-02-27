@@ -323,7 +323,7 @@ function Encyclopedia:SetDescription(article)
 	local has_image
 	--images are overriden by videos and videos are looked up in the corresponding hint preset (if any)
 	local hint_preset = OnScreenHintPresets[article.id]
-	local video = hint_preset and hint_preset:GetVideoFilename()
+	local video = Platform.desktop and hint_preset and hint_preset:GetVideoFilename()
 	video = video ~= "" and video
 	if video then
 		self.idVideo.resolution = point(512, 384)
@@ -340,7 +340,7 @@ function Encyclopedia:SetDescription(article)
 	end
 	self.idVideo:SetVisible(video)
 	self.idImage:SetVisible(not video and has_image)
-	self.idDescription:SetText(article.text)
+	self.idDescription:SetText(UseGamepadUI() and article.text_gamepad or article.text)
 	self.idDescrWindow:SetVisible(true)
 end
 
@@ -382,13 +382,17 @@ function Encyclopedia:GetListItems()
 			ForEachPreset(OnScreenHint, function(v)
 				if v.tutorial == tutorial then
 					if not check_if_passed or g_ActiveHints[v.id] then
-						local body_text = (GetUIStyleGamepad() and v.gamepad_text ~= "") and v.gamepad_text or v.text
+						local body_text = v.text
 						body_text = T{body_text, g_Classes[v.id]}
 						local text = (v.voiced_text ~= "") and (v.voiced_text.."\n\n"..body_text) or body_text
+						local body_text_gamepad = v.gamepad_text ~= "" and v.gamepad_text or v.text
+						body_text_gamepad = T{body_text_gamepad, g_Classes[v.id]}
+						local text_gamepad = (v.voiced_text ~= "") and (v.voiced_text.."\n\n"..body_text_gamepad) or body_text_gamepad
 						items[#items + 1] = {
 							id = v.id,
 							title_text = v.title,
 							text = text,
+							text_gamepad = text_gamepad,
 							image = v.encyclopedia_image ~= "" and v.encyclopedia_image or "UI/Encyclopedia/Hints.tga",
 							category_id = cat_id,
 						}

@@ -38,7 +38,7 @@ if next(context) then
 				end
 			end
 			self.idWarning:SetText(warning or "")
-			self.idWarning:SetVisible(corrupted)
+			self.idWarning:SetVisible((warning or "") ~= "")
 			if not corrupted then
 				if rawget(self, "idEnabledTick") then
 					self.idEnabledTick:SetVisible(enabled)
@@ -206,6 +206,8 @@ end,
 					PlaceObj('XTemplateWindow', {
 						'__class', "XText",
 						'Id', "idWarning",
+						'Margins', box(0, 0, 5, 0),
+						'Padding', box(0, 0, 0, 0),
 						'VAlign', "center",
 						'Visible', false,
 						'FoldWhenHidden', true,
@@ -236,7 +238,9 @@ end,
 					PlaceObj('XTemplateWindow', {
 						'__class', "XCheckButton",
 						'Id', "idEnabled",
+						'Margins', box(0, 0, 5, 0),
 						'Padding', box(5, 2, -5, 0),
+						'Dock', "left",
 						'VAlign', "center",
 						'Visible', false,
 						'FoldWhenHidden', true,
@@ -267,7 +271,8 @@ end,
 							'Visible', false,
 							'FoldWhenHidden', true,
 							'TextStyle', "ModsUIItemStatusEnabledPC",
-							'Text', "Enabled",
+							'Translate', true,
+							'Text', T(460479110814, --[[XTemplate ModsUIBrowseListItem Text]] "Enabled"),
 						}),
 						PlaceObj('XTemplateWindow', {
 							'__class', "XLabel",
@@ -278,7 +283,8 @@ end,
 							'Visible', false,
 							'FoldWhenHidden', true,
 							'TextStyle', "ModsUIItemStatusEnabledPC",
-							'Text', "Disabled",
+							'Translate', true,
+							'Text', T(847439380056, --[[XTemplate ModsUIBrowseListItem Text]] "Disabled"),
 						}),
 						}),
 					PlaceObj('XTemplateWindow', {
@@ -475,6 +481,7 @@ end,
 						'Margins', box(10, 0, 0, 10),
 						'HAlign', "center",
 						'VAlign', "center",
+						'MaxWidth', 400,
 						'Visible', false,
 						'FoldWhenHidden', true,
 						'HandleMouse', false,

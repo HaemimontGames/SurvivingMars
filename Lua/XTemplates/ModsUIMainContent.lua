@@ -28,7 +28,7 @@ PlaceObj('XTemplate', {
 				'LayoutHSpacing', 30,
 			}, {
 				PlaceObj('XTemplateWindow', {
-					'__condition', function (parent, context) return not Platform.steam and GetUIStyleGamepad() end,
+					'__condition', function (parent, context) return not Platform.steam and not (Platform.durango and not DurangoAllowUserCreatedContent) and GetUIStyleGamepad() end,
 					'__class', "XTextButton",
 					'Id', "idLeftTrigger",
 					'Background', RGBA(0, 0, 0, 0),
@@ -41,7 +41,7 @@ end,
 					'PressedBackground', RGBA(0, 0, 0, 0),
 				}),
 				PlaceObj('XTemplateWindow', {
-					'__condition', function (parent, context) return not Platform.steam end,
+					'__condition', function (parent, context) return not Platform.steam and not (Platform.durango and not DurangoAllowUserCreatedContent) end,
 				}, {
 					PlaceObj('XTemplateMode', {
 						'mode', "browse",
@@ -189,7 +189,7 @@ end,
 						}),
 					}),
 				PlaceObj('XTemplateWindow', {
-					'__condition', function (parent, context) return not Platform.steam and GetUIStyleGamepad() end,
+					'__condition', function (parent, context) return not Platform.steam and not (Platform.durango and not DurangoAllowUserCreatedContent) and GetUIStyleGamepad() end,
 					'__class', "XTextButton",
 					'Id', "idRightTrigger",
 					'Background', RGBA(0, 0, 0, 0),

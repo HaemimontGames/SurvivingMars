@@ -4,3 +4,13 @@ body {
 	max-width: 960px;
 	text-align: justify;
 }
+
+.sticky {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+}
+
+.footer {
+	padding-top: 70px;
+}

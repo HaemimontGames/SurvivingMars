@@ -59,7 +59,7 @@ function GetMissingMods(active_mods, max_mods)
 	for _, mod in ipairs(active_mods or empty_table) do
 		--mod is a table, containing id, title, version and lua_revision or is just the id in older saves
 		local local_mod = table.find_value(ModsLoaded, "id", mod.id or mod) or (Mods and Mods[mod.id or mod])
-		if (mod.lua_revision or 0) > LuaRevision
+		if (mod.lua_revision or 0) > LuaRevision or (mod.lua_revision or 9999999) < ModMinLuaRevision
 			or not local_mod or not table.find(AccountStorage.LoadMods, mod.id or mod)
 			or (local_mod and local_mod.version < (mod.version or 0)) then
 			if #mods_list >= max_mods then
@@ -176,7 +176,7 @@ local function LoadCallback(folder)
 				mods_string = mods_string .. "\n..."
 			end
 			if WaitMarsQuestion(GetLoadingScreenDialog() or terminal.desktop, 
-				T(6851, "Warning"), T{8082, "The following mods are missing or outdated:\n\n<mods>\n\nSome features may not work.", mods = Untranslated(mods_string)},
+				T(6851, "Warning"), T{8082, "The following mods are missing or incompatible:\n\n<mods>\n\nSome features may not work.", mods = Untranslated(mods_string)},
 				T(3686, "Load anyway"),
 				T(3687, "Cancel")) == "cancel" then
 				return "user cancelled"

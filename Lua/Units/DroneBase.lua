@@ -110,7 +110,7 @@ function DroneBase:ToggleControlMode()
 		return 
 	end
 	
-	if Platform.desktop and terminal.IsKeyPressed(const.vkControl) then --ignore the button while ctrl is down
+	if terminal.IsKeyPressed(const.vkControl) then --ignore the button while ctrl is down
 		--handles case where button is pressed but already in move/interact mode.
 		return
 	end

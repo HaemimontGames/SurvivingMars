@@ -51,13 +51,13 @@ end,
 if context.allow_export then
 	self:SetIcon("UI/Icons/IPButtons/forbid_exports_on.tga")
 	self:SetRolloverTitle(T(8040, "Allow/Forbid Exports"))
-	self:SetRolloverText(T(8041, "Allow or forbid the exports of Precious Metals to Earth. If precious metals are exported, the colony will gain Funding in exchange.\n\nCurrent status: Exports are <em>allowed</em>."))
+	self:SetRolloverText(T(12133, "Allow or forbid the exports of Precious Metals to Earth. If precious metals are exported, the colony will gain Funding in exchange.\n\nCurrent status: Exports are <em>allowed</em>."))
 	self:SetRolloverHint(T(10114, --[[XTemplate customSupplyRocket RolloverHint]] "<left_click> Forbid Exports<newline><em>Ctrl + <left_click></em> Forbid Exports in all Rockets"))
 	self:SetRolloverHintGamepad(T(10115, --[[XTemplate customSupplyRocket RolloverHintGamepad]] "<ButtonA> Forbid Exports<newline><ButtonX> Forbid Exports in all Rockets"))
 else
 	self:SetIcon("UI/Icons/IPButtons/forbid_exports_off.tga")
 	self:SetRolloverTitle(T(8040, "Allow/Forbid Exports"))
-	self:SetRolloverText(T(8042, "Allow or forbid the exports of Precious Metals to Earth. If precious metals are exported, the colony will gain Funding in exchange.\n\nCurrent status: Exports are <em>forbidden</em>."))
+	self:SetRolloverText(T(12134, "Allow or forbid the exports of Precious Metals to Earth. If precious metals are exported, the colony will gain Funding in exchange.\n\nCurrent status: Exports are <em>forbidden</em>."))
 	self:SetRolloverHint(T(8109, --[[XTemplate customSupplyRocket RolloverHint]] "<left_click> Allow Exports<newline><em>Ctrl + <left_click></em> Allow Exports in all Rockets"))
 	self:SetRolloverHintGamepad(T(8110, --[[XTemplate customSupplyRocket RolloverHintGamepad]] "<ButtonA> Allow Exports<newline><ButtonX> Allow Exports in all Rockets"))
 end

@@ -39,7 +39,7 @@ function ModItemBuildingTemplate:GetProperties()
 		if override_browse_properties[prop.id] then
 			prop.os_path = true
 			prop.folder = folder_attribute
-			prop.filter = "Image files|*.tga"
+			prop.filter = "Image files|*.png;*.tga"
 		end
 	end
 	

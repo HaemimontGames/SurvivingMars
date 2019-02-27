@@ -53,7 +53,7 @@ end
 
 TFormat.ShortcutName = function(context_obj,action_id,source)
 	local shortcuts = GetShortcuts(action_id)
-	if GetUIStyleGamepad() and (not source or source == "gamepad") then
+	if UseGamepadUI() and (not source or source == "gamepad") then
 		return TFormat.GamepadShortcutName(context_obj, shortcuts and shortcuts[3])
 	else
 		if shortcuts and shortcuts[1] and shortcuts[1] ~= "" then

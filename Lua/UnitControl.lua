@@ -6,18 +6,17 @@ if FirstLoad then
 end
 
 local function UpdateRightClickControl()
-	if not Platform.console then
-		local old_vehicle_controls = g_RightClickControlsVehicles
-		local old_build_menu = g_RightClickOpensBuildMenu
-		
-		g_RightClickControlsVehicles = AccountStorage.Options.RightClickAction ~= "Build"
-		g_RightClickOpensBuildMenu = AccountStorage.Options.RightClickAction ~= "Move"
-		UnitDirectionModeDialogExec(function(dlg)dlg:UpdateMouseCursor()end)
-		
-		local changed = (g_RightClickControlsVehicles ~= old_vehicle_controls) or (g_RightClickOpensBuildMenu ~= old_build_menu)
-		if changed then
-			g_BuildMenuRightClickPopupShown = true
-		end
+	if not AccountStorage then return end
+	local old_vehicle_controls = g_RightClickControlsVehicles
+	local old_build_menu = g_RightClickOpensBuildMenu
+	
+	g_RightClickControlsVehicles = AccountStorage.Options.RightClickAction ~= "Build"
+	g_RightClickOpensBuildMenu = AccountStorage.Options.RightClickAction ~= "Move"
+	UnitDirectionModeDialogExec(function(dlg)dlg:UpdateMouseCursor()end)
+	
+	local changed = (g_RightClickControlsVehicles ~= old_vehicle_controls) or (g_RightClickOpensBuildMenu ~= old_build_menu)
+	if changed then
+		g_BuildMenuRightClickPopupShown = true
 	end
 end
 
@@ -163,7 +162,8 @@ function UnitDirectionModeDialog:DeactivateUnitControl()
 end
 
 function UnitDirectionModeDialog:UpdateMouseCursor()
-	if GetUIStyleGamepad() or
+	local xcursor = GetGamepadCursor()
+	if UseGamepadUI() or
 		(not IsValid(self.unit) or (not self.interaction_mode and not MoveUnitsOnRightClick()) or (not self.unit:CanBeControlled() and not self.interaction_mode)) then
 		self:SetMouseCursor(const.DefaultMouseCursor)
 	elseif self.interaction_obj then
@@ -201,7 +201,7 @@ function UnitDirectionModeDialog:UpdateCursorText()
 	if not hud then
 		return
 	end
-	local gamepad = GetUIStyleGamepad()
+	local gamepad = UseGamepadUI()
 	local txt
 	local hint = self.unit and self.interaction_hint or ""
 	if hint~="" then
@@ -223,12 +223,12 @@ function UnitDirectionModeDialog:UpdateCursorText()
 	end
 	
 	local ctrl = hud.idtxtConstructionStatus
-	local xcursor = GetGamepadCursor() 
+	local xcursor = GetGamepadCursor()
 	ctrl:SetVisible(txt and txt~= "" and (not gamepad or xcursor and xcursor:GetVisible()))
 	if txt and txt~= "" and txt ~= ctrl:GetText() then
 		ctrl:SetText(txt)
 		ctrl:SetMargins(box(40,40,0,0))
-		ctrl:AddDynamicPosModifier({ id = "unit_direction", target = gamepad and "gamepad" or "mouse" })
+		ctrl:AddDynamicPosModifier({ id = "unit_direction", target = gamepad and "gamepad" or "mouse"})
 	end
 end
 
@@ -242,7 +242,7 @@ end
 
 local refreshing_interaction = false
 function UnitDirectionModeDialog:RefreshActiveInteraction()
-	if GetUIStyleGamepad() then return end
+	if UseGamepadUI() then return end
 	local o = self.active_interaction or SelectionMouseObj()
 	if not self.unit or IsEditorActive() or o ~= refreshing_interaction then return end
 	CityUnitController[UICity].position = false
@@ -260,7 +260,7 @@ function UnitDirectionModeDialog:OnMouseButtonDown(pt, button)
 		if MoveUnitsOnRightClick() and self.interaction_mode == false then
 			self:UpdateInteractionObj(SelectionMouseObj(), GetTerrainCursor())
 			local r = self:Interact(GetTerrainCursor())
-			if not GetUIStyleGamepad() and r == "break" then
+			if not UseGamepadUI() and r == "break" then
 				self:HideCursorText()
 				refreshing_interaction = self.active_interaction or SelectionMouseObj()
 				DelayedCall(10, UnitDirectionModeDialog.RefreshActiveInteraction, self)
@@ -294,7 +294,7 @@ function UnitDirectionModeDialog:OnMouseButtonDown(pt, button)
 		if not self.unit or IsEditorActive() then return end
 		self:UpdateInteractionObj(SelectionMouseObj(), GetTerrainCursor())
 		local r = self:InteractWithPos(GetTerrainCursor())
-		if not GetUIStyleGamepad() and r == "break" then
+		if not UseGamepadUI() and r == "break" then
 			self:HideCursorText()
 			refreshing_interaction = self.active_interaction or SelectionMouseObj()
 			DelayedCall(10, UnitDirectionModeDialog.RefreshActiveInteraction, self)
@@ -375,7 +375,7 @@ function UnitDirectionModeDialog:Interact(pos, keep_control)
 end
 
 function UnitDirectionModeDialog:UpdateInteractionObj(obj, pos)
-	local gamepad = GetUIStyleGamepad()
+	local gamepad = UseGamepadUI()
 	obj = gamepad and IsKindOf(obj, "SurfaceDepositGroup") and obj.group[1] or obj
 	local ctrl = CityUnitController[UICity]
 	obj = obj or ctrl:ResolveObjAt(pos, self.interaction_mode)
@@ -412,7 +412,7 @@ end
 
 function UnitDirectionModeDialog:OnMousePos(pt)
 	if not self.unit then return end
-	if GetUIStyleGamepad() then return end
+	if UseGamepadUI() then return end
 	local pos = GetTerrainCursor()
 	if self.last_mouse_pos ~= pos then
 		self:UpdateInteractionObj(SelectionMouseObj(), pos)
@@ -452,7 +452,9 @@ function UnitDirectionModeDialog:UpdateCursorObj(pos)
 	if self.created_route then
 		--cursor obj management
 		if not self.created_route.from and not self.cursor_obj then
-			HideMouseCursor("InGameInterface")
+			if not Platform.durango then
+				HideMouseCursor("InGameInterface")
+			end
 			HideGamepadCursor("construction")
 			self.cursor_obj = PlaceObject("WireFramedPrettification", {entity = "RoverTransport", construction_stage = 0, GetSelectionRadiusScale = RCTransport_AutoRouteRadius})
 			self.cursor_obj:SetAngle(0)
@@ -463,7 +465,9 @@ function UnitDirectionModeDialog:UpdateCursorObj(pos)
 			self.cursor_obj.construction_stage = 0
 			self.cursor_obj:UpdateConstructionShaderParams()
 		elseif self.created_route.from and not self.cursor_obj then
-			HideMouseCursor("InGameInterface")
+			if not Platform.durango then
+				HideMouseCursor("InGameInterface")
+			end
 			HideGamepadCursor("construction")
 			self.cursor_obj = PlaceObject("WireFramedPrettification", {entity = "RoverTransport", construction_stage = 1, GetSelectionRadiusScale = RCTransport_AutoRouteRadius})
 			self.cursor_obj:SetAngle(0)
@@ -500,7 +504,7 @@ function UnitDirectionModeDialog:OnKbdKeyDown(virtual_key)
 end
 
 function UnitDirectionModeDialog:OnShortcut(shortcut, source)
-	if GetUIStyleGamepad() and self.unit then
+	if UseGamepadUI() and self.unit then
 		if g_GamepadObjects then
 			g_GamepadObjects:FindInteractableObj()
 		else
@@ -638,7 +642,7 @@ end
 function UnitController:CanInteractWithObject(o, m)
 	if not self.unit then return end
 	
-	local gamepad = GetUIStyleGamepad()
+	local gamepad = UseGamepadUI()
 	if not gamepad then
 		local mousetarget = terminal.desktop:GetMouseTarget(terminal.GetMousePos())
 		if not mousetarget and not IsKindOfClasses(mousetarget, "SelectionModeDialog", "OverviewModeDialog") then		

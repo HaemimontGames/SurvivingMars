@@ -12,6 +12,7 @@ DefineClass.XMarsMessageBox =
 	ContextUpdateOnOpen = true,
 	
 	template = false,
+	override_valign = false,
 }
 
 function XMarsMessageBox:Init()
@@ -39,10 +40,7 @@ function XMarsMessageBox:OnContextUpdate(context, ...)
 end
 
 function XMarsMessageBox:Open(...)
-	-- grant more space for layout (equivalent to the image size) by subtracting from the margins
-	local margins = GetSafeMargins(box(0, 0, 0, 0))
-	self:SetMargins(box(margins:minx(), margins:miny() - 300, margins:maxx(), margins:maxy() - 50))
-
+	self:RecalculateMargins()
 	PlayFX("Popup", "start")
 	Msg("MessageBoxPreOpen")
 	XDialog.Open(self, ...)
@@ -65,9 +63,15 @@ function XMarsMessageBox:Open(...)
 	Msg("MessageBoxOpened")
 end
 
+function XMarsMessageBox:RecalculateMargins()
+	-- grant more space for layout (equivalent to the image size) by subtracting from the margins
+	local margins = GetSafeMargins(box(0, 0, 0, 0))
+	self:SetMargins(box(margins:minx(), margins:miny() - 300, margins:maxx(), margins:maxy() - 50))
+end
+
 function XMarsMessageBox:SetLayoutSpace(x, y, width, height)
 	-- align up from the bottom safe area margin if it doesn't fit (this will eat up space from the image on the top)
-	self.VAlign = self.measure_height > GetSafeAreaBox():sizey() and "bottom" or "center"
+	self.VAlign = self.override_valign or self.measure_height > GetSafeAreaBox():sizey() and "bottom" or "center"
 	XWindow.SetLayoutSpace(self, x, y, width, height)
 end
 
@@ -199,6 +203,7 @@ end
 
 if FirstLoad then
 	SwitchToControllerQuestionThread = false
+	SwitchControlSchemeQuestionThread = false
 end
 
 local function RollBackDialogs()
@@ -266,6 +271,40 @@ function ShowControlsSwitchQuestion(parent)
 	end)
 end
 
+function ShowControlSchemeSwitchQuestion(parent)
+	assert(not UseHybridControls())
+	if not Platform.console or IsValidThread(SwitchControlSchemeQuestionThread) then
+		return
+	end
+	
+	local reason = "control_scheme_question"
+	PopupNotificationSuspend(reason)
+	SwitchControlSchemeQuestionThread = CreateRealTimeThread(function()
+		if GameState.gameplay then
+			Pause(reason)
+			ShowPauseDialog(true)
+		end
+		
+		engineShowMouseCursor()
+		if WaitMarsQuestion(parent or terminal.desktop, T(11862, "Switch to hybrid control scheme?"), T(11863, "Do you want to command the game with both gamepad and mouse?"), nil, nil, nil, { force_ui_style = "mouse" }) == "ok" then
+			AccountStorage.Options.ControlScheme = "Hybrid"
+			SaveAccountStorage()
+			ApplyHybridControls()
+		else
+			--only hide the cursor if the user doesn't want hybrid control scheme
+			engineHideMouseCursor()
+		end
+		
+		if GameState.gameplay then
+			Resume(reason)
+			local igi = GetInGameInterface()
+			ShowPauseDialog(not igi or not igi:GetVisible())
+		end
+		PopupNotificationResume(reason)
+	end)
+	return true
+end
+
 function OnMsg.GamepadUIStyleChanged()
 	--lock gamepad thumbsticks while not in gamepad mode to avoid moving the camera
 	--(also see OnMsg.XInputInited in config.lua)
@@ -290,10 +329,37 @@ function XDesktop:KeyboardEvent(event, ...)
 	return oldKeyboardEvent(self, event, ...)
 end
 
+local oldMouseEvent = XDesktop.MouseEvent
+function XDesktop:MouseEvent(event, ...)
+	if Platform.console and not UseHybridControls() then
+		if event ~= "OnMousePos" and not GetDialog("DurangoTitleScreen") then --don't show this message on the "Press any button screen"
+			local focus = self.keyboard_focus
+			local splash_screen = IsKindOf(focus, "SplashScreen")
+			local same_question = IsKindOf(focus, "XContextWindow") and focus.context and rawget(focus.context, "force_ui_style") == "mouse"
+			if not (splash_screen or same_question) then
+				--'force_ui_style' is specific for the question box shown in 'ShowControlSchemeSwitchQuestion'
+				if ShowControlSchemeSwitchQuestion(terminal.desktop) then
+					return "break"
+				end
+			end
+		end
+		
+		if not IsValidThread(SwitchControlSchemeQuestionThread) then
+			return "break"
+		end
+	end
+
+	return oldMouseEvent(self, event, ...)
+end
+
 function CloseAllMessagesAndQuestions()
 	for window,dummy in pairs(g_OpenMessageBoxes) do
 		if window.window_state ~= "destroying" then
 			window:Close()
 		end
 	end
+end
+
+function AreMessageBoxesOpen()
+	return next(g_OpenMessageBoxes) or GetDialog("PopupNotification")
 end

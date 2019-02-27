@@ -102,7 +102,7 @@ Modified property (self.modify_property)
 : Colonist property that will be modified.
 
 Modification amount/percent (self.modify_amount/self.modify_percent)
-: Modifier properties - see [Modifier documentation](ModItemGameValue.md.html) for details on modifiers.
+: Modifier properties - see [Modifier documentation](LuaFunctionDoc_Consts.md.html) for details on modifiers.
 
 Infopanel effect text (self.infopanel_effect_text)
 : The text that is used in infopanel for describing the Trait effect over any of the Colonist stats.
@@ -158,9 +158,9 @@ function trait_id GetRandomTrait(compatible, nonerare, rare, category, base_only
 This function is commonly used from buildings to add choose and add new Positive or Negative Trait to Colonists.
 
 function match TraitFilterColonist(trait_filter, colonist_traits)
-: Evaluate a match between `trait_filer` and `colonist_traits`. Returns a positive number or 0 if the Colonist matches the filter and a negative in the other case. 
+: Evaluate a match between `trait_filter` and `colonist_traits`. Returns a positive number or 0 if the Colonist matches the filter and a negative in the other case. 
 
-Filter format is `{trait1_id = true, trait2_id = false, trait_id = nil }` To match the fileter the Colonist must have at least one of the Traits that are true, and does not have no one from Traits with false.
+Filter format is `{trait1_id = true, trait2_id = false, trait_id = nil }` To match the filter, the Colonist must have at least one of the Traits that are true, and does not have no one from Traits with false.
 
 ~~~~Lua
 for _, dome in ipairs(domes or empty_table) do

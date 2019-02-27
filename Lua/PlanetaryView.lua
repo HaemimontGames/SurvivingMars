@@ -219,7 +219,27 @@ function SendRocketToMarsPoint(obj, spot, dialog)
 	end
 end
 
-function CancelExpedition(rocket, dialog)
+function ClearExpeditionRocketSpot(rocket, spot)
+	rocket:ExpeditionCancel()
+	ObjModified(rocket)
+	if rocket.expedition and rocket.expedition.anomaly then
+		rocket.expedition.anomaly.rocket = nil
+	end
+	if rocket.expedition and rocket.expedition.project then
+		local spot = rocket.expedition.project
+		spot.rocket = nil
+		-- restore funding
+		local funding = spot.funding
+		if funding and funding>0 then
+			rocket.city:ChangeFunding(funding, "special project")
+		end
+	end
+	if spot and spot.rocket then
+		spot.rocket = nil
+	end
+end	
+
+function CancelExpedition(rocket, dialog, spot)
 	CreateRealTimeThread(function()
 		local params = {
 			title = T(311734996852, "Cancel Expedition"),
@@ -230,11 +250,7 @@ function CancelExpedition(rocket, dialog)
 		}
 		local res = WaitPopupNotification(false, params, false, dialog)
 		if res == 1 then
-			rocket:ExpeditionCancel()
-			ObjModified(rocket)
-			if rocket.expedition.anomaly then
-				rocket.expedition.anomaly.rocket = nil
-			end
+			ClearExpeditionRocketSpot(rocket,spot)
 			if dialog then
 				local context = ResolvePropObj(dialog.context)
 				if context then ObjModified(context) end

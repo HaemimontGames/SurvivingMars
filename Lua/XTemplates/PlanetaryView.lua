@@ -222,7 +222,7 @@ local spot = host.context.selected_spot
 return spot and spot.spot_type == "anomaly" and spot.rocket or "hidden"
 end,
 							'OnAction', function (self, host, source)
-CancelExpedition(host.context.selected_spot.rocket, host)
+CancelExpedition(host.context.selected_spot.rocket, host, host.context.selected_spot)
 end,
 						}),
 						PlaceObj('XTemplateTemplate', {

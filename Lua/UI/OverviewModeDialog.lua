@@ -392,7 +392,7 @@ function OverviewModeDialog:SelectSector(sector, rollover_pos, forced)
 				local x, y = rollover_pos:xy()
 				rollover_context.anchor = sizebox(x, y, 1, 1)
 				
-				local rollover = XCreateRolloverWindow(self, GetUIStyleGamepad(), "immediate", rollover_context)
+				local rollover = XCreateRolloverWindow(self, UseGamepadUI(), "immediate", rollover_context)
 			end
 		end
 	else
@@ -578,7 +578,7 @@ function OverviewModeDialog:UpdateSectorRollover(sector)
 	local context, old_context = self:GenerateSectorRolloverContext(self.current_sector)
 	if context then
 		context.anchor = old_context and old_context.anchor or nil
-		XCreateRolloverWindow(self, GetUIStyleGamepad(), "immediate", context)
+		XCreateRolloverWindow(self, UseGamepadUI(), "immediate", context)
 	else
 		XDestroyRolloverWindow()
 	end

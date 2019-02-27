@@ -67,7 +67,7 @@ PlaceObj('XTemplate', {
 			'Icon', "UI/Icons/Sections/attention.tga",
 		}, {
 			PlaceObj('XTemplateGroup', {
-				'__condition', function (parent, context) return not GetUIStyleGamepad() end,
+				'__condition', function (parent, context) return not UseGamepadUI() end,
 			}, {
 				PlaceObj('XTemplateTemplate', {
 					'__template', "InfopanelText",
@@ -103,7 +103,7 @@ PlaceObj('XTemplate', {
 				}),
 				}),
 			PlaceObj('XTemplateGroup', {
-				'__condition', function (parent, context) return GetUIStyleGamepad() end,
+				'__condition', function (parent, context) return UseGamepadUI() end,
 			}, {
 				PlaceObj('XTemplateTemplate', {
 					'__template', "InfopanelText",

@@ -6,7 +6,7 @@ DefineClass.CheckAverageComfort = {
 	properties = {
 		{ id = "Amount", 
 			editor = "number", default = false, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "Condition", 
 			editor = "choice", default = ">=", items = function (self) return { ">=", "<=", ">", "<", "==", "~=" } end, },
 	},
@@ -43,7 +43,7 @@ DefineClass.CheckAverageMorale = {
 	properties = {
 		{ id = "Amount", 
 			editor = "number", default = false, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "Condition", 
 			editor = "choice", default = ">=", items = function (self) return { ">=", "<=", ">", "<", "==", "~=" } end, },
 	},
@@ -81,7 +81,7 @@ DefineClass.CheckBuildingCount = {
 			editor = "combo", default = false, items = function (self) return BuildingsCombo() end, },
 		{ id = "Amount", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 	},
 	TextSingular = T(828647965498, "1 <building_name>"),
 	TextPlural = T(438871007969, "<amount> <building_name_plural>"),
@@ -119,7 +119,7 @@ DefineClass.CheckColonistCount = {
 	properties = {
 		{ id = "Amount", 
 			editor = "number", default = 1, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "Trait", 
 			editor = "combo", default = false, items = function (self) return TraitsCombo() end, },
 	},
@@ -131,8 +131,8 @@ DefineClass.CheckColonistCount = {
 
 function CheckColonistCount:__eval(obj, context)
 	local objs = GetObjectsByLabel("Colonist")
-	local count = #objs
-	if self.Trait and self.Trait ~= "" then
+	local count = #(objs or "")
+	if count > 0 and self.Trait and self.Trait ~= "" then
 		for _, obj in ipairs(objs) do
 			if not obj.traits[self.Trait] then
 				count = count - 1
@@ -164,7 +164,7 @@ DefineClass.CheckColonistStat = {
 			editor = "combo", default = false, items = function (self) return StatCombo() end, },
 		{ id = "Amount", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, scale = "Stat", step = 1000, min = 0, max = 100000, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, scale = "Stat", step = 1000, min = 0, max = 100000, },
 		{ id = "Description", 
 			editor = "text", default = T(297267954147, "<Stat> <Condition> <Amount>"), translate = true, },
 	},
@@ -204,10 +204,10 @@ DefineClass.CheckDeaths = {
 			editor = "bool", default = false, },
 		{ id = "Sols", 
 			editor = "number", default = 1, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "Count", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 	},
 	Description = Untranslated("Deaths <NegText> <ReasonsText> > <Count> the last <Sols> sols"),
 	DescriptionNeg = Untranslated("Deaths <NegText> <ReasonsText> <= <Count> the last <Sols> sols"),
@@ -254,7 +254,7 @@ DefineClass.CheckObjectCount = {
 			editor = "choice", default = false, items = function (self) return { ">=", "<=", ">", "<", "==", "~=" } end, },
 		{ id = "Amount", 
 			editor = "number", default = false, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "Description", 
 			editor = "text", default = T(569587504378, "<ObjName> count <Condition> <Amount>"), translate = true, },
 	},
@@ -317,7 +317,7 @@ DefineClass.CheckResource = {
 			editor = "combo", default = false, items = function (self) return AllResourcesCombo() end, },
 		{ id = "Amount", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "Description", 
 			editor = "text", default = T(549355793884, "<ResourceText> <Condition> <Amount>"), translate = true, },
 	},
@@ -485,7 +485,7 @@ DefineClass.CountTechsResearched = {
 			editor = "choice", default = false, items = function (self) return { ">=", "<=", ">", "<", "==", "~=" } end, },
 		{ id = "Amount", 
 			editor = "number", default = false, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "Description", 
 			editor = "text", default = T(847100615161, "Techs researched count <Condition> <Amount>"), translate = true, },
 	},
@@ -860,10 +860,10 @@ DefineClass.IsSolInRange = {
 	properties = {
 		{ id = "Min", name = "Min sol", 
 			editor = "number", default = 0, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 		{ id = "Max", name = "Max sol", 
 			editor = "number", default = 10, 
-			buttons = { { "Param", "PickParam" } }, },
+			buttons = { { "Param", "StoryBit_PickParam" } }, },
 	},
 	Description = Untranslated("<Min> <= sol <= <Max>"),
 }

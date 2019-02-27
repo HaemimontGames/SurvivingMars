@@ -64,7 +64,7 @@ function PinsDlg:RecalculateMargins()
 	local hud_margins = box()
 	local hud = GetHUD()
 	if hud then
-		local gamepad = not not GetUIStyleGamepad()
+		local gamepad = GetUIStyleGamepad() and not UseHybridControls()
 		local ui_scale = GetUIScale()
 		local hud_side_width = Max(hud.idLeft.measure_width, hud.idLeft.MinWidth)
 		hud_side_width = MulDivRound(hud_side_width, 100, ui_scale)
@@ -77,12 +77,15 @@ function PinsDlg:RecalculateMargins()
 	self:SetMargins(PinsDlg.Margins + hud_margins + GetSafeMargins())
 end
 
-function OnMsg.SafeAreaMarginsChanged()
+function UpdatePinsDlgMargins()
 	local pins_dlg = GetDialog("PinsDlg")
 	if pins_dlg then
 		pins_dlg:RecalculateMargins()
 	end
 end
+
+OnMsg.SafeAreaMarginsChanged = UpdatePinsDlgMargins
+OnMsg.ControlSchemeChanged = UpdatePinsDlgMargins
 
 function PinsDlg:OnSetFocus()
 	self:UpdateGamepadHint()
@@ -202,7 +205,7 @@ local blocked_xbox_shortcuts = {
 }
 
 function PinsDlg:OnMouseEnter(pos)
-	if GetUIStyleGamepad() then return end
+	if UseGamepadUI() then return end
 	local igi = GetInGameInterface()
 	local dlg = igi and igi.mode_dialog
 	if dlg and dlg:IsKindOf("UnitDirectionModeDialog") and dlg.unit then

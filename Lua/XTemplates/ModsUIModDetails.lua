@@ -79,7 +79,7 @@ if obj.installed_retrieved then
 		end
 		local warning_label = self:ResolveId("idWarning")
 		warning_label:SetText(warning or "")
-		warning_label:SetVisible(corrupted)
+		warning_label:SetVisible((warning or "") ~= "")
 		if not corrupted then
 			local enabled = obj.enabled[mod_id]
 			local status = self:ResolveId("idStatus")
@@ -105,6 +105,10 @@ if obj.installed_retrieved then
 		install_button:SetVisible(not installed)
 		install_button:SetEnabled(not g_PopsDownloadingMods[mod_id])
 		self:ResolveId("idRemove"):SetVisible(installed)
+	end
+	local spinner = self:ResolveId("idInstallSpinner")
+	if spinner then
+		spinner:SetVisible(g_PopsDownloadingMods[mod_id])
 	end
 end
 end,
@@ -288,6 +292,36 @@ end,
 				'LayoutHSpacing', 20,
 				'Background', RGBA(235, 235, 235, 255),
 			}, {
+				PlaceObj('XTemplateWindow', {
+					'Id', "idInstallSpinner",
+					'Margins', box(-80, 0, 0, 0),
+					'Dock', "box",
+					'HAlign', "left",
+					'VAlign', "center",
+					'MaxHeight', 60,
+					'FoldWhenHidden', true,
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XImage",
+						'Dock', "box",
+						'HAlign', "center",
+						'VAlign', "center",
+						'FoldWhenHidden', true,
+						'Image', "UI/Mods/PDX_spinner_anim.tga",
+						'ImageFit', "height",
+						'Columns', 16,
+						'Animate', true,
+						'FPS', 25,
+					}),
+					PlaceObj('XTemplateWindow', {
+						'__class', "XImage",
+						'Dock', "box",
+						'HAlign', "center",
+						'VAlign', "center",
+						'Image', "UI/Mods/PDX_spinner_logo.tga",
+						'ImageFit', "height",
+					}),
+					}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XCheckButton",
 					'Id', "idEnabled",
@@ -528,6 +562,37 @@ end,
 				'Margins', box(100, 0, 12, 0),
 			}, {
 				PlaceObj('XTemplateWindow', {
+					'__condition', function (parent, context) return GetUIStyleGamepad() end,
+					'Id', "idInstallSpinner",
+					'Margins', box(-80, 40, 0, 0),
+					'Dock', "box",
+					'HAlign', "left",
+					'VAlign', "top",
+					'MaxHeight', 60,
+					'FoldWhenHidden', true,
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XImage",
+						'Dock', "box",
+						'HAlign', "center",
+						'VAlign', "center",
+						'FoldWhenHidden', true,
+						'Image', "UI/Mods/PDX_spinner_anim.tga",
+						'ImageFit', "height",
+						'Columns', 16,
+						'Animate', true,
+						'FPS', 25,
+					}),
+					PlaceObj('XTemplateWindow', {
+						'__class', "XImage",
+						'Dock', "box",
+						'HAlign', "center",
+						'VAlign', "center",
+						'Image', "UI/Mods/PDX_spinner_logo.tga",
+						'ImageFit', "height",
+					}),
+					}),
+				PlaceObj('XTemplateWindow', {
 					'__class', "XScrollArea",
 					'Id', "idScrollArea",
 					'IdNode', false,
@@ -562,6 +627,7 @@ description:SetVisible(context.LongDescription)
 self:ResolveId("idRequirements"):SetVisible(context.RequiredMods or context.RequiredDlcs)
 self:ResolveId("idDlcs"):SetVisible(context.RequiredDlcs)
 self:ResolveId("idMods"):SetVisible(context.RequiredMods)
+self:ResolveId("idTags"):SetVisible(#(context.Tags or "") > 0)
 
 self:ResolveId("idChangelog"):SetVisible(context.ChangeLog and #context.ChangeLog > 0)
 if context.Thumbnail then
@@ -617,12 +683,15 @@ end,
 									'__condition', function (parent, context) return context.Thumbnail end,
 									'__class', "XImage",
 									'Id', "idThumbSmall",
+									'BorderWidth', 5,
 									'MinWidth', 150,
 									'MinHeight', 100,
 									'MaxWidth', 150,
 									'MaxHeight', 100,
+									'BorderColor', RGBA(0, 0, 0, 0),
 									'HandleMouse', true,
 									'MouseCursor', "UI/Cursors/Rollover.tga",
+									'FocusedBorderColor', RGBA(198, 198, 198, 255),
 									'ImageFit', "largest",
 								}, {
 									PlaceObj('XTemplateFunc', {
@@ -630,9 +699,18 @@ end,
 										'func', function (self, pos, button)
 if button == "L" then
 	self:ResolveId("idThumbnail"):SetImage(self:GetImage())
+	self:SetFocus(true)
 	return "break"
 end
 return XImage.OnMouseButtonDown(self, pos, button)
+end,
+									}),
+									PlaceObj('XTemplateFunc', {
+										'name', "SetSelected(self, selected)",
+										'func', function (self, selected)
+if selected then
+	self:OnMouseButtonDown(nil, "L")
+end
 end,
 									}),
 									}),
@@ -644,12 +722,16 @@ end,
 								}, {
 									PlaceObj('XTemplateWindow', {
 										'__class', "XImage",
+										'BorderWidth', 5,
 										'MinWidth', 150,
 										'MinHeight', 100,
 										'MaxWidth', 150,
 										'MaxHeight', 100,
+										'BorderColor', RGBA(0, 0, 0, 0),
+										'RolloverOnFocus', true,
 										'HandleMouse', true,
 										'MouseCursor', "UI/Cursors/Rollover.tga",
+										'FocusedBorderColor', RGBA(198, 198, 198, 255),
 										'ImageFit', "largest",
 									}, {
 										PlaceObj('XTemplateFunc', {
@@ -657,9 +739,18 @@ end,
 											'func', function (self, pos, button)
 if button == "L" then
 	self:ResolveId("idThumbnail"):SetImage(self:GetImage())
+	self:SetFocus(true)
 	return "break"
 end
 return XImage.OnMouseButtonDown(self, pos, button)
+end,
+										}),
+										PlaceObj('XTemplateFunc', {
+											'name', "SetSelected(self, selected)",
+											'func', function (self, selected)
+if selected then
+	self:OnMouseButtonDown(nil, "L")
+end
 end,
 										}),
 										}),
@@ -824,6 +915,38 @@ end,
 										'Background', RGBA(235, 235, 235, 255),
 									}),
 									}),
+								}),
+							PlaceObj('XTemplateWindow', {
+								'comment', "tags",
+								'Id', "idTags",
+								'LayoutMethod', "VList",
+							}, {
+								PlaceObj('XTemplateWindow', {
+									'__class', "XLabel",
+									'Margins', box(0, 0, 0, 20),
+									'TextStyle', "ModsUIDetailsColumnHeadings",
+									'Translate', true,
+									'Text', T(10132, --[[XTemplate ModsUIModDetails Text]] "TAGS"),
+								}),
+								PlaceObj('XTemplateForEach', {
+									'array', function (parent, context) return context.Tags end,
+									'run_after', function (child, context, item, i, n)
+child:SetText(item)
+end,
+								}, {
+									PlaceObj('XTemplateWindow', {
+										'__class', "XText",
+										'HandleMouse', false,
+										'TextStyle', "ModsUIDetailsColumnItems",
+									}),
+									}),
+								PlaceObj('XTemplateWindow', {
+									'comment', "line",
+									'Margins', box(0, 20, 0, 20),
+									'MinHeight', 1,
+									'MaxHeight', 1,
+									'Background', RGBA(235, 235, 235, 255),
+								}),
 								}),
 							PlaceObj('XTemplateWindow', {
 								'comment', "changelog",

@@ -1052,7 +1052,7 @@ PlaceObj('OnScreenHint', {
 	gamepad_text = T(9155, --[[OnScreenHint Tutorial_3_WaitRocket gamepad_text]] "Wait for the arrival of the Rocket, then land it near the base.\n\nRemember you can speed up time via <ShortcutName('actionSpeedUp')>."),
 	group = "Default",
 	id = "Tutorial_3_WaitRocket",
-	text = T(9154, --[[OnScreenHint Tutorial_3_WaitRocket text]] "Wait for the arrival of the Rocket, then land it near the base.\n\nRemember you can speed up time via the HUD buttons at the bottom center of the screen."),
+	text = T(12124, --[[OnScreenHint Tutorial_3_WaitRocket text]] "Wait for the arrival of the Rocket, then land it near the base.\n\nRemember you can speed up time via the HUD buttons at the bottom center of the screen."),
 	title = T(9153, --[[OnScreenHint Tutorial_3_WaitRocket title]] "Awaiting Rocket"),
 	tutorial = "Tutorial3",
 })

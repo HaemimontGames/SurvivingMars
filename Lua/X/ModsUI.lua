@@ -1,15 +1,16 @@
-do return end
 if Platform.ps4 then return end
 if FirstLoad then
 	g_InitialMods = false
 	g_ParadoxModsContextObj = false
 	g_PopsDownloadModsQueue = false
-	g_PopsDownloadingMods = false
 	g_PopsDownloadModsScreenshotsQueue = false
 	g_PopsRetrieveModDetailsThread = false
 	g_PopsRateFlagThread = false
 	g_PopsUninstallModThread = false
 	g_PopsEnableModThread = false
+	DurangoUserContentDisabledWarningShown = false
+	g_PopsDownloadingMods = {}
+	g_PopsModsUISearchPlatform = Platform.durango and "xbox_one" or "windows"
 end
 
 local function case_insensitive_pattern(pattern)
@@ -59,21 +60,6 @@ end
 function ModsUIDialogEnd(dialog)
 	local new_mods = AccountStorage.LoadMods or empty_table
 	ModsReloadDefs()
-	if g_ParadoxModsContextObj then
-		local obj = g_ParadoxModsContextObj
-		for i, mod in ipairs(obj.installed_mods) do
-			if mod.Local then
-				obj.mod_defs[mod.ModID] = Mods[mod.ModID]
-			else
-				for k, v in pairs(Mods) do
-					if v:CheckParadoxUUID(mod.Name) then
-						obj.mod_defs[mod.ModID] = v
-						break
-					end
-				end
-			end
-		end
-	end
 	if not table.is_iequal(new_mods, g_InitialMods or empty_table) then
 		dialog:DeleteThread("warning")
 		dialog:CreateThread("warning", function()
@@ -104,10 +90,10 @@ function ModsUIDialogEnd(dialog)
 end
 
 function ModsUIGetModCorruptedStatus(mod)
-	if mod.lua_revision < ModMinLuaRevision then
+	if mod:IsTooOld() then
 		return true, T(10931, "Incompatible mod version.")
-	elseif mod.lua_revision > LuaRevision then
-		return true, T(10932, "Game update required!")
+	elseif mod:IsTooNew() then
+		return false, T(10932, "Check for a game update!")
 	end
 	return false
 end
@@ -124,7 +110,7 @@ function GetPopsModsUISortItems(mode)
 		items[#items + 1] = {id = "enabled_desc",  name = T(10973, "Enabled first"), name_uppercase = T(10991, "ENABLED FIRST")}
 		items[#items + 1] = {id = "enabled_asc", name = T(10974, "Disabled first"), name_uppercase = T(10992, "DISABLED FIRST")}
 	end
-	if not Platform.steam then
+	if not Platform.steam or (Platform.durango and not DurangoAllowUserCreatedContent) then
 		items[#items + 1] = {id = "created_asc",       name = T(10937, "Oldest first"),         name_uppercase = T(10938, "OLDEST FIRST")}
 		items[#items + 1] = {id = "created_desc",      name = T(10939, "Most recent first"),    name_uppercase = T(10940, "MOST RESENT FIRST")}
 		items[#items + 1] = {id = "rating_asc",        name = T(10941, "Rating (ASC)"),         name_uppercase = T(10942, "RATING (ASC)")}
@@ -294,14 +280,26 @@ function ModsUIUninstallMod(mod, obj_table)
 			local mod_def = g_ParadoxModsContextObj and g_ParadoxModsContextObj.mod_defs[mod.ModID]
 			if mod_def then
 				g_ParadoxModsContextObj.mod_defs[mod.ModID] = nil
+				LocalStorage.MappedPopsModsData[mod_def.path .. ModsPackFileName] = nil
+				SaveLocalStorage()
 				mod_def:delete()
 				TurnModOff(mod_def.id)
 			end
 			--try to remove the local files
-			local file_err = AsyncDeletePath(const.PopsModsDownloadPath .. mod.DisplayName)
+			local sanitized, old = GetSanitizedModName(mod.DisplayName)
+			local path = ConvertToOSPath(const.PopsModsDownloadPath .. sanitized .. "/")
+			if not io.exists(path) then
+				path = ConvertToOSPath(const.PopsModsDownloadPath .. old .. "/")
+			end
+			local file_err = AsyncDeletePath(path)
 			if file_err then
 				print("Error deleting mod " .. file_err)
 			end
+			local browsed_mod = table.find_value(g_ParadoxModsContextObj.mods, "ModID", mod.ModID)
+			if browsed_mod then
+				browsed_mod.Installed = nil
+			end
+			ModsReloadDefs()
 			if g_ParadoxModsContextObj then
 				g_ParadoxModsContextObj.installed[mod.ModID] = false
 				g_ParadoxModsContextObj.enabled[mod.ModID] = false
@@ -316,8 +314,25 @@ function ModsUIToggleEnabled(mod, win, obj_table)
 		mod = mod or g_ParadoxModsContextObj:GetSelectedMod(obj_table)
 		local id = mod.ModID
 		local enabled = not g_ParadoxModsContextObj.enabled[id]
+		if mod.Warning and enabled then
+			local choice = WaitMarsQuestion(
+				GetDialog(win),
+				T(6899, "Warning"),
+				T(12170, "The selected mod has been created with a newer version of the game and might not work correctly. Please, check for a game update. If a game update is currently not available, it might be forthcoming.\n\nDo you want to enable this mod anyway?"),
+				T(1138, "Yes"), 
+				T(1139, "No"),
+				nil,
+				nil,
+				GetErrorTemplate(nil, "pops")
+			)
+			if choice ~= "ok" then
+				return
+			end
+		end
 		local err
-		if not mod.Local then
+		local m = g_ParadoxModsContextObj.pops_installed[mod.Name]
+		local published = not m or m.IsPublished
+		if not mod.Local and published then
 			local func = enabled and "AsyncPopsModsEnableMod" or "AsyncPopsModsDisableMod"
 			err = AsyncOpWait(PopsAsyncOpTimeout, nil, func, id)
 		end
@@ -336,11 +351,17 @@ function ModsUIToggleEnabled(mod, win, obj_table)
 					end
 				end
 			end
-			if enabled then
+			if enabled and published then
 				TurnModOn(stored_id)
 			else
 				TurnModOff(stored_id)
+				if enabled then
+					WaitMarsMessage(nil, T(6884, "Warning"), T{12102, "Mod <u(name)> has been disabled and is no longer available.", name = mod.DisplayName}, T(1000136, "OK"))
+					AsyncOpWait(PopsAsyncOpTimeout, nil, "AsyncPopsModsDisableMod", mod.ModID)
+					enabled = false
+				end
 			end
+			if not g_ParadoxModsContextObj then return end
 			g_ParadoxModsContextObj.enabled[id] = enabled
 			ObjModified(mod)
 			if win and win.window_state ~= "destroying" then
@@ -423,12 +444,17 @@ local MarkdownProperties = {
 	TextColor = RGB(26,26,26),
 }
 
+local function ParseDescriptionAsHTML(text)
+	text = string.gsub(text, "</?br%s*/?>", "<br/>")
+	return ParseHTML(text, MarkdownProperties)
+end
+
 function ModsUIRetrieveModDetails(mod)
 	DeleteThread(g_PopsRetrieveModDetailsThread)
 	g_PopsRetrieveModDetailsThread = CreateRealTimeThread(function(mod)
 		mod.details_retrieved = true
 		if not mod.Local then
-			local err, result = AsyncOpWait(PopsAsyncOpTimeout, nil, "AsyncPopsModsGetDetails", mod.ModID, false)
+			local err, result = AsyncOpWait(PopsAsyncOpTimeout, nil, "AsyncPopsModsGetDetails", mod.ModID, g_PopsModsUISearchPlatform)
 			if not err then
 				local changelog = result.ChangeLog and table.reverse(result.ChangeLog)
 				mod.ChangeLog = changelog
@@ -437,8 +463,8 @@ function ModsUIRetrieveModDetails(mod)
 					entry.Details = ParseHTML(string.gsub(entry.Details, "\r\n", "\n"), {TextColor = RGB(135, 135, 135)})
 					entry.Released = string.match(entry.Released, "^(%d%d%d%d%-%d%d%-%d%d).*")
 				end
-				mod.LongDescription = ParseHTML(string.gsub(result.LongDescription, "\r\n", "\n"), MarkdownProperties)
-				mod.ShortDescription = ParseHTML(string.gsub(result.ShortDescription, "\r\n", "\n"), MarkdownProperties)
+				mod.LongDescription = ParseDescriptionAsHTML(result.LongDescription)
+				mod.ShortDescription = ParseDescriptionAsHTML(result.ShortDescription)
 				mod.Rating = result.Rating
 				mod.RatingsTotal = result.RatingsTotal
 				mod.RequiredVersion = result.RequiredVersion
@@ -533,6 +559,7 @@ DefineClass.PDXModsObject = {
 	counted = false,
 	installed_retrieved = false,
 	installed_mods = false,
+	pops_installed = false,
 	local_mods = false,
 	
 	enabled = false,
@@ -554,8 +581,13 @@ DefineClass.PDXModsObject = {
 	mods_info_thread = false,
 	mods_info_queue = false,
 	retrieved_mod_pages = false,
+	retrieved_mod_infos = false,
 	
 	query = "",
+	mod_query_count = 0,
+	mod_author_count = 0,
+	last_retrieved_index = 0,
+	last_retrieved_by_author_index = 0,
 	installed_query = "",
 	temp_query = "",
 	selected_mod_id = false,
@@ -571,6 +603,7 @@ function PDXModsObject:Init()
 	self.mod_defs = {}
 	self.mods_info_queue = PopsQueue:new{push_message = "PopsModGetInfoPush"}
 	self.retrieved_mod_pages = {}
+	self.retrieved_mod_infos = {}
 	if Platform.steam or not g_PopsAttemptingLogin then
 		self:GetInstalledMods()
 		if not g_ParadoxAccountLoggedIn then
@@ -591,7 +624,7 @@ function PDXModsObject:GetModsCount()
 end
 
 function PDXModsObject:GetMods()
-	if Platform.steam or not g_ParadoxAccountLoggedIn then return end
+	if Platform.steam or not g_ParadoxAccountLoggedIn or (Platform.durango and not DurangoAllowUserCreatedContent) then return end
 	DeleteThread(self.get_mods_thread)
 	self.get_mods_thread = CreateRealTimeThread(function(self)
 		collectgarbage("collect")
@@ -602,6 +635,11 @@ function PDXModsObject:GetMods()
 		DeleteThread(self.mods_info_thread)
 		table.iclear(self.mods_info_queue)
 		table.clear(self.retrieved_mod_pages)
+		table.clear(self.retrieved_mod_infos)
+		self.mod_query_count = 0
+		self.mod_author_count = 0
+		self.last_retrieved_index = 0
+		self.last_retrieved_by_author_index = 0
 		local mods = self.mods
 		local sortby, orderby = string.match(self.set_sort, "^([^_]*)_(.*)$")
 		local query_params = {
@@ -609,9 +647,12 @@ function PDXModsObject:GetMods()
 			Tags = table.keys(self.set_tags),
 			SortBy = sortby or "",
 			OrderBy = orderby or "",
-			OSType = false,
+			OSType = g_PopsModsUISearchPlatform,
 		}
 		local err, count = AsyncOpWait(PopsAsyncOpTimeout, nil, "AsyncPopsModsCount", query_params)
+		if not err then
+			self.mod_query_count = count
+		end
 		if not err and self.query ~= "" then
 			--second request to search by Author
 			local additional
@@ -620,6 +661,7 @@ function PDXModsObject:GetMods()
 			err, additional = AsyncOpWait(PopsAsyncOpTimeout, nil, "AsyncPopsModsCount", query_params)
 			if not err then
 				count = count + additional
+				self.mod_author_count = additional
 			end
 		end
 		if err then
@@ -648,18 +690,50 @@ function PDXModsObject:GetModsInfo()
 					OrderBy = orderby or "",
 					Page = page,
 					PageSize = ModsUIPageSize,
-					OSType = false,
+					OSType = g_PopsModsUISearchPlatform,
 				}
-				local err, results = AsyncOpWait(PopsAsyncOpTimeout, nil, "AsyncPopsModsSearch", query_params)
-				if not err and self.query ~= "" then
-					--second request to search by Author
+				local modify_obj = false
+				local err, results = false, {}
+				if self.mod_query_count > self.last_retrieved_index then
+					err, results = AsyncOpWait(PopsAsyncOpTimeout, nil, "AsyncPopsModsSearch", query_params)
+					if not err then
+						self.last_retrieved_index = self.last_retrieved_index + #results
+						local seen = self.retrieved_mod_infos
+						for _, res in ipairs(results) do
+							seen[res.ModID] = true
+						end
+					end
+				end
+				local function RetrieveAdditionalModInfos()
 					local additional
 					query_params.Query = nil
 					query_params.Author = self.query
+					query_params.Page = self.last_retrieved_by_author_index / ModsUIPageSize
 					err, additional = AsyncOpWait(PopsAsyncOpTimeout, nil, "AsyncPopsModsSearch", query_params)
 					if not err then
-						table.append(results, additional)
+						local seen = self.retrieved_mod_infos
+						local mods = self.mods
+						local count = 0
+						for i = (self.last_retrieved_by_author_index % ModsUIPageSize) + 1, #additional do
+							local res = additional[i]
+							if not seen[res.ModID] then
+								results[#results + 1] = res
+								seen[res.ModID] = true
+							else
+								mods[#mods] = nil
+								modify_obj = true
+							end
+							count = count + 1
+							if #results >= ModsUIPageSize then
+								break
+							end
+						end
+						self.last_retrieved_by_author_index = self.last_retrieved_by_author_index + count
 					end
+				end
+				while not err and self.query ~= "" and #results < ModsUIPageSize and self.mod_author_count > self.last_retrieved_by_author_index do
+					--add mods by Author
+					RetrieveAdditionalModInfos()
 				end
 				if err then
 					print("Error searching mods: "..err)
@@ -693,6 +767,9 @@ function PDXModsObject:GetModsInfo()
 						ObjModified(mod)
 					end
 				end
+				if modify_obj then
+					ObjModified(self)
+				end
 			end
 		end
 	end)
@@ -706,6 +783,7 @@ function PDXModsObject:GetInstalledMods(modify_obj)
 	DeleteThread(self.installed_thread)
 	self.installed_thread = CreateRealTimeThread(function(self)
 		collectgarbage("collect")
+		self.pops_installed = {}
 		self.installed_mods = {}
 		self.local_mods = {}
 		if not modify_obj then
@@ -715,7 +793,13 @@ function PDXModsObject:GetInstalledMods(modify_obj)
 		local mods = self.installed_mods
 		local tags = table.keys(self.set_installed_tags)
 		local sortby, orderby = string.match(self.set_installed_sort, "^([^_]*)_(.*)$")
-		if not Platform.steam and g_ParadoxAccountLoggedIn then
+		local seen = {}
+		if not Platform.steam and g_ParadoxAccountLoggedIn and not (Platform.durango and not DurangoAllowUserCreatedContent) then
+			local err, pops_installed = AsyncOpWait(PopsAsyncOpTimeout, nil, "AsyncPopsModsGetInstalled", g_PopsModsUISearchPlatform)
+			pops_installed = pops_installed or empty_table
+			for _, m in ipairs(pops_installed) do
+				self.pops_installed[m.Name] = m
+			end
 			local function RetrieveInstalledModsForPage(page, query_params)
 				query_params.Page = page
 				local err, installed = AsyncOpWait(PopsAsyncOpTimeout, nil, "AsyncPopsModsSearch", query_params)
@@ -724,33 +808,48 @@ function PDXModsObject:GetInstalledMods(modify_obj)
 				else
 					for j = 1, #installed do
 						local mod = installed[j]
-						local enabled = mod.Enabled --don't use this after that, sync this using the context object
-						mod.Enabled = nil
-						mods[#mods + 1] = mod
-						local metadata = table.find_value(mod.MetaData, "Key", "size_in_memory")
-						if metadata then
-							local value = string.gsub(metadata.Value, ",", "")
-							mod.FileSize = tonumber(value)
-						end
-						ModsUIDownloadScreenshots(mod)
-						local mod_def
-						for k, v in pairs(Mods) do
-							if v:CheckParadoxUUID(mod.Name) then
-								if enabled then
-									TurnModOn(v.id)
-								else
-									TurnModOff(v.id)
-								end
-								mod_def = v
-								self.mod_defs[mod.ModID] = v
-								break
+						if not seen[mod.ModID] then
+							local enabled = mod.Enabled --don't use this after that, sync this using the context object
+							mod.Enabled = nil
+							local metadata = table.find_value(mod.MetaData, "Key", "size_in_memory")
+							if metadata then
+								local value = string.gsub(metadata.Value, ",", "")
+								mod.FileSize = tonumber(value)
 							end
-						end
-						self.enabled[mod.ModID] = enabled
-						self.installed[mod.ModID] = true
-						if mod_def then
-							g_PopsDownloadingMods[mod.ModID] = nil
-							mod.Corrupted, mod.Warning = ModsUIGetModCorruptedStatus(mod_def)
+							ModsUIDownloadScreenshots(mod)
+							local m = self.pops_installed[mod.Name]
+							local published = not m or m.IsPublished
+							mod.IsPublished = published
+							
+							local mod_def
+							for k, v in pairs(Mods) do
+								if v:CheckParadoxUUID(mod.Name) then
+									if enabled and published then
+										TurnModOn(v.id)
+									else
+										TurnModOff(v.id)
+										if enabled then
+											WaitMarsMessage(nil, T(6884, "Warning"), T{12103, "Mod <u(name)> has been disabled due to content restrictions.", name = mod.DisplayName}, T(1000136, "OK"))
+											AsyncOpWait(PopsAsyncOpTimeout, nil, "AsyncPopsModsDisableMod", mod.ModID)
+											enabled = false
+										end
+									end
+									mod_def = v
+									self.mod_defs[mod.ModID] = v
+									break
+								end
+							end
+							if mod_def then
+								self.enabled[mod.ModID] = enabled
+								self.installed[mod.ModID] = true
+								mods[#mods + 1] = mod
+								g_PopsDownloadingMods[mod.ModID] = nil
+								mod.Corrupted, mod.Warning = ModsUIGetModCorruptedStatus(mod_def)
+								seen[mod_def.id] = true
+							else
+								ModsUIInstallMod(mod)
+							end
+							seen[mod.ModID] = true
 						end
 					end
 				end
@@ -764,7 +863,7 @@ function PDXModsObject:GetInstalledMods(modify_obj)
 				OrderBy = orderby or "",
 				OnlyInstalled = 1,
 				PageSize = 100,
-				OSType = false,
+				OSType = g_PopsModsUISearchPlatform,
 			}
 			local err, count = AsyncOpWait(PopsAsyncOpTimeout, nil, "AsyncPopsModsCount", query_params)
 			if not err then
@@ -789,7 +888,7 @@ function PDXModsObject:GetInstalledMods(modify_obj)
 		local pattern = self.installed_query ~= "" and case_insensitive_pattern(self.installed_query)
 		for k, v in sorted_pairs(Mods) do
 			local mod_tags = v:GetTags()
-			if (v.source ~= "pops" or not g_ParadoxAccountLoggedIn) and table.is_isubset(tags, mod_tags) and (not pattern or string.match(v.title, pattern) or string.match(v.author, pattern) or string.match(v.description, pattern)) then
+			if not seen[k] and table.is_isubset(tags, mod_tags) and (not pattern or string.match(v.title, pattern) or string.match(v.author, pattern) or string.match(v.description, pattern)) then
 				local author = v.author ~= "" and v.author or "Unknown"
 				local corrupted, warning = ModsUIGetModCorruptedStatus(v)
 				local_mods[#local_mods+1] = {
@@ -800,9 +899,10 @@ function PDXModsObject:GetInstalledMods(modify_obj)
 					ModVersion = v.version,
 					Local = true,
 					Source = v.source,
-					LongDescription = string.gsub(v.description, "\r\n", "\n"),
+					LongDescription = ParseDescriptionAsHTML(v.description),
 					Corrupted = corrupted,
 					Warning = warning,
+					Tags = mod_tags,
 				}
 				self.mod_defs[k] = v
 				self.enabled[k] = not not table.find(AccountStorage.LoadMods, v.id)
@@ -891,7 +991,9 @@ function OnMsg.ChangeMap(map)
 end
 
 function OnMsg.PopsAutoLoginFailed()
-	if Platform.steam then return end
+	StartPopsModsDownloadThread()
+	StartPopsModsScreenshotDownloadThread()
+	if Platform.steam or (Platform.durango and not DurangoAllowUserCreatedContent) then return end
 	local obj = g_ParadoxModsContextObj
 	if obj then
 		obj.counted = true
@@ -900,10 +1002,15 @@ function OnMsg.PopsAutoLoginFailed()
 end
 
 function OnMsg.PopsLogin()
-	if Platform.steam then return end
+	StartPopsModsDownloadThread()
+	StartPopsModsScreenshotDownloadThread()
+	if Platform.steam or (Platform.durango and not DurangoAllowUserCreatedContent) then return end
 	--check for missing installed mods and download them
 	CreateRealTimeThread(function()
-		local query_params = {OnlyInstalled = 1, PageSize = 100, OSType = false}
+		local err, pops_installed = AsyncOpWait(PopsAsyncOpTimeout, nil, "AsyncPopsModsGetInstalled", g_PopsModsUISearchPlatform)
+		pops_installed = pops_installed or empty_table
+		
+		local query_params = {OnlyInstalled = 1, PageSize = 100, OSType = g_PopsModsUISearchPlatform}
 		local err, count = AsyncOpWait(PopsAsyncOpTimeout, nil, "AsyncPopsModsCount", query_params)
 		if not err then
 			for i = 0, (count-1) / 100 do
@@ -916,12 +1023,40 @@ function OnMsg.PopsLogin()
 						local mod = installed[j]
 						for k, v in pairs(Mods) do
 							if v:CheckParadoxUUID(mod.Name) then
-								found = true
+								found = v
 								break
 							end
 						end
-						if not found then
+						local m = table.find_value(pops_installed, "Name", mod.Name)
+						local published = not m or m.IsPublished
+						
+						local should_update, found_entry
+						if found then
+						for k,entry in pairs(LocalStorage.MappedPopsModsData or empty_table) do
+							if found:CheckParadoxUUID(entry.uuid) then
+								should_update = (tonumber(entry.pops_version) or 0) < (tonumber(mod.ModVersion) or 0)
+								found_entry = entry
+								break
+							end
+						end
+						should_update = should_update or not found_entry
+						end
+						
+						if published and (not found or should_update) then
 							ModsUIInstallMod(mod)
+						elseif not published then
+							WaitMarsMessage(nil, T(6884, "Warning"), T{12103, "Mod <u(name)> has been disabled due to content restrictions.", name = mod.DisplayName}, T(1000136, "OK"))
+							if mod.Enabled then
+								AsyncOpWait(PopsAsyncOpTimeout, nil, "AsyncPopsModsDisableMod", mod.ModID)
+								if g_ParadoxModsContextObj and g_ParadoxModsContextObj.enabled then
+									g_ParadoxModsContextObj.enabled[mod.ModID] = false
+									ObjModified(g_ParadoxModsContextObj)
+								end
+							end
+							if found then
+								TurnModOff(found.id)
+								SaveAccountStorage(5000)
+							end
 						end
 					end
 				end
@@ -959,9 +1094,12 @@ function OnMsg.PopsModInstalled(mod)
 				break
 			end
 		end
-		local corrupted = mod_def and ModsUIGetModCorruptedStatus(mod_def)
+		local corrupted, warning
+		if mod_def then
+			corrupted, warning = ModsUIGetModCorruptedStatus(mod_def)
+		end
 		local err
-		if not corrupted then
+		if not corrupted and not warning then
 			err = AsyncOpWait(PopsAsyncOpTimeout, nil, "AsyncPopsModsEnableMod", mod.ModID)
 			if err then
 				print("Error enabling mod: "..err)
@@ -976,8 +1114,8 @@ function OnMsg.PopsModInstalled(mod)
 end
 
 function StartPopsModsDownloadThread()
-	g_PopsDownloadingMods = {}
-	if Platform.steam then return end
+	if g_PopsDownloadModsQueue then return end
+	if Platform.steam or (Platform.durango and not DurangoAllowUserCreatedContent) then return end
 	CreateRealTimeThread(function()
 		g_PopsDownloadModsQueue = PopsQueue:new{push_message = "PopsDownloadModPush"}
 		while true do
@@ -991,6 +1129,7 @@ function StartPopsModsDownloadThread()
 end
 
 function StartPopsModsScreenshotDownloadThread()
+	if g_PopsDownloadModsScreenshotsQueue then return end
 	if Platform.steam then return end
 	CreateRealTimeThread(function()
 		AsyncCreatePath(const.PopsModsScreenshotsPath)
@@ -1010,36 +1149,6 @@ end
 
 function OnMsg.PopsModsScreenshotsDownloaded(mod)
 	ObjModified(mod)
-end
-
-if FirstLoad then
-	StartPopsModsDownloadThread()
-	StartPopsModsScreenshotDownloadThread()
-end
-
----- SignUp ----
-local months = {T(10427, "January"),T(10428, "February"),T(10429, "March"),T(10430, "April"),T(10431, "May"),T(10432, "June"),T(10433, "July"),T(1962, "August"),T(10434, "September"),T(10435, "October"),T(10436, "November"),T(10437, "December")}
-function PDXAccountFillBirthDataCombos(self)
-	--day:1-31, month:January_December (translated), Year:1900-Current
-	local items = {}
-	items[1] = {name = _InternalTranslate(T(7715, "Day")), id = ""}
-	for i=1, 31 do
-		items[#items + 1] = {name = tostring(i), id = i}
-	end
-	self:ResolveId("idDay").idCombo:SetItems(items)
-	items = {}
-	items[1] = {name = _InternalTranslate(T(7714, "Month")), id = ""}
-	for i=1, #months do
-		items[#items+1] = {name = _InternalTranslate(months[i]), id = i}
-	end
-	self:ResolveId("idMonth").idCombo:SetItems(items)
-	items = {}
-	local start = tonumber(os.date("%Y"))
-	items[1] = {name = _InternalTranslate(T(10438, "Year")), id = ""}
-	for i = start, 1900, -1 do
-		items[#items + 1] = {name = tostring(i), id = i}
-	end
-	self:ResolveId("idYear").idCombo:SetItems(items)
 end
 
 ---------Flags------------

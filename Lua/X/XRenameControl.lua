@@ -51,9 +51,7 @@ function CreateMarsRenameControl(actionbar_parent, title, initial_text, ok_func,
 			dlg.idEdit:SetMaxLen(max_len)
 		end
 		dlg.idEdit:SetText(initial_text)
-		if not Platform.console then
-			dlg.idEdit:SetFocus()
-		end
+		dlg.idEdit:SetFocus()
 		local ok_idx = table.find(dlg.actions, "ActionId", "ok")
 		local cancel_idx = table.find(dlg.actions, "ActionId", "cancel")
 		dlg.actions[ok_idx].OnAction = function(self, host, source)

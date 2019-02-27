@@ -122,7 +122,7 @@ function OnScreenNotification:OnSetRollover(rollover)
 end
 
 function OnScreenNotification:OnMouseEnter(pos)
-	if GetUIStyleGamepad() then return end
+	if UseGamepadUI() then return end
 	local igi = GetInGameInterface()
 	local dlg = igi and igi.mode_dialog
 	if dlg and dlg:IsKindOf("UnitDirectionModeDialog") and dlg.unit then

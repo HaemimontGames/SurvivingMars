@@ -90,8 +90,9 @@ function XHideNonEssentialUILayer:Done()
 		end
 	end
 	self.visible_states = nil
+	local igi = GetInGameInterface()
 	local mode_dlg = GetInGameInterfaceModeDlg()
-	if mode_dlg then
+	if mode_dlg and igi:GetVisible() then
 		--restore focus to mode dialog
 		mode_dlg:SetFocus()
 	end

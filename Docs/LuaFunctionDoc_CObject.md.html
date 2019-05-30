@@ -576,9 +576,12 @@ _returns_ int, int, int
 
 Checks if the object's entity has specific surfaces.<br>
 
-bool **CObject:HasAllSurfaces**(int mask)
+bool **CObject:HasAllSurfaces**(int mask, [bool hierarchical])
 int mask
 : A mask of the surfaces in question. See the 'EntitySurfaces' global for a list of surfaces and their masks.
+
+bool hierarchical
+: Checks the attached objects too.
 
 _returns_ bool
 : Returns true if the entity has all of those surfaces.
@@ -588,9 +591,12 @@ _returns_ bool
 
 Checks if the object's entity has specific surfaces.<br>
 
-bool **CObject:HasAnySurfaces**(int mask)
+bool **CObject:HasAnySurfaces**(int mask, [bool hierarchical])
 int mask
 : A mask of the surfaces in question. See the 'EntitySurfaces' global for a list of surfaces and their masks.
+
+bool hierarchical
+: Checks the attached objects too.
 
 _returns_ bool
 : Returns true if the entity has any of those surfaces.
@@ -822,10 +828,10 @@ int color
 : the material color to be used, in RGB format represented as an unsigned integer (one byte per color component).
 
 int roughness
-: the material roughness, represented as an integer between 0 and 255
+: the material roughness, represented as an integer between -128 and 127
 
 int metallic
-: the metallic degree, represented as an integer between 0 and 255
+: the metallic degree, represented as an integer between -128 and 127
 
 
 ## CObject:SetDust
@@ -996,7 +1002,7 @@ _returns_ int
 
 ## CObject:StopSound
 
-Stopss the sound of an object.<br>
+Stops the sound of an object.<br>
 
 void **CObject:StopSound**([int time = 0])
 int time

@@ -99,23 +99,23 @@ PlaceObj('StoryBit', {
 		'Prerequisites', {},
 		'Effects', {
 			PlaceObj('ModifyLabel', {
-				'Label', "Residence",
-				'Prop', "Concrete_cost_modifier",
+				'Label', "Residence_Construction",
+				'Prop', "construction_cost_Concrete",
 				'Percent', "<residence_cost_reduction>",
 			}),
 			PlaceObj('ModifyLabel', {
-				'Label', "Residence",
-				'Prop', "Metals_cost_modifier",
+				'Label', "Residence_Construction",
+				'Prop', "construction_cost_Metals",
 				'Percent', "<residence_cost_reduction>",
 			}),
 			PlaceObj('ModifyLabel', {
-				'Label', "Residence",
-				'Prop', "Electronics_cost_modifier",
+				'Label', "Residence_Construction",
+				'Prop', "construction_cost_Electronics",
 				'Percent', "<residence_cost_reduction>",
 			}),
 			PlaceObj('ModifyLabel', {
-				'Label', "Residence",
-				'Prop', "Polymers_cost_modifier",
+				'Label', "Residence_Construction",
+				'Prop', "construction_cost_Polymers",
 				'Percent', "<residence_cost_reduction>",
 			}),
 		},

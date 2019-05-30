@@ -145,18 +145,21 @@ end
 
 function BuildingDepositExploiterComponent:GatherConstructionStatuses(statuses)
 	self:GatherNearbyDeposits("no_filter")
-	local can_exploit
+	local require_tech
+	local resource_nearby
 	if #self.nearby_deposits > 0 then
-		--check if they can be exploited
 		for _, deposit in ipairs(self.nearby_deposits) do
-			if self:CanExploit(deposit) then
-				can_exploit = true
+			if deposit.resource == self.exploitation_resource then
+				resource_nearby = true
+				if self:IsTechLocked(deposit) then
+					require_tech = true
+				end
 			end
 		end
 	end
-	if #self.nearby_deposits > 0 and not can_exploit then
+	if #self.nearby_deposits > 0 and require_tech then
 		statuses[#statuses + 1] = ConstructionStatus.ResourceTechnologyRequired
-	elseif #self.nearby_deposits <= 0 or (table.find(self.nearby_deposits, "resource", self.exploitation_resource) == nil) then
+	elseif #self.nearby_deposits <= 0 or not resource_nearby then
 		statuses[#statuses + 1] = ConstructionStatus.ResourceRequired
 	end
 	
@@ -329,7 +332,7 @@ end
 --------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
 --divided by 1000, ie a value of 10 means 1/100 waste rock production - for every 100 boxes, 1 wasterock is produced
-local DepositGradeToWasteRockMultipliers = {
+DepositGradeToWasteRockMultipliers = {
 	["Metals"] = {
 		["Depleted"]  = 1200,
 		["Very Low"]  = 1000,
@@ -366,6 +369,38 @@ local DepositGradeToWasteRockMultipliers = {
 
 --------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
+DefineClass.BlockableCanExecuteAlone = {
+	__parents = { "Object" },
+	
+	output_blocked = false,
+}
+
+function BlockableCanExecuteAlone:GetStockpileDumpSpotTestInputPos(resource)
+	return self:GetPos()
+end
+
+function BlockableCanExecuteAlone:BuildingUpdate(dt, day, hour)
+	if self.output_blocked and not self.destroyed then
+		local r = self.output_blocked
+		local pos = self:GetStockpileDumpSpotTestInputPos(r)
+		local res, q, r = FindStockpileDumpSpot(pos, r)
+		
+		if res then
+			self:ExecuteAloneResourceOutputUnblocked(r)
+		end
+	end
+end
+
+function BlockableCanExecuteAlone:ExecuteAloneResourceOutputBlocked(resource, amount)
+	assert(false)
+	return false
+end
+
+function BlockableCanExecuteAlone:ExecuteAloneResourceOutputUnblocked(resource)
+	assert(false)
+end
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 
 --ResourceProducers can produce multiple resource at once (see max_resources_produced).
 --Resources are numbered 1..n. To produce something you need to set the approprate "Rsource Produced" property.
@@ -377,7 +412,7 @@ local DepositGradeToWasteRockMultipliers = {
 --Note: Waste Rock production is implemented as an edge case of SingleResourceProducer - the 'Production Per Day' property is ignored.
 
 DefineClass.ResourceProducer = {
-	__parents = { "Object" },
+	__parents = { "BlockableCanExecuteAlone" },
 	properties = { },
 	
 	manual_resource_production = false,
@@ -398,7 +433,7 @@ end
 
 local max_resources_produced = 3
 for i=1,max_resources_produced do
-	table.append(ResourceProducer.properties, {
+	table.iappend(ResourceProducer.properties, {
 		{ template=true, category="ResourceProducer"..i, id="resource_produced"..i,  name=T{6727, "Resource Produced <n>", n=i},  editor="combo",   default="", items = GetResourcesDropDownItems},
 		{ template=true, category="ResourceProducer"..i, id="max_storage"..i,        name=T{6728, "Max Storage <n>", n=i},        editor="number", default=20000, scale = const.ResourceScale },
 		{ template=true, category="ResourceProducer"..i, id="production_per_day"..i, name=T{6729, "Daily Production <n>", n=i}, editor="number", default=1000,  scale = const.ResourceScale, modifiable = true },
@@ -550,6 +585,9 @@ end
 
 function ResourceProducer:BuildingDailyUpdate(day)
 	self:CallForEachProducer("BuildingDailyUpdate", day)
+	if self.wasterock_producer then
+		self.wasterock_producer:BuildingDailyUpdate(day)
+	end
 end
 
 function ResourceProducer:BuildingUpdate(dt, day, hour)
@@ -766,7 +804,55 @@ function ResourceProducer:GetUISectionResourceProducerRollover()
 	return table.concat(t, "<newline><left>")
 end
 
+function ResourceProducer:GetStockpileDumpSpotTestInputPos(resource)
+	assert(resource == "WasteRock")
+	if self.wasterock_producer then
+		local s = self.wasterock_producer.stockpiles[1]
+		return s:GetPos()
+	else
+		return self:GetPos()
+	end
+end
 
+function ResourceProducer:ExecuteAloneResourceOutputBlocked(resource, amount)
+	assert(resource == "WasteRock") --diff resources will need diff logic, only this is impl.
+	assert(IsKindOf(self, "TaskRequester"))
+	local ret = false
+	if resource == "WasteRock" then
+		local producer = self.wasterock_producer
+		assert(producer)
+		local stocks = producer.stockpiles
+		for i = 1, #stocks do
+			local s = stocks[i]
+			s.supply_request:ClearFlags(const.rfCanExecuteAlone)
+		end
+		local free_space = producer:GetFreeStockpileSpace()
+		if free_space >= amount then
+			producer:AddToStockpile(amount)
+			ret = true
+		end
+		self.output_blocked = "WasteRock"
+		self:InterruptDrones(nil, function(d)
+			return d.s_request and d.s_request:GetResource() == resource
+					and table.find(stocks, d.s_request:GetBuilding())
+					and d
+		end)
+		return ret
+	end
+end
+
+function ResourceProducer:ExecuteAloneResourceOutputUnblocked(resource)
+	if resource == "WasteRock" then
+		local producer = self.wasterock_producer
+		assert(producer)
+		local stocks = producer.stockpiles
+		for i = 1, #stocks do
+			local s = stocks[i]
+			s.supply_request:AddFlags(const.rfCanExecuteAlone)
+		end
+		self.output_blocked = nil
+	end
+end
 ----
 
 --Produces a single resource (inheriting ResourceProducer is recommended)
@@ -880,6 +966,15 @@ function SingleResourceProducer:OnProduce(amount_to_produce) --use this to mod a
 end
 
 GlobalVar("g_ResourceProducedTotal", {})
+
+function SingleResourceProducer:AddToStockpile(amount)
+	self:UpdateStockpileAmounts(self:GetAmountStored() + amount)
+	assert(self:GetAmountStored() <= self.max_storage)
+end
+
+function SingleResourceProducer:GetFreeStockpileSpace()
+	return self.max_storage - self:GetAmountStored()
+end
 
 function SingleResourceProducer:Produce(amount_to_produce) --produces amount_to_produce
 	local stored = self:GetAmountStored()
@@ -996,8 +1091,9 @@ function SingleResourceProducer:GetPredictedDailyProduction()
 		return total / (100 * const.HoursPerDay)
 	elseif IsKindOf(self.parent, "ShiftsBuilding") then
 		local total_production = 0
+		local closed_shifts = self.parent.closed_shifts or empty_table
 		for i = 1, self.parent.max_shifts do
-			if not self.parent.closed_shifts[i] then
+			if not closed_shifts[i] then
 				local hours_per_shift = const.DefaultWorkshiftDurations[i]
 				total_production = total_production + MulDivRound(self.production_per_day, hours_per_shift, const.HoursPerDay)
 			end

@@ -1,7 +1,7 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 PlaceObj('TechFieldPreset', {
-	SortKey = 1000,
+	SortKey = 2000,
 	costs = {
 		1000,
 		1000,
@@ -34,7 +34,7 @@ PlaceObj('TechFieldPreset', {
 })
 
 PlaceObj('TechFieldPreset', {
-	SortKey = 2000,
+	SortKey = 3000,
 	costs = {
 		1000,
 		1000,
@@ -68,7 +68,7 @@ PlaceObj('TechFieldPreset', {
 })
 
 PlaceObj('TechFieldPreset', {
-	SortKey = 3000,
+	SortKey = 4000,
 	costs = {
 		1000,
 		1000,
@@ -102,7 +102,7 @@ PlaceObj('TechFieldPreset', {
 })
 
 PlaceObj('TechFieldPreset', {
-	SortKey = 4000,
+	SortKey = 5000,
 	costs = {
 		1000,
 		1000,
@@ -136,7 +136,7 @@ PlaceObj('TechFieldPreset', {
 })
 
 PlaceObj('TechFieldPreset', {
-	SortKey = 5000,
+	SortKey = 6000,
 	costs = {
 		1000,
 		1000,
@@ -170,7 +170,7 @@ PlaceObj('TechFieldPreset', {
 })
 
 PlaceObj('TechFieldPreset', {
-	SortKey = 6000,
+	SortKey = 7000,
 	costs = {
 		2000,
 		2000,
@@ -204,7 +204,7 @@ PlaceObj('TechFieldPreset', {
 })
 
 PlaceObj('TechFieldPreset', {
-	SortKey = 7000,
+	SortKey = 8000,
 	discoverable = false,
 	display_name = T(6607, --[[TechFieldPreset Mysteries display_name]] "Mysteries"),
 	group = "Default",
@@ -213,7 +213,7 @@ PlaceObj('TechFieldPreset', {
 })
 
 PlaceObj('TechFieldPreset', {
-	SortKey = 8000,
+	SortKey = 9000,
 	discoverable = false,
 	display_name = T(948928900281, --[[TechFieldPreset Storybits display_name]] "Story Bits"),
 	group = "Default",

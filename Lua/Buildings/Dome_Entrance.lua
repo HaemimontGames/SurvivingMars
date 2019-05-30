@@ -61,11 +61,7 @@ function Dome_Entrance:TraverseTunnel(unit, start_point, end_point, direction)
 		return false
 	end
 
-	if direction == 1 then
-		unit:OnEnterDome(dome)
-	else
-		unit:OnExitDome(dome)
-	end
+	unit:SetOutside(direction ~= 1)
 	
 	unit.safe_pos_on_failure = leadout_chain[#leadout_chain]
 	dome:LeadOut(unit, leadout_chain)

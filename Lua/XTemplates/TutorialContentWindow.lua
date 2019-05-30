@@ -43,8 +43,8 @@ PlaceObj('XTemplate', {
 					PlaceObj('XTemplateFunc', {
 						'name', "SetSelected",
 						'func', function (self, ...)
-self.idbutton:SetSelected(...)
-end,
+							self.idbutton:SetSelected(...)
+						end,
 					}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XImage",
@@ -54,8 +54,8 @@ end,
 					}, {
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-parent:SetVisible(AccountStorage and AccountStorage.CompletedTutorials and AccountStorage.CompletedTutorials[context.id])
-end,
+								parent:SetVisible(AccountStorage and AccountStorage.CompletedTutorials and AccountStorage.CompletedTutorials[context.id])
+							end,
 						}),
 						}),
 					PlaceObj('XTemplateTemplate', {
@@ -64,12 +64,11 @@ end,
 						'RolloverText', T(463510675096, --[[XTemplate TutorialContentWindow RolloverText]] "<description>"),
 						'RolloverTitle', T(384759114882, --[[XTemplate TutorialContentWindow RolloverTitle]] "<display_name>"),
 						'Id', "idbutton",
-						'Padding', box(0, 0, 0, 0),
 						'Dock', "right",
 						'HAlign', "right",
 						'OnPress', function (self, gamepad)
-CreateRealTimeThread(StartTutorial, self.context.id)
-end,
+							CreateRealTimeThread(StartTutorial, self.context.id)
+						end,
 						'Text', T(175928588179, --[[XTemplate TutorialContentWindow Text]] "<display_name>"),
 					}),
 					}),

@@ -7,11 +7,11 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateCode', {
 		'comment', "if no RolloverTitle use section title",
 		'run', function (self, parent, context)
-local title = context.control:GetRolloverTitle()
-if title == "" then
-	context.RolloverTitle = context.control:GetTitle()
-end
-end,
+			local title = context.control:GetRolloverTitle()
+			if title == "" then
+				context.RolloverTitle = context.control:GetTitle()
+			end
+		end,
 	}),
 	PlaceObj('XTemplateTemplate', {
 		'__template', "InfopanelRollover",

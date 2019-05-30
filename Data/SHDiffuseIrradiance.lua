@@ -349,6 +349,66 @@ PlaceObj('SHDiffuseIrradiance', {
 })
 
 PlaceObj('SHDiffuseIrradiance', {
+	id = "Terraformed_DawnExterior",
+	sh9_coefficients = "80K+PhIJrT7PzdI+bMD5O12q+LpqP+y7ohHgO4Nemj3KrQg+4XoqvCp1hrw/Qau8k2gnPIVlMzwg\nkG88BYTkuzAKrLu3cN67Lh7pvIdbFr3BaTy9gSMju/JtObsvMZS7YfQqvBgAO7xTk2C8",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "Terraformed_DawnInterior",
+	sh9_coefficients = "i23wPlJnEj+aXCU/fo3ovL9IRb1zn569WtBVvb9kDr2DGMk8P+vZvVioxb2b0ay9DVebOkwrRTul\ne7Q6XsblPBZPHT3ql0E9EroZvdfMKL2fU0q9qaaOPA1rmzxVYGc8uByjO9jnU7xBIve8",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "Terraformed_DuskExterior",
+	sh9_coefficients = "pt5FPjDaLj6GD0E+cZ+fO8NclrmuwfS6ekPmu/4PzTxqJDo9Ntaku8ESDbz7mSe80L+lOw+tpztC\nN8s7aYhnu4nMDrsDgw67uF16vBDjo7xHnce8bo6Wuro6i7qtws66mda5u/Nu17vki/q7",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "Terraformed_DuskInterior",
+	sh9_coefficients = "EOjfPr8aDT8HfCE/K5TWvIRiar2jccS9F+1DvYoqF705m2s8P33bvdhUy72Ptra9T0zOOoyqrDut\nx6I7Y8DYPDCLGj2FkkM9OnIPvdv9I72q/kW9x5CKPMyCnDzpUGo8JCugOyFTY7wv8wW9",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "Terraformed_EveningExterior",
+	sh9_coefficients = "GAa8Pt3arD4FudE+ACncO+VqDLvWKAC8TP0QPDQ4mT0dIwk+4XUrvExdhLzPGqm8/CgoPAfPNTyI\nanI8TuTeuyEXrbuhYd27e1XqvCJyFb1dhTu9fFcgu1aiOrvuQ5W7qtspvFMJOrzMwF68",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "Terraformed_EveningInterior",
+	sh9_coefficients = "cnrwPtJ+FD/qQCU/2cEdvevIg732S769qVlpvS14Nr1oHqo88oDTve+Xxb1APbK9Ux3tugrpAjtf\nlIo6P7zaPEQNHz00CkM9Xq0XvalmJ72YOE29BTqHPAjJmTzsC2E8ZplLO7/rfrw3XAe9",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "Terraformed_MorningExterior",
+	sh9_coefficients = "uH/+PmoWxz6I7+A+Bk7xPMKp2Ds9LUG7i2Obvf+7Lj37te09LbwGu3k7abyKd6a8T6RFPEDxPDyA\n+HE8RV5QvItS9rtEtgO8VZ6mvJx+C70a1Te9GQBJu41uPrtK05e74/o5vOYVQ7zSgmi8",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "Terraformed_MorningInterior",
+	sh9_coefficients = "QVMdP5ZQPj/h1lA/7Cpsvcocx71NcyG+1IDwvSWo8L1nbCS9WdDFvcQwuL276rO9UpiNu1NzKLpf\nBC269kb0PMfpOz0y1Hg9CRcNvdbhDL2j5la9y9+dPIcSqzxm46U8dALoO4uogLzndi69",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "Terraformed_NightExterior",
+	sh9_coefficients = "a7ymPgpIqD7QV9I+ljdXuuGwebsOR/+7NNQVPYYFpT3pUgg+1JlXvGQPhrzasqa8xGYfPNFTNTyG\nz3M8+weguzM4oLuBW+C74qj+vHDIFr2anTq9EiwXu+lKOrtFmJS7au4ivCRWN7zJ/V28",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "Terraformed_NightInterior",
+	sh9_coefficients = "lxjVPr7CCj9iUCQ/n+6wvEa+SL1fFby9bbA3vdpBFb0TvVs8HOHhvf/5yb0x2LS9RyvqOmY8Gjsp\nyaM42ZfQPEEuFD3I9EE9nekEvbaoF71y5zy9bm+DPE95kDxKNFc8FyPdO+nmSby+Nwa9",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "Terraformed_NoonExterior",
+	sh9_coefficients = "KdhgPwrpHj/TrRE/3gPEPeXwPT2DxZU86TinvrKu3L0C2wM9IwPCPMEWYrshLYu8uCeSPLZnazya\nIIA8/oD3vMyGlrzXbHC87ReYO222qrxpzhy9ZAGjuxHNWbugzKi7X0tlvGyrbLwYIIu8",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "Terraformed_NoonInterior",
+	sh9_coefficients = "LrOKP4m+xT8nPss/FAe0vTawY76AB9m+1OOrviiaC79xgM++2ueHvcbYQL17T7W9rO3KvHv1hryd\nrVa8Lt7aPJh9fz0EQc09Tk6JvCb1mTwJYRO9kHjZPHgU0Tx0CEE9qQjcPAZQM7zQuKm9",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
 	group = "Default",
 	id = "TheMartian_DawnExterior",
 	sh9_coefficients = "JxHBPztXVD8FkgI/ypasPSJzdD25jzE97FOFPvZhVT6zYhA+YBcXuG79xbsaf7G7exKxPN7hXzxQ\naQo8nKlHOzBWpTvGdlo7dmkbvjwuzL1RMYS9UHFQurGcADpHOgM6WYWBPRySJT2Fr9M8",
@@ -430,5 +490,130 @@ PlaceObj('SHDiffuseIrradiance', {
 	group = "Default",
 	id = "TheMartian_NoonInterior",
 	sh9_coefficients = "CHK+PulwID4wP8M9W74XPKPMnzvcA3Y7+Re3PepCRz3fsAI9zTeCPEp48ztCyY87DZ8uO5Ewqjpd\nt046BG2eOtA9MTpRftM5EvwYvQgokLx2uzy8C2HIOyM1OTtenc86vXaqOxroHTvbl5w6",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "ToxicRain_DawnExterior",
+	sh9_coefficients = "529YPh6tyT1XWKE8R7JRO7wyizn69aM4ycE9vfBwFLqRBwa7Da3mu+Wr5Lt34566xZ/KOtxLfjoV\n+i45rWYHu9oSYbqRyB+51vD0uxgT+rudu5e6jlaxuqlSgLoQoR25VTxgu/eB97qFze+5",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "ToxicRain_DawnInterior",
+	sh9_coefficients = "RlekPj36nj5+nRc+UzFWuv325bs7jvi7Ezr9vIlo7ruLK6A81jygvSJnar3rH6+8Dx6ROy0v1Du0\nJFA7RVPcO28w3ztMoa06ShPWvEbXqryu5a+7kL2RPAyLmDxxtyc8BlJpPOYY9jsrGs87",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "ToxicRain_DuskExterior",
+	sh9_coefficients = "FeI1PhJtvT2DKI48nN+vOs4QFzi1w4m4htjCvNZUcjuqVeK4zoUFvHpp5ruiWJW6IIjeOu/ghTrN\ncEw5Z3PvukT7YLqZUDm5N5cevDeABbz5JLO6gOe/uk3qhbqgXS657oY7uxiF67oBcra5",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "ToxicRain_DuskInterior",
+	sh9_coefficients = "E4GePsZcnT6pcRI+0F75ulSQGLzW5Ae8ftO0vIEBHbne+7o8bwaivSdhaL3eSqy8d0qUO5ivvjus\nYTY7B+IBPGO+9jtkk9M6qN7VvCcasLyJSbK7tZSPPHrRmDwNySM8HkJfPBwQ3TtX7sQ7",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "ToxicRain_EveningExterior",
+	sh9_coefficients = "zkIlPsnXyj2RVY88b2/uOQiyzzkkRsg4rOhVvK8qGLrvNie6424MvM/v37tNK5y6T7vuOnX2izq0\n4jo5MOjlulx6frrMtyy5YCEwvMq2ALwLDKi6mMHEuhn+erqUqC6591gxu8pnBbtgEtu5",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "ToxicRain_EveningInterior",
+	sh9_coefficients = "DJ2fPgdypD5a6RQ+xiyYu3RYzrvoSeK7C42JvJ1vKLrG87g8xYChvSorY71b9Ki8+xZ4O3Oaujsg\nmCQ7fQAJPOD+2TvBzcA6hiLjvG+UuLx9hbu7MNmQPEGHnDzDByc8PaBQPJK54zvNer47",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "ToxicRain_MorningExterior",
+	sh9_coefficients = "2MhSPgpbwz2b0qA88ldJOy4TXjeSeDk5SukqvX5NBzsW8e26crLbu/Vs3rv+C5i6s9/3OnlkmjqN\nBD459iEXu7Rjfbokhj+59/gLvA16B7yBKau64De3uqp4gLryYy+5JmBnu/xXArvxJe65",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "ToxicRain_MorningInterior",
+	sh9_coefficients = "RCCtPkC/pj7azSA+4RcFO1Rp/rtN1dS7+gOxvNr4ODsV5c48+nOhvVZXZ72k56m8t66iO2T5zTv3\nJkc7xX73O70G/zs7Ocw6j2PxvE+FxrzH2OO7R9GWPDc2nTx5QC08M4JfPMnWyDvpiLw7",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "ToxicRain_NightExterior",
+	sh9_coefficients = "/yfpPSXFkT07nnQ8D0aIug+y57kpsCe4DLhkOpmTtjtlBQG6UP/suwKTsLural66blTnOjRZjTpL\nwU05vy6uul0ISrq4yEC5mY8hvBIP47usmpG64lqiunNOV7rU/wG5nI4Cu2gGxLpyMqS5",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "ToxicRain_NightInterior",
+	sh9_coefficients = "W6F6PotSgj70rgs+ceGmu3qMGLxiQtK7fva4vEb1FbtKU8I8VGmcvchgYL3DMqS8b39fOxvAjDtZ\nLRg7cwf+O/eE5TvI/sI6RuqvvEtZjrzXraC7qZyRPOb2mDx2bSY82YVNPCZh9Dv7O8o7",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "ToxicRain_NoonExterior",
+	sh9_coefficients = "QFZhPnAyBD7uvA49BtKJOz9m+DqiUDw6IX1OvQCsnby/hTm8sJq7u3u9vbv8n3y6z+IJO2k1qjpx\ns2A5Ixwtu5wdt7pH37W57uEFvFk94ruFLE26J+61utYIULpfpvi4bAd4u5ibLbtOzkm6",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "ToxicRain_NoonInterior",
+	sh9_coefficients = "ReWwPmK6uT4RGzw+kl6KOx6stTvMmYw6VFWjvKSu+LuCtqs89CijvYbBY71bIqu8xLG5O63QETyN\njaQ75M0CPHnowDuAbtc6GW37vFvs1bzPOBG8PpKWPIUKrDwQyE08Oa9PPBLSsjt+iqU7",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "WaterRain_DawnExterior",
+	sh9_coefficients = "4PgnPtU0IT6EMDU+IK0UPIQpLzxqmHE8VQ8AO9qoqDzJvhc9DHs8vA3aZbzGfoa8DYStu9fPzrve\nJQC8EA1FO3SUeDv90Js741GDvIadmbzLwbi8Bu2Mum0zqroLhwW795qvuwm6zLsQDe27",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "WaterRain_DawnInterior",
+	sh9_coefficients = "T56jPvlb5T4FSQc/IsHXvKGuTb3tTbW9Ss5XvayoUb0nQ8m8R3C+vVtLr71N/Y69PHRoO/lxBjwh\ngTA8ZaSvPKgeCD3vqDU9aObdvK8MDL2FLTa9dN+NPF6Bjzx6ly48UNsDPIEn8rugG9K8",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "WaterRain_DuskExterior",
+	sh9_coefficients = "c3giPvHMIj5Z+DU+wrUXPO+GITxEHWA89jCaO7Zomzx5+RI9GYE9vEmBZby224a8KLenuxpKxruF\nOfW7p7hAO4aIfzv66p87Ho+CvJcxlrzMULW8gzqaupK1q7quLgi7DN+hu9pkybu+3Oi7",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "WaterRain_DuskInterior",
+	sh9_coefficients = "QAifPt5p5T7YLwY/k5kXvbe4e71nV9a9yNVwvU/eib30Iza9a8a7vYC/rr0NwZO9Lh/HOuXE6TuU\nTi08CfipPClaBD3xBDc95KjhvN/ZCL2mUjK9lPuRPNQ4mTyMVk48u8+RO3s4J7x5RO+8",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "WaterRain_EveningExterior",
+	sh9_coefficients = "qjwxPqStKT7U1js+3OoKPJ7wGzxdj1g8DSeEu4AdeTwLpwY9dok+vKaoarzldoq8XzCou+hMxbul\n0vK7L0JLO2/WgTvpJaI7K6R+vBrFlbzKrrW8GPeGusidpbplzQe75jmyu5MD0rtC0fG7",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "WaterRain_EveningInterior",
+	sh9_coefficients = "fyGrPmyI7T4YWQo/sHMZvTQsfr1PDNS9lnhgva+2eL0SMBe9wP+1vazDpL3rToW9nD8VOpizsDss\n1QA80k6oPOmgBD2ulDM9k8HnvLJ1CL2UgjG9CMaRPNE1kjzmnzk88t+rO0IgH7xrdeu8",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "WaterRain_MorningExterior",
+	sh9_coefficients = "C/lwPli2VD5dvlc+7W1xO+uffDuUyQI8164svZ8MELxtOZk8hDc1vKI0ebyir5a8lNeou3I6vbvU\nVei7nMSCO0leoTs0Jr07cdZdvISkkrw5xrm8QmSQuWD7ILrjIN26LNkAvDbSEbyZWx68",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "WaterRain_MorningInterior",
+	sh9_coefficients = "unvIPqXjET96Nic/RhvlvK6tcr3QcOG9mGeJvU/st70EOVW9stmyvZ+lmr0OCn+9U3fBOo7MqjvV\ntt47ACanPAPHCD3qHT09GvDUvABn6rz8BjG9Ke2TPDYUjjygjk88/7E5PAFUlbvsk9y8",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "WaterRain_Morning_KrasExterior",
+	sh9_coefficients = "VxB5Pu2/ej7y/5A+l/JPPDKXajwFJJ48bK8HPTNKVj2KO5w9BDGMvH103Lx4xA+9xdCluybYqrte\nKOS7GE9EO3ociDslALM76Rv3vD7p87yIpgm95TOjumN33rqe0Cu7vQaeu2xi87uBISS8",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "WaterRain_NightExterior",
+	sh9_coefficients = "XV8aPnPwGj6nbTA+l6IgPNbuMjzEeW88zt8NPCZVujwXOBw9X3JCvB48abxoz4i8u1meu7DFvbua\npOq7r8Q4O1PvcTvhwZk7LXR/vC16krwfla+8nyi1ukcOz7rggRq7eUeJuzJoqbsM8cW7",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "WaterRain_NightInterior",
+	sh9_coefficients = "vy2TPqZ51D4i0/o+2ProvMCaWL2vR7+9wDZxvTMaeb1kgiW9nADCvexXtL0x5JW90COUO0ANHjwq\n21M8RBqtPH67BT29SjU9F+zGvH2VAL2sHya9kKmQPOorljy5tD88OgfrO2P0ArwvyNa8",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "WaterRain_NoonExterior",
+	sh9_coefficients = "feXDPmsJkj7UMYI+ftXhu1Mm0rs6xL66LE8IvgiXXr1sV667N3IbvIKmhrw1xKe83Z+lu+YEp7sM\nTMu7gVfAO5P51zs7FOs7xBIKvLJth7zadbq8dWbDOgbDFTp1Goy6lgZZvJovVryGb1W8",
+})
+
+PlaceObj('SHDiffuseIrradiance', {
+	id = "WaterRain_NoonInterior",
+	sh9_coefficients = "cIMCP6LLOz/c2k0/sAL8vFcljb00+Ai+PnXdvdZWH74/k8G9Eq2fvZBpgb0nZGK9Yv42u2pxxTpY\n9io7k7ybPHL2DD3BFEs9E9O/vN3HobwkJim9myuZPAx9hjwZRHA8YP+IPMprprn+mOi8",
 })
 

@@ -22,39 +22,39 @@ PlaceObj('XTemplate', {
 			}, {
 				PlaceObj('XTemplateCode', {
 					'run', function (self, parent, context)
-parent:CreateThread("DailyUpdate", function(dlg, day)
-	for _, win in ipairs(dlg.idContent) do
-		win.idTitle:SetText(win.idTitle:GetText())
-	end
-end, parent, UICity.day)
-local dlg = GetDialog(parent)
-if dlg then
-	dlg.OnShortcut = function(dlg, shortcut, source)
-		if shortcut == "RightShoulder" then
-			local content = dlg.idContent
-			if not content:IsFocused(true) then
-				local graph = content[rawget(dlg, "focused_graph") or 1]
-				graph.idList:SetFocus()
-				graph.idList:SetSelection(rawget(dlg, "last_list_focus") or 1)
-				return "break"
-			end
-		elseif (shortcut == "LeftShoulder" or shortcut == "ButtonB") and rawget(dlg, "idButtons") then
-			local buttons = dlg.idButtons
-			if not buttons:IsFocused(true) then
-				rawset(dlg, "last_list_focus", dlg.idContent[rawget(dlg, "focused_graph") or 1].idList.focused_item)
-				local item
-				local mode_param = dlg.mode_param
-				if mode_param then
-					item = table.find(buttons, "Id", mode_param.pressed)
-				end
-				buttons[item or 1]:SetFocus()
-				return "break"
-			end
-		end
-		return XDialog.OnShortcut(dlg, shortcut, source)
-	end
-end
-end,
+						parent:CreateThread("DailyUpdate", function(dlg, day)
+							for _, win in ipairs(dlg.idContent) do
+								win.idTitle:SetText(win.idTitle:GetText())
+							end
+						end, parent, UICity.day)
+						local dlg = GetDialog(parent)
+						if dlg then
+							dlg.OnShortcut = function(dlg, shortcut, source)
+								if shortcut == "RightShoulder" then
+									local content = dlg.idContent
+									if not content:IsFocused(true) then
+										local graph = content[rawget(dlg, "focused_graph") or 1]
+										graph.idList:SetFocus()
+										graph.idList:SetSelection(rawget(dlg, "last_list_focus") or 1)
+										return "break"
+									end
+								elseif (shortcut == "LeftShoulder" or shortcut == "ButtonB") and rawget(dlg, "idButtons") then
+									local buttons = dlg.idButtons
+									if not buttons:IsFocused(true) then
+										rawset(dlg, "last_list_focus", dlg.idContent[rawget(dlg, "focused_graph") or 1].idList.focused_item)
+										local item
+										local mode_param = dlg.mode_param
+										if mode_param then
+											item = table.find(buttons, "Id", mode_param.pressed)
+										end
+										buttons[item or 1]:SetFocus()
+										return "break"
+									end
+								end
+								return XDialog.OnShortcut(dlg, shortcut, source)
+							end
+						end
+					end,
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'__template', "ScrollbarNew",
@@ -80,70 +80,70 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "OnShortcut(self, shortcut, source)",
 							'func', function (self, shortcut, source)
-return CCC_ButtonListOnShortcut(self, shortcut, source)
-end,
+								return CCC_ButtonListOnShortcut(self, shortcut, source)
+							end,
 						}),
 						PlaceObj('XTemplateForEach', {
 							'array', function (parent, context) return UICity:GetColonyStatsButtons() end,
 							'__context', function (parent, context, item, i, n) return item end,
 							'run_after', function (child, context, item, i, n)
-child:SetId("idButton" .. i)
-if item.button_caption then
-	child:SetText(item.button_caption)
-	child:SetRolloverTitle(item.button_caption)
-	child:SetRolloverText(item.button_text)
-end
-child:SetIcon(item.off_icon)
-local parent_dlg = GetDialog(GetDialog(child).parent)
-local parent_context = parent_dlg.context
-if (not parent_context.graph_id and i == 1) or parent_context.graph_id == item.id then
-	child.EnableFX = false
-	child:Press()
-	child.EnableFX = true
-	if GetUIStyleGamepad() then
-		CreateRealTimeThread(function()
-			if child.window_state ~= "destroying" then
-				child:SetFocus()
-			end
-		end)
-	end
-end
-local hint_gamepad = child.RolloverHintGamepad
-hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
-child:SetRolloverHintGamepad(hint_gamepad)
-end,
+								child:SetId("idButton" .. i)
+								if item.button_caption then
+									child:SetText(item.button_caption)
+									child:SetRolloverTitle(item.button_caption)
+									child:SetRolloverText(item.button_text)
+								end
+								child:SetIcon(item.off_icon)
+								local parent_dlg = GetDialog(GetDialog(child).parent)
+								local parent_context = parent_dlg.context
+								if (not parent_context.graph_id and i == 1) or parent_context.graph_id == item.id then
+									child.EnableFX = false
+									child:Press()
+									child.EnableFX = true
+									if GetUIStyleGamepad() then
+										CreateRealTimeThread(function()
+											if child.window_state ~= "destroying" then
+												child:SetFocus()
+											end
+										end)
+									end
+								end
+								local hint_gamepad = child.RolloverHintGamepad
+								hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
+								child:SetRolloverHintGamepad(hint_gamepad)
+							end,
 						}, {
 							PlaceObj('XTemplateTemplate', {
 								'__template', "CommandCenterButton",
 								'Margins', box(-12, 0, 0, -14),
 								'OnPress', function (self, gamepad)
-local dlg = GetDialog(self)
-local context = self.context
-dlg:SetContext(context)
-local mode_param = GetDialogModeParam(dlg)
-if mode_param then
-	local pressed = self:ResolveId(mode_param.pressed)
-	pressed:SetIcon(pressed.context.off_icon)
-end
-dlg:SetMode("graph", {pressed = self.Id})
-self:SetIcon(context.on_icon)
-local parent_dlg = GetDialog(dlg.parent)
-parent_dlg.context.graph_id = context.id
-
-for i=1,#self.parent do
-	if IsKindOf(self.parent[i], "XToggleButton") then
-		self.parent[i]:SetToggled(false)
-	end
-end
-XToggleButton.OnPress(self)
-end,
+									local dlg = GetDialog(self)
+									local context = self.context
+									dlg:SetContext(context)
+									local mode_param = GetDialogModeParam(dlg)
+									if mode_param then
+										local pressed = self:ResolveId(mode_param.pressed)
+										pressed:SetIcon(pressed.context.off_icon)
+									end
+									dlg:SetMode("graph", {pressed = self.Id})
+									self:SetIcon(context.on_icon)
+									local parent_dlg = GetDialog(dlg.parent)
+									parent_dlg.context.graph_id = context.id
+									
+									for i=1,#self.parent do
+										if IsKindOf(self.parent[i], "XToggleButton") then
+											self.parent[i]:SetToggled(false)
+										end
+									end
+									XToggleButton.OnPress(self)
+								end,
 							}, {
 								PlaceObj('XTemplateFunc', {
 									'name', "OnSetFocus",
 									'func', function (self, ...)
-self:Press()
-XToggleButton.OnSetFocus(self, ...)
-end,
+										self:Press()
+										XToggleButton.OnSetFocus(self, ...)
+									end,
 								}),
 								}),
 							}),
@@ -165,10 +165,10 @@ end,
 								'array', function (parent, context) return GetDialog(parent).context end,
 								'__context', function (parent, context, item, i, n) local data, unit = TimeSeries_GetGraphValueHeights(item.data, UICity.day, 50, 240, 4); return SubContext(item, {data = data, unit = unit, columns = #(item.data)}) end,
 								'run_after', function (child, context, item, i, n)
-if i ~= 1 then
-	child:SetMargins(box(0,15,0,0))
-end
-end,
+									if i ~= 1 then
+										child:SetMargins(box(0,15,0,0))
+									end
+								end,
 							}, {
 								PlaceObj('XTemplateTemplate', {
 									'__template', "Graph",

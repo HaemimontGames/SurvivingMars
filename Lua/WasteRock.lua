@@ -1,4 +1,4 @@
-local WasteRockAmountsByEntity = 
+WasteRockAmountsByEntity = 
 {
 	Rocks_03 = 3,
 	Rocks_04 = 2,
@@ -206,7 +206,7 @@ function WasteRockObstructor:TransformToStockpile(drone)
 	local parent_constructions = self.parent_construction
 	self.parent_construction = false --suppress destructor
 	CreateGameTimeThread(function() --so drone work destructor can pass and we can set .resource without it being reset.
-		if drone and not drone:IsKindOf("RCConstructor") then
+		if drone and not drone:IsKindOf("RCConstructorBase") then
 			--drone not carying anything
 			local resource = "WasteRock"
 			local a = Min(DroneResourceUnits[resource], self.amount_of_waste_rock)
@@ -226,7 +226,7 @@ function WasteRockObstructor:TransformToStockpile(drone)
 								snap_to_grid = snap_and_apply,
 								additional_supply_flags = const.rfSpecialDemandPairing + (was_underneath_constr and const.rfCanExecuteAlone or 0)})
 			
-			if drone and drone:IsKindOf("RCConstructor") then
+			if drone and drone:IsKindOf("RCConstructorBase") then
 				local obj = parent_constructions[1]
 				local p_shape = GetEntityPeripheralHexShape(obj:GetEntity())
 				if #p_shape == 6 then p_shape = HexSurroundingsCheckShapeLarge end --1 hex buildings can get surrounded pretty quickly so extend the search.
@@ -295,7 +295,7 @@ DefineClass.WasteRockStockpileBase = {
 	has_demand_request = true,
 	
 	max_x = 5,
-	max_y = 1,
+	max_y = 2,
 	max_z = 1,
 	
 	resource = "WasteRock",
@@ -456,7 +456,7 @@ DefineClass.WasteRockStockpileUngrided = {
 
 DefineClass.WasteRockStockpileUngridedNoBlockPass = {
 	__parents = { "WasteRockStockpileUngrided" },
-	enum_flags = { efApplyToGrids = false },
+	flags = { efApplyToGrids = false },
 }
 
 -----------------------------------------------------------------------------------
@@ -553,7 +553,7 @@ function DumpSiteWithAttachedVisualPilesBase:GetNextStockpileIndex(stockpiles, a
 		local a = Max(stock:GetStoredAmount(), stock.init_with_amount)
 		
 		if (not adding_resource and a > 0) or (adding_resource and a < max_per_pile) then
-			local dist = adding_resource and p:Dist2D(stock:GetPos()) or 0
+			local dist = adding_resource and IsValid(stock) and p:Dist2D(stock:GetPos()) or 0
 			a = a - dist
 			if (adding_resource and a > most) or (not adding_resource and a < most) then
 				most = a
@@ -657,7 +657,7 @@ function WasteRockDumpSite:DumpRequestInfo()
 	print("<color 119 212 255>demand req aa, ta:", self.demand.WasteRock:GetActualAmount(), self.demand.WasteRock:GetTargetAmount(), "</color>")
 end
 
-function WasteRockDumpSite:AddDepotResource(resource, amount)
+function WasteRockDumpSite:AddDepotResource(amount, resource)
 	assert(resource == "WasteRock")
 	self.demand["WasteRock"]:AddAmount(-amount)
 	self.supply["WasteRock"]:AddAmount(amount)
@@ -732,4 +732,8 @@ end
 
 function WasteRockDumpSite:SetCount(count)
 	self:UpdateStockpileAmounts(count or self:GetStored_WasteRock())
+end
+
+function WasteRockDumpSite:DoesHaveSupplyRequestForResource(resource)
+	return resource == "WasteRock"
 end

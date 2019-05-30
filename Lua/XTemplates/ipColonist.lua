@@ -19,14 +19,14 @@ PlaceObj('XTemplate', {
 			'RolloverTitle', T(102770097492, --[[XTemplate ipColonist RolloverTitle]] "Previous Colonist"),
 			'Id', "idPrev",
 			'OnContextUpdate', function (self, context, ...)
-InfopanelCycleUpdate(self:ResolveId("node"))
-end,
+				InfopanelCycleUpdate(self:ResolveId("node"))
+			end,
 			'OnPress', function (self, gamepad)
-local obj = self.context
-if obj then
-	obj:CyclePrev(gamepad)
-end
-end,
+				local obj = self.context
+				if obj then
+					obj:CyclePrev(gamepad)
+				end
+			end,
 			'Icon', "UI/Icons/IPButtons/prev.tga",
 		}),
 		PlaceObj('XTemplateTemplate', {
@@ -35,11 +35,11 @@ end,
 			'RolloverTitle', T(388769879592, --[[XTemplate ipColonist RolloverTitle]] "Next Colonist"),
 			'Id', "idNext",
 			'OnPress', function (self, gamepad)
-local obj = self.context
-if obj then
-	obj:CycleNext(gamepad)
-end
-end,
+				local obj = self.context
+				if obj then
+					obj:CycleNext(gamepad)
+				end
+			end,
 			'Icon', "UI/Icons/IPButtons/next.tga",
 		}),
 		PlaceObj('XTemplateTemplate', {
@@ -85,10 +85,10 @@ end,
 		PlaceObj('XTemplateForEach', {
 			'array', function (parent, context) return ColonistStatList end,
 			'run_after', function (child, context, item, i, n)
-child.OnContextUpdate = function(self, context)
-	context:UIStatUpdate(self, item)
-end
-end,
+				child.OnContextUpdate = function(self, context)
+					context:UIStatUpdate(self, item)
+				end
+			end,
 		}, {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelSection",

@@ -7,6 +7,9 @@ PlaceObj('StoryBit', {
 	Enabled = true,
 	Image = "UI/Messages/artificial_intelligence_mystery_02.tga",
 	Prerequisites = {
+		PlaceObj('AreDomesOpen', {
+			'Negate', true,
+		}),
 		PlaceObj('HasTrait', {
 			'Trait', "Genius",
 		}),
@@ -20,6 +23,15 @@ PlaceObj('StoryBit', {
 	VoicedText = T(424456161761, --[[voice:narrator]] "One of the colony’s most prominent thinkers has gone insane, locking themselves up at their home. The neighbors report sounds of metal clinging, machinery sounds and insane laughter."),
 	group = "Sanity Breakdown",
 	id = "MadGenius",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1550837235,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitReply', {
 		'Text', T(109501165050, --[[StoryBit MadGenius Text]] "Give away the components."),
 		'Comment', "",

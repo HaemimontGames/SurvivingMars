@@ -40,28 +40,28 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnPropUpdate(self, context, prop_meta, value)",
 			'func', function (self, context, prop_meta, value)
-local obj = ResolvePropObj(context)
-local image = obj:GetThreatResourceImage(prop_meta)
-local text = ""
-local hide_image = false
-if NoThreats(prop_meta.id) then
-	text = T(130, "N/A")
-	hide_image = true
-end
-if MaxThreat(prop_meta.id) then
-	text = T(8780, "MAX")
-	hide_image = true
-end
-if hide_image then
-	self.idImage:SetVisible(false)
-	self.idTextValue:SetText(text)
-	self.idTextValue:SetVisible(true)
-else
-	self.idImage:SetImage(image)
-	self.idImage:SetVisible(true)
-	self.idTextValue:SetVisible(false)
-end
-end,
+				local obj = ResolvePropObj(context)
+				local image = obj:GetThreatResourceImage(prop_meta)
+				local text = ""
+				local hide_image = false
+				if NoThreats(prop_meta.id) then
+					text = T(130, "N/A")
+					hide_image = true
+				end
+				if MaxThreat(prop_meta.id) then
+					text = T(8780, "MAX")
+					hide_image = true
+				end
+				if hide_image then
+					self.idImage:SetVisible(false)
+					self.idTextValue:SetText(text)
+					self.idTextValue:SetVisible(true)
+				else
+					self.idImage:SetImage(image)
+					self.idImage:SetVisible(true)
+					self.idTextValue:SetVisible(false)
+				end
+			end,
 		}),
 		}),
 })

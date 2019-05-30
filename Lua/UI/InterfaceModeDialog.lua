@@ -9,6 +9,8 @@ DefineClass.InterfaceModeDialog = {
 function InterfaceModeDialog:Init()
 	self:SetZOrder(-1)
 	self:SetFocus()
+	self:SetId(self.class)
+	self:SetRolloverAnchorId(self.class)
 end
 
 function InterfaceModeDialog:DoneMap()
@@ -97,12 +99,16 @@ function InterfaceModeDialog:OnShortcut(shortcut)
 	--Common gamepad button actions (selection/build menu)
 	local cursor = g_GamepadObjects and GetGamepadCursor()
 	local invertLook = const.CameraControlInvertLook
-	if shortcut == "ButtonA" and cursor then
+	if shortcut == "+ButtonA" and cursor then
 		SelectObj(g_GamepadObjects:GetObject())
+		StartGamepadMultiselectionThread()
 		return "break"
-	elseif shortcut == "ButtonX" and cursor then
+	elseif shortcut == "+ButtonX" and cursor then
 		SelectObj(g_GamepadObjects:GetUnit())
+		StartGamepadMultiselectionThread()
 		return "break"
+	elseif shortcut == "-ButtonA" or shortcut == "-ButtonX" then
+		StopGamepadMultiselectionThread()
 	elseif shortcut == "ButtonB" then
 		if SelectedObj then
 			SelectObj(nil)

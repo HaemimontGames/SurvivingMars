@@ -9,9 +9,9 @@ PlaceObj('XTemplate', {
 		'RolloverHint', T(115984499466, --[[XTemplate TransportationOverviewRow RolloverHint]] "<left_click><left_click> Select"),
 		'RolloverHintGamepad', T(764097870353, --[[XTemplate TransportationOverviewRow RolloverHintGamepad]] "<ButtonA> Select"),
 		'OnContextUpdate', function (self, context, ...)
-UpdateUICommandCenterRow(self, context, "transportation")
-XContextControl.OnContextUpdate(self, context, ...)
-end,
+			UpdateUICommandCenterRow(self, context, "transportation")
+			XContextControl.OnContextUpdate(self, context, ...)
+		end,
 	}, {
 		PlaceObj('XTemplateWindow', {
 			'__class', "XText",
@@ -121,22 +121,26 @@ end,
 						'MouseCursor', "UI/Cursors/Rollover.tga",
 						'RelativeFocusOrder', "next-in-line",
 						'OnContextUpdate', function (self, context, ...)
-self:SetEnabled(UICity.drone_prefabs > 0)
-end,
+							self:SetEnabled(UICity.drone_prefabs > 0)
+						end,
 						'FXMouseIn', "MenuItemHover",
 						'FXPress', "MenuItemClick",
 						'FocusedBackground', RGBA(0, 0, 0, 0),
 						'OnPress', function (self, gamepad)
-self.context:UseDronePrefab(not gamepad and IsMassUIModifierPressed())
-BulkObjModifiedInCityLabels("DroneHub", "RCRover")
-end,
+							self.context:UseDronePrefab(not gamepad and IsMassUIModifierPressed())
+							BulkObjModifiedInCityLabels("DroneHub", "RCRover")
+							local drone_prefabs = GetDialog(self):ResolveId("idDronePrefabs")
+							drone_prefabs:OnContextUpdate(drone_prefabs.context)
+						end,
 						'AltPress', true,
 						'OnAltPress', function (self, gamepad)
-if gamepad then
-	self.context:UseDronePrefab(true)
-	BulkObjModifiedInCityLabels("DroneHub", "RCRover")
-end
-end,
+							if gamepad then
+								self.context:UseDronePrefab(true)
+								BulkObjModifiedInCityLabels("DroneHub", "RCRover")
+								local drone_prefabs = GetDialog(self):ResolveId("idDronePrefabs")
+								drone_prefabs:OnContextUpdate(drone_prefabs.context)
+							end
+						end,
 						'RolloverBackground', RGBA(0, 0, 0, 0),
 						'PressedBackground', RGBA(0, 0, 0, 0),
 					}, {
@@ -183,22 +187,26 @@ end,
 						'MouseCursor', "UI/Cursors/Rollover.tga",
 						'RelativeFocusOrder', "next-in-line",
 						'OnContextUpdate', function (self, context, ...)
-self:SetEnabled(not not context:FindDroneToConvertToPrefab())
-end,
+							self:SetEnabled(not not context:FindDroneToConvertToPrefab())
+						end,
 						'FXMouseIn', "MenuItemHover",
 						'FXPress', "MenuItemClick",
 						'FocusedBackground', RGBA(0, 0, 0, 0),
 						'OnPress', function (self, gamepad)
-self.context:ConvertDroneToPrefab(not gamepad and IsMassUIModifierPressed())
-BulkObjModifiedInCityLabels("DroneHub", "RCRover")
-end,
+							self.context:ConvertDroneToPrefab(not gamepad and IsMassUIModifierPressed())
+							BulkObjModifiedInCityLabels("DroneHub", "RCRover")
+							local drone_prefabs = GetDialog(self):ResolveId("idDronePrefabs")
+							drone_prefabs:OnContextUpdate(drone_prefabs.context)
+						end,
 						'AltPress', true,
 						'OnAltPress', function (self, gamepad)
-if gamepad then
-	self.context:ConvertDroneToPrefab(true)
-	BulkObjModifiedInCityLabels("DroneHub", "RCRover")
-end
-end,
+							if gamepad then
+								self.context:ConvertDroneToPrefab(true)
+								BulkObjModifiedInCityLabels("DroneHub", "RCRover")
+								local drone_prefabs = GetDialog(self):ResolveId("idDronePrefabs")
+								drone_prefabs:OnContextUpdate(drone_prefabs.context)
+							end
+						end,
 						'RolloverBackground', RGBA(0, 0, 0, 0),
 						'PressedBackground', RGBA(0, 0, 0, 0),
 					}, {
@@ -243,30 +251,30 @@ end,
 						'MouseCursor', "UI/Cursors/Rollover.tga",
 						'RelativeFocusOrder', "next-in-line",
 						'OnContextUpdate', function (self, context, ...)
-local can_construct = context.max_shuttles - (#context.shuttle_infos + context.queued_shuttles_for_construction) > 0
-local texts = {}
-if can_construct then
-	texts[#texts + 1] = T(324514950847, "The construction of a new Shuttle costs:<newline><SingleShuttleCostStr>")
-else
-	texts[#texts + 1] = T(174054841334, "No more shuttles can be constructed.")
-end
-if context.queued_shuttles_for_construction ~= 0 then
-	texts[#texts + 1] = T(726161435938, "Shuttle construction<right><queued_shuttles_for_construction>")
-end
-self:SetRolloverText(table.concat(texts, "<newline><left>"))
-end,
+							local can_construct = context.max_shuttles - (#context.shuttle_infos + context.queued_shuttles_for_construction) > 0
+							local texts = {}
+							if can_construct then
+								texts[#texts + 1] = T(324514950847, "The construction of a new Shuttle costs:<newline><SingleShuttleCostStr>")
+							else
+								texts[#texts + 1] = T(174054841334, "No more shuttles can be constructed.")
+							end
+							if context.queued_shuttles_for_construction ~= 0 then
+								texts[#texts + 1] = T(726161435938, "Shuttle construction<right><queued_shuttles_for_construction>")
+							end
+							self:SetRolloverText(table.concat(texts, "<newline><left>"))
+						end,
 						'FXMouseIn', "MenuItemHover",
 						'FXPress', "MenuItemClick",
 						'FocusedBackground', RGBA(0, 0, 0, 0),
 						'OnPress', function (self, gamepad)
-self.context:QueueConstructShuttle(1)
-ObjModified(self.context)
-end,
+							self.context:QueueConstructShuttle(1)
+							ObjModified(self.context)
+						end,
 						'AltPress', true,
 						'OnAltPress', function (self, gamepad)
-self.context:QueueConstructShuttle(-1)
-ObjModified(self.context)
-end,
+							self.context:QueueConstructShuttle(-1)
+							ObjModified(self.context)
+						end,
 						'RolloverBackground', RGBA(0, 0, 0, 0),
 						'PressedBackground', RGBA(0, 0, 0, 0),
 					}, {
@@ -318,14 +326,14 @@ end,
 							'FXPress', "MenuItemClick",
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-self.context:ConstructDrone(1)
-ObjModified(self.context)
-end,
+								self.context:ConstructDrone(1)
+								ObjModified(self.context)
+							end,
 							'AltPress', true,
 							'OnAltPress', function (self, gamepad)
-self.context:ConstructDrone(-1)
-ObjModified(self.context)
-end,
+								self.context:ConstructDrone(-1)
+								ObjModified(self.context)
+							end,
 							'RolloverBackground', RGBA(0, 0, 0, 0),
 							'PressedBackground', RGBA(0, 0, 0, 0),
 						}, {
@@ -374,14 +382,14 @@ end,
 							'FXPress', "MenuItemClick",
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-self.context:ConstructAndroid(1)
-ObjModified(self.context)
-end,
+								self.context:ConstructAndroid(1)
+								ObjModified(self.context)
+							end,
 							'AltPress', true,
 							'OnAltPress', function (self, gamepad)
-self.context:ConstructAndroid(-1)
-ObjModified(self.context)
-end,
+								self.context:ConstructAndroid(-1)
+								ObjModified(self.context)
+							end,
 							'RolloverBackground', RGBA(0, 0, 0, 0),
 							'PressedBackground', RGBA(0, 0, 0, 0),
 						}, {

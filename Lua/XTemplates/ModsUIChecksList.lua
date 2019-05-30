@@ -23,9 +23,9 @@ PlaceObj('XTemplate', {
 			PlaceObj('XTemplateFunc', {
 				'name', "Open",
 				'func', function (self, ...)
-self:SetFocus()
-XList.Open(self, ...)
-end,
+					self:SetFocus()
+					XList.Open(self, ...)
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {

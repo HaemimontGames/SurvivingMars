@@ -14,28 +14,28 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-local content = self:ResolveId("idContent")
-if content then
-	content:SetChildrenHandleMouse(false)
-end
-XDialog.Open(self, ...)
-end,
+				local content = self:ResolveId("idContent")
+				if content then
+					content:SetChildrenHandleMouse(false)
+				end
+				XDialog.Open(self, ...)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnDelete",
 			'func', function (self, ...)
-local content = self:ResolveId("idContent")
-if content then
-	content:SetChildrenHandleMouse(true)
-end
-ModsUIClosePopup(self.parent)
-XDialog.OnDelete(self, ...)
-end,
+				local content = self:ResolveId("idContent")
+				if content then
+					content:SetChildrenHandleMouse(true)
+				end
+				ModsUIClosePopup(self.parent)
+				XDialog.OnDelete(self, ...)
+			end,
 		}),
 		PlaceObj('XTemplateCode', {
 			'run', function (self, parent, context)
-context:SetDialog(parent)
-end,
+				context:SetDialog(parent)
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XFrame",
@@ -64,23 +64,24 @@ end,
 					'ActionShortcut', "Enter",
 					'ActionGamepad', "ButtonY",
 					'ActionState', function (self, host)
-local obj = ResolvePropObj(host.idPopUp.context)
-return (obj.loading or g_PopsAttemptingLogin) and "disabled"
-end,
+						local obj = ResolvePropObj(host.idPopUp.context)
+						return (obj.loading or g_PopsAttemptingLogin) and "disabled"
+					end,
 					'OnAction', function (self, host, source)
-local obj = ResolvePropObj(host.idPopUp.context)
-obj:Login()
-end,
+						local obj = ResolvePropObj(host.idPopUp.context)
+						obj:Login()
+					end,
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "signup",
-					'ActionName', T(373509942742, --[[XTemplate ModsUIParadoxAccount ActionName]] "Sign Up"),
+					'ActionName', T(12308, --[[XTemplate ModsUIParadoxAccount ActionName]] "Create Account"),
 					'ActionToolbar', "ActionBarLeft",
 					'ActionGamepad', "ButtonX",
 					'OnAction', function (self, host, source)
-host.idPopUp:SetMode("signup")
-host:UpdateActionViews(host)
-end,
+						ResolvePropObj(host.idPopUp.context):ClearSavedParams()
+						host.idPopUp:SetMode("signup")
+						host:UpdateActionViews(host)
+					end,
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "lost password",
@@ -98,19 +99,19 @@ end,
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "signup",
-					'ActionName', T(373509942742, --[[XTemplate ModsUIParadoxAccount ActionName]] "Sign Up"),
+					'ActionName', T(12308, --[[XTemplate ModsUIParadoxAccount ActionName]] "Create Account"),
 					'ActionToolbar', "ActionBarLeft",
 					'ActionGamepad', "ButtonY",
 					'ActionState', function (self, host)
-local obj = ResolvePropObj(host.idPopUp.context)
-if not obj:CanCreateAccount() or obj.creating_account then
-	return "disabled"
-end
-end,
+						local obj = ResolvePropObj(host.idPopUp.context)
+						if not obj:CanCreateAccount() or obj.creating_account then
+							return "disabled"
+						end
+					end,
 					'OnAction', function (self, host, source)
-local obj = ResolvePropObj(host.idPopUp.context)
-obj:CreateAccount()
-end,
+						local obj = ResolvePropObj(host.idPopUp.context)
+						obj:CreateAccount()
+					end,
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "login",
@@ -118,9 +119,10 @@ end,
 					'ActionToolbar', "ActionBarLeft",
 					'ActionGamepad', "ButtonX",
 					'OnAction', function (self, host, source)
-host.idPopUp:SetMode("login")
-host:UpdateActionViews(host)
-end,
+						ResolvePropObj(host.idPopUp.context):ClearSavedParams()
+						host.idPopUp:SetMode("login")
+						host:UpdateActionViews(host)
+					end,
 				}),
 				}),
 			PlaceObj('XTemplateAction', {
@@ -130,9 +132,9 @@ end,
 				'ActionShortcut', "Escape",
 				'ActionGamepad', "ButtonB",
 				'OnAction', function (self, host, source)
-ModsUIClosePopup(host)
-host:UpdateActionViews(host)
-end,
+					ModsUIClosePopup(host)
+					host:UpdateActionViews(host)
+				end,
 			}),
 			}),
 		}),

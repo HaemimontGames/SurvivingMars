@@ -12,76 +12,75 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-self.context:Pause()
-if GetTimeFactor() == 0 then
-	local dlg = GetMarsPauseDlg()
-	if dlg then
-		dlg:SetParent(GetInGameInterface())
-	end
-end
-XDialog.Open(self, ...)
-end,
+				self.context:Pause()
+				if GetTimeFactor() == 0 then
+					local dlg = GetMarsPauseDlg()
+					if dlg then
+						dlg:SetParent(GetInGameInterface())
+					end
+				end
+				XDialog.Open(self, ...)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "Close",
 			'func', function (self, ...)
-ClosePhotoMode()
-PhotoModeEnd()
-XDialog.Close(self, ...)
-if GetTimeFactor() == 0 then
-	local dlg = GetMarsPauseDlg()
-	if dlg then
-		dlg:SetParent(terminal.desktop)
-	end
-end
-end,
+				PhotoModeEnd()
+				XDialog.Close(self, ...)
+				if GetTimeFactor() == 0 then
+					local dlg = GetMarsPauseDlg()
+					if dlg then
+						dlg:SetParent(terminal.desktop)
+					end
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "BlinkFilePath(self, path)",
 			'func', function (self, path)
-self:DeleteThread("path")
-self:CreateThread("path", function(path)
-	self.idPath:SetText(path)
-	self.idPath:SetVisible(true)
-	Sleep(3000)
-	self.idPath:SetVisible(false)
-end, path)
-end,
+				self:DeleteThread("path")
+				self:CreateThread("path", function(path)
+					self.idPath:SetText(path)
+					self.idPath:SetVisible(true)
+					Sleep(3000)
+					self.idPath:SetVisible(false)
+				end, path)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "ToggleUI",
 			'func', function (self, ...)
-local value = not self.idFrame:GetVisible()
-self.idFrame:SetVisible(value)
-self.idTint:SetVisible(value)
-if Platform.console then
-	self.idActionBar:SetVisible(value)
-	self.idFreeCameraWarning:SetVisible(value and cameraFly.IsActive())
-end
-if value then
-	self.idList:SetSelection(self.idList.focused_item or 1)
-end
-end,
+				local value = not self.idFrame:GetVisible()
+				self.idFrame:SetVisible(value)
+				self.idTint:SetVisible(value)
+				if Platform.console then
+					self.idActionBar:SetVisible(value)
+					self.idFreeCameraWarning:SetVisible(value and cameraFly.IsActive())
+				end
+				if value then
+					self.idList:SetSelection(self.idList.focused_item or 1)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnShortcut(self, shortcut, source)",
 			'func', function (self, shortcut, source)
-if not self.idActionBar:GetVisible() and (shortcut == "Start" or shortcut == "ButtonB") then
-	self:ToggleUI()
-	return "break"
-elseif cameraFly.IsActive() and (shortcut == "Alt" or shortcut == "LeftTrigger") then
-	if g_MouseConnected then
-		SetMouseDeltaMode(false)
-	end
-	return "break"
-elseif cameraFly.IsActive() and (shortcut == "-Alt" or shortcut == "-LeftTrigger") then
-	if g_MouseConnected then
-		SetMouseDeltaMode(true)
-	end
-	return "break"
-end
-return XDialog.OnShortcut(self, shortcut, source)
-end,
+				if not self.idActionBar:GetVisible() and (shortcut == "Start" or shortcut == "ButtonB") then
+					self:ToggleUI()
+					return "break"
+				elseif cameraFly.IsActive() and (shortcut == "Alt" or shortcut == "LeftTrigger") then
+					if g_MouseConnected then
+						SetMouseDeltaMode(false)
+					end
+					return "break"
+				elseif cameraFly.IsActive() and (shortcut == "-Alt" or shortcut == "-LeftTrigger") then
+					if g_MouseConnected then
+						SetMouseDeltaMode(true)
+					end
+					return "break"
+				end
+				return XDialog.OnShortcut(self, shortcut, source)
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'HAlign', "left",
@@ -107,11 +106,11 @@ end,
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
 					'func', function (self, ...)
-XWindow.Open(self, ...)
-local pad = self:GetMargins()
-local margin = GetSafeMargins(pad)
-self:SetMargins(margin)
-end,
+						XWindow.Open(self, ...)
+						local pad = self:GetMargins()
+						local margin = GetSafeMargins(pad)
+						self:SetMargins(margin)
+					end,
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'__template', "DialogTitleNew",
@@ -139,15 +138,15 @@ end,
 						'MouseScroll', true,
 						'LeftThumbScroll', false,
 						'OnContextUpdate', function (self, context, ...)
-XContentTemplateList.OnContextUpdate(self, context, ...)
-if self.focused_item then
-	self.focused_item =  Min(self.focused_item, #self)
-	self:DeleteThread("select")
-	self:CreateThread("select", function()
-		self:SetSelection(self.focused_item)
-	end)
-end
-end,
+							XContentTemplateList.OnContextUpdate(self, context, ...)
+							if self.focused_item then
+								self.focused_item =  Min(self.focused_item, #self)
+								self:DeleteThread("select")
+								self:CreateThread("select", function()
+									self:SetSelection(self.focused_item)
+								end)
+							end
+						end,
 						'RespawnOnContext', false,
 					}, {
 						PlaceObj('XTemplateMode', {
@@ -199,11 +198,11 @@ end,
 									'__template', "MenuEntrySmall",
 									'RolloverTemplate', "Rollover",
 									'OnPress', function (self, gamepad)
-local prop_meta = GetDialogModeParam(self)
-local obj = GetDialogContext(self)
-SetProperty(obj, prop_meta.id, self.context.value)
-SetBackDialogMode(self)
-end,
+										local prop_meta = GetDialogModeParam(self)
+										local obj = GetDialogContext(self)
+										SetProperty(obj, prop_meta.id, self.context.value)
+										SetBackDialogMode(self)
+									end,
 									'TextStyle', "ListItem3",
 									'Text', T(730563403228, --[[XTemplate PhotoMode Text]] "<text>"),
 								}),
@@ -234,9 +233,9 @@ end,
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
 					'func', function (self, ...)
-XWindow.Open(self, ...)
-self:SetMargins(GetSafeMargins(self:GetMargins()))
-end,
+						XWindow.Open(self, ...)
+						self:SetMargins(GetSafeMargins(self:GetMargins()))
+					end,
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XFrame",
@@ -308,9 +307,9 @@ end,
 				'ActionToolbar', "ActionBar",
 				'ActionGamepad', "LeftShoulder",
 				'OnAction', function (self, host, source)
-host.context:ResetProperties()
-host.idList:RespawnContent()
-end,
+					host.context:ResetProperties()
+					host.idList:RespawnContent()
+				end,
 			}),
 			PlaceObj('XTemplateAction', {
 				'ActionId', "idTakeScreenshot",
@@ -318,8 +317,9 @@ end,
 				'ActionToolbar', "ActionBar",
 				'ActionGamepad', "LeftTrigger",
 				'OnAction', function (self, host, source)
-PhotoModeTake()
-end,
+					local meta = host.context:GetPropertyMetadata("frameDuration")
+					PhotoModeTake(host.context.frameDuration, meta.max)
+				end,
 				'__condition', function (parent, context) return not Platform.console or g_PhotoModeChallengeId end,
 			}),
 			PlaceObj('XTemplateAction', {
@@ -328,8 +328,8 @@ end,
 				'ActionToolbar', "ActionBar",
 				'ActionGamepad', "ButtonX",
 				'OnAction', function (self, host, source)
-host:ToggleUI()
-end,
+					host:ToggleUI()
+				end,
 			}),
 			PlaceObj('XTemplateAction', {
 				'ActionId', "idPause",
@@ -338,12 +338,12 @@ end,
 				'ActionShortcut', "Space",
 				'ActionGamepad', "ButtonY",
 				'ActionState', function (self, host)
-return GetTimeFactor() == 0 and "hidden"
-end,
+					return GetTimeFactor() == 0 and "hidden"
+				end,
 				'OnAction', function (self, host, source)
-host.context:Pause()
-host.idList:RespawnContent()
-end,
+					host.context:Pause()
+					host.idList:RespawnContent()
+				end,
 			}),
 			PlaceObj('XTemplateAction', {
 				'ActionId', "idResume",
@@ -352,12 +352,12 @@ end,
 				'ActionShortcut', "Space",
 				'ActionGamepad', "ButtonY",
 				'ActionState', function (self, host)
-return GetTimeFactor() ~= 0 and "hidden"
-end,
+					return GetTimeFactor() ~= 0 and "hidden"
+				end,
 				'OnAction', function (self, host, source)
-host.context:Resume()
-host.idList:RespawnContent()
-end,
+					host.context:Resume()
+					host.idList:RespawnContent()
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateWindow', {

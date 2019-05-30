@@ -207,6 +207,7 @@ PlaceObj('BuildingTemplate', {
 	'prio_button', false,
 	'entity2', "GardenNatural_02",
 	'entity3', "GardenNatural_03",
+	'entity4', "GardenNatural_07",
 	'comfort_increase', 5000,
 	'interest1', "interestRelaxation",
 	'interest2', "interestExercise",
@@ -252,9 +253,9 @@ PlaceObj('BuildingTemplate', {
 	'dome_required', true,
 	'upgrade1_upgrade_cost_Concrete', 4000,
 	'use_demolished_state', false,
-	'display_name', T(5111, --[[BuildingTemplate Lake display_name]] "Lake"),
-	'display_name_pl', T(5112, --[[BuildingTemplate Lake display_name_pl]] "Lakes"),
-	'description', T(5113, --[[BuildingTemplate Lake description]] "A large lake with refreshingly cool water."),
+	'display_name', T(12565, --[[BuildingTemplate Lake display_name]] "Pond"),
+	'display_name_pl', T(12566, --[[BuildingTemplate Lake display_name_pl]] "Ponds"),
+	'description', T(5113, --[[BuildingTemplate Lake description]] "A large pond with refreshingly cool water."),
 	'build_category', "Decorations",
 	'display_icon', "UI/Icons/Buildings/lake.tga",
 	'build_pos', 8,
@@ -365,7 +366,9 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'max_storage_per_resource', 180000,
 	'max_x', 12,
-	'storable_resources', {"Concrete"},
+	'storable_resources', {
+		"Concrete",
+	},
 })
 
 PlaceObj('BuildingTemplate', {
@@ -390,7 +393,9 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'max_storage_per_resource', 180000,
 	'max_x', 12,
-	'storable_resources', {"Electronics"},
+	'storable_resources', {
+		"Electronics",
+	},
 })
 
 PlaceObj('BuildingTemplate', {
@@ -415,7 +420,9 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'max_storage_per_resource', 180000,
 	'max_x', 12,
-	'storable_resources', {"Food"},
+	'storable_resources', {
+		"Food",
+	},
 })
 
 PlaceObj('BuildingTemplate', {
@@ -440,7 +447,9 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'max_storage_per_resource', 180000,
 	'max_x', 12,
-	'storable_resources', {"Fuel"},
+	'storable_resources', {
+		"Fuel",
+	},
 })
 
 PlaceObj('BuildingTemplate', {
@@ -465,7 +474,9 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'max_storage_per_resource', 180000,
 	'max_x', 12,
-	'storable_resources', {"MachineParts"},
+	'storable_resources', {
+		"MachineParts",
+	},
 })
 
 PlaceObj('BuildingTemplate', {
@@ -490,7 +501,9 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'max_storage_per_resource', 180000,
 	'max_x', 12,
-	'storable_resources', {"Metals"},
+	'storable_resources', {
+		"Metals",
+	},
 })
 
 PlaceObj('BuildingTemplate', {
@@ -506,7 +519,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(8113, --[[BuildingTemplate StorageMysteryResource description]] "It's very mysterious."),
 	'build_category', "Depots",
 	'display_icon', "UI/Icons/Buildings/mystery_resource_storage.tga",
-	'build_pos', 12,
+	'build_pos', 13,
 	'entity', "StorageDepotSmall_10",
 	'encyclopedia_image', "UI/Encyclopedia/MetalsDepot.tga",
 	'on_off_button', false,
@@ -514,7 +527,9 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'max_storage_per_resource', 180000,
 	'max_x', 12,
-	'storable_resources', {"MysteryResource"},
+	'storable_resources', {
+		"MysteryResource",
+	},
 })
 
 PlaceObj('BuildingTemplate', {
@@ -539,7 +554,9 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'max_storage_per_resource', 180000,
 	'max_x', 12,
-	'storable_resources', {"Polymers"},
+	'storable_resources', {
+		"Polymers",
+	},
 })
 
 PlaceObj('BuildingTemplate', {
@@ -564,7 +581,9 @@ PlaceObj('BuildingTemplate', {
 	'count_as_building', false,
 	'max_storage_per_resource', 180000,
 	'max_x', 12,
-	'storable_resources', {"PreciousMetals"},
+	'storable_resources', {
+		"PreciousMetals",
+	},
 })
 
 PlaceObj('BuildingTemplate', {
@@ -1130,6 +1149,7 @@ PlaceObj('BuildingTemplate', {
 	'palette2_color3', "outside_accent_2",
 	'electricity_consumption', 20000,
 	'spire_frame_entity', "ArcologyFrame",
+	'spire_frame_hide_open', true,
 	'spire_frame_entity2', "ArcologyCP3Frame",
 	'service_comfort', 60000,
 	'comfort_increase', 4000,
@@ -1206,11 +1226,13 @@ PlaceObj('BuildingTemplate', {
 	'water_consumption', 2000,
 	'air_consumption', 0,
 	'service_comfort', 100000,
-	'comfort_increase', 15000,
+	'comfort_increase', 20000,
 	'interest1', "interestRelaxation",
 	'interest2', "interestExercise",
 	'interest3', "interestPlaying",
+	'interest4', "interestSocial",
 	'max_visitors', 20,
+	'visit_duration', 3,
 })
 
 PlaceObj('BuildingTemplate', {
@@ -1266,11 +1288,12 @@ PlaceObj('BuildingTemplate', {
 	'demolish_debris', 80,
 	'electricity_consumption', 20000,
 	'health_change', 50000,
-	'sanity_change', 15000,
-	'service_comfort', 70000,
-	'comfort_increase', 15000,
+	'sanity_change', 20000,
+	'service_comfort', 100000,
+	'comfort_increase', 25000,
 	'interest1', "needMedical",
-	'max_visitors', 10,
+	'max_visitors', 12,
+	'visit_duration', 4,
 	'usable_by_children', true,
 	'enabled_shift_3', false,
 	'max_workers', 3,
@@ -1321,7 +1344,7 @@ PlaceObj('BuildingTemplate', {
 	'electricity_consumption', 20000,
 	'enabled_shift_2', false,
 	'enabled_shift_3', false,
-	'max_workers', 6,
+	'max_workers', 3,
 	'specialist', "scientist",
 })
 
@@ -1425,6 +1448,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(5019, --[[BuildingTemplate DomeBasic description]] "A small Dome suitable for the early days of the Colony."),
 	'build_category', "Domes",
 	'display_icon', "UI/Icons/Buildings/dome.tga",
+	'build_pos', 2,
 	'entity', "DomeBasic",
 	'show_range', true,
 	'encyclopedia_id', "DomeBasic",
@@ -1434,9 +1458,11 @@ PlaceObj('BuildingTemplate', {
 	'palette_color3', "pipes_metal",
 	'demolish_sinking', range(0, 0),
 	'demolish_debris', 0,
+	'clear_soil_underneath', true,
 	'electricity_consumption', 15000,
 	'water_consumption', 1000,
 	'air_consumption', 1000,
+	'WorkRange', 6,
 })
 
 PlaceObj('BuildingTemplate', {
@@ -1462,7 +1488,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(9014, --[[BuildingTemplate DomeDiamond description]] "A rhombus shaped Dome design which has space for two Spires."),
 	'build_category', "Domes",
 	'display_icon', "UI/Icons/Buildings/diamond_dome.tga",
-	'build_pos', 13,
+	'build_pos', 14,
 	'entity', "DomeDiamondSmooth",
 	'show_range', true,
 	'encyclopedia_id', "DomeDiamond",
@@ -1472,9 +1498,11 @@ PlaceObj('BuildingTemplate', {
 	'palette_color3', "mining_base",
 	'demolish_sinking', range(0, 0),
 	'demolish_debris', 0,
+	'clear_soil_underneath', true,
 	'electricity_consumption', 40000,
 	'water_consumption', 2000,
 	'air_consumption', 2000,
+	'WorkRange', 13,
 })
 
 PlaceObj('BuildingTemplate', {
@@ -1499,7 +1527,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(9008, --[[BuildingTemplate DomeHexa description]] "An alternative small Dome configuration providing more space but lacks a slot for a Spire."),
 	'build_category', "Domes",
 	'display_icon', "UI/Icons/Buildings/hexa_dome.tga",
-	'build_pos', 14,
+	'build_pos', 15,
 	'entity', "DomeHexaSmooth",
 	'show_range', true,
 	'encyclopedia_id', "DomeHexa",
@@ -1509,9 +1537,11 @@ PlaceObj('BuildingTemplate', {
 	'palette_color3', "mining_base",
 	'demolish_sinking', range(0, 0),
 	'demolish_debris', 0,
+	'clear_soil_underneath', true,
 	'electricity_consumption', 15000,
 	'water_consumption', 1000,
 	'air_consumption', 1000,
+	'WorkRange', 8,
 })
 
 PlaceObj('BuildingTemplate', {
@@ -1536,7 +1566,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(5148, --[[BuildingTemplate DomeMedium description]] "A medium-sized Dome design."),
 	'build_category', "Domes",
 	'display_icon', "UI/Icons/Buildings/oval_dome.tga",
-	'build_pos', 2,
+	'build_pos', 3,
 	'entity', "DomeMedium",
 	'show_range', true,
 	'encyclopedia_id', "DomeMedium",
@@ -1546,9 +1576,11 @@ PlaceObj('BuildingTemplate', {
 	'palette_color3', "pipes_metal",
 	'demolish_sinking', range(0, 0),
 	'demolish_debris', 0,
+	'clear_soil_underneath', true,
 	'electricity_consumption', 30000,
 	'water_consumption', 2000,
 	'air_consumption', 2000,
+	'WorkRange', 8,
 })
 
 PlaceObj('BuildingTemplate', {
@@ -1573,7 +1605,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(5154, --[[BuildingTemplate DomeMega description]] "The most advanced and spacious Dome design."),
 	'build_category', "Domes",
 	'display_icon', "UI/Icons/Buildings/mega_dome.tga",
-	'build_pos', 3,
+	'build_pos', 4,
 	'entity', "DomeMega",
 	'show_range', true,
 	'encyclopedia_id', "DomeMega",
@@ -1583,9 +1615,11 @@ PlaceObj('BuildingTemplate', {
 	'palette_color3', "pipes_metal",
 	'demolish_sinking', range(0, 0),
 	'demolish_debris', 0,
+	'clear_soil_underneath', true,
 	'electricity_consumption', 50000,
 	'water_consumption', 4000,
 	'air_consumption', 4000,
+	'WorkRange', 11,
 })
 
 PlaceObj('BuildingTemplate', {
@@ -1611,7 +1645,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(9011, --[[BuildingTemplate DomeMegaTrigon description]] "An alternative Mega Dome configuration. Cheaper, but provides less habitable space."),
 	'build_category', "Domes",
 	'display_icon', "UI/Icons/Buildings/mega_trigon_dome.tga",
-	'build_pos', 12,
+	'build_pos', 13,
 	'entity', "DomeMegaTrigonSmooth",
 	'show_range', true,
 	'encyclopedia_id', "DomeMegaTrigon",
@@ -1621,9 +1655,11 @@ PlaceObj('BuildingTemplate', {
 	'palette_color3', "mining_base",
 	'demolish_sinking', range(0, 0),
 	'demolish_debris', 0,
+	'clear_soil_underneath', true,
 	'electricity_consumption', 30000,
 	'water_consumption', 2500,
 	'air_consumption', 2500,
+	'WorkRange', 13,
 })
 
 PlaceObj('BuildingTemplate', {
@@ -1646,7 +1682,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(9002, --[[BuildingTemplate DomeMicro description]] "The most economical Dome design providing extremely limited habitable space and no capacity to host a Spire."),
 	'build_category', "Domes",
 	'display_icon', "UI/Icons/Buildings/micro_dome.tga",
-	'build_pos', 10,
+	'build_pos', 11,
 	'entity', "DomeMicroSmooth",
 	'show_range', true,
 	'encyclopedia_id', "DomeMicro",
@@ -1656,9 +1692,11 @@ PlaceObj('BuildingTemplate', {
 	'palette_color3', "mining_base",
 	'demolish_sinking', range(0, 0),
 	'demolish_debris', 0,
+	'clear_soil_underneath', true,
 	'electricity_consumption', 5000,
 	'water_consumption', 500,
 	'air_consumption', 500,
+	'WorkRange', 7,
 })
 
 PlaceObj('BuildingTemplate', {
@@ -1683,7 +1721,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(5190, --[[BuildingTemplate DomeOval description]] "An elongated Dome design which has space for two Spires."),
 	'build_category', "Domes",
 	'display_icon', "UI/Icons/Buildings/polymer_dome.tga",
-	'build_pos', 4,
+	'build_pos', 5,
 	'entity', "DomeOval",
 	'show_range', true,
 	'encyclopedia_id', "DomeOval",
@@ -1693,9 +1731,11 @@ PlaceObj('BuildingTemplate', {
 	'palette_color3', "pipes_metal",
 	'demolish_sinking', range(0, 0),
 	'demolish_debris', 0,
+	'clear_soil_underneath', true,
 	'electricity_consumption', 40000,
 	'water_consumption', 2000,
 	'air_consumption', 2000,
+	'WorkRange', 11,
 })
 
 PlaceObj('BuildingTemplate', {
@@ -1721,7 +1761,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(9005, --[[BuildingTemplate DomeTrigon description]] "An alternative medium Dome configuration. Cheaper, but provides less habitable space."),
 	'build_category', "Domes",
 	'display_icon', "UI/Icons/Buildings/trigon_dome.tga",
-	'build_pos', 11,
+	'build_pos', 12,
 	'entity', "DomeTrigonSmooth",
 	'show_range', true,
 	'encyclopedia_id', "DomeTrigon",
@@ -1731,9 +1771,11 @@ PlaceObj('BuildingTemplate', {
 	'palette_color3', "mining_base",
 	'demolish_sinking', range(0, 0),
 	'demolish_debris', 0,
+	'clear_soil_underneath', true,
 	'electricity_consumption', 20000,
 	'water_consumption', 1500,
 	'air_consumption', 1500,
+	'WorkRange', 11,
 })
 
 PlaceObj('BuildingTemplate', {
@@ -1750,7 +1792,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(8812, --[[BuildingTemplate Passage description]] "Connects nearby Domes, sharing Power and Life Support. Passages must start and end on a empty hex inside a Dome. Colonists can work and use services in Domes that are directly connected with passages to their residential Dome."),
 	'build_category', "Domes",
 	'display_icon', "UI/Icons/Buildings/passage.tga",
-	'build_pos', 21,
+	'build_pos', 22,
 	'entity', "PassageCovered",
 	'ip_template', "ipPassage",
 	'encyclopedia_id', "Passage",
@@ -1775,13 +1817,27 @@ PlaceObj('BuildingTemplate', {
 	'description', T(8815, --[[BuildingTemplate PassageRamp description]] "Allows traversal of vehicles and drones over Passages."),
 	'build_category', "Domes",
 	'display_icon', "UI/Icons/Buildings/passage_ramp.tga",
-	'build_pos', 22,
+	'build_pos', 23,
 	'entity', "PassageRamp",
 	'encyclopedia_id', "PassageRamp",
 	'encyclopedia_image', "UI/Encyclopedia/PassageRamp.tga",
 	'on_off_button', false,
 	'prio_button', false,
 	'count_as_building', false,
+})
+
+PlaceObj('BuildingTemplate', {
+	'Group', "Domes",
+	'Id', "SelfSufficientDome",
+	'template_class', "LayoutConstructionBuilding",
+	'display_name', T(717850411664, --[[BuildingTemplate SelfSufficientDome display_name]] "Self-Sufficient Dome"),
+	'display_name_pl', T(639840852696, --[[BuildingTemplate SelfSufficientDome display_name_pl]] "Self-Sufficient Domes"),
+	'description', T(410207944438, --[[BuildingTemplate SelfSufficientDome description]] "Contains a small Dome suitable for the early days of the colony, together with Water and Oxygen producing facilities and storages.<newline><newline><em>Construction layout</em>, places the following buildings: Small Dome, MOXIE, 2 Moisture Vaporators, Water Tower, Oxygen Tank, Food Depot, Power Cables and Pipes<if_all(not(has_researched('MoistureFarming')),not(has_prefabs('MoistureVaporator', 2)),not(has_prefabs('SelfSufficientDome')))><newline><newline><red>Research Moisture Farming to build Moisture Vaporators, or get prefabs from Earth.</red></if>"),
+	'build_category', "Domes",
+	'display_icon', "UI/Icons/Buildings/self-sufficient_dome.tga",
+	'entity', "InvisibleObject",
+	'construction_mode', "layout",
+	'LayoutList', "SelfSufficientDome",
 })
 
 PlaceObj('BuildingTemplate', {
@@ -2335,20 +2391,26 @@ PlaceObj('BuildingTemplate', {
 	'display_name_pl', T(5238, --[[BuildingTemplate RefugeeRocket display_name_pl]] "Rockets"),
 	'description', T(5239, --[[BuildingTemplate RefugeeRocket description]] "Delivers cargo or Colonists to Mars. Commands nearby Drones. Contaminates nearby buildings with dust when landing and taking off. Requires <em>Fuel</em> for the return trip to Earth."),
 	'build_category', "Hidden",
-	'display_icon', "UI/Icons/Buildings/rocket_trade.tga",
+	'display_icon', "UI/Icons/Buildings/rocket.tga",
 	'build_pos', 7,
 	'entity', "Rocket",
 	'encyclopedia_id', "Rocket",
 	'key_bindable', false,
 	'label1', "Spaceship",
 	'on_off_button', false,
-	'palette_color1', "rocket_base",
-	'palette_color2', "inside_accent_housing",
 	'indestructible', true,
 	'count_as_building', false,
 	'exclude_from_lr_transportation', true,
 	'max_storage_per_resource', 60000,
-	'storable_resources', {"Concrete","Metals","Polymers","Food","Electronics","MachineParts"},
+	'storable_resources', {
+		"Concrete",
+		"Metals",
+		"Polymers",
+		"Food",
+		"Electronics",
+		"MachineParts",
+		"Seeds",
+	},
 	'starting_drones', 0,
 	'launch_fuel', 0,
 	'sponsor_selectable', false,
@@ -2358,8 +2420,8 @@ PlaceObj('BuildingTemplate', {
 	'Group', "Hidden",
 	'Id', "RocketExpedition",
 	'template_class', "RocketExpedition",
-	'pin_rollover_hint', T(705, --[[BuildingTemplate RocketExpedition pin_rollover_hint]] "<left_click> Land Rocket"),
-	'pin_rollover_hint_xbox', T(706, --[[BuildingTemplate RocketExpedition pin_rollover_hint_xbox]] "<ButtonA> Land Rocket"),
+	'pin_rollover_hint', T(7351, --[[BuildingTemplate RocketExpedition pin_rollover_hint]] "<left_click> Place Rocket"),
+	'pin_rollover_hint_xbox', T(3545, --[[BuildingTemplate RocketExpedition pin_rollover_hint_xbox]] "<ButtonA> Select"),
 	'pin_obvious_blink', true,
 	'construction_cost_Metals', 60000,
 	'construction_cost_Electronics', 20000,
@@ -2379,13 +2441,20 @@ PlaceObj('BuildingTemplate', {
 	'key_bindable', false,
 	'label1', "Spaceship",
 	'on_off_button', false,
-	'palette_color1', "rocket_base",
-	'palette_color2', "inside_accent_research",
 	'indestructible', true,
 	'count_as_building', false,
 	'exclude_from_lr_transportation', true,
 	'max_storage_per_resource', 60000,
-	'storable_resources', {"Concrete","Metals","Polymers","Food","Electronics","MachineParts","PreciousMetals"},
+	'storable_resources', {
+		"Concrete",
+		"Metals",
+		"Polymers",
+		"Food",
+		"Electronics",
+		"MachineParts",
+		"Seeds",
+		"PreciousMetals",
+	},
 	'starting_drones', 0,
 	'launch_fuel', 35000,
 	'max_export_storage', 30000,
@@ -2408,7 +2477,7 @@ PlaceObj('BuildingTemplate', {
 	'display_name_pl', T(5241, --[[BuildingTemplate RocketLandingSite display_name_pl]] "Rocket Landing Sites"),
 	'description', T(5242, --[[BuildingTemplate RocketLandingSite description]] "The landing site of a Rocket."),
 	'build_category', "Hidden",
-	'display_icon', "UI/Icons/Buildings/placeholder.tga",
+	'display_icon', "UI/Icons/Buildings/rocket.tga",
 	'build_pos', 7,
 	'entity', "RocketLandingSite",
 	'key_bindable', false,
@@ -2428,6 +2497,7 @@ PlaceObj('BuildingTemplate', {
 	'build_points', 0,
 	'instant_build', true,
 	'can_rotate_during_placement', false,
+	'is_tall', true,
 	'dome_forbidden', true,
 	'display_name', T(824938247285, --[[BuildingTemplate SupplyPod display_name]] "Supply Pod"),
 	'display_name_pl', T(10273, --[[BuildingTemplate SupplyPod display_name_pl]] "Supply Pods"),
@@ -2436,7 +2506,6 @@ PlaceObj('BuildingTemplate', {
 	'display_icon', "UI/Icons/Buildings/supply_pod.tga",
 	'build_pos', 7,
 	'entity', "SupplyPod",
-	'encyclopedia_id', "Rocket",
 	'key_bindable', false,
 	'label1', "Spaceship",
 	'on_off_button', false,
@@ -2481,13 +2550,19 @@ PlaceObj('BuildingTemplate', {
 	'key_bindable', false,
 	'label1', "Spaceship",
 	'on_off_button', false,
-	'palette_color1', "rocket_base",
-	'palette_color2', "rocket_accent",
 	'indestructible', true,
 	'count_as_building', false,
 	'exclude_from_lr_transportation', true,
 	'max_storage_per_resource', 60000,
-	'storable_resources', {"Concrete","Metals","Polymers","Food","Electronics","MachineParts"},
+	'storable_resources', {
+		"Concrete",
+		"Metals",
+		"Polymers",
+		"Food",
+		"Electronics",
+		"MachineParts",
+		"Seeds",
+	},
 	'starting_drones', 0,
 	'launch_fuel', 50000,
 	'max_export_storage', 30000,
@@ -2511,21 +2586,26 @@ PlaceObj('BuildingTemplate', {
 	'display_name_pl', T(5238, --[[BuildingTemplate TradeRocket display_name_pl]] "Rockets"),
 	'description', T(5239, --[[BuildingTemplate TradeRocket description]] "Delivers cargo or Colonists to Mars. Commands nearby Drones. Contaminates nearby buildings with dust when landing and taking off. Requires <em>Fuel</em> for the return trip to Earth."),
 	'build_category', "Hidden",
-	'display_icon', "UI/Icons/Buildings/rocket_trade.tga",
+	'display_icon', "UI/Icons/Buildings/rocket.tga",
 	'build_pos', 7,
 	'entity', "Rocket",
 	'encyclopedia_id', "Rocket",
 	'key_bindable', false,
 	'label1', "Spaceship",
 	'on_off_button', false,
-	'palette_color1', "rocket_base",
-	'palette_color2', "life_accent_1",
-	'palette_color3', "rocket_accent",
 	'indestructible', true,
 	'count_as_building', false,
 	'exclude_from_lr_transportation', true,
 	'max_storage_per_resource', 60000,
-	'storable_resources', {"Concrete","Metals","Polymers","Food","Electronics","MachineParts"},
+	'storable_resources', {
+		"Concrete",
+		"Metals",
+		"Polymers",
+		"Food",
+		"Electronics",
+		"MachineParts",
+		"Seeds",
+	},
 	'starting_drones', 0,
 	'launch_fuel', 50000,
 	'sponsor_selectable', false,
@@ -2547,7 +2627,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(6986, --[[BuildingTemplate DefenceTower description]] "A laser-targeting defense structure. Protect nearby buildings from meteors. Can attack enemy vehicles at extreme range."),
 	'build_category', "Infrastructure",
 	'display_icon', "UI/Icons/Buildings/defense_turret.tga",
-	'build_pos', 13,
+	'build_pos', 14,
 	'entity', "DefenceTurret",
 	'show_range_all', true,
 	'key_bindable', false,
@@ -2625,6 +2705,7 @@ PlaceObj('BuildingTemplate', {
 	'label1', "OutsideBuildings",
 	'on_off_button', false,
 	'prio_button', false,
+	'clear_soil_underneath', true,
 })
 
 PlaceObj('BuildingTemplate', {
@@ -2641,7 +2722,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(5124, --[[BuildingTemplate MDSLaser description]] "Destroys any falling meteors in its range. Has a short cooldown between shots."),
 	'build_category', "Infrastructure",
 	'display_icon', "UI/Icons/Buildings/mds_aser.tga",
-	'build_pos', 11,
+	'build_pos', 12,
 	'entity', "DefenceLaser",
 	'show_range_all', true,
 	'encyclopedia_id', "MDSLaser",
@@ -2671,7 +2752,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(5210, --[[BuildingTemplate PowerDecoy description]] "Traps a single Mirror Sphere."),
 	'build_category', "Infrastructure",
 	'display_icon', "UI/Icons/Buildings/power_decoy.tga",
-	'build_pos', 15,
+	'build_pos', 16,
 	'entity', "PowerDecoy",
 	'key_bindable', false,
 	'label1', "OutsideBuildings",
@@ -2679,63 +2760,6 @@ PlaceObj('BuildingTemplate', {
 	'palette_color2', "outside_base",
 	'palette_color3', "outside_accent_1",
 	'electricity_consumption', 10000,
-})
-
-PlaceObj('BuildingTemplate', {
-	'Group', "Infrastructure",
-	'Id', "RCExplorerBuilding",
-	'template_class', "RCExplorerBuilding",
-	'construction_cost_Metals', 20000,
-	'construction_cost_Electronics', 10000,
-	'dome_forbidden', true,
-	'display_name', T(1684, --[[BuildingTemplate RCExplorerBuilding display_name]] "RC Explorer"),
-	'display_name_pl', T(5219, --[[BuildingTemplate RCExplorerBuilding display_name_pl]] "RC Explorers"),
-	'description', T(5220, --[[BuildingTemplate RCExplorerBuilding description]] "Remote-controlled exploration vehicle that can analyze Anomalies."),
-	'build_category', "Infrastructure",
-	'display_icon', "UI/Icons/Buildings/rover_human.tga",
-	'build_pos', 3,
-	'entity', "RoverExplorerBuilding",
-	'on_off_button', false,
-	'prio_button', false,
-	'palette_color1', "mining_base",
-	'count_as_building', false,
-})
-
-PlaceObj('BuildingTemplate', {
-	'Group', "Infrastructure",
-	'Id', "RCRoverBuilding",
-	'template_class', "RCRoverBuilding",
-	'construction_cost_Metals', 20000,
-	'construction_cost_Electronics', 10000,
-	'dome_forbidden', true,
-	'display_name', T(7682, --[[BuildingTemplate RCRoverBuilding display_name]] "RC Commander"),
-	'display_name_pl', T(5221, --[[BuildingTemplate RCRoverBuilding display_name_pl]] "RC Commanders"),
-	'description', T(4477, --[[BuildingTemplate RCRoverBuilding description]] "Remote-controlled vehicle that transports, commands and repairs Drones."),
-	'build_category', "Infrastructure",
-	'display_icon', "UI/Icons/Buildings/rcrover.tga",
-	'entity', "RCRoverBuilding",
-	'on_off_button', false,
-	'prio_button', false,
-	'count_as_building', false,
-})
-
-PlaceObj('BuildingTemplate', {
-	'Group', "Infrastructure",
-	'Id', "RCTransportBuilding",
-	'template_class', "RCTransportBuilding",
-	'construction_cost_Metals', 20000,
-	'construction_cost_Electronics', 10000,
-	'dome_forbidden', true,
-	'display_name', T(1683, --[[BuildingTemplate RCTransportBuilding display_name]] "RC Transport"),
-	'display_name_pl', T(1683, --[[BuildingTemplate RCTransportBuilding display_name_pl]] "RC Transport"),
-	'description', T(4461, --[[BuildingTemplate RCTransportBuilding description]] "Remote-controlled vehicle that transports resources. Use it to establish permanent supply routes or to gather resources from surface deposits."),
-	'build_category', "Infrastructure",
-	'display_icon', "UI/Icons/Buildings/rover_transport.tga",
-	'build_pos', 2,
-	'entity', "RoverTransportBuilding",
-	'on_off_button', false,
-	'prio_button', false,
-	'count_as_building', false,
 })
 
 PlaceObj('BuildingTemplate', {
@@ -2812,7 +2836,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(5261, --[[BuildingTemplate ShuttleHub description]] "Houses and refuels Shuttles that facilitate long-range resource transportation between Depots and resettling of Colonists between Domes."),
 	'build_category', "Infrastructure",
 	'display_icon', "UI/Icons/Buildings/shuttle_hub.tga",
-	'build_pos', 8,
+	'build_pos', 9,
 	'entity', "ShuttleHub",
 	'suspend_on_dust_storm', true,
 	'encyclopedia_id', "ShuttleHub",
@@ -2850,7 +2874,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(5295, --[[BuildingTemplate SubsurfaceHeater description]] "Increases the local temperature in cold areas and protects nearby buildings from Cold Waves."),
 	'build_category', "Infrastructure",
 	'display_icon', "UI/Icons/Buildings/subsurface_heater.tga",
-	'build_pos', 10,
+	'build_pos', 11,
 	'entity', "SubsurfaceHeater",
 	'show_range_all', true,
 	'encyclopedia_id', "SubsurfaceHeater",
@@ -2863,6 +2887,26 @@ PlaceObj('BuildingTemplate', {
 	'electricity_consumption', 1600,
 	'water_consumption', 1000,
 	'air_consumption', 0,
+})
+
+PlaceObj('BuildingTemplate', {
+	'Group', "Infrastructure",
+	'Id', "SupplyRocketBuilding",
+	'template_class', "SupplyRocketBuilding",
+	'construction_cost_Metals', 150000,
+	'construction_cost_Electronics', 25000,
+	'construction_cost_MachineParts', 50000,
+	'is_tall', true,
+	'dome_forbidden', true,
+	'display_name', T(1685, --[[BuildingTemplate SupplyRocketBuilding display_name]] "Rocket"),
+	'display_name_pl', T(12369, --[[BuildingTemplate SupplyRocketBuilding display_name_pl]] "Rockets"),
+	'description', T(731448797928, --[[BuildingTemplate SupplyRocketBuilding description]] "A Rocket to transport resources and people between Earth and Mars."),
+	'build_category', "Infrastructure",
+	'display_icon', "UI/Icons/Buildings/rocket.tga",
+	'entity', "RocketLandingSite",
+	'on_off_button', false,
+	'prio_button', false,
+	'count_as_building', false,
 })
 
 PlaceObj('BuildingTemplate', {
@@ -2881,7 +2925,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(5300, --[[BuildingTemplate TriboelectricScrubber description]] "Emits pulses which reduce the Dust accumulated on buildings in its range."),
 	'build_category', "Infrastructure",
 	'display_icon', "UI/Icons/Buildings/triboelectric_schrubbe.tga",
-	'build_pos', 9,
+	'build_pos', 10,
 	'entity', "TriboelectricScrubber",
 	'show_range_all', true,
 	'encyclopedia_id', "TriboelectricScrubber",
@@ -2911,7 +2955,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(5302, --[[BuildingTemplate Tunnel description]] "The tunnel entrance and exit can connect power and life support grids at different locations and different elevations. Rovers can travel along the tunnels to reach places they otherwise couldn't."),
 	'build_category', "Infrastructure",
 	'display_icon', "UI/Icons/Buildings/tunnel.tga",
-	'build_pos', 12,
+	'build_pos', 13,
 	'entity', "TunnelEntrance",
 	'encyclopedia_id', "Tunnel",
 	'encyclopedia_image', "UI/Encyclopedia/Tunnel.tga",
@@ -2922,6 +2966,254 @@ PlaceObj('BuildingTemplate', {
 	'palette_color3', "outside_dark",
 	'demolish_sinking', range(5, 10),
 	'construction_mode', "tunnel_construction",
+})
+
+PlaceObj('BuildingTemplate', {
+	'Group', "Landscape",
+	'Id', "LandscapeRamp",
+	'template_class', "LandscapeRampBuilding",
+	'can_rotate_during_placement', false,
+	'can_resize_during_placement', true,
+	'dome_forbidden', true,
+	'display_name', T(884894533739, --[[BuildingTemplate LandscapeRamp display_name]] "Ramp"),
+	'display_name_pl', T(636241981257, --[[BuildingTemplate LandscapeRamp display_name_pl]] "Ramps"),
+	'description', T(403148106629, --[[BuildingTemplate LandscapeRamp description]] "Marks two flat surfaces to be connected with passable ground by Drones. Consumes Waste Rock to raise terrain. Excess soil and rocks are turned into Waste Rock.<if(has_dlc('armstrong'))><newline><newline><em>Degrades local Soil Quality.</em></if>"),
+	'build_category', "Landscaping",
+	'display_icon', "UI/Icons/Buildings/terraforming_ramp.tga",
+	'build_pos', 2,
+	'entity', "InvisibleObject",
+	'encyclopedia_id', "Landscaping",
+	'on_off_button', false,
+	'prio_button', false,
+	'indestructible', true,
+	'demolish_sinking', range(0, 0),
+	'construction_mode', "landscape_ramp",
+	'refund_on_salvage', false,
+	'count_as_building', false,
+})
+
+PlaceObj('BuildingTemplate', {
+	'Group', "Landscape",
+	'Id', "LandscapeTerrace",
+	'template_class', "LandscapeTerraceBuilding",
+	'can_rotate_during_placement', false,
+	'can_resize_during_placement', true,
+	'dome_forbidden', true,
+	'display_name', T(466444527211, --[[BuildingTemplate LandscapeTerrace display_name]] "Flatten"),
+	'display_name_pl', T(573594258625, --[[BuildingTemplate LandscapeTerrace display_name_pl]] "Flatten"),
+	'description', T(799522759563, --[[BuildingTemplate LandscapeTerrace description]] "Marks a flat surface to be extended into the neighboring terrain by Drones. Consumes Waste Rock to raise terrain. Excess soil and rocks are turned into Waste Rock.<if(has_dlc('armstrong'))><newline><newline><em>Degrades local Soil Quality.</em></if>"),
+	'build_category', "Landscaping",
+	'display_icon', "UI/Icons/Buildings/terraforming_terrace.tga",
+	'entity', "InvisibleObject",
+	'encyclopedia_id', "Landscaping",
+	'on_off_button', false,
+	'prio_button', false,
+	'indestructible', true,
+	'demolish_sinking', range(0, 0),
+	'construction_mode', "landscape_terrace",
+	'refund_on_salvage', false,
+	'count_as_building', false,
+	'max_boundary', 80,
+})
+
+PlaceObj('BuildingTemplate', {
+	'Group', "Landscape",
+	'Id', "RockFormation",
+	'template_class', "LevelPrefabBuilding",
+	'construction_cost_WasteRock', 250000,
+	'build_points', 5000,
+	'is_tall', true,
+	'dome_forbidden', true,
+	'force_extend_bb_during_placement_checks', 4000,
+	'use_demolished_state', false,
+	'display_name', T(165516974733, --[[BuildingTemplate RockFormation display_name]] "Rock Formation"),
+	'display_name_pl', T(255661810896, --[[BuildingTemplate RockFormation display_name_pl]] "Rock Formations"),
+	'description', T(622475429978, --[[BuildingTemplate RockFormation description]] "A stylish composition made of native Martian rocks."),
+	'build_category', "Landscaping",
+	'display_icon', "UI/Icons/Buildings/rock_formation.tga",
+	'build_pos', 5,
+	'entity', "RocksDecorBig",
+	'on_off_button', false,
+	'prio_button', false,
+	'construction_mode', "level_prefab",
+	'count_as_building', false,
+	'PrefabBaseName', "RocksDecorMid",
+	'PrefabType', "Gameplay",
+})
+
+PlaceObj('BuildingTemplate', {
+	'Group', "Landscape",
+	'Id', "RockFormationSmall",
+	'template_class', "LevelPrefabBuilding",
+	'construction_cost_WasteRock', 150000,
+	'build_points', 5000,
+	'is_tall', true,
+	'dome_forbidden', true,
+	'force_extend_bb_during_placement_checks', 4000,
+	'use_demolished_state', false,
+	'display_name', T(303920318660, --[[BuildingTemplate RockFormationSmall display_name]] "Small Rock Formation"),
+	'display_name_pl', T(457190365705, --[[BuildingTemplate RockFormationSmall display_name_pl]] "Small Rock Formations"),
+	'description', T(544067769859, --[[BuildingTemplate RockFormationSmall description]] "Small stylish composition made of native Martian rocks."),
+	'build_category', "Landscaping",
+	'display_icon', "UI/Icons/Buildings/small_rock_formation.tga",
+	'build_pos', 4,
+	'entity', "RocksDecorSmall",
+	'on_off_button', false,
+	'prio_button', false,
+	'construction_mode', "level_prefab",
+	'count_as_building', false,
+	'PrefabBaseName', "RocksDecorSmall",
+	'PrefabType', "Gameplay",
+})
+
+PlaceObj('BuildingTemplate', {
+	'Group', "LandscapeTextureBuildings",
+	'Id', "LandscapeTextureMountains",
+	'template_class', "LandscapeTextureBuilding",
+	'can_rotate_during_placement', false,
+	'can_resize_during_placement', true,
+	'dome_forbidden', true,
+	'display_name', T(198586246995, --[[BuildingTemplate LandscapeTextureMountains display_name]] "Mountains"),
+	'display_name_pl', T(296854706180, --[[BuildingTemplate LandscapeTextureMountains display_name_pl]] "Mountains"),
+	'description', T(473240525597, --[[BuildingTemplate LandscapeTextureMountains description]] "Marks a slope for Drones to change into the Mountains type.<if(has_dlc('armstrong'))><newline><newline><em>Degrades local Soil Quality.</em></if>"),
+	'build_category', "LandscapeTextureBuildings",
+	'display_icon', "UI/Icons/Buildings/terrain_mountains.tga",
+	'build_pos', 5,
+	'entity', "InvisibleObject",
+	'encyclopedia_id', "Landscaping",
+	'on_off_button', false,
+	'prio_button', false,
+	'indestructible', true,
+	'demolish_sinking', range(0, 0),
+	'construction_mode', "landscape_texture",
+	'refund_on_salvage', false,
+	'count_as_building', false,
+	'max_boundary', 60,
+	'max_hexes', 3000,
+	'texture_type', "RockRed_1",
+	'texture_alt', "SandRed_1",
+	'texture_ratio', 45,
+	'texture_pattern', "Landscape",
+	'texture_cover', 80,
+})
+
+PlaceObj('BuildingTemplate', {
+	'Group', "LandscapeTextureBuildings",
+	'Id', "LandscapeTextureRockDarkChaos",
+	'template_class', "LandscapeTextureBuilding",
+	'can_rotate_during_placement', false,
+	'can_resize_during_placement', true,
+	'dome_forbidden', true,
+	'display_name', T(831090968874, --[[BuildingTemplate LandscapeTextureRockDarkChaos display_name]] "Mixed Rocks"),
+	'display_name_pl', T(753244067253, --[[BuildingTemplate LandscapeTextureRockDarkChaos display_name_pl]] "Mixed Rocks"),
+	'description', T(12465, --[[BuildingTemplate LandscapeTextureRockDarkChaos description]] "Marks a surface for Drones to change into the Mixed Rocks type.<if(has_dlc('armstrong'))><newline><newline><em>Degrades local Soil Quality.</em></if>"),
+	'build_category', "LandscapeTextureBuildings",
+	'display_icon', "UI/Icons/Buildings/terrain_mixed_rocks.tga",
+	'build_pos', 4,
+	'entity', "InvisibleObject",
+	'encyclopedia_id', "Landscaping",
+	'on_off_button', false,
+	'prio_button', false,
+	'indestructible', true,
+	'demolish_sinking', range(0, 0),
+	'construction_mode', "landscape_texture",
+	'refund_on_salvage', false,
+	'count_as_building', false,
+	'max_boundary', 60,
+	'max_hexes', 3000,
+	'texture_type', "RockDark",
+	'texture_alt', "ChaosSet03_01",
+	'texture_ratio', 55,
+	'texture_pattern', "Landscape",
+})
+
+PlaceObj('BuildingTemplate', {
+	'Group', "LandscapeTextureBuildings",
+	'Id', "LandscapeTextureSandChaos",
+	'template_class', "LandscapeTextureBuilding",
+	'can_rotate_during_placement', false,
+	'can_resize_during_placement', true,
+	'dome_forbidden', true,
+	'display_name', T(12224, --[[BuildingTemplate LandscapeTextureSandChaos display_name]] "Sands"),
+	'display_name_pl', T(452883065790, --[[BuildingTemplate LandscapeTextureSandChaos display_name_pl]] "Sands"),
+	'description', T(527078695208, --[[BuildingTemplate LandscapeTextureSandChaos description]] "Marks a surface for Drones to change into the Sands type.<if(has_dlc('armstrong'))><newline><newline><em>Degrades local Soil Quality.</em></if>"),
+	'build_category', "LandscapeTextureBuildings",
+	'display_icon', "UI/Icons/Buildings/terrain_sands.tga",
+	'entity', "InvisibleObject",
+	'encyclopedia_id', "Landscaping",
+	'on_off_button', false,
+	'prio_button', false,
+	'indestructible', true,
+	'demolish_sinking', range(0, 0),
+	'construction_mode', "landscape_texture",
+	'refund_on_salvage', false,
+	'count_as_building', false,
+	'max_boundary', 60,
+	'max_hexes', 3000,
+	'texture_type', "Chaos_dark",
+	'texture_alt', "Sand_02",
+	'texture_ratio', 60,
+	'texture_pattern', "Landscape",
+})
+
+PlaceObj('BuildingTemplate', {
+	'Group', "LandscapeTextureBuildings",
+	'Id', "LandscapeTextureSandDark",
+	'template_class', "LandscapeTextureBuilding",
+	'can_rotate_during_placement', false,
+	'can_resize_during_placement', true,
+	'dome_forbidden', true,
+	'display_name', T(12370, --[[BuildingTemplate LandscapeTextureSandDark display_name]] "Mixed Sands"),
+	'display_name_pl', T(12371, --[[BuildingTemplate LandscapeTextureSandDark display_name_pl]] "Mixed Sands"),
+	'description', T(12418, --[[BuildingTemplate LandscapeTextureSandDark description]] "Marks a surface for Drones to change into the Mixed Sands type.<if(has_dlc('armstrong'))><newline><newline><em>Degrades local Soil Quality.</em></if>"),
+	'build_category', "LandscapeTextureBuildings",
+	'display_icon', "UI/Icons/Buildings/terrain_dark_sands.tga",
+	'build_pos', 3,
+	'entity', "InvisibleObject",
+	'encyclopedia_id', "Landscaping",
+	'on_off_button', false,
+	'prio_button', false,
+	'indestructible', true,
+	'demolish_sinking', range(0, 0),
+	'construction_mode', "landscape_texture",
+	'refund_on_salvage', false,
+	'count_as_building', false,
+	'max_boundary', 60,
+	'max_hexes', 3000,
+	'texture_type', "SandDark_01",
+	'texture_alt', "SandRed_stones_2",
+	'texture_ratio', 60,
+	'texture_pattern', "Landscape",
+})
+
+PlaceObj('BuildingTemplate', {
+	'Group', "LandscapeTextureBuildings",
+	'Id', "LandscapeTextureSandRed",
+	'template_class', "LandscapeTextureBuilding",
+	'can_rotate_during_placement', false,
+	'can_resize_during_placement', true,
+	'dome_forbidden', true,
+	'display_name', T(12372, --[[BuildingTemplate LandscapeTextureSandRed display_name]] "Red Sands"),
+	'display_name_pl', T(12373, --[[BuildingTemplate LandscapeTextureSandRed display_name_pl]] "Red Sands"),
+	'description', T(12419, --[[BuildingTemplate LandscapeTextureSandRed description]] "Marks a surface for Drones to change into the Red Sands type.<if(has_dlc('armstrong'))><newline><newline><em>Degrades local Soil Quality.</em></if>"),
+	'build_category', "LandscapeTextureBuildings",
+	'display_icon', "UI/Icons/Buildings/terrain_red_sands.tga",
+	'build_pos', 2,
+	'entity', "InvisibleObject",
+	'encyclopedia_id', "Landscaping",
+	'on_off_button', false,
+	'prio_button', false,
+	'indestructible', true,
+	'demolish_sinking', range(0, 0),
+	'construction_mode', "landscape_texture",
+	'refund_on_salvage', false,
+	'count_as_building', false,
+	'max_boundary', 60,
+	'max_hexes', 3000,
+	'texture_type', "GravelRed_1",
+	'texture_alt', "SandRed_1",
+	'texture_ratio', 55,
+	'texture_pattern', "Landscape",
 })
 
 PlaceObj('BuildingTemplate', {
@@ -3388,7 +3680,9 @@ PlaceObj('BuildingTemplate', {
 	'encyclopedia_image', "UI/Encyclopedia/ConcreteMechanizedDepots.tga",
 	'label1', "OutsideBuildings",
 	'demolish_sinking', range(0, 0),
-	'storable_resources', {"Concrete"},
+	'storable_resources', {
+		"Concrete",
+	},
 	'max_storage_per_resource', 3950000,
 })
 
@@ -3415,7 +3709,9 @@ PlaceObj('BuildingTemplate', {
 	'encyclopedia_image', "UI/Encyclopedia/ElectronicsMechanizedDepots.tga",
 	'label1', "OutsideBuildings",
 	'demolish_sinking', range(0, 0),
-	'storable_resources', {"Electronics"},
+	'storable_resources', {
+		"Electronics",
+	},
 	'max_storage_per_resource', 3950000,
 })
 
@@ -3442,7 +3738,9 @@ PlaceObj('BuildingTemplate', {
 	'encyclopedia_image', "UI/Encyclopedia/FoodMechanizedDepots.tga",
 	'label1', "OutsideBuildings",
 	'demolish_sinking', range(0, 0),
-	'storable_resources', {"Food"},
+	'storable_resources', {
+		"Food",
+	},
 	'max_storage_per_resource', 3950000,
 })
 
@@ -3469,7 +3767,9 @@ PlaceObj('BuildingTemplate', {
 	'encyclopedia_image', "UI/Encyclopedia/FuelMechanizedDepots.tga",
 	'label1', "OutsideBuildings",
 	'demolish_sinking', range(0, 0),
-	'storable_resources', {"Fuel"},
+	'storable_resources', {
+		"Fuel",
+	},
 	'max_storage_per_resource', 3950000,
 })
 
@@ -3495,7 +3795,9 @@ PlaceObj('BuildingTemplate', {
 	'encyclopedia_image', "UI/Encyclopedia/MachinePartsMechanizedDepots.tga",
 	'label1', "OutsideBuildings",
 	'demolish_sinking', range(0, 0),
-	'storable_resources', {"MachineParts"},
+	'storable_resources', {
+		"MachineParts",
+	},
 	'max_storage_per_resource', 3950000,
 })
 
@@ -3522,7 +3824,9 @@ PlaceObj('BuildingTemplate', {
 	'encyclopedia_image', "UI/Encyclopedia/MetalsMechanizedDepots.tga",
 	'label1', "OutsideBuildings",
 	'demolish_sinking', range(0, 0),
-	'storable_resources', {"Metals"},
+	'storable_resources', {
+		"Metals",
+	},
 	'max_storage_per_resource', 3950000,
 })
 
@@ -3543,7 +3847,7 @@ PlaceObj('BuildingTemplate', {
 	'description', T(8845, --[[BuildingTemplate MechanizedDepotMysteryResource description]] "Stores <mysteryresource(UIMaxStorageAmount)>. Some resources will be transported to other depots within Drone range."),
 	'build_category', "MechanizedDepots",
 	'display_icon', "UI/Icons/Buildings/mystery_resource_mechanized_depot.tga",
-	'build_pos', 10,
+	'build_pos', 11,
 	'entity', "WarehouseMystery",
 	'encyclopedia_image', "UI/Encyclopedia/MisteryMechanizedDepots.tga",
 	'label1', "OutsideBuildings",
@@ -3552,7 +3856,9 @@ PlaceObj('BuildingTemplate', {
 	'palette_color3', "outside_base",
 	'palette_color4', "outside_base",
 	'demolish_sinking', range(0, 0),
-	'storable_resources', {"MysteryResource"},
+	'storable_resources', {
+		"MysteryResource",
+	},
 	'max_storage_per_resource', 3950000,
 })
 
@@ -3579,7 +3885,9 @@ PlaceObj('BuildingTemplate', {
 	'encyclopedia_image', "UI/Encyclopedia/PolymersMechanizedDepots.tga",
 	'label1', "OutsideBuildings",
 	'demolish_sinking', range(0, 0),
-	'storable_resources', {"Polymers"},
+	'storable_resources', {
+		"Polymers",
+	},
 	'max_storage_per_resource', 3950000,
 })
 
@@ -3606,7 +3914,9 @@ PlaceObj('BuildingTemplate', {
 	'encyclopedia_image', "UI/Encyclopedia/RareMetalsMechanizedDepots.tga",
 	'label1', "OutsideBuildings",
 	'demolish_sinking', range(0, 0),
-	'storable_resources', {"PreciousMetals"},
+	'storable_resources', {
+		"PreciousMetals",
+	},
 	'max_storage_per_resource', 3950000,
 })
 
@@ -4424,6 +4734,7 @@ PlaceObj('BuildingTemplate', {
 	'demolish_sinking', range(20, 20),
 	'demolish_tilt_angle', range(600, 600),
 	'demolish_debris', 0,
+	'clear_soil_underneath', true,
 	'entity2', "ConcreteExtractorCP3Main",
 	'entitydlc2', "contentpack3",
 	'palette2_color1', "outside_dark",
@@ -4499,6 +4810,63 @@ PlaceObj('BuildingTemplate', {
 })
 
 PlaceObj('BuildingTemplate', {
+	'Group', "Rovers",
+	'Id', "RCExplorerBuilding",
+	'template_class', "RCExplorerBuilding",
+	'construction_cost_Metals', 20000,
+	'construction_cost_Electronics', 10000,
+	'dome_forbidden', true,
+	'display_name', T(1684, --[[BuildingTemplate RCExplorerBuilding display_name]] "RC Explorer"),
+	'display_name_pl', T(5219, --[[BuildingTemplate RCExplorerBuilding display_name_pl]] "RC Explorers"),
+	'description', T(5220, --[[BuildingTemplate RCExplorerBuilding description]] "Remote-controlled exploration vehicle that can analyze Anomalies."),
+	'build_category', "Rovers",
+	'display_icon', "UI/Icons/Buildings/rover_human.tga",
+	'build_pos', 3,
+	'entity', "RoverExplorerBuilding",
+	'on_off_button', false,
+	'prio_button', false,
+	'palette_color1', "mining_base",
+	'count_as_building', false,
+})
+
+PlaceObj('BuildingTemplate', {
+	'Group', "Rovers",
+	'Id', "RCRoverBuilding",
+	'template_class', "RCRoverBuilding",
+	'construction_cost_Metals', 20000,
+	'construction_cost_Electronics', 10000,
+	'dome_forbidden', true,
+	'display_name', T(7682, --[[BuildingTemplate RCRoverBuilding display_name]] "RC Commander"),
+	'display_name_pl', T(5221, --[[BuildingTemplate RCRoverBuilding display_name_pl]] "RC Commanders"),
+	'description', T(4477, --[[BuildingTemplate RCRoverBuilding description]] "Remote-controlled vehicle that transports, commands and repairs Drones."),
+	'build_category', "Rovers",
+	'display_icon', "UI/Icons/Buildings/rcrover.tga",
+	'entity', "RCRoverBuilding",
+	'on_off_button', false,
+	'prio_button', false,
+	'count_as_building', false,
+})
+
+PlaceObj('BuildingTemplate', {
+	'Group', "Rovers",
+	'Id', "RCTransportBuilding",
+	'template_class', "RCTransportBuilding",
+	'construction_cost_Metals', 20000,
+	'construction_cost_Electronics', 10000,
+	'dome_forbidden', true,
+	'display_name', T(1683, --[[BuildingTemplate RCTransportBuilding display_name]] "RC Transport"),
+	'display_name_pl', T(1683, --[[BuildingTemplate RCTransportBuilding display_name_pl]] "RC Transport"),
+	'description', T(4461, --[[BuildingTemplate RCTransportBuilding description]] "Remote-controlled vehicle that transports resources. Use it to establish permanent supply routes or to gather resources from surface deposits."),
+	'build_category', "Rovers",
+	'display_icon', "UI/Icons/Buildings/rover_transport.tga",
+	'build_pos', 2,
+	'entity', "RoverTransportBuilding",
+	'on_off_button', false,
+	'prio_button', false,
+	'count_as_building', false,
+})
+
+PlaceObj('BuildingTemplate', {
 	'Group', "Storages",
 	'Id', "UniversalStorageDepot",
 	'template_class', "UniversalStorageDepot",
@@ -4544,8 +4912,36 @@ PlaceObj('BuildingTemplate', {
 	'prio_button', false,
 	'color_modifier', RGBA(122, 85, 8, 255),
 	'count_as_building', false,
+	'clear_soil_underneath', true,
 	'desire_slider_max', 21,
 	'max_amount_WasteRock', 105000,
+})
+
+PlaceObj('BuildingTemplate', {
+	'Group', "Storages",
+	'Id', "WasteRockDumpHuge",
+	'template_class', "WasteRockDumpSite",
+	'pin_summary1', T(5050, --[[BuildingTemplate WasteRockDumpHuge pin_summary1]] "<wasterock(Stored_WasteRock)>"),
+	'build_points', 0,
+	'instant_build', true,
+	'dome_forbidden', true,
+	'force_extend_bb_during_placement_checks', 2000,
+	'display_name', T(785654974292, --[[BuildingTemplate WasteRockDumpHuge display_name]] "Large Dumping Site"),
+	'display_name_pl', T(220612378829, --[[BuildingTemplate WasteRockDumpHuge display_name_pl]] "Large Dumping Sites"),
+	'description', T(168638766723, --[[BuildingTemplate WasteRockDumpHuge description]] "Stores <wasterock(max_amount_WasteRock)>. Waste Rock is produced as side product of different mining activities."),
+	'build_category', "Storages",
+	'display_icon', "UI/Icons/Buildings/large_dumping_site.tga",
+	'build_pos', 5,
+	'entity', "WasteRockDepotHuge",
+	'encyclopedia_id', "WasteRockDumpBig",
+	'encyclopedia_image', "UI/Encyclopedia/DumpingSite.tga",
+	'on_off_button', false,
+	'prio_button', false,
+	'color_modifier', RGBA(122, 85, 8, 255),
+	'count_as_building', false,
+	'clear_soil_underneath', true,
+	'desire_slider_max', 57,
+	'max_amount_WasteRock', 285000,
 })
 
 PlaceObj('BuildingTemplate', {
@@ -4613,9 +5009,11 @@ PlaceObj('BuildingTemplate', {
 	'encyclopedia_image', "UI/Encyclopedia/GeoscapeDome.tga",
 	'demolish_sinking', range(0, 0),
 	'demolish_debris', 0,
+	'clear_soil_underneath', true,
 	'electricity_consumption', 40000,
 	'air_consumption', 0,
 	'DailySanityRecoverDome', 5000,
+	'WorkRange', 11,
 })
 
 PlaceObj('BuildingTemplate', {
@@ -4790,7 +5188,15 @@ PlaceObj('BuildingTemplate', {
 	'palette_color2', "outside_base",
 	'palette_color3', "electro_accent_2",
 	'max_storage_per_resource', 100000000,
-	'storable_resources', {"Concrete","Metals","Polymers","Food","Electronics","MachineParts"},
+	'storable_resources', {
+		"Concrete",
+		"Metals",
+		"Polymers",
+		"Food",
+		"Electronics",
+		"MachineParts",
+		"Seeds",
+	},
 	'electricity_consumption', 40000,
 	'cargo_capacity', 80000,
 })
@@ -4858,6 +5264,7 @@ PlaceObj('BuildingTemplate', {
 	'palette_color4', "outside_dark",
 	'demolish_sinking', range(1, 5),
 	'demolish_debris', 30,
+	'clear_soil_underneath', true,
 	'electricity_consumption', 30000,
 	'resource_produced1', "Concrete",
 	'max_storage1', 50000,

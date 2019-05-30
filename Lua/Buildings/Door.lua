@@ -1,7 +1,7 @@
 DefineClass.Door =
 {
-	enum_flags = { efShadow = false, efSunShadow = false },
-	__parents = { "Object", "ComponentAttach", "ComponentEx", },
+	flags = { efShadow = false, efSunShadow = false },
+	__parents = { "Object", "ComponentAttach", "ComponentAnim", },
 
 	openingState = "opening",
 	closedState = "idle",
@@ -54,8 +54,8 @@ end
 -----------------------------
 
 DefineClass.DoorWithFX = {
-	enum_flags = { efShadow = false, efSunShadow = false },
-	__parents = { "Object", "CommandObject", "ComponentAttach", "ComponentEx", },
+	flags = { efShadow = false, efSunShadow = false },
+	__parents = { "Object", "CommandObject", "ComponentAttach", "ComponentAnim", },
 
 	openingState = "opening",
 	closedState = "idle",

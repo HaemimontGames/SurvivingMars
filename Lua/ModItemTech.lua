@@ -30,3 +30,8 @@ function OnMsg.ClassesBuilt()
 	local meta = ModItemTechPreset:GetPropertyMetadata("Group")
 	meta.default = "Breakthroughs"
 end
+
+DefineModItemPreset("TechFieldPreset", {
+	EditorName = "TechField",
+	GedEditor = false,
+})

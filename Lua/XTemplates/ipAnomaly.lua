@@ -11,8 +11,8 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelSection",
 			'OnContextUpdate', function (self, context, ...)
-self:SetVisible((context.scanning_progress or 0) > 0)
-end,
+				self:SetVisible((context.scanning_progress or 0) > 0)
+			end,
 			'Title', T(427664763631, --[[XTemplate ipAnomaly Title]] "Scan Progress"),
 			'Icon', "UI/Icons/Sections/sensor.tga",
 		}, {
@@ -31,8 +31,8 @@ end,
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelSection",
 			'OnContextUpdate', function (self, context, ...)
-self:SetVisible((context.expiration_time or 0) > 0)
-end,
+				self:SetVisible((context.expiration_time or 0) > 0)
+			end,
 			'Title', T(666653736105, --[[XTemplate ipAnomaly Title]] "Expiration"),
 			'Icon', "UI/Icons/Sections/sensor.tga",
 		}, {

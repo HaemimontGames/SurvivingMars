@@ -10,6 +10,9 @@ PlaceObj('StoryBit', {
 	Image = "UI/Messages/Events/06_space_suit.tga",
 	Prerequisites = {
 		PlaceObj('CheckColonistCount', nil),
+		PlaceObj('TerraformingActive', {
+			'Negate', true,
+		}),
 	},
 	ScriptDone = true,
 	Text = T(699649194732, --[[StoryBit Oasis Text]] "We rubbed our eyes, but no, we weren’t seeing mirages. By some weird quirk of physics the tiny pond was there – right before our eyes! After the initial excitement has passed, we need to make an important decision."),
@@ -20,6 +23,15 @@ PlaceObj('StoryBit', {
 	VoicedText = T(217884530957, --[[voice:narrator]] "No spectrographic traces of water could prepare us for the breath-taking sight. Amidst the red dunes a tiny pond of liquid water was shimmering under the bleak sun."),
 	group = "Expeditions",
 	id = "Oasis",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1550846220,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitParamResearchPoints', {
 		'Name', "research_large",
 		'Value', 4000,

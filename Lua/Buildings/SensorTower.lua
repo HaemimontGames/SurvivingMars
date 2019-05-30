@@ -60,6 +60,13 @@ function SensorTower:GetSelectionRadiusScale()
 	return 0
 end
 
+function SensorTower:GetBlackCubeProtectionRange()
+	if IsKindOf(UICity.mystery, "BlackCubeMystery") and UICity:IsTechResearched("BlackCubesNegation") then
+		return UICity.mystery.tower_protect_range * const.GridSpacing
+	end
+	return 0
+end
+
 function SensorTower:ShowUISectionConsumption()
 	if self.city:IsTechResearched("AutonomousSensors") then
 		return false

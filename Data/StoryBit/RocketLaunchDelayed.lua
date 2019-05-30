@@ -25,6 +25,15 @@ PlaceObj('StoryBit', {
 	VoicedText = T(161329772050, --[[voice:narrator]] "Several colonists have gathered to watch the launch. Their anticipation is quickly replaced by concern as the engines remain silent and the Rocket remains firmly on the ground."),
 	group = "Rocket",
 	id = "RocketLaunchDelayed",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1551087520,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitReply', {
 		'Text', T(992957668054, --[[StoryBit RocketLaunchDelayed Text]] "You have my full assurance that everything is going to be alright."),
 		'OutcomeText', "custom",
@@ -67,7 +76,7 @@ PlaceObj('StoryBit', {
 		},
 	}),
 	PlaceObj('StoryBitReply', {
-		'Text', T(983163651010, --[[StoryBit RocketLaunchDelayed Text]] "We will do an additional  maintenance check, just to alleviate the concerns."),
+		'Text', T(12239, --[[StoryBit RocketLaunchDelayed Text]] "We will do an additional maintenance check, just to alleviate the concerns."),
 		'OutcomeText', "custom",
 		'CustomOutcomeText', T(399227795562, --[[StoryBit RocketLaunchDelayed CustomOutcomeText]] "rocket will require <electronics(rocket_maintenance)> for maintenance"),
 	}),

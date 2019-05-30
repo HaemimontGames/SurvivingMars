@@ -163,8 +163,8 @@ PlaceObj('XTemplate', {
 						'array', function (parent, context) local domes = GetCommandCenterDomesList(); parent:ResolveId("idTitle"):SetTitle(T{9812, "<white><count></white> DOMES", count = #domes}) return domes end,
 						'__context', function (parent, context, item, i, n) return item end,
 						'run_before', function (parent, context, item, i, n)
-NewXVirtualContent(parent, context, "DomeOverviewRow", 1079, 46)
-end,
+							NewXVirtualContent(parent, context, "DomeOverviewRow", 1079, 46)
+						end,
 					}),
 					}),
 				PlaceObj('XTemplateWindow', {
@@ -177,13 +177,13 @@ end,
 					'HandleMouse', false,
 					'TextStyle', "InGameTitle",
 					'Translate', true,
-					'Text', T(591853191640, --[[XTemplate DomesOverview Text]] "Empty list"),
+					'Text', T(12188, --[[XTemplate DomesOverview Text]] "No objects to show."),
 				}),
 				PlaceObj('XTemplateCode', {
 					'run', function (self, parent, context)
-local list = parent:ResolveId("idList")
-parent:ResolveId("idNoResults"):SetVisible(#list == 0)
-end,
+						local list = parent:ResolveId("idList")
+						parent:ResolveId("idNoResults"):SetVisible(#list == 0)
+					end,
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'__template', "ScrollbarNew",

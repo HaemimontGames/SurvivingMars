@@ -7,8 +7,8 @@ PlaceObj('XTemplate', {
 		'__context', function (parent, context) return IsKindOfClasses(context,"WaterProducer", "AirProducer") and context end,
 		'__template', "InfopanelSection",
 		'OnContextUpdate', function (self, context, ...)
-self:SetVisible(context and context:IsKindOfClasses("WaterProducer") and context.water:UIShouldShowDemandAttention() or context and context:IsKindOfClasses("AirProducer") and context.air:UIShouldShowDemandAttention() and true)
-end,
+			self:SetVisible(context and context:IsKindOfClasses("WaterProducer") and context.water:UIShouldShowDemandAttention() or context and context:IsKindOfClasses("AirProducer") and context.air:UIShouldShowDemandAttention() and true)
+		end,
 		'Title', T(310324952912, --[[XTemplate sectionSupplyProducerAttention Title]] "Attention"),
 		'Icon', "UI/Icons/Sections/attention.tga",
 	}, {

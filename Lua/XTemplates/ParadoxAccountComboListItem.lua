@@ -7,7 +7,7 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateWindow', {
 		'__class', "XTextButton",
 		'Padding', box(15, 2, 0, 2),
-		'MouseCursor', "UI/Cursors/rollover.tga",
+		'MouseCursor', "UI/Cursors/Rollover.tga",
 		'RolloverBackground', RGBA(235, 235, 235, 255),
 	}),
 })

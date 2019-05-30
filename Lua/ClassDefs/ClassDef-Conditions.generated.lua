@@ -1,36 +1,62 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
+UndefineClass('AreDomesOpen')
+DefineClass.AreDomesOpen = {
+	__parents = { "Condition", },
+	properties = {
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
+			editor = "bool", default = false, },
+	},
+	Description = T(112025262533, --[[ConditionDef Conditions AreDomesOpen value]] "Domes are open"),
+	DescriptionNeg = T(715764222467, --[[ConditionDef Conditions AreDomesOpen value]] "Domes aren't open"),
+	Documentation = "Checks if the domes are switched to open state (after reaching breathable atmosphere)",
+}
+
+function AreDomesOpen:__eval(obj, context)
+	return OpenAirBuildings
+end
+
+function AreDomesOpen:__eval(obj, context)
+	return false
+end
+
+UndefineClass('CanCauseFault')
+DefineClass.CanCauseFault = {
+	__parents = { "Condition", },
+	properties = {
+		{ id = "Grid", help = "Select the grid.", 
+			editor = "choice", default = false, items = function (self) return { {text = "Pipe", value = "water"}, {text = "Cable", value = "electricity"}} end, },
+	},
+	Description = Untranslated("Checks if there is a <Grid> grid fragment which can be broken"),
+	Documentation = "Returns whether there exists a supply grid fragment of the selected type (electricity or water) where a fault can be caused (i.e. a grid with more then 10 elements).",
+}
+
+function CanCauseFault:__eval(obj, context)
+	for _, fragment in ipairs(UICity[self.Grid]) do
+		if fragment:IsBreakable() then
+			return true
+		end
+	end
+	return false
+end
+
 UndefineClass('CheckAverageComfort')
 DefineClass.CheckAverageComfort = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Amount", 
+		{ id = "Amount", help = "Set the value to check against.", 
 			editor = "number", default = false, 
 			buttons = { { "Param", "StoryBit_PickParam" } }, },
-		{ id = "Condition", 
+		{ id = "Condition", help = "Select the relation to the specified value.", 
 			editor = "choice", default = ">=", items = function (self) return { ">=", "<=", ">", "<", "==", "~=" } end, },
 	},
 	Description = Untranslated("Average comfort <Condition> <Amount>"),
+	Documentation = "Checks the average comfort in the colony against a certain value.",
 }
 
 function CheckAverageComfort:__eval(obj, context)
 	local avg = UICity:GetAverageStat("Comfort")
-	local amount = self:ResolveValue("Amount", context)
-	local condition = self.Condition
-	if condition == ">=" then
-		print(avg >= amount)
-		return avg >= amount
-	elseif condition == "<=" then
-		return avg <= amount
-	elseif condition == ">" then
-		return avg > amount
-	elseif condition == "<" then
-		return avg < amount
-	elseif condition == "==" then
-		return avg == amount
-	else -- "~="
-		return avg ~= amount
-	end
+	return self:CompareOp(avg, context)
 end
 
 function CheckAverageComfort:__eval_relaxed(obj, context)
@@ -41,32 +67,19 @@ UndefineClass('CheckAverageMorale')
 DefineClass.CheckAverageMorale = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Amount", 
+		{ id = "Amount", help = "Set the value to check against.", 
 			editor = "number", default = false, 
 			buttons = { { "Param", "StoryBit_PickParam" } }, },
-		{ id = "Condition", 
+		{ id = "Condition", help = "Select the relation to the specified value.", 
 			editor = "choice", default = ">=", items = function (self) return { ">=", "<=", ">", "<", "==", "~=" } end, },
 	},
 	Description = Untranslated("Average morale <Condition> <Amount>"),
+	Documentation = "Checks the average morale in the colony against a certain value.",
 }
 
 function CheckAverageMorale:__eval(obj, context)
 	local avg = UICity:GetAverageStat("Morale")
-	local amount = self:ResolveValue("Amount", context)
-	local condition = self.Condition
-	if condition == ">=" then
-		return avg >= amount
-	elseif condition == "<=" then
-		return avg <= amount
-	elseif condition == ">" then
-		return avg > amount
-	elseif condition == "<" then
-		return avg < amount
-	elseif condition == "==" then
-		return avg == amount
-	else -- "~="
-		return avg ~= amount
-	end
+	return self:CompareOp(avg, context)
 end
 
 function CheckAverageMorale:__eval_relaxed(obj, context)
@@ -77,14 +90,15 @@ UndefineClass('CheckBuildingCount')
 DefineClass.CheckBuildingCount = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Building", 
+		{ id = "Building", help = "Select building type to check for.", 
 			editor = "combo", default = false, items = function (self) return BuildingsCombo() end, },
-		{ id = "Amount", 
+		{ id = "Amount", help = "Set the number of buildings of this type.", 
 			editor = "number", default = 0, 
 			buttons = { { "Param", "StoryBit_PickParam" } }, },
 	},
-	TextSingular = T(828647965498, "1 <building_name>"),
-	TextPlural = T(438871007969, "<amount> <building_name_plural>"),
+	Documentation = "Checks the count of buildings of the selected type.",
+	TextSingular = T(828647965498, --[[ConditionDef Conditions CheckBuildingCount value]] "1 <building_name>"),
+	TextPlural = T(438871007969, --[[ConditionDef Conditions CheckBuildingCount value]] "<amount> <building_name_plural>"),
 }
 
 function CheckBuildingCount:__eval(obj, context)
@@ -92,9 +106,11 @@ function CheckBuildingCount:__eval(obj, context)
 	local amount = self:ResolveValue("Amount", context)
 	if ClassTemplates.Building[self.Building] then
 		for _, building in ipairs(UICity.labels[self.Building] or empty_table) do
-			if not building.destroyed then
+			if not building:HasMember("destroyed") then
 				count = count + 1
-			end
+			elseif building.destroyed == false then
+				count = count + 1
+			end 
 		end
 	end
 	return count >= amount
@@ -117,16 +133,17 @@ UndefineClass('CheckColonistCount')
 DefineClass.CheckColonistCount = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Amount", 
+		{ id = "Amount", help = "Set the number of colonists.", 
 			editor = "number", default = 1, 
 			buttons = { { "Param", "StoryBit_PickParam" } }, },
-		{ id = "Trait", 
+		{ id = "Trait", help = "Limit only to colonists with this Trait.", 
 			editor = "combo", default = false, items = function (self) return TraitsCombo() end, },
 	},
-	TextSingular = T(189508201261, "1 Colonist"),
-	TextPlural = T(672624091330, "<amount> Colonists"),
-	TextTraitSingular = T(313070027412, "1 <trait> Colonist"),
-	TextTraitPlural = T(330446983216, "<amount> <trait> Colonists"),
+	Documentation = "Counts the colonists with the selected trait.",
+	TextSingular = T(189508201261, --[[ConditionDef Conditions CheckColonistCount value]] "1 Colonist"),
+	TextPlural = T(672624091330, --[[ConditionDef Conditions CheckColonistCount value]] "<amount> Colonists"),
+	TextTraitSingular = T(313070027412, --[[ConditionDef Conditions CheckColonistCount value]] "1 <trait> Colonist"),
+	TextTraitPlural = T(330446983216, --[[ConditionDef Conditions CheckColonistCount value]] "<amount> <trait> Colonists"),
 }
 
 function CheckColonistCount:__eval(obj, context)
@@ -158,59 +175,46 @@ UndefineClass('CheckColonistStat')
 DefineClass.CheckColonistStat = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Condition", 
+		{ id = "Condition", help = "Select the relation to the specified value.", 
 			editor = "choice", default = ">=", items = function (self) return { ">=", "<=", ">", "<", "==", "~=" } end, },
-		{ id = "Stat", 
+		{ id = "Stat", help = "Select the colonist Stat to check for.", 
 			editor = "combo", default = false, items = function (self) return StatCombo() end, },
-		{ id = "Amount", 
+		{ id = "Amount", help = "Set the value to check against.", 
 			editor = "number", default = 0, 
 			buttons = { { "Param", "StoryBit_PickParam" } }, scale = "Stat", step = 1000, min = 0, max = 100000, },
-		{ id = "Description", 
-			editor = "text", default = T(297267954147, "<Stat> <Condition> <Amount>"), translate = true, },
+		{ id = "Description", help = "The condition description.", 
+			editor = "text", default = T(297267954147, --[[ConditionDef Conditions CheckColonistStat default]] "<Stat> <Condition> <Amount>"), translate = true, },
 	},
+	Documentation = "Checks the specified stat value of the associated colonist.",
 }
 
 function CheckColonistStat:__eval(colonist, context)
 	if not IsValid(colonist) then return false end
 	
-	local stat = colonist[self.Stat]
-	local amount = self:ResolveValue("Amount", context)
-	
-	local condition = self.Condition
-	if condition == ">=" then
-		return stat >= amount
-	elseif condition == "<=" then
-		return stat <= amount
-	elseif condition == ">" then
-		return stat > amount
-	elseif condition == "<" then
-		return stat < amount
-	elseif condition == "==" then
-		return stat == amount
-	else -- "~="
-		return stat ~= amount
-	end
+	local stat = colonist["stat_"..self.Stat:lower()]
+	return self:CompareOp(stat, context)
 end
 
 UndefineClass('CheckDeaths')
 DefineClass.CheckDeaths = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "ReasonsList", 
+		{ id = "ReasonsList", help = "Limit the checked deaths to the selected reasons.", 
 			editor = "string_list", default = {}, item_default = "Old age", items = function (self) return table.keys(DeathReasons, true) end, },
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "Tick to check if the number of deaths is less or equal to the specified Count.", 
 			editor = "bool", default = false, },
-		{ id = "OtherThan", help = "Used to check for any other reason than the selected", 
+		{ id = "OtherThan", help = "Tick to check for any other reason than the selected.", 
 			editor = "bool", default = false, },
-		{ id = "Sols", 
+		{ id = "Sols", help = "Specify the time range of the check.", 
 			editor = "number", default = 1, 
 			buttons = { { "Param", "StoryBit_PickParam" } }, },
-		{ id = "Count", 
+		{ id = "Count", help = "Specify the number of dead colonists to check against.", 
 			editor = "number", default = 0, 
 			buttons = { { "Param", "StoryBit_PickParam" } }, },
 	},
-	Description = Untranslated("Deaths <NegText> <ReasonsText> > <Count> the last <Sols> sols"),
-	DescriptionNeg = Untranslated("Deaths <NegText> <ReasonsText> <= <Count> the last <Sols> sols"),
+	Documentation = "Checks the number of dead colonists for the set time period, limited to the listed reasons of death.",
+	Description = Untranslated("Deaths <NegText> <ReasonsText> > <Count> for the last <Sols> sols"),
+	DescriptionNeg = Untranslated("Deaths <NegText> <ReasonsText> <= <Count> for the last <Sols> sols"),
 }
 
 function CheckDeaths:__eval(obj, context)
@@ -244,20 +248,21 @@ UndefineClass('CheckObjectCount')
 DefineClass.CheckObjectCount = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Label", 
+		{ id = "Label", help = "Select the type of object you want to check for.", 
 			editor = "combo", default = false, items = function (self) return LabelsCombo() end, },
-		{ id = "InDome", 
+		{ id = "InDome", help = "Tick to limit the check only to objects currently inside a Dome.", 
 			editor = "bool", default = false, },
-		{ id = "Filters", 
+		{ id = "Filters", help = "Specify Filters to limit the check only to objects with the selected properties. Note: Make sure the object has these properties, i.e. don't check the Sanity of a Drone (as tempting as it is).", 
 			editor = "nested_list", default = false, base_class = "Condition", },
-		{ id = "Condition", 
+		{ id = "Condition", help = "Select the relation to the specified value.", 
 			editor = "choice", default = false, items = function (self) return { ">=", "<=", ">", "<", "==", "~=" } end, },
-		{ id = "Amount", 
+		{ id = "Amount", help = "Set the value to check against.", 
 			editor = "number", default = false, 
 			buttons = { { "Param", "StoryBit_PickParam" } }, },
-		{ id = "Description", 
-			editor = "text", default = T(569587504378, "<ObjName> count <Condition> <Amount>"), translate = true, },
+		{ id = "Description", help = "The condition description.", 
+			editor = "text", default = T(569587504378, --[[ConditionDef Conditions CheckObjectCount default]] "<ObjName> count <Condition> <Amount>"), translate = true, },
 	},
+	Documentation = 'Checks the number of specified objects, limited by the selected Filters. For example, use Label "Colonist",  filter CheckColonistStat for Sanity < 10 and filter HasTrait "Scientist" to determine the count of mad scientists in the colony.',
 }
 
 function CheckObjectCount:__eval(obj, context)
@@ -270,7 +275,7 @@ function CheckObjectCount:__eval(obj, context)
 	else
 		objs = {}
 		for _, dome in ipairs(UICity.labels.Dome or empty_table) do
-				table.append(objs, dome.labels[self.Label])
+				table.iappend(objs, dome.labels[self.Label])
 		end
 	end
 	local count = 0
@@ -284,22 +289,7 @@ function CheckObjectCount:__eval(obj, context)
 		end
 		if ok then count = count + 1 end
 	end
-	
-	local amount = self:ResolveValue("Amount", context)
-	local condition = self.Condition
-	if condition == ">=" then
-		return count >= amount
-	elseif condition == "<=" then
-		return count <= amount
-	elseif condition == ">" then
-		return count > amount
-	elseif condition == "<" then
-		return count < amount
-	elseif condition == "==" then
-		return count == amount
-	else -- "~="
-		return count ~= amount
-	end
+	return self:CompareOp(count, context)
 end
 
 function CheckObjectCount:GetObjName(obj, context)
@@ -311,16 +301,17 @@ UndefineClass('CheckResource')
 DefineClass.CheckResource = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Condition", 
+		{ id = "Condition", help = "Select the relation to the specified value.", 
 			editor = "choice", default = ">=", items = function (self) return { ">=", "<=", ">", "<", "==", "~=" } end, },
-		{ id = "Resource", 
+		{ id = "Resource", help = "Select the type of resource to check for.", 
 			editor = "combo", default = false, items = function (self) return AllResourcesCombo() end, },
-		{ id = "Amount", 
+		{ id = "Amount", help = "Set the value to check against.", 
 			editor = "number", default = 0, 
 			buttons = { { "Param", "StoryBit_PickParam" } }, },
-		{ id = "Description", 
-			editor = "text", default = T(549355793884, "<ResourceText> <Condition> <Amount>"), translate = true, },
+		{ id = "Description", help = "The condition description.", 
+			editor = "text", default = T(549355793884, --[[ConditionDef Conditions CheckResource default]] "<ResourceText> <Condition> <Amount>"), translate = true, },
 	},
+	Documentation = "Checks the quantity of the specified resource against the specified value.",
 }
 
 function CheckResource:__eval(obj, context)
@@ -344,20 +335,7 @@ function CheckResource:__eval(obj, context)
 		amount = amount*const.ResourceScale
 	end
 	
-	local condition = self.Condition
-	if condition == ">=" then
-		return count >= amount
-	elseif condition == "<=" then
-		return count <= amount
-	elseif condition == ">" then
-		return count > amount
-	elseif condition == "<" then
-		return count < amount
-	elseif condition == "==" then
-		return count == amount
-	else -- "~="
-		return count ~= amount
-	end
+	return self:CompareOp(count, context, amount)
 end
 
 function CheckResource:GetResourceText(obj, context)
@@ -369,15 +347,16 @@ UndefineClass('CheckTechStatus')
 DefineClass.CheckTechStatus = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Field", 
-			editor = "choice", default = "", items = function (self) return ResearchFieldsCombo() end, },
-		{ id = "TechId", name = "Tech Id", 
+		{ id = "Field", help = "Select the research field from which the tech is to be selected.", 
+			editor = "choice", default = "All Fields", items = function (self) return ResearchFieldsCombo() end, },
+		{ id = "TechId", name = "Tech Id", help = "Select a tech in the specified field.", 
 			editor = "choice", default = "", items = function (self) return ResearchTechsCombo(self) end, },
-		{ id = "Status", 
+		{ id = "Status", help = "Choose whether to pick a Tech which is already researched (researched), revealed but not yet researched (available) or not discovered at all (unknown).", 
 			editor = "choice", default = "researched", items = function (self) return { "unknown", "available", "researched" } end, },
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "Tick to select the opposite status.", 
 			editor = "bool", default = false, },
 	},
+	Documentation = "Checks if the specified tech is revealed and if it is researched or not.",
 }
 
 function CheckTechStatus:__eval(obj, context)
@@ -389,8 +368,8 @@ function CheckTechStatus:__eval(obj, context)
 		return UICity:IsTechResearched(self.TechId)
 	elseif self.Status == "available" then
 		return UICity:IsTechResearchable(self.TechId)
-	else
-		return UICity:IsTechDiscovered(self.TechId)
+	elseif self.Status == "unknown" then
+		return not UICity:IsTechDiscovered(self.TechId)
 	end
 end
 
@@ -399,21 +378,21 @@ function CheckTechStatus:GetDescription()
 	local tech_name = desc and desc.display_name or ""
 	if self.Status == "researched" then
 		if self.Negate then
-			return T{11848, "Tech not researched <tech_name>", tech_name = tech_name}
+			return T{11879, "Tech <tech_name> not researched", tech_name = tech_name}
 		else
-			return T{11849, "Tech researched <tech_name>", tech_name = tech_name}
+			return T{11880, "Tech <tech_name> researched", tech_name = tech_name}
 		end
 	elseif self.Status == "available" then
 		if self.Negate then
-			return T{11850, "Tech not available <tech_name>", tech_name = tech_name}
+			return T{11881, "Tech <tech_name> not available", tech_name = tech_name}
 		else
-			return T{11851, "Tech available <tech_name>", tech_name = tech_name}
+			return T{11882, "Tech <tech_name> available", tech_name = tech_name}
 		end
-	else
+	elseif self.Status == "unknown" then
 		if self.Negate then
-			return T{11852, "Tech unknown <tech_name>", tech_name = tech_name}
+			return T{11884, "Tech <tech_name> discovered", tech_name = tech_name}
 		else
-			return T{11853, "Tech discovered <tech_name>", tech_name = tech_name}
+			return T{11883, "Tech <tech_name> unknown", tech_name = tech_name}
 		end
 	end
 end
@@ -422,18 +401,18 @@ UndefineClass('CountShuttles')
 DefineClass.CountShuttles = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Status", 
+		{ id = "Status", help = "Limit the check to shuttles in flight, refueling or idle shuttles, or count all shuttles.", 
 			editor = "choice", default = "all", items = function (self) return ShuttleStatusComboItems end, },
-		{ id = "Amount", 
+		{ id = "Amount", help = "Set the value to check against.", 
 			editor = "number", default = 0, },
-		{ id = "Condition", 
+		{ id = "Condition", help = "Select the relation to the specified value.", 
 			editor = "choice", default = ">=", items = function (self) return { ">=", "<=", ">", "<", "==", "~=" } end, },
 	},
 	Description = Untranslated("Shuttle count <Condition> <Amount>"),
+	Documentation = "Checks the number of shuttles in the colony, according to the specified criteria (shuttles in flight, refueling shuttles, idle shuttles, all shuttles).",
 }
 
 function CountShuttles:__eval(obj, context)
-	local amount = self:ResolveValue("Amount", context)
 	local count = 0
 	local ShuttleHubCountShuttles
 	if self.Status == "all" then
@@ -458,37 +437,24 @@ function CountShuttles:__eval(obj, context)
 			count = count + ShuttleHubCountShuttles(shuttle_hub)
 		end
 	end
-	
-	local condition = self.Condition
-	if condition == ">=" then
-		return count >= amount
-	elseif condition == "<=" then
-		return count <= amount
-	elseif condition == ">" then
-		return count > amount
-	elseif condition == "<" then
-		return count < amount
-	elseif condition == "==" then
-		return count == amount
-	else -- "~="
-		return count ~= amount
-	end
+	return self:CompareOp(count, context)
 end
 
 UndefineClass('CountTechsResearched')
 DefineClass.CountTechsResearched = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Filters", 
-			editor = "nested_list", default = false, base_class = "Condition", },
-		{ id = "Condition", 
-			editor = "choice", default = false, items = function (self) return { ">=", "<=", ">", "<", "==", "~=" } end, },
-		{ id = "Amount", 
+		{ id = "Filters", help = "Pick Filters to narrow the search to the specified techs.", 
+			editor = "nested_list", default = false, no_edit = true, base_class = "Condition", },
+		{ id = "Condition", help = "Select the relation to the specified value.", 
+			editor = "choice", default = ">=", items = function (self) return { ">=", "<=", ">", "<", "==", "~=" } end, },
+		{ id = "Amount", help = "Set the value to check against.", 
 			editor = "number", default = false, 
 			buttons = { { "Param", "StoryBit_PickParam" } }, },
-		{ id = "Description", 
-			editor = "text", default = T(847100615161, "Techs researched count <Condition> <Amount>"), translate = true, },
+		{ id = "Description", help = "The effect description", 
+			editor = "text", default = T(847100615161, --[[ConditionDef Conditions CountTechsResearched default]] "Techs researched count <Condition> <Amount>"), translate = true, },
 	},
+	Documentation = "Checks the number of researched Techs.",
 }
 
 function CountTechsResearched:__eval(obj, context)
@@ -498,32 +464,19 @@ function CountTechsResearched:__eval(obj, context)
 		local t_c, all = UICity:TechCount(fields[i], "researched")
 		count = count + t_c
 	end
-	local amount = self:ResolveValue("Amount", context)
-	local condition = self.Condition
-	if condition == ">=" then
-		return count >= amount
-	elseif condition == "<=" then
-		return count <= amount
-	elseif condition == ">" then
-		return count > amount
-	elseif condition == "<" then
-		return count < amount
-	elseif condition == "==" then
-		return count == amount
-	else -- "~="
-		return count ~= amount
-	end
+	return self:CompareOp(count, context)
 end
 
 UndefineClass('FounderStageCompleted')
 DefineClass.FounderStageCompleted = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
 	},
 	Description = Untranslated("Founder stage completed"),
 	DescriptionNeg = Untranslated("Founder stage not completed"),
+	Documentation = "Checks if Founder stage is completed (colony is approved).",
 }
 
 function FounderStageCompleted:__eval(obj, context)
@@ -538,9 +491,9 @@ UndefineClass('HasTrait')
 DefineClass.HasTrait = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Trait", 
+		{ id = "Trait", help = "Select the trait to check for.", 
 			editor = "choice", default = false, items = function (self) return PresetsCombo("TraitPreset") end, },
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
 	},
 	Description = Untranslated("Colonist is <Trait>"),
@@ -548,6 +501,7 @@ DefineClass.HasTrait = {
 	RequiredObjClasses = {
 	"Colonist",
 },
+	Documentation = "Checks if colonist has the specified trait.",
 }
 
 function HasTrait:__eval(obj, context)
@@ -558,7 +512,7 @@ UndefineClass('HasWorkplace')
 DefineClass.HasWorkplace = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
 	},
 	Description = Untranslated("Colonist has a workplace"),
@@ -566,6 +520,7 @@ DefineClass.HasWorkplace = {
 	RequiredObjClasses = {
 	"Colonist",
 },
+	Documentation = "Checks if colonist has a workplace.",
 }
 
 function HasWorkplace:__eval(obj, context)
@@ -576,6 +531,7 @@ UndefineClass('IsAssociatedObject')
 DefineClass.IsAssociatedObject = {
 	__parents = { "Condition", },
 	Description = Untranslated("Is Associated Object"),
+	Documentation = "Checks if object is the associated object.",
 }
 
 function IsAssociatedObject:__eval(obj, context)
@@ -586,15 +542,31 @@ function IsAssociatedObject:__eval(obj, context)
 	return context.object == obj
 end
 
+UndefineClass('IsAtmosphereBreathable')
+DefineClass.IsAtmosphereBreathable = {
+	__parents = { "Condition", },
+	properties = {
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
+			editor = "bool", default = false, },
+	},
+	Description = T(928878462729, --[[ConditionDef Conditions IsAtmosphereBreathable value]] "Atmosphere is breathable"),
+	DescriptionNeg = T(378316015016, --[[ConditionDef Conditions IsAtmosphereBreathable value]] "Atmosphere isn't breathable"),
+	Documentation = "Checks if the atmosphere is breathable",
+}
+
+function IsAtmosphereBreathable:__eval(obj, context)
+	return BreathableAtmosphere
+end
+
 UndefineClass('IsBuildingClass')
 DefineClass.IsBuildingClass = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "BuildingClass", name = "Building Class", 
+		{ id = "BuildingClass", name = "Building Class", help = "List of building classes to check against", 
 			editor = "string_list", default = {}, item_default = "Dome", items = function (self) return ClassDescendantsList("Building") end, },
-		{ id = "Template", name = "Building Template", 
+		{ id = "Template", name = "Building Template", help = "List of building templates to check against", 
 			editor = "string_list", default = {}, item_default = "", items = function (self) return PresetsCombo("BuildingTemplate") end, },
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
 	},
 	Description = Untranslated("Building is <BuildingClasses> <Templates>"),
@@ -602,6 +574,7 @@ DefineClass.IsBuildingClass = {
 	RequiredObjClasses = {
 	"Building",
 },
+	Documentation = "Checks if building's class is one of the specified classes (if any) and its template is one of the specified templates (if any).",
 }
 
 function IsBuildingClass:__eval(obj, context)
@@ -630,7 +603,7 @@ UndefineClass('IsBuildingWorking')
 DefineClass.IsBuildingWorking = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
 	},
 	Description = Untranslated("Working"),
@@ -638,6 +611,7 @@ DefineClass.IsBuildingWorking = {
 	RequiredObjClasses = {
 	"Building",
 },
+	Documentation = "Checks if the building is working.",
 }
 
 function IsBuildingWorking:__eval(obj, context)
@@ -648,13 +622,14 @@ UndefineClass('IsCommander')
 DefineClass.IsCommander = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "CommanderProfile", name = "Commander Profile", 
+		{ id = "CommanderProfile", name = "Commander Profile", help = "Choose the commander profile to check against.", 
 			editor = "choice", default = false, items = function (self) return PresetsCombo("CommanderProfilePreset") end, },
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
 	},
-	Description = T(715647837632, "<display_name('CommanderProfilePreset',CommanderProfile)>"),
-	DescriptionNeg = T(370328927689, "Commander Profile: not <display_name('CommanderProfilePreset',CommanderProfile)>"),
+	Description = T(715647837632, --[[ConditionDef Conditions IsCommander value]] "<display_name('CommanderProfilePreset',CommanderProfile)>"),
+	DescriptionNeg = T(370328927689, --[[ConditionDef Conditions IsCommander value]] "Commander Profile: not <display_name('CommanderProfilePreset',CommanderProfile)>"),
+	Documentation = "Checks if player's Commander profile is the same as the specified.",
 }
 
 function IsCommander:__eval(obj, context)
@@ -669,15 +644,16 @@ UndefineClass('IsCommander2')
 DefineClass.IsCommander2 = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "CommanderProfile1", name = "Commander Profile 1", 
+		{ id = "CommanderProfile1", name = "Commander Profile 1", help = "Choose the first commander profile to check against.", 
 			editor = "choice", default = false, items = function (self) return PresetsCombo("CommanderProfilePreset") end, },
-		{ id = "CommanderProfile2", name = "Commander Profile 2", 
+		{ id = "CommanderProfile2", name = "Commander Profile 2", help = "Choose the second commander profile to check against.", 
 			editor = "choice", default = false, items = function (self) return PresetsCombo("CommanderProfilePreset") end, },
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
 	},
-	Description = T(954742980035, "<display_name('CommanderProfilePreset',CommanderProfile1)> or <display_name('CommanderProfilePreset',CommanderProfile2)>"),
-	DescriptionNeg = T(267085582298, "Commander Profile: not <display_name('CommanderProfilePreset',CommanderProfile1)> or <display_name('CommanderProfilePreset',CommanderProfile2)>"),
+	Description = T(954742980035, --[[ConditionDef Conditions IsCommander2 value]] "<display_name('CommanderProfilePreset',CommanderProfile1)> or <display_name('CommanderProfilePreset',CommanderProfile2)>"),
+	DescriptionNeg = T(267085582298, --[[ConditionDef Conditions IsCommander2 value]] "Commander Profile: not <display_name('CommanderProfilePreset',CommanderProfile1)> or <display_name('CommanderProfilePreset',CommanderProfile2)>"),
+	Documentation = "Checks if player's Commander profile is one of the two specified.",
 }
 
 function IsCommander2:__eval(obj, context)
@@ -693,13 +669,14 @@ UndefineClass('IsCommanders')
 DefineClass.IsCommanders = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Commanders", 
+		{ id = "Commanders", help = "List of commanders to check against.", 
 			editor = "string_list", default = {}, item_default = "", items = function (self) return PresetsCombo("CommanderProfilePreset") end, },
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
 	},
-	Description = T(282335593996, "Commander is <NamesText>"),
-	DescriptionNeg = T(403412127044, "Commander isn't <NamesText>"),
+	Description = T(282335593996, --[[ConditionDef Conditions IsCommanders value]] "Commander is <NamesText>"),
+	DescriptionNeg = T(403412127044, --[[ConditionDef Conditions IsCommanders value]] "Commander isn't <NamesText>"),
+	Documentation = "Checks if player's Commander profile is one of the specified.",
 }
 
 function IsCommanders:__eval(obj, context)
@@ -723,9 +700,9 @@ UndefineClass('IsCustomAnomaly')
 DefineClass.IsCustomAnomaly = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
-		{ id = "id", 
+		{ id = "id", help = "Set the anomaly ID", 
 			editor = "text", default = false, },
 	},
 	Description = Untranslated("Is associated anomaly"),
@@ -734,6 +711,7 @@ DefineClass.IsCustomAnomaly = {
 	"PlanetaryAnomaly",
 	"SupplyRocket",
 },
+	Documentation = "Checks if asociated rocket is the Founder's rocket",
 }
 
 function IsCustomAnomaly:__eval(obj, context)
@@ -749,12 +727,11 @@ function IsCustomAnomaly:__eval(obj, context)
 	end
 end
 
-
 UndefineClass('IsFoundersRocket')
 DefineClass.IsFoundersRocket = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
 	},
 	Description = Untranslated("Rocket is Founder"),
@@ -762,6 +739,7 @@ DefineClass.IsFoundersRocket = {
 	RequiredObjClasses = {
 	"SupplyRocket",
 },
+	Documentation = "Checks if asociated rocket is the Founder's rocket",
 }
 
 function IsFoundersRocket:__eval(obj, context)
@@ -772,13 +750,14 @@ UndefineClass('IsMysteryActive')
 DefineClass.IsMysteryActive = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Mystery", name = "Mystery", 
+		{ id = "Mystery", name = "Mystery", help = "Select the mystery to check for.", 
 			editor = "choice", default = false, items = function (self) return ClassDescendantsList("MysteryBase") end, },
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
 	},
 	Description = Untranslated("Is mystery <Mystery> active"),
 	DescriptionNeg = Untranslated("Is mystery <Mystery> not active"),
+	Documentation = "Checks whether the specified mystery is active in this playthrough.",
 }
 
 function IsMysteryActive:__eval(obj, context)
@@ -793,13 +772,14 @@ UndefineClass('IsRocketID')
 DefineClass.IsRocketID = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
-		{ id = "rocket_id", name = "Rocket ID", 
+		{ id = "rocket_id", name = "Rocket ID", help = "Specify the rocket ID to check for.", 
 			editor = "text", default = false, },
 	},
-	Description = T(791896416077, "Is Rocket Id <rocket_id>"),
-	DescriptionNeg = T(342912052918, "Is Rocket Id not <rocket_id>"),
+	Description = T(791896416077, --[[ConditionDef Conditions IsRocketID value]] "Is Rocket Id <rocket_id>"),
+	DescriptionNeg = T(342912052918, --[[ConditionDef Conditions IsRocketID value]] "Is Rocket Id not <rocket_id>"),
+	Documentation = "Checks if the rocket ID is the one specified.",
 }
 
 function IsRocketID:__eval(obj, context)
@@ -810,9 +790,9 @@ UndefineClass('IsRocketStatus')
 DefineClass.IsRocketStatus = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Status", 
-			editor = "choice", default = "on earth", items = function (self) return RocketStatusComboItems end, },
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Status", help = "Select a rocket status to check for.", 
+			editor = "choice", default = "on earth", items = function (self) return RocketStatusComboItems() end, },
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
 	},
 	Description = Untranslated("Is rocket <Status>"),
@@ -820,6 +800,7 @@ DefineClass.IsRocketStatus = {
 	RequiredObjClasses = {
 	"SupplyRocket",
 },
+	Documentation = "Checks if the associated rocket is in the specified status.",
 }
 
 function IsRocketStatus:__eval(obj, context)
@@ -830,20 +811,19 @@ UndefineClass('IsRocketType')
 DefineClass.IsRocketType = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Type", 
-			editor = "choice", default = "Any", items = function (self) return RocketTypeComboItems end, },
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Type", help = "Select a rocket type to check for.", 
+			editor = "choice", default = "Any", items = function (self) return RocketTypeComboItems() end, },
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
 	},
-	Description = "",
-	DescriptionNeg = "",
 	RequiredObjClasses = {
 	"SupplyRocket",
 },
+	Documentation = "Checks whether the associated rocket is the specified type.",
 }
 
 function IsRocketType:GetEditorView()
-	return self.Negate and T(11854, "Rocket is <Type>") or T(11855, "Rocket is not <Type>")
+	return self.Negate and T(11885, "Rocket is <Type>") or T(11886, "Rocket is not <Type>")
 end
 
 function IsRocketType:__eval(obj, context)
@@ -858,31 +838,56 @@ UndefineClass('IsSolInRange')
 DefineClass.IsSolInRange = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Min", name = "Min sol", 
+		{ id = "Min", name = "Min sol", help = "Set the lowest valid value for the current Sol.", 
 			editor = "number", default = 0, 
 			buttons = { { "Param", "StoryBit_PickParam" } }, },
-		{ id = "Max", name = "Max sol", 
+		{ id = "Max", name = "Max sol", help = "Set the highest valid value for the current Sol.", 
 			editor = "number", default = 10, 
 			buttons = { { "Param", "StoryBit_PickParam" } }, },
 	},
 	Description = Untranslated("<Min> <= sol <= <Max>"),
+	Documentation = "Checks whether the current Sol is in the specified time range.",
 }
 
 function IsSolInRange:__eval(obj, context)
 	return UICity.day>=self:ResolveValue("Min",context) and UICity.day<=self:ResolveValue("Max",context)
 end
 
+UndefineClass('IsSpecialProjectCompleted')
+DefineClass.IsSpecialProjectCompleted = {
+	__parents = { "Condition", },
+	properties = {
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
+			editor = "bool", default = false, },
+		{ id = "project_id", name = "project_id", help = "Project to chech for.", 
+			editor = "preset_id", default = "", preset_class = "POI", },
+	},
+	EditorView = Untranslated("Is <project_id> completed"),
+	EditorViewNeg = Untranslated("Is <project_id> not completed"),
+	Documentation = "Check if the specified special project has been completed at least onece.",
+}
+
+function IsSpecialProjectCompleted:__eval(obj, context)
+	if not self.project_id then return false end
+	return  g_SpecialProjectCompleted and g_SpecialProjectCompleted[self.project_id] and  g_SpecialProjectCompleted[self.project_id]>0
+end
+
+function IsSpecialProjectCompleted:GetWarning()
+	if not self.project_id  then return "Specify project id" end
+end
+
 UndefineClass('IsSponsor')
 DefineClass.IsSponsor = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "SponsorName", name = "Sponsor Name", 
+		{ id = "SponsorName", name = "Sponsor Name", help = "Select a mission sponsor to check for.", 
 			editor = "choice", default = false, items = function (self) return PresetsCombo("MissionSponsorPreset") end, },
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
 	},
-	Description = T(393331541770, "<display_name('MissionSponsorPreset',SponsorName)>"),
-	DescriptionNeg = T(256907425108, "not <display_name('MissionSponsorPreset',SponsorName)>"),
+	Description = T(393331541770, --[[ConditionDef Conditions IsSponsor value]] "<display_name('MissionSponsorPreset',SponsorName)>"),
+	DescriptionNeg = T(256907425108, --[[ConditionDef Conditions IsSponsor value]] "not <display_name('MissionSponsorPreset',SponsorName)>"),
+	Documentation = "Check if the current mission sponsor is the specified one.",
 }
 
 function IsSponsor:__eval(obj, context)
@@ -897,13 +902,14 @@ UndefineClass('IsSponsors')
 DefineClass.IsSponsors = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Sponsors", 
+		{ id = "Sponsors", help = "List of sponsors to check against.", 
 			editor = "string_list", default = {}, item_default = "", items = function (self) return PresetsCombo("MissionSponsorPreset") end, },
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
 	},
-	Description = T(299678364320, "Sponsor is <NamesText>"),
-	DescriptionNeg = T(886907915754, "Sponsor isn't <NamesText>"),
+	Description = T(299678364320, --[[ConditionDef Conditions IsSponsors value]] "Sponsor is <NamesText>"),
+	DescriptionNeg = T(886907915754, --[[ConditionDef Conditions IsSponsors value]] "Sponsor isn't <NamesText>"),
+	Documentation = "Check if the current mission sponsor is one of the specified ones.",
 }
 
 function IsSponsors:__eval(obj, context)
@@ -927,7 +933,7 @@ UndefineClass('IsSupplyPod')
 DefineClass.IsSupplyPod = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
 	},
 	Description = Untranslated("Rocket is a Supply Pod"),
@@ -935,6 +941,7 @@ DefineClass.IsSupplyPod = {
 	RequiredObjClasses = {
 	"SupplyRocket",
 },
+	Documentation = "Check if the associated object is a Supply Pod.",
 }
 
 function IsSupplyPod:__eval(obj, context)
@@ -945,11 +952,11 @@ UndefineClass('IsTechId')
 DefineClass.IsTechId = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Field", 
+		{ id = "Field", help = "Select the research field from which the tech is to be selected.", 
 			editor = "choice", default = false, items = function (self) return ResearchFieldsCombo() end, },
-		{ id = "TechId", name = "Tech Id", 
+		{ id = "TechId", name = "Tech Id", help = "Select a tech in the specified field.", 
 			editor = "choice", default = false, items = function (self) return ResearchTechsCombo(self) end, },
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
 	},
 	Description = Untranslated("Is tech <TechId>"),
@@ -957,6 +964,7 @@ DefineClass.IsTechId = {
 	RequiredObjClasses = {
 	"TechPreset",
 },
+	Documentation = "Check if the associated tech is the one specified.",
 }
 
 function IsTechId:__eval(obj, context)
@@ -967,13 +975,14 @@ UndefineClass('IsWorkplace')
 DefineClass.IsWorkplace = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Building", 
+		{ id = "Building", help = "Select a workplace for the colonist.", 
 			editor = "combo", default = "", items = function (self) return BuildingsCombo() end, },
 	},
 	Description = Untranslated("Colonist workplace is <Building>"),
 	RequiredObjClasses = {
 	"Colonist",
 },
+	Documentation = "Check if the associated colonist works in the specified building.",
 }
 
 function IsWorkplace:__eval(colonist, context)
@@ -984,12 +993,13 @@ UndefineClass('PickFromLabel')
 DefineClass.PickFromLabel = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Label", 
+		{ id = "Label", help = "Select the label from which to choose the object.", 
 			editor = "combo", default = false, items = function (self) return LabelsCombo end, },
-		{ id = "Conditions", 
+		{ id = "Conditions", help = "List the conditions the object has to fulfill in order to be selected.", 
 			editor = "nested_list", default = false, base_class = "Condition", },
 	},
 	Description = Untranslated("Pick from <Label>, where <ConditionsFormat>"),
+	Documentation = "Picks a random object from a specific label, fulfilling the specified conditions.",
 }
 
 function PickFromLabel:ConditionsFormat()
@@ -1037,15 +1047,13 @@ UndefineClass('PickResident')
 DefineClass.PickResident = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Negate", name = "Negate Condition", 
-			editor = "bool", default = false, },
-		{ id = "ParentBuildingLabel", 
+		{ id = "ParentBuildingLabel", help = "Select a parent building to pick a resident from.", 
 			editor = "combo", default = false, items = function (self) return LabelsCombo end, },
-		{ id = "ResidentConditions", 
+		{ id = "ResidentConditions", help = "List the conditions the colonist has to satisfy to be selected.", 
 			editor = "nested_list", default = false, base_class = "Condition", },
 	},
 	Description = Untranslated("Pick Resident"),
-	DescriptionNeg = Untranslated(""),
+	Documentation = "Picks a random resident of the specified building who also satisfies certain conditions.",
 }
 
 function PickResident:__eval(obj, context)
@@ -1078,14 +1086,14 @@ UndefineClass('PickRocketWithStatus')
 DefineClass.PickRocketWithStatus = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
-		{ id = "Status", 
-			editor = "choice", default = "on earth", items = function (self) return RocketStatusComboItems end, },
+		{ id = "Status", help = "Select the desired status of the rocket.", 
+			editor = "choice", default = "on earth", items = function (self) return RocketStatusComboItems() end, },
 	},
 	Description = Untranslated("Pick a rocket which is <Status>"),
 	DescriptionNeg = Untranslated("Pick a rocket which is not <Status>"),
-	RequiredObjClasses = false,
+	Documentation = "Pick a random rocket with the specified status.",
 }
 
 function PickRocketWithStatus:__eval(obj, context)
@@ -1106,6 +1114,7 @@ UndefineClass('PickShuttle')
 DefineClass.PickShuttle = {
 	__parents = { "Condition", },
 	Description = Untranslated("Pick random flying shuttle"),
+	Documentation = "Pick a random flying shuttle.",
 }
 
 function PickShuttle:__eval(obj, context)
@@ -1120,15 +1129,13 @@ UndefineClass('PickWorker')
 DefineClass.PickWorker = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Negate", name = "Negate Condition", 
-			editor = "bool", default = false, },
-		{ id = "ParentBuildingLabel", 
+		{ id = "ParentBuildingLabel", help = "Select the building where the colonist works.", 
 			editor = "combo", default = false, items = function (self) return LabelsCombo end, },
-		{ id = "WorkerConditions", 
+		{ id = "WorkerConditions", help = "List the conditions the colonist has to satisfy to be selected.", 
 			editor = "nested_list", default = false, base_class = "Condition", },
 	},
 	Description = Untranslated("Pick Worker"),
-	DescriptionNeg = Untranslated(""),
+	Documentation = "Pick a colonist with the specified workplace.",
 }
 
 function PickWorker:__eval(obj, context)
@@ -1168,15 +1175,100 @@ UndefineClass('SupplyMissionsEnabled')
 DefineClass.SupplyMissionsEnabled = {
 	__parents = { "Condition", },
 	properties = {
-		{ id = "Negate", name = "Negate Condition", 
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
 			editor = "bool", default = false, },
 	},
 	Description = Untranslated("Supply missions enabled"),
 	DescriptionNeg = Untranslated("Supply missions disabled"),
-	RequiredObjClasses = false,
+	Documentation = "Checks whether supply missions are enabled.",
 }
 
 function SupplyMissionsEnabled:__eval(obj, context)
 	return g_Consts.SupplyMissionsEnabled == 1
 end
 
+UndefineClass('TerraformingActive')
+DefineClass.TerraformingActive = {
+	__parents = { "Condition", },
+	properties = {
+		{ id = "Negate", name = "Negate Condition", help = "if true, checks for the opposite condition", 
+			editor = "bool", default = false, },
+	},
+	Description = T(292809665492, --[[ConditionDef Conditions TerraformingActive value]] "Terraforming is active"),
+	DescriptionNeg = T(714483655704, --[[ConditionDef Conditions TerraformingActive value]] "Terraforming is not active"),
+	Documentation = "Checks if terraforming is active in the current playthrough.",
+}
+
+function TerraformingActive:__eval(obj, context)
+	return not g_NoTerraforming
+end
+
+AreDomesOpen.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 24, AreDomesOpen.__eval)
+AreDomesOpen.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 36, AreDomesOpen.__eval)
+CanCauseFault.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 51, CanCauseFault.__eval)
+CheckAverageComfort.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 101, CheckAverageComfort.__eval)
+CheckAverageComfort.__eval_relaxed = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 109, CheckAverageComfort.__eval_relaxed)
+CheckAverageMorale.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 143, CheckAverageMorale.__eval)
+CheckAverageMorale.__eval_relaxed = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 151, CheckAverageMorale.__eval_relaxed)
+CheckBuildingCount.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 189, CheckBuildingCount.__eval)
+CheckBuildingCount.GetDescription = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 207, CheckBuildingCount.GetDescription)
+CheckColonistCount.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 264, CheckColonistCount.__eval)
+CheckColonistCount.GetDescription = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 280, CheckColonistCount.GetDescription)
+CheckColonistStat.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 331, CheckColonistStat.__eval)
+CheckDeaths.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 391, CheckDeaths.__eval)
+CheckDeaths.GetReasonsText = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 408, CheckDeaths.GetReasonsText)
+CheckDeaths.GetNegText = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 414, CheckDeaths.GetNegText)
+CheckDeaths.__eval_relaxed = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 421, CheckDeaths.__eval_relaxed)
+CheckObjectCount.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 467, CheckObjectCount.__eval)
+CheckObjectCount.GetObjName = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 497, CheckObjectCount.GetObjName)
+CheckResource.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 537, CheckResource.__eval)
+CheckResource.GetResourceText = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 564, CheckResource.GetResourceText)
+CheckTechStatus.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 606, CheckTechStatus.__eval)
+CheckTechStatus.GetDescription = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 622, CheckTechStatus.GetDescription)
+CountShuttles.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 659, CountShuttles.__eval)
+CountTechsResearched.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 744, CountTechsResearched.__eval)
+FounderStageCompleted.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 779, FounderStageCompleted.__eval)
+FounderStageCompleted.__eval_relaxed = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 786, FounderStageCompleted.__eval_relaxed)
+HasTrait.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 833, HasTrait.__eval)
+HasWorkplace.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 875, HasWorkplace.__eval)
+IsAssociatedObject.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 899, IsAssociatedObject.__eval)
+IsAtmosphereBreathable.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 935, IsAtmosphereBreathable.__eval)
+IsBuildingClass.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 984, IsBuildingClass.__eval)
+IsBuildingClass.GetBuildingClasses = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1007, IsBuildingClass.GetBuildingClasses)
+IsBuildingClass.GetTemplates = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1013, IsBuildingClass.GetTemplates)
+IsBuildingWorking.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1055, IsBuildingWorking.__eval)
+IsCommander.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1093, IsCommander.__eval)
+IsCommander.__eval_relaxed = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1100, IsCommander.__eval_relaxed)
+IsCommander2.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1144, IsCommander2.__eval)
+IsCommander2.__eval_relaxed = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1152, IsCommander2.__eval_relaxed)
+IsCommanders.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1189, IsCommanders.__eval)
+IsCommanders.GetNamesText = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1195, IsCommanders.GetNamesText)
+IsCommanders.__eval_relaxed = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1207, IsCommanders.__eval_relaxed)
+IsCustomAnomaly.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1255, IsCustomAnomaly.__eval)
+IsFoundersRocket.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1306, IsFoundersRocket.__eval)
+IsMysteryActive.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1346, IsMysteryActive.__eval)
+IsMysteryActive.__eval_relaxed = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1353, IsMysteryActive.__eval_relaxed)
+IsRocketID.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1392, IsRocketID.__eval)
+IsRocketStatus.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1440, IsRocketStatus.__eval)
+IsRocketType.GetEditorView = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1468, IsRocketType.GetEditorView)
+IsRocketType.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1482, IsRocketType.__eval)
+IsSolInRange.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1523, IsSolInRange.__eval)
+IsSpecialProjectCompleted.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1568, IsSpecialProjectCompleted.__eval)
+IsSpecialProjectCompleted.GetWarning = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1575, IsSpecialProjectCompleted.GetWarning)
+IsSponsor.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1608, IsSponsor.__eval)
+IsSponsor.__eval_relaxed = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1615, IsSponsor.__eval_relaxed)
+IsSponsors.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1652, IsSponsors.__eval)
+IsSponsors.GetNamesText = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1658, IsSponsors.GetNamesText)
+IsSponsors.__eval_relaxed = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1670, IsSponsors.__eval_relaxed)
+IsSupplyPod.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1712, IsSupplyPod.__eval)
+IsTechId.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1765, IsTechId.__eval)
+IsWorkplace.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1802, IsWorkplace.__eval)
+PickFromLabel.ConditionsFormat = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1834, PickFromLabel.ConditionsFormat)
+PickFromLabel.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1845, PickFromLabel.__eval)
+PickFromLabel.GetWarning = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1873, PickFromLabel.GetWarning)
+PickResident.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1899, PickResident.__eval)
+PickRocketWithStatus.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 1970, PickRocketWithStatus.__eval)
+PickShuttle.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 2003, PickShuttle.__eval)
+PickWorker.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 2030, PickWorker.__eval)
+SupplyMissionsEnabled.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 2102, SupplyMissionsEnabled.__eval)
+TerraformingActive.__eval = SetFuncDebugInfo("@Data/ClassDef-Conditions.lua", 2134, TerraformingActive.__eval)

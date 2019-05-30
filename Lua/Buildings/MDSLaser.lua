@@ -29,7 +29,7 @@ DefineClass.MDSLaser =
 
 DefineClass.LaserBody = {
 	__parents = { "Object" },
-	enum_flags = { efWalkable = false, efCollision = false, efApplyToGrids = false },
+	flags = { efWalkable = false, efCollision = false, efApplyToGrids = false },
 	entity = "Shuttle",
 }
 

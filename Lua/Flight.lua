@@ -13,19 +13,21 @@ GlobalVar("Flight_MoveCost", false)
 GlobalVar("Flight_CalcId", 0)
 GlobalVar("Flight_CalcList", {})
 GlobalVar("Flight_CalcThread", false)
+GlobalVar("Flight_CalcBuffers", {})
  -- don't save this, we can rebuild it
 PersistableGlobals.Flight_Height = nil
 PersistableGlobals.Flight_OrigHeight = nil
 PersistableGlobals.Flight_Traject = nil
 PersistableGlobals.Flight_MoveCost = nil
 PersistableGlobals.Flight_CalcThread = nil
+PersistableGlobals.Flight_CalcBuffers = nil
 
 local type_tile = terrain.TypeTileSize()
 local work_step = 16 * type_tile
 local mark_step = 16 * type_tile
 local grid_scale = const.GridScale
 local height_scale = const.TerrainHeightScale
-local slope_penality_angle = 25*60
+local slope_penality_angle = 30*60 -- corresponds to 1 unit in the cost grid
 local slope_penality_tan = MulDivRound(4096, sincos(slope_penality_angle))
 local mark_falloff = 40
 local max_async_calc_path = 3
@@ -46,7 +48,10 @@ local developer = Platform.developer
 
 if developer then
 	GlobalVar("FlightCObjs", {}, weak_keys_meta)
+	GlobalVar("Flight_BufferLock", {0, 0})
+	GlobalVar("Flight_Errors", {})
 	PersistableGlobals.FlightCObjs = nil
+	PersistableGlobals.Flight_BufferLock = nil
 end
 
 Flight_MaxSplineDist = 100*guim
@@ -75,20 +80,39 @@ local function Flight_NewGrid(step, packing)
 	return grid(work_size, packing or 32)
 end
 
-local function TrajectMark(spline)
-	return spline and Flight_MarkPathSpline(Flight_Traject, spline, mark_step)
+local function TrajectMark(...)
+	return Flight_MarkPathSpline(Flight_Traject, mark_step, ...)
 end
-local function TrajectUnmark(spline)
-	return spline and Flight_UnmarkPathSpline(Flight_Traject, spline, mark_step)
+local function TrajectUnmark(...)
+	return Flight_UnmarkPathSpline(Flight_Traject, mark_step, ...)
 end
-local function TrajectCheck(spline)
-	return spline and Flight_CheckPathSpline(Flight_Traject, spline, mark_step)
+local function TrajectCheck(...)
+	return Flight_CheckPathSpline(Flight_Traject, mark_step, ...)
+end
+local function IdleMark(pos, radius)
+	return Flight_Traject:AddCircle(1, pos, mark_step, radius)
+end
+local function IdleUnmark(pos, radius)
+	return Flight_Traject:AddCircle(-1, pos, mark_step, radius)
+end
+local function IdleCheck(pos, radius)
+	return Flight_Traject:CheckCircle(0, pos, mark_step, radius)
+end
+
+function Flight_OnHeightChanged()
+	if not Flight_OrigHeight then
+		return
+	end
+	Flight_Height:sub_i(Flight_OrigHeight)
+	terrain.GetHeightGrid(Flight_OrigHeight, work_step)
+	Flight_Height:add_i(Flight_OrigHeight)
+	Flight_MoveCost = false
 end
 
 local function Flight_Init()
 	if not Flight_OrigHeight then
 		Flight_OrigHeight = Flight_NewGrid()
-		terrain.GetHeightGrid(Flight_OrigHeight, work_step, terrain.IsHeightChanged())
+		terrain.GetHeightGrid(Flight_OrigHeight, work_step)
 	end
 	if not Flight_Height then
 		Flight_Height = Flight_OrigHeight:clone()
@@ -109,11 +133,11 @@ local function Flight_Init()
 	if not Flight_Traject then
 		Flight_Traject = Flight_NewGrid(mark_step, 16)
 		MapForEach("map", "FlyingObject", function(obj)
-			if obj.idle_mark_pos then
-				Flight_Traject:AddCircle(1, obj.idle_mark_pos, mark_step, obj.collision_radius)
+			if FlyingObjs[obj] then
+				TrajectMark(obj.current_spline, obj.next_spline)
+			elseif obj.idle_mark_pos then
+				IdleMark(obj.idle_mark_pos, obj.collision_radius)
 			end
-			TrajectMark(obj.current_spline)
-			TrajectMark(obj.next_spline)
 		end)
 	end
 end
@@ -177,7 +201,28 @@ function Flight_FindSmoothPath(obj, start, finish, sync)
 	end
 	local cost = Flight_GetMoveCost()
 	local border = Max(0, mapdata.PassBorder - work_step)
-	return AsyncFindSmoothPath(obj, start, finish, cost, border)
+	local buffer_idx = sync and 1 or 2
+	local buffer = Flight_CalcBuffers[buffer_idx]
+	if not buffer then
+		buffer = Flight_NewGrid()
+		Flight_CalcBuffers[buffer_idx] = buffer
+	end
+	
+	local buffer_lock
+	if developer then
+		buffer_lock = Flight_BufferLock
+		buffer_lock[buffer_idx] = buffer_lock[buffer_idx] + 1
+	end
+
+	local excess = 1 + 90*60 / slope_penality_angle
+	local compute_err, spline_path = AsyncFindSmoothPath(obj, start, finish, cost, border, buffer, excess)
+	
+	if developer then
+		buffer_lock[buffer_idx] = buffer_lock[buffer_idx] - 1
+		assert(buffer_lock[buffer_idx] == 0)
+	end
+	
+	return compute_err, spline_path
 end
 
 function MarkThreadProc()
@@ -278,7 +323,7 @@ function OnMsg.LoadGame()
 	Flight_Init()
 	Flight_StartComputeThread()
 	for _, obj in ipairs(FlyingObjs) do
-		obj:RegisterFlight()
+		obj:RegisterFlight(true)
 	end
 end
 
@@ -342,9 +387,8 @@ function Flight_GetHeight(mx, my)
 end
 
 DefineClass.FlyingObject = {
-	__parents = { "FXObject", "Object", "CommandObject", "ComponentAttach", "ComponentEx" },
-	enum_flags = { efWalkable = false, efApplyToGrids = false, efCollision = false },
-	class_flags = { cfComponentSound = true },
+	__parents = { "FXObject", "Object", "CommandObject", "ComponentAttach", "ComponentInterpolation" },
+	flags = { cofComponentSound = true, efWalkable = false, efApplyToGrids = false, efCollision = false },
 	
 	flight_id = 0,
 	idle_mark_pos = false,
@@ -362,6 +406,7 @@ DefineClass.FlyingObject = {
 	avoid_count = 0,
 	
 	-- move params:
+	current_path = false,
 	current_spline = false,
 	next_spline = false,
 	accel_dist = 40*guim,
@@ -396,7 +441,7 @@ DefineClass.FlyingObject = {
 	mass = 4 * unity,
 	friction = unity / 3,
 	unity = unity,
-	target_ref_dist = 320*guim,
+	target_ref_dist = 256*guim,
 	target_min_dist = 32*guim,
 	avg_spline_dist = 80*guim,
 	tangent = 6,
@@ -423,7 +468,7 @@ function FlyingObject:Done()
 	assert(not self.next_spline)
 	assert(not self.idle_mark_pos)
 	--]]
-	self:OnCommandDestructors()
+	self:OnCommandStart()
 end
 
 function Flight_DrawAvoidance()
@@ -431,7 +476,7 @@ function Flight_DrawAvoidance()
 	for i=1,#FlyingObjs do
 		local obj = FlyingObjs[i]
 		local pos = obj:GetVisualPos()
-		local color = RandColor(100, xxhash(obj.flight_id))
+		local color = RandColor(100, xxhash64(obj.flight_id))
 		local to_avoid = Flight_ToAvoid(obj)
 		for obj_i in pairs(to_avoid or empty_table) do
 			if IsValid(obj_i) then
@@ -447,18 +492,19 @@ function FlyingObject:IdleMark(mark)
 	end
 	local prev_pos = self.idle_mark_pos
 	local new_pos = mark and self:GetPos() or nil
+	local radius = self.collision_radius
 	if prev_pos then
 		if new_pos and new_pos:Equal2D(prev_pos) then
 			return
 		end
 		if developer then
-			local min, max = Flight_Traject:CheckCircle(0, prev_pos, mark_step, self.collision_radius)
+			local min, max = IdleCheck(prev_pos, self.collision_radius)
 			assert(min >= 1, "Flight traject grid corruption")
 		end
-		Flight_Traject:AddCircle(-1, prev_pos, mark_step, self.collision_radius, 0, 0)
+		IdleUnmark(prev_pos, radius)
 	end
 	if mark then
-		Flight_Traject:AddCircle(1, new_pos, mark_step, self.collision_radius)
+		IdleMark(new_pos, radius)
 	end
 	self.idle_mark_pos = new_pos
 end
@@ -472,6 +518,10 @@ function FlyingObject:CalcPath(pt1, pt2, sync)
 	if not IsCloser2D(pt1, pt2, work_step) then
 		err, spline_path = Flight_FindSmoothPath(self, pt1, pt2, sync)
 		if err then
+			if developer then
+				local dir = self.start_dir_obj and self:GetVelocityVector(true)
+				Flight_Errors[#Flight_Errors + 1] = {self, pt1, pt2, dir, err}
+			end
 			assert(false, "Failed to compute flying trajectory: " .. err)
 		end
 	end
@@ -515,16 +565,20 @@ end
 
 function FlyingObject:FollowPathDstr()
 	if not FlyingObjs[self] then
+		assert(not self.current_spline)
+		assert(not self.next_spline)
 		return
 	end
 	FlyingObjs[self] = nil
 	table.remove_entry(FlyingObjs, self)
-	TrajectUnmark(self.current_spline)
-	TrajectUnmark(self.next_spline)
+	TrajectUnmark(self.current_spline, self.next_spline)
 	self.collision = false
+	self.current_path = false
 	self.current_spline = false
 	self.next_spline = false
 	if IsValid(self) then
+		assert(not self:IsValidPos() or terrain.IsPointInBounds(self:GetPos()))
+		Flight_EnableCollision(self, false)
 		self:UnregisterFlight()
 		self:SetAcceleration(0) -- clear acceleration
 		--self:SetPos(self:GetVisualPosXYZ()) -- clear interpolation info
@@ -533,7 +587,7 @@ function FlyingObject:FollowPathDstr()
 	Msg(self)
 end
 
-function FlyingObject:OnCommandDestructors()
+function FlyingObject:OnCommandStart()
 	self:FollowPathDstr()
 end
 
@@ -544,43 +598,51 @@ local function Land_GetHeight(x, y, gf)
 end
 
 function FlyingObject:FollowPathCmd(path)
-	if not IsValid(self) or not IsValidPos(self) then
-		assert(false, "Invalid flying object")
+	if not IsValid(self) then
+		assert(false, "Invalid flying object!")
 		return
 	end
 	if FlyingObjs[self] then
 		assert(false, "Flying object controlled from multiple threads!")
 		return
 	end
+	local first_pos = path[1][1]
+	local last_pos = path[#path][4]
+	if not IsCloser2D(first_pos, last_pos, 30000 * guim) then
+		assert(false, "Flying path too long!")
+		self:SetPos(last_pos:SetTerrainZ(hover_height), 1000)
+		Sleep(1000)
+		return
+	end
 	FlyingObjs[#FlyingObjs + 1] = self
 	FlyingObjs[self] = CurrentThread()
 	self:RegisterFlight()
-	
+	self.current_path = path
+
 	local Flight_GetHeight = Flight_GetHeight
 	local hover_height = self.hover_height
-	local last_pos = path[#path][4]
-	local first_pos = path[1][1]
-	local dir = BS3_GetSplineDir2D(path[1])
-	local angle = atan(dir)
-	local my_pos = self:GetPos()
-	local my_angle = self:GetAngle()
 	local spline = path[1]
 	local spline_idx = 1
 	local spline_coef = 0
-	if my_pos == InvalidPos() then
+	local dir = BS3_GetSplineDir2D(spline)
+	local angle = atan(dir)
+	if not IsValidPos(self) then
+		assert(false, "Invalid flying object pos!")
 		local x, y = first_pos:xy()
 		local z = Flight_GetHeight(x, y) + hover_height
 		self:SetPos(x, y, z)
 		self:SetAngle(angle)
-	end
-	local da = abs(AngleDiff(angle, my_angle))
-	local rotation_time = MulDivRound(1000, da, self.max_yaw_speed)
-	self:SetAngle(angle, rotation_time)
-	if da > self.starting_angle_error then
-		self:OnRotationStart()
-		rotation_time = MulDivRound(rotation_time, da - self.starting_angle_error, da)
-		self:MoveSleep(rotation_time)
-		self:OnRotationEnd()
+	else
+		local my_angle = self:GetAngle()
+		local da = abs(AngleDiff(angle, my_angle))
+		local rotation_time = MulDivRound(1000, da, self.max_yaw_speed)
+		self:SetAngle(angle, rotation_time)
+		if da > self.starting_angle_error then
+			self:OnRotationStart()
+			rotation_time = MulDivRound(rotation_time, da - self.starting_angle_error, da)
+			self:MoveSleep(rotation_time)
+			self:OnRotationEnd()
+		end
 	end
 	local thrust_max = self.thrust_max
 	local thrust_modifier = self.thrust_modifier
@@ -597,8 +659,7 @@ function FlyingObject:FollowPathCmd(path)
 	local step = self.step * (100 + #FlyingObjs / 2) / 100
 	local max_sleep = self.max_sleep
 	local turn_slow_down = self.turn_slow_down
-	local avoid_class = self.avoid_class
-	local avoid_mask = self.avoid_mask
+	local check_collisions = self.avoid_mask ~= 0
 	local auto_landing = self.auto_landing
 	local len = BS3_GetSplineLengthEst(spline)
 	assert(len > 0)
@@ -613,12 +674,12 @@ function FlyingObject:FollowPathCmd(path)
 	local dist_to_target 
 	local travel_dist = 0
 	local time
+	assert(not self.current_spline and not self.next_spline)
 	while IsValid(self) and (spline_idx ~= #path or spline_coef < 4096) do
 		do
 			local Min, Max = Min, Max
 			local atan = atan
 			local MulDivRound = MulDivRound
-			local time_now = now()
 			local avoid_level = Flight_CheckCollisions(self)
 			local advance = advance_max
 			local step_reduced
@@ -663,7 +724,7 @@ function FlyingObject:FollowPathCmd(path)
 					allowed_speed = Min(allowed_speed, stop_speed)
 					stop = new_spline_coef == 4096
 				end
-				vx, vy, vz = self:GetVelocityVector(time_now, true, true)
+				vx, vy, vz = self:GetVelocityVector(true, true)
 				speed_xy = sqrt(vx * vx + vy * vy)
 				local delta_speed = MulDivRound(max_speed - speed_xy, step_dist, accel_dist)
 				new_speed = stop and 0 or Max(min_speed, Min(speed_xy + delta_speed, allowed_speed))
@@ -698,19 +759,17 @@ function FlyingObject:FollowPathCmd(path)
 			if spline_change then
 				spline_change = false
 				local next_spline = path[spline_idx + 1]
-				TrajectUnmark(self.current_spline)
-				TrajectUnmark(self.next_spline)
-				if avoid_class ~= 0 then
-					local collision = TrajectCheck(spline) or TrajectCheck(next_spline) or false
-					if avoid_mask ~= 0 and self.collision ~= collision then
+				TrajectUnmark(self.current_spline, self.next_spline)
+				if check_collisions then
+					local collision = TrajectCheck(spline, next_spline) or false
+					if self.collision ~= collision then
 						self.collision = collision
 						Flight_EnableCollision(self, collision)
 					end
 				end
 				self.current_spline = spline
 				self.next_spline = next_spline
-				TrajectMark(spline)
-				TrajectMark(next_spline)
+				TrajectMark(spline, next_spline)
 			end
 			local ground_offset = avoid_level + hover_height + MulDivRound(pitch_height_adjust, abs(ground_pitch), 90*60)
 			local z1 = ground_height + ground_offset
@@ -755,18 +814,18 @@ function FlyingObject:FollowPathCmd(path)
 				time = MulDivRound(time - 30, time_adjust, 100)
 			end
 		end
-		self:MoveSleep(time)
+		self:MoveSleep(Max(1, time))
 	end
 	self:FollowPathDstr()
 	return true
 end
 
-function FlyingObject:RegisterFlight()
+function FlyingObject:RegisterFlight(forced)
 	if developer then
 		assert(not FlightCObjs[self] or FlightCObjs[self] == self[true])
 		FlightCObjs[self] = self[true]
 	end
-	Flight_Register(self)
+	Flight_Register(self, forced)
 end
 
 function FlyingObject:UnregisterFlight()
@@ -831,11 +890,10 @@ function FlyingObject:SetSpline(current_spline, next_spline)
 	if current_spline == self.current_spline and next_spline == self.next_spline then
 		return
 	end
-	TrajectUnmark(self.current_spline)
-	TrajectUnmark(self.next_spline)
+	TrajectUnmark(self.current_spline, self.next_spline)
 	
 	if self.avoid_class ~= 0 then
-		local collision = TrajectCheck(current_spline) or TrajectCheck(next_spline) or false
+		local collision = TrajectCheck(current_spline, next_spline) or false
 		if self.avoid_mask ~= 0 and self.collision ~= collision then
 			self.collision = collision
 			Flight_EnableCollision(self, collision)
@@ -843,8 +901,13 @@ function FlyingObject:SetSpline(current_spline, next_spline)
 	end
 	self.current_spline = current_spline
 	self.next_spline = next_spline
-	TrajectMark(current_spline)
-	TrajectMark(next_spline)
+	TrajectMark(current_spline, next_spline)
+end
+
+function SavegameFixups.SetFlyingObjectFlag()
+	for _, obj in ipairs(FlyingObjs or empty_table) do
+		obj:SetGameFlags(const.gofFlyingObject)
+	end
 end
 
 ----
@@ -868,7 +931,7 @@ function Flight_SavePt2()
 end
 
 function Flight_RandPos()
-	Flight_RandState = Flight_RandState or RandState(xxhash(GetMapName()))
+	Flight_RandState = Flight_RandState or RandState(xxhash64(GetMapName()))
 	local mw, mh = terrain.GetMapSize()
 	local x, y = Flight_RandState:Get(mw), Flight_RandState:Get(mh)
 	return point(x, y)
@@ -935,10 +998,14 @@ end
 
 GlobalVar("Flight_DbgMesh", false)
 GlobalVar("Flight_DbgCircles", false)
-GlobalVar("Flight_DbgLines", false)
-GlobalVar("Flight_DbgLastPos", false)
-GlobalVar("Flight_DbgInspectThread", false)
+
 local dbg_step = work_step / 4
+local dbg_size = 256 * guim
+
+function Flight_InspectGetHeight(pos)
+	return Flight_Height and Flight_Height:GetBilinear(pos, work_step, 0, 1) or 0
+end
+
 function Flight_DbgClear()
 	if IsValid(Flight_DbgMesh) then
 		DoneObject(Flight_DbgMesh)
@@ -949,15 +1016,9 @@ function Flight_DbgClear()
 		end
 		Flight_DbgCircles = false
 	end
-	if Flight_DbgLines then
-		for i=1,#Flight_DbgLines do
-			DoneObject(Flight_DbgLines[i])
-		end
-		Flight_DbgLines = false
-	end
-	Flight_DbgLastPos = false
-	DbgClearVectors()
+	DbgClear()
 end
+
 function Flight_DbgShowMarks()
 	Flight_DbgClear()
 	DeleteThread(Flight_DbgInspectThread)
@@ -974,67 +1035,19 @@ function Flight_DbgShowMarks()
 	end
 	Flight_DbgMesh = PlaceTerrainGrid(grid)
 end
+
 function Flight_DbgRasterLine(pos1, pos0, zoffset)
-	pos1 = pos1 or GetTerrainCursor()
-	pos0 = pos0 or Flight_DbgLastPos
-	zoffset = zoffset or 0
-	if not pos0 or not Flight_Height then
-		return
-	end
-	local diff = pos1 - pos0
-	local dist = diff:Len2D()
-	local steps = 1 + (dist + dbg_step - 1) / dbg_step
-	local points, colors = {}, {}
-	local mincol = SetA(yellow, 200)
-	local maxcol = SetA(white, 200)
-	local max_diff = 10*guim
-	for i=1,steps do
-		local pos = pos0 + MulDivRound(pos1 - pos0, i - 1, steps - 1)
-		local height = Flight_Height:GetBilinear(pos, work_step, 0, 1) + zoffset
-		points[#points + 1] = pos:SetZ(height)
-		colors[#colors + 1] = InterpolateRGB(mincol, maxcol, Clamp(height - zoffset - terrain.GetHeight(pos), 0, max_diff), max_diff)
-	end
-	local line = PlacePolyline(points, colors)
-	line:SetDepthTest(false)
-	line:SetPos(AveragePoint2D(points))
-	Flight_DbgLines = Flight_DbgLines or {}
-	Flight_DbgLines[#Flight_DbgLines + 1] = line
+	return DbgInspectRasterLine(Flight_InspectGetHeight, pos1, pos0, dbg_step, zoffset)
 end
+
 function Flight_DbgRasterArea(pos, size)
-	pos = pos or GetTerrainCursor()
-	size = size or 256*guim
-	local steps = 1 + (size + dbg_step - 1) / dbg_step
-	size = steps * dbg_step
-	pos = pos - point(size, size) /2
-	for y = 0,steps do
-		Flight_DbgRasterLine(pos + point(0, y*dbg_step), pos + point(size, y*dbg_step))
-	end
-	for x = 0,steps do
-		Flight_DbgRasterLine(pos + point(x*dbg_step, 0), pos + point(x*dbg_step, size))
-	end
+	return DbgInspectRasterArea(Flight_InspectGetHeight, pos, size, dbg_step)
 end
+
 function Flight_DbgToggleInspect()
-	Flight_DbgClear()
-	if IsValidThread(Flight_DbgInspectThread) then
-		DeleteThread(Flight_DbgInspectThread)
-		return
-	end
-	if GetMap() == "" or not Flight_Height then
-		return
-	end
-	Flight_DbgInspectThread = CreateMapRealTimeThread(function()
-		while true do
-			local pos = GetTerrainCursor()
-			local last_pos = Flight_DbgLastPos
-			if not last_pos or not IsCloser2D(last_pos, pos, dbg_step) then
-				Flight_DbgClear()
-				Flight_DbgRasterArea(pos)
-				Flight_DbgLastPos = pos
-			end
-			Sleep(100)
-		end
-	end)
+	return DbgInspectToggle(Flight_InspectGetHeight, dbg_size, dbg_step)
 end
+
 function Flight_DbgShowHeightGrid()
 	local grid = Flight_Height - Flight_OrigHeight
 	grid:normalize_i(0, 255, 1)
@@ -1050,9 +1063,9 @@ function Flight_DrawTraject(pts, color)
 	local pt = pts[1]
 	if type(pt) == "table" then
 		for i=1,#pts do
-			local pti = pts[i]
-			for j=1,#pti do
-				pti[j] = Flight_FixHeight(pti[j])
+			local pti = {}
+			for j, pt in ipairs(pts[i]) do
+				pti[j] = Flight_FixHeight(pt)
 			end
 			DbgAddSpline(pti, color)
 			DbgAddVector(pti[1])
@@ -1068,6 +1081,54 @@ function Flight_DrawTraject(pts, color)
 			pt = pti
 		end
 	end
+end
+
+FlyingObject.dbg_flight = false
+
+function Flight_CheckError(idx)
+	local obj, pt1, pt2, dir, err = table.unpack(Flight_Errors[idx] or empty_table)
+	if not IsValid(obj) then return end
+	obj.start_dir = dir
+	obj.dbg_flight = true
+	DbgClearVectors()
+	DbgAddVector(pt1, pt2 - pt1, red)
+	local err, path = Flight_FindSmoothPath(obj, pt1, pt2, true)
+	Flight_DrawTraject(path, yellow)
+	ViewObjectMars(obj)
+	obj.start_dir = nil
+	obj.dbg_flight = nil
+	return err, path
+end
+
+function Flight_DbgTrajectMark(seed, class, count)
+	class = class or "CargoShuttle"
+	count = count or 1000
+	seed = seed or count
+	local buffer = Flight_NewGrid()
+	local cost = Flight_GetMoveCost()
+	local border = Max(0, mapdata.PassBorder - work_step)
+	local obj = PlaceObject(class)
+	local traject = Flight_Traject:clone()
+	for i=1,count do
+		local start = GetRandomPassablePoint()
+		local finish = GetRandomPassablePoint()
+		local compute_err, spline_path = AsyncFindSmoothPath(obj, start, finish, cost, border, buffer)
+		if spline_path then
+			local s0, s1
+			for j=1,#spline_path do
+				local s2, s3 = spline_path[j], spline_path[j + 1]
+				TrajectUnmark(s0, s1)
+				TrajectMark(s2, s3)
+				DbgAddSpline(s2)
+				s0, s1 = s2, s3
+			end
+			TrajectUnmark(s0, s1)
+			DbgClearVectors()
+		end
+	end
+	assert(Flight_Traject:equals(traject))
+	DoneObject(obj)
+	return seed
 end
 
 end -- Platform.developer

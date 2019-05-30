@@ -1,5 +1,56 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
+UndefineClass('BuildMenuSubcategory')
+DefineClass.BuildMenuSubcategory = {
+	__parents = { "Preset", },
+	properties = {
+		{ id = "category_name", name = "Name", 
+			editor = "text", default = false, },
+		{ id = "display_name", name = "Display Name", 
+			editor = "text", default = false, translate = true, },
+		{ id = "icon", name = "Icon", 
+			editor = "text", default = false, },
+		{ id = "description", name = "Description", 
+			editor = "text", default = false, translate = true, },
+		{ id = "build_pos", name = "Position in category", 
+			editor = "number", default = 1, },
+		{ id = "category", name = "Parent category", 
+			editor = "combo", default = "", items = function (self) return BuildCategoriesCombo() end, },
+		{ id = "allow_template_variants", name = "Allow Change Template Variants", help = "Allows toggling between buildings in the category using [ and ] during construction", 
+			editor = "bool", default = true, },
+		{ id = "close_parent", name = "Close build menu on selection", 
+			editor = "bool", default = false, },
+		{ id = "action", 
+			editor = "func", default = function (self, context, button)
+local parent = GetDialog(button)
+parent:SelectSubCategory(button, self.category)
+end, params = "self, context, button", },
+	},
+	GlobalMap = "BuildMenuSubcategories",
+	EditorMenubar = "Editors.Game",
+}
+
+DefineModItemPreset("BuildMenuSubcategory", { EditorName = "Build Menu Subcategory" })
+----- BuildMenuSubcategory mod items don't show thier category_name property
+
+local prop_override = { id = "category_name", editor = false }
+table.insert(ModItemBuildMenuSubcategory.properties, prop_override)
+
+function ModItemBuildMenuSubcategory:OnEditorSetProperty(prop_id, old_value, ged)
+	if prop_id == "Id" then
+		self:SetProperty("category_name", self:GetProperty("Id"))
+	end
+end
+
+function GetTopLevelBuildMenuCategory(id)
+	local preset = BuildMenuSubcategories[id]
+	while preset do
+		id = preset.category
+		preset = BuildMenuSubcategories[id]
+	end
+	return id
+end
+
 UndefineClass('Cargo')
 DefineClass.Cargo = {
 	__parents = { "Preset", },
@@ -21,7 +72,7 @@ DefineClass.Cargo = {
 		{ id = "locked", name = "Locked", 
 			editor = "bool", default = false, },
 		{ id = "icon", name = "Icon", 
-			editor = "browse", default = false, folder = "UI", image_preview_size = 200, },
+			editor = "browse", default = false, folder = "UI", filter = "Image files|*.tga", image_preview_size = 200, },
 	},
 	HasSortKey = true,
 	GlobalMap = "CargoPreset",
@@ -72,8 +123,8 @@ DefineClass.Challenge = {
 			editor = "func", default = false, params = "self, regs", },
 		{ id = "Run", name = "Run", 
 			editor = "func", default = function (self)
-	print("Challenge not yet implemented")
-	Halt()
+print("Challenge not yet implemented")
+Halt()
 end, 
 			no_edit = function(self) return self.TrackProgress end, dont_save = function(self) return self.TrackProgress end, },
 		{ id = "TickProgress", name = "Tick Progress", 
@@ -89,7 +140,7 @@ end,
 			editor = "number", default = 1000, 
 			no_edit = function(self) return not self.TrackProgress end, min = -1000000000000, max = 1000000000000, },
 		{ id = "ProgressText", name = "Progress Text", 
-			editor = "text", default = T(207364138296, "Progress: <current>/<target>"), 
+			editor = "text", default = T(207364138296, --[[PresetDef Challenge default]] "Progress: <current>/<target>"), 
 			no_edit = function(self) return not self.TrackProgress end, translate = true, },
 	},
 	HasSortKey = true,
@@ -121,12 +172,22 @@ function Challenge:GetCompletedText()
 	return ""
 end
 
+function Challenge:GetChallengeDescriptionProgressText(context)
+	local text = self.description
+	if self.TrackProgress and  (self.ProgressText or "") ~= "" then
+		text = text .. Untranslated("<newline><newline>") .. T{self.ProgressText, context}
+	end
+	return text
+end
+
 UndefineClass('ColonyColorScheme')
 DefineClass.ColonyColorScheme = {
 	__parents = { "Preset", },
 	properties = {
 		{ category = "Preset", id = "display_name", name = "Display Name", 
 			editor = "text", default = false, translate = true, },
+		{ id = "image", name = "Image", 
+			editor = "text", default = "UI/Encyclopedia/rocket_surviving_mars.tga", },
 		{ category = "Outside", id = "outside_base", 
 			editor = "material", default = 2215649344, },
 		{ category = "Outside", id = "outside_metal", 
@@ -169,6 +230,8 @@ DefineClass.ColonyColorScheme = {
 			editor = "material", default = 2215649344, },
 		{ category = "Vehicles", id = "rocket_accent", 
 			editor = "material", default = 2215649344, },
+		{ category = "Vehicles", id = "rocket_refugee", 
+			editor = "material", default = 2206706680, },
 		{ category = "Inside", id = "dome_base", 
 			editor = "material", default = 2215649344, },
 		{ category = "Inside", id = "inside_base", 
@@ -289,6 +352,8 @@ end, params = "self, city", },
 			editor = "combo", default = "", items = function (self) return TechCombo() end, },
 		{ category = "Technologies", id = "tech5", name = "Grant Research", 
 			editor = "combo", default = "", items = function (self) return TechCombo() end, },
+		{ category = "General", id = "incompatible_game_rules", name = "Incompatible game rules", 
+			editor = "string_list", default = {}, item_default = "", items = function (self) return PresetsCombo("GameRules") end, },
 	},
 	HasGroups = false,
 	HasSortKey = true,
@@ -308,7 +373,7 @@ DefineClass.CropPreset = {
 		{ id = "Desc", name = "Description", 
 			editor = "text", default = false, translate = true, },
 		{ id = "icon", name = "Icon", help = "Food Game Icon", 
-			editor = "browse", default = "UI/Icons/Buildings/crops_empty.tga", folder = "UI", },
+			editor = "browse", default = "UI/Icons/Buildings/crops_empty.tga", folder = "UI", filter = "Image files|*.tga", },
 		{ id = "FoodOutput", name = "Food Output", help = "Food Game Icon", 
 			editor = "number", default = 1000, scale = "Resources", },
 		{ id = "ResourceType", name = "ResourceType", 
@@ -377,7 +442,7 @@ DefineClass.EncyclopediaArticle = {
 		{ id = "title_text_upper", name = "Title Uppercase", 
 			editor = "text", default = false, translate = true, },
 		{ id = "image", name = "Image", 
-			editor = "browse", default = "", folder = "UI", image_preview_size = 200, },
+			editor = "browse", default = "", folder = "UI", filter = "Image files|*.tga", image_preview_size = 200, },
 		{ id = "text", name = "Text", 
 			editor = "text", default = false, translate = true, lines = 8, max_lines = 256, },
 	},
@@ -418,6 +483,31 @@ DefineClass.GameRules = {
 }
 
 DefineModItemPreset("GameRules", { EditorName = "Game Rule" })
+function GameRules:IsEnabled()
+	local sponsor = Presets.MissionSponsorPreset.Default[g_CurrentMissionParams.idMissionSponsor]
+	if sponsor and table.find(sponsor.incompatible_game_rules, self.id) then
+		return false
+	end
+	local commander = Presets.CommanderProfilePreset.Default[g_CurrentMissionParams.idCommanderProfile]
+	if commander and table.find(commander.incompatible_game_rules, self.id) then
+		return false
+	end
+	return true
+end
+
+function GameRules:GetDisabledText()
+	local items = {}
+	local sponsor = Presets.MissionSponsorPreset.Default[g_CurrentMissionParams.idMissionSponsor]
+	if sponsor and table.find(sponsor.incompatible_game_rules, self.id) then
+		items[#items + 1] = TLookupTag("<red>") .. T(3474, "Mission Sponsor") .. ": " .. sponsor.display_name .. Untranslated("</color>")
+	end
+	local commander = Presets.CommanderProfilePreset.Default[g_CurrentMissionParams.idCommanderProfile]
+	if commander and table.find(commander.incompatible_game_rules, self.id) then
+		items[#items + 1] = TLookupTag("<red>") .. T(3478, "Commander Profile") .. ": " .. commander.display_name .. Untranslated("</color>")
+	end
+	return table.concat(items, "\n")
+end
+
 UndefineClass('MissionLogoPreset')
 DefineClass.MissionLogoPreset = {
 	__parents = { "Preset", },
@@ -451,7 +541,7 @@ DefineClass.MissionSponsorPreset = {
 		{ category = "General", id = "display_name", name = "Display Name", 
 			editor = "text", default = false, translate = true, },
 		{ id = "colony_color_scheme", name = "Colony Color Scheme", 
-			editor = "choice", default = "default", items = PresetsCombo("ColonyColorScheme"), },
+			editor = "preset_id", default = "default", preset_class = "ColonyColorScheme", },
 		{ category = "General", id = "challenge_mod", name = "Challenge Mod (%)", 
 			editor = "number", default = 0, },
 		{ category = "General", id = "funding", name = "Starting Funding (M)", 
@@ -551,13 +641,15 @@ end, },
 		{ category = "Technologies", id = "tech5", name = "Grant Research", 
 			editor = "combo", default = "", items = function (self) return TechCombo() end, },
 		{ category = "General", id = "difficulty", name = "Difficulty", 
-			editor = "text", default = T(424227828326, "Normal"), translate = true, },
+			editor = "text", default = T(424227828326, --[[PresetDef MissionSponsorPreset default]] "Normal"), translate = true, },
 		{ category = "Rockets", id = "rocket_class", name = "Rocket Class", 
 			editor = "combo", default = "SupplyRocket", items = function (self) return RocketsComboItems end, },
 		{ category = "Rockets", id = "pod_class", name = "Pod Class", 
 			editor = "combo", default = false, items = function (self) return PodsComboItems end, },
 		{ category = "General", id = "new_in", name = "New In", help = "The version, in which this sponsor was introduced", 
 			editor = "combo", default = false, items = function (self) return DlcComboItems() end, },
+		{ category = "General", id = "incompatible_game_rules", name = "Incompatible game rules", 
+			editor = "string_list", default = {}, item_default = "", items = function (self) return PresetsCombo("GameRules") end, },
 	},
 	HasGroups = false,
 	HasSortKey = true,
@@ -618,6 +710,27 @@ function MissionSponsorPreset:GetFreeSpaceLeft()
 	return self.cargo - loadout_weight
 end
 
+UndefineClass('ModifierItem')
+DefineClass.ModifierItem = {
+	__parents = { "PropertyObject", },
+	properties = {
+		{ id = "Label", 
+			editor = "combo", default = "", items = function (self) return LabelsCombo() end, },
+		{ id = "Prop", 
+			editor = "combo", default = "", items = function (self) return ModifiablePropsCombo() end, },
+		{ id = "Amount", 
+			editor = "number", default = 0, },
+		{ id = "Percent", 
+			editor = "number", default = 0, },
+		{ id = "Id", 
+			editor = "text", default = false, },
+	},
+}
+
+function ModifierItem:GetEditorView()
+	return "Modify " .. self.Label .. "." .. self.Prop .. " " .. self.Amount .. " " .. self.Percent
+end
+
 UndefineClass('OnScreenNotificationPreset')
 DefineClass.OnScreenNotificationPreset = {
 	__parents = { "Preset", },
@@ -631,7 +744,7 @@ DefineClass.OnScreenNotificationPreset = {
 		{ id = "actor", name = "Voice Actor", 
 			editor = "combo", default = "aide", items = function (self) return VoiceActors end, },
 		{ id = "image", name = "Image", 
-			editor = "browse", default = "", folder = "UI", image_preview_size = 200, },
+			editor = "browse", default = "", folder = "UI", filter = "Image files|*.tga", image_preview_size = 200, },
 		{ id = "popup_preset", name = "PopUpPreset", 
 			editor = "combo", default = "", items = function (self) return PresetsCombo("PopupNotificationPreset") end, },
 		{ id = "close_on_read", name = "Close on read", 
@@ -653,11 +766,11 @@ DefineClass.OnScreenNotificationPreset = {
 		{ id = "encyclopedia_id", name = "Encyclopedia ID", 
 			editor = "text", default = false, },
 		{ id = "priority", name = "Priority", 
-			editor = "combo", default = "Normal", items = function (self) return {"Normal", "Important", "Critical"} end, },
+			editor = "combo", default = "Normal", items = function (self) return table.keys(NotificationClasses) end, },
 		{ id = "ShowVignette", name = "Show Vignette", 
 			editor = "bool", default = false, },
 		{ id = "VignetteImage", name = "Vignette Image", 
-			editor = "browse", default = "", folder = "UI", },
+			editor = "browse", default = "", folder = "UI", filter = "Image files|*.tga", },
 		{ id = "VignettePulseDuration", name = "Vignette Pulse Duration", 
 			editor = "number", default = 0, },
 		{ id = "SoundEffectOnShow", name = "Sound FX", 
@@ -671,62 +784,76 @@ DefineClass.OnScreenNotificationPreset = {
 
 function OnScreenNotificationPreset:OnEditorSetProperty(prop_id, old_value, ged)
 	if prop_id == "priority" then
-		local NotifClassByPriority = {
-			Normal = "OnScreenNotification",
-			Important = "OnScreenNotificationImportant",
-			Critical = "OnScreenNotificationCritical",
-		}
-		self.ShowVignette = g_Classes[NotifClassByPriority[self[prop_id]]].show_vignette
-		self.VignetteImage = g_Classes[NotifClassByPriority[self[prop_id]]].vignette_image
-		self.VignettePulseDuration = g_Classes[NotifClassByPriority[self[prop_id]]].vignette_pulse_duration
+		self.ShowVignette = g_Classes[NotificationClasses[self[prop_id]]].show_vignette
+		self.VignetteImage = g_Classes[NotificationClasses[self[prop_id]]].vignette_image
+		self.VignettePulseDuration = g_Classes[NotificationClasses[self[prop_id]]].vignette_pulse_duration
 		ObjModified(self)
 	end
 end
 
-UndefineClass('PhotoFilterPreset')
-DefineClass.PhotoFilterPreset = {
+UndefineClass('POI')
+DefineClass.POI = {
 	__parents = { "Preset", },
 	properties = {
-		{ category = "General", id = "displayName", name = "Display Name", 
+		{ id = "display_name", name = "Display Name", 
 			editor = "text", default = false, translate = true, },
-		{ category = "General", id = "desc", name = "Description", 
-			editor = "text", default = false, translate = true, },
-		{ category = "General", id = "filename", name = "Shader Filename", 
-			editor = "browse", default = "", filter = "FX files|*.fx", },
-		{ category = "General", id = "texture1", name = "Texture 1", 
-			editor = "browse", default = "", filter = "Image files|*.tga", },
-		{ category = "General", id = "texture2", name = "Texture 2", 
-			editor = "browse", default = "", filter = "Image files|*.tga", },
-		{ category = "General", id = "activate", name = "Run on activation", 
-			editor = "func", default = false, },
-		{ category = "General", id = "deactivate", name = "Run on deactivation", 
-			editor = "func", default = false, },
+		{ id = "description", name = "Description", 
+			editor = "text", default = false, translate = true, lines = 3, max_lines = 20, },
+		{ id = "display_icon", name = "Icon", 
+			editor = "browse", default = "", folder = {"UI/Icons"}, filter = "Image files|*.tga", image_preview_size = 100, },
+		{ category = "Location", id = "is_orbital", name = "Is in orbit", 
+			editor = "bool", default = true, },
+		{ id = "is_terraforming", 
+			editor = "bool", default = false, },
+		{ category = "Location", id = "spawn_period", name = "Spawn Period (sols)", help = "Spawn period range, (0,0) - when the previous is completed; (-1,-1) - in certain conditions;", 
+			editor = "range", default = range(0, 0), min = -1, max = 2000, },
+		{ category = "Location", id = "max_projects_of_type", name = "Max Spawn Projects", help = "Max Spawn Projects of that type at a time", 
+			editor = "number", default = 5, min = 1, max = 10, },
+		{ category = "Location", id = "first_spawn_location", name = "First Spawn  location", 
+			editor = "choice", default = "random", items = function (self) return {"random", "poles","near", "thesame"} end, },
+		{ category = "Location", id = "next_spawn_location", name = "Next Spawn  location", 
+			editor = "choice", default = "random", items = function (self) return {"random", "poles","near", "thesame"} end, },
+		{ category = "Rocket", id = "rocket_required_resources", name = "Required resources to launch", 
+			editor = "nested_list", default = false, base_class = "ResourceAmount", inclusive = true, },
+		{ category = "Rocket", id = "expedition_time", name = "Expedition Time(hours)", 
+			editor = "number", default = 360000, scale = "hours", step = 30000, min = 0, max = 30000000, },
+		{ category = "Rocket", id = "consume_rocket", name = "Consume_rocket", 
+			editor = "bool", default = false, },
+		{ category = "Effect", id = "terraforming_changes", name = "Terraforming params changing", 
+			editor = "nested_list", default = false, base_class = "TerraformingParamAmount", inclusive = true, },
+		{ id = "activation_by_tech_research", name = "Activation by Tech Research", 
+			editor = "choice", default = false, items = function (self) return PresetsCombo("TechPreset", nil, "false") end, },
+		{ id = "start_disabled", name = "Disabled on game start", help = "Enabled from story bit. On game start is disabled", 
+			editor = "bool", default = false, },
+		{ id = "OnCreation", name = "OnCreation(self,object, city, idx)", 
+			editor = "func", default = function (self,object, city, idx)
+return true
+end, params = "self,object, city, idx", },
+		{ id = "OnCompletion", name = "OnCompletion(self, object, city, idx)", 
+			editor = "func", default = function (self, object, city, idx)
+return true
+end, params = "self, object, city, idx", },
+		{ id = "PrerequisiteToCreate", name = "PrerequisiteToCreate(self, city, idx)", 
+			editor = "func", default = function (self, city, idx)
+return true
+end, params = "self, city, idx", },
+		{ id = "PrerequisiteToStart", name = "PrerequisiteToStart(self, object, city, idx)", 
+			editor = "func", default = function (self, object, city, idx)
+return true
+end, params = "self, object, city, idx", },
+		{ id = "GetOutcomeText", name = "GetOutcomeText(self, object, city, idx)", 
+			editor = "func", default = function (self, object, city, idx)
+return ""
+end, params = "self, object, city, idx", },
+		{ id = "CalcOutcome", name = "CalcOutcome(self, object, city, idx)", 
+			editor = "func", default = function (self, object, city, idx)
+return ""
+end, params = "self, object, city, idx", },
 	},
-	HasSortKey = true,
-	GlobalMap = "PhotoFilterPresetMap",
-	EditorMenubarName = "Photo Filters",
-	EditorMenubar = "Editors.Other",
+	GlobalMap = "POIPresets",
+	EditorMenubarName = "POI",
+	EditorMenubar = "Editors.Game",
 }
-
-function PhotoFilterPreset:GetShaderDescriptor()
-	local shader_name = self.filename
-	local shader_pass = "Generic"
-	
-	local vbar_idx = string.find(shader_name, "|")
-	if vbar_idx then
-		shader_name = string.sub(self.filename, 1, vbar_idx - 1)
-		shader_pass = string.sub(self.filename, vbar_idx + 1)
-	end
-	
-	return {
-		shader = shader_name,
-		pass = shader_pass,
-		tex1 = self.texture1,
-		tex2 = self.texture2,
-		activate = self.activate,
-		deactivate = self.deactivate,
-	}
-end
 
 UndefineClass('PlanetaryAnomalyDescription')
 DefineClass.PlanetaryAnomalyDescription = {
@@ -768,7 +895,6 @@ end
 return self:condition(a)
 end, dont_save = true, no_edit = true, params = "self, anomaly", },
 	},
-	EditorMenubarName = "",
 	EditorMenubar = "Editors.Game",
 }
 
@@ -787,9 +913,11 @@ DefineClass.PopupNotificationPreset = {
 		{ id = "actor", 
 			editor = "combo", default = "narrator", items = function (self) return VoiceActors end, },
 		{ id = "image", 
-			editor = "browse", default = "", folder = "UI", },
+			editor = "browse", default = "", folder = "UI", filter = "Image files|*.tga", },
 		{ id = "start_minimized", 
 			editor = "bool", default = true, },
+		{ id = "minimized_notification_priority", 
+			editor = "choice", default = "Critical", items = function (self) return table.keys(NotificationClasses) end, },
 		{ id = "no_ccc_button", 
 			editor = "bool", default = false, },
 		{ id = "validate_context", help = "Periodically validates the context of the OnScreenNotification (only used when start_minimized == true)", 
@@ -797,7 +925,7 @@ DefineClass.PopupNotificationPreset = {
 		{ id = "choice1", name = "Choice 1", 
 			editor = "text", default = false, translate = true, lines = 2, max_lines = 8, },
 		{ id = "choice1_img", name = "Choice 1 Image", 
-			editor = "browse", default = "", folder = "UI", },
+			editor = "browse", default = "", folder = "UI", filter = "Image files|*.tga", },
 		{ id = "choice1_rollover", name = "Rollover 1", 
 			editor = "text", default = false, translate = true, lines = 3, max_lines = 8, },
 		{ id = "choice1_rollover_title", name = "Rollover Title 1", 
@@ -809,7 +937,7 @@ DefineClass.PopupNotificationPreset = {
 		{ id = "choice2", name = "Choice 2", 
 			editor = "text", default = false, translate = true, lines = 2, max_lines = 8, },
 		{ id = "choice2_img", name = "Choice 2 Image", 
-			editor = "browse", default = "", folder = "UI", },
+			editor = "browse", default = "", folder = "UI", filter = "Image files|*.tga", },
 		{ id = "choice2_rollover", name = "Rollover 2", 
 			editor = "text", default = false, translate = true, lines = 3, max_lines = 8, },
 		{ id = "choice2_rollover_title", name = "Rollover Title 2", 
@@ -821,7 +949,7 @@ DefineClass.PopupNotificationPreset = {
 		{ id = "choice3", name = "Choice 3", 
 			editor = "text", default = false, translate = true, lines = 2, max_lines = 8, },
 		{ id = "choice3_img", name = "Choice 3 Image", 
-			editor = "browse", default = "", folder = "UI", },
+			editor = "browse", default = "", folder = "UI", filter = "Image files|*.tga", },
 		{ id = "choice3_rollover", name = "Rollover 3", 
 			editor = "text", default = false, translate = true, lines = 3, max_lines = 8, },
 		{ id = "choice3_rollover_title", name = "Rollover Title 3", 
@@ -833,7 +961,7 @@ DefineClass.PopupNotificationPreset = {
 		{ id = "choice4", name = "Choice 4", 
 			editor = "text", default = false, translate = true, lines = 2, max_lines = 8, },
 		{ id = "choice4_img", name = "Choice 4 Image", 
-			editor = "browse", default = "", folder = "UI", },
+			editor = "browse", default = "", folder = "UI", filter = "Image files|*.tga", },
 		{ id = "choice4_rollover", name = "Rollover 4", 
 			editor = "text", default = false, translate = true, lines = 3, max_lines = 8, },
 		{ id = "choice4_rollover_title", name = "Rollover Title 4", 
@@ -892,11 +1020,9 @@ DefineClass.TechFieldPreset = {
 	__parents = { "Preset", },
 	properties = {
 		{ category = "Field", id = "display_name", name = "Name", 
-			editor = "text", default = T(3893, "No Name"), translate = true, },
-		{ category = "Field", id = "icon", name = "Icon", help = "Tech Game Icon", 
-			editor = "browse", default = "UI/Icons/Research/rm_placeholder.tga", folder = "UI", filter = "*.tga", },
+			editor = "text", default = T(3893, --[[PresetDef TechFieldPreset default]] "No Name"), translate = true, },
 		{ category = "Field", id = "description", name = "Description", 
-			editor = "text", default = T(3894, "No Description"), translate = true, },
+			editor = "text", default = T(3894, --[[PresetDef TechFieldPreset default]] "No Description"), translate = true, },
 		{ category = "Field", id = "costs", name = "Research Costs", help = "Required Research Points For Each Tech Slot", 
 			editor = "prop table", default = {
 	1000,
@@ -939,7 +1065,7 @@ DefineClass.TechPreset = {
 	__parents = { "Preset", "GameEffectsContainer", },
 	properties = {
 		{ category = "Tech", id = "display_name", name = "Display Name", help = "Tech Game Name - translated string", 
-			editor = "text", default = T(3900, "<no name>"), translate = true, },
+			editor = "text", default = T(3900, --[[PresetDef TechPreset default]] "<no name>"), translate = true, },
 		{ category = "Tech", id = "icon", name = "Icon", help = "Tech Game Icon", 
 			editor = "browse", default = "UI/Icons/Research/rm_placeholder.tga", folder = "UI", filter = "Image files|*.tga", },
 		{ category = "Tech", id = "description", name = "Description", help = "Tech Description - translated text", 
@@ -980,10 +1106,17 @@ DefineClass.TechPreset = {
 	PresetGroupPreset = "TechFieldPreset",
 	HasSortKey = true,
 	GlobalMap = "TechDef",
-	GedEditor = "TechEditor",
 	EditorMenubarName = "Techs",
 	EditorShortcut = "Ctrl-Alt-T",
 	EditorMenubar = "Editors.Game",
+	EditorCustomActions = {
+	{
+		FuncName = "TechEditor_Research",
+		Icon = "CommonAssets/UI/Ged/play.tga",
+		Name = "ResearchTech",
+		Toolbar = "main",
+	},
+},
 }
 
 function TechPreset:GetFieldDisplayName()
@@ -1014,6 +1147,23 @@ function TechPreset:OnDataLoaded()
 	end
 end
 
+UndefineClass('ThresholdItem')
+DefineClass.ThresholdItem = {
+	__parents = { "PropertyObject", },
+	properties = {
+		{ id = "Id", 
+			editor = "text", default = false, },
+		{ id = "Threshold", 
+			editor = "number", default = 0, },
+		{ id = "Hysteresis", 
+			editor = "number", default = 0, },
+	},
+}
+
+function ThresholdItem:GetEditorView()
+	return self.Id and (self.Id .. " " .. self.Threshold) or "Threshold"
+end
+
 UndefineClass('TraitPreset')
 DefineClass.TraitPreset = {
 	__parents = { "Preset", },
@@ -1023,7 +1173,7 @@ DefineClass.TraitPreset = {
 		{ id = "description", name = "Description", 
 			editor = "text", default = false, translate = true, },
 		{ id = "display_icon", name = "Icon", 
-			editor = "browse", default = "", folder = {"UI", "CommonAssets/UI"}, },
+			editor = "browse", default = "", folder = {"UI", "CommonAssets/UI"}, filter = "Image files|*.tga", },
 		{ id = "rare", name = "Rare", 
 			editor = "bool", default = false, },
 		{ id = "weight", name = "Rarity weight", 
@@ -1134,12 +1284,12 @@ function TraitPreset:UnApply(unit)
 	end
 end
 
-function TraitPreset:GetSaveData()
+function TraitPreset:GetSaveDataForFile(...)
 	ForEachPreset(TraitPreset, function(trait, group_list)
 		trait.name =  nil
 		trait.category = nil
 	end)
-	local result = Preset.GetSaveData(self)
+	local result = Preset.GetSaveDataForFile(self, ...)
 	ForEachPreset(TraitPreset, function(trait, group_list)
 		trait.name = trait.id
 		trait.category = trait.group
@@ -1162,9 +1312,37 @@ DefineClass.TutorialPreset = {
 		{ id = "name", name = "Name", 
 			editor = "text", default = false, },
 		{ id = "image", name = "Image", help = "Pregame button image", 
-			editor = "browse", default = false, folder = "UI/CommonNew/", image_preview_size = 100, },
+			editor = "browse", default = false, folder = "UI/CommonNew/", filter = "Image files|*.tga", image_preview_size = 100, },
 	},
 	EditorMenubarName = "Tutorials",
 	EditorMenubar = "Editors.GameUI",
 }
 
+Cargo.OnEditorSetProperty = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 151, Cargo.OnEditorSetProperty)
+Challenge.Completed = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 277, Challenge.Completed)
+Challenge.GetDeadline = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 284, Challenge.GetDeadline)
+Challenge.GetPerfectDeadline = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 290, Challenge.GetPerfectDeadline)
+Challenge.GetCompletedText = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 296, Challenge.GetCompletedText)
+Challenge.GetChallengeDescriptionProgressText = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 309, Challenge.GetChallengeDescriptionProgressText)
+ColonyColorScheme.OnEditorSetProperty = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 341, ColonyColorScheme.OnEditorSetProperty)
+ColonyColorScheme.OnEditorSelect = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 348, ColonyColorScheme.OnEditorSelect)
+CropPreset.SetLocked = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 842, CropPreset.SetLocked)
+GameRules.IsEnabled = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 964, GameRules.IsEnabled)
+GameRules.GetDisabledText = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 978, GameRules.GetDisabledText)
+MissionSponsorPreset.GetDynamicProperties = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 1417, MissionSponsorPreset.GetDynamicProperties)
+MissionSponsorPreset.GetFreeSpaceLeft = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 1458, MissionSponsorPreset.GetFreeSpaceLeft)
+ModifierItem.GetEditorView = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 1500, ModifierItem.GetEditorView)
+OnScreenNotificationPreset.OnEditorSetProperty = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 1618, OnScreenNotificationPreset.OnEditorSetProperty)
+RadioStationPreset.GetTracksFolder = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 2045, RadioStationPreset.GetTracksFolder)
+TechPreset.GetFieldDisplayName = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 2288, TechPreset.GetFieldDisplayName)
+TechPreset.GetFieldDescription = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 2295, TechPreset.GetFieldDescription)
+TechPreset.Getcost = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 2302, TechPreset.Getcost)
+TechPreset.ResearchQueueCost = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 2313, TechPreset.ResearchQueueCost)
+TechPreset.OnDataLoaded = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 2319, TechPreset.OnDataLoaded)
+ThresholdItem.GetEditorView = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 2344, ThresholdItem.GetEditorView)
+TraitPreset.AddIncompatible = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 2482, TraitPreset.AddIncompatible)
+TraitPreset.AddDomeColonistsModifier = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 2490, TraitPreset.AddDomeColonistsModifier)
+TraitPreset.RemoveDomeColonistsModifier = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 2512, TraitPreset.RemoveDomeColonistsModifier)
+TraitPreset.Apply = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 2523, TraitPreset.Apply)
+TraitPreset.UnApply = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 2543, TraitPreset.UnApply)
+TraitPreset.GetSaveDataForFile = SetFuncDebugInfo("@Data/ClassDef-PresetDefs.lua", 2557, TraitPreset.GetSaveDataForFile)

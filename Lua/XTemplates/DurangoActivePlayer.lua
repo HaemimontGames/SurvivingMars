@@ -5,15 +5,14 @@ PlaceObj('XTemplate', {
 	group = "Layers",
 	id = "DurangoActivePlayer",
 	PlaceObj('XTemplateWindow', {
-		'__context', function (parent, context) return _G end,
 		'__class', "XLayer",
 	}, {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-XLayer.Open(self, ...)
-self:SetMargins(GetSafeMargins())
-end,
+				XLayer.Open(self, ...)
+				self:SetMargins(GetSafeMargins())
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XFrame",

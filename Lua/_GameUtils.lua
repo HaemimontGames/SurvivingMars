@@ -12,11 +12,13 @@ function GetBuildingEntities(first_element)
 		table.insert(items, 1, first_element)
 	end
 	local mod_entities = GetModEntities("building")
-	table.append(items, mod_entities)
+	table.iappend(items, mod_entities)
 	return items
 end
 
+--[[
 --returns an array of world positions defining the outline of the building
+-- for debug only
 function GetShapePointsToWorldPos(obj)
 	local shape = table.copy(obj:GetShapePoints())
 	local pos = obj:GetPos()
@@ -26,6 +28,7 @@ function GetShapePointsToWorldPos(obj)
 	end
 	return shape
 end
+--]]
 
 function GetCropEntities(first_element)
 	local allentities = GetAllEntities()
@@ -41,7 +44,7 @@ function GetCropEntities(first_element)
 		table.insert(items, 1, first_element)
 	end
 	local mod_entities = GetModEntities("crop")
-	table.append(items, mod_entities)
+	table.iappend(items, mod_entities)
 	return items
 end
 -----------------------------------------------------------------------------------------------------------
@@ -87,6 +90,40 @@ local ForcedIntegerResources = {
 -- FormatResourceValueMaxResource(context_obj, value, resource) -> value/const.ResourceScale .. [resource icon]
 -- FormatResourceValueMaxResource(context_obj, value, max, resource ) -> value/const.ResourceScale .. "/" .. max/const.ResourceScale .. [resource icon]
 
+local function GetFracWithoutEndingZeros(frac)
+	while frac % 10 == 0 do
+		frac = frac/10
+	end
+	return tostring(frac)
+end
+
+local function GetFracOfZeroInt(value, resource)
+	local frac
+	if value<(rs/100) then
+		if ResourceNoRoundingDecimalPart[resource] then
+			frac = Untranslated("00".. GetFracWithoutEndingZeros(value%rs))
+		else
+			if value >= rs/200 then
+				frac = Untranslated("01")
+			end
+		end
+	elseif value<(rs/10) then
+		if ResourceNoRoundingDecimalPart[resource] then
+			frac = Untranslated("0".. GetFracWithoutEndingZeros(MulDivRound(value, 100, 10)/10))
+		else
+			if value >= rs/10 - rs/200 then
+				frac = Untranslated("1")
+			else
+				frac = Untranslated("0".. tostring(value%(rs/100) < rs/200 and value/(rs/100) or value/(rs/100) + 1))
+			end
+		end
+	elseif value<rs and ResourceNoRoundingDecimalPart[resource] then
+		frac = Untranslated(GetFracWithoutEndingZeros(value))
+	end
+	return frac
+end
+
+ResourceNoRoundingDecimalPart = {}
 function FormatResourceValueMaxResource(context_obj, value, max, resource)
 	if not value then return "" end
 	
@@ -125,11 +162,7 @@ function FormatResourceValueMaxResource(context_obj, value, max, resource)
 
 	local frac 
 	if value ~= 0 and value_int == 0 then
-		if value<(rs/100) then
-			frac = Untranslated("00".. tostring(value%rs))
-		elseif value<(rs/10) then
-			frac = Untranslated("0".. tostring(MulDivRound(value, 100, 10)/10))
-		end	
+		frac = GetFracOfZeroInt(value, resource)
 	end
 	local Tvalue = force_integer and T{4844, "<int>", int = value} 
 		or (value_frac == 0 and not frac) and T{4844, "<int>", int = value_int} 
@@ -202,6 +235,7 @@ FormatResourceFn("fuel", "Fuel")
 FormatResourceFn("electronics", "Electronics")
 FormatResourceFn("machineparts", "MachineParts")
 FormatResourceFn("preciousmetals", "PreciousMetals")
+FormatResourceFn("seeds", "Seeds")
 FormatResourceFn("wasterock", "WasteRock")
 FormatResourceFn("shuttle", "Shuttle")
 FormatResourceFn("blackcube", "BlackCube")
@@ -338,19 +372,16 @@ function TechCombo()
 	return items
 end
 
-function ResearchFieldsCombo(extra_entry, ...)
-	extra_entry = extra_entry or ""
+function ResearchFieldsCombo()
 	local fields = table.keys(TechFields)
 	table.sort(fields)
-	for i, entry in ipairs{extra_entry, ...} do
-		table.insert(fields, i, entry)
-	end
+	table.insert(fields, 1, "All Fields")
+
 	return fields
 end
 
-function ResearchTechsCombo(object, first, ...)
-	first = first or { value = "", text = "" }
-	local techs = { first, ... }
+function ResearchTechsCombo(object)
+	local techs = { { value = "", text = "" } }
 	if not object:HasMember("Field") or not TechFields[object.Field] then
 		return techs
 	end
@@ -388,27 +419,20 @@ function PositiveTraitsCombo(city)
 end
 
 function BuildingTraitsCombo(object, TraitsList)
+	object = object or empty_table
 	local trait_presets = TraitPresets
 	local traits = {}
-	local city = object and object:HasMember("city") and object.city -- don't filter locked traits if there's no object given
+	local city = rawget(object, "city") -- don't filter locked traits if there's no object given
 	for _, trait_id in ipairs(TraitsList) do
 		if trait_presets[trait_id] then
 			if not city or IsTraitAvailable(trait_id, city) then
 				traits[#traits + 1 ]={value = trait_id, text = trait_presets[trait_id].display_name}
 			end
 		else
-			print("once", "Invalid trait  in ",object.class .." - ".. trait_id)
+			print("once", "Invalid trait  in ", object.class, "-", trait_id)
 		end
 	end
 	return traits
-end
-
-function SchoolTraitsCombo(object)
-	return BuildingTraitsCombo(object, g_SchoolTraits)
-end
-
-function SanatoriumTraitsCombo(object)
-	return BuildingTraitsCombo(object, g_SanatoriumTraits)
 end
 
 function NegativeTraitsCombo(city)
@@ -417,8 +441,8 @@ end
 
 function BaseTraitsCombo(city, add_empty)
 	local traits = TraitsCombo("Positive", city)
-	table.append(traits, TraitsCombo("Negative", city))
-	table.append(traits, TraitsCombo("other", city))
+	table.iappend(traits, TraitsCombo("Negative", city))
+	table.iappend(traits, TraitsCombo("other", city))
 	traits = table.ifilter(traits, function(idx, t) 
 		local trait = TraitPresets[t.value] 
 		return trait and t.value ~= "" and trait.auto and not g_HiddenTraitsDefault[t.value] 
@@ -533,7 +557,7 @@ end
 function GetFreeWorkplacesAround(dome)
 	local sum_ui_on = 0
 	local sum_ui_off = 0
-	for _, b in ipairs(dome.labels.Workplaces or empty_table) do
+	for _, b in ipairs(dome.labels.Workplace or empty_table) do
 		if not b.destroyed and not b.demolishing then
 			if b.ui_working then
 				sum_ui_on = sum_ui_on + b:GetFreeWorkSlots()
@@ -591,6 +615,28 @@ TFormat.EasyMaintenanceText = function (context_obj, add)
 	return T{10557, "<if(rule('EasyMaintenance'))><add><newline><em>Easy Maintenance</em> - malfunctions are suppressed.</if>", add = add and Untranslated("<newline>") or ""}
 end
 
+TFormat.modifier_percent = function(obj, prop, id)
+	local percent = 0
+	local mods = (obj and obj.modifications or empty_table)[prop] or empty_table
+	for _, mod in ipairs(mods) do
+		if id and string.starts_with(mod.id or "", id) then
+			percent = percent + mod.percent
+		end
+	end
+	return Untranslated(string.format("%s%%", tostring(percent)))
+end
+
+TFormat.modifier_amount = function(obj, prop, id)
+	local amount = 0
+	local mods = (obj and obj.modifications or empty_table)[prop] or empty_table
+	for _, mod in ipairs(mods) do
+		if id and string.starts_with(mod.id or "", id) then
+			amount = amount + mod.amount
+		end
+	end
+	return Untranslated(string.format("%s", tostring(amount)))
+end
+
 function EdgeAnimation(bReverse, ctrl, offsetx, offsety, time)
 	local endrect = sizebox(point(ctrl.box:minx() + (offsetx or 0), ctrl.box:miny() + (offsety or 0)), ctrl.box:size())
 	if ctrl.box:IsValid() then
@@ -598,11 +644,53 @@ function EdgeAnimation(bReverse, ctrl, offsetx, offsety, time)
 			id = "move",
 			type = const.intRect,
 			duration = time or const.InterfaceAnimDuration,
-			startRect = ctrl.box,
-			endRect = endrect,
+			originalRect = ctrl.box,
+			targetRect = endrect,
 			flags = bReverse and const.intfInverse or nil,
 			autoremove = true,
 			easing = bReverse and const.Easing.SinOut or const.Easing.SinIn,
 		}
 	end
+end
+
+function AddEmpty(list, empty)
+	local items = table.icopy(list)
+	table.insert(items, 1, empty or "")
+	return items
+end
+
+---------------nested_list classes--------------
+DefineClass.ResourceAmount = {
+	__parents = { "PropertyObject", },
+	properties = {
+		{ id = "resource", name = "Resource", editor = "choice", default = false, items =  function (self) return AllResourcesCombo() end,},
+		{ id = "amount", name = "Amount", editor = "number", default = false, scale = const.ResourceScale},
+	},
+}
+
+function ResourceAmount:GetEditorView() 
+	if not self.resource then
+		return self.EditorView
+	end
+	return self.amount and (self.amount/const.ResourceScale)..Untranslated(" <resource>") or Untranslated("<resource>")
+end
+
+function ResourceAmount:GetText() 
+	if not self.resource or not self.amount or self.amount<=0 then 
+		return ""
+	end
+	
+	if self.resource=="Funding" then
+		return T{11086, "<funding(amount)>", amount = self.amount} 	
+	else
+		return T{722, "<resource(amount,res)>", amount = self.amount, res=self.resource} 
+	end
+end
+
+TFormat.has_researched = function (context_obj, tech_id)
+	return UICity:IsTechResearched(tech_id)
+end
+
+TFormat.has_prefabs = function (context_obj, template_id, min_count)
+	return UICity:GetPrefabs(template_id) >= (min_count or 1)
 end

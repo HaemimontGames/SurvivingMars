@@ -41,14 +41,14 @@ PlaceObj('XTemplate', {
 			'Background', RGBA(0, 0, 0, 0),
 			'FocusedBackground', RGBA(0, 0, 0, 0),
 			'OnContextUpdate', function (self, context, ...)
-XContentTemplate.OnContextUpdate(self, context, ...)
-if self.focused_item then
-	self:DeleteThread("select")
-	self:CreateThread("select", function()
-		self:SetSelection(self.focused_item)
-	end)
-end
-end,
+				XContentTemplate.OnContextUpdate(self, context, ...)
+				if self.focused_item then
+					self:DeleteThread("select")
+					self:CreateThread("select", function()
+						self:SetSelection(self.focused_item)
+					end)
+				end
+			end,
 		}, {
 			PlaceObj('XTemplateForEach', {
 				'comment', "gamepad cheats",
@@ -59,8 +59,8 @@ end,
 					'__template', "MenuEntrySmall",
 					'HAlign', "right",
 					'OnPress', function (self, gamepad)
-self.context.func()
-end,
+						self.context.func()
+					end,
 					'Text', T(867595017482, --[[XTemplate GamepadCheatsDlg Text]] "<display_name>"),
 				}),
 				}),

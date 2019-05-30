@@ -5,9 +5,7 @@ DefineClass.ConstructionSite = {
 	properties = {
 		{ id = "BuildingClass", editor = "text", default = false, no_edit = true },
 	},
-	enum_flags = { efSelectable = true, efWalkable = false},
-	game_flags = { gofUnderConstruction = true, },
-	class_flags = { cfNoHeightSurfs = true, cfComponentCustomData = true },
+	flags = { cfNoHeightSurfs = true, cofComponentCustomData = true, gofUnderConstruction = true, efSelectable = true, efWalkable = false},
 	display_name = T(606, "Construction Site"),
 	building_class = false,
 	building_update_time = 5*1000,
@@ -22,9 +20,11 @@ DefineClass.ConstructionSite = {
 	forced_entity = false, --force the entity of the construction site
 	alternative_entity_t = false,
 	construction_bbox = false, -- keeps a bbox needed for construction visualization
+	use_demolished_state = false,
 	
 	supplied = false,
 	prefab = false,
+	dont_consume_prefab = false,
 	
 	construction_group = false, --a group of construction sites, only the construction group leader adds requests, all sites are completed together.
 	can_complete_during_init = true,
@@ -58,8 +58,15 @@ DefineClass.ConstructionSite = {
 	last_nanite_tick = false, --for setworking spam
 	
 	dome_skin = false,
-	SetSuspended = __empty_function__,
+	SetSuspended = empty_func,
 	is_locked_by_story_bit = false,
+	
+	use_control_construction_logic = true,
+	
+	orig_terrain1 = false,
+	orig_terrain2 = false,
+	construction_data = false,
+	prefab_objects = false,
 }
 
 function ConstructionSite:GetFrameEntity()
@@ -71,7 +78,7 @@ function ConstructionSite:GetFrameEntity()
 end
 
 local function nanite_class_filter(o)
-	return not IsKindOfClasses(o, "SharedStorageBaseVisualOnly", "Unit", "SpaceElevator")
+	return not IsKindOfClasses(o, "SharedStorageBaseVisualOnly", "Unit", "SpaceElevator", "SupplyPod")
 end
 
 function ConstructionSite:CanWorkInTurnedOffDome()
@@ -88,6 +95,8 @@ end
 function dbg_ResetAllNaniteThreads()
 	MapForEach(true, "ConstructionSite", ConstructionSite.RestartNaniteThread)
 end
+
+SavegameFixups.ResetNaniteThreads = dbg_ResetAllNaniteThreads
 
 function ConstructionSite:StopNaniteThread()
 	if not g_ConstructionNanitesResearched then return end
@@ -311,6 +320,8 @@ function ConstructionSite:GetBroadcastLabel()
 end
 
 function ConstructionSite:OnSetWorking(working)
+	self.auto_connect = working and self:IsBlockerClearenceComplete() or false
+	
 	if working then
 		self:ConnectToCommandCenters()
 	else
@@ -319,7 +330,6 @@ function ConstructionSite:OnSetWorking(working)
 		end
 		self:DisconnectFromCommandCenters()
 	end
-	self.auto_connect = self:IsBlockerClearenceComplete() and working or false
 	
 	if g_ConstructionNanitesResearched then
 		if working then
@@ -353,7 +363,9 @@ function ConstructionSite:SetBuildingClass(building_class)
 	if class:HasMember("can_demolish") then --no member, stay default, which is true
 		self.can_demolish = class.can_demolish
 	end
-	
+	if class:HasMember("use_shape_selection") then
+		self.use_shape_selection = class.use_shape_selection
+	end
 	self:SetConstructionSiteEntity()
 end
 
@@ -404,8 +416,11 @@ function ConstructionSite:AppendWasteRockObstructors(arr)
 		local waste_rocks_underneath = self.waste_rocks_underneath
 		for i = 1, #arr do
 			local stock = arr[i]
-			stock:Activate(self.priority, self) --send out work requests
-			waste_rocks_underneath[#waste_rocks_underneath + 1] = stock
+			if not stock:GetParent() --waste rock used by artists as a part of a bld
+				and not rawget(stock, "not_wasterock") then --waste rock used by lvl designers as part of bld
+				stock:Activate(self.priority, self) --send out work requests
+				waste_rocks_underneath[#waste_rocks_underneath + 1] = stock
+			end
 		end
 	end
 end
@@ -460,6 +475,26 @@ function ConstructionSite:AppendStockpilesUnderneath(arr)
 		elseif self:GetEnumFlags(const.efApplyToGrids) == 0 and self:IsBlockerClearenceComplete() then
 			--we were created with no block pass due to stockpiles, but we consumed them all.
 			self:SetHierarchyEnumFlags(const.efApplyToGrids)
+		end
+	end
+end
+
+function ConstructionSite:SetHierarchyEnumFlags(flags)
+	Object.SetHierarchyEnumFlags(self, flags)
+	if self.prefab_objects then
+		local t = self.prefab_objects
+		for i = 1, #t do
+			t[i]:SetHierarchyEnumFlags(flags)
+		end
+	end
+end
+
+function ConstructionSite:ClearHierarchyEnumFlags(flags)
+	Object.ClearHierarchyEnumFlags(self, flags)
+	if self.prefab_objects then
+		local t = self.prefab_objects
+		for i = 1, #t do
+			t[i]:ClearHierarchyEnumFlags(flags)
 		end
 	end
 end
@@ -526,7 +561,6 @@ end
 
 function ConstructionSite:OnBlockingStockpileCleared(obstr)
 	table.remove_entry(self.stockpiles_underneath, obstr)
-	
 	ws_clearence_test_callers_list = ws_clearence_test_callers_list or {}
 	ws_clearence_test_callers_list[self] = true
 	DelayedCall(0, DelayedBlockerClearenceTest)
@@ -554,7 +588,7 @@ function ConstructionSite:TintWasteRockObstructors(set)
 end
 
 function OnMsg.SelectionChange()
-	if selected_construction_site then
+	if IsValid(selected_construction_site) then
 		selected_construction_site:TintWasteRockObstructors(false)
 	end
 	
@@ -616,11 +650,10 @@ function ConstructionSite:PickEntity()
 	if self.forced_entity then
 		return self.forced_entity
 	end
-	if self.dome_skin then
-		return self.dome_skin.construction_entity or class.construction_entity
-	end
-	
 	local class = self.building_class_proto
+	if self.dome_skin and self.dome_skin.construction_entity then
+		return self.dome_skin.construction_entity
+	end
 	if class.construction_entity then 
 		return class.construction_entity 
 	end
@@ -638,6 +671,15 @@ function ConstructionSite:SetConstructionSiteEntity()
 	local entity, cm1, cm2, cm3, cm4 = self:PickEntity()
 	self:ChangeEntity(entity)
 	AttachDoors(self, entity)
+	if IsKindOf(self.building_class_proto, "SupplyRocketBuilding") then
+		if self:HasSpot("Rocket") then
+			local e = GetConstructionRocketEntity()
+			local a = PlaceObject("Shapeshifter")
+			a:ChangeEntity(e)
+			self:Attach(a, self:GetSpotBeginIndex("Rocket"))
+			cm1, cm2, cm3, cm4 = DecodePalette(GetConstructableRocketPalette())
+		end
+	end
 	if not cm1 then
 		cm1, cm2, cm3, cm4 = GetBuildingColors(GetCurrentColonyColorScheme(), self.building_class_proto)
 	end
@@ -668,7 +710,7 @@ function ConstructionSite:GatherConstructionResources()
 			end
 		end
 	end
-	if self.prefab then
+	if self.prefab and not self.dont_consume_prefab then
 		assert(self.city:GetPrefabs(self.building_class) > 0)
 		self.city:AddPrefabs(self.building_class, -1)
 	end
@@ -716,13 +758,10 @@ function ConstructionSite:GameInit()
 	if IsKindOf(class, "StorageWithIndicators") then
 		StorageWithIndicators.ResetIndicatorAnimations(self, class.indicator_class)
 	end
-	if IsKindOf(class, "Dome") then
-		g_DomeVersion = g_DomeVersion + 1
-	end
-	
 	if IsKindOf(self.building_class_proto, "SpireBase") then
 		SpireBase.UpdateFrame(self)
 	end
+	self:UpdateHexRanges(GetConstructionController() and IsPlacingMultipleConstructions())
 end
 
 function ConstructionSite:OnBlockerClearenceComplete()
@@ -756,6 +795,21 @@ function ConstructionSite:QueueConstructionVisualizationRecalc()
 	DelayedCall(0, RecalcConstructionVisualisation)
 end
 
+function PrepareForConstruction(obj, exclude)
+	if obj:GetClassFlags(const.cfConstructible) ~= 0
+	and obj:GetEnumFlags(const.efVisible) ~= 0
+	and (not exclude or not exclude[obj]) then
+		obj:AddCustomData()
+		obj:SetAnimSpeed(1, 0)
+		obj:SetGameFlags(const.gofUnderConstruction)
+	end
+	obj:ForEachAttach(PrepareForConstruction, exclude)
+end
+
+function GetConstructionBBox(obj, surfaces, precise)
+	return ObjectHierarchyBBox(obj, const.efVisible, const.cfConstructible, const.gofUnderConstruction, false, surfaces, precise)
+end
+
 local UnbuildableZ = buildUnbuildableZ()
 function ConstructionSite:ComputeConstructionBBox()
 	local function GetTerrainHeight(pos)
@@ -769,19 +823,11 @@ function ConstructionSite:ComputeConstructionBBox()
 		if pad_z then
 			--cables dont flatten so buildable z is irrelevant
 			z1 = z1 - pad_z
-			z2 = z2 + pad_z
 		else
 			z1 = Max(GetTerrainHeight(pos), z1)
 		end
-		assert(z2 > z1)
+		z2 = Max(z2, z1 + 1)
 		return box(x1, y1, z1, x2, y2, z2)
-	end
-	local function PrepareAttachForConstruction(o)
-		if o:GetClassFlags(const.cfConstructible) ~= 0 and o:GetEnumFlags(const.efVisible) ~= 0 then
-			o:AddCustomData()
-			o:SetAnimSpeed(1, 0)
-			o:ForEachAttach(PrepareAttachForConstruction)
-		end
 	end
 	local grp = self.construction_group
 	if grp then
@@ -790,9 +836,9 @@ function ConstructionSite:ComputeConstructionBBox()
 			self.construction_bbox = bbox
 			for i = 2, #grp do
 				local o = grp[i]
-				bbox[i] = ObjectHierarchyBBox(o, const.efVisible, const.cfConstructible)
+				PrepareForConstruction(o)
+				bbox[i] = GetConstructionBBox(o)
 				bbox[i] = ClampToBuildableZ(bbox[i], o:GetPos())
-				o:ForEachAttach(PrepareAttachForConstruction)
 			end
 		else
 			local bbox
@@ -803,8 +849,8 @@ function ConstructionSite:ComputeConstructionBBox()
 					self.construction_bbox = box()
 					return 
 				end
-				local b = ObjectHierarchyBBox(o, const.efVisible, const.cfConstructible)
-				o:ForEachAttach(PrepareAttachForConstruction)
+				PrepareForConstruction(o)
+				local b = GetConstructionBBox(o)
 				bbox = Extend(bbox or box(), b)
 				local his_p = o:GetPos()
 				p = not p and his_p or GetTerrainHeight(p) < GetTerrainHeight(his_p) and p or his_p
@@ -825,10 +871,20 @@ function ConstructionSite:ComputeConstructionBBox()
 			self.construction_bbox = ClampToBuildableZ(bbox, p, self.building_class == "ElectricityGridElement" and max_z_delta_for_cable_placement)
 		end
 	else
+		PrepareForConstruction(self)
 		local surfaces = band(-1, bnot(1)) --no collision
-		local bbox = ObjectHierarchyBBox(self, const.efVisible, const.cfConstructible, false, surfaces)
+		local bbox = GetConstructionBBox(self, surfaces)
 		self.construction_bbox = ClampToBuildableZ(bbox, self:GetPos())
-		self:ForEachAttach(PrepareAttachForConstruction)
+		if self.prefab_objects then
+			local pos = self:GetPos()
+			surfaces = 1 --collision only
+			for i = 1, #self.prefab_objects do
+				local o = self.prefab_objects[i]
+				PrepareForConstruction(o)
+				bbox = GetConstructionBBox(o, surfaces, true)
+				self.construction_bbox = ClampToBuildableZ(Extend(self.construction_bbox, bbox), pos)
+			end
+		end
 	end
 end
 
@@ -836,8 +892,17 @@ local StageGatherResources = 0
 local StageConstructing    = 1
 
 function ConstructionSite:UpdateConstructionVisualization()
+	if not IsValid(self) then return end
 	if self.construction_group and self.construction_group[1] ~= self then
 		return
+	end
+	
+	if not self.prefab_objects and IsKindOf(self.building_class_proto, "LevelPrefabBuilding") then
+		assert(not self.construction_group) --not supported
+		local flags_to_clear = self:GetEnumFlags(const.efApplyToGrids) == 0 and const.efApplyToGrids or 0
+		self.prefab_objects = LevelPrefabBuilding_InstantiatePrefab(self, false, flags_to_clear, function(o)
+			rawset(o, "not_wasterock", true)
+		end)
 	end
 	
 	if not self.construction_bbox then
@@ -879,6 +944,10 @@ function ConstructionSite:UpdateConstructionVisualization()
 		end
 	else
 		self:SetConstruction(progress, stage, self.construction_bbox)
+		for i = 1, #(self.prefab_objects or "") do
+			local o = self.prefab_objects[i]
+			o:SetConstruction(progress, stage, self.construction_bbox)
+		end
 	end
 end
 
@@ -912,8 +981,8 @@ function ConstructionSite:CreateResourceStockpile()
 		table.insert(storable_resources, r_n)
 	end
 	
-	local stock = PlaceObject("SharedStorageBaseVisualOnly", {storable_resources = storable_resources, count_in_resource_overview = false}, const.cfComponentAttach)
-	self:Attach(stock, self:GetSpotBeginIndex("idle", self:HasSpot(self.resource_stockpile_spot) and self.resource_stockpile_spot or "Origin"))
+	local stock = PlaceObject("SharedStorageBaseVisualOnly", {storable_resources = storable_resources, count_in_resource_overview = false}, const.cofComponentAttach)
+	self:Attach(stock, self:GetSpotBeginIndex(self:GetState(), self:HasSpot(self.resource_stockpile_spot) and self.resource_stockpile_spot or "Origin"))
 	self.resource_stockpile = stock
 	
 	self:Notify("BootVisualStockpileAmounts")
@@ -1143,7 +1212,9 @@ function ConstructionSite:DroneApproach(drone, resource, is_closest)
 		if ldr.use_group_goto then
 			return drone:GotoBuildingsSpot({table.unpack(self.construction_group, 2)}, drone.work_spot_task)
 		else
-			local closest_obj = FindNearestObject(ldr.drop_offs or self.construction_group, drone:GetPos():SetInvalidZ(), self.construction_group[1])
+			local closest_obj = FindNearestObject(ldr.drop_offs or self.construction_group, drone:GetPos():SetInvalidZ(), function(obj)
+				return obj ~= self.construction_group[1]
+			end)
 			assert(closest_obj, "leaked constr grp leader?")
 			return closest_obj and closest_obj:DroneApproach(drone, resource, true) or false
 		end
@@ -1168,7 +1239,7 @@ function ConstructionSite:DroneWork(drone, request, resource, amount)
 	drone:ContinuousTask(request, amount, g_Consts.DroneConstructBatteryUse, "constructStart", "constructIdle", "constructEnd", "Construct",
 		function(drone)
 			drone.target:UpdateConstructionVisualization()
-		end)
+		end, IsKindOf(self.building_class_proto, "SupplyRocketBuilding"))
 	drone:PopAndCallDestructor()
 end
 
@@ -1189,7 +1260,7 @@ function ConstructionSite:BuildingUpdate(delta, day, hour)
 			self:UpdateConstructionVisualization()
 			RebuildInfopanel(self)
 			if not self:IsWaitingResources() and self:IsConstructed() then
-				self:Complete()
+				CreateGameTimeThread(self.Complete, self)
 			end
 		end
 	end
@@ -1217,17 +1288,17 @@ function ConstructionSite:AddResource(amount, resource)
 	self.construction_resources[resource]:AddAmount(-amount)
 end
 
-function ConstructionSite:RoverWork(rover, request, resource, amount)
+function ConstructionSite:RoverWork(rover, request, resource, amount, total_amount, interaction_type)
 	if resource == "construct" then
 		rover:PushDestructor(function(rover)
 			if IsValid(self) and not self:IsWaitingResources() and self:IsConstructed() then
 				self:Complete()
 			end
 		end)
-		rover:ContinuousTask(request, amount, "constructStart", "constructIdle", "constructEnd", "Construct")
+		rover:ContinuousTask(request, amount, "constructStart", "constructIdle", "constructEnd", "Construct", nil, nil, nil, nil, total_amount)
 		rover:PopAndCallDestructor()
 	elseif self.construction_resources[resource] == request then
-		rover:ContinuousTask(request, amount, "gatherStart", "gatherIdle", "gatherEnd", "Unload",	"step", g_Consts.RCRoverTransferResourceWorkTime, "add resource")
+		rover:ContinuousTask(request, amount, "gatherStart", "gatherIdle", "gatherEnd", interaction_type ~= "load" and "Unload" or "Load", "step", g_Consts.RCRoverTransferResourceWorkTime, "add resource")
 	end
 end
 --
@@ -1280,6 +1351,7 @@ function ConstructionSite:MoveStockpilesUnderneathOutside(interval)
 	local stockpiles_underneath = self.stockpiles_underneath
 	if stockpiles_underneath then
 		for i = #stockpiles_underneath, 1, -1 do
+			local stockpile = stockpiles_underneath[i]
 			local q, r = WorldToHex(self:GetPos())
 			local result
 			result, q, r = TryFindStockpileDumpSpot(q, r, self:GetAngle(), GetEntityPeripheralHexShape(self:GetEntity()))
@@ -1288,8 +1360,15 @@ function ConstructionSite:MoveStockpilesUnderneathOutside(interval)
 				if interval then
 					Sleep(interval)
 				end
-				stockpiles_underneath[i]:SetPos(point(x, y))
-				self:OnBlockingStockpileCleared(stockpiles_underneath[i])
+				stockpile:SetPos(point(x, y))
+				self:OnBlockingStockpileCleared(stockpile)
+				for _, p_c in ipairs(stockpile.parent_construction or empty_table) do
+					if p_c ~= self then
+						p_c:OnBlockingStockpileCleared()
+					end
+				end
+				stockpile.parent_construction = false
+				stockpile:OnConstructionCanceled()
 			end
 		end
 	end
@@ -1340,6 +1419,7 @@ function ConstructionSite:Complete(quick_build) --quick_build - cheat build
 		name = self.name,
 		orig_terrain1 = self.orig_terrain1 or nil,
 		orig_terrain2 = self.orig_terrain2 or nil,
+		construction_data = next(self.construction_data or empty_table) and self.construction_data or nil,
 	}
 	local params = {
 		alternative_entity_t = {entity = self.alternative_entity_t and self.alternative_entity_t.entity
@@ -1370,18 +1450,14 @@ function ConstructionSite:Complete(quick_build) --quick_build - cheat build
 		bld:TogglePin()
 	end
 	local multiselect_range_att = self:GetAttaches("RangeHexMultiSelectRadius")
-	if multiselect_range_att and #multiselect_range_att > 0 then
+	if multiselect_range_att and #multiselect_range_att > 0 and bld:HasMember(RangeHexRadius.bind_to) then
 		ShowBuildingHexes(bld, bld == SelectedObj and "RangeHexMovableRadius" or "RangeHexMultiSelectRadius", RangeHexRadius.bind_to)
 	end
 	DoneObject(self)
 	if self.clean_cables_on_place then
 		--should be before apply grids
 		self.city:SetCableCascadeDeletion(false, "ConstructionSite")
-		local found_any_cables = false
-		for _, cable in ipairs(HexGridShapeGetObjectList(ObjectGrid, bld, bld:GetShapePoints(), "ElectricityGridElement")) do
-			DoneObject(cable)
-			found_any_cables = true
-		end
+		local found_any_cables = self:DestroyCablesUnderneath(bld)
 		
 		local interior = GetEntityInteriorShape(bld:GetEntity())
 		if interior and next(interior) then
@@ -1421,13 +1497,22 @@ function ConstructionSite:Complete(quick_build) --quick_build - cheat build
 	return bld
 end
 
+function ConstructionSite:DestroyCablesUnderneath(building)
+	local found_any_cables = false
+	for _, cable in ipairs(HexGridShapeGetObjectList(ObjectGrid, building, building:GetShapePoints(), "ElectricityGridElement")) do
+		DoneObject(cable)
+		found_any_cables = true
+	end
+	return found_any_cables
+end
+
 function ConstructionSite:MarkSpentResources(bld)
 	if self.construction_group and self.construction_group[1] ~= self then return end --ldr should mark
 	local t = {}
-	for r_n, amount in pairs(self.construction_costs_at_start) do
+	assert(self.construction_costs_at_start)
+	for r_n, amount in pairs(self.construction_costs_at_start or empty_table) do
 		t[r_n] = amount
 	end
-	
 	if next(t) then
 		bld.construction_cost_at_completion = t
 	end
@@ -1471,7 +1556,7 @@ function ConstructionSite:Cancel()
 				local o = grp[i]
 				o:CleanupWasteRockObstructors()
 				o.construction_group = false --suppress destructors because of cable cascade deletion
-				o.UpdateVisuals =  __empty_function__
+				o.UpdateVisuals =  empty_func
 			end
 			for i = g_count, 2, -1 do
 				local o = grp[i]
@@ -1492,7 +1577,7 @@ function ConstructionSite:Cancel()
 	else
 		if grp then
 			for i = #grp, 1, -1 do
-				grp[i].UpdateVisuals =  __empty_function__
+				grp[i].UpdateVisuals =  empty_func
 			end
 			for i = #grp, 1, -1 do
 				local o = grp[i]
@@ -1534,7 +1619,7 @@ function ConstructionSite:ScatterUnitsUnderneath()
 	local units_underneath = self:GetUnitsUnderneath()
 	for i = 1, #units_underneath do
 		local u = units_underneath[i]
-		if not u:IsKindOf("RCConstructor") or u.command ~= "Construct" or u.construction_clearing ~= self then
+		if not u:IsKindOf("RCConstructorBase") or u.command ~= "Construct" or u.construction_clearing ~= self then
 			if u:IsDead() then --gracefull delete drone
 				if IsValid(u) then --not deleted
 					if u.command == "DespawnAtHub" then --moving, stop moving and die
@@ -1580,7 +1665,15 @@ function ConstructionSite:Done()
 		UpdateCoveredGrass(self, dome, "clear")
 	end
 	
+	if self.prefab_objects then
+		for i = 1, #self.prefab_objects do
+			local o = self.prefab_objects[i]
+			DoneObject(o)
+		end
+	end
+	
 	self:RemoveFromCityLabels()
+	Msg("ConstructionSiteRemoved", self)
 end
 
 function ConstructionSite:SetUIWorking(working)
@@ -1667,7 +1760,7 @@ end
 
 DefineClass.ConstructionSiteWithHeightSurfaces = {
 	__parents = { "ConstructionSite" },
-	class_flags = { cfNoHeightSurfs = false },
+	flags = { cfNoHeightSurfs = false },
 }
 
 --These hints will be disabled when a building of this class is placed
@@ -1756,12 +1849,16 @@ end
 
 function PlaceConstructionSite(city, class_name, pos, angle, params, no_block_pass, no_flatten)
 	SuspendTerrainInvalidations("PlaceConstructionSite")
+	
+	Msg("ConstructionSitePlace", class_name, pos, angle, params, no_block_pass, no_flatten)
+	
 	params = params or {}
 	local building_proto_class = ClassTemplates.Building[class_name] or g_Classes[class_name]
 	local construction_site_class = ((class_name == "ElectricitySwitch" or class_name == "LifesupportSwitch") and "GridSwitchConstructionSite") or
 											(class_name == "LifeSupportGridElement" and "PipeConstructionSite") or
 											(class_name == "ElectricityGridElement" and "CableConstructionSite") or
 											(class_name == "PassageGridElement" and "PassageConstructionSite") or
+											(IsKindOf(building_proto_class, "OpenCity") and "OpenCityConstructionSite") or
 											(building_proto_class.construction_site_applies_height_surfaces and "ConstructionSiteWithHeightSurfaces" or "ConstructionSite")
 	local site = PlaceObject(construction_site_class, params)
 	site:SetBuildingClass(class_name)
@@ -1782,7 +1879,7 @@ function PlaceConstructionSite(city, class_name, pos, angle, params, no_block_pa
 		DeleteUnattachedRoads(site, dome)
 		UpdateCoveredGrass(site, dome, "build")
 	elseif not no_flatten then
-		FlattenTerrainInBuildShape(building_proto_class:GetFlattenShape(), site)
+		FlattenTerrainInBuildShape(building_proto_class:GetFlattenShape(site), site)
 	end
 	site:ApplyToGrids() -- twofold purpose, both restrict building over our site and help clean up removables
 
@@ -1808,7 +1905,7 @@ function PlaceConstructionSite(city, class_name, pos, angle, params, no_block_pa
 	
 	PlayFXAroundBuilding(site, "Place")
 	
-	Msg("ConstructionSitePlaced", site)
+	Msg("ConstructionSitePlaced", site, class_name, pos, angle, params, no_block_pass, no_flatten)
 	if params.prefab then
 		Msg("ConstructionPrefabPlaced", site)
 	end
@@ -1818,7 +1915,7 @@ end
 -----------------------------------------------------------------------------------------------------------
 DefineClass.PipeConstructionSite = {
 	__parents = {"ConstructionSite", "LifeSupportGridElement"},
-	game_flags = { gofPermanent = true },
+	flags = { gofPermanent = true },
 	entity = false,
 	default_label = false,
 	is_construction_complete = false, --else canceled.
@@ -1836,9 +1933,9 @@ DefineClass.PipeConstructionSite = {
 	ApplyToGrids = LifeSupportGridElement.ApplyToGrids,
 	RemoveFromGrids = LifeSupportGridElement.RemoveFromGrids,
 	description = LifeSupportGridElement.description,
-	PickEntity = __empty_function__,
-	SetConstructionSiteEntity = __empty_function__,
-	MoveInside = __empty_function__,
+	PickEntity = empty_func,
+	SetConstructionSiteEntity = empty_func,
+	MoveInside = empty_func,
 	AddDust = DustGridElement.AddDust,
 	priority = 2,
 	DroneUnloadResource = ConstructionSite.DroneUnloadResource,
@@ -1935,7 +2032,7 @@ end
 -----------------------------------------------------------------------------------------------------------
 DefineClass.CableConstructionSite = {
 	__parents = {"ConstructionSite", "ElectricityGridElement"},
-	game_flags = { gofPermanent = true },
+	flags = { gofPermanent = true },
 	entity = false,
 	default_label = false,
 	is_construction_complete = false,
@@ -1950,12 +2047,12 @@ DefineClass.CableConstructionSite = {
 	GetDisplayName = BreakableSupplyGridElement.GetDisplayName,
 	display_name = ElectricityGridElement.display_name,
 	display_name_pl = ElectricityGridElement.display_name_pl,
-	PickEntity = __empty_function__,
-	SetConstructionSiteEntity = __empty_function__,
-	MoveInside = __empty_function__,
-	SetDust = __empty_function__,
-	SetHeat = __empty_function__,
-	--ConnectToCommandCenters = __empty_function__,
+	PickEntity = empty_func,
+	SetConstructionSiteEntity = empty_func,
+	MoveInside = empty_func,
+	SetDust = empty_func,
+	SetHeat = empty_func,
+	--ConnectToCommandCenters = empty_func,
 	AddDust = DustGridElement.AddDust,
 	priority = 2,
 	DroneUnloadResource = ConstructionSite.DroneUnloadResource,
@@ -2043,10 +2140,10 @@ DefineClass.ConstructionGroupLeader = {
 	
 	construction_cost_multiplier = 100, --groups cost exactly as much as 1 element, use this to change that
 	
-	enum_flags = { efVisible = false, efApplyToGrids = false, efCollision = false, },
+	flags = { efVisible = false, efApplyToGrids = false, efCollision = false, },
 	
-	ApplyToGrids = __empty_function__,
-	RemoveFromGrids = __empty_function__,
+	ApplyToGrids = empty_func,
+	RemoveFromGrids = empty_func,
 }
 
 function ConstructionGroupLeader:DestroyWasteRockUnderneath()
@@ -2220,7 +2317,7 @@ function ConstructionGroupLeader:Complete(quick_build)
 				assert(construction.construction_group ~= false, "Duplicate elements in constr grp.")
 				if construction.construction_group[1] == self then --only supress destructors if we are its original construction group leader.
 					construction.construction_group = false --suppress destructor
-					construction.MarkSpentResources = __empty_function__ --suppress mark function
+					construction.MarkSpentResources = empty_func --suppress mark function
 				end
 				
 				if construction.demolishing then
@@ -2321,7 +2418,7 @@ DefineClass.GridSwitchConstructionSite = {
 	
 	obj_to_turn_into_switch = false,
 	
-	game_flags = { gofSpecialOrientMode = true },
+	flags = { gofSpecialOrientMode = true },
 	orient_mode = "terrain",
 	
 	sign_spot = "Origin",
@@ -2548,13 +2645,14 @@ end
 
 DefineClass.WireFramedPrettification = {
 	__parents = { "Shapeshifter" },
-	class_flags = { cfComponentCustomData = true },
+	flags = { cofComponentCustomData = true },
 	construction_stage = 1,
 	GetSelectionRadiusScale = false,
 }
 
 function WireFramedPrettification:GameInit()
 	self:ChangeEntity(self.entity)
+	PrepareForConstruction(self)
 	local bb = box(0, 0, min_int, 1, 1, max_int)
 	self:SetConstruction(0, self.construction_stage, bb)
 end

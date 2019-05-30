@@ -24,6 +24,9 @@ PlaceObj('StoryBit', {
 			'Amount', 100000000,
 		}),
 		PlaceObj('SupplyMissionsEnabled', nil),
+		PlaceObj('AreDomesOpen', {
+			'Negate', true,
+		}),
 	},
 	ScriptDone = true,
 	Text = T(410008407981, --[[StoryBit RockScape Text]] "They will tour all the different colonies on Mars and have got their own transportation covered. All RockScape's management needs from us is permission to play and to prepare a Dome for the event. "),
@@ -33,6 +36,15 @@ PlaceObj('StoryBit', {
 	VoicedText = T(228017878512, --[[voice:narrator]] "A famous rock band called RockScape wishes to bring their music to Mars for a live performance."),
 	group = "Default",
 	id = "RockScape",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1550837380,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitParamNumber', {
 		'Name', "morale_boost",
 		'Value', 25,

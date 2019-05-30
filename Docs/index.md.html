@@ -1,4 +1,4 @@
-**Surving Mars Modding**
+**Surviving Mars Modding**
 
 Welcome to Modding *Surviving Mars*!
 ====================================
@@ -31,6 +31,12 @@ The other is used to edit a specific mod, and is opened by double-clicking the m
 
 The Mod Editor window lists all mod items in a tree view in the left column, and their properties in the right column. From the menu you can add new ModItem items, test the mod, or upload it to Steam Workshop.
 
+When entering the **Mod Editor** from the main menu, the game will try to guess the "currently edited" mod and test some of it's items.
+This is the most recently saved unpacked mod (not in a `.hpk` file) found in your *`%AppData%/Surviving Mars/Mods`* folder.
+Specifically [Mission Sponsors](ModItemMissionSponsor.md.html) and [Commander Profiles](ModItemCommanderProfile.md.html) will be selected for the current map.
+If your mod has more than one item of the same type (e.g. 2 sponsors) an ambiguity error will be logged in the right column of the `Mods Editor` window.
+Otherwise the name of the selected item will be logged.
+
 ## Gameplay
 In the [Gameplay](LuaFunctionDoc_Gameplay.md.html) section you can find more information about implementing gameplay effects related to [Technologies](ModItemTechnology.md.html), [Mission Sponsors](ModItemMissionSponsor.md.html), [Commander Profiles](ModItemCommanderProfile.md.html), [Research](Research.md.html) or [Colonists](Colonists.md.html).
 
@@ -39,11 +45,23 @@ Mod Items
 
 Here are the supported mod item types:
 
-[Entity](ModItemEntity.md.html)
-: Import art assets from Blender.
+[Attachment](ModItemAttachment.md.html)
+: Attach decorative objects to buildings.
 
-[Mission Sponsor](ModItemMissionSponsor.md.html)
-: Define new mission sponsors.
+[Building Template](ModItemBuildingTemplate.md.html)
+: Make new versions of existing buildings with different parameters.
+
+[Building Menu Subcategory](ModItemBuildMenuSubcategory.md.html)
+: Add subcategories to the build menu.
+
+[Code](ModItemCode.md.html)
+: Do almost anything - but make sure you read the Lua Environment section first!
+
+[Options](ModItemOption.md.html)
+: Let players configure your mods easily.
+
+[Colonist Trait](ModItemTrait.md.html)
+: Define new colonist trait.
 
 [Colony Color Scheme](ModItemColonyColorScheme.md.html)
 : Define new color scheme.
@@ -51,38 +69,90 @@ Here are the supported mod item types:
 [Commander Profile](ModItemCommanderProfile.md.html)
 : Define new commander profiles.
 
-[Mission Logo](ModItemMissionLogo.md.html)
-: Allows you to create new mission logos to decorate your buildings.
-
-[Technology](ModItemTechnology.md.html)
-: Define new technologies.
-
-[Game Rule](ModItemGameRule.md.html)
-: Define new Game Rules
-
-[Code](ModItemCode.md.html)
-: Do almost anything - but make sure you read the Lua Environment section first!
-
-[Building Template](ModItemBuildingTemplate.md.html)
-: Make new versions of existing buildings with different parameters.
+[Entity](ModItemEntity.md.html)
+: Import art assets from Blender.
 
 [Farm Crop](ModItemCrop.md.html)
 : Define new crops for the farms.
 
-[Colonist Trait](ModItemTrait.md.html)
-: Define new colonist trait.
-
-[Attachment](ModItemAttachment.md.html)
-: Attach decorative objects to buildings.
-
-[RadioStation](ModItemRadioStation.md.html)
-: Import a set of tracks to define a new radio station.
+[Game Rule](ModItemGameRule.md.html)
+: Define new Game Rules
 
 [Lightmodel](ModItemLightmodel.md.html)
 : Define a set of lighting parameters controlling the look of the day/night cycle.
 
 [Localization Table](ModItemLocTable.md.html)
 : Add translation tables to localize the game in other languages.
+
+[Mission Logo](ModItemMissionLogo.md.html)
+: Allows you to create new mission logos to decorate your buildings.
+
+[Mission Sponsor](ModItemMissionSponsor.md.html)
+: Define new mission sponsors.
+
+[RadioStation](ModItemRadioStation.md.html)
+: Import a set of tracks to define a new radio station.
+
+[StoryBit](ModItemStoryBit.md.html)
+: Create a custom StoryBit event.
+
+[Technology](ModItemTechnology.md.html)
+: Define new technologies.
+
+[TechField](ModItemTechField.md.html)
+: Define new tech fields.
+
+[Animal](ModItemAnimal.md.html)
+: Define new animals.
+
+[Vegetation](ModItemVegetation.md.html)
+: Define new vegetation.
+
+[Sound](ModItemSound.md.html)
+: Define sound presets, which can be played via the ActionFXSound mod item.
+
+[ActionFXSound](ModItemActionFXSound.md.html)
+: Plays sound effects when an FX action is triggered.
+
+[ActionFXColorization](ModItemActionFXColorization.md.html)
+: Colorizes a target object when an FX action is triggered.
+
+[ActionFXDecal](ModItemActionFXDecal.md.html)
+: Places a decal when an FX action is triggered.
+
+[ActionFXObject](ModItemActionFXObject.md.html)
+: Places an object when an FX action is triggered.
+
+[ActionFXLight](ModItemActionFXLight.md.html)
+: Places light sources when an FX action is triggered.
+
+[ActionFXParticles](ModItemActionFXParticles.md.html)
+: Places particle systems when an FX action is played.
+
+[Particle System](ModItemParticleSystemPreset.md.html)
+: Defines new particle systems, which can be placed using ActionFXParticles.
+
+Mod Metadata
+------------
+
+Mod metadata is the information used for displaying and loading the Mod.
+It contains things like the mod id, title, description, preview image, version and more.
+Mods can depend on each other and this is also listed in the metadata.
+Adding dependencies between mods ensures proper loading order - every dependency mod will be loaded before the dependant one.
+It will also inform the user if there are issues like missing mods or incompatibilities.
+
+Since mods change over time, their versions also change. Each mod has three fields to describe their version: `Major version`, `Minor version` and `Revision`.
+When displaying those, they are formated in the following fashion: `major.minor-revision`.
+For example `1.3-12` means: major version 1, minor version 3 and revision 12.
+The major and minor version is managed by the modder, while the revision will be automatically updated every time the mod metadata is saved.
+This versions can be used by mod dependencies.
+
+To add a mod dependency, locate the "Dependencies" property in the Mod Editor and click the "Create Item" button on the right.
+A new dependency item will be added and four fields will be available:
+ - Mod - a drop down with all installed mods listed in the format `Title - ID - version`. It is allowed to manually write the ID of a dependency that you do not have installed, but strongly discouraged. Note: selecting a mod from the drop down will overwrite the version fields automatically.
+ - Major version - the minimum compatible major version of the dependency.
+ - Minor version - the minimum compatible minor version of the dependency. Note: dependencies cannot depend on revision.
+ - Required - a dependency could be marked optional if it is not vital to the functioning of your mod. By default all dependencies are required.
 
 Lua Environment
 ---------------
@@ -176,6 +246,7 @@ Cemetery
 : Demonstrates how to create game logic for new buildings, how to interact with colonists, how to handle game messages. Adds a new building - Cemetery, with its own new entity, and the following gameplay effects:
   * Reduces the sanity damage to deceased colonists' neighbours;
   * Newborn colonists receive random positive traits from the deceased.
+: Also demonstrates the use of ActionFX objects.
 
 Idiocracy
 : Demonstrates how to create a new mission sponsor and tweak gameplay rules from it. Don't forget to pack electrolytes on your trip to Mars - plants crave them.
@@ -191,6 +262,12 @@ Synthetic Meat
 
 Time Capsule
 : Demonstrates how to work with files, examine and create objects on map. When you play on a planet location where you have already played, find artefacts from your previous colonies. 
+
+ForeignerInAForeignLand
+: Demonstrates how to build a StoryBit with the most used triggers, prerequisites and effects, with various Replies, Outcomes and Parameters in use. If you're not a stranger to writing, this is how you can unleash your potential upon the strange landscape of Mars.
+
+User Interface Elements
+: Demonstrates how to use the new interface elements in the game, including building icons, tecnology, notifications and messages and an addition infopanel button.
 
 
 Sample Mod Assets
@@ -209,6 +286,9 @@ HexGridExamples
 
 MissionLogos
 : This is a sample _Colony Logo_. It contains both a UI logo, used in the _New Game_ screen, and a decal texture, used ingame.
+
+InterfaceElements
+: These are some sample ingame interface elements, which include infopanel buttons, icons for buildings (and crops as well, as they use the same matrix), notification buttons, message images and technology icons.
 
 
 Reference Code

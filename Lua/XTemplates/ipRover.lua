@@ -23,14 +23,14 @@ PlaceObj('XTemplate', {
 			'RolloverDisabledText', T(806760132448, --[[XTemplate ipRover RolloverDisabledText]] "Vehicle inactive."),
 			'OnPressParam', "ToggleSiegeMode",
 			'OnPress', function (self, gamepad)
-self.context:ToggleSiegeMode(not gamepad and IsMassUIModifierPressed())
-end,
+				self.context:ToggleSiegeMode(not gamepad and IsMassUIModifierPressed())
+			end,
 			'AltPress', true,
 			'OnAltPress', function (self, gamepad)
-if gamepad then
-	self.context:ToggleSiegeMode(true)
-end
-end,
+				if gamepad then
+					self.context:ToggleSiegeMode(true)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'comment', "build drone",
@@ -41,18 +41,18 @@ end,
 			'RolloverHint', T(8461, --[[XTemplate ipRover RolloverHint]] "<left_click> Unpack Drone <em>Ctrl + <left_click></em> Unpack five Drones"),
 			'RolloverHintGamepad', T(8462, --[[XTemplate ipRover RolloverHintGamepad]] "<ButtonA> Unpack Drone <ButtonX> Unpack five Drones"),
 			'OnContextUpdate', function (self, context, ...)
-self:SetEnabled(UICity.drone_prefabs > 0)
-end,
+				self:SetEnabled(UICity.drone_prefabs > 0)
+			end,
 			'OnPressParam', "UseDronePrefab",
 			'OnPress', function (self, gamepad)
-	self.context:UseDronePrefab(not gamepad and IsMassUIModifierPressed())
-end,
+				self.context:UseDronePrefab(not gamepad and IsMassUIModifierPressed())
+			end,
 			'AltPress', true,
 			'OnAltPress', function (self, gamepad)
-if gamepad then
-	self.context:UseDronePrefab(true)
-end
-end,
+				if gamepad then
+					self.context:UseDronePrefab(true)
+				end
+			end,
 			'Icon', "UI/Icons/IPButtons/drone_assemble.tga",
 		}),
 		PlaceObj('XTemplateTemplate', {
@@ -65,18 +65,18 @@ end,
 			'RolloverHint', T(8668, --[[XTemplate ipRover RolloverHint]] "<left_click> Pack Drone for reassignment <em>Ctrl + <left_click></em> Pack five Drones"),
 			'RolloverHintGamepad', T(8669, --[[XTemplate ipRover RolloverHintGamepad]] "<ButtonA> Pack Drone for reassignment <ButtonX> Pack five Drones"),
 			'OnContextUpdate', function (self, context, ...)
-	self:SetEnabled(not not context:FindDroneToConvertToPrefab())
-end,
+				self:SetEnabled(not not context:FindDroneToConvertToPrefab())
+			end,
 			'OnPressParam', "ConvertDroneToPrefab",
 			'OnPress', function (self, gamepad)
-	self.context:ConvertDroneToPrefab(not gamepad and IsMassUIModifierPressed())
-end,
+				self.context:ConvertDroneToPrefab(not gamepad and IsMassUIModifierPressed())
+			end,
 			'AltPress', true,
 			'OnAltPress', function (self, gamepad)
-if gamepad then
-	self.context:ConvertDroneToPrefab(true)
-end
-end,
+				if gamepad then
+					self.context:ConvertDroneToPrefab(true)
+				end
+			end,
 			'Icon', "UI/Icons/IPButtons/drone_dismantle.tga",
 		}),
 		PlaceObj('XTemplateTemplate', {
@@ -103,7 +103,7 @@ end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'comment', "build",
-			'__context_of_kind', "RCConstructor",
+			'__context_of_kind', "RCConstructorBase",
 			'__template', "InfopanelButton",
 			'RolloverDisabledText', T(266581508662, --[[XTemplate ipRover RolloverDisabledText]] "Vehicle inactive."),
 			'OnPressParam', "ToggleBuildMode",
@@ -131,38 +131,38 @@ end,
 			'RolloverTitle', T(3973, --[[XTemplate ipRover RolloverTitle]] "Salvage"),
 			'RolloverHintGamepad', T(7657, --[[XTemplate ipRover RolloverHintGamepad]] "<ButtonY> Activate"),
 			'OnContextUpdate', function (self, context, ...)
-local refund = context:GetRefundResources() or empty_table
-local rollover = T(7825, "Destroy this Rover.")
-if #refund > 0 then
-	rollover = rollover .. "<newline><newline>" .. T(7823, "<UIRefundRes> will be refunded upon salvage.")
-end
-self:SetRolloverText(rollover)
-context:ToggleDemolish_Update(self)
-end,
+				local refund = context:GetRefundResources() or empty_table
+				local rollover = T(7825, "Destroy this Rover.")
+				if #refund > 0 then
+					rollover = rollover .. "<newline><newline>" .. T(7823, "<UIRefundRes> will be refunded upon salvage.")
+				end
+				self:SetRolloverText(rollover)
+				context:ToggleDemolish_Update(self)
+			end,
 			'OnPressParam', "ToggleDemolish",
 			'Icon', "UI/Icons/IPButtons/salvage_1.tga",
 		}, {
 			PlaceObj('XTemplateFunc', {
 				'name', "OnXButtonDown(self, button)",
 				'func', function (self, button)
-if button == "ButtonY" then
-	return self:OnButtonDown(false)
-elseif button == "ButtonX" then
-	return self:OnButtonDown(true)
-end
-return (button == "ButtonA") and "break"
-end,
+					if button == "ButtonY" then
+						return self:OnButtonDown(false)
+					elseif button == "ButtonX" then
+						return self:OnButtonDown(true)
+					end
+					return (button == "ButtonA") and "break"
+				end,
 			}),
 			PlaceObj('XTemplateFunc', {
 				'name', "OnXButtonUp(self, button)",
 				'func', function (self, button)
-if button == "ButtonY" then
-	return self:OnButtonUp(false)
-elseif button == "ButtonX" then
-	return self:OnButtonUp(true)
-end
-return (button == "ButtonA") and "break"
-end,
+					if button == "ButtonY" then
+						return self:OnButtonUp(false)
+					elseif button == "ButtonX" then
+						return self:OnButtonUp(true)
+					end
+					return (button == "ButtonA") and "break"
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
@@ -177,21 +177,24 @@ end,
 			'RolloverHintGamepad', T(148065038595, --[[XTemplate ipRover RolloverHintGamepad]] "<ButtonA> Toggle Automated Mode\n<ButtonX> Toggle for all Rovers"),
 			'OnPressParam', "ToggleAutoMode",
 			'OnPress', function (self, gamepad)
-self.context:ToggleAutoMode(not gamepad and IsMassUIModifierPressed())
-end,
+				self.context:ToggleAutoMode(not gamepad and IsMassUIModifierPressed())
+			end,
 			'AltPress', true,
 			'OnAltPress', function (self, gamepad)
-if gamepad then
-	self.context:ToggleAutoMode(true)
-end
-end,
+				if gamepad then
+					self.context:ToggleAutoMode(true)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__context_of_kind', "RCRover",
 			'__template', "sectionServiceArea",
 		}),
 		PlaceObj('XTemplateTemplate', {
+			'comment', "status",
 			'__template', "InfopanelSection",
+			'RolloverText', T(370493164990, --[[XTemplate ipRover RolloverText]] "Current state or task of the rover."),
+			'RolloverTitle', T(138085146102, --[[XTemplate ipRover RolloverTitle]] "Status"),
 			'Title', T(49, --[[XTemplate ipRover Title]] "Status"),
 			'Icon', "UI/Icons/Sections/sensor.tga",
 		}, {
@@ -222,9 +225,9 @@ end,
 				'Image', "UI/Infopanel/progress_bar.tga",
 				'FrameBox', box(5, 0, 5, 0),
 				'OnContextUpdate', function (self, context, ...)
-self:SetVisible(context.command == "Analyze")
-XFrameProgress.OnContextUpdate(self, context, ...)
-end,
+					self:SetVisible(context.command == "Analyze")
+					XFrameProgress.OnContextUpdate(self, context, ...)
+				end,
 				'BindTo', "ScanAnomalyProgress",
 				'MinProgressSize', 8,
 				'ProgressImage', "UI/Infopanel/progress_bar_green.tga",
@@ -237,13 +240,27 @@ end,
 				'Image', "UI/Infopanel/progress_bar.tga",
 				'FrameBox', box(5, 0, 5, 0),
 				'OnContextUpdate', function (self, context, ...)
-self:SetVisible(context.command == "Malfunction")
-XFrameProgress.OnContextUpdate(self, context, ...)
-end,
+					self:SetVisible(context.command == "Malfunction")
+					XFrameProgress.OnContextUpdate(self, context, ...)
+				end,
 				'BindTo', "MalfunctionRepairProgress",
 				'MinProgressSize', 8,
 				'ProgressImage', "UI/Infopanel/progress_bar_green.tga",
 				'ProgressFrameBox', box(4, 0, 4, 0),
+			}),
+			}),
+		PlaceObj('XTemplateTemplate', {
+			'comment', "queue",
+			'__condition', function (parent, context) return not GetUIStyleGamepad() or UseHybridControls() end,
+			'__template', "InfopanelSection",
+			'RolloverText', T(254905971665, --[[XTemplate ipRover RolloverText]] "This is the list of tasks that have been issued to the rover. It'll try to complete them in the same order.\nQueue tasks by using <em>Shift + <right_click></em>"),
+			'RolloverTitle', T(631597745343, --[[XTemplate ipRover RolloverTitle]] "Queued tasks"),
+			'Title', T(12314, --[[XTemplate ipRover Title]] "<ui_command_queue_title>"),
+			'Icon', "UI/Icons/Sections/sensor.tga",
+		}, {
+			PlaceObj('XTemplateTemplate', {
+				'__template', "InfopanelText",
+				'Text', T(12315, --[[XTemplate ipRover Text]] "<ui_command_queue>"),
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
@@ -252,9 +269,9 @@ end,
 			'RolloverText', T(10118, --[[XTemplate ipRover RolloverText]] "Contributes to the currently selected research project.<newline><newline>Lifetime research<right><research(research_points_lifetime)>"),
 			'RolloverTitle', T(10119, --[[XTemplate ipRover RolloverTitle]] "Research Project <percent(ResearchProgress)>"),
 			'OnContextUpdate', function (self, context, ...)
-self:SetVisible(UICity:IsTechResearched("ExplorerAI"))
-XSection.OnContextUpdate(self, context, ...)
-end,
+				self:SetVisible(UICity:IsTechResearched("ExplorerAI"))
+				XSection.OnContextUpdate(self, context, ...)
+			end,
 			'Title', T(526919900594, --[[XTemplate ipRover Title]] "<UIResearchProject>"),
 			'Icon', "UI/Icons/Sections/research_1.tga",
 		}, {
@@ -284,8 +301,8 @@ end,
 			'__context_of_kind', "RCRover",
 			'__template', "InfopanelSection",
 			'OnContextUpdate', function (self, context, ...)
-self:SetVisible(context.command ~= "Malfunction" and not context.sieged_state)
-end,
+				self:SetVisible(context.command ~= "Malfunction" and not context.sieged_state)
+			end,
 			'Title', T(277, --[[XTemplate ipRover Title]] "Attention"),
 			'Icon', "UI/Icons/Sections/attention.tga",
 		}, {
@@ -297,12 +314,12 @@ end,
 		PlaceObj('XTemplateTemplate', {
 			'__context_of_kind', "RCRover",
 			'__template', "InfopanelSection",
-			'RolloverText', T(12135, --[[XTemplate ipRover RolloverText]] "Total number of Drones in the RC Commander."),
+			'RolloverText', T(4492, --[[XTemplate ipRover RolloverText]] "Total number of Drones in the Rover."),
 			'RolloverTitle', T(517, --[[XTemplate ipRover RolloverTitle]] "Drones"),
 			'OnContextUpdate', function (self, context, ...)
 				self:SetVisible(context.command ~= "Dead")
 				XSection.OnContextUpdate(self, context, ...)
-end,
+			end,
 			'Title', T(4491, --[[XTemplate ipRover Title]] "Drones<right><count(drones)>/<MaxDrones>"),
 			'Icon', "UI/Icons/Sections/drone.tga",
 			'TitleHAlign', "stretch",
@@ -316,9 +333,9 @@ end,
 				'FoldWhenHidden', true,
 				'ContextUpdateOnOpen', true,
 				'OnContextUpdate', function (self, context, ...)
-self:SetVisible(context.dust_devils)
-XText.OnContextUpdate(self, context, ...)
-end,
+					self:SetVisible(context.dust_devils)
+					XText.OnContextUpdate(self, context, ...)
+				end,
 				'Text', T(4447, --[[XTemplate ipRover Text]] "Slowed down <red><percent(DustDevilPenalty)></red> by a Dust Devil"),
 			}),
 			}),
@@ -368,6 +385,16 @@ end,
 				'__condition', function (parent, context) return context:HasMember("GetStored_Fuel") end,
 				'__template', "InfopanelText",
 				'Text', T(317815331128, --[[XTemplate ipRover Text]] "Fuel<right><fuel(Stored_Fuel)>"),
+			}),
+			PlaceObj('XTemplateTemplate', {
+				'__condition', function (parent, context) return context:HasMember("GetStored_WasteRock") end,
+				'__template', "InfopanelText",
+				'Text', T(11842, --[[XTemplate ipRover Text]] "Waste Rock<right><wasterock(Stored_WasteRock)>"),
+			}),
+			PlaceObj('XTemplateTemplate', {
+				'__condition', function (parent, context) return IsDlcAvailable("armstrong") and UICity:IsTechResearched("MartianVegetation") and context:HasMember("GetStored_Seeds") end,
+				'__template', "InfopanelText",
+				'Text', T(12002, --[[XTemplate ipRover Text]] "Seeds<right><seeds(Stored_Seeds)>"),
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {

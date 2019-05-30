@@ -101,7 +101,7 @@ function GetRadioStations()
 		end
 	end
 	TSort(stations_list, "display_name")
-	return table.append({
+	return table.iappend({
 		radio_stations.NoRadio,
 		radio_stations.SurvivingMars,
 	}, stations_list)

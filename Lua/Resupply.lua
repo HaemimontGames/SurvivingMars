@@ -93,7 +93,7 @@ function GetResupplyClassesCombo()
 	end
 
 	local buildings = BuildingsCombo()
-	table.append(items, buildings)
+	table.iappend(items, buildings)
 	
 	return items
 end
@@ -180,7 +180,7 @@ end
 
 DefineClass.OrbitalProbe = {
 	__parents = { "BaseBuilding", "Shapeshifter", "PinnableObject" },
-	enum_flags = { efWalkable = false, efCollision = false, efApplyToGrids = false },
+	flags = { efWalkable = false, efCollision = false, efApplyToGrids = false },
 	properties = {
 		{ id = "display_name", default = T(3525, "Orbital Probe") },
 		{ id = "display_icon", default = "UI/Icons/Buildings/orbital_probe.tga" },

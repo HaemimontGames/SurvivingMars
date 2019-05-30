@@ -14,6 +14,7 @@ PlaceObj('XTemplate', {
 			'LayoutVSpacing', 6,
 		}, {
 			PlaceObj('XTemplateWindow', {
+				'comment', "Standing",
 				'__condition', function (parent, context) return context.selected_spot and context.selected_spot.spot_type == "rival" end,
 				'__class', "XText",
 				'Padding', box(0, 0, 0, 0),
@@ -23,6 +24,7 @@ PlaceObj('XTemplate', {
 				'Text', T(259960110713, --[[XTemplate PlanetaryViewResources Text]] "Standing"),
 			}),
 			PlaceObj('XTemplateWindow', {
+				'comment', "Mission Sponsor",
 				'__condition', function (parent, context) return context.selected_spot and context.selected_spot.spot_type == "our_colony" end,
 				'__class', "XText",
 				'Padding', box(0, 0, 0, 0),
@@ -32,6 +34,7 @@ PlaceObj('XTemplate', {
 				'Text', T(3474, --[[XTemplate PlanetaryViewResources Text]] "Mission Sponsor"),
 			}),
 			PlaceObj('XTemplateWindow', {
+				'comment', "Commander Profile",
 				'__condition', function (parent, context) return context.selected_spot and context.selected_spot.spot_type == "our_colony" end,
 				'__class', "XText",
 				'Padding', box(0, 0, 0, 0),
@@ -41,6 +44,7 @@ PlaceObj('XTemplate', {
 				'Text', T(3478, --[[XTemplate PlanetaryViewResources Text]] "Commander Profile"),
 			}),
 			PlaceObj('XTemplateWindow', {
+				'comment', "Funding",
 				'__class', "XText",
 				'Padding', box(0, 0, 0, 0),
 				'HandleMouse', false,
@@ -49,6 +53,7 @@ PlaceObj('XTemplate', {
 				'Text', T(3613, --[[XTemplate PlanetaryViewResources Text]] "Funding"),
 			}),
 			PlaceObj('XTemplateWindow', {
+				'comment', "Colonists",
 				'__class', "XText",
 				'Padding', box(0, 0, 0, 0),
 				'HandleMouse', false,
@@ -57,6 +62,7 @@ PlaceObj('XTemplate', {
 				'Text', T(547, --[[XTemplate PlanetaryViewResources Text]] "Colonists"),
 			}),
 			PlaceObj('XTemplateWindow', {
+				'comment', "Buildings",
 				'__class', "XText",
 				'Padding', box(0, 0, 0, 0),
 				'HandleMouse', false,
@@ -65,6 +71,7 @@ PlaceObj('XTemplate', {
 				'Text', T(3980, --[[XTemplate PlanetaryViewResources Text]] "Buildings"),
 			}),
 			PlaceObj('XTemplateWindow', {
+				'comment', "Basic Resources",
 				'__class', "XText",
 				'Padding', box(0, 0, 0, 0),
 				'HandleMouse', false,
@@ -73,6 +80,7 @@ PlaceObj('XTemplate', {
 				'Text', T(494, --[[XTemplate PlanetaryViewResources Text]] "Basic Resources"),
 			}),
 			PlaceObj('XTemplateWindow', {
+				'comment', "Advanced Resources",
 				'__class', "XText",
 				'Padding', box(0, 0, 0, 0),
 				'HandleMouse', false,
@@ -81,6 +89,7 @@ PlaceObj('XTemplate', {
 				'Text', T(500, --[[XTemplate PlanetaryViewResources Text]] "Advanced Resources"),
 			}),
 			PlaceObj('XTemplateWindow', {
+				'comment', "Grid Resources",
 				'__class', "XText",
 				'Padding', box(0, 0, 0, 0),
 				'HandleMouse', false,
@@ -89,12 +98,22 @@ PlaceObj('XTemplate', {
 				'Text', T(3618, --[[XTemplate PlanetaryViewResources Text]] "Grid Resources"),
 			}),
 			PlaceObj('XTemplateWindow', {
+				'comment', "Research",
 				'__class', "XText",
 				'Padding', box(0, 0, 0, 0),
 				'HandleMouse', false,
 				'TextStyle', "PGLandingPosDetails",
 				'Translate', true,
-				'Text', T(311, --[[XTemplate PlanetaryViewResources Text]] "Research"),
+				'Text', T(12112, --[[XTemplate PlanetaryViewResources Text]] "Research"),
+			}),
+			PlaceObj('XTemplateWindow', {
+				'__class', "XText",
+				'Id', "idTerraformingResourceLabel",
+				'Padding', box(0, 0, 0, 0),
+				'HandleMouse', false,
+				'TextStyle', "PGLandingPosDetails",
+				'Translate', true,
+				'HideOnEmpty', true,
 			}),
 			}),
 		PlaceObj('XTemplateWindow', {
@@ -184,11 +203,20 @@ PlaceObj('XTemplate', {
 				'TextStyle', "PGChallengeDescription",
 				'Translate', true,
 			}),
+			PlaceObj('XTemplateWindow', {
+				'__class', "XText",
+				'Id', "idTerraformingResource",
+				'Padding', box(0, 0, 0, 0),
+				'HandleMouse', false,
+				'TextStyle', "PGChallengeDescription",
+				'Translate', true,
+				'HideOnEmpty', true,
+			}),
 			}),
 		PlaceObj('XTemplateCode', {
 			'run', function (self, parent, context)
-context:SetUIResourceValues()
-end,
+				context:SetUIResourceValues()
+			end,
 		}),
 		}),
 })

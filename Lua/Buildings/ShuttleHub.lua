@@ -36,6 +36,7 @@ function ShuttleLanding:InitLandingSpots()
 	self.landing_slots = slots
 	self.free_landing_slots = #slots
 	self.has_free_landing_slots = #slots > 0
+	return slots
 end
 
 function ShuttleLanding:GameInit()
@@ -44,6 +45,10 @@ function ShuttleLanding:GameInit()
 end
 
 function ShuttleLanding:Done()
+	self:WakeupWaitingShuttles()
+end
+
+function ShuttleLanding:WakeupWaitingShuttles()
 	local queue = self.queued_shuttles or empty_table
 	for i=1,#queue do
 		Wakeup(queue[i].command_thread)
@@ -392,14 +397,13 @@ DefineClass.Shuttle = {
 
 DefineClass.CargoShuttle = {
 	__parents = { "Shuttle", "SharedStorageBaseVisualOnly", "Modifiable" },
-	game_flags = { gofPermanent = false },
-	enum_flags = { efVisible = false, efUnit = true, },
+	flags = { gofPermanent = false, efVisible = false, efUnit = true, },
 	properties = {
 		{ id = "max_shared_storage", default = 3 * const.ResourceScale, scale = const.ResourceScale, name = T(743, "Max Shuttle resource capacity"), modifiable = true, editor = "number" , no_edit = true},
 		{ id = "move_speed", default = 30*guim, name = T(6765, "Max Shuttle speed"), modifiable = true, editor = "number" , no_edit = true},
 	},
 	
-	storable_resources = {"Concrete", "Metals", "Polymers", "Food", "Electronics", "MachineParts", "PreciousMetals", "Fuel", "Colonist", "MysteryResource", "BlackCube", "WasteRock"},
+	storable_resources = {"Concrete", "Metals", "Polymers", "Food", "Electronics", "MachineParts", "PreciousMetals", "Fuel", "Colonist", "MysteryResource", "BlackCube", "WasteRock", "Seeds"},
 	max_x = 2,
 	max_y = 2,
 	max_z = 5,
@@ -412,7 +416,7 @@ DefineClass.CargoShuttle = {
 	assigned_to_d_req = false,
 	assigned_to_s_req = false,
 	avoid_class = 1,
-	avoid_mask = 1 + 4,
+	avoid_mask = 1 + 4, -- avoid other shuttles and mirror spheres
 	max_yaw_speed = 180 * 60, --faster turn rate 2 face path
 	landed_height = 10 * guim, --when shuttle is "landing" this is the offset of the height grid it will go to.
 	landing = false,
@@ -539,7 +543,7 @@ function FindDropPos(x, y, pfclass, err_dist)
 	if terrain.IsPassable(x, y, pfclass) and IsBuildableZone(x, y) then
 		return x, y
 	end
-	local HexGridGetObject = HexGridGetObject
+	local HexGridGetObject = BreathableAtmosphere and empty_func or HexGridGetObject
 	local GetPassablePointNearby = GetPassablePointNearby
 	local hex_radius = const.GridSpacing / 2
 	local grid = ObjectGrid
@@ -593,9 +597,8 @@ function CargoShuttle:LeaveColonist(colonist)
 	end
 	local x, y = FindDropPos(x0, y0, colonist.pfclass, 64*guim)
 	colonist:Detach()
-	colonist:SetOutside(true)
 	colonist:SetPos(x, y, const.InvalidZ)
-	colonist.dome_version = 0
+	colonist:UpdateOutside()
 	colonist:SetVisible(true)
 	Wakeup(colonist.command_thread)
 end
@@ -1031,6 +1034,9 @@ function CargoShuttle:RegisterHistoryEntryWithHub(success)
 end
 
 function CargoShuttle:HistoryEntryFromTask(task)
+	if not task then
+		return
+	end
 	if IsKindOf(task, "ColonistTransportTask") then
 		return { GameTime(), false, task.source_dome, task.dest_dome, task.colonist }
 	else
@@ -1341,6 +1347,7 @@ function ShuttleHub:ToggleTransportMode()
 	local i = table.find(all_transport_modes, self.transport_mode)
 	i = i % 3 + 1
 	self.transport_mode = all_transport_modes[i]
+	RebuildInfopanel(self)
 end
 
 local mode_to_img = "UI/Icons/IPButtons/shuttle_transport_%s.tga"
@@ -1834,6 +1841,23 @@ function ShuttleHub:UpdateHeavyLoadNotification()
 		table.insert_unique(g_HeavyLoadShuttleHubs, self)
 	else
 		table.remove_entry(g_HeavyLoadShuttleHubs, self)
+	end
+end
+
+local ShowFlightsToggle = false
+function ShuttleHub:CheatShowFlights()
+	DbgClearVectors()
+	if ShowFlightsToggle == self.handle then
+		ShowFlightsToggle = false
+		return
+	end
+	ShowFlightsToggle = self.handle
+	local infos = self.shuttle_infos
+	for i = 1, #infos do
+		local obj = infos[i].shuttle_obj
+		if obj and obj.current_path then
+			Flight_DrawTraject(obj.current_path)
+		end
 	end
 end
 

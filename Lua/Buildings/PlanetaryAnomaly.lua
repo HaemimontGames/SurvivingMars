@@ -1,3 +1,5 @@
+GlobalVar("g_PlanetaryAnomalies", {})
+
 DefineClass.PlanetaryAnomaly = {
 	__parents = { "MarsScreenPointOfInterest" },
 	spot_type = "anomaly",
@@ -6,12 +8,15 @@ DefineClass.PlanetaryAnomaly = {
 	rocket = false,
 	breakthrough_tech = false,
 	reward_resource = false,
+	story_bit = false,
 	requirement_type = false,
 	requirements = false,
 	scanned_by = false, -- competition
-	reward_resources = { "Metals", "Polymers", "PreciousMetals", },
+	reward_resources = {"Metals", "Polymers", "PreciousMetals"},
 	custom_id = false, --from story bits
 	init_name = true,
+	is_orbital = false,
+	outcome_text = false,
 	
 	anomaly_names = {
 		T(11105, "Project Alfa"),
@@ -81,6 +86,7 @@ DefineClass.PlanetaryAnomaly = {
 }
 
 function PlanetaryAnomaly:Init()
+	table.insert(g_PlanetaryAnomalies, self)
 	self:InitReward()
 	self:InitRequirements()
 	
@@ -90,7 +96,7 @@ function PlanetaryAnomaly:Init()
 			self.display_name = table.rand(self.anomaly_names) -- should these be exhausted?
 			local name_in_use = false
 			for _, spot in ipairs(MarsScreenLandingSpots) do
-				if spot ~= self and IsKindOf(spot, "PlanetaryAnomaly") and spot.display_name == self.display_name then
+				if spot ~= self and spot.spot_type=="anomaly" and spot.display_name == self.display_name then
 					name_in_use = true
 					break
 				end
@@ -114,6 +120,10 @@ function PlanetaryAnomaly:Init()
 		
 		self.description = table.rand(descr_list)
 	end
+end
+
+function PlanetaryAnomaly:Done()
+	table.remove_entry(g_PlanetaryAnomalies, self)
 end
 
 function PlaneteryAnomalyRewardTypeCombo()
@@ -147,29 +157,66 @@ function PlaneteryAnomalyRequirementTypeCombo()
 	}
 end
 
-function PlanetaryAnomaly:InitReward()
-	local roll = UICity:Random(100) -- todo: stable somehow
-	if (self.reward or "") ~= "" then
-		return
-	end
-	if roll < 25 then
-		self.reward = "research"
-	elseif roll < 35 then
-		self.reward = "breakthrough"
-		local breakthrough_tech = #BreakthroughOrder > 0 and table.remove(BreakthroughOrder)
-		if breakthrough_tech then
-			self.breakthrough_tech = breakthrough_tech
-		else
-			self.reward = "tech_unlock"
+function GetAvailableExpeditionStoryBitIds()
+	local assigned = {}
+	for _, anomaly in ipairs(g_PlanetaryAnomalies) do
+		if anomaly.story_bit then
+			assigned[anomaly.story_bit] = true
 		end
-	elseif roll < 55 then
-		self.reward = "tech unlock"
-	elseif roll < 90 then 
-		self.reward = "resources"
+	end
+	
+	local ids = {}
+	local encountered = {}
+	local filter = function(o)
+		local used = (not g_StoryBitStates[o.id]) or (assigned[o.id])
+		return o.group == "Expeditions" and o.Trigger == "PlanetaryAnomalyEvent" and not used
+	end
+	ForEachPreset("StoryBit", function(preset, group, ids)
+		if preset.id ~= "" and (not filter or filter(preset)) and not encountered[preset.id] then
+			ids[#ids + 1] = preset.id
+			encountered[preset.id] = true
+		end
+	end, ids)
+	
+	table.sort(ids)
+	return ids	
+end
+
+function PlanetaryAnomaly:InitReward()
+	if (self.reward or "") == "" then
+		local chances = {{"research", 25}, {"breakthrough", 10}, {"tech unlock", 20}, {"resources", 35}}
+		local story_bits_available = #GetAvailableExpeditionStoryBitIds() > 1
+		if story_bits_available then
+			table.insert(chances, {"event", 10})
+		end
+		local total_prob = 0
+		for _, prob in ipairs(chances) do
+			total_prob = total_prob + prob[2]
+		end
+		local roll = UICity:Random(total_prob)
+		local prob = 0
+		for _, reward in ipairs(chances) do
+			prob = prob + reward[2]
+			if roll < prob then
+				self.reward = reward[1]
+				break
+			end
+		end
+	end
+	if self.reward == "breakthrough" then
+		self.breakthrough_tech = #BreakthroughOrder > 0 and table.remove(BreakthroughOrder)
+		if not self.breakthrough_tech then
+			self.reward = "tech unlock"
+		end
+	elseif self.reward == "resources" then
 		self.reward_resource = table.rand(self.reward_resources)
 		assert(self.reward_resource)
-	else
-		self.reward = "event"
+	elseif self.reward == "event" then
+		if not self.story_bit then
+			local story_bits = GetAvailableExpeditionStoryBitIds()
+			local idx = UICity:Random(2, #story_bits)
+			self.story_bit = story_bits[idx]
+		end
 	end
 end
 
@@ -193,24 +240,20 @@ function PlanetaryAnomaly:InitRequirements()
 		self.requirement_type = "drones"
 	else
 		-- rover
-		local list = GetAvailableRovers()
+		local list = GetAvailableResupplyRovers()
 		self.requirements.rover_type = table.rand(list)
 		self.requirement_type = "rover"
 	end
 end
 
-function GetAvailableRovers()
+function GetAvailableResupplyRovers()
 	local list = {}
 	ForEachPresetInGroup("Cargo", "Rovers", function(preset)
 		local classdef = g_Classes[preset.id]
 		if not IsKindOf(classdef, "BaseRover") then
 			return
 		end
-		local available = true
-		if preset.locked then
-			local template = BuildingTemplates[preset.id .. "Building"]
-			available = template and not GetAdditionalBuildingLock(template)
-		end
+		local available = IsResupplyItemAvailable(preset.id)
 		if available then
 			list[#list + 1] = preset.id
 		end
@@ -218,16 +261,17 @@ function GetAvailableRovers()
 	return list
 end
 
+
 GlobalVar("g_ScannedPlanetaryAnomaly", 0)
 
 function PlanetaryAnomaly:Scan(rocket)
 	local reward = self.reward
-	
+	local city = rocket.city
 	if reward == "breakthrough" then
 		local def = TechDef[self.breakthrough_tech]
 		if not def then
 			assert(false, "No such breakthrough tech: " .. self.breakthrough_tech)
-		elseif rocket.city:SetTechDiscovered(self.breakthrough_tech) then
+		elseif city:SetTechDiscovered(self.breakthrough_tech) then
 			AddOnScreenNotification("PlanetaryAnomaly_BreakthroughDiscovered", OpenResearchDialog, {name = def.display_name, context = def, rollover_title = def.display_name, rollover_text = def.description})
 			reward = false
 		else
@@ -236,7 +280,7 @@ function PlanetaryAnomaly:Scan(rocket)
 		end
 	end
 	
-	if reward == "tech unlock" then
+	if reward == "tech unlock" or reward == "tech_unlock" then
 		local fields = {}
 		for field_id, field in pairs(TechFields) do
 			if field.discoverable then
@@ -246,7 +290,7 @@ function PlanetaryAnomaly:Scan(rocket)
 		table.sort(fields)
 		local unlocks = {}
 		for i=1,#fields do
-			local tech_id = rocket.city:DiscoverTechInField(fields[i])
+			local tech_id = city:DiscoverTechInField(fields[i])
 			if tech_id then
 				unlocks[#unlocks + 1] = tech_id
 			end
@@ -275,26 +319,65 @@ function PlanetaryAnomaly:Scan(rocket)
 	
 	if reward then
 		if reward == "research" then
-			local points = rocket.city:TableRand{2000, 2500, 3000, 3500, 4000}
-			rocket.city:AddResearchPoints(points)
+			local points = city:TableRand{2000, 2500, 3000, 3500, 4000}
+			city:AddResearchPoints(points)
 			AddOnScreenNotification("PlanetaryAnomaly_GrantRP", nil, {points = points, resource = "Research"})
 		elseif reward == "resources" then
 			assert(self.reward_resource)
 			local res = self.reward_resource
-			local amount = rocket.city:Random(20, 41) * const.ResourceScale
+			local amount = city:Random(20, 41) * const.ResourceScale
 			rocket:AddResource(amount, res)
 			rocket.cargo = { { class = res, amount = amount / const.ResourceScale } } -- for UI purposes only
 			AddOnScreenNotification("PlanetaryAnomaly_GrantRP", nil, {points = amount, resource = res})
 		elseif reward == "event" then
-			FireExpedtionStoryBit(rocket)
+			if not self.story_bit or  self.story_bit == "" then
+				local story_bits = GetAvailableExpeditionStoryBitIds()
+				local idx = UICity:Random(2, #story_bits)
+				self.story_bit = story_bits[idx]
+			end
+			ForceActivateStoryBit(self.story_bit, rocket)
 			Msg("PlanetaryAnomalyEvent", rocket)
 		elseif reward ~= "custom" then
-			assert(false, "unknown reward type")
+			assert(false, string.format("unknown reward type: %s", reward))
 		end
 	end
 	g_ScannedPlanetaryAnomaly = g_ScannedPlanetaryAnomaly + 1
 	Msg("PlanetaryAnomalyAnalyzed", self)
 	DoneObject(self)
+end
+
+function PlanetaryAnomaly:GetRocketExpeditionResources()
+	local resources =  self.requirements.required_resources
+	if not resources then 
+		return 
+	end
+	local res_table = {}
+	for _,res in ipairs(resources) do
+		local resource = res.resource
+		if resource~="Funding" then
+			res_table[res.resource]  = res.amount
+		end	
+	end
+	return res_table
+end
+local outcome_texts = {
+    ["breakthrough"] = T(11451, "Breakthrough"),
+    ["tech unlock"]  = T(12153, "New technologies"),
+    ["research"]     = T(12154, "Research progress <icon_Research>"),
+    ["resources"]    = T(692, "Resources"),
+    ["event"]        = T(77, "Unknown"),
+    ["custom"]       = T(77, "Unknown"),
+} 
+function PlanetaryAnomaly:GetOutcomeText()	
+	local text = self.outcome_text 
+	if not text or text =="" then
+		text = outcome_texts[self.reward] or ""
+	end	
+	return text
+end
+
+function PlanetaryAnomaly:ShowOutcomeText()
+	return self.reward  and self.reward ~=""
 end
 
 DefineStoryBitTrigger("PlanetaryAnomalyEvent", "PlanetaryAnomalyEvent")
@@ -304,16 +387,4 @@ function PlanetaryAnomaly:AddExpeditionTime(t)
 	if self.rocket then
 		self.rocket:AddExpeditionTime(t)
 	end
-end
-
-function GetExpeditionStoryBitIds()
-	return PresetsCombo("StoryBit", nil, nil, function(o) 
-		return o.group == "Expeditions" and o.Trigger == "PlanetaryAnomalyEvent"
-	end)()
-end
-
-function FireExpedtionStoryBit(obj)
-	local t = GetExpeditionStoryBitIds()
-	local idx = UICity:Random(2, #t)
-	ForceActivateStoryBit(t[idx], obj)
 end

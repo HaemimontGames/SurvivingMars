@@ -42,7 +42,7 @@ PlaceObj('XTemplate', {
 			'__class', "XImage",
 			'Id', "idIcon",
 			'IdNode', false,
-			'ZOrder', 2,
+			'ZOrder', 3,
 			'Margins', box(-28, 0, 0, 0),
 			'Shape', "InHHex",
 			'Dock', "left",
@@ -58,6 +58,7 @@ PlaceObj('XTemplate', {
 				'__class', "XImage",
 				'Id', "idRollover",
 				'IdNode', false,
+				'ZOrder', 3,
 				'Margins', box(-3, -3, -3, -3),
 				'Dock', "box",
 				'Visible', false,
@@ -81,9 +82,9 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnSetRollover(self, rollover)",
 			'func', function (self, rollover)
-XSection.OnSetRollover(self, rollover)
-self.idSectionTitle:SetRollover(rollover)
-end,
+				XSection.OnSetRollover(self, rollover)
+				self.idSectionTitle:SetRollover(rollover)
+			end,
 		}),
 		}),
 	PlaceObj('XTemplateProperty', {
@@ -91,12 +92,12 @@ end,
 		'id', "Title",
 		'editor', "text",
 		'Set', function (self, value)
-self.idSectionTitle:SetText(value)
-self.idSectionTitle:SetVisible(value~="")
-end,
+			self.idSectionTitle:SetText(value)
+			self.idSectionTitle:SetVisible(value~="")
+		end,
 		'Get', function (self)
-return self.idSectionTitle:GetText()
-end,
+			return self.idSectionTitle:GetText()
+		end,
 	}),
 	PlaceObj('XTemplateProperty', {
 		'category', "General",
@@ -105,9 +106,9 @@ end,
 		'default', "UI/Icons/Sections/dome.tga",
 		'translate', false,
 		'Set', function (self, value)
-self.idIcon:SetImage(value ~= "" and value or "UI/Icons/Sections/dome.tga")
-self.idIcon:SetVisible(value ~= "")
-end,
+			self.idIcon:SetImage(value ~= "" and value or "UI/Icons/Sections/dome.tga")
+			self.idIcon:SetVisible(value ~= "")
+		end,
 	}),
 	PlaceObj('XTemplateProperty', {
 		'category', "General",
@@ -116,8 +117,8 @@ end,
 		'default', "center",
 		'translate', false,
 		'Set', function (self, value)
-self.idSectionTitle:SetHAlign(value)
-end,
+			self.idSectionTitle:SetHAlign(value)
+		end,
 	}),
 })
 

@@ -9,6 +9,11 @@ FadeCategories = {
 		min = -1,
 		max = -1,
 	},
+	Grass =
+	{
+		min = 200,
+		max = 300,
+	},
 }
 
 if not FirstLoad then

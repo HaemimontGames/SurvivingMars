@@ -246,6 +246,7 @@ function OnScreenNotification:FillData(preset, callback, params, cycle_objs)
 	if popup_notification then
 		params.press_time = params.press_time or (GameTime() + 8 * hour_duration)
 		local function delayed_press_button()
+			assert(not params.parent)
 			Sleep(Max(params.press_time - GameTime(), 0)) --sleep for one Sol
 			PressOnScreenNotification(id)
 		end
@@ -255,6 +256,7 @@ function OnScreenNotification:FillData(preset, callback, params, cycle_objs)
 	local validate = preset.validate_context or params.validate_context
 	if type(validate) == "function" then
 		local function validate_params()
+			assert(not params.parent)
 			while(true) do
 				Sleep(1000)
 				if not validate(params) then
@@ -275,6 +277,10 @@ function OnScreenNotification:FillData(preset, callback, params, cycle_objs)
 	--Assign initial expiration time
 	if not self.expiration then
 		self.expiration = preset.expiration
+	end
+	-- Overwrite dismissable from params
+	if params and params.dismissable then
+		self.dismissable = params.dismissable
 	end
 	-- Overwrite expiration from params
 	local current_expiration = self.expiration
@@ -329,6 +335,7 @@ function OnScreenNotification:FillData(preset, callback, params, cycle_objs)
 		end
 		
 		local function remove_notif()
+			assert(not params.parent)
 			Sleep(Max(end_time - GameTime(), 0))
 			RemoveOnScreenNotification(id)
 		end
@@ -401,6 +408,36 @@ DefineClass.OnScreenNotificationCritical =
 function OnScreenNotificationCritical:InitControls()
 	self.idButton:SetBlinking(true)
 end
+
+DefineClass.OnScreenNotificationCriticalBlue = {
+	__parents = { "OnScreenNotificationCritical" },
+	default_icon = "UI/Icons/Notifications/New/placeholder.tga",
+	background_image = "UI/CommonNew/notication_blue.tga",
+	title_style = "OnScreenTitleCriticalBlue",
+	text_style = "OnScreenTextCriticalBlue",
+	
+	button_shine = "UI/Icons/Notifications/New/select.tga",
+}
+
+DefineClass.OnScreenNotificationNormalTerraforming = {
+	__parents = { "OnScreenNotification" },
+	default_icon = "UI/Icons/Notifications/New/placeholder_3.tga",
+	background_image = "UI/CommonNew/notication_green.tga",
+	title_style = "OnScreenTitleNormalTerraforming",
+	text_style = "OnScreenTextNormalTerraforming",
+	
+	button_shine = "UI/Icons/Notifications/New/select_green.tga",
+}
+
+DefineClass.OnScreenNotificationCriticalTerraforming = {
+	__parents = { "OnScreenNotificationCritical" },
+	default_icon = "UI/Icons/Notifications/New/placeholder_3.tga",
+	background_image = "UI/CommonNew/notication_green.tga",
+	title_style = "OnScreenTitleCriticalTerraforming",
+	text_style = "OnScreenTextCriticalTerraforming",
+	
+	button_shine = "UI/Icons/Notifications/New/select_green.tga",
+}
 
 DefineClass.OnScreenNotificationsDlg =
 {
@@ -494,10 +531,13 @@ function OnScreenNotificationsDlg:Open(...)
 	XDialog.Open(self, ...)
 end
 
-local notification_classes = {
+NotificationClasses = {
 	Normal = "OnScreenNotification",
 	Important = "OnScreenNotificationImportant",
 	Critical = "OnScreenNotificationCritical",
+	CriticalBlue = "OnScreenNotificationCriticalBlue",
+	NormalTerraforming = "OnScreenNotificationNormalTerraforming",
+	CriticalTerraforming = "OnScreenNotificationCriticalTerraforming",
 }
 
 OnScreenNotificationVoicesQueue = { }
@@ -525,7 +565,7 @@ function OnScreenNotificationsDlg:AddNotification(id, preset, callback, params, 
 	if notif then
 		notif:FillData(preset, callback, params, cycle_objs)
 	else
-		local class = notification_classes[preset.priority]
+		local class = NotificationClasses[preset.priority]
 		local new_item = g_Classes[class]:new({}, self.idNotifications)
 		
 		local total_colonists = #(UICity.labels.Colonist or empty_table)
@@ -551,7 +591,7 @@ function OnScreenNotificationsDlg:AddCustomNotification(data, callback, params, 
 	if notif then
 		notif:FillData(data, callback, params, cycle_objs)
 	else
-		local class = notification_classes[data.priority]
+		local class = NotificationClasses[data.priority]
 		local new_item = g_Classes[class]:new({}, self.idNotifications)
 		
 		new_item:FillData(data, callback, params, cycle_objs)
@@ -774,7 +814,7 @@ function AddOnScreenNotification(id, callback, params, cycle_objs)
 			popup_preset = params.id,
 			id = id,
 			close_on_read = true,
-			priority = "Critical",
+			priority = params.minimized_notification_priority or "Critical",
 			ShowVignette = true,
 			VignetteImage = "UI/Onscreen/onscreen_gradient_red.tga",
 			VignettePulseDuration = 2000,
@@ -808,6 +848,7 @@ function AddOnScreenNotification(id, callback, params, cycle_objs)
 	if preset.fx_action ~= "" then
 		PlayFX(preset.fx_action)
 	end
+	return id
 end
 
 --[[@@@
@@ -845,7 +886,7 @@ function AddCustomOnScreenNotification(id, title, text, image, callback, params)
 		image = image,
 	}
 	table.set_defaults(data, params)
-	table.set_defaults(data, OnScreenNotificationPreset)
+	setmetatable(data, OnScreenNotificationPreset)
 	entry.custom_preset = data
 	-- edit the existing one instead of creating new one on each update
 	local idx = table.find(g_ActiveOnScreenNotifications, 1, id) or #g_ActiveOnScreenNotifications + 1
@@ -921,10 +962,7 @@ end
 OnMsg.InGameInterfaceCreated = ShowNotifications
 
 function OnMsg.AchievementUnlocked(xplayer, achievement)
-	if not Platform.developer then
-		return
-	end
-	if Platform.desktop then
+	if Platform.desktop and not Platform.steam then
 		local data = AchievementPresets[achievement]
 		local params = { achievement = data.display_name, description = data.description }
 		AddOnScreenNotification("AchievementUnlocked", nil, params)
@@ -935,12 +973,12 @@ function OnMsg.GatherFXActions(list)
 	list[#list + 1] = "NotificationDismissed"
 end
 
-function SetOnScreenNotificationDismissable(id, dismissable)
+function GetOnScreenNotificationDismissable(id)
 	local dlg = GetDialog("OnScreenNotificationsDlg")
 	if dlg then
 		local notification = dlg:GetNotificationById(id)
 		if notification then
-			notification.dismissable = dismissable
+			return notification.dismissable
 		end
 	end
 end

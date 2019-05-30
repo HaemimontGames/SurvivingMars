@@ -9,26 +9,37 @@ function OpenPreGameMainMenu(mode)
 	LoadingScreenClose("idLoadingScreen", "pregame menu")
 end
 
+function GetPreGameMainMenu()
+	return GetDialog("PGMainMenu")
+end
+
 function ResetGameSession()
 	CloseAllDialogs()
-	InitNewGameMissionParams()
-	if GetMap() ~= "" then
+	local empty_map = GetMap() ~= "" 
+	-- send end session telemetry with valid Sessionid
+	if empty_map then
 		if mapdata.GameLogic then
 			TelemetryEndSession("main_menu")
 		end
+	end
+	-- reset game mission params
+	InitNewGameMissionParams()
+	-- change the map
+	if empty_map then
 		ChangeMap("")
 	end
+	
 	StopRadioStation()
 	SetMusicPlaylist("MainTheme")
 end
 
-if Platform.desktop and not Platform.steam and not Platform.gog then
+if Platform.desktop and not Platform.steam and not Platform.galaxy and not Platform.windows_store then
 
 function AsyncAchievementUnlock(xplayer, achievement)
 	Msg("AchievementUnlocked", 0, achievement)
 end
 
-end -- Platform.desktop and not Platform.steam and not Platform.gog
+end -- Platform.desktop and not Platform.steam and not Platform.galaxy
 
 function CanUnlockAchievement(xplayer, achievement)
 	return CurrentMap ~= "Mod"

@@ -231,7 +231,7 @@ local function RollBackDialogs()
 			end
 		end
 	else --in pregame menu
-		local main_menu = GetDialog("PGMainMenu")
+		local main_menu = GetPreGameMainMenu()
 		if main_menu then
 			CloseDialog("Achievements")
 			if main_menu:GetMode() == "Mission" then

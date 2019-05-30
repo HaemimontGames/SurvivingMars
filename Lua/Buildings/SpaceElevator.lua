@@ -1,6 +1,6 @@
 DefineClass.SpaceElevator = {
 	__parents = { "Building", "UniversalStorageDepot", "ElectricityConsumer" },
-	class_flags = { cfConstructible = true },
+	flags = { cfConstructible = true },
 	
 	properties = {
 		{ template = true, id = "price_mod", name = T(756, "Resupply Price Modifier"), category = "Space Elevator", editor = "number", default = 50, min = 0, modifiable = true },
@@ -36,6 +36,7 @@ DefineClass.SpaceElevator = {
 	pin_on_start = true,
 	pin_rollover = T(704, "Carries supplies from Earth."),	
 	accumulate_dust = true,
+	use_shape_selection = false,
 }
 
 function SpaceElevator:GameInit()
@@ -475,3 +476,16 @@ function OnMsg.GatherFXActions(list)
 end
 
 CargoCapacityLabels.elevator = "SpaceElevator"
+
+function SavegameFixups.SpaceElevatorRegiterSeeds()
+	MapForEach("map", "SpaceElevator", function(self)
+		if not self.supply["Seeds"] then
+			local was_connected = #self.command_centers > 0
+			self:DisconnectFromCommandCenters()
+			self:RegiterResourceRequest("Seeds")
+			if was_connected then
+				self:ConnectToCommandCenters()
+			end
+		end
+	end)
+end

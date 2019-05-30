@@ -35,11 +35,14 @@ function StableShuffle(tbl, rand, max)
 	end
 end
 
+function GetAvailablePresets(all_presets)
+	return all_presets
+end
+
 function City:InitResearch()
 	self.tech_status = {}
 	self.tech_field = {}
 	self.research_queue = {}
-	
 	self.TechBoostPerField = {}
 	self.TechBoostPerTech = {}
 	self.OutsourceResearchPoints = {}
@@ -47,83 +50,101 @@ function City:InitResearch()
 	
 	local initial_unlocked = GetMissionSponsor().initial_techs_unlocked
 	local defs = TechDef
-	local current_mystery = self.mystery_id
-	local fields = Presets.TechFieldPreset.Default
+	local fields = GetAvailablePresets(Presets.TechFieldPreset.Default)
 	for i=1,#fields do
 		local field = fields[i]
 		local field_id = field.id
-		local list = self.tech_field[field_id] or {}
-		self.tech_field[field_id] = list
-		for _, tech in ipairs(Presets.TechPreset[field_id]) do
-			if (tech.mystery or current_mystery) == current_mystery and tech.condition() then
-				if not table.find(list, tech.id) then
-					list[#list + 1] = tech.id
+		if (field_id or "") ~= "" then
+			local list = self.tech_field[field_id] or {}
+			self.tech_field[field_id] = list
+			for _, tech in ipairs(Presets.TechPreset[field_id] or empty_table) do
+			if self:TechAvailableCondition(tech) then
+					if not table.find(list, tech.id) and (tech.id or "") ~= "" then
+						list[#list + 1] = tech.id
+					end
 				end
 			end
-		end
-		local discoverable = field.discoverable
-		if discoverable then
-			if IsGameRuleActive("ChaosTheory") then
-				table.shuffle(list)
-			else
-				StableShuffle(list, self:CreateResearchRand("InitResearch", field.id), 100)
-				local retries = 0
-				while true do
-					local changed
-					for j=1,#list do
-						local tech_id = list[j]
-						local tech = defs[tech_id]
+			local discoverable = field.discoverable
+			if discoverable then
+				if IsGameRuleActive("ChaosTheory") then
+					table.shuffle(list)
+				else
+					local function IsInRange(idx)
+						local tech = defs[list[idx]]
+						if not tech then return false end
 						local min, max = Max(tech.position.from, 1), Min(tech.position.to, #list)
-						if j < min or j > max then
-							table.insert(list, (min + max) / 2, table.remove(list, j))
-							changed = true
+						return idx >= min and idx <= max, min, max
+					end
+					StableShuffle(list, self:CreateResearchRand("InitResearch", field.id), 100)
+					local retries = 0
+					while true do
+						local changed
+						for j=1,#list - 1 do
+							local ok1, min1, max1 = IsInRange(j)
+							local ok2, min2, max2 = IsInRange(j + 1)
+							local target1 = (min1 + max1 + 1) / 2
+							local target2 = (min2 + max2 + 1) / 2
+							if target1 > target2 then
+								list[j], list[j + 1] = list[j + 1], list[j]
+								changed = true
+							end
+						end
+						retries = retries + 1
+						if not changed or retries >= #list then
+							break
 						end
 					end
-					if not changed then
-						break
-					end
-					retries = retries + 1
-					if retries >= 10 then
-						print("Failed to find correct places for all techs in", field.id)
-						break
+					for j=1,#list do
+						if not IsInRange(j) then
+							print("Failed to find correct places for all techs in", field.id)
+							break
+						end
 					end
 				end
 			end
-		end
-		local costs = field.costs or empty_table
-		for j = 1, #list do
-			local cost
+			local costs = field.costs or empty_table
+			for j = 1, #list do
+				local cost
+				if discoverable then
+					cost = costs[j]
+					if not cost then
+						assert(j > #costs)
+						local last_cost = costs[#costs] or 0
+						local last_diff = last_cost - (costs[#costs - 1] or 0)
+						cost = last_cost + (j - #costs) * last_diff
+					end
+				end
+				local tech_id = list[j]
+				local tech = defs[tech_id]
+				self.tech_status[tech_id] = {
+					cost = cost,
+					points = 0,
+					field = field_id,
+				}
+				if IsGameRuleActive("EasyResearch") and discoverable then
+					self:SetTechDiscovered(list[j])
+				end
+			end
 			if discoverable then
-				cost = costs[j]
-				if not cost then
-					assert(j > #costs)
-					local last_cost = costs[#costs] or 0
-					local last_diff = last_cost - (costs[#costs - 1] or 0)
-					cost = last_cost + (j - #costs) * last_diff
+				for i=1,initial_unlocked do
+					self:DiscoverTechInField(field_id)
 				end
-			end
-			local tech_id = list[j]
-			local tech = defs[tech_id]
-			self.tech_status[tech_id] = {
-				cost = cost,
-				points = 0,
-				field = field_id,
-			}
-			if IsGameRuleActive("EasyResearch") and discoverable then
-				self:SetTechDiscovered(list[j])
-			end
-		end
-		if discoverable then
-			for i=1,initial_unlocked do
-				self:DiscoverTechInField(field_id)
 			end
 		end
 	end
 end
 
+function City:TechAvailableCondition(tech)
+	local current_mystery = self.mystery_id
+	return (tech.mystery or current_mystery) == current_mystery and tech:condition()
+end
+
 function City:GameInitResearch()
 	for id in pairs(self.tech_status) do
-		TechDef[id]:EffectsInit(self)
+		local preset = TechDef[id]
+		if preset then
+			preset:EffectsInit(self)
+		end
 	end
 end
 
@@ -194,6 +215,7 @@ end
 
 ----
 
+GlobalVar("g_BreakthroughsResearched", 0)
 --[[
 - updates the tech status to researched (clear new)
 --]]
@@ -220,6 +242,9 @@ function City:SetTechResearched(tech_id, notify)
 			if tech_id == current_research or not self:IsNewResearchAvailable(field_id) then
 				self:DiscoverTechInField(field_id)
 			end
+		end
+		if TechDef[tech_id].group == "Breakthroughs" then
+			g_BreakthroughsResearched = g_BreakthroughsResearched + 1
 		end
 	end
 	status.points = 0
@@ -287,7 +312,7 @@ function City:TechCost(tech_id)
 	end
 	
 	local cost_boost = 0
-	if not TechFields[status.field].discoverable then
+	if TechFields[status.field] and not TechFields[status.field].discoverable then
 		cost_boost = 100 - g_Consts.BreakThroughTechCostMod -- e.g. author commander: 100 - (100 - 30) = 30
 	end
 	local field_boost = self.TechBoostPerField[status.field] or 0
@@ -432,6 +457,22 @@ function City:TechCount(field_id, state)
 	return count, #list
 end
 
+function City:DiscoveredTechCount()
+	local count = 0
+	for field_id in pairs(self.tech_field or empty_table) do
+		count = count + self:TechCount(field_id, "discovered")
+	end
+	return count
+end
+
+function City:ResearchedTechCount()
+	local count = 0
+	for field_id in pairs(self.tech_field or empty_table) do
+		count = count + self:TechCount(field_id, "researched")
+	end
+	return count
+end
+
 GlobalVar("TechLastSeen", 0)
 
 function City:IsTechNew(tech_id)
@@ -483,10 +524,12 @@ function City:GetCheapestTech()
 		for _, tech_id in ipairs(self.tech_field[field_id]) do
 			local status = self.tech_status[tech_id]
 			if status and status.discovered and not status.researched then
-				local cost = self:TechCost(tech_id)
-				if cheapest_cost > cost then
-					cheapest_cost = cost
-					cheapest_tech = tech_id
+				if not (self.tech_will_be_granted and self.tech_will_be_granted[tech_id]) then
+					local cost = self:TechCost(tech_id)
+					if cheapest_cost > cost then
+						cheapest_cost = cost
+						cheapest_tech = tech_id
+					end
 				end
 			end
 		end
@@ -565,8 +608,8 @@ end
 --[[
 - returns percentage of current research
 --]]
-function City:GetResearchProgress()
-	local tech_id, points, max_points = self:GetResearchInfo()
+function City:GetResearchProgress(tech_id)
+	local tech_id, points, max_points = self:GetResearchInfo(tech_id)
 	if not tech_id then return 0 end
 	return MulDivRound(100, points, max_points)
 end
@@ -776,14 +819,16 @@ end
 
 function City:UITechField(field_id)
 	local field_def = TechFields[field_id]
-	if field_def.show_in_field ~= "" then
+	if not field_def or field_def.show_in_field ~= "" then
 		return empty_table
 	end
 	local list = table.icopy(self.tech_field[field_id])
+	if not list then return end
 	-- link common lists
 	for field_i, list_i in sorted_pairs(self.tech_field) do
-		if TechFields[field_i].show_in_field == field_id then
-			table.append(list, list_i)
+		local tech_field = TechFields[field_i]
+		if tech_field and tech_field.show_in_field == field_id then
+			table.iappend(list, list_i)
 		end
 	end
 	if not field_def.discoverable then
@@ -799,13 +844,9 @@ function City:UITechField(field_id)
 	return list
 end
 
-if FirstLoad then
-	g_ResearchDlgPendingScrollOffsetX = 0
-end
-
 function ResearchDlgOnShortcut(self, shortcut, source)
 	local f = self.desktop.keyboard_focus
-	if f and f.FocusOrder and f.FocusOrder:x() == 1000 and (shortcut == "LeftShoulder" or XShortcutToRelation[shortcut] == "left") then
+	if f and f.FocusOrder and f.FocusOrder:x() == 0 and shortcut == "RightShoulder" then
 		local log = self.desktop.focus_log
 		for i = #log, 1, -1 do
 			local win = log[i]
@@ -820,8 +861,8 @@ function ResearchDlgOnShortcut(self, shortcut, source)
 		end
 		return "break"
 	end
-	if shortcut == "RightShoulder" then
-		local f = self:GetRelativeFocus(point(1000, 1), "exact")
+	if shortcut == "LeftShoulder" then
+		local f = self:GetRelativeFocus(point(0, 1), "exact")
 		if f then
 			f:SetFocus()
 		end
@@ -830,10 +871,6 @@ function ResearchDlgOnShortcut(self, shortcut, source)
 		if DismissCurrentOnScreenHint() then
 			return "break"
 		end
-	elseif VKStrNames[hr.CameraRTSKeyPanLeft] == shortcut or VKStrNames[hr.CameraRTSKeyPanLeftAlt] == shortcut or shortcut == "MouseWheelFwd" then
-		g_ResearchDlgPendingScrollOffsetX = -30
-	elseif VKStrNames[hr.CameraRTSKeyPanRight] == shortcut or VKStrNames[hr.CameraRTSKeyPanRightAlt] == shortcut or shortcut == "MouseWheelBack" then
-		g_ResearchDlgPendingScrollOffsetX = 30
 	end
 	return XDialog.OnShortcut(self, shortcut, source)
 end
@@ -854,12 +891,11 @@ DefineClass.XTechControl = {
 }
 
 function XTechControl:Init(parent, tech)
-	local valign = #parent % 2 == 1 and "top" or "bottom"
-	self:SetVAlign(valign)
-	self:SetRelativeFocusOrder(#parent == 1 and "new-line" or "next-in-line")
+	self:SetFocusOrder(point(rawget(self.context, "field_pos") or 1, #parent))
 	local tech_id = tech.id
 	local icon = UICity:IsTechDiscovered(tech_id) and tech.icon
 	local researched = UICity:IsTechResearched(tech_id) and not UICity:IsTechRepeatable(tech_id)
+	local progress = UICity:GetResearchProgress(tech_id)
 	local content = XWindow:new({
 		Id = "idContent",
 		HAlign = "center",
@@ -870,23 +906,77 @@ function XTechControl:Init(parent, tech)
 	XImage:new({
 		Id = "idIcon",
 		Image = icon or "UI/Icons/Research/rm_unknown.tga",
-		Desaturation = researched and 255 or 0,
+		ImageFit = "smallest",
 	}, content)
 	if researched then
 		XImage:new({
-			Image = "UI/Icons/Research/rm_researched.tga",
+			Image = "UI/Icons/Research/rm_completed.tga",
+			ImageFit = "smallest",
+		}, content)
+		XImage:new({
+			Image = "UI/Icons/Research/rm_researched_2.tga",
+			ImageFit = "smallest",
+		}, content)
+	elseif progress > 0 then
+		local win = XWindow:new({
+			Id = "idProgressInfo"
+		}, content)
+		XImage:new({
+			Image = "UI/Icons/Research/rm_partially_researched.tga",
+			ImageFit = "smallest",
+		}, win)
+		local percent_text = XText:new({
+			Translate = true,
+			HAlign = "center",
+			VAlign = "center",
+			TextHAlign = "center",
+			TextVAlign = "center",
+			Padding = box(0,0,0,0),
+			HandleMouse = false,
+			TextStyle = "ResearchPartialProgress",
+		}, win)
+		percent_text:SetText(T{12562, "<percent(progress)>", progress = progress})
+	elseif UICity:IsTechDiscovered(tech_id) then
+		XImage:new({
+			Image = "UI/Icons/Research/rm_available.tga",
+			ImageFit = "smallest",
 		}, content)
 	end
+	local queue_win = XWindow:new({
+		Id = "idQueueWin",
+	}, content)
+	XImage:new({
+		Image = "UI/Icons/Research/rm_research_on.tga",
+		ImageFit = "smallest",
+	}, queue_win)
+	local hex = XImage:new({
+		HAlign = "right",
+		VAlign = "bottom",
+		Margins = box(0,0,26,4),
+		ScaleModifier = point(1200,1200),
+		Image = "UI/Icons/Research/rm_hex.tga",
+		Columns = 2,
+		Column = 2,
+		IdNode = false,
+	}, queue_win)
+	XLabel:new({
+		Id = "idQueueIndex",
+		HAlign = "center",
+		VAlign = "center",
+		TextStyle = "Action",
+		ScaleModifier = point(1200,1200),
+	}, hex)
 	XImage:new({
 		Id = "idRollover",
 		Image = "UI/Icons/Research/rm_shine.tga",
-		Desaturation = icon and 0 or 200,
 		Transparency = icon and 0 or 125,
+		ImageFit = "smallest",
 	}, content):SetVisible(false)
 	if UICity:IsTechNew(tech_id) and UICity:IsTechDiscovered(tech_id) then
 		local glow = XImage:new({
 			Id = "idUnseenGlow",
 			Image = "UI/Icons/Research/rm_shine.tga",
+			ImageFit = "smallest",
 		}, content)
 		glow:AddInterpolation{
 			type = const.intAlpha,
@@ -897,13 +987,6 @@ function XTechControl:Init(parent, tech)
 			flags = const.intfPingPong + const.intfLooping,
 		}
 	end
-	XImage:new({
-		Id = "idQueueIndex",
-		Margins = box(0, 0, 30, -10),
-		HAling = "right",
-		VAlign = "bottom",
-		Image = "UI/Icons/message_1.tga",
-	}, content)
 end
 
 function XTechControl:OnShortcut(shortcut, source)
@@ -946,20 +1029,24 @@ end
 
 function XTechControl:OnSetRollover(rollover)
 	if rollover and GetUIStyleGamepad() then
-		-- field or self
-		local win = self.FocusOrder:x() == 1 and self.parent.parent.idFieldName or self
-		local x1, y1, x2, y2 = win.box:xyxy()
 		-- XScrollArea
-		self.parent.parent.parent:ScrollIntoView(box(x1, y1, x2 + 100, y2))
+		local area = GetParentOfKind(self, "XScrollArea")
+		if area then
+			area:ScrollIntoView(self)
+		end
 	end
 	XContextControl.OnSetRollover(self, rollover)
 end
 
 function XTechControl:OnContextUpdate(tech)
 	local index = UICity:TechQueueIndex(tech.id)
-	self.idQueueIndex:SetVisible(index)
+	local progress_info = self:ResolveId("idProgressInfo")
+	if progress_info then
+		progress_info:SetVisible(not index)
+	end
+	self.idQueueWin:SetVisible(index)
 	if index then
-		self.idQueueIndex:SetImage(string.format("UI/Icons/message_%d.tga", index))
+		self.idQueueIndex:SetText(index)
 	end
 end
 
@@ -1000,7 +1087,7 @@ function XTechControl:GetRolloverText()
 	return T{10980, "<description><newline><newline>Research cost<right><ResearchPoints(cost)><if(percent_check)><newline><left>Cost reduction<right><percent>%</if>", percent = percent, percent_check = percent_check }
 end
 
-local queue = T(3923, "<left><left_click> Queue for research<right><em>Ctrl+<left_click></em> Queue on top")
+local queue = T(12638, "<left><left_click> Queue for research<right><em>Ctrl+<left_click></em> Queue on top")
 local dequeue = T(7775, "<right_click> Remove from research queue") 
 local queue_dequeue = queue .. "<newline><center>" .. dequeue
 local first_inqueue = T(8534, "<em>Ctrl+<left_click></em> Queue on top")

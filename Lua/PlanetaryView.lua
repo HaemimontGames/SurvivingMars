@@ -5,29 +5,38 @@ GlobalVar("MarsScreenMapParams", false)
 local function _SortMarsPointsOfInterest()
 	local rivals = {}
 	local anomalies = {}
+	local special_projects  = {}
 	for _, poi in ipairs(MarsScreenLandingSpots) do
 		if poi.spot_type == "rival" then
 			rivals[#rivals + 1] = poi
 		elseif poi.spot_type == "anomaly" then
 			anomalies[#anomalies + 1] = poi
+		elseif poi.spot_type == "project" then
+			special_projects[#special_projects + 1] = poi	
 		end
 	end
 	TSort(rivals, "display_name")
+	TSort(special_projects, "display_name")
 	TSort(anomalies, "display_name")
 	SortedMarsScreenLandingSpots = {}
 	if MarsScreenLandingSpots.OurColony then
 		SortedMarsScreenLandingSpots[1] = MarsScreenLandingSpots.OurColony
 	end
-	table.append(SortedMarsScreenLandingSpots, rivals)
-	table.append(SortedMarsScreenLandingSpots, anomalies)
+	table.iappend(SortedMarsScreenLandingSpots, rivals)
+	table.iappend(SortedMarsScreenLandingSpots, special_projects)
+	table.iappend(SortedMarsScreenLandingSpots, anomalies)
 end
 
-local function SortMarsPointsOfInterest()
+function SortMarsPointsOfInterest()
 	DelayedCall(0, _SortMarsPointsOfInterest)
 end
 
 function OpenPlanetaryView(context)
 	return OpenDialog("PlanetaryView", GetInGameInterface(), context)
+end
+
+function ClosePlanetaryView(context)
+	return CloseDialog("PlanetaryView")
 end
 
 function GetSortedMarsPointsOfInterest()
@@ -60,8 +69,10 @@ DefineClass.MarsScreenPointOfInterest = {
 	spot_type = false,
 	longitude = false,
 	latitude = false,
+	is_orbital = false,
 	display_name = false,
 	description = false,
+	add_hr_info_onplace = false,
 }
 
 function MarsScreenPointOfInterest:Init()
@@ -75,9 +86,10 @@ end
 DefineClass.MarsScreenOurColony = {
 	__parents = {"MarsScreenPointOfInterest"},
 	spot_type = "our_colony",
+	add_hr_info_onplace = true,
 }
 
-local function GetLongDist(long1, long2)
+function GetLongDist(long1, long2)
 	return abs(((abs(long1 - long2) + 180) % 360) - 180)
 end
 
@@ -88,19 +100,19 @@ local function IsTooCloseToLandingSpot(lat, long, spot)
 	return long_dist <= snap_range and lat_dist <= snap_range
 end
 
-local function IsTooCloseToSpots(lat, long, spots)
+function IsTooCloseToSpots(lat, long, spots)
 	for _, spot in ipairs(spots or empty_table) do
 		if IsTooCloseToLandingSpot(lat, long, spot) then
 			return true
 		end
 	end
 end
-
+-- point_type  = {rival, anomaly, project}
 function GenerateMarsScreenPoI(point_type)
 	local lat, long
-	local min_lat, max_lat = -45 * 60, 45 * 60
-	local max_long_dist = 180
-	local same_side_max_dist = 65
+	local min_lat, max_lat   = const.POIMinLat, const.POIMaxLat
+	local max_long_dist      = const.POIMaxLongDist
+	local same_side_max_dist = const.POISameSideMaxDist
 	
 	local our_colony = table.find_value(MarsScreenLandingSpots, "id", "OurColony")
 	if point_type == "anomaly" then
@@ -118,10 +130,12 @@ function GenerateMarsScreenPoI(point_type)
 		if total <= 0 or (3 * front_count) < (2 * total) then
 			max_long_dist = same_side_max_dist
 		end
-	else
+	elseif point_type == "rival" then
 		--constrain them to be on the same side of the planet as our colony
-		max_long_dist = same_side_max_dist
+		max_long_dist = same_side_max_dist	
+		min_lat, max_lat = -45 * 60, 45 * 60
 	end
+	
 	local count = 0
 	while true do
 		lat, long = GenerateRandomLandingLocation()
@@ -153,12 +167,17 @@ function InitMarsScreenData()
 	end
 end
 
+
 function OnMsg.CityStart()
 	InitMarsScreenData()
 end
 
 function PlanetaryExpeditionPossible(use_inorbit)
-	for _, rocket in ipairs(UICity.labels.AllRockets) do
+	return UICity:HasLandedRocket(use_inorbit)
+end
+
+function City:HasLandedRocket(use_inorbit)
+	for _, rocket in ipairs(self.labels.AllRockets) do
 		if rocket.command == "Refuel" or rocket.command == "WaitLaunchOrder" or (use_inorbit and rocket.command == "WaitInOrbit") then
 			return true
 		end
@@ -169,10 +188,31 @@ end
 function PromptNoAvailableRockets()
 	CreateRealTimeThread(function()
 		if WaitMarsQuestion(nil, T(6882, "Warning"), T(11238, "There aren't any available Rockets to send on a Trade or Scientific Expedition. You will need a Rocket landed on Mars to perform this action."), T(11239, "Go to Resupply View to request a Rocket from Earth (you will still have to setup the Expedition later)"), T(3687, "Cancel")) == "ok" then
-			CloseDialog("PlanetaryView")
+			ClosePlanetaryView()
 			OpenDialog("Resupply")
 		end
 	end)
+end
+
+function PromptRocketWillBeDestoyed(...)
+	local args = {...}
+	CreateRealTimeThread(function()
+		if WaitMarsQuestion(nil, T(6882, "Warning"), T(12168, "The Rocket assigned to this special project will be lost. Are you sure that you want to do this?"), T(1000416, "OK"), T(3687, "Cancel")) == "ok" then
+			SendRocketToMarsPoint(table.unpack(args))
+		end
+	end)
+end
+
+function SendExpeditionAction(obj, spot, dialog, param, additional_params)
+	local spot_type = spot and spot.spot_type
+	if spot and spot_type=="project"  then
+		local project = Presets.POI.Default[spot.project_id] 
+		if project.consume_rocket then
+			PromptRocketWillBeDestoyed(obj, spot, dialog, param, additional_params)
+			return
+		end
+	end
+	SendRocketToMarsPoint(obj, spot, dialog, param, additional_params )
 end
 
 function GetRocketExpeditionStatus(rocket)
@@ -180,6 +220,10 @@ function GetRocketExpeditionStatus(rocket)
 		return T(11228, "Flying to a Planetary Anomaly")
 	elseif rocket.status == "mission return" then
 		return T(11229, "Returning from a Planetary Anomaly")
+	elseif rocket.status == "project" then
+		return T(12043, "Flying to a special project")
+	elseif rocket.status == "project return" then
+		return T(12049, "Returning from special project")
 	elseif rocket.status == "task" then
 		return T(11589, "Flying to a Rival Colony")
 	elseif rocket.status == "task return" then
@@ -207,8 +251,9 @@ function GetRocketExpeditionStatus(rocket)
 end
 
 function SendRocketToMarsPoint(obj, spot, dialog)
-	if spot.spot_type == "anomaly" then
-		local rocket = PlaceBuilding("RocketExpedition", {city = UICity})
+	local is_project = spot.spot_type == "project"
+	if spot.spot_type == "anomaly" or is_project then
+		local rocket = PlaceBuilding("RocketExpedition", {city = UICity, ExpeditionTime = is_project and spot.expedition_time or nil})
 		rocket:SetCommand("BeginExpedition", obj, spot)
 		spot.rocket = rocket
 		dialog:Close()
@@ -219,9 +264,7 @@ function SendRocketToMarsPoint(obj, spot, dialog)
 	end
 end
 
-function ClearExpeditionRocketSpot(rocket, spot)
-	rocket:ExpeditionCancel()
-	ObjModified(rocket)
+function ClearDestroyedExpeditionRocketSpot(rocket)
 	if rocket.expedition and rocket.expedition.anomaly then
 		rocket.expedition.anomaly.rocket = nil
 	end
@@ -234,10 +277,16 @@ function ClearExpeditionRocketSpot(rocket, spot)
 			rocket.city:ChangeFunding(funding, "special project")
 		end
 	end
+end
+
+function ClearExpeditionRocketSpot(rocket, spot)
+	rocket:ExpeditionCancel()
+	ObjModified(rocket)
+	ClearDestroyedExpeditionRocketSpot(rocket)
 	if spot and spot.rocket then
 		spot.rocket = nil
 	end
-end	
+end			
 
 function CancelExpedition(rocket, dialog, spot)
 	CreateRealTimeThread(function()

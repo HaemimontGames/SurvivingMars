@@ -20,8 +20,8 @@ ElectricGridElevatedPlugEntities = {
 local AllPossiblePlugs = {
 }
 
-table.append(AllPossiblePlugs, ElectricGridHubPlugEntities)
-table.append(AllPossiblePlugs, ElectricGridElevatedPlugEntities)
+table.iappend(AllPossiblePlugs, ElectricGridHubPlugEntities)
+table.iappend(AllPossiblePlugs, ElectricGridElevatedPlugEntities)
 
 local custom_cable_connections = {
 	StirlingGenerator = "CableStirlingGenerator",
@@ -174,7 +174,7 @@ function ElectricityGrid:GetUISectionPowerGridRollover()
 	{
 		T(572, "Power grid parameters. Power reserve indicates the duration that the stored energy will last with the current consumption.<newline>"),
 		T{319, "Max production<right><power(production)>", self},
-		T{573, "Power consumption<right><power(current_consumption)>", self},
+		T{573, "Power consumption<right><power(current_consumption)>", current_consumption = self.current_consumption},
 	}
 	if self.production > self.consumption then
 		items[#items+1]= T{574, "Unused Power<right><power(number)>", number = self.production - self.consumption, self}
@@ -248,7 +248,7 @@ const.GroundOffsetForLosTest = 15*guim --about the height of a pipe
 
 DefineClass.ElectricityGridElement = { -- cables
 	__parents = {"ElectricityGridObject", "Shapeshifter", "Constructable", "DustGridElement", "SupplyGridSwitch", "BreakableSupplyGridElement"},
-	game_flags = { gofPermanent = true },
+	flags = { gofPermanent = true },
 	properties = {
 		{name = "Connections", id = "conn", editor = "number"},
 	},
@@ -522,7 +522,7 @@ function CableBuildableTest(pos, q, r, hv, max_z_delta) --tests flatness and pas
 	return biggest_z_d <= max_z_delta, original_z
 end
 
-function PlaceCableLine(city, start_q, start_r, dir, steps, test, elements_require_construction, input_constr_grp, input_data)
+function PlaceCableLine(city, start_q, start_r, dir, steps, test, elements_require_construction, input_constr_grp, input_data, supplied)
 	local dq, dr = HexNeighbours[dir + 1]:xy()
 	local z = const.InvalidZ
 	local connect_dir = dir < 3 and dir or dir - 3
@@ -538,6 +538,7 @@ function PlaceCableLine(city, start_q, start_r, dir, steps, test, elements_requi
 			cs_grp_elements_in_this_group = #input_constr_grp - 1
 		else
 			construction_group = CreateConstructionGroup("ElectricityGridElement", point(HexToWorld(start_q, start_r)), 3, not elements_require_construction)
+			construction_group[1].supplied = supplied
 		end
 	end
 	
@@ -592,7 +593,7 @@ function PlaceCableLine(city, start_q, start_r, dir, steps, test, elements_requi
 		local is_buildable, override_z = CableBuildableTest(world_pos, q, r, hex_verts, max_z_delta_for_cable_placement)
 		local surf_deps = is_buildable and HexGetUnits(nil, nil, world_pos, 0, nil, surf_deps_filter, "SurfaceDeposit") or empty_table
 		local rocks = is_buildable and HexGetUnits(nil, nil, world_pos, 0, false, nil, "WasteRockObstructor") or empty_table
-		table.append(all_rocks, rocks)
+		table.iappend(all_rocks, rocks)
 		local stockpiles = is_buildable and HexGetUnits(nil, nil, world_pos, 0, false, stockpile_filter, "ResourceStockpileBase") or empty_table
 		
 		override_z = override_z or is_buildable and GetWalkableZ(world_pos) -- don't flatten the terrain
@@ -608,7 +609,7 @@ function PlaceCableLine(city, start_q, start_r, dir, steps, test, elements_requi
 		end
 		
 		if surf_deps and #surf_deps > 0 then
-			table.append(obstructors, surf_deps)
+			table.iappend(obstructors, surf_deps)
 			data[i].status = SupplyGridElementHexStatus.blocked
 			data[i].can_make_pillar = false
 		end
@@ -860,6 +861,7 @@ function PlaceCableLine(city, start_q, start_r, dir, steps, test, elements_requi
 				--place construction group, chunks are their own groups
 				local chunk_construction_group = CreateConstructionGroup("ElectricityGridElement", point(HexToWorld(q, r)), 3, not elements_require_construction)
 				local chunk_group_leader = chunk_construction_group[1]
+				chunk_group_leader.supplied = supplied
 				chunk_group_leader.construction_cost_multiplier = 500
 				--add pillar 1
 				local p1 = place_cable_cs(i, chunk_construction_group, max_int, nil, connect_dir)
@@ -906,6 +908,7 @@ function PlaceCableLine(city, start_q, start_r, dir, steps, test, elements_requi
 						--new group
 						if elements_require_construction or #data[i].rocks > 0 or #data[i].stockpiles > 0 then
 							construction_group = CreateConstructionGroup("ElectricityGridElement", point(HexToWorld(q, r)), 3, not elements_require_construction)
+							construction_group[1].supplied = supplied
 						end
 					end
 					
@@ -1141,9 +1144,11 @@ function ElectricityConsumer:GatherConstructionStatuses(statuses)
 	local grids = {}
 	local dome = GetDomeAtPoint(self:GetPos())
 	if dome then
-		local grid = dome.electricity.grid
-		grids[grid] = true
-		reserve_power = grid.current_reserve
+		if dome.electricity then
+			local grid = dome.electricity.grid
+			grids[grid] = true
+			reserve_power = grid.current_reserve
+		end
 	else
 		local neighbours = SupplyGridApplyBuilding(SupplyGridConnections["electricity"], 
 				self, self:GetSupplyGridConnectionShapePoints("electricity"), self:GetShapeConnections("electricity"), 
@@ -1195,14 +1200,11 @@ function ElectricityConsumer:OnModifiableValueChanged(prop)
 			self:UpdateConsumption("immediate")
 			self:Notify("UpdateWorking")
 		elseif prop == "disable_electricity_consumption" then
+			assert(not IsKindOf(self, "RangeElConsumer"), "RangeElConsumer and disabling electricity consumption both change the base electricity_consumption value. These two logics should not intersect.")
 			if self.disable_electricity_consumption >= 1 then
 				self:SetBase("electricity_consumption", 0)
 			else
-				local base_val = self:HasMember("template_name") and self.template_name ~= "" 
-										and ClassTemplates.Building[self.template_name][prop]
-										or self:GetClassValue(prop)
-				
-				self:SetBase("electricity_consumption", base_val)
+				self:RestoreBase("electricity_consumption")
 			end
 		end
 	end

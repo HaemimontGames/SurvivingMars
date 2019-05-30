@@ -14,7 +14,7 @@ SectorStatusToDisplay = {
 DefineClass.RevealedMapSector = {
 	__parents = { "Object" },
 	
-	game_flags = { gofPermanent = true },
+	flags = { gofPermanent = true },
 	
 	properties = {
 		{ id = "status", editor = "text", default = "unexplored", no_edit = true },
@@ -509,7 +509,7 @@ local function ProcessDepositMarkers(markers, amounts)
 			local amount = 0
 			
 			if IsKindOf(deposit, "SurfaceDeposit") then
-				amount = deposit.transport_request and deposit.transport_request:GetActualAmount() or deposit.max_amount
+				amount = deposit:GetAmount()
 			elseif IsKindOf(deposit, "SubsurfaceDeposit") and not TerrainDeposits[resource] then
 				amount = deposit.amount
 			elseif IsKindOf(deposit, "TerrainDeposit") then
@@ -937,6 +937,19 @@ function RenameSectors()
 		end
 	end
 end--]]
+
+function City:UpdateBuildableRatio(bbox)
+	local UnbuildableZ = buildUnbuildableZ()
+	for j = 1, const.SectorCount do
+		local row = g_MapSectors[j]
+		for i = 1, const.SectorCount do
+			local sector = row[i]
+			if not bbox or bbox:Intersect2D(sector.area) ~= const.irOutside then
+				sector.play_ratio = BuildableGridRatio(g_BuildableZ, UnbuildableZ, 100, sector.area)
+			end
+		end
+	end
+end
 
 function City:InitExploration()
 	if not mapdata.GameLogic then return end

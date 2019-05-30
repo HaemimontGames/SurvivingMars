@@ -368,6 +368,7 @@ PlaceObj('TextStyle', {
 })
 
 PlaceObj('TextStyle', {
+	DisabledTextColor = -2140904348,
 	RolloverTextColor = -462106,
 	TextColor = -7561806,
 	TextFont = T(600000000005, --[[TextStyle ListItem3 TextFont]] "LibelSuitRg, 28, aa"),
@@ -521,6 +522,27 @@ PlaceObj('TextStyle', {
 })
 
 PlaceObj('TextStyle', {
+	TextColor = -462106,
+	TextFont = T(146410618405, --[[TextStyle OnScreenTextCriticalBlue TextFont]] "SchemeBk, 18, aa"),
+	group = "Game",
+	id = "OnScreenTextCriticalBlue",
+})
+
+PlaceObj('TextStyle', {
+	TextColor = -462106,
+	TextFont = T(292346290176, --[[TextStyle OnScreenTextCriticalTerraforming TextFont]] "SchemeBk, 18, aa"),
+	group = "Game",
+	id = "OnScreenTextCriticalTerraforming",
+})
+
+PlaceObj('TextStyle', {
+	TextColor = -462106,
+	TextFont = T(397255524007, --[[TextStyle OnScreenTextNormalTerraforming TextFont]] "SchemeBk, 18, aa"),
+	group = "Game",
+	id = "OnScreenTextNormalTerraforming",
+})
+
+PlaceObj('TextStyle', {
 	TextColor = -922724,
 	TextFont = T(989, --[[TextStyle OnScreenTitle TextFont]] "LibelSuitRg, 24, aa"),
 	group = "Game",
@@ -536,9 +558,30 @@ PlaceObj('TextStyle', {
 
 PlaceObj('TextStyle', {
 	TextColor = -922724,
+	TextFont = T(698314558755, --[[TextStyle OnScreenTitleCriticalBlue TextFont]] "LibelSuitRg, 24, aa"),
+	group = "Game",
+	id = "OnScreenTitleCriticalBlue",
+})
+
+PlaceObj('TextStyle', {
+	TextColor = -922724,
+	TextFont = T(425904346096, --[[TextStyle OnScreenTitleCriticalTerraforming TextFont]] "LibelSuitRg, 24, aa"),
+	group = "Game",
+	id = "OnScreenTitleCriticalTerraforming",
+})
+
+PlaceObj('TextStyle', {
+	TextColor = -922724,
 	TextFont = T(989, --[[TextStyle OnScreenTitleImportant TextFont]] "LibelSuitRg, 24, aa"),
 	group = "Game",
 	id = "OnScreenTitleImportant",
+})
+
+PlaceObj('TextStyle', {
+	TextColor = -922724,
+	TextFont = T(383525481632, --[[TextStyle OnScreenTitleNormalTerraforming TextFont]] "LibelSuitRg, 24, aa"),
+	group = "Game",
+	id = "OnScreenTitleNormalTerraforming",
 })
 
 PlaceObj('TextStyle', {
@@ -731,10 +774,32 @@ PlaceObj('TextStyle', {
 
 PlaceObj('TextStyle', {
 	RolloverTextColor = -1,
-	TextColor = -8927489,
-	TextFont = T(1007, --[[TextStyle ResearchFieldTitle TextFont]] "LibelSuitRg, 39, aa"),
+	TextColor = -9323809,
+	TextFont = T(12572, --[[TextStyle ResearchFieldTitle TextFont]] "LibelSuitRg, 34, aa"),
 	group = "Game",
 	id = "ResearchFieldTitle",
+})
+
+PlaceObj('TextStyle', {
+	RolloverTextColor = -9323809,
+	TextColor = -9323809,
+	TextFont = T(445191394361, --[[TextStyle ResearchPartialProgress TextFont]] "LibelSuitRg, 50, aa"),
+	group = "Game",
+	id = "ResearchPartialProgress",
+})
+
+PlaceObj('TextStyle', {
+	TextColor = -9323809,
+	TextFont = T(598677551658, --[[TextStyle ResearchPerSol TextFont]] "LibelSuitRg, 24, aa"),
+	group = "Game",
+	id = "ResearchPerSol",
+})
+
+PlaceObj('TextStyle', {
+	TextColor = -462106,
+	TextFont = T(662074667772, --[[TextStyle ResearchPerSolValue TextFont]] "LibelSuitRg, 24, aa"),
+	group = "Game",
+	id = "ResearchPerSolValue",
 })
 
 PlaceObj('TextStyle', {
@@ -743,6 +808,14 @@ PlaceObj('TextStyle', {
 	TextFont = T(951075946587, --[[TextStyle ResearchQueue TextFont]] "LibelSuitRg, 22, aa"),
 	group = "Game",
 	id = "ResearchQueue",
+})
+
+PlaceObj('TextStyle', {
+	RolloverTextColor = -462106,
+	TextColor = -922724,
+	TextFont = T(315544182541, --[[TextStyle ResearchQueueTitle TextFont]] "LibelSuitRg, 20, aa"),
+	group = "Game",
+	id = "ResearchQueueTitle",
 })
 
 PlaceObj('TextStyle', {
@@ -923,6 +996,20 @@ PlaceObj('TextStyle', {
 	TextFont = T(11025, --[[TextStyle ModsUIDetailsColumnItems TextFont]] "Noto Sans CJK SC Regular, 20,  aa"),
 	group = "ModsUI",
 	id = "ModsUIDetailsColumnItems",
+})
+
+PlaceObj('TextStyle', {
+	TextColor = -3070683,
+	TextFont = T(12421, --[[TextStyle ModsUIDetailsColumnItemsRed TextFont]] "Noto Sans CJK SC Regular, 20,  aa"),
+	group = "ModsUI",
+	id = "ModsUIDetailsColumnItemsRed",
+})
+
+PlaceObj('TextStyle', {
+	TextColor = -1986427,
+	TextFont = T(12422, --[[TextStyle ModsUIDetailsColumnItemsYellow TextFont]] "Noto Sans CJK SC Regular, 20,  aa"),
+	group = "ModsUI",
+	id = "ModsUIDetailsColumnItemsYellow",
 })
 
 PlaceObj('TextStyle', {
@@ -1215,6 +1302,7 @@ PlaceObj('TextStyle', {
 })
 
 PlaceObj('TextStyle', {
+	RolloverTextColor = -1,
 	TextColor = -5395027,
 	TextFont = T(9850, --[[TextStyle ModsUITagsTitle TextFont]] "Source Sans Pro, 16, aa"),
 	group = "ModsUI",

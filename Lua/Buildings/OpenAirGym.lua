@@ -1,6 +1,6 @@
 DefineClass.FitService = {
 	__parents = { "Service" },
-	enum_flags = { efWalkable = true },
+	flags = { efWalkable = true },
 }
 
 function FitService:Service(unit, duration)

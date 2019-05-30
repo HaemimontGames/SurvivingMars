@@ -51,3 +51,48 @@ PlaceObj('NoisePreset', {
 	'name', "Terrain",
 })
 
+PlaceObj('NoisePreset', {
+	'Seed', 622427213,
+	'Size', 256,
+	'Int', true,
+	'Octave_1', 64,
+	'Octave_2', 128,
+	'Octave_4', 512,
+	'Octave_5', 752,
+	'Octave_6', 1024,
+	'Octave_7', 636,
+	'Octave_8', 336,
+	'Octave_9', 141,
+	'name', "Landscape",
+})
+
+PlaceObj('NoisePreset', {
+	'Seed', 487531989,
+	'Size', 256,
+	'Clamp', range(50, 100),
+	'Octave_1', 154,
+	'Octave_2', 56,
+	'Octave_3', 492,
+	'Octave_4', 1024,
+	'Octave_5', 1024,
+	'Octave_6', 456,
+	'Octave_7', 471,
+	'Octave_8', 205,
+	'Octave_9', 0,
+	'name', "VegFocus",
+})
+
+PlaceObj('NoisePreset', {
+	'Octaves', 7,
+	'Sin', 21,
+	'Clamp', range(30, 70),
+	'Octave_1', 1020,
+	'Octave_2', 529,
+	'Octave_3', 1015,
+	'Octave_4', 635,
+	'Octave_5', 0,
+	'Octave_6', 540,
+	'Octave_7', 0,
+	'name', "Rain",
+})
+

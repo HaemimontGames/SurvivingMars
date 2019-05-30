@@ -279,15 +279,28 @@ function GetCommandCenterColonists(context)
 	end
 	local age_groups = table.invert(const.ColonistAges)
 	local specializations = table.invert(table.keys(const.ColonistSpecialization))
-	table.stable_sort(colonists, function(a,b)
-		if a.age_trait ~= b.age_trait then
-			return age_groups[a.age_trait] < age_groups[b.age_trait]
-		elseif a.specialist ~= b.specialist then
-			return specializations[a.specialist] < specializations[b.specialist]
-		else
-			return a.age < b.age
-		end
-	end)
+	local stat_sort = context.sort_type
+	if not stat_sort then
+		table.stable_sort(colonists, function(a,b)
+			if a.age_trait ~= b.age_trait then
+				return age_groups[a.age_trait] < age_groups[b.age_trait]
+			elseif a.specialist ~= b.specialist then
+				return specializations[a.specialist] < specializations[b.specialist]
+			else
+				return a.age < b.age
+			end
+		end)
+	else
+		table.stable_sort(colonists, function(a,b)
+			local a_stat = stat_sort == "stat_morale" and a.traits["Renegade"] and 0 or a[stat_sort]
+			local b_stat = stat_sort == "stat_morale" and b.traits["Renegade"] and 0 or b[stat_sort]
+			if context.sort_ascending then
+				return a_stat < b_stat
+			else
+				return a_stat > b_stat
+			end
+		end)
+	end
 	return colonists
 end
 
@@ -423,14 +436,14 @@ function GetCommandCenterLifeSupportGrids(context)
 			local only_autonomous = true
 			for j,consumer in ipairs(entry.water.consumers) do
 				--autonomous consumers have this flag set to 1
-				if consumer.building.disable_electricity_consumption == 0 then
+				if IsKindOf(consumer.building, "ElectricityConsumer") and consumer.building.disable_electricity_consumption == 0 then
 					only_autonomous = false
 					break
 				end
 			end
 			for j,consumer in ipairs(entry.air.consumers) do
 				--autonomous consumers have this flag set to 1
-				if consumer.building.disable_electricity_consumption == 0 then
+				if IsKindOf(consumer.building, "ElectricityConsumer") and consumer.building.disable_electricity_consumption == 0 then
 					only_autonomous = false
 					break
 				end
@@ -447,7 +460,8 @@ end
 
 local function IsBuildingOther(building)
 	return building.build_category ~= "Decorations" and
-		not IsKindOfClasses(building, "ElectricityProducer", "ResourceProducer", "WaterProducer", "AirProducer", "Service", "Residence", "Workshop", "DroneFactory")
+		GetTopLevelBuildMenuCategory(building.build_category) ~= "Terraforming" and
+		not IsKindOfClasses(building, "ResourceStockpileBase", "WaterStorage", "AirStorage", "ElectricityStorage", "ElectricityProducer", "ResourceProducer", "WaterProducer", "AirProducer", "Service", "Residence", "Workshop", "DroneFactory")
 end
 
 function GetCommandCenterBuildings(context)
@@ -456,13 +470,13 @@ function GetCommandCenterBuildings(context)
 	if dome then
 		--get nearby buildings
 		local query_hexrad = dome:GetOutsideWorkplacesDist() + 7
-		local query_filter = function(obj, self)
-				if not obj:IsKindOf("Building") then return false end
-				local dome = IsObjInDome(obj)
-				return (not dome or dome == self) and self:IsBuildingInDomeRange(obj) and obj.dome_label and true or false
+		local query_filter = function(bld, self)
+				if not bld:IsKindOf("Building") then return false end
+				local dome = IsObjInDome(bld)
+				return (not dome or dome == self) and IsBuildingInDomeRange(bld, self) and bld.dome_label and true or false
 		end
 		local objs = MapGet(dome, "hex", query_hexrad, "DomeOutskirtBld", query_filter, dome)
-		buildings = table.icopy(dome.labels.Buildings)
+		buildings = table.icopy(dome.labels.Building)
 		for _, obj in ipairs(objs) do
 			table.insert_unique(buildings, obj)
 		end
@@ -470,43 +484,48 @@ function GetCommandCenterBuildings(context)
 		buildings = table.icopy(UICity.labels.Building) or empty_table
 	end
 	local any_filter = context.decorations or
+		context.storages or
 		context.power_producers ~= false or
 		context.production_buildings ~= false or
 		context.services ~= false or
 		context.residential or
+		context.terraforming or
 		context.other
 		
 	for i = #buildings, 1, -1 do
 		local building = buildings[i]
-		if (not building.count_as_building and not IsKindOfClasses(building, "UniversalStorageDepot", "WasteRockDumpSite")) or
+		if (not building.count_as_building and (not IsKindOfClasses(building, "UniversalStorageDepot", "WasteRockDumpSite") and (not IsDlcAvailable("armstrong") or not IsKindOf(building, "LandscapeLake")))) or
 			IsKindOfClasses(building, "PassageRamp", "PassageGridElement", "Passage", "ConstructionSite") or
 			context.inside_buildings == false and context.outside_buildings ~= false and building.parent_dome or
 			context.outside_buildings == false and context.inside_buildings ~= false and not building.parent_dome or
 			any_filter and not context.decorations and building.build_category == "Decorations" or
+			any_filter and not context.storages and IsKindOfClasses(building, "ResourceStockpileBase", "WaterStorage", "AirStorage", "ElectricityStorage") or
 			any_filter and context.power_producers == false and IsKindOf(building, "ElectricityProducer") or
 			any_filter and context.production_buildings == false and IsKindOfClasses(building, "ResourceProducer", "WaterProducer", "AirProducer", "DroneFactory") or
 			any_filter and context.services == false and (IsKindOf(building, "Service") or IsKindOf(building, "Workshop")) and (building.build_category ~= "Decorations" or not context.decorations) or
 			any_filter and not context.residential and IsKindOf(building, "Residence") or
+			any_filter and not context.terraforming and IsDlcAvailable("armstrong") and GetTopLevelBuildMenuCategory(building.build_category) == "Terraforming" or
 			any_filter and not context.other and IsBuildingOther(building) or
-			building.destroyed or building.bulldozed then
-				table.remove(buildings, i)
+			building.destroyed or building.bulldozed
+		then
+			table.remove(buildings, i)
 		end
 	end
 	local build_categories = table.invert(table.map(BuildCategories, "id"))
+	local subcategories = BuildMenuSubcategories
 	table.stable_sort(buildings, function(a, b)
 		if a.build_category ~= b.build_category then
-			local cat_a = (a.build_category == "Depots" or a.build_category == "MechanizedDepots") and build_categories["Storages"] or build_categories[a.build_category]
-			local cat_b = (b.build_category == "Depots" or b.build_category == "MechanizedDepots") and build_categories["Storages"] or build_categories[b.build_category]
+			local cat_a = build_categories[GetTopLevelBuildMenuCategory(a.build_category)]
+			local cat_b = build_categories[GetTopLevelBuildMenuCategory(b.build_category)]
 			if cat_a == cat_b then
-				--depot, mechanized depot or storage
-				if a.build_category == "Storages" then
+				local parent_cat = BuildCategories[cat_a].id
+				if a.build_category == parent_cat then
 					return true
-				elseif b.build_category == "Storages" then
+				elseif b.build_category == parent_cat then
 					return false
-				elseif a.build_category == "Depots" then
-					return true
-				elseif b.build_category == "Depots" then
-					return false
+				else
+					--both a and b are in subcategories
+					return subcategories[a.build_category].build_pos < subcategories[b.build_category].build_pos
 				end
 			end
 			return cat_a < cat_b
@@ -598,6 +617,11 @@ function Building:GetOverviewInfo()
 		rows[#rows + 1] = T(529, "Today<right><colonist(visitors_per_day)>")
 		rows[#rows + 1] = T(530, "Lifetime<right><colonist(visitors_lifetime)>")
 		rows[#rows + 1] = T(531, "Service Comfort<right><Stat(EffectiveServiceComfort)>")
+	end
+	if self:IsKindOf("Residence") then
+		rows[#rows + 1] = Untranslated("<center><em>") .. T(10405, "Other") .. TLookupTag("</em>")
+		rows[#rows + 1] = T(702480492408, "Residents<right><UIResidentsCount> / <colonist(UICapacity)>")
+		rows[#rows + 1] = T(424588493338, "Comfort of residents<right><em><Stat(service_comfort)></em>")
 	end
 	if self:IsKindOf("ElectricityStorage") then
 		rows[#rows + 1] = T(9652, "<center><em>Power Storage</em>")
@@ -692,6 +716,10 @@ function Building:GetOverviewInfo()
 			if self:DoesAcceptResource("MysteryResource") then
 				rows[#rows + 1] = T(8671, "<resource('MysteryResource' )><right><mysteryresource(Stored_MysteryResource, MaxAmount_MysteryResource)>")
 			end
+		end
+		if UICity:IsTechResearched("MartianVegetation") and self:DoesAcceptResource("Seeds") then
+			rows[#rows + 1] = Untranslated("<center><em>") .. T(12476, "Terraforming") .. TLookupTag("</em>")
+			rows[#rows + 1] = T(11843, "Seeds") .. Untranslated("<right><seeds(Stored_Seeds, MaxAmount_Seeds)>")
 		end
 	end
 	local warning = self:GetUIWarning()
@@ -807,6 +835,14 @@ function Building:GetUIEffectsRow()
 				else
 					return T(9739, "<mysteryresource(Stored_MysteryResource, MaxAmount_MysteryResource)>")
 				end
+			end
+		end
+		if UICity:IsTechResearched("MartianVegetation") and self:DoesAcceptResource("Seeds") then
+			if sum then
+				stored = stored + self:GetStored_Seeds()
+				max = max + self:GetMaxAmount_Seeds()
+			else
+				return Untranslated("<seeds(Stored_Seeds, MaxAmount_Seeds)>")
 			end
 		end
 		return T{9740, "<stored>/<max>", stored = FormatResourceValueMaxResource(empty_table,stored), max = FormatResourceValueMaxResource(empty_table, max), empty_table}
@@ -1027,21 +1063,30 @@ function GetBuildingsFilterRollover(context, description)
 			inside_buildings = inside_buildings or "", outside_buildings = outside_buildings or ""}
 	end
 	local decorations = context.decorations and T(435618535856, "Decorations")
+	local storages = context.storages and T(82, "Storages")
 	local power_producers = context.power_producers ~= false and T(416682488997, "Power Producers")
 	local production_buildings = context.production_buildings ~= false and T(932771917833, "Production Buildings")
 	local services = context.services ~= false and T(133797343482, "Services")
 	local residential = context.residential and T(316855249043, "Residential Buildings")
+	local terraforming = context.terraforming and T(12095, "Terraforming Buildings")
 	local other = context.other and T(814424953825, "Other Buildings")
-	decorations = add_separator(decorations, power_producers, production_buildings, services, residential, other)
-	power_producers = add_separator(power_producers, production_buildings, services, residential, other)
-	production_buildings = add_separator(production_buildings, services, residential, other)
-	services = add_separator(services, residential, other)
-	residential = add_separator(residential, other)
-	if decorations or power_producers or production_buildings or services or residential or other then
-		rows[#rows + 1] = T{9669, "<decorations><power_producers><production_buildings><services><residential><other>", 
-			decorations = decorations or "", power_producers = power_producers or "",
-			production_buildings = production_buildings or "", services = services or "",
-			residential = residential or "", other = other or "",}
+	decorations =          add_separator(decorations, storages, power_producers, production_buildings, services, residential, terraforming, other)
+	storages =             add_separator(             storages, power_producers, production_buildings, services, residential, terraforming, other)
+	power_producers =      add_separator(                       power_producers, production_buildings, services, residential, terraforming, other)
+	production_buildings = add_separator(                                        production_buildings, services, residential, terraforming, other)
+	services =             add_separator(                                                              services, residential, terraforming, other)
+	residential =          add_separator(                                                                        residential, terraforming, other)
+	terraforming =         add_separator(                                                                                     terraforming, other)
+	if decorations or storages or power_producers or production_buildings or services or residential or terraforming or other then
+		rows[#rows + 1] = T{12187, "<decorations><storages><power_producers><production_buildings><services><residential><terraforming><other>", 
+			decorations = decorations or "",
+			storages = storages or "",
+			power_producers = power_producers or "",
+			production_buildings = production_buildings or "",
+			services = services or "",
+			residential = residential or "",
+			terraforming = terraforming or "",
+			other = other or "",}
 	end
 	
 	local res = T(9667, "<center><em>Active Filters</em>") .. "<newline><left>- " .. dome_name
@@ -1059,7 +1104,7 @@ end
 function Dome:GetOverviewInfo()
 	local rows = {self.description .. "<newline>"}
 	rows[#rows + 1] = self:GetUISectionCitizensRollover()
-	local connected_domes = self.connected_domes
+	local connected_domes = self:GetConnectedDomes()
 	if next(connected_domes) then
 		rows[#rows + 1] = T(9670, "<center><em>Connected Domes</em>")
 		for dome, val in pairs(connected_domes) do
@@ -1147,6 +1192,22 @@ function ToggleCommandCenterFilter(button, name, valid_nil)
 	XUpdateRolloverWindow(button)
 end
 
+function SetColonistsSorting(button, sort_type)
+	local dlg = GetDialog(button)
+	local context = dlg.context
+	if sort_type ~= context.sort_type then
+		context.sort_type = sort_type
+		context.sort_ascending = false
+	else
+		context.sort_ascending = not context.sort_ascending
+	end
+	local list = button:ResolveId("idList")
+	list:OnContextUpdate()
+	list:ScrollTo(0,0) -- reset page scroll when changing filters
+	button:ResolveId("idButtons"):OnContextUpdate(context)
+	XUpdateRolloverWindow(button)
+end
+
 function GetCommandCenterTransportsList(context)
 	local labels = UICity.labels
 	local list = {}
@@ -1175,7 +1236,7 @@ function GetCommandCenterTransportsList(context)
 			end
 		end
 		table.stable_sort(h, sort_func)
-		table.append(list, h)
+		table.iappend(list, h)
 	end
 	if #(assemblers or "") > 0 then
 		local a = {}
@@ -1185,7 +1246,7 @@ function GetCommandCenterTransportsList(context)
 			end
 		end
 		table.stable_sort(a, sort_func)
-		table.append(list, a)
+		table.iappend(list, a)
 	end
 	if #(shuttle_hubs or "") > 0 then
 		local s = {}
@@ -1195,7 +1256,7 @@ function GetCommandCenterTransportsList(context)
 			end
 		end
 		table.stable_sort(s, sort_func)
-		table.append(list, s)
+		table.iappend(list, s)
 	end
 	if #(rockets or "") > 0 then
 		local r = {}
@@ -1205,7 +1266,7 @@ function GetCommandCenterTransportsList(context)
 			end
 		end
 		table.stable_sort(r, sort_func)
-		table.append(list, r)
+		table.iappend(list, r)
 	end
 	
 	if #(rc_rovers or empty_table) > 0 then
@@ -1216,7 +1277,7 @@ function GetCommandCenterTransportsList(context)
 			end
 		end
 		table.stable_sort(r, sort_func)
-		table.append(list, r)
+		table.iappend(list, r)
 	end
 	
 	return list
@@ -1264,6 +1325,9 @@ function GetCommandCenterTransportInfo(self)
 		end
 		if self:HasMember("GetStored_Fuel") then
 			rows[#rows + 1] = T(317815331128, "Fuel<right><fuel(Stored_Fuel)>")
+		end
+		if UICity:IsTechResearched("MartianVegetation") and self:HasMember("GetStored_Seeds") then
+			rows[#rows + 1] = T(12002, "Seeds<right><seeds(Stored_Seeds)>")
 		end
 	end
 	if IsKindOf(self, "DroneFactory") then
@@ -1321,11 +1385,15 @@ function CloseCommandCenter()
 end
 
 function OnMsg.MessageBoxPreOpen()
-	CloseCommandCenter()
+	return CloseCommandCenter()
 end
 
-function OnMsg.SelectedObjChange()
-	CloseCommandCenter()
+function OnMsg.SelectionAdded(obj)
+	return CloseCommandCenter()
+end
+
+function OnMsg.SelectionRemoved(obj)
+	return CloseCommandCenter()
 end
 
 function UpdateUICommandCenterWarning(win)
@@ -1366,7 +1434,7 @@ function UpdateUICommandCenterRow(self, context, row_type)
 		self.idTraits:SetVisible(not interests)
 		self.idInterests:SetVisible(interests)
 	elseif row_type == "dome" then
-		self.idLinked:SetText(tostring(#table.keys(context.connected_domes)))
+		self.idLinked:SetText(tostring(#table.keys(context:GetConnectedDomes())))
 		local jobs, homes = context:UICommandCenterGetJobsHomes()
 		self.idJobs:SetText(tostring(jobs))
 		self.idHomes:SetText(tostring(homes))

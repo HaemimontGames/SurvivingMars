@@ -80,8 +80,8 @@ function XCreditsWindow:MoveThread()
 				id = "pos",
 				type = const.intRect,
 				duration = 2*self.time_step,
-				startRect = text_ctrl.box,
-				endRect = Offset(text_ctrl.box, point(0, -per_second *2*self.time_step / 1000)),
+				originalRect = text_ctrl.box,
+				targetRect = Offset(text_ctrl.box, point(0, -per_second *2*self.time_step / 1000)),
 			}
 			Sleep(self.time_step)
 		end

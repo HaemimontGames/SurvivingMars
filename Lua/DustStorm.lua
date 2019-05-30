@@ -4,7 +4,7 @@ DefineClass.MapSettings_DustStorm =
 	properties =
 	{
 		{ id = "name",				name = "Name",                		editor = "text",    default = "dust" },
-		{ id = "seasonal",			name = "Seasonal",           			editor = "bool",    default = false, object_update = true },
+		{ id = "seasonal",			name = "Seasonal",           			editor = "bool",    default = false, },
 		{ id = "seasonal_sols",		name = "Seasonal Sols",					editor = "number",	default = 10, no_edit = function(self) return not self.seasonal end },
 		{ id = "target_dust",		name = "Dust on Targets(per sec)",	editor = "number",	default = 50 },
 		{ id = "solar_penalty",		name = "Solar Penalty(percents)",		editor = "number",	default = 60, min = 0, max = 100 },
@@ -45,7 +45,8 @@ local function GetDustStormDescr()
 	local data = DataInstances.MapSettings_DustStorm
 	local dust_storm = data[mapdata.MapSettings_DustStorm] or data["DustStorm_VeryLow"]
 	
-	return dust_storm and not dust_storm.forbidden and dust_storm
+	local orig_data = dust_storm and not dust_storm.forbidden and dust_storm
+	return OverrideDisasterDescriptor(orig_data)
 end
 
 local function apply_dust(label, dust, batch, batches)
@@ -124,6 +125,7 @@ function ExtendDustStorm(time)
 end
 
 function StartDustStorm(storm_type, dust_storm)
+	assert(not g_DustStorm, "Dust storm is already present!")
 	g_DustStormDuration = UICity:Random(dust_storm.min_duration, dust_storm.max_duration)
 	g_DustStorm = { type = storm_type, descr = dust_storm, start_time = GameTime(), duration = g_DustStormDuration }
 	Msg("DustStorm")
@@ -260,8 +262,16 @@ function SavegameFixups.BrokenDustStormAfterLongWinter()
 	if IsValidThread(DustStorm) then return end
 	
 	MapForEach("map", "RequiresMaintenance", function(o)
+		o:DisconnectFromCommandCenters()
+		local tr = o.task_requests
+		for i = #(tr or ""), 1, -1 do
+			if tr[i] == false then
+				table.remove(tr, i)
+			end
+		end
 		o:CreateResourceRequest()
 		o:AccumulateMaintenancePoints()
+		o:ConnectToCommandCenters()
 	end)
 	
 	if g_DustStorm then			
@@ -323,10 +333,10 @@ GlobalGameTimeThread("DustStorm", function()
 		-- wait and show the notification
 		local start_time = GameTime()
 		local last_check_time = GameTime()
-		while IsDisasterPredicted() or IsDisasterActive() or (GameTime() - start_time < wait_time) do
+		while DustStormsDisabled or IsDisasterPredicted() or IsDisasterActive() or (GameTime() - start_time < wait_time) do
 			local dt = GameTime() - last_check_time
 			last_check_time = GameTime()
-			if IsDisasterPredicted() or IsDisasterActive() then
+			if DustStormsDisabled or IsDisasterPredicted() or IsDisasterActive() then
 				wait_time = wait_time + dt
 			else
 				local warn_time = GetDisasterWarningTime(dust_storm)
@@ -349,7 +359,16 @@ GlobalGameTimeThread("DustStorm", function()
 		wait_time = 0
 		local next_storm = g_DustStormType
 		g_DustStormType = false
-		StartDustStorm(next_storm, dust_storm)
+		if not DustStormsDisabled then
+			StartDustStorm(next_storm, dust_storm)
+		end
+		
+		local new_dust_storm = GetDustStormDescr()
+		while not new_dust_storm do
+			Sleep(const.DayDuration)
+			new_dust_storm = GetDustStormDescr()
+		end
+		dust_storm = new_dust_storm
 	end
 end)
 
@@ -369,4 +388,9 @@ end
 
 function StopDustStorm()
 	g_DustStormStopped = true
+end
+
+function OnMsg.CheatStopDisaster()
+	if not g_DustStorm then return end
+	StopDustStorm()
 end

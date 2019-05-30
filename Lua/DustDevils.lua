@@ -60,7 +60,8 @@ function GetDustDevilsDescr()
 	end
 	
 	local data = DataInstances.MapSettings_DustDevils
-	return data[mapdata.MapSettings_DustDevils] or data["DustDevils_VeryLow"]
+	local orig_data = data[mapdata.MapSettings_DustDevils] or data["DustDevils_VeryLow"]
+	return OverrideDisasterDescriptor(orig_data)
 end
 
 function GenerateDustDevilTrajectory(pos, duration, speed, range)
@@ -175,29 +176,35 @@ GlobalGameTimeThread("DustDevils", function()
 		end)
 	
 	while true do
+		while g_DustStorm or DustStormsDisabled do
+			Sleep(5000)
+		end
 		local spawn_time = UICity:Random(descr.spawntime, descr.spawntime + descr.spawntime_random)
 		local warning_time = descr.warning_time
 		Sleep(Max(spawn_time - warning_time, 1000))
-		if not g_DustStorm then
-			local min_dist = descr.major_devil_radius * 2
-			local devils = {}
-			local count = UICity:Random(descr.count_min, descr.count_max) * descr.spawn_chance / 100
-			for i = 1, count do
-				local pos = GetRandomPassableAwayFromLargeBuilding(min_dist)
-				if not pos then
-					break
-				end
-				table.insert(devils, GenerateDustDevil(pos, descr))
-			end
+		
+		local count = UICity:Random(descr.count_min, descr.count_max) * descr.spawn_chance / 100
+		for i = 1,count do
 			local hit_time = Min(spawn_time, warning_time)
 			Sleep(hit_time)
-			for i = 1, #devils do
-				if IsValid(devils[i]) then		-- e.g. if not destroyed by a Dust Storm
-					devils[i]:Start()
-					Sleep(UICity:Random(descr.spawn_delay_min, descr.spawn_delay_max))
-				end
+			if g_DustStorm or DustStormsDisabled then
+				break
 			end
+			local pos = GetRandomPassableAwayFromBuilding()
+			if not pos then
+				break
+			end
+			local devil = GenerateDustDevil(pos, descr)
+			devil:Start()
+			Sleep(UICity:Random(descr.spawn_delay_min, descr.spawn_delay_max))
 		end
+		
+		local new_descr = GetDustDevilsDescr()
+		while not new_descr do
+			Sleep(const.DayDuration)
+			new_descr = GetDustDevilsDescr()
+		end
+		descr = new_descr
 	end
 end)
 
@@ -321,7 +328,7 @@ function BaseDustDevil:ApplyDust(delta)
 	local dust = MulDivRound(delta, self.dust_amount, 1000)
 	local battery = self.drone_battery and MulDivRound(delta, self.drone_battery, 1000)
 	local dust_radius = self.dust_radius + GetEntityMaxSurfacesRadius()
-	local objs = MapGet(self, dust_radius, "Building", "DroneBase", "Colonist", "DustGridElement" )
+	local objs = MapGet(self, dust_radius, "Building", "DroneBase", "Colonist", "DustGridElement", IsObjInOpenAir )
 	local new_drones = {}
 	
 	local function process_drones(self, new_drones)
@@ -336,14 +343,15 @@ function BaseDustDevil:ApplyDust(delta)
 	end
 	
 	--DbgAddCircle(self:GetVisualPos(), self.malfunction_radius)
-	
+
 	local affected_dges, already_broken_dge = false, false
 	for _,obj in ipairs(objs) do
 		local dist, radius = obj:GetDist2D(self), obj:GetRadius()
 		local malfunction_radius = self.malfunction_radius
 		if dist < radius + self.dust_radius then
+			local dome = IsObjInDome(obj)
 			if obj:IsKindOf("Building") then
-				if dist < radius + malfunction_radius*2 and (obj:IsKindOf("Dome") or obj:IsLarge()) then
+				if dist < radius + malfunction_radius*2 and (obj:IsKindOf("Dome") or obj:IsLarge()) and not obj:IsKindOf("ConstructionSite") then
 					process_drones(self, new_drones)
 					return "kill"
 				end
@@ -382,6 +390,9 @@ function BaseDustDevil:ApplyDust(delta)
 		table.rand(affected_dges):Break()
 	end
 	process_drones(self, new_drones)
+	if GetDomeAtHex(WorldToHex(self)) then
+		return "kill"
+	end
 end
 
 function BaseDustDevil:Unregister()
@@ -450,3 +461,14 @@ function OnMsg.DustStorm()
 	end
 end
 
+function OnMsg.ConstructionComplete(bld)
+	if not (bld:IsKindOf("Dome") or bld:IsLarge()) then return end
+	local radius = bld:GetRadius()
+	for i = #g_DustDevils, 1, -1 do
+		local dust_devil = g_DustDevils[i]
+		local dist = bld:GetDist2D(dust_devil)
+		if dist < radius + Min(dust_devil.dust_radius, 2 * dust_devil.malfunction_radius) then
+			dust_devil:delete()
+		end
+	end
+end

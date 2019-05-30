@@ -19,6 +19,27 @@ PlaceObj('XTemplate', {
 			'__template', "InfopanelText",
 			'Text', T(438, --[[XTemplate sectionPowerProduction Text]] "Elevation boost<right><ElevationBonus>%"),
 		}),
+		PlaceObj('XTemplateTemplate', {
+			'__dlc', "armstrong",
+			'__context_of_kind', "WindTurbine",
+			'__condition', function (parent, context) return not g_NoTerraforming end,
+			'__template', "InfopanelText",
+			'Text', T(433366911234, --[[XTemplate sectionPowerProduction Text]] "Terraforming boost<right><modifier_percent('electricity_production', 'TP Boost Atmosphere')>"),
+		}),
+		PlaceObj('XTemplateTemplate', {
+			'__dlc', "armstrong",
+			'__context_of_kind', "SolarPanel",
+			'__condition', function (parent, context) return not g_NoTerraforming end,
+			'__template', "InfopanelText",
+			'Text', T(12120, --[[XTemplate sectionPowerProduction Text]] "Atmospheric effect<right><percent(TPBoostAtmosphere)>"),
+		}),
+		PlaceObj('XTemplateTemplate', {
+			'__dlc', "armstrong",
+			'__context_of_kind', "SolarPanelBuilding",
+			'__condition', function (parent, context) return g_SpecialProjectCompleted and g_SpecialProjectCompleted["LaunchSpaceMirror"] end,
+			'__template', "InfopanelText",
+			'Text', T(272429157241, --[[XTemplate sectionPowerProduction Text]] "Space Mirror<right><modifier_percent('electricity_production', 'spacemirror')>"),
+		}),
 		}),
 	PlaceObj('XTemplateTemplate', {
 		'__context_of_kind', "SolarPanel",
@@ -37,8 +58,8 @@ PlaceObj('XTemplate', {
 		'__context_of_kind', "SolarPanelBuilding",
 		'__template', "InfopanelSection",
 		'OnContextUpdate', function (self, context, ...)
-self:SetVisible(context:GetEletricityUnderproduction() ~= 0)
-end,
+			self:SetVisible(context:GetEletricityUnderproduction() ~= 0)
+		end,
 		'Title', T(277, --[[XTemplate sectionPowerProduction Title]] "Attention"),
 		'Icon', "UI/Icons/Sections/attention.tga",
 	}, {
@@ -47,8 +68,8 @@ end,
 			'FoldWhenHidden', true,
 			'ContextUpdateOnOpen', true,
 			'OnContextUpdate', function (self, context, ...)
-self:SetVisible(not g_DustStorm and context:GetUIPowerProduction() == 0)
-end,
+				self:SetVisible(not g_DustStorm and context:GetUIPowerProduction() == 0)
+			end,
 			'Text', T(443, --[[XTemplate sectionPowerProduction Text]] "Not producing Power during the night"),
 		}),
 		}),

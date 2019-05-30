@@ -17,26 +17,22 @@ local grid_tile = const.HeatGridTileSize
 local max_heat = const.MaxHeat
 local heat_step_percent = 1
 local heat_step_min = 1
+local Heat_Get = Heat_Get
 
-function GetHeatAt(x, y)
-	if not g_HeatGrid then
-		return max_heat
-	end
-	if IsPoint(x) then
-		x, y = x:xy()
-	elseif IsValid(x) then
-		x, y = x:GetVisualPosXYZ()
-	end
-	x = (x - map_border) / grid_tile
-	y = (y - map_border) / grid_tile
-	return g_HeatGrid:get(x, y)
+function GetHeatAtXY(x, y)
+	return Heat_Get(x, y, g_HeatGrid, map_border, grid_tile)
+end
+
+function GetHeatAt(obj)
+	return Heat_Get(obj, g_HeatGrid, map_border, grid_tile)
 end
 
 function GetAverageHeatIn(area)
-	if not g_HeatGrid then
-		return max_heat
-	end
-	return Heat_Average(g_HeatGrid, area, map_border, grid_tile)
+	return Heat_Average(area, g_HeatGrid, map_border, grid_tile)
+end
+
+function GetAverageHeatShape(shape, obj)
+	return Heat_AverageInShape(shape, obj, g_HeatGrid, map_border, grid_tile)
 end
 
 function OnHeatGridChanged()
@@ -55,6 +51,7 @@ DefineClass.BaseHeater =
 	__parents = { "InitDone" },
 	heat = 0,
 	is_static = false,
+	max_neighbors = 0,
 }
 
 function BaseHeater:GetHeatRange()
@@ -66,10 +63,11 @@ function BaseHeater:Done()
 	self.heat = 0
 end
 
-local function ApplyHeatForm(heater, heat, center_x, center_y, radius, border)
+local function ApplyHeatForm(heater, heat, center_x, center_y, radius, border, progress)
 	radius = radius or 0
 	border = border or 0
-	heater:ApplyForm(s_HeatGridTarget, heat, center_x, center_y, radius - border / 2, border, map_border, grid_tile)
+	progress = progress or -1
+	return heater:ApplyForm(s_HeatGridTarget, heat, center_x, center_y, radius - border / 2, border, map_border, grid_tile, progress)
 end
 
 function BaseHeater:GetHeatCenter()
@@ -77,7 +75,6 @@ function BaseHeater:GetHeatCenter()
 end
 
 function BaseHeater:GetHeatBorder()
-	return 0
 end
 
 function BaseHeater:OnSetWorking(working)
@@ -88,9 +85,9 @@ function BaseHeater:ApplyHeat(apply)
 	if not g_HeatGrid or not s_HeatGridTarget then
 		return
 	end
-	local new_info, heat, center_x, center_y, radius, border
+	local new_info, heat, center_x, center_y, radius, border, progress
+	local info = s_Heaters[self]
 	if apply then
-		local info = s_Heaters[self]
 		if info and self.is_static then
 			return
 		end
@@ -106,40 +103,56 @@ function BaseHeater:ApplyHeat(apply)
 			self:ApplyHeat(false)
 		end
 	else
-		local info = s_Heaters[self]
 		if not info or self.is_static then
 			return
 		end
-		s_Heaters[self] = nil
-		heat, center_x, center_y, radius, border = table.unpack(info)
+		heat, center_x, center_y, radius, border, progress = table.unpack(info)
 	end
 	s_Heaters[self] = new_info
 	if heat ~= 0 then
-		ApplyHeatForm(self, heat, center_x, center_y, radius, border)
+		local new_progress = ApplyHeatForm(self, heat, center_x, center_y, radius, border, progress)
+		if new_info and new_progress then
+			new_info[6] = new_progress
+		end
 		OnHeatGridChanged()
 	end
 end
 
-function BaseHeater:ApplyForm(grid, heat, center_x, center_y, radius, border, map_border, grid_tile)
-	Heat_AddCircle(grid, center_x, center_y, radius, heat, border, map_border, grid_tile)
+function BaseHeater:ApplyForm(grid, heat, center_x, center_y, radius, border, map_border, grid_tile, progress)
+	return Heat_AddCircle(grid, center_x, center_y, radius, heat, border, map_border, grid_tile, progress)
 end
 
+function OnMsg.ClassesPostprocess()
+	local heaters = ClassDescendants("BaseHeater")
+	local min_heat, max_heat = 0, 0
+	for name, def in pairs(heaters) do
+		assert(def.heat ~= 0)
+		if def.heat > 0 then
+			max_heat = max_heat + (1 + def.max_neighbors) * def.heat
+		else
+			min_heat = min_heat - (1 + def.max_neighbors) * def.heat
+		end
+	end
+	assert(max_heat < (2<<15))
+	assert(min_heat < (2<<15))
+end
+
+local function FixHeatValues()
+	for heater, info in pairs(s_Heaters) do
+		assert(heater.heat == GetClassValue(heater, "heat"))
+		info[1] = -heater.heat
+	end
+end
 
 ----
 
-DefineClass.SubsurfaceHeater =
+DefineClass.RangeElConsumer =
 {
-	__parents = { "BaseHeater", "ElectricityConsumer", "LifeSupportConsumer", "UIRangeBuilding", "OutsideBuildingWithShifts" },
-	heat = 4*max_heat, -- compensate cold wave + cold area + 2 spheres
-	properties =
-	{
-		-- prop only for UI purposes
-		{id = "UIRange", name = T(643, "Range"), editor = "number", default = 5, min = 3, max = 15, no_edit = true, dont_save = true},
-	},
-	UIRange = 5,
+	__parents = { "ElectricityConsumer", "UIRangeBuilding" },
 }
 
-function SubsurfaceHeater:UpdatElectricityConsumption()
+function RangeElConsumer:UpdateElectricityConsumption()
+	assert(self.disable_electricity_consumption == 0, "RangeElConsumer and disabling electricity consumption both change the base electricity_consumption value. These two logics should not intersect.")
 	local range = self.UIRange
 	local prop_meta = self:GetPropertyMetadata("UIRange")
 	local min_range = prop_meta.min
@@ -147,9 +160,23 @@ function SubsurfaceHeater:UpdatElectricityConsumption()
 	self:SetBase("electricity_consumption", MulDivRound(range * range, template.electricity_consumption, min_range * min_range))
 end
 
+----
+
+DefineClass.SubsurfaceHeater =
+{
+	__parents = { "BaseHeater", "RangeElConsumer", "LifeSupportConsumer", "OutsideBuildingWithShifts" },
+	heat = 5*max_heat, -- compensate cold wave + cold area + 2 spheres
+	properties =
+	{
+		-- prop only for UI purposes
+		{id = "UIRange", name = T(643, "Range"), editor = "number", default = 5, min = 3, max = 15, no_edit = true, dont_save = true},
+	},
+	UIRange = 5,
+	max_neighbors = 6,
+}
 
 function SubsurfaceHeater:GameInit()
-	self:UpdatElectricityConsumption()
+	self:UpdateElectricityConsumption()
 end
 
 function SubsurfaceHeater:GetHeatRange()
@@ -164,7 +191,7 @@ function SubsurfaceHeater:OnPostChangeRange()
 	if self:CanWork() then
 		self:ApplyHeat(true)
 	end
-	self:UpdatElectricityConsumption()
+	self:UpdateElectricityConsumption()
 end
 
 function WaitLerpFinish()
@@ -192,7 +219,8 @@ local function ApplyHeaters(static)
 	for heater, info in pairs(s_Heaters) do
 		if static and heater.is_static or not static and not heater.is_static then
 			local heat, center_x, center_y, radius, border = table.unpack(info)
-			ApplyHeatForm(heater, -heat, center_x, center_y, radius, border)
+			local progress = ApplyHeatForm(heater, -heat, center_x, center_y, radius, border)
+			info[6] = progress
 		end
 	end
 end
@@ -211,7 +239,9 @@ function CreateHeatGrids()
 	end
 	if not s_HeatGridTarget then
 		s_HeatGridTarget = NewGrid(grid_width, grid_height, 16, const.HeatZeroTarget + max_heat)
+		FixHeatValues()
 		ApplyHeaters(true)
+		Msg("ApplyHeaters", s_HeatGridTarget)
 		ApplyHeaters(false)
 	end
 	InitHeatGrid(g_HeatGrid, map_border)
@@ -223,14 +253,13 @@ function OnMsg.ChangeMap()
 	end
 end
 
-function OnMsg.NewMapLoaded()
-	if not mapdata.GameLogic then return end
+function OnMsg.NewMap()
 	CreateHeatGrids()
 end
 
 function City:InitHeat()
 	if not mapdata.GameLogic then return end
-	AsyncLerpHeatGrid(g_HeatGrid, s_HeatGridTarget, 100, heat_step_min)
+	AsyncLerpHeatGrid(g_HeatGrid, s_HeatGridTarget, 100)
 	hr.TR_UpdateHeatGrid = 1
 end
 
@@ -327,4 +356,16 @@ end
 
 function ColdSensitive:CheatUnfreeze()
 	self:SetFrozen(false)
+end
+
+function FreezeEntireMap()
+	hr.RenderIce = 1
+	SetIceStrength(100, "debug", nil, 0, 0)
+	Heat_SetAmbient(g_HeatGrid, 100)
+	hr.TR_UpdateHeatGrid = 1
+end
+
+function UnfreezeEntireMap()
+	hr.RenderIce = 0
+	SetIceStrength(0, "debug")
 end

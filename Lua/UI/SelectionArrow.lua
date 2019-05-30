@@ -3,9 +3,7 @@ GlobalVar("SelectionArrowsOwners", {})
 DefineClass.SelectionArrow =
 {
 	__parents = { "Object", "ComponentAttach", "UIAttach" },
-	game_flags = { gofRealTimeAnim = true, gofSpecialOrientMode = true },
-	enum_flags = { efShadow = false, efSunShadow = false },
-	class_flags = { cfFadeWithParent = false },
+	flags = { efShadow = false, efSunShadow = false, gofRealTimeAnim = true, gofSpecialOrientMode = true },
 	orient_mode = "facing_vertical",
 	entity = "Arrow",
 }
@@ -154,11 +152,9 @@ function SelectionArrowMove(obj, to)
 	end
 end
 
-function OnMsg.SelectionChange()
-	SelectionArrowClearAll()
-	
-	if SelectedObj and SelectedObj:HasMember("OnSelected") then
-		SelectedObj:OnSelected()
+function OnMsg.SelectionAdded(obj)
+	if obj and obj:HasMember("OnSelected") then
+		obj:OnSelected()
 	end
 end
 

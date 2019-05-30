@@ -18,15 +18,15 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnContextUpdate",
 			'func', function (self, ...)
-XFrameProgress.OnContextUpdate(self, ...)
-local image = "UI/Infopanel/progress_bar_green.tga"
-if self.Progress < g_Consts.LowStatLevel then
-  image = "UI/Infopanel/progress_bar_red.tga"
-elseif self.Progress < g_Consts.HighStatLevel then
-	image = "UI/Infopanel/progress_bar_orange.tga"
-end
-self:SetProgressImage(image)
-end,
+				XFrameProgress.OnContextUpdate(self, ...)
+				local image = "UI/Infopanel/progress_bar_green.tga"
+				if self.Progress < g_Consts.LowStatLevel then
+				  image = "UI/Infopanel/progress_bar_red.tga"
+				elseif self.Progress < g_Consts.HighStatLevel then
+					image = "UI/Infopanel/progress_bar_orange.tga"
+				end
+				self:SetProgressImage(image)
+			end,
 		}),
 		}),
 })

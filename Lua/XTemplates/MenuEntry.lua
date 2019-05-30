@@ -23,15 +23,15 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnSetFocus",
 			'func', function (self, ...)
-XCreateRolloverWindow(self, true)
-XTextButton.OnSetFocus(self, ...)
-end,
+				XCreateRolloverWindow(self, true)
+				XTextButton.OnSetFocus(self, ...)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "SetSelected(self, selected)",
 			'func', function (self, selected)
-self:SetFocus(selected)
-end,
+				self:SetFocus(selected)
+			end,
 		}),
 		}),
 })

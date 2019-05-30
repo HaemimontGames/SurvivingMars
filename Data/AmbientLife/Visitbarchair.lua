@@ -11,6 +11,12 @@ PlaceObj('AmbientLife', {
 	param6 = "slot",
 	param7 = "slotname",
 	PlaceObj('XPrgPlayAnim', {
+		'obj', "obj",
+		'anim', "idle",
+		'loops', "0",
+		'blending', false,
+	}),
+	PlaceObj('XPrgPlayAnim', {
 		'obj', "unit",
 		'anim', "spacebarSitStart",
 	}),
@@ -31,7 +37,6 @@ PlaceObj('AmbientLife', {
 		'obj', "obj",
 		'anim', "up",
 		'blending', false,
-		'blending_next', false,
 	}),
 	PlaceObj('XPrgHasVisitTime', {
 		'form', "while-do",
@@ -77,9 +82,7 @@ PlaceObj('AmbientLife', {
 		'obj', "obj",
 		'anim', "idle",
 		'loops', "0",
-		'reversed', true,
 		'blending', false,
-		'blending_next', false,
 	}),
 	PlaceObj('XPrgOrient', {
 		'actor', "unit",

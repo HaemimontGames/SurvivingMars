@@ -17,7 +17,7 @@ local mode_to_img = {
 function OnScreenIndication:Init()
 	XImage:new({
 		Id = "idImage",
-		Image = "UI/Onscreen/onscreen.pause.tga",
+		Image = "UI/Onscreen/onscreen_pause.tga",
 		FadeInTime = 200,
 		FadeOutTime = 200,
 		HAlign = "left",

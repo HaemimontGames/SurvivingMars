@@ -13,92 +13,125 @@ PlaceObj('XTemplate', {
 		'RolloverOnFocus', true,
 		'HandleMouse', true,
 		'OnContextUpdate', function (self, context, ...)
-XListItem.OnContextUpdate(self, context, ...)
-self.idModTitle:SetText(context.DisplayName or "")
-self.idAuthor:SetText(context.Author or "")
-self.idModVersion:SetText(T{10484, "v.<version>", version = Untranslated(context.ModVersion)})
-local obj = GetDialog(self).context
-local mod_id = context.ModID
-local corrupted, warning = context.Corrupted, context.Warning
-if corrupted == nil then
-	local mod_def = obj.mod_defs[mod_id]
-	if mod_def then
-		corrupted, warning = ModsUIGetModCorruptedStatus(mod_def)
-		context.Corrupted, context.Warning = corrupted, warning
-	end
-end
-self.idWarning:SetText(warning or "")
-self.idWarning:SetVisible((warning or "") ~= "")
-local enabled = obj.enabled[mod_id]
-if not corrupted then
-	if not GetUIStyleGamepad() and rawget(self.idEnabled, "idEnabled") then
-		self.idEnabled:SetVisible(true)
-		self.idEnabled:SetCheck(enabled)
-		self.idEnabled.idEnabled:SetVisible(enabled)
-		self.idEnabled.idDisabled:SetVisible(not enabled)
-	elseif rawget(self, "idEnabledTick") then
-		self.idEnabledTick:SetVisible(enabled)
-		self.idEnabled:SetVisible(enabled)
-		self.idDisabled:SetVisible(not enabled)
-	end
-end
-if context.Thumbnail then
-	self.idImage:SetImage(context.Thumbnail)
-end
-local size = self:ResolveId("idFileSize")
-if size then
-	local context = self.context
-	size:SetVisible(context.FileSize)
-	if context.FileSize then
-		size:SetText(T(10487, "<FormatSize(FileSize, 2)>"))
-	end
-end
-local current_rating_win = self:ResolveId("idCurrentRating")
-if context.Rating and current_rating_win then
-	for i = 1, context.Rating do
-		current_rating_win[i]:SetImage("UI/Mods/rate-orange.tga")
-	end
-	current_rating_win:SetVisible(true)
-end
-end,
+			XListItem.OnContextUpdate(self, context, ...)
+			self.idModTitle:SetText(context.DisplayName or "")
+			self.idAuthor:SetText(context.Author or "")
+			self.idModVersion:SetText(T{10484, "v.<version>", version = Untranslated(context.ModVersion)})
+			local obj = GetDialog(self).context
+			local mod_id = context.ModID
+			local corrupted, warning, warning_id = context.Corrupted, context.Warning, context.Warning_id
+			if corrupted == nil then
+				local mod_def = obj.mod_defs[mod_id]
+				if mod_def then
+					corrupted, warning, warning_id = ModsUIGetModCorruptedStatus(mod_def)
+					context.Corrupted, context.Warning, context.Warning_id = corrupted, warning, warning_id
+				end
+			end
+			local installed = obj.installed[mod_id]
+			self.idListSpinner:SetVisible(not installed)
+			self.idEnabledDisabledWindow:SetVisible(installed)
+			self.idWarning:SetText(warning or "")
+			self.idWarning:SetVisible((warning or "") ~= "")
+			local enabled = obj.enabled[mod_id]
+			if not corrupted then
+				if not GetUIStyleGamepad() and rawget(self.idEnabled, "idEnabled") then
+					self.idEnabled:SetVisible(true)
+					self.idEnabled:SetCheck(enabled)
+					self.idEnabled.idEnabled:SetVisible(enabled)
+					self.idEnabled.idDisabled:SetVisible(not enabled)
+					local button = GetDialog(self):ResolveId("idAllToggleEnabled")
+					if button then
+						button:Update()
+					end
+				elseif rawget(self, "idEnabledTick") then
+					self.idEnabledTick:SetVisible(enabled)
+					self.idEnabled:SetVisible(enabled)
+					self.idDisabled:SetVisible(not enabled)
+				end
+			end
+			if context.Thumbnail then
+				self.idImage:SetImage(context.Thumbnail)
+			end
+			local size = self:ResolveId("idFileSize")
+			if size then
+				local context = self.context
+				size:SetVisible(context.FileSize)
+				if context.FileSize then
+					size:SetText(T(10487, "<FormatSize(FileSize, 2)>"))
+				end
+			end
+			local current_rating_win = self:ResolveId("idCurrentRating")
+			if context.Rating and current_rating_win then
+				for i = 1, context.Rating do
+					current_rating_win[i]:SetImage("UI/Mods/rate-orange.tga")
+				end
+				current_rating_win:SetVisible(true)
+			end
+		end,
 		'SelectionBackground', RGBA(0, 0, 0, 0),
 	}, {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnSetRollover(self, rollover)",
 			'func', function (self, rollover)
-self.idBorder:SetVisible(rollover)
-XContextWindow.OnSetRollover(self, rollover)
-end,
+				self.idBorder:SetVisible(rollover)
+				XContextWindow.OnSetRollover(self, rollover)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "SetSelected(self, selected)",
 			'func', function (self, selected)
-XListItem.SetSelected(self, selected)
-self:SetFocus(selected)
-if selected then
-	local changed = ModsUISetSelectedMod(self.context.ModID)
-	if changed then
-		local dlg = GetDialog(self)
-		dlg:UpdateActionViews(dlg)
-	end
-end
-end,
+				XListItem.SetSelected(self, selected)
+				self:SetFocus(selected)
+				if selected then
+					local changed = ModsUISetSelectedMod(self.context.ModID)
+					if changed then
+						local dlg = GetDialog(self)
+						dlg:UpdateActionViews(dlg)
+					end
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnMouseButtonDown(self, pos, button)",
 			'func', function (self, pos, button)
-if button == "L" and not GetUIStyleGamepad() then
-	ModsUISetDialogMode(GetDialog(self), "details", self.context)
-	return "break"
-end
-end,
+				if button == "L" and not GetUIStyleGamepad() then
+					ModsUISetDialogMode(GetDialog(self), "details", self.context)
+					return "break"
+				end
+			end,
+		}),
+		PlaceObj('XTemplateFunc', {
+			'name', "Open",
+			'func', function (self, ...)
+				XListItem.Open(self, ...)
+				local context = self.context
+				local image = "UI/Mods/drive.tga"
+				if context.Source == "pops" then
+					image = "UI/Mods/platypus-white.tga"
+				elseif context.Source == "steam" then
+					image = "UI/Mods/steam_logo.tga"
+				end
+				self.idSourceImage:SetImage(image)
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'Background', RGBA(34, 34, 34, 255),
 		}, {
 			PlaceObj('XTemplateWindow', {
 				'__class', "XImage",
+				'Id', "idSourceImage",
+				'Margins', box(15, 0, 15, 0),
+				'Dock', "left",
+				'HAlign', "left",
+				'VAlign', "center",
+				'MaxWidth', 35,
+				'MaxHeight', 35,
+				'ImageFit', "largest",
+			}),
+			PlaceObj('XTemplateWindow', {
+				'__class', "XImage",
 				'Id', "idImage",
+				'IdNode', false,
 				'Dock', "left",
 				'HAlign', "left",
 				'VAlign', "center",
@@ -106,7 +139,39 @@ end,
 				'MaxWidth', 200,
 				'Image', "UI/Common/Placeholder.tga",
 				'ImageFit', "largest",
-			}),
+			}, {
+				PlaceObj('XTemplateWindow', {
+					'Id', "idListSpinner",
+					'Dock', "box",
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'comment', "dark overlay",
+						'FoldWhenHidden', true,
+						'Background', RGBA(0, 0, 0, 190),
+					}),
+					PlaceObj('XTemplateWindow', {
+						'ScaleModifier', point(300, 300),
+						'FoldWhenHidden', true,
+					}, {
+						PlaceObj('XTemplateWindow', {
+							'__class', "XImage",
+							'HAlign', "center",
+							'VAlign', "center",
+							'FoldWhenHidden', true,
+							'Image', "UI/Mods/PDX_spinner_anim.tga",
+							'Columns', 16,
+							'Animate', true,
+							'FPS', 25,
+						}),
+						PlaceObj('XTemplateWindow', {
+							'__class', "XImage",
+							'HAlign', "center",
+							'VAlign', "center",
+							'Image', "UI/Mods/PDX_spinner_logo.tga",
+						}),
+						}),
+					}),
+				}),
 			PlaceObj('XTemplateGroup', {
 				'__condition', function (parent, context) return GetUIStyleGamepad() end,
 			}, {
@@ -203,6 +268,7 @@ end,
 						}),
 					}),
 				PlaceObj('XTemplateWindow', {
+					'Id', "idEnabledDisabledWindow",
 					'Margins', box(0, 0, 20, 0),
 					'Dock', "right",
 					'VAlign', "center",
@@ -325,7 +391,8 @@ end,
 						}),
 					}),
 				PlaceObj('XTemplateWindow', {
-					'Margins', box(0, 0, 20, 0),
+					'Id', "idEnabledDisabledWindow",
+					'Margins', box(0, 0, 15, 0),
 					'Dock', "right",
 					'VAlign', "center",
 					'LayoutMethod', "HList",
@@ -341,8 +408,8 @@ end,
 						'FoldWhenHidden', true,
 						'MouseCursor', "UI/Cursors/Rollover.tga",
 						'OnPress', function (self, gamepad)
-ModsUIToggleEnabled(self.context, self)
-end,
+							ModsUIToggleEnabled(self.context, self)
+						end,
 						'Icon', "UI/Mods/enable_disable.tga",
 						'IconScale', point(1000, 1000),
 						'IconColor', RGBA(255, 255, 255, 255),
@@ -350,9 +417,9 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "OnChange(self, check)",
 							'func', function (self, check)
-self.idEnabled:SetVisible(check)
-self.idDisabled:SetVisible(not check)
-end,
+								self.idEnabled:SetVisible(check)
+								self.idDisabled:SetVisible(not check)
+							end,
 						}),
 						PlaceObj('XTemplateWindow', {
 							'__class', "XLabel",
@@ -382,7 +449,7 @@ end,
 						}),
 						}),
 					PlaceObj('XTemplateWindow', {
-						'__condition', function (parent, context) return not context.Local end,
+						'__condition', function (parent, context) return context.Source == "pops" end,
 						'__class', "XTextButton",
 						'Id', "idRemove",
 						'Padding', box(-5, 2, 10, 2),
@@ -392,8 +459,8 @@ end,
 						'MouseCursor', "UI/Cursors/Rollover.tga",
 						'FocusedBackground', RGBA(0, 0, 0, 0),
 						'OnPress', function (self, gamepad)
-ModsUIUninstallMod(self.context)
-end,
+							ModsUIUninstallMod(self.context)
+						end,
 						'RolloverBackground', RGBA(0, 0, 0, 0),
 						'PressedBackground', RGBA(0, 0, 0, 0),
 						'Icon', "UI/Mods/remove.tga",

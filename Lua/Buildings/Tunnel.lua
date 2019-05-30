@@ -16,7 +16,7 @@ DefineClass.Tunnel = {
 	registered_point = false,
 	--diamond inheritance
 	is_tall = false,
-	MoveInside = __empty_function__, --this needs to be impl if tunnels can be in domes.
+	MoveInside = empty_func, --this needs to be impl if tunnels can be in domes.
 }
 
 function Tunnel:Init()
@@ -36,18 +36,32 @@ function Tunnel:Destroy()
 	end
 end
 
-function Tunnel:RegPoints(pt1, pt2, unreg)
-	local h1 = xxhash(pt1:x(), pt1:y())
-	local h2 = xxhash(pt2:x(), pt2:y())
-	g_TunnelsAdjacency[h1] = not unreg and pt2 or nil
-	g_TunnelsAdjacency[h2] = not unreg and pt1 or nil
+function Tunnel:RegPoints(unreg)
+	if not self.linked_obj then
+		return
+	end
+	local reg = not unreg
+	local p1, p2 = self.registered_point, self.linked_obj.registered_point
+	SetTunnelAdjacency(p1, reg and p2 or nil)
+	SetTunnelAdjacency(p2, reg and p1 or nil)
+end
+
+local function TunnelHashPos(q, r)
+	return q + TunnelMask * r
+end
+
+function SetTunnelAdjacency(p1, p2)
+	local q, r = p1:xy()
+	local h = TunnelHashPos(q, r)
+	g_TunnelsAdjacency[h] = p2 or nil
 end
 
 function GetTunnelAdjacency(q, r)
 	--c calls this
-	local ret = g_TunnelsAdjacency[xxhash(q, r)]
+	local h = TunnelHashPos(q, r)
+	local ret = g_TunnelsAdjacency[h]
 	if not ret then return nil end
-	return ret:x(), ret:y()
+	return ret:xy()
 end
 
 function Tunnel:GetPointToReg(obj)
@@ -65,7 +79,7 @@ function Tunnel:GameInit()
 	if not self.registered_point then
 		self.registered_point = self:GetPointToReg(self)
 		self.linked_obj.registered_point = self:GetPointToReg(self.linked_obj)
-		self:RegPoints(self.registered_point, self.linked_obj.registered_point)
+		self:RegPoints()
 	end
 	Notify(self, "AddPFTunnel")
 	--merge grids
@@ -76,6 +90,21 @@ function Tunnel:GameInit()
 	HexGridSet(SupplyGridConnections.electricity, self.registered_point, bor(conn, TunnelMask))
 	conn = HexGridGet(SupplyGridConnections.water, self.registered_point)
 	HexGridSet(SupplyGridConnections.water, self.registered_point, bor(conn, TunnelMask))
+end
+
+function SavegameFixups.FixAdjacency()
+	g_TunnelsAdjacency = {}
+	MapForEach("map", "Tunnel", Tunnel.RegPoints)
+	MapForEach("map", "Passage", function(self)
+		if #self.elements_under_construction <= 0 then --else not constructed
+			local e1, e2 = self.elements[self.supply_tunnel_nodes[1]], self.elements[self.supply_tunnel_nodes[2]]
+			if e1 and e2 then
+				local p1, p2 = point(e1.q, e1.r), point(e2.q, e2.r)
+				SetTunnelAdjacency(p1, p2)
+				SetTunnelAdjacency(p2, p1)
+			end
+		end
+	end)
 end
 
 function Tunnel:Done()
@@ -90,7 +119,7 @@ function Tunnel:Done()
 	self:RemovePFTunnel()
 	--kill friend
 	if IsValid(self.linked_obj) then
-		self:RegPoints(self.registered_point, self.linked_obj.registered_point, true)
+		self:RegPoints(true)
 		self.linked_obj.linked_obj = false
 		DoneObject(self.linked_obj)
 		self.linked_obj = false
@@ -222,8 +251,9 @@ function Tunnel:TraverseTunnel(unit, start_point, end_point, param)
 				camera3p.AttachObject(dummy_obj)
 				dummy_obj:SetPos(exit[1], travel_time)
 			end
-			unit.current_dome = IsObjInDome(linked_obj)
+			unit:SetOutside(false)
 			Sleep(travel_time)
+			unit:UpdateOutside()
 			if dummy_obj then
 				if camera3p.IsActive() then
 					camera3p.DetachObject(dummy_obj)

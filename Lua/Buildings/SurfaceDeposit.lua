@@ -39,7 +39,7 @@ end
 DefineClass.SurfaceDepositMarker = {
 	__parents = { "DepositMarker" },
 	properties = {
-		{ category = "Deposit", name = T(15, "Resource"),               id = "resource",        editor = "combo",  default = "Metals", items = SurfaceDeposits, object_update = true, },		
+		{ category = "Deposit", name = T(15, "Resource"),               id = "resource",        editor = "combo",  default = "Metals", items = SurfaceDeposits, },		
 		{ category = "Deposit", name = T(803, "Max Drones"),             id = "max_drones",      editor = "number", default = 5, min = 1, max = 100 },
 		{ category = "Deposit", name = T(804, "Deposit Entity Variant"), id = "entity_variant",  editor = "combo",  default = "random", items = function(deposit) return GetDepositVariationsCombo(deposit) end},
 	},
@@ -93,7 +93,7 @@ end
 ------------------------------------------------------------
 DefineClass.SurfaceDeposit = {
 	__parents = { "TaskRequester", "Shapeshifter", "AutoAttachObject", "Deposit", "UngridedObstacle", "SyncObject" },
-	game_flags = { gofTemporalConstructionBlock = true },
+	flags = { gofTemporalConstructionBlock = true },
 	properties = {
 		{ category = "Deposit", name = T(803, "Max Drones"), id = "max_drones", editor = "number", default = 5, min = 1, max = 100 },
 		{ category = "Deposit", name = T(804, "Deposit Entity Variant"),id = "entity_variant", editor = "combo", default = "random", items = function(deposit) return GetDepositVariationsCombo(deposit) end},
@@ -175,6 +175,9 @@ function SurfaceDeposit:Done()
 	end
 end
 
+function SurfaceDeposit:AdjustVisuals()
+end
+
 function SurfaceDeposit:GetDepositGroup()
 	local col_idx = IsValid(self) and self:GetCollectionIndex() or 0
 	return col_idx ~= 0 and SurfaceDepositGroups[col_idx]
@@ -189,7 +192,9 @@ function SurfaceDeposit:EditorExit()
 end
 
 function SurfaceDeposit:Setmax_amount(val)
-	self.transport_request:SetAmount(val)
+	if self.transport_request then
+		self.transport_request:SetAmount(val)
+	end
 	self.max_amount = val
 end
 
@@ -218,7 +223,7 @@ function SurfaceDeposit:CheatEmpty()
 end
 
 function SurfaceDeposit:IsDepleted()
-	return self.transport_request:GetActualAmount() <= 0
+	return self:GetAmount() <= 0
 end
 
 function SurfaceDeposit:DroneApproach(drone, resource)
@@ -267,7 +272,8 @@ function SurfaceDeposit:RoverWork(rover, request, resource, amount, reciprocal_r
 end
 
 function SurfaceDeposit:GetAmount()
-	return self.transport_request:GetActualAmount()
+	local request = self.transport_request
+	return request and request:GetActualAmount() or self.max_amount
 end
 
 function SurfaceDeposit:GetPriority()
@@ -309,7 +315,7 @@ DefineClass("SurfaceDepositPolymers",
 
 DefineClass.SurfaceDepositGroup = {
 	__parents = { "Deposit", "FXObject" },
-	enum_flags = { efWalkable = false, efCollision = false, efApplyToGrids = false },
+	flags = { efWalkable = false, efCollision = false, efApplyToGrids = false },
 	group = "",
 	max_amount = 0,
 	radius_max = 0,
@@ -385,7 +391,7 @@ function SurfaceDepositGroup:GetSelectionRadiusScale()
 	return MulDivRound(100, self.radius_max, 5*guim)
 end
 
-function OnMsg.SelectedObjChange(obj, prev)
+function OnMsg.SelectedObjChange(obj)
 	if IsKindOf(obj, "SurfaceDeposit") then
 		local group = obj:GetDepositGroup() or ""
 		if #group == 0 then

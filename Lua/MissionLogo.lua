@@ -22,7 +22,7 @@ function ReloadMissionLogos()
 end
 
 function ModItemMissionLogoPreset:OnEditorSetProperty(prop_id, old_value, ged)
-	ModItemDataInstance.OnEditorSetProperty(self, prop_id, old_value, ged)
+	ModItemPreset.OnEditorSetProperty(self, prop_id, old_value, ged)
 	ReloadMissionLogos()
 end
 
@@ -44,8 +44,7 @@ end
 
 DefineClass.Logo = {
 	__parents = { "Object", "UIAttach" },
-	class_flags = { cfDecal = true, cfConstructible = false, cfAudible = false },
-	enum_flags = { efSelectable = false, efShadow = false, efSunShadow = false },
+	flags = { cfDecal = true, cfConstructible = false, efSelectable = false, efShadow = false, efSunShadow = false },
 }
 
 function Logo:Init()

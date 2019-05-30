@@ -3,7 +3,7 @@
 class overview...
 --]]
 DefineClass.BaseBuilding = {
-	class_flags = { cfComponentSound = true },
+	flags = { cofComponentSound = true },
 	__parents = { "Holder", "SyncObject" },
 
 	working = false,
@@ -141,8 +141,9 @@ function BaseBuilding:SetWorking(work)
 	self:OnSetWorking(work)
 end
 function BaseBuilding:Setexceptional_circumstances(disabled)
-	self.exceptional_circumstances = disabled	
+	self.exceptional_circumstances = disabled
 	self:UpdateWorking()
+	self:UpdateConsumption()
 	self:AttachSign(disabled, "SignNotWorking")
 end
 
@@ -327,6 +328,10 @@ function BaseBuilding:IsSupplyGridDemandStoppedByGame()
 end
 
 function BaseBuilding:UpdateConsumption(update)
+	if GameInitThreads[self] then
+		self:Notify("UpdateConsumption")
+		return
+	end
 	local is_electricity_consumer = self.is_electricity_consumer
 	local is_lifesupport_consumer = self.is_lifesupport_consumer
 	
@@ -478,6 +483,23 @@ function BaseBuilding:UpdateWorkingStateAnim()
 	self:ChangeWorkingStateAnim(self.working)
 end
 
+function BaseBuilding:PlayWorkingStateFXes(fx_target)
+	if self.force_fx_work_target then
+		fx_target = self.force_fx_work_target
+	elseif not fx_target then
+		fx_target = self:GetEntity()
+	end
+	if type(fx_target) == "table" and self.force_fx_work_target ~= fx_target and not IsKindOf(fx_target, "Object") then
+		--unpersistable target, ref it so gc does not kill it and hang the particle
+		self.force_fx_work_target = fx_target
+	end
+	PlayFX("Working", self.fx_working and "start" or "end", self, fx_target ~= self and fx_target or nil)
+	--play breakdown sound
+	if not self.fx_working and self:IsWorkPermitted() and not self:IsWorkPossible() then
+		PlayFX("Breakdown", "start", self)
+	end
+end
+
 --controls animations
 function BaseBuilding:ChangeWorkingStateAnim(working)
 	working = working or false
@@ -488,7 +510,8 @@ function BaseBuilding:ChangeWorkingStateAnim(working)
 		DeleteThread(self.anim_control_thread)
 	end
 	self.fx_working = working
-	local fx_target
+	local fxes_played = false
+	
 	if working then
 		--also iterate attaches (for autoattached animated stuffs), assumes one obj with anims.
 		local att_arr = self:GetAttaches() or {}
@@ -532,8 +555,9 @@ function BaseBuilding:ChangeWorkingStateAnim(working)
 								self:TrackMultipleHitMoments(obj, "Working", nil, type(self.track_multiple_hit_moments_in_work_state) == "table" and self.track_multiple_hit_moments_in_work_state or nil, true)
 							end
 						end
+						self:PlayWorkingStateFXes(obj)
 					end)
-					fx_target = obj
+					fxes_played = true
 					break
 				elseif obj:HasState("working") then
 					if not obj:HasAnim("working") then
@@ -544,7 +568,8 @@ function BaseBuilding:ChangeWorkingStateAnim(working)
 					if self.track_multiple_hit_moments_in_work_state then
 						self:TrackMultipleHitMoments(obj, "Working", nil, type(self.track_multiple_hit_moments_in_work_state) == "table" and self.track_multiple_hit_moments_in_work_state or nil, true)
 					end
-					fx_target = obj
+					self:PlayWorkingStateFXes(obj)
+					fxes_played = true
 					break
 				end
 			end
@@ -588,32 +613,61 @@ function BaseBuilding:ChangeWorkingStateAnim(working)
 							obj:SetAnim(1, "idle", const.eDontCrossfade)
 							obj:SetAnimPhase(1, 0)
 						end
+						self:PlayWorkingStateFXes(obj)
 					end)
-					fx_target = obj
+					fxes_played = true
 					break
 				elseif obj:HasAnim("working") then --is playing anim onb any channel
 					obj:SetAnimSpeed(1, 0) --this way we don't blend/snap to idle
 					--obj:SetAnim(1, "idle", const.eDontCrossfade) --this way we snap to idle.
-					fx_target = obj
+					self:PlayWorkingStateFXes(obj)
+					fxes_played = true
 					break
 				end
 			end
 		end
 	end
 	
-	if self.force_fx_work_target then
-		fx_target = self.force_fx_work_target
-	elseif not fx_target then
-		fx_target = self:GetEntity()
+	if not fxes_played then
+		self:PlayWorkingStateFXes()
 	end
-	if type(fx_target) == "table" and self.force_fx_work_target ~= fx_target and not IsKindOf(fx_target, "Object") then
-		--unpersistable target, ref it so gc does not kill it and hang the particle
-		self.force_fx_work_target = fx_target
-	end
-	PlayFX("Working", working and "start" or "end", self, fx_target ~= self and fx_target or nil)
-	--play breakdown sound
-	if not working and self:IsWorkPermitted() and not self:IsWorkPossible() then
-		PlayFX("Breakdown", "start", self)
+end
+
+function SavegameFixups.DeleteSomeParticles(meta, rev)
+	if rev >= 243381 and rev < 243739 then
+		local names = {}
+		ForEachPresetExtended("FXPreset", function(preset)
+			if not IsKindOf(preset, "ActionFXParticles") then return end
+			
+			if preset.Action == "Working" then
+				names[preset.Particles] = true
+			end
+		end)
+		MapForEach("map", "ParSystem", function(p)
+			if names[p:GetParticlesName()] then
+				DoneObject(p)
+			end
+		end)
+		
+		MapForEach("map", "Building", function(b)
+			if IsKindOf(b, "OpenPasture") and not b.maintenance_resource_request then
+				--very special fix for 0143323
+				local connected = #b.command_centers > 0
+				if connected then
+					b:DisconnectFromCommandCenters()
+				end
+				b:InitMaintenanceRequests() 
+				if connected then
+					b:ConnectToCommandCenters()
+				end
+				b:Repair()
+			end
+			if not IsKindOfClasses(b, "ArtificialSun", "Passage", "PassageGridElement") and b.ui_working then
+				--turn it off and on again
+				b:SetUIWorking(false)
+				ExecLaterPushObject(b, b.SetUIWorking, 0, 1, true)
+			end
+		end)
 	end
 end
 
@@ -621,7 +675,7 @@ end
 local hit_moments = {}
 for i = 1, 2 do hit_moments[i] = "hit-moment" .. i end
 function OnMsg.GatherFXMoments(list)
-	table.append(list, hit_moments)
+	table.iappend(list, hit_moments)
 end
 
 function BaseBuilding:StopTrackingMultipleHitMoments()
@@ -641,7 +695,6 @@ function BaseBuilding:TrackMultipleHitMoments(obj, actionFXClass, max, override_
 		local anim = obj:GetAnim(1)
 		local number_of_hits = obj:GetAnimMomentsCount(anim, "Hit")
 		if number_of_hits == 0 then
-			print("<color 103 252 3>Trying to track multiple hit moments for obj " .. obj.class .. ", that does not have multiple hit moments!!!</color>")
 			return
 		end
 		local i = 1

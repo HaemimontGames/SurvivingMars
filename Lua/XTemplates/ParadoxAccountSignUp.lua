@@ -19,10 +19,10 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-PDXAccountFillBirthDataCombos(self)
-self:ResolveId("idCountry").idCombo:SetItems(ParadoxCountriesCombo())
-return XFrame.Open(self,...)
-end,
+				PDXAccountFillBirthDataCombos(self)
+				self:ResolveId("idCountry").idCombo:SetItems(ParadoxCountriesCombo())
+				return XFrame.Open(self,...)
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'Padding', box(40, 40, 12, 20),
@@ -126,33 +126,33 @@ end,
 								PlaceObj('XTemplateFunc', {
 									'name', "OnTextChanged",
 									'func', function (self, ...)
-XEdit.OnTextChanged(self, ...)
-local prop_meta = self.parent.prop_meta
-local obj = ResolvePropObj(self.parent.context)
-obj:SetProperty(prop_meta.id, self:GetText())
-end,
+										XEdit.OnTextChanged(self, ...)
+										local prop_meta = self.parent.prop_meta
+										local obj = ResolvePropObj(self.parent.context)
+										obj:SetProperty(prop_meta.id, self:GetText())
+									end,
 								}),
 								PlaceObj('XTemplateFunc', {
 									'name', "OnShortcut(self, shortcut, source)",
 									'func', function (self, shortcut, source)
-if shortcut == "ButtonA" then
-	self:OpenControllerTextInput()
-	return "break"
-end
-return XEdit.OnShortcut(self, shortcut, source)
-end,
+										if shortcut == "ButtonA" then
+											self:OpenControllerTextInput()
+											return "break"
+										end
+										return XEdit.OnShortcut(self, shortcut, source)
+									end,
 								}),
 								}),
 							PlaceObj('XTemplateFunc', {
 								'name', "OnPropUpdate(self, context, prop_meta, value)",
 								'func', function (self, context, prop_meta, value)
-value = value or ""
-self.idEdit:SetText(value)
-self.idEdit:SetPassword(prop_meta.password)
-if prop_meta.disabled and prop_meta.disabled() then
-	self:SetEnabled(false)
-end
-end,
+									value = value or ""
+									self.idEdit:SetText(value)
+									self.idEdit:SetPassword(prop_meta.password)
+									if prop_meta.disabled and prop_meta.disabled() then
+										self:SetEnabled(false)
+									end
+								end,
 							}),
 							}),
 						}),
@@ -206,33 +206,33 @@ end,
 								PlaceObj('XTemplateFunc', {
 									'name', "OnTextChanged",
 									'func', function (self, ...)
-XEdit.OnTextChanged(self, ...)
-local prop_meta = self.parent.prop_meta
-local obj = ResolvePropObj(self.parent.context)
-obj:SetProperty(prop_meta.id, self:GetText())
-end,
+										XEdit.OnTextChanged(self, ...)
+										local prop_meta = self.parent.prop_meta
+										local obj = ResolvePropObj(self.parent.context)
+										obj:SetProperty(prop_meta.id, self:GetText())
+									end,
 								}),
 								PlaceObj('XTemplateFunc', {
 									'name', "OnShortcut(self, shortcut, source)",
 									'func', function (self, shortcut, source)
-if shortcut == "ButtonA" then
-	self:OpenControllerTextInput()
-	return "break"
-end
-return XEdit.OnShortcut(self, shortcut, source)
-end,
+										if shortcut == "ButtonA" then
+											self:OpenControllerTextInput()
+											return "break"
+										end
+										return XEdit.OnShortcut(self, shortcut, source)
+									end,
 								}),
 								}),
 							PlaceObj('XTemplateFunc', {
 								'name', "OnPropUpdate(self, context, prop_meta, value)",
 								'func', function (self, context, prop_meta, value)
-value = value or ""
-self.idEdit:SetText(value)
-self.idEdit:SetPassword(prop_meta.password)
-if prop_meta.disabled and prop_meta.disabled() then
-	self:SetEnabled(false)
-end
-end,
+									value = value or ""
+									self.idEdit:SetText(value)
+									self.idEdit:SetPassword(prop_meta.password)
+									if prop_meta.disabled and prop_meta.disabled() then
+										self:SetEnabled(false)
+									end
+								end,
 							}),
 							}),
 						}),
@@ -279,7 +279,6 @@ end,
 									'MouseCursor', "UI/Cursors/Rollover.tga",
 									'RelativeFocusOrder', "new-line",
 									'TextStyle', "ComboTextPC",
-									'Items', {},
 									'MaxItems', 13,
 									'ArbitraryValue', false,
 									'ButtonTemplate', "ParadoxUIComboButton",
@@ -288,20 +287,20 @@ end,
 									PlaceObj('XTemplateFunc', {
 										'name', "OnValueChanged(self, value)",
 										'func', function (self, value)
-local parent = self.parent
-if parent.window_state == "destroying" then return end
-XCombo.OnValueChanged(self, value)
-local prop_meta = self.parent.prop_meta
-local obj = ResolvePropObj(parent.context)
-obj:SetProperty(prop_meta.id, value)
-end,
+											local parent = self.parent
+											if parent.window_state == "destroying" then return end
+											XCombo.OnValueChanged(self, value)
+											local prop_meta = self.parent.prop_meta
+											local obj = ResolvePropObj(parent.context)
+											obj:SetProperty(prop_meta.id, value)
+										end,
 									}),
 									}),
 								PlaceObj('XTemplateFunc', {
 									'name', "OnPropUpdate(self, context, prop_meta, value)",
 									'func', function (self, context, prop_meta, value)
-self.idCombo:SetValue(value)
-end,
+										self.idCombo:SetValue(value)
+									end,
 								}),
 								}),
 							PlaceObj('XTemplateWindow', {
@@ -317,7 +316,6 @@ end,
 									'MouseCursor', "UI/Cursors/Rollover.tga",
 									'RelativeFocusOrder', "next-in-line",
 									'TextStyle', "ComboTextPC",
-									'Items', {},
 									'ArbitraryValue', false,
 									'ButtonTemplate', "ParadoxUIComboButton",
 									'ListItemTemplate', "ParadoxAccountComboListItem",
@@ -325,20 +323,20 @@ end,
 									PlaceObj('XTemplateFunc', {
 										'name', "OnValueChanged(self, value)",
 										'func', function (self, value)
-local parent = self.parent
-if parent.window_state == "destroying" then return end
-XCombo.OnValueChanged(self, value)
-local prop_meta = self.parent.prop_meta
-local obj = ResolvePropObj(parent.context)
-obj:SetProperty(prop_meta.id, value)
-end,
+											local parent = self.parent
+											if parent.window_state == "destroying" then return end
+											XCombo.OnValueChanged(self, value)
+											local prop_meta = self.parent.prop_meta
+											local obj = ResolvePropObj(parent.context)
+											obj:SetProperty(prop_meta.id, value)
+										end,
 									}),
 									}),
 								PlaceObj('XTemplateFunc', {
 									'name', "OnPropUpdate(self, context, prop_meta, value)",
 									'func', function (self, context, prop_meta, value)
-self.idCombo:SetValue(value)
-end,
+										self.idCombo:SetValue(value)
+									end,
 								}),
 								}),
 							PlaceObj('XTemplateWindow', {
@@ -354,7 +352,6 @@ end,
 									'MouseCursor', "UI/Cursors/Rollover.tga",
 									'RelativeFocusOrder', "next-in-line",
 									'TextStyle', "ComboTextPC",
-									'Items', {},
 									'MaxItems', 13,
 									'ArbitraryValue', false,
 									'ButtonTemplate', "ParadoxUIComboButton",
@@ -363,20 +360,20 @@ end,
 									PlaceObj('XTemplateFunc', {
 										'name', "OnValueChanged(self, value)",
 										'func', function (self, value)
-local parent = self.parent
-if parent.window_state == "destroying" then return end
-XCombo.OnValueChanged(self, value)
-local prop_meta = self.parent.prop_meta
-local obj = ResolvePropObj(parent.context)
-obj:SetProperty(prop_meta.id, value)
-end,
+											local parent = self.parent
+											if parent.window_state == "destroying" then return end
+											XCombo.OnValueChanged(self, value)
+											local prop_meta = self.parent.prop_meta
+											local obj = ResolvePropObj(parent.context)
+											obj:SetProperty(prop_meta.id, value)
+										end,
 									}),
 									}),
 								PlaceObj('XTemplateFunc', {
 									'name', "OnPropUpdate(self, context, prop_meta, value)",
 									'func', function (self, context, prop_meta, value)
-self.idCombo:SetValue(value)
-end,
+										self.idCombo:SetValue(value)
+									end,
 								}),
 								}),
 							}),
@@ -422,7 +419,6 @@ end,
 								'MouseCursor', "UI/Cursors/Rollover.tga",
 								'RelativeFocusOrder', "new-line",
 								'TextStyle', "ComboTextPC",
-								'Items', {},
 								'MaxItems', 10,
 								'ArbitraryValue', false,
 								'ButtonTemplate', "ParadoxUIComboButton",
@@ -431,21 +427,21 @@ end,
 								PlaceObj('XTemplateFunc', {
 									'name', "OnValueChanged(self, value)",
 									'func', function (self, value)
-local parent = self.parent
-if parent.window_state == "destroying" then return end
-XCombo.OnValueChanged(self, value)
-local prop_meta = self.parent.prop_meta
-local obj = ResolvePropObj(parent.context)
-obj:SetProperty(prop_meta.id, self:GetValue())
-end,
+										local parent = self.parent
+										if parent.window_state == "destroying" then return end
+										XCombo.OnValueChanged(self, value)
+										local prop_meta = self.parent.prop_meta
+										local obj = ResolvePropObj(parent.context)
+										obj:SetProperty(prop_meta.id, self:GetValue())
+									end,
 								}),
 								}),
 							PlaceObj('XTemplateFunc', {
 								'name', "OnPropUpdate(self, context, prop_meta, value)",
 								'func', function (self, context, prop_meta, value)
-value = value or ""
-self.idCombo:SetValue(value)
-end,
+									value = value or ""
+									self.idCombo:SetValue(value)
+								end,
 							}),
 							}),
 						}),
@@ -458,8 +454,8 @@ end,
 						'RelativeFocusOrder', "new-line",
 						'FocusedBackground', RGBA(0, 0, 0, 0),
 						'OnPress', function (self, gamepad)
-OpenParadoxTermsURL()
-end,
+							OpenParadoxTermsURL()
+						end,
 						'RolloverBackground', RGBA(0, 0, 0, 0),
 						'PressedBackground', RGBA(0, 0, 0, 0),
 						'TextStyle', "LogInText",
@@ -479,9 +475,9 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "OnSetRollover(self, rollover)",
 							'func', function (self, rollover)
-self.idUnderline:SetVisible(rollover)
-XTextButton.OnSetRollover(self, rollover)
-end,
+								self.idUnderline:SetVisible(rollover)
+								XTextButton.OnSetRollover(self, rollover)
+							end,
 						}),
 						}),
 					PlaceObj('XTemplateWindow', {
@@ -493,8 +489,8 @@ end,
 						'RelativeFocusOrder', "new-line",
 						'FocusedBackground', RGBA(0, 0, 0, 0),
 						'OnPress', function (self, gamepad)
-OpenParadoxPrivacyPolicyURL()
-end,
+							OpenParadoxPrivacyPolicyURL()
+						end,
 						'RolloverBackground', RGBA(0, 0, 0, 0),
 						'PressedBackground', RGBA(0, 0, 0, 0),
 						'TextStyle', "LogInText",
@@ -514,9 +510,9 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "OnSetRollover(self, rollover)",
 							'func', function (self, rollover)
-self.idUnderline:SetVisible(rollover)
-XTextButton.OnSetRollover(self, rollover)
-end,
+								self.idUnderline:SetVisible(rollover)
+								XTextButton.OnSetRollover(self, rollover)
+							end,
 						}),
 						}),
 					PlaceObj('XTemplateWindow', {
@@ -541,12 +537,12 @@ end,
 							PlaceObj('XTemplateFunc', {
 								'name', "Open",
 								'func', function (self, ...)
-if GetUIStyleGamepad() then
-	self:SetRolloverBackground(RGBA(235,235,235,255))
-	self:SetPressedBackground(RGBA(235,235,235,255))
-end
-XCheckButton.Open(self,...)
-end,
+									if GetUIStyleGamepad() then
+										self:SetRolloverBackground(RGBA(235,235,235,255))
+										self:SetPressedBackground(RGBA(235,235,235,255))
+									end
+									XCheckButton.Open(self,...)
+								end,
 							}),
 							PlaceObj('XTemplateWindow', {
 								'__class', "XText",
@@ -567,18 +563,18 @@ end,
 							PlaceObj('XTemplateFunc', {
 								'name', "OnChange(self, check)",
 								'func', function (self, check)
-XCheckButton.OnChange(self, check)
-local prop_meta = self.parent.prop_meta
-local obj = ResolvePropObj(self.parent.context)
-obj:SetProperty(prop_meta.id, self:GetCheck())
-end,
+									XCheckButton.OnChange(self, check)
+									local prop_meta = self.parent.prop_meta
+									local obj = ResolvePropObj(self.parent.context)
+									obj:SetProperty(prop_meta.id, self:GetCheck())
+								end,
 							}),
 							}),
 						PlaceObj('XTemplateFunc', {
 							'name', "OnPropUpdate(self, context, prop_meta, value)",
 							'func', function (self, context, prop_meta, value)
-self.idCheck:SetCheck(value)
-end,
+								self.idCheck:SetCheck(value)
+							end,
 						}),
 						}),
 					PlaceObj('XTemplateWindow', {
@@ -603,12 +599,12 @@ end,
 							PlaceObj('XTemplateFunc', {
 								'name', "Open",
 								'func', function (self, ...)
-if GetUIStyleGamepad() then
-	self:SetRolloverBackground(RGBA(235,235,235,255))
-	self:SetPressedBackground(RGBA(235,235,235,255))
-end
-XCheckButton.Open(self,...)
-end,
+									if GetUIStyleGamepad() then
+										self:SetRolloverBackground(RGBA(235,235,235,255))
+										self:SetPressedBackground(RGBA(235,235,235,255))
+									end
+									XCheckButton.Open(self,...)
+								end,
 							}),
 							PlaceObj('XTemplateWindow', {
 								'__class', "XText",
@@ -629,18 +625,18 @@ end,
 							PlaceObj('XTemplateFunc', {
 								'name', "OnChange(self, check)",
 								'func', function (self, check)
-XCheckButton.OnChange(self, check)
-local prop_meta = self.parent.prop_meta
-local obj = ResolvePropObj(self.parent.context)
-obj:SetProperty(prop_meta.id, self:GetCheck())
-end,
+									XCheckButton.OnChange(self, check)
+									local prop_meta = self.parent.prop_meta
+									local obj = ResolvePropObj(self.parent.context)
+									obj:SetProperty(prop_meta.id, self:GetCheck())
+								end,
 							}),
 							}),
 						PlaceObj('XTemplateFunc', {
 							'name', "OnPropUpdate(self, context, prop_meta, value)",
 							'func', function (self, context, prop_meta, value)
-self.idCheck:SetCheck(value)
-end,
+								self.idCheck:SetCheck(value)
+							end,
 						}),
 						}),
 					PlaceObj('XTemplateWindow', {
@@ -665,35 +661,35 @@ end,
 							PlaceObj('XTemplateFunc', {
 								'name', "Open",
 								'func', function (self, ...)
-if GetUIStyleGamepad() then
-	self:SetRolloverBackground(RGBA(235,235,235,255))
-	self:SetPressedBackground(RGBA(235,235,235,255))
-end
-XCheckButton.Open(self,...)
-end,
+									if GetUIStyleGamepad() then
+										self:SetRolloverBackground(RGBA(235,235,235,255))
+										self:SetPressedBackground(RGBA(235,235,235,255))
+									end
+									XCheckButton.Open(self,...)
+								end,
 							}),
 							PlaceObj('XTemplateWindow', {
 								'__class', "XText",
 								'Enabled', false,
 								'TextStyle', "LogInText",
 								'Translate', true,
-								'Text', T(644311688887, --[[XTemplate ParadoxAccountSignUp Text]] "I want to receive news and offers from Survivng Mars and Paradox Interactive"),
+								'Text', T(644311688887, --[[XTemplate ParadoxAccountSignUp Text]] "I want to receive news and offers from Surviving Mars and Paradox Interactive"),
 							}),
 							PlaceObj('XTemplateFunc', {
 								'name', "OnChange(self, check)",
 								'func', function (self, check)
-XCheckButton.OnChange(self, check)
-local prop_meta = self.parent.prop_meta
-local obj = ResolvePropObj(self.parent.context)
-obj:SetProperty(prop_meta.id, self:GetCheck())
-end,
+									XCheckButton.OnChange(self, check)
+									local prop_meta = self.parent.prop_meta
+									local obj = ResolvePropObj(self.parent.context)
+									obj:SetProperty(prop_meta.id, self:GetCheck())
+								end,
 							}),
 							}),
 						PlaceObj('XTemplateFunc', {
 							'name', "OnPropUpdate(self, context, prop_meta, value)",
 							'func', function (self, context, prop_meta, value)
-self.idCheck:SetCheck(value)
-end,
+								self.idCheck:SetCheck(value)
+							end,
 						}),
 						}),
 					PlaceObj('XTemplateWindow', {
@@ -718,9 +714,9 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "SetEnabled(self, enabled)",
 							'func', function (self, enabled)
-XTextButton.SetEnabled(self, enabled)
-self:SetDesaturation(enabled and 0 or 255)
-end,
+								XTextButton.SetEnabled(self, enabled)
+								self:SetDesaturation(enabled and 0 or 255)
+							end,
 						}),
 						}),
 					PlaceObj('XTemplateWindow', {
@@ -811,9 +807,9 @@ end,
 			}),
 			PlaceObj('XTemplateCode', {
 				'run', function (self, parent, context)
-local spinner = parent:ResolveId("idSpinner")
-spinner:SetVisible(context.creating_account)
-end,
+					local spinner = parent:ResolveId("idSpinner")
+					spinner:SetVisible(context.creating_account)
+				end,
 			}),
 			}),
 		}),

@@ -6,6 +6,14 @@ DefineModItemPreset("BuildingTemplate", {
 	EditorName = "BuildingTemplate",
 })
 
+function ModItemBuildingTemplate:OnEditorSetProperty(prop_id, old_value, ged)
+	BuildingTemplate.OnEditorSetProperty(self, prop_id, old_value, ged)
+	ModItemPreset.OnEditorSetProperty(self, prop_id, old_value, ged)
+	if prop_id == "entity" and IsValidEntity(self.entity) then
+		Msg("VerifyModItemEntity", self, self.entity, ged)
+	end
+end
+
 function ModItemBuildingTemplate:NamesCombo()
 	return table.keys2(BuildingTemplates, true)
 end
@@ -18,6 +26,10 @@ function ModItemBuildingTemplate:PostLoad(...)
 		self:SetGroup(build_category)
 	end
 	BuildingTemplate.PostLoad(self, ...)
+end
+
+function ModItemBuildingTemplate:OnEditorNew(mod, ged)
+	BuildingTemplate.PostLoad(self)
 end
 
 local override_browse_properties = {

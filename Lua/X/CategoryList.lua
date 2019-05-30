@@ -1,6 +1,7 @@
 DefineClass.CategoryList = {
 	__parents = {"XControl"},
 	id = "idCategoryList",
+	HandleMouse = false,
 }
 
 function CategoryList:Init()
@@ -16,6 +17,7 @@ function CategoryList:Init()
 		MinWidth = 400,
 		HAlign = "center",
 		IdNode = false,
+		HandleMouse = true,
 	}, ctrl)
 	XLabel:new({
 		Id = "idSelectedCat",
@@ -30,6 +32,7 @@ function CategoryList:Init()
 	--categories list
 	local list = XWindow:new({
 		HAlign = "center",
+		HandleMouse = true,
 	}, ctrl)
 	XFrame:new({
 		Id = "idCategoriesPad",

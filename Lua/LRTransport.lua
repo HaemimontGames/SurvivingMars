@@ -230,7 +230,7 @@ function PathLenCached(pt1, pfclass, pt2)
 		pt1, pt2 = pt2, pt1
 	end
 	local dist
-	local key = xxhash(pt1, pt2, pfclass)
+	local key = xxhash64(pt1, pt2, pfclass)
 	local pass_id = terrain.GetPassId()
 	if PathLenId ~= pass_id then
 		--print("pass_id", pass_id, "hits", PathLenHits, "misses", table.count(PathLenCache or empty_table))
@@ -270,11 +270,15 @@ local function CheckMinDist(bld1, bld2)
 	return true
 end
 
-function SavegameFixups.CleanLRManagerQueues()
+local function CleanLRManagerQueues()
 	local tbl = LRManagerInstance.demand_queues
+	local storages = LRManagerInstance.registered_storages
 	for k, v in pairs(tbl) do
 		for i = #v, 1, -1 do
-			if not IsValid(v[i]:GetBuilding()) then
+			local bld = v[i]:GetBuilding()
+			if not IsValid(bld)
+				or not IsKindOf(bld, "ShuttleLanding") 
+				or (v[i]:IsAnyFlagSet(const.rfMechanizedStorage) and not table.find(storages, bld)) then
 				table.remove(v, i)
 			end
 		end
@@ -282,12 +286,39 @@ function SavegameFixups.CleanLRManagerQueues()
 	tbl = LRManagerInstance.supply_queues
 	for k, v in pairs(tbl) do
 		for i = #v, 1, -1 do
-			if not IsValid(v[i]:GetBuilding()) then
+			if not IsValid(v[i]:GetBuilding()) 
+				or not IsKindOf(v[i]:GetBuilding(), "ShuttleLanding") then
 				table.remove(v, i)
 			end
 		end
 	end
 end
+
+function TestLRQueues()
+	local dq = LRManagerInstance.demand_queues
+	for k, v in pairs(dq) do
+		for i = 1, #v do
+			assert(IsValid(v[i]:GetBuilding()))
+		end
+	end
+	
+	dq = LRManagerInstance.supply_queues
+	
+	for k, v in pairs(dq) do
+		for i = 1, #v do
+			assert(IsValid(v[i]:GetBuilding()))
+		end
+	end
+	
+	local t = LRManagerInstance.registered_storages
+	for k, v in ipairs(t) do
+		assert(IsValid(v))
+	end
+end
+
+SavegameFixups.CleanLRManagerQueues = CleanLRManagerQueues
+SavegameFixups.CleanLRManagerQueuesAgain = CleanLRManagerQueues
+SavegameFixups.CleanLRManagerQueuesThirdTimeIsTheCharm = CleanLRManagerQueues
 
 local hystory_time = 3*const.HourDuration
 function LRManager:FindTransportTask(requestor, demand_only, force_resource, capacity, transport_mode)
@@ -352,7 +383,8 @@ function LRManager:FindTransportTask(requestor, demand_only, force_resource, cap
 		end
 	end
 	--]]
-	local res_s_req, res_d_req, res_prio, res_resource, req_count = Request_FindShuttleTask(requestor, resources, demand_queues, supply_queues, demand_only, capacity)
+	local res_s_req, res_d_req, res_prio, res_resource, req_count = 
+	Request_FindShuttleTask(requestor, resources, demand_queues, supply_queues, demand_only, capacity)
 	
 	local hystory = self.req_hystory or {}
 	self.req_hystory = hystory

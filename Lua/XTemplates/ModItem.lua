@@ -14,12 +14,12 @@ PlaceObj('XTemplate', {
 		'FXPressDisabled', "UIDisabledButtonPressed",
 		'FocusedBackground', RGBA(0, 0, 0, 0),
 		'OnPress', function (self, gamepad)
-if not self.context.corrupted then
-	local id = self.context.id
-	local state = ToggleLoadMod(id)
-	self.idCheckbox:SetImage(GetCheckboxImage(state))
-end
-end,
+			if not self.context.corrupted then
+				local id = self.context.id
+				local state = ToggleLoadMod(id)
+				self.idCheckbox:SetImage(GetCheckboxImage(state))
+			end
+		end,
 		'RolloverBackground', RGBA(0, 0, 0, 0),
 		'PressedBackground', RGBA(0, 0, 0, 0),
 		'TextStyle', "ListItem3",
@@ -81,69 +81,69 @@ end,
 			PlaceObj('XTemplateFunc', {
 				'name', "CalcTextColor",
 				'func', function (self, ...)
-return self.enabled and 
-			((self.parent.rollover or self.parent.parent:ResolveId("idList").focused_item == self.context.number)
-				and self.RolloverTextColor or self.TextColor)
-				or self.DisabledTextColor
-end,
+					return self.enabled and 
+								((self.parent.rollover or self.parent.parent:ResolveId("idList").focused_item == self.context.number)
+									and self.RolloverTextColor or self.TextColor)
+									or self.DisabledTextColor
+				end,
 			}),
 			PlaceObj('XTemplateFunc', {
 				'name', "Open",
 				'func', function (self, ...)
-self:SetTextStyle(self.parent.TextStyle)
-XText.Open(self, ...)
-end,
+					self:SetTextStyle(self.parent.TextStyle)
+					XText.Open(self, ...)
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnSetFocus",
 			'func', function (self, ...)
-XCreateRolloverWindow(self, true)
-XTextButton.OnSetFocus(self, ...)
-end,
+				XCreateRolloverWindow(self, true)
+				XTextButton.OnSetFocus(self, ...)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnXButtonDown",
 			'func', function (self, ...)
-local button = ...
-if button == "ButtonA" then
-	return self:OnButtonDown(false)
-end
-end,
+				local button = ...
+				if button == "ButtonA" then
+					return self:OnButtonDown(false)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnXButtonUp",
 			'func', function (self, ...)
-local button = ...
-if button == "ButtonA" then
-	return self:OnButtonUp(false)
-end
-end,
+				local button = ...
+				if button == "ButtonA" then
+					return self:OnButtonUp(false)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnShortcut(self, shortcut, source)",
 			'func', function (self, shortcut, source)
-if shortcut == "Enter" or shortcut == "Space" or shortcut == "ButtonA" then
-	self:Press(false)
-	return "break"
-end
-end,
+				if shortcut == "Enter" or shortcut == "Space" or shortcut == "ButtonA" then
+					self:Press(false)
+					return "break"
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "SetSelected(self, selected)",
 			'func', function (self, selected)
-self:SetFocus(selected)
-end,
+				self:SetFocus(selected)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "UpdateImage",
 			'func', function (self, ...)
-local context = self.context
-if not context.corrupted then
-	local state = table.find(AccountStorage.LoadMods, context.id)
-	self.idCheckbox:SetImage(GetCheckboxImage(state))
-end
-end,
+				local context = self.context
+				if not context.corrupted then
+					local state = table.find(AccountStorage.LoadMods, context.id)
+					self.idCheckbox:SetImage(GetCheckboxImage(state))
+				end
+			end,
 		}),
 		}),
 })

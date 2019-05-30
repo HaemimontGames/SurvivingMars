@@ -43,8 +43,8 @@ OnMsg.LoadGame = PlaceGamepadTerrainObjects
 OnMsg.NewMapLoaded = PlaceGamepadTerrainObjects
 
 function GamepadTerrainObjects:Init()
-	self.units = objlist:new{}
-	self.objects = objlist:new{}
+	self.units = {}
+	self.objects = {}
 	self.actions = { }
 	
 	self.update_thread = CreateMapRealTimeThread(function(self)
@@ -62,7 +62,7 @@ function GamepadTerrainObjects:Done()
 end
 
 local function PropagateObjectList(objects)
-	local result = objlist:new{}
+	local result = {}
 
 	for i,obj in ipairs(objects) do
 		local remapped_obj = SelectionPropagate(obj)
@@ -70,8 +70,8 @@ local function PropagateObjectList(objects)
 			local group = remapped_obj:GetDepositGroup()
 			remapped_obj = group and group.holder or remapped_obj
 		end
-		if not result:Contains(remapped_obj) then
-			result:PushBack(remapped_obj)
+		if not table.find(result, remapped_obj) then
+			result[#result + 1] = remapped_obj
 		end
 	end
 	
@@ -224,12 +224,16 @@ function GamepadTerrainObjects:MsgPostsave()
 	self.disable_update = false
 end
 
-function OnMsg.SelectedObjChange(obj, prev)
-	if g_GamepadObjects then
-		if not obj or not obj:HasMember("gamepad_auto_deselect") or not obj.gamepad_auto_deselect then
-			g_GamepadObjects.last_selection = false
-		end
+function OnMsg.SelectionAdded(obj)
+	if not g_GamepadObjects then return end
+	if not obj or not obj:HasMember("gamepad_auto_deselect") or not obj.gamepad_auto_deselect then
+		g_GamepadObjects.last_selection = false
 	end
+end
+
+function OnMsg.SelectionRemoved(obj)
+	if not g_GamepadObjects then return end
+	g_GamepadObjects.last_selection = false
 end
 
 local function PointInsideEllipse(pt, ellipse_center, width, height)
@@ -267,21 +271,67 @@ function GamepadTerrainObjects:PointInside(pt, width)
 	end
 end
 
+local function propagate_object_list(list)
+	local objset = { }
+	local result = { }
+	for i=1,#list do
+		local obj = SelectionPropagate(list[i])
+		if IsValid(obj) and not objset[obj] then
+			objset[obj] = true
+			result[#result + 1] = obj
+		end
+	end
+	
+	return result
+end
+
 local UnitClasses = {"Drone", "Colonist"}
 function GamepadTerrainObjects:GatherUnits()
-	return self:GatherObjectsOfTypes(UnitClasses, nil)
+	local objs = { }
+	self:GatherObjectsOfTypes(objs, UnitClasses, nil)
+	
+	--@@@msg GamepadGatherSelectedUnits,gamepad_terrain_objects, objects- use this message to queue custom units for gamepad selection.
+	Msg("GamepadGatherSelectedUnits", self, objs)
+	
+	return propagate_object_list(objs)
 end
 
 local SelectionClasses = {"ResourceStockpileBase", "Deposit", "Unit", "AlienDigger"}
 function GamepadTerrainObjects:GatherObjects(...)
-	local buildings = self:GatherBuildings(...)
-	local flying = self:GatherObjectsUnderCursor("FlyingObject")
-	local others = self:GatherObjectsOfTypes(SelectionClasses, "Drone", "Colonist", "FlyingObject")
-	return buildings:Union(others):Union(flying)
+	--gather standard objects
+	local objs = { }
+	self:GatherBuildings(objs, ...)
+	self:GatherObjectsUnderCursor(objs, "FlyingObject")
+	self:GatherObjectsOfTypes(objs, SelectionClasses, "Drone", "Colonist", "FlyingObject")
+	
+	--@@@msg GamepadGatherSelectedObjects,gamepad_terrain_objects, objects- use this message to queue custom big objects for gamepad selection.
+	Msg("GamepadGatherSelectedObjects", self, objs)
+	
+	return propagate_object_list(objs)
+end
+
+function GamepadTerrainObjects:FilterBuilding(obj, include_cables)
+	if IsKindOf(obj, "DomeInterior") then
+		obj = obj.dome
+	end
+	
+	if IsKindOf(obj, "Building") and not obj.disable_selection then
+		local propagated_obj = SelectionPropagate(obj)
+		obj = IsKindOf(propagated_obj, "Building") and propagated_obj or obj
+		return obj
+	elseif IsKindOf(obj, "SupplyGridSwitch") and obj.is_switch then
+		return obj
+	elseif include_cables and IsKindOf(obj, "ElectricityGridElement") then
+		return obj
+	elseif IsKindOf(obj, "LifeSupportGridElement") and obj.pillar then
+		return obj
+	elseif IsKindOf(obj, "ToxicPool") and obj:CanBeCleaned() then
+		return obj
+	end
 end
 
 local building_additional_range = const.GridSpacing*2/3
-function GamepadTerrainObjects:GatherBuildings(cables)
+function GamepadTerrainObjects:GatherBuildings(buildings, cables)
 	local xpos, width = self.pos, self.width
 	local range = Clamp((width + building_additional_range) / const.GridSpacing, 0, 8)
 	
@@ -293,55 +343,39 @@ function GamepadTerrainObjects:GatherBuildings(cables)
 		blds = HexGridGetObjectsInRange(ObjectGrid, q, r, range)
 	end
 	
-	local new_buildings = objlist:new{}
-	
 	--handle buildings
 	for i=1,#blds do
 		local bld = blds[i]
 		if bld:GetVisible() then
-			if IsKindOf(bld, "DomeInterior") then
-				bld = bld.dome
-			end
-			
-			if IsKindOf(bld, "Building") and not bld.disable_selection then
-				local propagated_obj = SelectionPropagate(blds[i])
-				bld = IsKindOf(propagated_obj, "Building") and propagated_obj or bld
-				table.insert_unique(new_buildings, bld)
-			elseif IsKindOf(bld, "SupplyGridSwitch") and bld.is_switch then
-				table.insert_unique(new_buildings, bld)
-			elseif cables and IsKindOf(bld, "ElectricityGridElement") then
-				table.insert_unique(new_buildings, bld)
-			elseif IsKindOf(bld, "LifeSupportGridElement") and bld.pillar then
-				table.insert_unique(new_buildings, bld)
+			bld = self:FilterBuilding(bld, cables)
+			if bld then
+				table.insert_unique(buildings, bld)
 			end
 		end
 	end
 		
 	--look for supply rockets and treat them as buildings
-	local rockets = self:GatherObjectsOfTypes("SupplyRocket")
-	for i=1,#rockets do
-		table.insert_unique(new_buildings, rockets[i])
-	end
-	
-	return new_buildings
+	self:GatherObjectsOfTypes(buildings, "SupplyRocket")
 end
 
-function GamepadTerrainObjects:GatherObjectsUnderCursor(...)
+function GamepadTerrainObjects:GatherObjectsUnderCursor(objs, ...)
 	--precise, but slow - use only for low number of objects
 	local cursor_point1  = camera.GetEye()
 	local cursor_point2  = GetTerrainGamepadCursor()
 	local cursor_radius = 20*guim
-	local candidates = MapGet(cursor_point1, cursor_point2, cursor_radius, ... )
+	local candidates = MapGet(cursor_point1, cursor_point2, cursor_radius, ...)
 	
 	local xcursor_box = GetGamepadCursor().box
 	local center = xcursor_box:Center()
 	local width, height = xcursor_box:sizexyz()
 	
 	local obj = ClosestObjInsideEllipse(candidates, empty_table, center, width/2, height/2)
-	return objlist:new({ obj })
+	if obj then
+		table.insert_unique(objs, obj)
+	end
 end
 
-function GamepadTerrainObjects:GatherObjectsOfTypes(classes, ...)
+function GamepadTerrainObjects:GatherObjectsOfTypes(objs, classes, ...)
 	--12 meters is the maximum step length that the pathfinder allows (bug:0132040)
 	local query_width = self.width + 12 * guim
 	local query_filter = function(obj, gamepad_objs, width, ...)
@@ -351,8 +385,10 @@ function GamepadTerrainObjects:GatherObjectsOfTypes(classes, ...)
 		end
 		return gamepad_objs:PointInside(pos, width)
 	end
-	return MapGet(self.pos, query_width, classes, const.efSelectable + const.efVisible, 
-					 query_filter, self, query_width, ...)
+	local new_objs = MapGet(self.pos, query_width, classes, const.efSelectable + const.efVisible, query_filter, self, query_width, ...)
+	for i=1,#new_objs do
+		table.insert_unique(objs, new_objs[i])
+	end
 end
 
 local function GetNextObj(list, obj)
@@ -360,11 +396,11 @@ local function GetNextObj(list, obj)
 end
 
 function GamepadTerrainObjects:GetNextClosestUnit(current_unit)
-	return GetNextObj(self.units:Validate(), current_unit)
+	return GetNextObj(table.validate(self.units), current_unit)
 end
 
 function GamepadTerrainObjects:GetNextClosestObject(current_object)
-	return GetNextObj(self.objects:Validate(), current_object)
+	return GetNextObj(table.validate(self.objects), current_object)
 end
 
 function GamepadTerrainObjects:GetObject()

@@ -17,10 +17,10 @@ PlaceObj('XTemplate', {
 		'RelativeFocusOrder', "next-in-line",
 		'FocusedBackground', RGBA(0, 0, 0, 0),
 		'OnPress', function (self, gamepad)
-if self.context then
-	self.context:Select()
-end
-end,
+			if self.context then
+				self.context:Select()
+			end
+		end,
 		'AltPress', true,
 		'RolloverBackground', RGBA(0, 0, 0, 0),
 		'PressedBackground', RGBA(0, 0, 0, 0),
@@ -33,11 +33,11 @@ end,
 		}),
 		PlaceObj('XTemplateCode', {
 			'run', function (self, parent, context)
-if context then
-	parent:SetIcon(context:GetInfopanelIcon())
-	parent.idSpecialization:SetImage(context.ip_specialization_icon)
-end
-end,
+				if context then
+					parent:SetIcon(context:GetInfopanelIcon())
+					parent.idSpecialization:SetImage(context.ip_specialization_icon)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XImage",

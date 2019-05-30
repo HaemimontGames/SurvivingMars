@@ -28,16 +28,16 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnSetRollover(self, rollover)",
 			'func', function (self, rollover)
---achieve proper highlighting of pin btn - highlight when interacting with it, zoom-in in other cases
-XBlinkingButton.OnSetRollover(self, rollover)
-local kb_focus = self.desktop:GetKeyboardFocus()
-local focus_within = kb_focus and kb_focus:IsWithin(self)
-local mouse_pos = self.desktop.last_mouse_pos
-local mouse_over = mouse_pos and self:MouseInWindow(mouse_pos)
-if not (focus_within or mouse_over) and not self.blinking then
-	self.idRollover:SetVisible(false)
-end
-end,
+				--achieve proper highlighting of pin btn - highlight when interacting with it, zoom-in in other cases
+				XBlinkingButton.OnSetRollover(self, rollover)
+				local kb_focus = self.desktop:GetKeyboardFocus()
+				local focus_within = kb_focus and kb_focus:IsWithin(self)
+				local mouse_pos = self.desktop.last_mouse_pos
+				local mouse_over = mouse_pos and self:MouseInWindow(mouse_pos)
+				if not (focus_within or mouse_over) and not self.blinking then
+					self.idRollover:SetVisible(false)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XImage",

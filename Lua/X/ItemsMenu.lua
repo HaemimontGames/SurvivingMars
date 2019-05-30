@@ -14,6 +14,10 @@ DefineClass.ItemMenuBase = {
 	lines_stretch_time = 200,
 	cat_section_show_time = 120,
 	show_sel_cat_name_lag = 200,
+	
+	idContainer = false,
+	idBackground = false,
+	idButtonsListScroll = false,
 } 
 
 function ItemMenuBase:Init()
@@ -48,7 +52,11 @@ function ItemMenuBase:InitButtonsUI()
 		RolloverAnchor = self.rollover_anchor,
 		IdNode = false,
 		Background = RGBA(255, 255, 255, 0),
+		HandleMouse = true,
 	}, self)
+	self.idContainer.OnMouseButtonDown = function(pt, button)
+		return "break"
+	end
 
 	--background
 	XFrame:new({
@@ -69,16 +77,6 @@ function ItemMenuBase:InitButtonsUI()
 		IdNode = false,
 		MouseWheelStep = 60,
 	}, self.idContainer)
-	function buttons_list:OnMouseWheelForward()
-		local max = Max(0, self.scroll_range_x - self.content_box:sizex())
-		self:ScrollTo(Clamp(self.OffsetX - self.MouseWheelStep, 0, max), self.PendingOffsetY)
-		return "break"
-	end
-	function buttons_list:OnMouseWheelBack()
-		local max = Max(0, self.scroll_range_x - self.content_box:sizex())
-		self:ScrollTo(Clamp(self.OffsetX + self.MouseWheelStep, 0, max), self.PendingOffsetY)
-		return "break"
-	end
 	
 	local buttons_scroll = XScrollThumb:new({
 		Id = "idButtonsListScroll",
@@ -111,13 +109,14 @@ function ItemMenuBase:InitButtonsUI()
 end
 
 function ItemMenuBase:StretchCloseAnimation(ctrl, start_time, duration, invert)
+	if not ctrl then return end
 	ctrl:AddInterpolation{
 		id = "stretch",
 		type = const.intRect,
 		duration = duration or const.InterfaceAnimDuration,
 		start = start_time or GetPreciseTicks(),
-		startRect = ctrl.box,
-		endRect = box(ctrl.box:minx() + ctrl.box:sizex() / 2, ctrl.box:miny(), ctrl.box:minx() + ctrl.box:sizex() / 2, ctrl.box:maxy()),
+		originalRect = ctrl.box,
+		targetRect = box(ctrl.box:minx() + ctrl.box:sizex() / 2, ctrl.box:miny(), ctrl.box:minx() + ctrl.box:sizex() / 2, ctrl.box:maxy()),
 		autoremove = not not invert,
 		flags = invert and const.intfInverse or nil,
 		easing = const.Easing.CubicIn,
@@ -224,7 +223,9 @@ function ItemMenuBase:CloseItemsInterpolation()
 			EdgeAnimation(false, self.idCategoryList, 0, self.box:sizey() - self.idCategoryList.idCatBkg.box:miny())
 		end	
 		self:StretchCloseAnimation(self.idBackground)
-		self.idButtonsListScroll:SetVisible(false)
+		if self.idButtonsListScroll then
+			self.idButtonsListScroll:SetVisible(false)
+		end
 		
 		Sleep(const.InterfaceAnimDuration)
 		
@@ -392,6 +393,13 @@ function ItemMenuBase:OnXButtonDown(button, source)
 			end
 		end
 		return "break"
+	elseif button == "ButtonX" then
+		local res
+		local focus = self.desktop and self.desktop.keyboard_focus
+		if focus then
+			res = focus.idButton:OnMouseButtonDoubleClick(nil, "L")
+		end
+		if res == "break" then return res end
 	elseif button == "ButtonB" then
 		self:SelectParentCategory()
 		return "break"

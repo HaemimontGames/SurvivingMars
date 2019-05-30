@@ -9,7 +9,7 @@ PrgAmbientLife["Visitbasketball"] = function(unit, bld, obj, spot, slot_data, sl
 		end
 	end)
 
-	__placed = PlaceObject("Basketball", nil, const.cfComponentEx + const.cfComponentAttach)
+	__placed = PlaceObject("Basketball", nil, const.cofComponentAnim + const.cofComponentAttach)
 	NetTempObject(__placed)
 	__placed:SetState("playBasketball", const.eDontCrossfade)
 	unit:Attach(__placed, unit:GetRandomSpot("Origin"))

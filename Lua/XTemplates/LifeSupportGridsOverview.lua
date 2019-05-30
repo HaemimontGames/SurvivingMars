@@ -67,7 +67,7 @@ PlaceObj('XTemplate', {
 						'MaxWidth', 200,
 						'TextStyle', "OverviewItemSection",
 						'Translate', true,
-						'Text', T{359672804540, --[[XTemplate LifeSupportGridsOverview Text]] "(design)Stored Resources"},
+						'Text', T(359672804540, --[[XTemplate LifeSupportGridsOverview Text]] "Stored Resources"),
 						'TextHAlign', "center",
 					}),
 					PlaceObj('XTemplateWindow', {
@@ -101,21 +101,21 @@ PlaceObj('XTemplate', {
 						'VScroll', "idScroll",
 						'MouseScroll', true,
 						'OnContextUpdate', function (self, context, ...)
-for _, child in ipairs(self) do
-	child:OnContextUpdate(context, ...)
-end
-XContextWindow.OnContextUpdate(self, context, ...)
-end,
+							for _, child in ipairs(self) do
+								child:OnContextUpdate(context, ...)
+							end
+							XContextWindow.OnContextUpdate(self, context, ...)
+						end,
 					}, {
 						PlaceObj('XTemplateForEach', {
 							'comment', "life support grids",
 							'array', function (parent, context) return GetCommandCenterLifeSupportGrids(context) end,
 							'__context', function (parent, context, item, i, n) return item end,
 							'run_after', function (child, context, item, i, n)
-child.idTitle:SetText(T{11629, "GRID <i>", i = i})
-child.idButtonIcon:SetImage("UI/Icons/Sections/water_1.tga")
-child.idButtonIcon:SetColumns(1)
-end,
+								child.idTitle:SetText(T{11629, "GRID <i>", i = i})
+								child.idButtonIcon:SetImage("UI/Icons/Sections/Water_1.tga")
+								child.idButtonIcon:SetColumns(1)
+							end,
 						}, {
 							PlaceObj('XTemplateTemplate', {
 								'__template', "LifeSupportGridsOverviewRow",
@@ -123,10 +123,10 @@ end,
 							}),
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-if GetUIStyleGamepad() and #parent > 0 then
-	parent[1]:SetFocus()
-end
-end,
+								if GetUIStyleGamepad() and #parent > 0 then
+									parent[1]:SetFocus()
+								end
+							end,
 						}),
 						}),
 					PlaceObj('XTemplateWindow', {
@@ -139,13 +139,13 @@ end,
 						'HandleMouse', false,
 						'TextStyle', "InGameTitle",
 						'Translate', true,
-						'Text', T(591853191640, --[[XTemplate LifeSupportGridsOverview Text]] "Empty list"),
+						'Text', T(12189, --[[XTemplate LifeSupportGridsOverview Text]] "No objects to show."),
 					}),
 					PlaceObj('XTemplateCode', {
 						'run', function (self, parent, context)
-local list = parent:ResolveId("idList")
-parent:ResolveId("idNoResults"):SetVisible(#list == 0)
-end,
+							local list = parent:ResolveId("idList")
+							parent:ResolveId("idNoResults"):SetVisible(#list == 0)
+						end,
 					}),
 					}),
 				}),

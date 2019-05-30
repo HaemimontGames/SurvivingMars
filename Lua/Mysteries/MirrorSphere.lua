@@ -42,8 +42,7 @@ end
 
 DefineClass.MirrorSphere = {
 	__parents = { "FlyingObject", "BaseHeater", "AnimatedTextureObject", "InfopanelObj", "PinnableObject" },
-	enum_flags = { efSelectable = true },
-	class_flags = { cfComponentEx = true },
+	flags = { efSelectable = true, cofComponentInterpolation = true },
 	entity = "Mystery_MirrorSphere",
 	
 	avoid_height = 60*guim,
@@ -65,7 +64,8 @@ DefineClass.MirrorSphere = {
 	decoy = false,
 	sphere_charge = 0,
 	cold_wave = false,
-	heat = -const.MaxHeat,
+	heat = -2*const.MaxHeat,
+	max_neighbors = 4,
 	starting_angle_error = 360 * 60,
 	max_progress = max_progress,
 	
@@ -94,7 +94,7 @@ function MirrorSphere:Done()
 	if UICity then
 		UICity:RemoveFromLabel("MirrorSpheres", self)
 	end
-	self:IrradiateRemove()
+	self:ColdWaveDstr()
 end
 
 function MirrorSphere:GetHeatRange()
@@ -106,7 +106,7 @@ function MirrorSphere:GetHeatBorder()
 end
 
 function MirrorSphere:GetSelectionRadiusScale()
-	return effect_range
+	return effect_range / const.HexSize
 end
 
 function MirrorSphere:GetProgressPct()
@@ -275,16 +275,18 @@ local function drain_func(obj, self)
 	end
 end
 
+function MirrorSphere:ColdWaveDstr()
+	self.cold_wave = false
+	self:ShowRadius(false)
+	self:IdleMark(false)
+	self:ApplyHeat(false)
+	SetIceStrength(0, self)
+	PlayFX("Freeze", "end", self)
+	self:IrradiateRemove()
+end
+
 function MirrorSphere:ColdWaveCmd()
-	self:PushDestructor(function(self)
-		self.cold_wave = false
-		self:ShowRadius(false)
-		self:IdleMark(false)
-		self:ApplyHeat(false)
-		SetIceStrength(0, self)
-		PlayFX("Freeze", "end", self)
-		self:IrradiateRemove()
-	end)
+	self:PushDestructor(self.ColdWaveDstr)
 	PlayFX("Freeze", "start", self)
 	self.cold_wave = true
 	self:ShowRadius()
@@ -521,12 +523,15 @@ function MirrorSphere:ShowRadius(show)
 	PlayFX("ShowWorkRadius", show and "start" or "end", self)
 end
 
-function OnMsg.SelectedObjChange(obj, prev)
-	if IsKindOf(prev, "MirrorSphere") then
-		prev:ShowRadius(false)
-	end
+function OnMsg.SelectionAdded(obj)
 	if IsKindOf(obj, "MirrorSphere") then
 		obj:ShowRadius(true)
+	end
+end
+
+function OnMsg.SelectionRemoved(obj)
+	if IsKindOf(obj, "MirrorSphere") then
+		obj:ShowRadius(false)
 	end
 end
 
@@ -989,7 +994,6 @@ end
 
 DefineClass.DummyMirrorSphere = {
 	__parents = { "EditorVisibleObject" },
-	enum_flags = { efSelectable = false, efWalkable = false, efApplyToGrids = false, efCollision = false },
-	class_flags = { cfComponentEx = true },
+	flags = { cofComponentInterpolation = true, efSelectable = false, efWalkable = false, efApplyToGrids = false, efCollision = false },
 	entity = "Mystery_MirrorSphere",
 }

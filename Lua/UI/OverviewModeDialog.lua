@@ -765,44 +765,98 @@ function OverviewModeDialog:SetCameraAngle(angle, time)
 	cameraRTS.SetCamera(pos, lookat, time or 0)
 end
 
+function OnMsg.SelectedObjChange(obj, prev)
+	if prev and IsKindOfClasses(prev, "SubsurfaceDeposit", "TerrainDeposit") then
+		prev:SetOpacity(g_CurrentDepositOpacity)
+	elseif obj and IsKindOfClasses(obj, "SubsurfaceDeposit", "TerrainDeposit") then
+		obj:SetOpacity(100)
+	end
+end
+
 function OverviewModeDialog:ScaleSmallObjects(time, direction)
-	local signs = MapGet(true, "SubsurfaceDeposit", "TerrainDeposit", "ArrowTutorialBase")
-	local ropes = MapGet("map", "SpaceElevatorRope")
 	CreateRealTimeThread( function()
-		g_CurrentDepositScale = direction == "up" and const.SignsOverviewCameraScaleUp or const.SignsOverviewCameraScaleDown
-	
-		local i = 0
-		local step = 33
-		repeat
-			Sleep(step)
-			local sings_scale, ropes_scale
-			if time == 0 then
-				sings_scale = direction == "up" and const.SignsOverviewCameraScaleUp or const.SignsOverviewCameraScaleDown
-				ropes_scale = direction == "up" and const.ElevatorRopesOverviewCameraScaleUp or const.ElevatorRopesOverviewCameraScaleDown
-			else
-				sings_scale = const.SignsOverviewCameraScaleDown + MulDivRound(direction == "up" and i or time-i, const.SignsOverviewCameraScaleUp - const.SignsOverviewCameraScaleDown, time)
-				ropes_scale = const.ElevatorRopesOverviewCameraScaleDown + MulDivRound(direction == "up" and i or time-i, const.ElevatorRopesOverviewCameraScaleUp - const.ElevatorRopesOverviewCameraScaleDown, time)
-			end
-			for _, sign in ipairs(signs) do
-				if IsValid(sign) then
-					sign:SetVisible(direction == "up" and g_SignsVisible or g_SignsVisible and g_ResourceIconsVisible)
-					sign:SetScale(sings_scale)
-				end
-			end
-			for _,rope in ipairs(ropes) do
-				if IsValid(rope) then
-					rope:SetScale(ropes_scale)
-				end
-			end
-			i = i + step
-		until i > time or not CameraTransitionThread
+		local signs = MapGet(true, "SubsurfaceDeposit", "TerrainDeposit")
+		local arrows = MapGet(true, "ArrowTutorialBase")
+		local ropes = MapGet("map", "SpaceElevatorRope")
+		local up = direction == "up"
+		 
+		g_CurrentDepositScale = up and const.SignsOverviewCameraScaleUp or const.SignsOverviewCameraScaleDown
+		g_CurrentDepositOpacity = up and const.SignsOverviewCameraOpacityUp or const.SignsOverviewCameraOpacityDown
 		
-		local disableZ = direction == "up"
-		for _, obj in ipairs(signs) do
-			if IsValid(obj) then
-				obj:SetNoDepthTest(disableZ)
+		local sings_visible = up and g_SignsVisible or g_SignsVisible and g_ResourceIconsVisible
+		local sings_opacity = not up and const.SignsOverviewCameraOpacityUp or const.SignsOverviewCameraOpacityDown
+		local sings_scale = not up and const.SignsOverviewCameraScaleUp or const.SignsOverviewCameraScaleDown
+		local ropes_scale = not up and const.ElevatorRopesOverviewCameraScaleUp or const.ElevatorRopesOverviewCameraScaleDown
+		for _, sign in ipairs(signs) do
+			if IsValid(sign) then
+				sign:SetVisible(sings_visible)
+				sign:SetOpacity(sings_opacity)
+				sign:SetScale(sings_scale)
 			end
 		end
+		for _, arrow in ipairs(arrows) do
+			if IsValid(arrow) then
+				arrow:SetVisible(sings_visible)
+				arrow:SetScale(sings_scale)
+			end
+		end
+		for _,rope in ipairs(ropes) do
+			if IsValid(rope) then
+				rope:SetScale(ropes_scale)
+			end
+		end
+		
+		if time ~= 0 then -- there needs to be smooth transition
+			local step = 33
+			local i = step
+			repeat
+				Sleep(step)
+				sings_scale = const.SignsOverviewCameraScaleDown + MulDivRound(up and i or time-i, const.SignsOverviewCameraScaleUp - const.SignsOverviewCameraScaleDown, time)
+				sings_opacity = const.SignsOverviewCameraOpacityDown + MulDivRound(up and i or time-i, const.SignsOverviewCameraOpacityUp - const.SignsOverviewCameraOpacityDown, time)
+				ropes_scale = const.ElevatorRopesOverviewCameraScaleDown + MulDivRound(up and i or time-i, const.ElevatorRopesOverviewCameraScaleUp - const.ElevatorRopesOverviewCameraScaleDown, time)
+				for _, sign in ipairs(signs) do
+					if IsValid(sign) then
+						sign:SetScale(sings_scale)
+						sign:SetOpacity(sings_opacity)
+					end
+				end
+				for _, arrow in ipairs(arrows) do
+					if IsValid(arrow) then
+						arrow:SetScale(sings_scale)
+					end
+				end
+				for _,rope in ipairs(ropes) do
+					if IsValid(rope) then
+						rope:SetScale(ropes_scale)
+					end
+				end
+				i = i + step
+			until i > time or not CameraTransitionThread
+		end
+		
+		local sings_scale = up and const.SignsOverviewCameraScaleUp or const.SignsOverviewCameraScaleDown
+		local sings_opacity = up and const.SignsOverviewCameraOpacityUp or const.SignsOverviewCameraOpacityDown
+		local ropes_scale = up and const.ElevatorRopesOverviewCameraScaleUp or const.ElevatorRopesOverviewCameraScaleDown
+		local disableZ = up
+		for _, sign in ipairs(signs) do
+			if IsValid(sign) then
+				sign:SetNoDepthTest(disableZ)
+				sign:SetScale(sings_scale)
+				sign:SetOpacity(sings_opacity)
+			end
+		end
+		for _, arrow in ipairs(arrows) do
+			if IsValid(arrow) then
+				arrow:SetNoDepthTest(disableZ)
+				arrow:SetScale(sings_scale)
+			end
+		end
+		for _,rope in ipairs(ropes) do
+			if IsValid(rope) then
+				rope:SetScale(ropes_scale)
+			end
+		end
+		
 	end )
 end
 

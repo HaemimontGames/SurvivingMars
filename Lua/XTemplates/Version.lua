@@ -10,12 +10,12 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-XLayer.Open(self, ...)
-self:SetMargins(GetSafeMargins())
-end,
+				XLayer.Open(self, ...)
+				self:SetMargins(GetSafeMargins())
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
-			'__context', function (parent, context) return _G end,
+			'__context', function (parent, context) return { LuaRevision = LuaRevision } end,
 			'__class', "XText",
 			'Id', "idVersion",
 			'Margins', box(0, 0, 50, 20),

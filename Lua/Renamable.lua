@@ -14,7 +14,7 @@ function Renamable:ShowRenameUI(gamepad)
 		T{4033, "Rename <display_name>", self}, 
 		self:GetRenameInitText(), 
 		function(new_val) self.name = new_val end, 
-		__empty_function__,
+		empty_func,
 		nil, {max_len = self.max_name_len, console_show = not gamepad or (gamepad and Platform.steam)}
 	)
 end

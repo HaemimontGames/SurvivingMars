@@ -11,10 +11,10 @@ PlaceObj('XTemplate', {
 		'LayoutMethod', "VList",
 		'HandleMouse', true,
 		'OnContextUpdate', function (self, context, ...)
-self.idSiteSummary:SetVisible(not context.challenge_summary)
-self.idChallengeSummary:SetVisible(context.challenge_summary)
-self:ResolveId("idEffectsTextArea"):ScrollTo(0,0)
-end,
+			self.idSiteSummary:SetVisible(not context.challenge_summary)
+			self.idChallengeSummary:SetVisible(context.challenge_summary)
+			self:ResolveId("idEffectsTextArea"):ScrollTo(0,0)
+		end,
 		'InitialMode', "items",
 		'InternalModes', "items,prefabs",
 	}, {
@@ -32,8 +32,8 @@ end,
 			PlaceObj('XTemplateFunc', {
 				'name', "DrawContent(self)",
 				'func', function (self)
-self.parent.context:DrawSelector(self)
-end,
+					self.parent.context:DrawSelector(self)
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateWindow', {
@@ -46,8 +46,8 @@ end,
 			PlaceObj('XTemplateFunc', {
 				'name', "DrawContent(self)",
 				'func', function (self)
-self.parent.context:DrawSpot(self)
-end,
+					self.parent.context:DrawSpot(self)
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateLayer', {
@@ -105,60 +105,60 @@ end,
 		PlaceObj('XTemplateFunc', {
 			'name', "OnMouseButtonDown(self, pos, button)",
 			'func', function (self, pos, button)
-self.context:MouseButtonDown(pos, button)
-end,
+				self.context:MouseButtonDown(pos, button)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnMouseButtonUp(self, pos, button)",
 			'func', function (self, pos, button)
-self.context:MouseButtonUp(pos, button)
-end,
+				self.context:MouseButtonUp(pos, button)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnMousePos(self, pos)",
 			'func', function (self, pos)
-self.context:MousePos(pos)
-end,
+				self.context:MousePos(pos)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnKbdKeyDown(self, virtual_key, repeated)",
 			'func', function (self, virtual_key, repeated)
-self.context:KbdKeyDown(virtual_key, repeated)
-end,
+				self.context:KbdKeyDown(virtual_key, repeated)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnKbdKeyUp(self, char, virtual_key, repeated)",
 			'func', function (self, char, virtual_key, repeated)
-self.context:KbdKeyUp(char, virtual_key, repeated)
-end,
+				self.context:KbdKeyUp(char, virtual_key, repeated)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnDelete",
 			'func', function (self, ...)
-self:DeleteThread("drag")
-self:DeleteThread("spin")
-self:DeleteThread("easing")
-self:DeleteThread("visibility")
-self:DeleteThread("gamepad")
-g_SelectedSpotChallengeMods = false
-end,
+				self:DeleteThread("drag")
+				self:DeleteThread("spin")
+				self:DeleteThread("easing")
+				self:DeleteThread("visibility")
+				self:DeleteThread("gamepad")
+				g_SelectedSpotChallengeMods = false
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-g_SelectedSpotChallengeMods = {}
-g_CurrentMissionParams.SelectedSpotChallengeMods = g_SelectedSpotChallengeMods
-XDialog.Open(self, ...)
-self.context:InitData(self)
-local padding = GetSafeMargins(self:GetPadding())
-self:SetPadding(padding)
-self.idHint:SetMargins(box(-300-padding:minx(), -padding:miny(), 0, 0))
-self.idtxtCoord:SetMargins(box(-150-padding:minx(), -padding:miny()+30, 0, 0))
-local select_spot = GetDialog(self.parent).context.select_spot
-if select_spot then
-	self.context:SelectChallengeSpot(select_spot)
-end
-end,
+				g_SelectedSpotChallengeMods = {}
+				g_CurrentMissionParams.SelectedSpotChallengeMods = g_SelectedSpotChallengeMods
+				XDialog.Open(self, ...)
+				self.context:InitData(self)
+				local padding = GetSafeMargins(self:GetPadding())
+				self:SetPadding(padding)
+				self.idHint:SetMargins(box(-300-padding:minx(), -padding:miny(), 0, 0))
+				self.idtxtCoord:SetMargins(box(-150-padding:minx(), -padding:miny()+30, 0, 0))
+				local select_spot = GetDialog(self.parent).context.select_spot
+				if select_spot then
+					self.context:SelectChallengeSpot(select_spot)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "back",
@@ -167,10 +167,10 @@ end,
 			'ActionShortcut', "Escape",
 			'ActionGamepad', "ButtonB",
 			'OnAction', function (self, host, source)
-CreateRealTimeThread(function()
-	OpenPreGameMainMenu()
-end)
-end,
+				CreateRealTimeThread(function()
+					OpenPreGameMainMenu()
+				end)
+			end,
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "summary",
@@ -178,14 +178,14 @@ end,
 			'ActionToolbar', "ActionBar",
 			'ActionGamepad', "ButtonA",
 			'ActionState', function (self, host)
-if not host.context.snapped_id then
-	return "disabled"
-end
-end,
+				if not host.context.snapped_id then
+					return "disabled"
+				end
+			end,
 			'OnAction', function (self, host, source)
-host.context.challenge_summary = not host.context.challenge_summary
-ObjModified(host.context)
-end,
+				host.context.challenge_summary = not host.context.challenge_summary
+				ObjModified(host.context)
+			end,
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "list",
@@ -201,10 +201,10 @@ end,
 			'ActionToolbar', "ActionBar",
 			'ActionGamepad', "ButtonX",
 			'ActionState', function (self, host)
-if not host.context.snapped_id then
-	return "disabled"
-end
-end,
+				if not host.context.snapped_id then
+					return "disabled"
+				end
+			end,
 			'OnActionEffect', "mode",
 			'OnActionParam', "payload",
 			'FXPress', "StartGameButtonClick",
@@ -251,8 +251,8 @@ end,
 					'HandleMouse', false,
 					'TextStyle', "PGChallengeDescription",
 					'OnContextUpdate', function (self, context, ...)
-self:SetVisible(not context.snapped_id)
-end,
+						self:SetVisible(not context.snapped_id)
+					end,
 					'Translate', true,
 					'Text', T(11440, --[[XTemplate PGChallengeLandingSpot Text]] "Challenge yourself to accomplish a specific objective within a time limit.\n\n\nMission parameters and colony site are predetermined."),
 					'HideOnEmpty', true,
@@ -265,8 +265,8 @@ end,
 					'FoldWhenHidden', true,
 					'ContextUpdateOnOpen', true,
 					'OnContextUpdate', function (self, context, ...)
-self:SetVisible(not context.snapped_id)
-end,
+						self:SetVisible(not context.snapped_id)
+					end,
 				}),
 				PlaceObj('XTemplateWindow', {
 					'Id', "idContent",
@@ -448,9 +448,9 @@ end,
 									'condition', function (parent, context, item, i) return (not item.filter or item.filter()) and item.category == "Threats" end,
 									'item_in_context', "prop_meta",
 									'run_after', function (child, context, item, i, n)
-child:SetRolloverTitle(item.rollover.title)
-child:SetRolloverText(item.rollover.descr)
-end,
+										child:SetRolloverTitle(item.rollover.title)
+										child:SetRolloverText(item.rollover.descr)
+									end,
 								}, {
 									PlaceObj('XTemplateTemplate', {
 										'__template', "PropLandingParam",
@@ -488,9 +488,9 @@ end,
 									'condition', function (parent, context, item, i) return (not item.filter or item.filter()) and item.category == "Resources" end,
 									'item_in_context', "prop_meta",
 									'run_after', function (child, context, item, i, n)
-child:SetRolloverTitle(item.rollover.title)
-child:SetRolloverText(item.rollover.descr)
-end,
+										child:SetRolloverTitle(item.rollover.title)
+										child:SetRolloverText(item.rollover.descr)
+									end,
 								}, {
 									PlaceObj('XTemplateTemplate', {
 										'__template', "PropLandingParam",
@@ -543,21 +543,21 @@ end,
 							'ActionId', "actionScrollAreaDown",
 							'ActionGamepad', "RightThumbDown",
 							'OnAction', function (self, host, source)
-local text_area = host:ResolveId("idEffectsTextArea")
-if text_area:GetVisible() then
-	return text_area:OnMouseWheelBack()
-end
-end,
+								local text_area = host:ResolveId("idEffectsTextArea")
+								if text_area:GetVisible() then
+									return text_area:OnMouseWheelBack()
+								end
+							end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "actionScrollAreaUp",
 							'ActionGamepad', "RightThumbUp",
 							'OnAction', function (self, host, source)
-local text_area = host:ResolveId("idEffectsTextArea")
-if text_area:GetVisible() then
-	return text_area:OnMouseWheelForward()
-end
-end,
+								local text_area = host:ResolveId("idEffectsTextArea")
+								if text_area:GetVisible() then
+									return text_area:OnMouseWheelForward()
+								end
+							end,
 						}),
 						}),
 					}),

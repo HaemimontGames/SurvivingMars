@@ -29,8 +29,8 @@ PlaceObj('XTemplate', {
 		'id', "Title",
 		'editor', "text",
 		'Set', function (self, value)
-self.idTitle:SetText(value)
-end,
+			self.idTitle:SetText(value)
+		end,
 	}),
 })
 

@@ -6,9 +6,10 @@ PlaceObj('XTemplate', {
 	id = "LifeSupportGridsOverviewRow",
 	PlaceObj('XTemplateTemplate', {
 		'__template', "CommandCenterRow",
-		'RolloverTitle', "",
-		'RolloverHint', T(115984499466, --[[XTemplate LifeSupportGridsOverviewRow RolloverHint]] "<left_click><left_click> Select"),
-		'RolloverHintGamepad', T(3545, --[[XTemplate LifeSupportGridsOverviewRow RolloverHintGamepad]] "<ButtonA> Select"),
+		'RolloverText', T(546174280281, --[[XTemplate LifeSupportGridsOverviewRow RolloverText]] "Total production, consumption and storage of Oxygen and Water in the grid."),
+		'RolloverTitle', T(81, --[[XTemplate LifeSupportGridsOverviewRow RolloverTitle]] "Life Support"),
+		'RolloverHint', T(12110, --[[XTemplate LifeSupportGridsOverviewRow RolloverHint]] "<left_click><left_click> Show all buildings in the grid"),
+		'RolloverHintGamepad', T(12111, --[[XTemplate LifeSupportGridsOverviewRow RolloverHintGamepad]] "<ButtonA> Show all buildings in the grid"),
 		'Id', "",
 	}, {
 		PlaceObj('XTemplateWindow', {
@@ -161,15 +162,15 @@ PlaceObj('XTemplate', {
 					'TextStyle', "OverviewItemValue",
 					'ContextUpdateOnOpen', true,
 					'OnContextUpdate', function (self, context, ...)
-local delta = context:GetCurrentProduction() - context:GetCurrentConsumption()
-if delta < 0 then
-	self:SetText(T{11836, "<red><air(delta)></red>", delta = delta})
-elseif delta > 0 then
-	self:SetText(T{11837, "+<air(delta)>", delta = delta})
-else
-	self:SetText(T{11838, "<air(delta)>", delta = delta}) --zero
-end
-end,
+						local delta = context:GetCurrentProduction() - context:GetCurrentConsumption()
+						if delta < 0 then
+							self:SetText(T{11836, "<red><air(delta)></red>", delta = delta})
+						elseif delta > 0 then
+							self:SetText(T{11837, "+<air(delta)>", delta = delta})
+						else
+							self:SetText(T{11838, "<air(delta)>", delta = delta}) --zero
+						end
+					end,
 					'Translate', true,
 					'Text', T(865587593873, --[[XTemplate LifeSupportGridsOverviewRow Text]] "<air(0)>"),
 					'WordWrap', false,
@@ -186,15 +187,15 @@ end,
 					'TextStyle', "OverviewItemValue",
 					'ContextUpdateOnOpen', true,
 					'OnContextUpdate', function (self, context, ...)
-local delta = context:GetCurrentProduction() - context:GetCurrentConsumption()
-if delta < 0 then
-	self:SetText(T{11839, "<red><water(delta)></red>", delta = delta})
-elseif delta > 0 then
-	self:SetText(T{11840, "+<water(delta)>", delta = delta})
-else
-	self:SetText(T{11841, "<water(delta)>", delta = delta}) --zero
-end
-end,
+						local delta = context:GetCurrentProduction() - context:GetCurrentConsumption()
+						if delta < 0 then
+							self:SetText(T{11839, "<red><water(delta)></red>", delta = delta})
+						elseif delta > 0 then
+							self:SetText(T{11840, "+<water(delta)>", delta = delta})
+						else
+							self:SetText(T{11841, "<water(delta)>", delta = delta}) --zero
+						end
+					end,
 					'Translate', true,
 					'Text', T(441613197592, --[[XTemplate LifeSupportGridsOverviewRow Text]] "<water(0)>"),
 					'WordWrap', false,
@@ -206,28 +207,29 @@ end,
 		PlaceObj('XTemplateFunc', {
 			'name', "OnMouseButtonDoubleClick(self, pos, button)",
 			'func', function (self, pos, button)
-if button == "L" then
-	local bld = CommandCenterChooseLifeSupportGridBuilding(self.context)
-	ViewObjectMars(bld)
-	SelectObj(bld)
-	DelayedCall(1, ShowWaterOverlay)
-	CloseCommandCenter()
-	return "break"
-end
-end,
+				if button == "L" then
+					if GetDialog("PlanetaryView") then return end
+					local bld = CommandCenterChooseLifeSupportGridBuilding(self.context)
+					ViewObjectMars(bld)
+					SelectObj(bld)
+					DelayedCall(1, ShowWaterOverlay)
+					CloseCommandCenter()
+					return "break"
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "SetSelected(self, selected)",
 			'func', function (self, selected)
-self:SetFocus(selected)
-end,
+				self:SetFocus(selected)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnSetFocus",
 			'func', function (self, ...)
-XCreateRolloverWindow(self, true)
-XTextButton.OnSetFocus(self, ...)
-end,
+				XCreateRolloverWindow(self, true)
+				XTextButton.OnSetFocus(self, ...)
+			end,
 		}),
 		}),
 })

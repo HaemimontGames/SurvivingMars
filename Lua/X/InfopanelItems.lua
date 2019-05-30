@@ -67,8 +67,8 @@ function InfopanelItems:OpenItemsInterpolation(bFirst, set_focus)
 			ctrl:AddInterpolation{
 				id = "pop_size",
 				type = const.intRect,
-				startRect = ctrl.box,
-				endRect = sizebox((ctrl.box:min()+ctrl.box:size()/2),point(0,0)),
+				originalRect = ctrl.box,
+				targetRect = sizebox((ctrl.box:min()+ctrl.box:size()/2),point(0,0)),
 				duration = duration,
 				flags = const.intfInverse,
 				autoremove = true,
@@ -235,6 +235,24 @@ function GetInfopanelSelectorItems(dataset, list)
 		if object.city:IsTechResearched("DreamSimulation") then
 			align = FillTraitSelectorItems(object,items,{{value = "Dreamer", text = TraitPresets["Dreamer"].display_name}},align, list)
 		end
+		local idx = #items+1
+		local enabled = "auto" ~= object.trait1 and "auto"~= object.trait2 and "auto"~= object.trait3	
+		table.insert(items, HexButtonInfopanel:new({
+			ButtonAlign = align,
+			name = "auto", 
+			icon = "UI/Icons/Buildings/numbers_0"..idx..".tga",
+			display_name = T(669, "Auto"),
+			description  = T(12401, "Automatically remove one negative trait"),
+			hint = enabled and  T{988789013053, --[[XTemplate sectionTraits RolloverHint]] "<left_click> Change<newline><em>Ctrl + <left_click> on trait</em> Select in all <display_name_pl>", object} or false,
+			gamepad_hint = enabled and T{958322390788, --[[XTemplate sectionTraits RolloverHintGamepad]] "<ButtonA> Change<newline><em><ButtonX> on trait</em> Select in all <display_name_pl>", object} or false,			enabled = enabled,	
+			action = function(dataset, delta, controller)
+				local sanatorium = dataset.object
+				if not IsValid(sanatorium) then return end
+				local broadcast = (controller and delta < 0) or (not controller and IsMassUIModifierPressed())
+				sanatorium:SetTrait(dataset.idx, "auto", broadcast)							
+			end
+		}, list))
+		align = align=="bottom" and "top" or "bottom"
 		align = FillTraitSelectorItems(object, items, SanatoriumTraitsCombo(object), align, list)
 	elseif object:IsKindOf("MartianUniversity") then
 		table.insert(items, HexButtonInfopanel:new({

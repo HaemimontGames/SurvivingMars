@@ -13,9 +13,9 @@ PlaceObj('XTemplate', {
 			'__class', "XContextControl",
 			'Id', "idContent",
 			'OnContextUpdate', function (self, context, ...)
-local control = context.control
-self.idText:SetText(context.RolloverText or control:GetRolloverText())
-end,
+				local control = context.control
+				self.idText:SetText(context.RolloverText or control:GetRolloverText())
+			end,
 		}, {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "RolloverText",

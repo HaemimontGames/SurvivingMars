@@ -172,6 +172,11 @@ DefineClass.StatusEffect_Dehydrated = {
 	unique_status_number = 1534,
 }
 
+DefineClass.StatusEffect_Dehydrated_Outside = {
+	__parents = { "StatusEffect_Dehydrated"},
+	popup_on_first = false,
+}
+
 ----------------------------------
 DefineClass.StatusEffect_Freezing = {
 	__parents = { "StatusEffect_Shock"},
@@ -297,11 +302,17 @@ ColonistStatusEffectsWarnings = {
 	["StatusEffect_Earthsick"]   = T(8954, "This Colonist is Earthsick due to low comfort. Earthsick colonists can't work and will try to return to Earth."),
 }
 
+ColonistStatusEffectsWarnings.StatusEffect_Dehydrated_Outside = ColonistStatusEffectsWarnings.StatusEffect_Dehydrated
+ColonistStatusEffectsWarnings.StatusEffect_Suffocating_Outside = ColonistStatusEffectsWarnings.StatusEffect_Suffocating
+
 IronColonistsColonistStatusEffectsWarningsOverrides = {
 	["StatusEffect_Suffocating"] = T(10533, "This Colonist is suffocating and would have needed Oxygen to survive if not for the Iron Colonists rule."),
 	["StatusEffect_Dehydrated"] = T(10534, "This Colonist is dehydrated and would have needed Water to survive if not for the Iron Colonists rule."),
 	["StatusEffect_Starving"] = T(10535, "This Colonists is starving and would have needed Food to survive if not for the Iron Colonists rule."),
 }
+
+IronColonistsColonistStatusEffectsWarningsOverrides.StatusEffect_Dehydrated_Outside = IronColonistsColonistStatusEffectsWarningsOverrides.StatusEffect_Dehydrated
+IronColonistsColonistStatusEffectsWarningsOverrides.StatusEffect_Suffocating_Outside = IronColonistsColonistStatusEffectsWarningsOverrides.StatusEffect_Suffocating
 
 function GetColonistStatusEffectWarning(status_effect)
 	return IsGameRuleActive("IronColonists") and IronColonistsColonistStatusEffectsWarningsOverrides[status_effect] or ColonistStatusEffectsWarnings[status_effect]

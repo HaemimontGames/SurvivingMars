@@ -328,7 +328,7 @@ end
 
 local function PlayInteractFX(moment, actor, target)
 	PlayFX("ClickInteract", moment, actor, target)
-	local children = target:GetAttaches()
+	local children = target and target:GetAttaches()
 	if children then
 		for i,child in ipairs(children) do
 			PlayInteractFX(moment, actor, child)
@@ -378,25 +378,29 @@ function UnitDirectionModeDialog:UpdateInteractionObj(obj, pos)
 	local gamepad = UseGamepadUI()
 	obj = gamepad and IsKindOf(obj, "SurfaceDepositGroup") and obj.group[1] or obj
 	local ctrl = CityUnitController[UICity]
-	obj = obj or ctrl:ResolveObjAt(pos, self.interaction_mode)
-	local stockpiles = IsValid(obj) and obj:GetAttaches("ResourceStockpileBase") or false
-	local other_obj = not IsKindOfClasses(obj, "SharedStorageBaseVisualOnly", "StorageDepot") and stockpiles and FindNearestObject(stockpiles, pos) or false
-		
+	local mode = self.interaction_mode
+	obj = obj or ctrl:ResolveObjAt(pos, mode)
+	
 	local interaction_obj = false
 	local block_goto = nil
 	
-	local h1, h2
+	local h1, h2, _
 	if IsValid(obj) then
-		interaction_obj, h1, block_goto = ctrl:CanInteractWithObject(obj, self.interaction_mode)
+		interaction_obj, h1, block_goto = ctrl:CanInteractWithObject(obj, mode)
 		interaction_obj = interaction_obj and obj
 	else
 		interaction_obj = interaction_obj or false
 		h1 = gamepad and self.unit and self.unit:CanBeControlled("move") and T{4339, "<UnitMoveControl('ButtonA',interaction_mode)>: Move", self.unit} or false
 	end
 	
-	if not interaction_obj and other_obj and other_obj ~= obj then
-		interaction_obj, h2, block_goto = ctrl:CanInteractWithObject(other_obj, self.interaction_mode)
-		interaction_obj = interaction_obj and other_obj
+	if not interaction_obj and IsValid(obj) and not IsKindOfClasses(obj, "SharedStorageBaseVisualOnly", "StorageDepot") then
+		local stockpiles = obj:GetAttaches("ResourceStockpileBase")
+		interaction_obj = stockpiles and FindNearestObject(stockpiles, pos, function(stockpile)
+			return stockpile ~= obj and ctrl:CanInteractWithObject(stockpile, mode)
+		end)
+		if interaction_obj then --get the hint
+			_, h2, block_goto = ctrl:CanInteractWithObject(interaction_obj, mode)
+		end
 	end
 	
 	self.interaction_pos = pos
@@ -404,7 +408,7 @@ function UnitDirectionModeDialog:UpdateInteractionObj(obj, pos)
 	self.interaction_hint = (h2 or h1)
 	
 	self.block_goto = (block_goto or (GetDomeAtPoint(pos) and IsKindOf(self.unit, "BaseRover")))
-	if self.interaction_mode == "route" then
+	if mode == "route" then
 		self:UpdateTransportRouteVisuals()
 	end
 	self:UpdateCursorText()
@@ -756,3 +760,20 @@ function GetUnitControlInteractionHint(unit, CanBeControlled_text, InalidControl
 	return dlg:HasMember("interaction_hint") and dlg.interaction_hint and dlg.interaction_hint~="" and dlg.interaction_hint or unit:CanBeControlled() and CanBeControlled_text or InalidControl_text
 end
 --]]
+
+function ShouldQueueCommand(self)
+	if 	IsKindOf(self, "MultiSelectionWrapper")
+		or self.command == "Idle"
+		or self:IsDisabled()
+	then 
+		return false
+	end
+	
+	local queue = terminal.IsKeyPressed(const.vkShift) --TODO: gamepad
+	return queue
+end
+
+function GetCommandFunc(self)
+	local r = ShouldQueueCommand(self)
+	return r and self.QueueCommand or self.SetCommand, r
+end

@@ -15,11 +15,11 @@ PlaceObj('XTemplate', {
 			PlaceObj('XTemplateFunc', {
 				'name', "Open",
 				'func', function (self, ...)
-local title = self.parent:ResolveId("idTitle")
-title:SetHAlign("center")
-title:SetMargins(title:GetMargins() + box(0,20,0,0))
-XWindow.Open(self, ...)
-end,
+					local title = self.parent:ResolveId("idTitle")
+					title:SetHAlign("center")
+					title:SetMargins(title:GetMargins() + box(0,20,0,0))
+					XWindow.Open(self, ...)
+				end,
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XText",
@@ -45,25 +45,33 @@ end,
 				PlaceObj('XTemplateForEach', {
 					'array', function (parent, context) return nil, 1, 5 end,
 					'run_after', function (child, context, item, i, n)
-child.OnSetRollover = function(self, rollover)
-	XTextButton.OnSetRollover(self, rollover)
-	if rollover then
-		local parent = self.parent
-		local n = #parent
-		for j = 1, i do
-			parent[j]:SetIcon("UI/Mods/rate-orange_large.tga")
-		end
-		for k = i + 1, n do
-			parent[k]:SetIcon("UI/Mods/rate-gray_large.tga")
-		end
-	end
-end
-child.OnPress = function(self)
-	ModsUIRateMod(self, i)
-	local dlg = GetDialog(self)
-	dlg:UpdateActionViews(dlg)
-end
-end,
+						child.OnSetRollover = function(self, rollover)
+							XTextButton.OnSetRollover(self, rollover)
+							if rollover then
+								local parent = self.parent
+								local dlg = GetDialog(self)
+								local context = dlg.mode_param
+								local current_rating = context.rating
+								local n = #parent
+								for j = 1, i do
+									parent[j]:SetIcon("UI/Mods/rate-orange_large.tga")
+								end
+								for k = i + 1, n do
+									parent[k]:SetIcon("UI/Mods/rate-unrated_large.tga")
+								end
+								if current_rating then
+									for l = i + 1, current_rating do
+										parent[l]:SetIcon("UI/Mods/rate-gray_large.tga")
+									end
+								end		
+							end
+						end
+						child.OnPress = function(self)
+							ModsUIRateMod(self, i)
+							local dlg = GetDialog(self)
+							dlg:UpdateActionViews(dlg)
+						end
+					end,
 				}, {
 					PlaceObj('XTemplateWindow', {
 						'__class', "XTextButton",
@@ -83,8 +91,8 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "SetSelected(self, selected)",
 							'func', function (self, selected)
-self:SetFocus(selected)
-end,
+								self:SetFocus(selected)
+							end,
 						}),
 						}),
 					}),
@@ -96,8 +104,8 @@ end,
 			'ActionToolbar', "ActionBarRight",
 			'ActionShortcut', "Escape",
 			'OnAction', function (self, host, source)
-ModsUIClosePopup(host)
-end,
+				ModsUIClosePopup(host)
+			end,
 			'__condition', function (parent, context) return not GetUIStyleGamepad() end,
 		}),
 		}),

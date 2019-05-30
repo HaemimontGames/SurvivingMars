@@ -53,7 +53,7 @@ end)
 
 DefineClass.GridObjectList = {
 	__parents = { "Object" },
-	enum_flags = { efVisible = false, efCollision = false, efApplyToGrids = false, efWalkable = false, efRoad = false, efBakedTerrainDecal = false },
+	flags = { efVisible = false, efCollision = false, efApplyToGrids = false, efWalkable = false, efBakedTerrainDecal = false },
 }
 
 GlobalVar("SupplyGridConnections", function()
@@ -94,9 +94,10 @@ function GridObject:ApplyToGrids()
 		self:SetPos(point(HexToWorld(WorldToHex(self))))
 	end
 	--apply
-	HexGridShapeAddObject(ObjectGrid, self, self:GetShapePoints() or empty_table)
+	local shape = self:GetShapePoints() or empty_table
+	HexGridShapeAddObject(ObjectGrid, self, shape)
 	if not self.is_tall and not IsKindOfClasses(self, "ElectricityGridElement", "GridSwitchConstructionSite") then -- we are a not tall bld, if there is a pipe above, demote its connection
-		HexGridShapeGetObjectList(ObjectGrid, self, self:GetShapePoints() or empty_table, "LifeSupportGridElement", nil, 
+		HexGridShapeGetObjectList(ObjectGrid, self, shape, "LifeSupportGridElement", nil, 
 			LifeSupportGridElement.DemoteConnectionMask) --pipe no longer marks potential in directions that require it to become pillar.
 	end
 end
@@ -136,32 +137,44 @@ function UngridedObstacle:GetModifiedBSphereRadius(r)
 	return r
 end
 
+HexSurroundingsCheckShapeMedium = {	point(0, 0),
+											point(0, -1), point(1, -1), point(-1, 0), point(1, 0), point(-1, 1), point(0, 1),
+											point(0, -2), point(1, -2), point(2, -2), point(2, -1), point(2, 0), point(1, 1), point(0, 2), 
+											point(-1, 2), point(-2, 2), point(-2, 1), point(-2, 0), point(-1, -1),}
 HexSurroundingsCheckShapeLarge = {	point(0, 0),
 											point(0, -1), point(1, -1), point(-1, 0), point(1, 0), point(-1, 1), point(0, 1),
 											point(0, -2), point(1, -2), point(2, -2), point(2, -1), point(2, 0), point(1, 1), point(0, 2), 
 											point(-1, 2), point(-2, 2), point(-2, 1), point(-2, 0), point(-1, -1), 
 											point(0, 3), point(1, -3), point(2, -3), point(3, -3), point(3, -2), point(3, -1), point(3, 0),
-											point(2, 1), point(1, 2), point(0, 3), point(-1, 3), point(-2, 3), point(-3, 3), point(-3, 2),
+											point(2, 1), point(1, 2), point(0, -3), point(-1, 3), point(-2, 3), point(-3, 3), point(-3, 2),
 											point(-3, 1), point(-3, 0), point(-2, -1), point(-1, -2)}
 --brute force test where we obstruct according to our bb sphere, up to 1 tile away
 function UngridedObstacle:GetRotatedShapePoints()
-	local ret = { }
+	local ret
 	local x0, y0, z0, rad = self:GetBSphere("idle", true) --fix for giant radii of move anims.
-	local q, r = WorldToHex(self)
+	local q0, r0 = WorldToHex(self)
 
 	--extend or reduce to make constr obstruction more/less picky.
 	rad = self:GetModifiedBSphereRadius(rad) + const.GridSpacing / 2
-	local rad2 = rad * rad
-	for i, p in ipairs(HexSurroundingsCheckShapeLarge) do
-		local x, y = HexToWorld(q + p:x(), r + p:y())
+	local hex_rad = rad / const.GridSpacing
+	local shape = FallbackOutline
+	if hex_rad > 2 then
+		shape = HexSurroundingsCheckShapeLarge
+	elseif hex_rad > 1 then
+		shape = HexSurroundingsCheckShapeMedium
+	elseif hex_rad > 0 then
+		shape = HexSurroundingsCheckShape
+	end
+	for i, p in ipairs(shape) do
+		local q, r = p:xy()
+		local x, y = HexToWorld(q + q0, r + r0)
 		local z = terrain.GetHeight(x, y)
-		local dx, dy, dz = x - x0, y - y0, z - z0
-		if dx * dx + dy * dy + dz * dz <= rad2 then
+		if IsCloser(x, y, z, x0, y0, z0, rad + 1) then
+			ret = ret or {}
 			ret[#ret + 1] = p
 		end
 	end
-	
-	return #ret == 0 and FallbackOutline or ret
+	return ret or FallbackOutline
 end
 
 CableConnectionsCache = {}
@@ -180,6 +193,17 @@ function SavegameFixups.ElectricityGridObjectsAsConnectors()
 	CableConnectionsCache = {}
 end
 
+function GridObject:GetShapeConnections(supply_resource)
+	local cache = supply_resource == "electricity" and CableConnectionsCache or PipeShapeConnectionsCache
+	local connections = cache[self.template_name]
+	if not connections then
+		connections = self:GenerateShapeConnections(supply_resource)
+		cache[self.template_name] = connections
+	end
+	
+	return connections
+end
+
 -- returns an array with connection masks (not rotated):
 -- 	each entry is a mask corresponding to the point with the same index in the building shape array
 -- 	a mask has 6 bits and defines a relation with the 6 neghbouring hex cells
@@ -187,60 +211,55 @@ end
 -- 	higher 8 bits of an entry are a mask that define which of the surrounding cells can be connected for the specified resource
 -- can be called without having an instance
 local connector_flag = 128
-function GridObject:GetShapeConnections(supply_resource)
-	local cache = supply_resource == "electricity" and CableConnectionsCache or PipeShapeConnectionsCache
-	local connections = cache[self.template_name]
-	if not connections then
-		local additional_flags = 0
-		if IsKindOf(self, "ElectricityGridObject") then
-			additional_flags = bor(additional_flags, connector_flag)
+function GridObject:GenerateShapeConnections(supply_resource)
+	local additional_flags = 0
+	if IsKindOf(self, "ElectricityGridObject") then
+		additional_flags = bor(additional_flags, connector_flag)
+	end
+	local connections = {}
+	local shape = self:GetSupplyGridConnectionShapePoints(supply_resource)
+	local find = table.find
+	if supply_resource == "electricity" then
+		local first, last = GetSpotRange(self.entity, EntityStates["idle"], "Electricitygrid")
+		local spots
+		if first >= 0 then
+			spots = {}
+			for i = first, last do
+				local pt = GetEntitySpotPos(self.entity, i)
+				spots[#spots + 1] = point(WorldToHex(pt))
+			end
 		end
-		connections = {}
-		cache[self.template_name] = connections
-		local shape = self:GetSupplyGridConnectionShapePoints(supply_resource)
-		local find = table.find
-		if supply_resource == "electricity" then
-			local first, last = GetSpotRange(self.entity, EntityStates["idle"], "Electricitygrid")
-			local spots
-			if first >= 0 then
-				spots = {}
-				for i = first, last do
-					local pt = GetEntitySpotPos(self.entity, i)
-					spots[#spots + 1] = point(WorldToHex(pt))
+		for i, hex in ipairs(shape) do
+			local v = 0
+			for dir, neighbour in ipairs(HexNeighbours) do
+				neighbour = hex + neighbour
+				if find(shape, neighbour) then -- internal connection
+					v = bor(v, shift(1, dir - 1))
+				elseif not spots or find(spots, neighbour) then -- potential connection
+					v = bor(v, shift(1, dir + 8 - 1))
 				end
 			end
-			for i, hex in ipairs(shape) do
-				local v = 0
-				for dir, neighbour in ipairs(HexNeighbours) do
-					neighbour = hex + neighbour
-					if find(shape, neighbour) then -- internal connection
-						v = bor(v, shift(1, dir - 1))
-					elseif not spots or find(spots, neighbour) then -- potential connection
-						v = bor(v, shift(1, dir + 8 - 1))
-					end
+			connections[i] = bor(v, additional_flags)
+		end
+	else
+		local pipes_list = self:GetPipeConnections()
+		for i, hex in ipairs(shape) do
+			local v = 0
+			for dir, neighbour in ipairs(HexNeighbours) do
+				neighbour = hex + neighbour
+				if find(shape, neighbour) then -- internal connection
+					v = bor(v, shift(1, dir - 1))
 				end
-				connections[i] = bor(v, additional_flags)
 			end
-		else
-			local pipes_list = self:GetPipeConnections()
-			for i, hex in ipairs(shape) do
-				local v = 0
-				for dir, neighbour in ipairs(HexNeighbours) do
-					neighbour = hex + neighbour
-					if find(shape, neighbour) then -- internal connection
-						v = bor(v, shift(1, dir - 1))
+			for _, conn in ipairs(pipes_list) do
+				if conn[1] == hex then -- potential connection from this point
+					assert(band(v, shift(1, conn[2])) == 0)
+					if band(v, shift(1, conn[2])) == 0 then -- a mistaken pipe might point towards the building
+						v = bor(v, shift(1, conn[2] + 8))
 					end
 				end
-				for _, conn in ipairs(pipes_list) do
-					if conn[1] == hex then -- potential connection from this point
-						assert(band(v, shift(1, conn[2])) == 0)
-						if band(v, shift(1, conn[2])) == 0 then -- a mistaken pipe might point towards the building
-							v = bor(v, shift(1, conn[2] + 8))
-						end
-					end
-				end
-				connections[i] = v
 			end
+			connections[i] = v
 		end
 	end
 	return connections
@@ -291,6 +310,10 @@ end
 function SavegameFixups.SkinnedPipesCacheKeyChanged()
 	PipeConnectionsCache = {}
 end
+
+function SavegameFixups.SkinnedPipesCacheKeyChangedAgain()
+	PipeConnectionsCache = {}
+end
 -- returns a list of items { hex_point, direction (0..5), spot-index, entity-to-attach, decor_table or nil }
 -- decor table = { entity name,
 --						{spot, e},
@@ -312,7 +335,7 @@ function GridObject:GetPipeConnections(force)
 	local gsn = force or self:GetGridSkinName()
 	local entity = self.entity
 	local grid_skin_entity = self:GetEntityNameForPipeConnections(gsn)
-	local cache_key = xxhash(entity, grid_skin_entity)
+	local cache_key = xxhash64(entity, grid_skin_entity)
 	local list = PipeConnectionsCache[cache_key]
 	if not list then
 		local skin = TubeSkinsBuildingConnections[gsn]
@@ -337,42 +360,7 @@ function GridObject:GetPipeConnections(force)
 			local first, last = GetSpotRange(entity, "idle", spot)
 			local pipe_entity, pt_end, angle_end
 			for i = first, last do
-				pipe_entity = pipe_entity or (grid_skin_entity .. spot_attach[s])
-				if not IsValidEntity(pipe_entity) then 
-					--default connection tube.
-					pipe_entity = skin.default_tube
-				end
-				pt_end = pt_end or GetEntitySpotPos(pipe_entity, GetSpotBeginIndex(pipe_entity, "idle", "End"))
-				angle_end = angle_end or CalcOrientation(pt_end)
-				if pt_end:x() ~= 0 or pt_end:y() ~= 0 then
-					local spot_pos_pt = GetEntitySpotPos(entity, i)
-					local dir = HexAngleToDirection(angle_end + GetEntitySpotAngle(entity, i))
-					local pt = point(WorldToHex(spot_pos_pt + Rotate(point(guim, 0), angle_end + GetEntitySpotAngle(entity, i))))
-					for _, entry in ipairs(list) do
-						if entry[1] == pt and entry[2] == dir then
-							printf("Duplicate pipe connection: entity %s, spot %s, pipe entity %s", entity, spot, pipe_entity)
-							pt = nil
-						end
-					end
-					if pt then
-						local decor_t = nil
-						if decor_spot_info_t then
-							decor_t = {skin.decor_entity}
-							if not decor_spot_info_t[2] then
-								--decor spot on main entity
-								decor_t[2] = {GetEntityNearestSpotIdx(entity, decor_spot, spot_pos_pt), entity}
-							else
-								--decor spot on auto attach
-								decor_t[2] = {GetEntityNearestSpotIdx(entity, decor_spot_info_t[2], spot_pos_pt), entity}
-								decor_t[3] = {GetEntityNearestSpotIdx(decor_spot_info_t[1], decor_spot, Rotate(spot_pos_pt - GetEntitySpotPos(entity, decor_t[2][1]), -GetEntitySpotAngle(entity, decor_t[2][1])) ), decor_spot_info_t[1]}
-							end
-						end
-						
-						list[#list + 1] = { pt, dir, i, pipe_entity, decor_t }
-					end
-				else
-					printf("Pipe entity %s does not have a valid 'End' spot", pipe_entity)
-				end
+				self:ProcessPipeSpot(list, entity, i, spot_attach[s], skin, grid_skin_entity, decor_spot_info_t)
 			end
 		end
 		
@@ -398,6 +386,46 @@ function GridObject:GetPipeConnections(force)
 	end
 	
 	return list
+end
+
+function GridObject:ProcessPipeSpot(result, entity, spot_idx, spot_name, skin, grid_skin_entity, decor_spot_info_t)
+	local pipe_entity = grid_skin_entity .. spot_name
+	if not IsValidEntity(pipe_entity) then 
+		--default connection tube.
+		pipe_entity = skin.default_tube
+	end
+	
+	local pt_end = GetEntitySpotPos(pipe_entity, GetSpotBeginIndex(pipe_entity, "idle", "End"))
+	local angle_end = CalcOrientation(pt_end)
+	if pt_end:x() ~= 0 or pt_end:y() ~= 0 then
+		local spot_pos_pt = GetEntitySpotPos(entity, spot_idx)
+		local dir = HexAngleToDirection(angle_end + GetEntitySpotAngle(entity, spot_idx))
+		local pt = point(WorldToHex(spot_pos_pt + Rotate(point(guim, 0), angle_end + GetEntitySpotAngle(entity, spot_idx))))
+		for _, entry in ipairs(result) do
+			if entry[1] == pt and entry[2] == dir then
+				printf("Duplicate pipe connection: entity %s, spot %s, pipe entity %s", entity, spot, pipe_entity)
+				pt = nil
+			end
+		end
+		if pt then
+			local decor_t = nil
+			if decor_spot_info_t then
+				decor_t = {skin.decor_entity}
+				if not decor_spot_info_t[2] then
+					--decor spot on main entity
+					decor_t[2] = {GetEntityNearestSpotIdx(entity, decor_spot, spot_pos_pt), entity}
+				else
+					--decor spot on auto attach
+					decor_t[2] = {GetEntityNearestSpotIdx(entity, decor_spot_info_t[2], spot_pos_pt), entity}
+					decor_t[3] = {GetEntityNearestSpotIdx(decor_spot_info_t[1], decor_spot, Rotate(spot_pos_pt - GetEntitySpotPos(entity, decor_t[2][1]), -GetEntitySpotAngle(entity, decor_t[2][1])) ), decor_spot_info_t[1]}
+				end
+			end
+			
+			result[#result + 1] = { pt, dir, spot_idx, pipe_entity, decor_t }
+		end
+	else
+		printf("Pipe entity %s does not have a valid 'End' spot", pipe_entity)
+	end
 end
 
 GlobalVar("LastGridHandle", 65535)
@@ -463,8 +491,12 @@ end
 
 function HexGetLowBuilding(q, r) -- building or cable or pipe with a pillar - everything without overhead pipes
 	return HexGridGetObject(ObjectGrid, q, r, nil, nil, function(obj)
-		return not IsKindOf(obj, "LifeSupportGridElement") or obj.pillar
+		return not IsKindOf(obj, "ToxicPool") and (not IsKindOf(obj, "LifeSupportGridElement") or obj.pillar)
 	end)
+end
+
+function HexGetLandscapeOrLowBuilding(q, r)
+	return LandscapeCheck(q, r, true) or HexGetLowBuilding(q, r)
 end
 
 function GetGrid(o, supply_resource)
@@ -496,26 +528,20 @@ function HexGetUnits(obj, entity, pos, angle, test, filter, classes, force_exten
 	local outline, interior
 	if shape then
 		outline = shape
-		interior = {}
+		interior = empty_table
 	else
 		outline, interior = GetEntityHexShapes(entity)
 	end
 	local dir = HexAngleToDirection(angle or obj:GetAngle())
 	local initial_q, initial_r = WorldToHex(pos or obj)
 	
-	local minq, maxq, minr, maxr = 0, 0, 0, 0
-	local function compare(max, current, is_max)
-		if (is_max and max < current) or 
-			(not is_max and max > current) then
-			return current
-		end
-		
-		return max
-	end
 	--grab limits, can cache.
+	local minq, maxq, minr, maxr = 0, 0, 0, 0
+	local HexRotate = HexRotate
 	for _, shape_pt in ipairs(outline) do
-		local x, y = HexRotate(shape_pt:x(), shape_pt:y(), dir)
-		minq, maxq, minr, maxr = compare(minq, x, false), compare(maxq, x, true), compare(minr, y, false), compare(maxr, y, true)
+		local q, r = HexRotate(shape_pt, dir)
+		if q < minq then minq = q elseif q > maxq then maxq = q end
+		if r < minr then minr = r elseif r > maxr then maxr = r end
 	end
 	
 	local total_x, total_y = abs(minq) + abs(maxq) + 1, abs(minr) + abs(maxr) + 1
@@ -537,21 +563,18 @@ function HexGetUnits(obj, entity, pos, angle, test, filter, classes, force_exten
 		HexGridShapeSetValue(LookupGrid, obj, outline, 1, lookup_q, lookup_r)
 		if interior then HexGridShapeSetValue(LookupGrid, obj, interior, 1, lookup_q, lookup_r) end
 	else
-		HexGridSet(LookupGrid, lookup_q, lookup_r, 1)
+		if shape then
+			HexGridShapeSetValue(LookupGrid, pos, angle, shape, 1, lookup_q, lookup_r)
+		else
+			HexGridSet(LookupGrid, lookup_q, lookup_r, 1)
+		end
 	end
 	
 	local grid_val = 0
 	local bbb = obj and GetObjectsBBox({obj}) or box(pos, pos)
 	
-	force_extend_bb_by = force_extend_bb_by or 0
-	if force_extend_bb_by ~= 0 then
-		local tp = point(force_extend_bb_by, force_extend_bb_by)
-		bbb = Extend(bbb, bbb:min() - tp, bbb:max() + tp)
-	end
-	
 	--extend, this fixes bb's that don't quite cover the entire shape + repair bay tiny bb.
-	local hex_size_pt = point(HexGetSize(), HexGetSize()) * 5
-	local unit_area = Extend(bbb, bbb:min() - hex_size_pt, bbb:max() + hex_size_pt)
+	local unit_area = bbb:grow(5 * HexGetSize() + (force_extend_bb_by or 0))
 	local unit_filter = function(o)
 		local ret
 		if filter then

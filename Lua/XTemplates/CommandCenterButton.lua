@@ -29,16 +29,16 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnChange(self, toggled)",
 			'func', function (self, toggled)
-self:SetRow(toggled and 2 or 1)
-end,
+				self:SetRow(toggled and 2 or 1)
+			end,
 		}),
 		PlaceObj('XTemplateCode', {
 			'comment', "adjust icon & label",
 			'run', function (self, parent, context)
-parent.idIcon:SetImageFit("smallest")
-parent.idLabel:SetMargins(box(6,0,0,0))
-parent.idLabel:SetHAlign("left")
-end,
+				parent.idIcon:SetImageFit("smallest")
+				parent.idLabel:SetMargins(box(6,0,0,0))
+				parent.idLabel:SetHAlign("left")
+			end,
 		}),
 		}),
 })

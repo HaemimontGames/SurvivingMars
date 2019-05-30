@@ -91,7 +91,7 @@ DefineClass.ModItemAttachmentObject =
 DefineClass.ModItemAttachmentEditorObject =
 {
 	__parents = { "ModItemAttachmentObject", "AutoAttachObject"},
-	enum_flags = { efWalkable = false, efApplyToGrids = false, efCollision = false },
+	flags = { efWalkable = false, efApplyToGrids = false, efCollision = false },
 	template_name = "",
 	template_classdef = false,
 }
@@ -105,9 +105,9 @@ function ModItemAttachmentEditorObject:GetBuildShape()
 	return classdef and classdef.GetBuildShape(self)
 end
 
-function ModItemAttachmentEditorObject:GetFlattenShape()
+function ModItemAttachmentEditorObject:GetFlattenShape(...)
 	local classdef = self.template_classdef
-	return classdef and classdef.GetFlattenShape(self)
+	return classdef and classdef.GetFlattenShape(self, ...)
 end
 
 local surf_flags = const.efCollision + const.efApplyToGrids + const.efWalkable
@@ -135,7 +135,7 @@ GlobalVar("ModItemAttachment_Thread", false)
 DefineClass.ModItemAttachment = {
 	__parents = { "ModItem" },
 	properties = {
-		{ category = "General", id = "Parent",  name = T(1000069, "Parent entity"), editor = "choice", default = "",   items = ModItemParentCombo, object_update = true, editor_update = "items", buttons = {{"Ground", "ActionGround"}} },
+		{ category = "General", id = "Parent",  name = T(1000069, "Parent entity"), editor = "choice", default = "",   items = ModItemParentCombo, editor_update = "items", buttons = {{"Ground", "ActionGround"}} },
 		{ category = "General", id = "Child",   name = T(1000071, "Child entity"),  editor = "choice", default = "",   items = ModItemChildCombo, editor_update = "items" },
 		{ category = "General", id = "AttachSpot",    name = T(1000072, "Anchor"),  editor = "choice", default = "",   items = ModItemAttachmentSpotsCombo, buttons = {{"View", "ActionViewSpots"}} },
 		

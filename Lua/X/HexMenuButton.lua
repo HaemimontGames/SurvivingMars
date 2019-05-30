@@ -27,6 +27,7 @@ DefineClass.HexButtonItem = {
 	close_parent = true,
 	hint = false,
 	gamepad_hint = false,
+	open_research_ui = false,
 } 
 
 function HexButtonItem:Init()
@@ -58,6 +59,13 @@ function HexButtonItem:Init()
 		SqueezeY =  true,
 		ColumnsUse =  "abbbb",
 		ScaleModifier = point(750, 750),
+		OnMouseButtonDoubleClick = function(ctrl, pt, button)
+			if button == "L" and self.open_research_ui then
+				CloseXBuildMenu()
+				OpenResearchDialog()
+				return "break"
+			end
+		end,
 	},button_container)
 	
 	-- lock image - idLockImage
@@ -145,6 +153,7 @@ function HexButtonItem:Init()
 end
 
 function HexButtonItem:UpdateContent()
+	if self.window_state == "destroying" then return end
 	local prefabs = self.prefabs and UICity:GetPrefabs(self.name)
  	local locked = not self.enabled and not prefabs
 	local lock_ctrl = rawget(self,"idLock")
@@ -189,7 +198,7 @@ function HexButtonItem:FillRollover()
 		parent.idContainer:SetRolloverText(self.description or "")
 		parent.idContainer:SetRolloverTitle(self.display_name or "")
 		parent.idContainer:SetRolloverHint(self.hint or "")
-		parent.idContainer:SetRolloverHintGamepad(T(3545, "<ButtonA> Select"))
+		parent.idContainer:SetRolloverHintGamepad(self.gamepad_hint or T(3545, "<ButtonA> Select"))
 		XUpdateRolloverWindow(parent.idContainer)	
 	end	
 end
@@ -204,8 +213,8 @@ function HexButtonItem:SelectButton()
 			id = "zoom",
 			type = const.intRect,
 			duration = self.int_fade_in,
-			startRect = self.idButton.box,
-			endRect = self.idButton:CalcZoomedBox(self.int_perc),
+			originalRect = self.idButton.box,
+			targetRect = self.idButton:CalcZoomedBox(self.int_perc),
 		}
 	end]]
 end
@@ -223,8 +232,8 @@ function HexButtonItem:DeselectButton()
 			id = "zoom",
 			type = const.intRect,
 			duration = self.int_fade_out,
-			startRect = self.idButton.box,
-			endRect = self.idButton:CalcZoomedBox(self.int_perc),
+			originalRect = self.idButton.box,
+			targetRect = self.idButton:CalcZoomedBox(self.int_perc),
 			flags = const.intfInverse,
 			autoremove = true,
 		}
@@ -250,8 +259,8 @@ function HexButtonItem:SetHighlighting(visible)
 		element:AddInterpolation{
 			id = "HighlightZoom",
 			type = const.intRect,
-			startRect = small_size,
-			endRect = big_size,
+			originalRect = small_size,
+			targetRect = big_size,
 			duration = 1500,
 			flags = const.intfPingPong + const.intfLooping,
 		}
@@ -320,17 +329,18 @@ end
 ----------------------------------------------------------------
 DefineClass.HexButtonInfopanel = {
 	__parents = {"HexButtonItem"},
+	lock_image = false
 }
 
 function HexButtonInfopanel:Init()
 	self.idButton.AltPress = true
 	local top = self.ButtonAlign=="top"
-	self.idLock.Image =  "UI/Icons/bmc_check.tga"
-	self.idLock.Margins = box(0, 0, 93, 48)
+	self.idLock.Image =  self.lock_image or "UI/Icons/bmc_check.tga"
+	self.idLock.Margins = box(0, 0, 93, 85)
 	self.idText:SetScaleModifier(point(1350, 1350))
 	
 	local parent = GetDialog(self)
-	self.idButton.Press = function(this, alt, gamepad)	
+	self.idButton.Press = function(this, alt, gamepad)
 		if alt and not gamepad then 
 			parent:Close() 
 			return

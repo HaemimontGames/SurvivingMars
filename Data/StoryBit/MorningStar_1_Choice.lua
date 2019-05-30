@@ -7,7 +7,7 @@ PlaceObj('StoryBit', {
 	ScriptDone = true,
 	TextReadyForValidation = true,
 	TextsDone = true,
-	VoicedText = T(11844, 'He grins. "You know, I can’t grant you ‘world peace’ or ‘end hunger’, but the list is quite impressive, right?"'),
+	VoicedText = T(11844, --[[voice:narrator]] 'He grins. "You know, I can’t grant you ‘world peace’ or ‘end hunger’, but the list is quite impressive, right?"'),
 	group = "Default",
 	id = "MorningStar_1_Choice",
 	PlaceObj('StoryBitReply', {

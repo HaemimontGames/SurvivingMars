@@ -1,11 +1,7 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 PlaceObj('StoryBit', {
-	ActivationEffects = {
-		PlaceObj('AddTrait', {
-			'Trait', "Genius",
-		}),
-	},
+	ActivationEffects = {},
 	CompletionEffects = {},
 	Effects = {
 		PlaceObj('AddTrait', {
@@ -21,5 +17,14 @@ PlaceObj('StoryBit', {
 	Trigger = "ColonistBecameYouth",
 	group = "Founder Stage",
 	id = "TheStowaway_3_MakeGenius",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1551173380,
+				user = "Radomir",
+			},
+		},
+	}),
 })
 

@@ -190,6 +190,11 @@ end
 
 function InitNewGameMissionParams()
 	g_CurrentMissionParams = {}
+	-- reset ramdom settings for sponsor and 
+	random_mission_params = {
+		idMissionSponsor = false,
+		idCommanderProfile = false,
+	}
 	for k, v in pairs(MissionParams) do
 		if not MissionParams[k].empty_on_start then
 			local items = v.items or empty_table
@@ -472,9 +477,14 @@ directlyModifiableConsts = {
 	{local_id = "research_points", global_id = "SponsorResearch"},
 	{local_id = "initial_applicants", global_id = "ApplicantsPoolStartingSize"},
 	{local_id = "funding_per_interval", global_id = "SponsorFundingPerInterval"},
+	{local_id = "rocket_price", global_id = "RocketPrice"},
 }
 
-function DirectlyModifiedConsValue(label, base_value)
+function SavegameFixups.ModifiableRocketPrice()
+	g_Consts:SetBase("RocketPrice", GetMissionSponsor().rocket_price)
+end
+
+function DirectlyModifiedConstValue(label, base_value)
 	local sponsor = GetMissionSponsor()
 	if sponsor then
 		for _, const_pair in pairs(directlyModifiableConsts) do
@@ -607,7 +617,7 @@ function GetEntryRollover(param_t)
 		descr = table.concat({descr, flavor},"\n\n")
 	end
 	if IsKindOf(param_t, "GameRules") then
-		descr = descr .. GetIncompatibleGameRulesNames(param_t.id)
+		descr = descr .. GetGameRuleIncompatibleText(param_t.id)
 	end
 	rollover.descr = descr
 	rollover.id = rollover.title
@@ -615,10 +625,12 @@ function GetEntryRollover(param_t)
 	return rollover
 end
 
-random_mission_params = {
-	idMissionSponsor = false,
-	idCommanderProfile = false,
-}
+if FirstLoad then
+	random_mission_params = {
+		idMissionSponsor = false,
+		idCommanderProfile = false,
+	}
+end
 
 function GetDescrEffects()
 	local lines = {}
@@ -646,6 +658,9 @@ function GetDescrEffects()
 				lines[#lines + 1] = T{ effect, entry }
 			end
 		end
+	end
+	if #lines<=0 then 
+		return TLookupTag("<white>") .. T(3490, "Random") .. TLookupTag("</white>")
 	end
 	return table.concat(lines, "<newline>")
 end
@@ -804,6 +819,9 @@ function WaitWarnTutorialWithMods(host)
 end
 
 function ChooseToPlayTutorial(host)
+	if config.DisableTutorialPopup then
+		return false
+	end
 	if (AccountStorage.CompletedTutorials and next(AccountStorage.CompletedTutorials)) or AccountStorage.DisablePlayTutorialPopup then
 		return false
 	end	

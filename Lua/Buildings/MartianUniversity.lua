@@ -39,7 +39,7 @@ function MartianUniversity:OnTrainingCompleted(unit)
 end
 
 function MartianUniversity:CanTrain(unit)
-	if not unit.traits.none or unit.traits.Senior and not g_SeniorsCanWork then
+	if not unit.traits.none or unit.traits.Tourist or unit.traits.Senior and not g_SeniorsCanWork then
 		return
 	end
 	return TrainingBuilding.CanTrain(self, unit) 
@@ -75,13 +75,18 @@ function MartianUniversity:GetTrainedRollover()
 	return table.concat(texts, "<newline><left>")
 end
 
-function GetNeededSpecialistAround(dome)
-	local city = dome.city
+function GetNeededSpecialistAround(dome, for_specialization)
+	local city = dome and dome.city or UICity
 
 	local needed_specialist = {}
 	for i, building in ipairs(city.labels.Workplace or empty_table) do
 		local spec = building.specialist
-		if spec ~= "none" and not building.destroyed and not building.demolishing and not building.bulldozed then
+		if (not for_specialization or for_specialization==spec) 
+		    and spec ~= "none" 
+			 and not building.destroyed 
+			 and not building.demolishing 
+			 and not building.bulldozed 
+		then
 			local count = 0
 			if building.active_shift>0 then
 				count = building.max_workers - (building.closed_workplaces[building.active_shift] or 0)
@@ -94,7 +99,8 @@ function GetNeededSpecialistAround(dome)
 			needed_specialist[spec] = (needed_specialist[spec] or 0) + count			
 		end
 	end
-	for _, spec in ipairs(ColonistSpecializationList) do
+	local list = for_specialization and {for_specialization} or ColonistSpecializationList
+	for _, spec in ipairs(list) do
 		local specs_count = 0
 		local specs = city.labels[spec] or empty_table
 		for _, colonist in ipairs(specs) do
@@ -104,8 +110,11 @@ function GetNeededSpecialistAround(dome)
 		end
 		needed_specialist[spec] =  Max(0,(needed_specialist[spec] or 0) - specs_count)
 	end
-	
-	return needed_specialist
+	if for_specialization then 
+		return needed_specialist[for_specialization] or 0
+	else	
+		return needed_specialist
+	end	
 end
 
 function GetMostNeededSpecialistAround(dome)

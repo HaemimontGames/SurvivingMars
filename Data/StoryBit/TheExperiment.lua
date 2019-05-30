@@ -3,7 +3,6 @@
 PlaceObj('StoryBit', {
 	ActivationEffects = {},
 	Category = "Tick_FounderStageDone",
-	Comment = "Give RP and Spawn Dust Devils",
 	Effects = {},
 	Enabled = true,
 	Image = "UI/Messages/Events/06_space_suit.tga",
@@ -25,6 +24,15 @@ PlaceObj('StoryBit', {
 	VoicedText = T(492443614001, --[[voice:narrator]] "A Scientist barges into your office and says they have an important climate experiment to make."),
 	group = "Colonists",
 	id = "TheExperiment",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1550843031,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitParamResearchPoints', {
 		'Name', "reward_small",
 		'Value', 1500,

@@ -2,11 +2,12 @@ DefineClass.Workplace = {
 	__parents = { "ShiftsBuilding", "Holder", "DomeOutskirtBld"},
 	
 	properties = {		
-		{template = true, id = "max_workers",     name = T(833, "Max workers per shift"),        default = 5,     category = "Workplace", editor = "number", min = 0, max = 20, slider = true, modifiable = true}, 	
-		{template = true, id = "specialist",      name = T(834, "Specialist"),                   default = "none",category = "Workplace", editor = "combo",  items = GetColonistSpecializationCombo()},
-		{                 id = "performance",     name = T(835, "Current performance"), default = 100, modifiable = true, editor = "number" , no_edit = true},
-		{template = true, id = "automation",      name = T(836, "Workplace Automation"),        default = 0,     category = "Workplace", editor = "number", modifiable = true, help = "Can work without workers if > 0"},
-		{template = true, id = "auto_performance",name = T(837, "Workplace Auto Performance"),  default = 0,     category = "Workplace", editor = "number", modifiable = true, help = "Performance when working in automation mode"}, 	
+		{template = true, id = "max_workers",         name = T(833, "Max workers per shift"),        default = 5,     category = "Workplace", editor = "number", min = 0, max = 20, slider = true, modifiable = true}, 	
+		{template = true, id = "specialist",          name = T(834, "Specialist"),                   default = "none",category = "Workplace", editor = "combo",  items = GetColonistSpecializationCombo()},
+		{                 id = "performance",         name = T(835, "Current performance"), default = 100, modifiable = true, editor = "number" , no_edit = true},
+		{template = true, id = "automation",          name = T(836, "Workplace Automation"),        default = 0,     category = "Workplace", editor = "number", modifiable = true, help = "Can work without workers if > 0"},
+		{template = true, id = "auto_performance",    name = T(837, "Workplace Auto Performance"),  default = 0,     category = "Workplace", editor = "number", modifiable = true, help = "Performance when working in automation mode"}, 	
+		{template = true, id = "incompatible_traits", name = T(12469, "Incompatible Traits"),              default = empty_table, category = "Workplace", editor = "string_list", item_default = "", items = function() return PresetsCombo("TraitPreset") end}, 	
 	},
 	
 	workers = false,  -- workers arrays in shifts
@@ -21,7 +22,7 @@ DefineClass.Workplace = {
 	domes_query_version = false,
 	domes_query_res = false,
 	
-	dome_label = "Workplaces",
+	dome_label = "Workplace",
 }
 
 function Workplace:Init()
@@ -214,7 +215,7 @@ function Workplace:GetPerformanceEffects(shift)
 		local count = #self.workers[shift]
 		texts[#texts +1] = T{838, "Workers: <workers> of <max_workers>", workers = count} 
 	end
-	table.append(texts, self:GetPropertyModifierTexts("performance") or empty_table)
+	table.iappend(texts, self:GetPropertyModifierTexts("performance") or empty_table)
 	return texts
 end
 
@@ -275,7 +276,7 @@ function Workplace:GetPerformanceReasons(shift)
 	end
 	-- tech
 	-- modifiers, labelmodifiers
-	table.append(texts, self:GetPropertyModifierTexts("performance") or empty_table)
+	table.iappend(texts, self:GetPropertyModifierTexts("performance") or empty_table)
 	return texts
 end
 
@@ -338,11 +339,12 @@ function Workplace:OnModifiableValueChanged(prop, old_value, new_value)
 
 		if new_value == 0 or self.closed_workplaces then
 			local is_automated = self.automation >= 1
+			local closed_shifts = self.closed_shifts or empty_table
 			for i=1, self.max_shifts do
 				if new_value == 0 --close if no workers
 					or (old_value > 0 and self.closed_workplaces[i] == old_value) --close if it was already closed with the old check
-					or self.closed_shifts[i] then --close if already closed with the new check
-					if is_automated and not self.closed_shifts[i] then
+					or closed_shifts[i] then --close if already closed with the new check
+					if is_automated and not closed_shifts[i] then
 						self:CloseAllWorkplacesWithoutClosingShift(i)
 					else
 						self:CloseShift(i)
@@ -355,7 +357,9 @@ function Workplace:OnModifiableValueChanged(prop, old_value, new_value)
 		self:UpdatePerformance()
 		RebuildInfopanel(self)
 	elseif prop == "automation" or prop == "auto_performance" then
-		self:SetWorkshift(self.current_shift)
+		if not GameInitThreads[self] then			
+			self:SetWorkshift(self.current_shift)	-- NOTE: ShiftsBuilding:GameInit() will do the proper job
+		end
 	end
 end
 
@@ -436,15 +440,25 @@ function UpdateWorkplaces(colonists)
 end
 
 function Workplace:IsSuitable(colonist)
-	return colonist:CanWork() and self:CanWorkHere(colonist)
+	return colonist:CanWork() and self:CanWorkHere(colonist) and self:CanWorkTrainHereDomeCheck(colonist)
+end
+
+local function HasIncompatibleTraits(workplace, unit_traits)
+	for _, trait in ipairs(workplace.incompatible_traits) do
+		if unit_traits[trait] then
+			return true
+		end
+	end
 end
 
 function Workplace:CanWorkHere(colonist)
-	return not self.specialist_enforce_mode or (self.specialist or "none") == (colonist.specialist or "none")
+	return (not self.specialist_enforce_mode or (self.specialist or "none") == (colonist.specialist or "none"))
+		and not HasIncompatibleTraits(self, colonist.traits)
 end
 
 function Workplace:ColonistCanInteract(col)
-	if col.traits.Child or (col.traits.Senior and not g_SeniorsCanWork) then 
+	local traits = col.traits
+	if traits.Child or (traits.Senior and not g_SeniorsCanWork) then 
 		return false, T(4310, "<red>Seniors and children can't be assigned to work</red>")
 	end
 	if self.specialist_enforce_mode and (self.specialist or "none") ~= (col.specialist or "none") then
@@ -459,6 +473,9 @@ function Workplace:ColonistCanInteract(col)
 	if not self:HasOpenWorkSlots() then
 		return false, T(4312, "<red>Current work shift is closed</red>")
 	end
+	if HasIncompatibleTraits(self, traits) then
+		return false, T(12595, "<red>Can't work here</red>")
+	end
 	return true, T{4313, "<UnitMoveControl('ButtonA', interaction_mode)>: Set Workplace", col}
 end
 
@@ -467,7 +484,7 @@ function Workplace:CheckServicedDome(test_dome)
 	if dome then
 		return dome
 	end
-	if test_dome and test_dome:IsBuildingInDomeRange(self) then
+	if test_dome and IsBuildingInDomeRange(self, test_dome) then
 		return test_dome
 	end
 	return FindNearestObject(UICity.labels.Dome, self)
@@ -492,7 +509,7 @@ function Workplace:ColonistInteract(col)
 	
 	local col_dome = col.dome
 	local best_dome = self:CheckServicedDome(col_dome)
-	if AreDomesConnectedWithPassage(best_dome, col_dome) then
+	if AreDomesConnected(best_dome, col_dome) then
 		col:UpdateWorkplace()
 	else
 		col:SetForcedDome(best_dome)
@@ -507,9 +524,8 @@ function Workplace:CheckWorkForUnemployed()
 	if self.parent_dome then
 		UpdateWorkplaces(self.parent_dome.labels.Unemployed)
 	else
-		local shape = GetShapePointsToWorldPos(self)
 		for _, dome in ipairs(self.city.labels.Dome or empty_table) do
-			if dome:IsBuildingInDomeRange(self, shape) then
+			if IsBuildingInDomeRange(self, dome) then
 				UpdateWorkplaces(dome.labels.Unemployed)
 			end
 		end
@@ -671,6 +687,10 @@ function Workplace:FindFreeSlotForced(shift)
 		end
 	else
 		shift = self.active_shift
+		
+		if self:HasFreeWorkSlots(shift) then
+			return shift
+		end
 	end
 	
 	if not self:HasOpenWorkSlots(shift) then
@@ -690,27 +710,39 @@ end
 
 function Workplace:OnChangeWorkshift(old, new)
 	if old then
+		local g_consts = g_Consts
 		local martianborn_resilience = self.city:IsTechResearched("MartianbornResilience")
-		local dark_penalty = IsDarkHour(self.city.hour - 4) and -g_Consts.WorkDarkHoursSanityDecrease
+		local dark_penalty = IsDarkHour(self.city.hour - 4) and -g_consts.WorkDarkHoursSanityDecrease
 		local overtime = self.overtime[old]
-		local outside_sanity_decrease = -g_Consts.OutsideWorkplaceSanityDecrease
-		local is_outside_building = not self.parent_dome
-		for _, worker in ipairs(self.workers[old]) do
+		local outside_sanity_decrease = not self.parent_dome and not BreathableAtmosphere and -g_consts.OutsideWorkplaceSanityDecrease
+		for _, worker in ipairs(self.workers[old] or empty_table) do
 			if dark_penalty then
 				worker:ChangeSanity(dark_penalty, "work in dark hours")
 			end
 			local traits = worker.traits
 			if overtime and worker:IsWorking() and not traits.Workaholic then
-				worker:ChangeHealth(-g_Consts.WorkOvertimeHealth, "overtime")
-				worker:ChangeSanity(-g_Consts.WorkOvertimeSanityDecrease, "overtime")
+				worker:ChangeHealth(-g_consts.WorkOvertimeHealth, "overtime")
+				worker:ChangeSanity(-g_consts.WorkOvertimeSanityDecrease, "overtime")
 			end	
-			if is_outside_building and not (martianborn_resilience and traits.Martianborn) then
+			if outside_sanity_decrease and not (martianborn_resilience and traits.Martianborn) then
 				worker:ChangeSanity(outside_sanity_decrease, "outside workplace")
 			end
 			worker:InterruptVisit()
 		end
 	end
-	
+	if new then
+		-- try to force the workers in the new shift to come to work
+		for _, worker in ipairs(self.workers[new] or empty_table) do
+			if worker:CanChangeCommand() then
+				local cmd = worker.command
+				if cmd == "VisitService" or cmd == "Rest" then
+					worker:InterruptVisit()
+				elseif cmd == "Idle" then
+					worker:SetCommand("Work")
+				end
+			end
+		end
+	end
 	RebuildInfopanel(self)
 end
 
@@ -737,34 +769,23 @@ function Workplace:StopWorkCycle(unit)
 end
 
 
-local domes_query_func = function(obj, workplace, shape)
-	local dome_class
-	if IsKindOf(obj, "ConstructionSite") then
-		if IsKindOf(obj.building_class_proto, "Dome") then
-			dome_class = obj.building_class_proto
+local domes_query_func = function(dome, workplace)
+	local dome_class = dome
+	if IsKindOf(dome, "ConstructionSite") then
+		if IsKindOf(dome.building_class_proto, "Dome") then
+			dome_class = dome.building_class_proto
 		else
 			return
 		end
 	end
-	local outside = true
-	if dome_class then
-		local r = dome_class:GetOutsideWorkplacesDist()
-		for i = 1, #shape do
-			if HexAxialDistance(obj, shape[i]) <= r then
-				outside = false
-				break
-			end
-		end
-	elseif obj:IsBuildingInDomeRange(workplace, shape) then 
-		outside = false
-	end
-	if outside then
+	local range = dome_class and dome_class:GetOutsideWorkplacesDist()
+	if not IsBuildingInDomeRange(workplace, dome, range) then
 		return
 	end
 	workplace.domes_query_res = true
 	return "break"
 end
-	
+
 -- for UI warning
 function Workplace:HasNearByWorkers() 
 	if self.automation > 0 or IsObjInDome(self) then
@@ -775,8 +796,8 @@ function Workplace:HasNearByWorkers()
 	end
 	self.domes_query_version = g_DomeVersion
 	self.domes_query_res = false
-	local shape = GetShapePointsToWorldPos(self)
-	MapForEach(self, "hex", g_Consts.DefaultOutsideWorkplacesRadius + 50, "ConstructionSite", "Dome", domes_query_func, self, shape  )
+
+	MapForEach(self, "hex", g_Consts.DefaultOutsideWorkplacesRadius + 50, "ConstructionSite", "Dome", domes_query_func, self)
 	return self.domes_query_res
 end
 
@@ -791,6 +812,7 @@ function Workplace:OnSelected()
 	SelectionArrowAdd(self.workers)
 end
 
+Workplace.InitInside = InitInsideTrainingAndWorkplaceBld
 --------------------------------------------- Choose workplace -----------------------------------------------------------------------------------------------------------
 function FindTrainingSlot(bld, unit)
 	local active_shift = bld.active_shift or 0
@@ -818,7 +840,6 @@ end
 
 function ChooseTraining(unit, training_buildings, bb_in, bws_in)
 	local current_bld, current_shift = bb_in or unit.workplace, bws_in or unit.workplace_shift
-	assert(not current_bld or not current_bld.force_lock_workplace)
 	local avoid_workplace = unit.avoid_workplace
 	if avoid_workplace and (not unit.avoid_workplace_start or unit.avoid_workplace_start + g_Consts.AvoidWorkplaceSols < unit.city.day) then
 		avoid_workplace = false
@@ -867,9 +888,22 @@ function ValidateBuilding(building)
 end
 local ValidateBuilding = ValidateBuilding
 
-local function ShouldProc(bld, avoid_workplace, specialist)
+local function ShouldProc(bld, avoid_workplace, specialist, traits)
 	return ValidateBuilding(bld) and avoid_workplace ~= bld and bld.ui_working and bld.max_workers > 0 
 	and (not bld.specialist_enforce_mode or (bld.specialist or "none") == specialist)
+	and not HasIncompatibleTraits(bld, traits)
+end
+
+function GetWorkplaceOccupation(bld, shift)
+	if not IsKindOf(bld, "Workplace") then return 0 end
+	local max = bld.max_workers
+	local closed = bld.closed_workplaces or empty_table
+	local total = max - (closed[shift] or 0)
+	local workers = bld.workers or empty_table
+	local list = workers[shift]
+	local units = #list
+	local r = MulDivRound(units, 100, total)
+	return r
 end
 
 function FindWorkSlot(bld, unit, current_bld, current_shift, specialist, renegade)
@@ -880,7 +914,7 @@ function FindWorkSlot(bld, unit, current_bld, current_shift, specialist, renegad
 	local workers = bld.workers or empty_table
 	local closed = bld.closed_workplaces or empty_table
 	local min_shift_occupation = max_int
-	local shift_found, shift_to_kick
+	local shift_found, shift_to_kick, possible_replacement
 	local no_workers = bld.automation == 0
 	local required_specialist = bld.specialist or "none"
 	local specialist_match = specialist == required_specialist
@@ -925,16 +959,17 @@ function FindWorkSlot(bld, unit, current_bld, current_shift, specialist, renegad
 		local total = max - (closed[shift] or 0)
 		if total > units then
 			-- empty space is found, or there is someone we can replace
-			local occupation = MulDivRound(units, 100, total)
-			if min_shift_occupation > occupation or is_current_workplace and min_shift_occupation == occupation then
+			local occupation = MulDivRound(units + (to_kick and 1 or 0), 100, total)
+			if min_shift_occupation > occupation or (is_current_workplace and (min_shift_occupation == occupation or min_shift_occupation == max_int)) then
 				min_shift_occupation = occupation
 				shift_found = shift
-				shift_to_kick = to_kick
+				shift_to_kick = total - units == 1 and to_kick or nil
+				possible_replacement = not shift_to_kick and to_kick or nil
 			end
 		end
 	end
 	
-	return shift_found, shift_to_kick, min_shift_occupation, specialist_match, no_workers
+	return shift_found, shift_to_kick, min_shift_occupation, specialist_match, no_workers, possible_replacement
 end
 
 function DbgAddWorkVector(unit, bld, color)
@@ -952,55 +987,65 @@ function ChooseWorkplace(unit, workplaces, allow_exchange)
 	if avoid_workplace and (not unit.avoid_workplace_start or unit.avoid_workplace_start + g_Consts.AvoidWorkplaceSols < unit.city.day) then
 		avoid_workplace = false
 	end
-	local renegade = unit.traits.Renegade or false
+	local traits = unit.traits
+	local renegade = traits.Renegade or false
 	local specialist = unit.specialist or "none"
 	local min_occupation, min_exchange_occupation = max_int, max_int
 	local best_priority, exchange_priority = 0, 0
 	local best_bld, best_shift, best_to_kick, best_specialist_match, best_no_workers
-	local exchange_bld, exchange_shift, exchange_worker
+	local exchange_bld, exchange_shift, exchange_worker, best_dome_idx, exchange_best_dome_idx
 	
-	for _, bld in ipairs(workplaces or empty_table) do
-		local priority = bld.priority
-		if ShouldProc(bld, avoid_workplace, specialist) and (allow_exchange or priority >= best_priority) then
-			local shift_found, shift_to_kick, min_shift_occupation, specialist_match, no_workers = FindWorkSlot(bld, unit, current_bld, current_shift, specialist, renegade)
-			if shift_found then				
-				if best_priority < priority -- workplaces with higher priority are always prefered
-				or best_priority == priority  -- for buildings with the same priority,
-				and (min_occupation > min_shift_occupation -- chose if that would improve the worker percentage
-					or min_occupation == min_shift_occupation-- if the workers ratio is the same,
-						and (specialist_match and not best_specialist_match -- try to match specialization
-						or no_workers and not best_no_workers -- or try to avoid having buildings with no workers
-						or bld == current_bld and shift_found == current_shift)) -- try to preserve the current workplace if all of the above conditions are met
-				then
-					min_occupation = min_shift_occupation
-					best_shift = shift_found
-					best_bld = bld
-					best_priority = priority
-					best_specialist_match = specialist_match
-					best_to_kick = shift_to_kick
-					best_no_workers = no_workers
-				end
-				
-				-- check for possible exchange if the best building isn't a good match for this specific worker
-				if allow_exchange and shift_to_kick
-				and (exchange_priority < priority
-					or exchange_priority == priority
-					and min_exchange_occupation > min_shift_occupation)
-				then
-					assert(specialist_match and shift_found and not no_workers)
-					exchange_bld = bld
-					exchange_shift = shift_found
-					exchange_priority = priority
-					exchange_worker = shift_to_kick
-					min_exchange_occupation = min_shift_occupation
+	local tbl1 = type(workplaces[1]) == "table" and not IsValid(workplaces[1]) and workplaces or {workplaces}
+	for i = 1, #tbl1 do
+		workplaces = tbl1[i]
+		for _, bld in ipairs(workplaces or empty_table) do
+			local priority = bld.priority
+			if ShouldProc(bld, avoid_workplace, specialist, traits) and (allow_exchange or priority >= best_priority) then
+				local shift_found, shift_to_kick, min_shift_occupation, specialist_match, no_workers, possible_replacement = FindWorkSlot(bld, unit, current_bld, current_shift, specialist, renegade)
+				if shift_found then
+					if best_priority < priority -- workplaces with higher priority are always prefered
+					or best_priority == priority  -- for buildings with the same priority,
+					and (specialist_match and not best_specialist_match --choose if specialist match
+						or specialist_match == best_specialist_match
+							and (min_occupation > min_shift_occupation -- chose if that would improve the worker percentage
+							or no_workers and not best_no_workers -- or try to avoid having buildings with no workers
+							or bld == current_bld and shift_found == current_shift -- try to preserve the current workplace if all of the above conditions are met
+							or best_dome_idx < i and i == #tbl1)) --if evertything else is the same, pick own dome
+					then
+						min_occupation = min_shift_occupation
+						best_shift = shift_found
+						best_bld = bld
+						best_priority = priority
+						best_specialist_match = specialist_match
+						best_to_kick = shift_to_kick
+						best_no_workers = no_workers
+						best_dome_idx = i
+					end
+					
+					-- check for possible exchange if the best building isn't a good match for this specific worker
+					if allow_exchange and (shift_to_kick or possible_replacement)
+					and (exchange_priority < priority
+						or exchange_priority == priority
+						and min_exchange_occupation > min_shift_occupation
+							or min_exchange_occupation == min_shift_occupation
+								and exchange_best_dome_idx < i and i == #tbl1)
+					then
+						assert(specialist_match and shift_found and not no_workers)
+						exchange_bld = bld
+						exchange_shift = shift_found
+						exchange_priority = priority
+						exchange_worker = shift_to_kick or possible_replacement
+						min_exchange_occupation = min_shift_occupation
+						exchange_best_dome_idx = i
+					end
 				end
 			end
 		end
 	end
-	
 	-- in case the the choosen building isn't the best building, exchange the colonists between workplaces
 	if exchange_worker and not best_to_kick
 	and best_bld and exchange_bld ~= best_bld
+	and exchange_priority >= best_priority and not best_specialist_match
 	and best_bld:IsSuitable(exchange_worker) then
 		--DbgAddWorkVector(exchange_worker, best_bld, red)
 		exchange_worker:SetWorkplace(best_bld, best_shift)
@@ -1013,7 +1058,8 @@ end
 function CompareWorkplaces(bld1, bld2, unit)
 	local avoid_workplace = unit.avoid_workplace
 	local specialist = unit.specialist or "none"
-	local p1, p2 = ShouldProc(bld1, avoid_workplace, specialist), ShouldProc(bld2, avoid_workplace, specialist)
+	local traits = unit.traits
+	local p1, p2 = ShouldProc(bld1, avoid_workplace, specialist, traits), ShouldProc(bld2, avoid_workplace, specialist, traits)
 	if not p1 and not p2 then --equally unaccpetable
 		return nil	
 	end
@@ -1023,9 +1069,11 @@ function CompareWorkplaces(bld1, bld2, unit)
 	
 	local current_bld = ValidateBuilding(unit.workplace)
 	local current_shift = unit.workplace_shift
-	local renegade = unit.traits.Renegade or false
+	local renegade = traits.Renegade or false
 	local sf1, stk1, mso1, sm1, nw1 = FindWorkSlot(bld1, unit, current_bld, current_shift, specialist, renegade)
 	local sf2, stk2, mso2, sm2, nw2 = FindWorkSlot(bld2, unit, current_bld, current_shift, specialist, renegade)
+	sf1 = not not sf1
+	sf2 = not not sf2
 	
 	if sf1 ~= sf2 then
 		return sf1 and bld1 or bld2
@@ -1036,11 +1084,11 @@ function CompareWorkplaces(bld1, bld2, unit)
 	if sm1 ~= sm2 then
 		return sm1 and bld1 or bld2
 	end
+	if mso1 ~= mso2 then
+		return mso1 < mso2 and bld1 or bld2
+	end
 	if nw1 ~= nw2 then
 		return nw1 and bld1 or bld2
-	end
-	if mso1 ~= mso2 then
-		return mso1 < mso2 and bld2 or bld1
 	end
 	
 	return bld2 == current_bld and sf2 == current_shift and bld2 or bld1
@@ -1053,8 +1101,15 @@ end
 local WorkerSlot = {
 	"RolloverTitle", T(7305, "<DisplayName>"),
 	"RolloverText", T(6768, "A colonist working in this building.<newline><newline>Specialization: <em><Specialization></em><newline>Worker Performance: <em><performance></em><newline><PerformanceReasons><TraitsWarnings>"),
-	"RolloverHint", T(7527, "<left_click> Select  <right_click> Fire this worker"),
-	"RolloverHintGamepad", T(7528, "<ButtonA> Select  <ButtonX> Fire this worker"),
+	"RolloverHint", T(12184, "<left_click> Select  <right_click> Fire worker"),
+	"RolloverHintGamepad", T(12185, "<ButtonA> Select  <ButtonX> Fire worker"),
+}
+
+local WorkerSlotForced = {
+	"RolloverTitle", T(7305, "<DisplayName>"),
+	"RolloverText", T(12394, "A colonist assigned to work in this building.<newline><newline>Assignment Remaining: <em><time(WorkAssignmentRemaining)></em><newline>Specialization: <em><Specialization></em><newline>Worker Performance: <em><performance></em><newline><PerformanceReasons><TraitsWarnings>"),
+	"RolloverHint", T(12184, "<left_click> Select  <right_click> Fire worker"),
+	"RolloverHintGamepad", T(12185, "<ButtonA> Select  <ButtonX> Fire worker"),
 }
 
 local OpenSlot = {
@@ -1131,7 +1186,7 @@ function UIWorkshiftUpdate(self, building, shift)
 		end
 	end
 	-- idWorkers
-	local max_workers = building:IsKindOf("TrainingBuilding") and building.max_visitors or building:IsKindOf("Workplace") and building.max_workers or 0
+	local max_workers = IsKindOf(building, "TrainingBuilding") and building.max_visitors or IsKindOf(building, "Workplace") and building.max_workers or 0
 	if #self.idWorkers ~= max_workers then
 		self.idWorkers:DeleteChildren()
 		for i = 1, max_workers do
@@ -1169,7 +1224,11 @@ function UIWorkshiftUpdate(self, building, shift)
 			if worker then
 				win:SetIcon(worker:GetInfopanelIcon())
 				win.idSpecialization:SetImage(worker.ip_specialization_icon)
-				SetObjPropertyList(win, WorkerSlot)
+				if worker:CheckForcedWorkplace() == building then
+					SetObjPropertyList(win, WorkerSlotForced)
+				else
+					SetObjPropertyList(win, WorkerSlot)
+				end
 			elseif i <= closed_slots then
 				SetObjPropertyList(win, OpenSlot)
 			else

@@ -11,40 +11,40 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-XDialog.Open(self, ...)
-ShowMouseCursor("PreGame")
-StopRadioStation()
-SetMusicPlaylist("MainTheme")
-if Platform.durango and DurangoNewDlc then
-	DurangoNewDlc = false
-	self:CreateThread("DurangoDlc", function() 
-		LoadDlcs("force reload")
-		OpenPreGameMainMenu()
-	end)
-end
-RemoveOutdatedMods(self)
-self:SetMode("Main")
-end,
+				XDialog.Open(self, ...)
+				ShowMouseCursor("PreGame")
+				StopRadioStation()
+				SetMusicPlaylist("MainTheme")
+				if Platform.durango and DurangoNewDlc then
+					DurangoNewDlc = false
+					self:CreateThread("DurangoDlc", function() 
+						LoadDlcs("force reload")
+						OpenPreGameMainMenu()
+					end)
+				end
+				RemoveOutdatedMods(self)
+				self:SetMode("Main")
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "SetMode(self, mode, mode_param)",
 			'func', function (self, mode, mode_param)
-if mode=="" then mode = "Main" end			
-if self.Mode == mode or mode ~= "" then
-	XDialog.SetMode(self, mode, mode_param)
-	return
-end
-CreateRealTimeThread(function(self, mode, mode_param)
-	self.context.savegame_count = WaitCountSaveGames()
-	XDialog.SetMode(self, mode, mode_param)
-end, self, mode, mode_param)
-end,
+				if mode=="" then mode = "Main" end			
+				if self.Mode == mode or mode ~= "" then
+					XDialog.SetMode(self, mode, mode_param)
+					return
+				end
+				CreateRealTimeThread(function(self, mode, mode_param)
+					self.context.savegame_count = WaitCountSaveGames()
+					XDialog.SetMode(self, mode, mode_param)
+				end, self, mode, mode_param)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnDelete",
 			'func', function (self, ...)
-HideMouseCursor("PreGame")
-end,
+				HideMouseCursor("PreGame")
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XContentTemplate",

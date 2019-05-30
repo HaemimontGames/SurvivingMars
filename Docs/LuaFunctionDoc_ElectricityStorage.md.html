@@ -110,13 +110,13 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 **construction_cost_BlackCube**
 : Black Cubes Cost
 
+**construction_cost_WasteRock**
+: Waste Rock Cost
+
 **in_dome_construction_modifier**
 : If constructed inside a dome, this mod will be applied to construction cost.
 #### General
 
-
-**disable_maintenance**
-: So maintenance can be turned off with modifiers
 
 **dome_comfort**
 : Dome Comfort
@@ -134,6 +134,9 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 
 **maintenance_build_up_per_hr**
 : Amount of maintenance pnts accumulated per hr.
+
+**disable_maintenance**
+: So maintenance can be turned off with modifiers
 #### Resource Consumption
 
 
@@ -165,11 +168,35 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 **entitydlc2**
 : Alternative Entity 2 DLC
 
+**palette2_color1**
+: Alternative Entity 2 Palette Color 1
+
+**palette2_color2**
+: Alternative Entity 2 Palette Color 2
+
+**palette2_color3**
+: Alternative Entity 2 Palette Color 3
+
+**palette2_color4**
+: Alternative Entity 2 Palette Color 4
+
 **entity3**
 : Alternative Entity 3
 
 **entitydlc3**
 : Alternative Entity 3 DLC
+
+**palette3_color1**
+: Alternative Entity 3 Palette Color 1
+
+**palette3_color2**
+: Alternative Entity 3 Palette Color 2
+
+**palette3_color3**
+: Alternative Entity 3 Palette Color 3
+
+**palette3_color4**
+: Alternative Entity 3 Palette Color 4
 
 **entity4**
 : Alternative Entity 4
@@ -177,17 +204,71 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 **entitydlc4**
 : Alternative Entity 4 DLC
 
+**palette4_color1**
+: Alternative Entity 4 Palette Color 1
+
+**palette4_color2**
+: Alternative Entity 4 Palette Color 2
+
+**palette4_color3**
+: Alternative Entity 4 Palette Color 3
+
+**palette4_color4**
+: Alternative Entity 4 Palette Color 4
+
 **entity5**
 : Alternative Entity 5
 
 **entitydlc5**
 : Alternative Entity 5 DLC
 
+**palette5_color1**
+: Alternative Entity 5 Palette Color 1
+
+**palette5_color2**
+: Alternative Entity 5 Palette Color 2
+
+**palette5_color3**
+: Alternative Entity 5 Palette Color 3
+
+**palette5_color4**
+: Alternative Entity 5 Palette Color 4
+
 **entity6**
 : Alternative Entity 6
 
 **entitydlc6**
 : Alternative Entity 6 DLC
+
+**palette6_color1**
+: Alternative Entity 6 Palette Color 1
+
+**palette6_color2**
+: Alternative Entity 6 Palette Color 2
+
+**palette6_color3**
+: Alternative Entity 6 Palette Color 3
+
+**palette6_color4**
+: Alternative Entity 6 Palette Color 4
+
+**entity7**
+: Alternative Entity 7
+
+**entitydlc7**
+: Alternative Entity 7 DLC
+
+**palette7_color1**
+: Alternative Entity 7 Palette Color 1
+
+**palette7_color2**
+: Alternative Entity 7 Palette Color 2
+
+**palette7_color3**
+: Alternative Entity 7 Palette Color 3
+
+**palette7_color4**
+: Alternative Entity 7 Palette Color 4
 #### Construction
 
 
@@ -212,6 +293,9 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 **construction_cost_BlackCube**
 : Black Cubes Cost
 
+**construction_cost_WasteRock**
+: Waste Rock Cost
+
 **construction_entity**
 : Construction Entity
 
@@ -226,6 +310,12 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 
 **can_rotate_during_placement**
 : Whether the building can be rotated during placement.
+
+**can_resize_during_placement**
+: Can Resize During Placement
+
+**starting_angle**
+: Starting Angle (deg)
 
 **is_tall**
 : Whether the building can be placed under life support pipes.
@@ -314,11 +404,14 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 
 **demolish_return_resources**
 : If true, the building will return resources upon destruction.
+
+**auto_clear**
+: If true, the building will be marked to be cleared after being demolished.
 #### Encyclopedia
 
 
-**encyclopedia_exclude**
-: Exclude From Encyclopedia
+**encyclopedia_id**
+: Encyclopedia ID
 
 **encyclopedia_text**
 : Encyclopedia Text
@@ -327,9 +420,6 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 : Encyclopedia Image
 #### General
 
-
-**disable_maintenance**
-: So maintenance can be turned off with modifiers
 
 **display_name**
 : Display Name
@@ -358,6 +448,9 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 **show_range_all**
 : Show range radii for all buildings of that class when selected
 
+**show_range**
+: Show range radius for this building
+
 **ip_template**
 : Template used for building infopanel
 
@@ -367,11 +460,23 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 **color_modifier**
 : Color Modifier
 
-**palettes**
-: Available Palettes
+**palette_color1**
+: Palette color 1
 
-**requires_dlc**
-: Hide this building from build menu if dlc is not available.
+**palette_color2**
+: Palette color 2
+
+**palette_color3**
+: Palette color 3
+
+**palette_color4**
+: Palette color 4
+
+**count_as_building**
+: Count as building for achievement / control center purposes
+
+**clear_soil_underneath**
+: If the soil underneath the building should be set to 0.
 #### Maintenance
 
 
@@ -386,6 +491,9 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 
 **maintenance_build_up_per_hr**
 : Amount of maintenance pnts accumulated per hr.
+
+**disable_maintenance**
+: So maintenance can be turned off with modifiers
 #### Pin
 
 
@@ -400,6 +508,9 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 
 **pin_rollover_hint_xbox**
 : Pin Rollover Hint Xbox
+
+**pin_summary2**
+: Pin Summary 2
 
 **pin_summary1**
 : Pin Summary 1
@@ -438,6 +549,9 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 #### Shortcuts
 
 
+**key_bindable**
+: Keybinding allowed
+
 **build_shortcut1**
 : Build Shortcut
 
@@ -446,6 +560,26 @@ Building derived [building template](ModItemBuildingTemplate.md.html) class. Han
 
 **build_shortcut_gamepad**
 : Gamepad Shortcut
+#### Sponsor Condition
+
+
+**sponsor_name1**
+: Sponsor 1
+
+**sponsor_status1**
+: Status 1
+
+**sponsor_name2**
+: Sponsor 2
+
+**sponsor_status2**
+: Status 2
+
+**sponsor_name3**
+: Sponsor 3
+
+**sponsor_status3**
+: Status 3
 #### UI
 
 

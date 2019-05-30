@@ -22,9 +22,9 @@ PlaceObj('XTemplate', {
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
 					'func', function (self, ...)
-XWindow.Open(self, ...)
-self:SetMargins(GetSafeMargins(self:GetMargins()))
-end,
+						XWindow.Open(self, ...)
+						self:SetMargins(GetSafeMargins(self:GetMargins()))
+					end,
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'__template', "ActionBarNew",
@@ -53,11 +53,11 @@ end,
 							'ActionGamepad', "ButtonB",
 							'OnActionEffect', "close",
 							'OnAction', function (self, host, source)
-if host then 
-SetBackDialogMode(host.context.dlg)
-host:Close()
-end
-end,
+								if host then 
+								SetBackDialogMode(host.context.dlg)
+								host:Close()
+								end
+							end,
 						}),
 						}),
 					}),

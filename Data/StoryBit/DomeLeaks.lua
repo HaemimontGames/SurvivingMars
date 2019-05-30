@@ -12,6 +12,9 @@ PlaceObj('StoryBit', {
 	Enabled = true,
 	Image = "UI/Messages/metatron_mystery_03.tga",
 	Prerequisites = {
+		PlaceObj('AreDomesOpen', {
+			'Negate', true,
+		}),
 		PlaceObj('PickFromLabel', {
 			'Label', "Dome",
 			'Conditions', {
@@ -26,7 +29,7 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	ScriptDone = true,
-	Text = T(11053, --[[StoryBit DomeLeaks Text]] "The dust storm has caused a giant crack in the glass of dome <DisplayName>. New leaks spring up constantly and our drones will struggle to fix all of them.\n\nTo fix the initial crack we’ll have to send colonists outside. However this may be dangerous and it may be wise to first wait out the storm."),
+	Text = T(12461, --[[StoryBit DomeLeaks Text]] "The dust storm has caused a giant crack in the glass of dome <DisplayName>. New leaks spring up constantly and our drones will struggle to fix all of them.\n\nTo fix the initial crack we’ll have to send colonists outside. However, this may be dangerous and it may be wise to first wait out the storm."),
 	TextReadyForValidation = true,
 	TextsDone = true,
 	Title = T(179679317862, --[[StoryBit DomeLeaks Title]] "Broken Dome"),
@@ -34,6 +37,15 @@ PlaceObj('StoryBit', {
 	VoicedText = T(711159505860, --[[voice:narrator]] "Nervous colonists watch as a crack in the Dome slowly leaks out precious air into the Dust Storm outside."),
 	group = "Disasters",
 	id = "DomeLeaks",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1550836991,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitReply', {
 		'Text', T(202749987241, --[[StoryBit DomeLeaks Text]] "I need volunteers to go outside!"),
 		'OutcomeText', "custom",

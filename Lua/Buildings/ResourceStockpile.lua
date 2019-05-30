@@ -49,8 +49,7 @@ end
 
 DefineClass.ResourceStockpileBase = {
 	__parents = { "TaskRequester", "Constructable", "Object", "InfopanelObj", "DomeOutskirtBld" }, --constructable so it can be placed with constr dialog
-	game_flags = { gofPermanent = true },
-	class_flags = { cfConstructible = false },
+	flags = { cfConstructible = false, gofPermanent = true },
 	entity = "ResourcePlatform",
 	properties = {
 		{ id = "StoredAmount", editor = "number", default = 0, no_edit = true },
@@ -156,7 +155,7 @@ end
 
 function ResourceStockpileBase:GetDesiredAmountSlider()
 	local max = self:GetMaxStorageForAnyOneResource()
-	return self.desired_amount * self.desire_slider_max / max
+	return MulDivRound(self.desired_amount, self.desire_slider_max, max)
 end
 
 function ResourceStockpileBase:BroadcastVerify(other)
@@ -380,7 +379,13 @@ function ResourceStockpileBase:Service(unit, duration)
 	
 	local eat_amount = unit:Eat(Min(stored_amount, eat_amount_assigned or unit:GetEatPerVisit()))
 
-	if eat_amount <= 0 then return end
+	if eat_amount <= 0 then
+		if stored_amount <= 0 and self.destroy_when_empty and not self.has_demand_request then
+			--bugged stockpile
+			CreateGameTimeThread(DoneObject, self)
+		end
+		return 
+	end
 	
 	if not unit.traits.Rugged then
 		unit:ChangeComfort(-g_Consts.OutsideFoodConsumptionComfort, "raw food")
@@ -392,16 +397,13 @@ function ResourceStockpileBase:Service(unit, duration)
 	if eat_amount_assigned then
 		--request flow
 		local f_result = s_req:Fulfill(eat_amount)
-		
-		local exec = function(self, unit, s_req, eat_amount, f_result)
-			self:DroneLoadResource(nil, s_req, "Food", eat_amount, true)
-			unit:AssignToService(nil, nil, f_result)
-		end
+		assert(unit.assigned_to_service == self)
+		unit:AssignToService(nil, nil, f_result) --unassign immidiately to avoid complications
 		
 		if will_kill_myself then
-			CreateGameTimeThread(exec, self, unit, s_req, eat_amount, f_result)
+			CreateGameTimeThread(self.DroneLoadResource, self, nil, s_req, "Food", eat_amount, true)
 		else
-			exec(self, unit, s_req, eat_amount, f_result)
+			self:DroneLoadResource(nil, s_req, "Food", eat_amount, true)
 		end
 	else
 		--no request flow
@@ -826,6 +828,19 @@ function ResourceStockpileBase:ConnectToCommandCenters()
 	for i = 1, #(self.parent_construction or "") do
 		TaskRequester.ConnectToOtherBuildingCommandCenters(self, self.parent_construction[i])
 	end
+	if self:GetParent() then
+		TaskRequester.ConnectToOtherBuildingCommandCenters(self, self:GetParent())
+	end
+end
+
+function SavegameFixups.ReconnectAttachedStockpiles()
+	MapForEach("map", "ResourceStockpileBase", function(o) 
+		local p = o:GetParent()
+		if p then
+			o:DisconnectFromCommandCenters()
+			o:ConnectToCommandCenters()
+		end
+	end)
 end
 
 function ResourceStockpileBase:IsOneOfInterests(interest)
@@ -920,6 +935,39 @@ function SharedStorageBaseVisualOnly:Init()
 	self.placement_offset = point30
 end
 
+function SavegameFixups.InitMissingCarriedResourcesForRovers()
+	MapForEach("map", "RCTransport", function(self)
+		local storable_resources = self.storable_resources
+		local resource_requests = self.resource_requests
+		local disconnected = false
+		local disconnected_from_start = #self.command_centers <= 0
+		for i = 1, #storable_resources do
+			local resource_name = storable_resources[i]
+			
+			if not self.visual_cubes[resource_name] then
+				if not disconnected and not disconnected_from_start then
+					self:DisconnectFromCommandCenters()
+					disconnected = true
+				end
+				self.stockpiled_amount[resource_name] = 0
+				self.visual_cubes[resource_name] = {}
+				
+				self["GetStored_"..resource_name] = function(self)
+					return self.stockpiled_amount[resource_name]
+				end
+				
+				self["GetMaxAmount_"..resource_name] = self.MaxSharedStorageGetter
+				
+				resource_requests[resource_name] = self:AddSupplyRequest(resource_name, 0, const.rfCannotMatchWithStorage)
+			end
+		end
+		
+		if disconnected and not disconnected_from_start then
+			self:ConnectToCommandCenters()
+		end
+	end)
+end
+
 function SharedStorageBaseVisualOnly:CreateResourceRequests() 
 	--no reqs, drones cannot interact with us.
 	--init stuff.
@@ -946,7 +994,7 @@ function SharedStorageBaseVisualOnly:AddResource(amount, resource)
 	amount = Clamp(amount, -(self.max_shared_storage - remaining_space), remaining_space)
 	
 	
-	self.stockpiled_amount[resource] = self.stockpiled_amount[resource] + amount
+	self.stockpiled_amount[resource] = (self.stockpiled_amount[resource] or 0) + amount
 	self:SetCount(self.stockpiled_amount[resource], resource)
 end
 
@@ -987,6 +1035,10 @@ function SharedStorageBaseVisualOnly:ReInitBoxSpots()
 	self.placement_offset = point30
 end
 
+function SharedStorageBaseVisualOnly:OnResourceCubePlaced(cube, resource)
+	--callback
+end
+
 function SharedStorageBaseVisualOnly:SetCount(new_count, resource)
 	new_count = new_count/const.ResourceScale --+ (new_count%const.ResourceScale==0 and 0 or 1)
 	new_count = Max(new_count, 0)
@@ -1017,6 +1069,7 @@ function SharedStorageBaseVisualOnly:SetCount(new_count, resource)
 			assert(not self.placed_cubes[idx])
 			self.placed_cubes[idx] = the_cube_in_question
 			self.visual_cubes[resource][i + 1] = the_cube_in_question
+			self:OnResourceCubePlaced(the_cube_in_question, resource)
 		end
 	end
 	
@@ -1132,14 +1185,13 @@ function ProcessPlaceStockpileCalls()
 		local parsed_entry = parsed_data[idx]
 		
 		if created then
-			--should be the same for all incoming entries with the same pos...
 			parsed_entry.pos = entry.pos
 			parsed_entry.angle = entry.angle
 			parsed_entry.destroy_when_empty = entry.destroy_when_empty
 			
 			parsed_entry[entry.resource] = entry.amount
 		else
-			assert(parsed_entry.angle == entry.angle and parsed_entry.destroy_when_empty == entry.destroy_when_empty, "Cannot merge stockpiles with the same pos!")
+			assert(parsed_entry.destroy_when_empty == entry.destroy_when_empty, "Cannot merge stockpiles with the same pos!")
 			
 			parsed_entry[entry.resource] = (parsed_entry[entry.resource] or 0) + entry.amount
 		end
@@ -1247,7 +1299,7 @@ function PlaceResourceStockpile_Instant(pos, resource, amount, angle, destroy_wh
 	local stockpile_search = function(o)
 		if not o:GetParent() then --don't fill stocks attached to buildings
 			local opos = o:GetPos()
-			pos_to_stock[xxhash(opos)] = o
+			pos_to_stock[xxhash64(opos)] = o
 			if not o.parent_construction and o.resource == resource and (o:GetStoredAmountScaled() + amount / const.ResourceScale) < GetSoftCap(resource) and (not best_stock or IsCloser2D(pos, opos, best_stock)) then
 				best_stock = o
 			elseif (not other_resource_stock or (other_resource_stock:GetAdjacentPos() ~= opos and IsCloser2D(pos, opos, other_resource_stock))) then
@@ -1261,7 +1313,7 @@ function PlaceResourceStockpile_Instant(pos, resource, amount, angle, destroy_wh
 	if other_resource_stock then
 		local hashed_pos
 		while true do
-			local next_stock = other_resource_stock.adjacent_stockpile or pos_to_stock[xxhash(other_resource_stock:GetAdjacentPos())]
+			local next_stock = other_resource_stock.adjacent_stockpile or pos_to_stock[xxhash64(other_resource_stock:GetAdjacentPos())]
 			if not IsValid(next_stock) then
 				break
 			else
@@ -1330,7 +1382,15 @@ function HexGetAnyObj(q, r)
 	return HexGridGetObject(ObjectGrid, q, r)
 end
 
-function TryFindStockpileDumpSpot(q, r, angle, p_shape, hex_getter_override, for_waste_rock_resource)
+function HexGetLandscapeOrAnyObjButToxicPool(q, r)
+	return LandscapeCheck(q, r, true) or HexGridGetObject(ObjectGrid, q, r, nil, "ToxicPool")
+end
+
+function CanPlaceStockpileOnVegetation(q, r)
+	return true
+end
+
+function TryFindStockpileDumpSpot(q, r, angle, p_shape, hex_getter_override, for_waste_rock_resource, ignore_z_delta, path_test_obj)
 	local hex_getter = hex_getter_override or HexGetLowBuilding
 	local filter = for_waste_rock_resource and StockpileDumpSpotFilterForWasteRock or StockpileDumpSpotFilter
 	local classes = StockpileDumpQueryClasses
@@ -1345,8 +1405,11 @@ function TryFindStockpileDumpSpot(q, r, angle, p_shape, hex_getter_override, for
 		q = initial_q + r_q
 		r = initial_r + r_r
 		local x, y = HexToWorld(q, r)
-		if abs(terrain.GetHeight(x, y) - orig_height) <= tolerance  and terrain.IsPassable(x, y) and not hex_getter(q, r)
-		and not HexGetUnits(nil, nil, point(x, y), 0, true, filter, classes) then
+		if (ignore_z_delta or abs(terrain.GetHeight(x, y) - orig_height) <= tolerance) and terrain.IsPassable(x, y) 
+		and CanPlaceStockpileOnVegetation(q, r)
+		and not hex_getter(q, r)
+		and not HexGetUnits(nil, nil, point(x, y), 0, true, filter, classes) 
+		and (not path_test_obj or path_test_obj:HasPath(point(x, y))) then
 			return true, q, r
 		end
 	end

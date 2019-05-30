@@ -17,9 +17,26 @@ PlaceObj('XTemplate', {
 		'RolloverBackground', RGBA(0, 0, 0, 0),
 		'PressedBackground', RGBA(0, 0, 0, 0),
 		'TextStyle', "ListItem2",
-		'Translate', true,
-		'Text', T(752346534878, --[[XTemplate ChallengeListItem Text]] "<title>"),
 	}, {
+		PlaceObj('XTemplateWindow', {
+			'__class', "XText",
+			'Padding', box(2, 0, 2, 0),
+			'HAlign', "center",
+			'VAlign', "center",
+			'HandleMouse', false,
+			'TextStyle', "ListItem2",
+			'Translate', true,
+			'Text', T(752346534878, --[[XTemplate ChallengeListItem Text]] "<title>"),
+		}, {
+			PlaceObj('XTemplateFunc', {
+				'name', "CalcTextColor",
+				'func', function (self, ...)
+					return self.enabled and 
+								(self.parent.rollover and self.RolloverTextColor or self.TextColor)
+								or self.DisabledTextColor
+				end,
+			}),
+			}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XImage",
 			'Id', "idStar",
@@ -40,15 +57,15 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnSetFocus",
 			'func', function (self, ...)
-XCreateRolloverWindow(self, true)
-XTextButton.OnSetFocus(self, ...)
-end,
+				XCreateRolloverWindow(self, true)
+				XTextButton.OnSetFocus(self, ...)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "SetSelected(self, selected)",
 			'func', function (self, selected)
-self:SetFocus(selected)
-end,
+				self:SetFocus(selected)
+			end,
 		}),
 		}),
 })

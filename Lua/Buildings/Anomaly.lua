@@ -47,7 +47,7 @@ end
 
 DefineClass.SubsurfaceAnomaly = {
 	__parents = { "SubsurfaceDeposit", "PinnableObject", "UngridedObstacle", "InfopanelObj" },
-	game_flags = { gofRealTimeAnim = true },
+	flags = { gofRealTimeAnim = true },
 	
 	entity = "Anomaly_01",
 	
@@ -93,7 +93,7 @@ end
 DefineClass.SubsurfaceAnomaly_breakthrough = {
 	__parents = { "SubsurfaceAnomaly" },
 	entity = "Anomaly_02",
-	tech_action = "breakthroug",
+	tech_action = "breakthrough",
 	description = T(11, "Our scientists believe that this Anomaly may lead to a <em>Breakthrough</em>.<newline><newline>Send an <em>Explorer</em> to analyze the Anomaly."),
 }
 
@@ -276,20 +276,6 @@ function SubsurfaceAnomaly:ScanCompleted(scanner)
 		AddOnScreenNotification("GrantRP", nil, {points = self.granted_amount, resource = self.granted_resource})
 	elseif tech_action == "aliens" then
 		AddOnScreenNotification("AlienArtifactsAnomalyAnalyzed", nil, {})
-	elseif not tech_action then
-		g_AnalyzedAnomalyPositions[#g_AnalyzedAnomalyPositions + 1] = self:GetVisualPos()
-		AddOnScreenNotification("AnomalyAnalyzed", 
-			function(pos, params, res) 		
-				table.remove_entry(g_AnalyzedAnomalyPositions, pos)
-				if #g_AnalyzedAnomalyPositions<=0 then
-					RemoveOnScreenNotification("AnomalyAnalyzed")
-				end
-			end, 
-			{
-				GetPopupPreset  =  function()
-					return "AnomalyAnalyzed_"..self.sequence
-				end}, 
-			g_AnalyzedAnomalyPositions)
 	end
 	HintDisable("HintAnomaly")
 	--@@@msg AnomalyAnalyzed,anomaly- fired when a new anomaly has been completely analized.
@@ -329,7 +315,6 @@ function SubsurfaceAnomaly:CheatScan()
 end
 
 GlobalVar("g_RecentlyRevAnomalies", {})
-GlobalVar("g_AnalyzedAnomalyPositions", {})
 GlobalGameTimeThread("RecentlyRevAnomaliesNotif", function()
 	HandleNewObjsNotif(g_RecentlyRevAnomalies, "NewAnomalies", "expire")
 end)
@@ -476,7 +461,7 @@ function City:GetUnregisteredBreakthroughs()
 	local ids = {}
 	for _, tech in ipairs(Presets.TechPreset.Breakthroughs) do
 		local id = tech.id
-		if not table.find(BreakthroughOrder, id) and not self:IsTechDiscovered(id) then
+		if not table.find(BreakthroughOrder, id) and not self:IsTechDiscovered(id) and self:TechAvailableCondition(tech) then
 			ids[#ids + 1] = id
 		end
 	end
@@ -485,8 +470,11 @@ end
 
 function City:InitBreakThroughAnomalies()
 	local markers = MapGet("map", "SubsurfaceAnomalyMarker", function(a) return a.tech_action == "breakthrough" end )
+	local available_breakthroughs = table.ifilter(Presets.TechPreset.Breakthroughs, function(_, tech)
+		return	self:TechAvailableCondition(tech)
+	end, self)
 	
-	BreakthroughOrder = table.imap(Presets.TechPreset.Breakthroughs, "id")
+	BreakthroughOrder = table.imap(available_breakthroughs, "id")
 	
 	-- remove discovered
 	for i = #BreakthroughOrder, 1, -1 do
@@ -506,9 +494,9 @@ function City:InitBreakThroughAnomalies()
 	end
 	
 	-- reserve techs for planetary anomalies
-	local reserved = #markers / 2
+	local reserved = g_Consts.PlanetaryBreakthroughCount
 	for i = 1, reserved do
-		-- kill half the markers
+		-- kill the number of markers reserved for planetary anomalies
 		local marker = table.remove(markers)
 		DoneObject(marker)
 	end

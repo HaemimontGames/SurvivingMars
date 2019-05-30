@@ -405,25 +405,31 @@ function LoadSaveGame(dialog)
 				local parent = dialog.parent --get this here, it might not be accessible afterwards
 				local res = in_game and WaitMarsQuestion(parent, T(6901, "Warning"), T(7729, "Are you sure you want to load this savegame? You will lose your current game progress."), T(1138, "Yes"), T(1139, "No"), "UI/Messages/space.tga") or "ok"
 				if res == "ok" then
+					local parent_dlg = GetDialog(parent)
+					LoadingScreenOpen("idLoadingScreen", "LoadSaveGame")
+					if not in_game and parent_dlg and parent_dlg.window_state ~= "destroying" then
+						parent_dlg:SetMode("Empty")
+					end
 					err = LoadGame(savename)
 					if not err then
 						DeleteThread(g_SaveGameDescrThread)
-						local parent_dlg = GetDialog(parent)
 						if parent_dlg and parent_dlg.window_state ~= "destroying" then
 							parent_dlg:Close()
 						end
 					else
+						if not in_game and parent_dlg and parent_dlg.window_state ~= "destroying" then
+							parent_dlg:SetMode("Load")
+						end
 						if err == "user cancelled" or err == "missing dlc" then
 							err = nil --message is already shown
-						elseif err ~= "paradox sponsor" then
-							if in_game then
-								if dialog.window_state ~= "destroying" then
-									dialog:delete(nil)
-								end
-								OpenPreGameMainMenu()
+						elseif err ~= "paradox sponsor" and in_game then
+							if dialog.window_state ~= "destroying" then
+								dialog:delete(nil)
 							end
+							OpenPreGameMainMenu()
 						end
 					end
+					LoadingScreenClose("idLoadingScreen", "LoadSaveGame")
 				end
 			else
 				err = metadata and metadata.incompatible and "incompatible" or "corrupt"

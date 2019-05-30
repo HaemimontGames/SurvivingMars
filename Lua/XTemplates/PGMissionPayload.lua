@@ -15,30 +15,30 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-XDialog.Open(self, ...)
-self:SetMargins(GetSafeMargins(self:GetMargins()))
-local param = GetDialogModeParam(self.parent)
-if param == "resupply" then
-	local title = self:ResolveId("idTitle")
-	if title then
-		title:SetTitle(T(561537249557, "RESUPPLY"))
-		title:SetSubtitle("")
-		title:SetSmallImage(true)
-	end
-end
-end,
+				XDialog.Open(self, ...)
+				self:SetMargins(GetSafeMargins(self:GetMargins()))
+				local param = GetDialogModeParam(self.parent)
+				if param == "resupply" then
+					local title = self:ResolveId("idTitle")
+					if title then
+						title:SetTitle(T(561537249557, "RESUPPLY"))
+						title:SetSubtitle("")
+						title:SetSmallImage(true)
+					end
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnDelete",
 			'func', function (self, ...)
-if GameState.gameplay then
-	if UICity then
-		--UICity.launch_elevator_mode = false
-		UICity.launch_mode = false
-		RefundSupply()
-	end
-end
-end,
+				if GameState.gameplay then
+					if UICity then
+						--UICity.launch_elevator_mode = false
+						UICity.launch_mode = false
+						RefundSupply()
+					end
+				end
+			end,
 		}),
 		PlaceObj('XTemplateLayer', {
 			'__condition', function (parent, context) return not GameState.gameplay end,
@@ -47,8 +47,8 @@ end,
 		PlaceObj('XTemplateFunc', {
 			'name', "OnContextUpdate(self, context)",
 			'func', function (self, context)
-RocketPayload_CalcCargoWeightCost()
-end,
+				RocketPayload_CalcCargoWeightCost()
+			end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "ActionBarNew",
@@ -85,11 +85,11 @@ end,
 					}),
 					PlaceObj('XTemplateCode', {
 						'run', function (self, parent, context)
-local hint = parent:ResolveId("idGamepadRenameHint")
-if hint then
-	hint:SetImage(GetPlatformSpecificImagePath("RSPress"))
-end
-end,
+							local hint = parent:ResolveId("idGamepadRenameHint")
+							if hint then
+								hint:SetImage(GetPlatformSpecificImagePath("RSPress"))
+							end
+						end,
 					}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XText",
@@ -101,10 +101,10 @@ end,
 						'TextStyle', "PGLandingPosDetails",
 						'ContextUpdateOnOpen', true,
 						'OnContextUpdate', function (self, context, ...)
-if UICity and UICity.launch_mode == "elevator" then
-	self:SetMargins(box(38,0,0,0))
-end
-end,
+							if UICity and UICity.launch_mode == "elevator" then
+								self:SetMargins(box(38,0,0,0))
+							end
+						end,
 						'Translate', true,
 						'Text', T(779595445764, --[[XTemplate PGMissionPayload Text]] "<RocketName>"),
 						'Shorten', true,
@@ -113,9 +113,9 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "OnHyperLink(self, hyperlink, argument, hyperlink_box, pos, button)",
 							'func', function (self, hyperlink, argument, hyperlink_box, pos, button)
-local host = GetDialog(self)
-host.context:RenameRocket(host)
-end,
+								local host = GetDialog(self)
+								host.context:RenameRocket(host)
+							end,
 						}),
 						}),
 					PlaceObj('XTemplateAction', {
@@ -144,9 +144,9 @@ end,
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonY",
 						'OnAction', function (self, host, source)
-BuyRocket(host)
-end,
-						'__condition', function (parent, context) return GameState.gameplay and GetMissionSponsor().rocket_price > 0 and UICity and (not UICity.launch_mode or UICity.launch_mode == "rocket") end,
+							BuyRocket(host)
+						end,
+						'__condition', function (parent, context) return GameState.gameplay and g_Consts.RocketPrice > 0 and UICity and (not UICity.launch_mode or UICity.launch_mode == "rocket") end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "rename",
@@ -154,8 +154,8 @@ end,
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "RightThumbClick",
 						'OnAction', function (self, host, source)
-host.context:RenameRocket(host)
-end,
+							host.context:RenameRocket(host)
+						end,
 						'__condition', function (parent, context) return not UICity or UICity.launch_mode ~= "elevator" end,
 					}),
 					PlaceObj('XTemplateAction', {
@@ -173,11 +173,11 @@ end,
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonX",
 						'ActionState', function (self, host)
-return (g_Tutorial and g_Tutorial.SuppressResupplyLaunch) and "disabled"
-end,
+							return (g_Tutorial and g_Tutorial.SuppressResupplyLaunch) and "disabled"
+						end,
 						'OnAction', function (self, host, source)
-LaunchCargoRocket(host.context, function() host.parent.parent:Close() end)
-end,
+							LaunchCargoRocket(host.context, function() host.parent.parent:Close() end)
+						end,
 						'FXPress', "LaunchSupplyRocketClick",
 						'__condition', function (parent, context) return GameState.gameplay end,
 					}),
@@ -311,15 +311,15 @@ end,
 					'ShowPartialItems', false,
 					'MouseScroll', true,
 					'OnContextUpdate', function (self, context, ...)
-XContentTemplateList.OnContextUpdate(self, context, ...)
-if self.focused_item then
-	self.focused_item =  Min(self.focused_item, #self)
-	self:DeleteThread("select")
-	self:CreateThread("select", function()
-		self:SetSelection(self.focused_item)
-	end)
-end
-end,
+						XContentTemplateList.OnContextUpdate(self, context, ...)
+						if self.focused_item then
+							self.focused_item =  Min(self.focused_item, #self)
+							self:DeleteThread("select")
+							self:CreateThread("select", function()
+								self:SetSelection(self.focused_item)
+							end)
+						end
+					end,
 					'RespawnOnContext', false,
 				}, {
 					PlaceObj('XTemplateMode', {
@@ -327,8 +327,8 @@ end,
 					}, {
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-parent:ResolveId("idListTitle"):SetText(T(11442, "SELECT PAYLOAD"))
-end,
+								parent:ResolveId("idListTitle"):SetText(T(11442, "SELECT PAYLOAD"))
+							end,
 						}),
 						PlaceObj('XTemplateForEach', {
 							'comment', "item",
@@ -336,22 +336,25 @@ end,
 							'condition', function (parent, context, item, i) return (not item.filter or item.filter()) and not context:IsLocked(item.id) and not context:IsBlacklisted(item) and not BuildingTemplates[item.id] end,
 							'item_in_context', "prop_meta",
 							'run_after', function (child, context, item, i, n)
-local id = item.id
-local rollover = context:GetRollover(id)
-if rollover then
-	child:SetRolloverTitle(rollover.title)
-	child:SetRolloverText(rollover.descr)
-	child:SetRolloverHint(rollover.hint)
-	child:SetRolloverHintGamepad(rollover.gamepad_hint)
-end
-if GameState.gameplay and ResourceOverviewObj.data then
-	if Resources[id] then
-		child.idAvailable:SetText(T{11592, "<num>", num = FormatResource(ResourceOverviewObj, ResourceOverviewObj:GetAvailable(id), id)})
-	elseif id == "Drone" then
-		child.idAvailable:SetText(T{11592, "<num>", num = FormatResource(empty_table, #(UICity.labels.Drone or ""), id)})
-	end
-end
-end,
+								local id = item.id
+								local rollover = context:GetRollover(id)
+								if rollover then
+									child:SetRolloverTitle(rollover.title)
+									child:SetRolloverText(rollover.descr)
+									child:SetRolloverHint(rollover.hint)
+									child:SetRolloverHintGamepad(rollover.gamepad_hint)
+								end
+								if GameState.gameplay and ResourceOverviewObj.data then
+									if Resources[id] then
+										child.idAvailable:SetText(T{11592, "<num>", num = FormatResource(ResourceOverviewObj, ResourceOverviewObj:GetAvailable(id), id)})
+									elseif id == "Drone" then
+										child.idAvailable:SetText(T{11592, "<num>", num = FormatResource(empty_table, #(UICity.labels.Drone or ""), id)})
+									elseif UICity.labels[id] then
+										local count = table.count(UICity.labels[id], "class", id)
+										child.idAvailable:SetText(T{11592, "<num>", num =  count})
+									end
+								end
+							end,
 						}, {
 							PlaceObj('XTemplateTemplate', {
 								'__template', "PropPayload",
@@ -377,8 +380,8 @@ end,
 					}, {
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-parent:ResolveId("idListTitle"):SetText(T(4068, "PREFABS"))
-end,
+								parent:ResolveId("idListTitle"):SetText(T(4068, "PREFABS"))
+							end,
 						}),
 						PlaceObj('XTemplateForEach', {
 							'comment', "item",
@@ -386,14 +389,14 @@ end,
 							'condition', function (parent, context, item, i) return (not item.filter or item.filter()) and not context:IsLocked(item.id) and not context:IsBlacklisted(item) and BuildingTemplates[item.id] end,
 							'item_in_context', "prop_meta",
 							'run_after', function (child, context, item, i, n)
-local rollover = context:GetRollover(item.id)
-if rollover then
-	child:SetRolloverTitle(rollover.title)
-	child:SetRolloverText(rollover.descr)
-	child:SetRolloverHint(rollover.hint)
-	child:SetRolloverHintGamepad(rollover.gamepad_hint)
-end
-end,
+								local rollover = context:GetRollover(item.id)
+								if rollover then
+									child:SetRolloverTitle(rollover.title)
+									child:SetRolloverText(rollover.descr)
+									child:SetRolloverHint(rollover.hint)
+									child:SetRolloverHintGamepad(rollover.gamepad_hint)
+								end
+							end,
 						}, {
 							PlaceObj('XTemplateTemplate', {
 								'__template', "PropPayload",

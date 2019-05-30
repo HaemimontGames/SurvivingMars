@@ -39,39 +39,42 @@ PlaceObj('XTemplate', {
 					'Margins', box(12, 0, 0, 0),
 					'LayoutMethod', "VList",
 					'OnContextUpdate', function (self, context, ...)
-for _, child in ipairs(self) do
-	child:OnContextUpdate(context, ...)
-end
-XContextWindow.OnContextUpdate(self, context, ...)
-end,
+						for _, child in ipairs(self) do
+							child:OnContextUpdate(context, ...)
+						end
+						XContextWindow.OnContextUpdate(self, context, ...)
+					end,
 				}, {
 					PlaceObj('XTemplateFunc', {
 						'name', "OnShortcut(self, shortcut, source)",
 						'func', function (self, shortcut, source)
-return CCC_ButtonListOnShortcut(self, shortcut, source)
-end,
+							return CCC_ButtonListOnShortcut(self, shortcut, source)
+						end,
 					}),
 					PlaceObj('XTemplateForEach', {
 						'array', function (parent, context) return Presets.ColonyColorScheme.Default end,
 						'__context', function (parent, context, item, i, n) return item end,
 						'run_after', function (child, context, item, i, n)
-child.idLabel:SetMargins(box(15,0,0,0))
-end,
+							child.idLabel:SetMargins(box(15,0,0,0))
+						end,
 					}, {
 						PlaceObj('XTemplateTemplate', {
 							'__template', "CommandCenterButton",
 							'Margins', box(-2, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
-self:SetToggled(g_CurrentCCS == context)
-end,
+								self:SetToggled(g_CurrentCCS == context)
+								local image = GetDialog(self):ResolveId("idImage")
+								image:SetVisible(true)
+								image:SetImage(g_CurrentCCS.image)
+							end,
 							'OnPress', function (self, gamepad)
-if g_CurrentCCS ~= self.context then --ReapplyPalettes is slow
-	g_CurrentCCS = self.context
-	ReapplyPalettes()
-	local content = self:ResolveId("idContent")
-	content:RespawnContent()
-end
-end,
+								if g_CurrentCCS ~= self.context then --ReapplyPalettes is slow
+									g_CurrentCCS = self.context
+									ReapplyPalettes()
+									local content = self:ResolveId("idContent")
+									content:RespawnContent()
+								end
+							end,
 							'Image', "UI/CommonNew/ccc_categories_small.tga",
 							'IconColumns', 2,
 							'Text', T(437462750091, --[[XTemplate ColorSchemeOverview Text]] "<display_name>"),
@@ -80,15 +83,15 @@ end,
 					PlaceObj('XTemplateCode', {
 						'comment', "focus first",
 						'run', function (self, parent, context)
-if GetUIStyleGamepad() then
-	local first = parent[1]
-	CreateRealTimeThread(function(first)
-		if first.window_state ~= "destroying" then
-			first:SetFocus()
-		end
-	end, first)
-end
-end,
+							if GetUIStyleGamepad() then
+								local first = parent[1]
+								CreateRealTimeThread(function(first)
+									if first.window_state ~= "destroying" then
+										first:SetFocus()
+									end
+								end, first)
+							end
+						end,
 					}),
 					}),
 				}),
@@ -102,5 +105,11 @@ end,
 			'OnActionEffect', "back",
 		}),
 		}),
+	PlaceObj('XTemplateWindow', {
+		'__class', "XImage",
+		'Id', "idImage",
+		'Padding', box(0, 0, 500, 0),
+		'Image', "UI/Encyclopedia/rocket_surviving_mars.tga",
+	}),
 })
 

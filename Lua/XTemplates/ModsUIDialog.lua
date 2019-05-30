@@ -16,49 +16,49 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "UpdateActionViews(self, win)",
 			'func', function (self, win)
-XDialog.UpdateActionViews(self, win)
-self:InvalidateMeasure()
-end,
+				XDialog.UpdateActionViews(self, win)
+				self:InvalidateMeasure()
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-XDialog.Open(self, ...)
-if Platform.steam or (Platform.durango and not DurangoAllowUserCreatedContent) then
-	self:SetMode("installed")
-end
-ModsUIDialogStart()
-if not DurangoUserContentDisabledWarningShown and Platform.durango and not DurangoAllowUserCreatedContent then
-	-- trigger a system message once
-	CreateRealTimeThread(function()
-		WaitCheckUserCreatedContentPrivilege(XPlayerActive, "show message")
-		DurangoUserContentDisabledWarningShown = true
-	end)
-end
-end,
+				XDialog.Open(self, ...)
+				if Platform.durango and not DurangoAllowUserCreatedContent then
+					self:SetMode("installed")
+				end
+				ModsUIDialogStart()
+				if not DurangoUserContentDisabledWarningShown and Platform.durango and not DurangoAllowUserCreatedContent then
+					-- trigger a system message once
+					CreateRealTimeThread(function()
+						WaitCheckUserCreatedContentPrivilege(XPlayerActive, "show message")
+						DurangoUserContentDisabledWarningShown = true
+					end)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnDelete",
 			'func', function (self, ...)
-ModsUIClosePopup(self)
-XDialog.OnDelete(self, ...)
-g_ParadoxModsContextObj = false
-end,
+				ModsUIClosePopup(self)
+				XDialog.OnDelete(self, ...)
+				g_ParadoxModsContextObj = false
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnShortcut(self, shortcut, source)",
 			'func', function (self, shortcut, source)
-if not self.context.popup_shown and self.Mode ~= "details" and not Platform.steam and not (Platform.durango and not DurangoAllowUserCreatedContent) then
-	if shortcut == "LeftTrigger" then
-		self:ResolveId("idBrowse"):Press()
-		return "break"
-	elseif shortcut == "RightTrigger" then
-		self:ResolveId("idInstalled"):Press()
-		return "break"
-	end
-end
-return XDialog.OnShortcut(self, shortcut, source)
-end,
+				if not self.context.popup_shown and self.Mode ~= "details" and not (Platform.durango and not DurangoAllowUserCreatedContent) then
+					if shortcut == "LeftTrigger" then
+						self:ResolveId("idBrowse"):Press()
+						return "break"
+					elseif shortcut == "RightTrigger" then
+						self:ResolveId("idInstalled"):Press()
+						return "break"
+					end
+				end
+				return XDialog.OnShortcut(self, shortcut, source)
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XImage",
@@ -79,32 +79,28 @@ end,
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
 					'func', function (self, ...)
-XFitContent.Open(self, ...)
-self:SetPadding(GetSafeMargins(self:GetPadding()))
-end,
+						XFitContent.Open(self, ...)
+						self:SetPadding(GetSafeMargins(self:GetPadding()))
+					end,
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XContentTemplate",
 					'IdNode', false,
 					'OnContextUpdate', function (self, context, ...)
-local list = self:ResolveId("idList")
-local x, y, focused_item
-if list then
-	x, y = list.OffsetX, list.OffsetY
-	focused_item = list.focused_item
-end
-XContentTemplate.OnContextUpdate(self, context, ...)
-self:DeleteThread("scrolling")
-self:CreateThread("scrolling", function(self)
-	list = self:ResolveId("idList")
-	if list then
-		if focused_item then
-			list:SetSelection(Min(#list, focused_item))
-		end
-		list:ScrollTo(x, y)
-	end
-end, self)
-end,
+						local list = self:ResolveId("idList")
+						if list then
+							local mode = GetDialogMode(self)
+							local obj = ResolvePropObj(context)
+							if mode == "browse" and obj.last_browse_y then
+								obj.last_browse_y = list.OffsetY
+								obj.last_browse_item = list.focused_item
+							elseif mode == "installed" and obj.last_installed_y then
+								obj.last_installed_y = list.OffsetY
+								obj.last_installed_item = list.focused_item
+							end
+						end
+						XContentTemplate.OnContextUpdate(self, context, ...)
+					end,
 				}, {
 					PlaceObj('XTemplateMode', {
 						'mode', "browse",
@@ -146,11 +142,11 @@ end,
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonA",
 								'ActionState', function (self, host)
-return ModsUIShowItemAction(host) or "hidden"
-end,
+									return ModsUIShowItemAction(host) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUISetDialogMode(host, "details", g_ParadoxModsContextObj:GetSelectedMod())
-end,
+									ModsUISetDialogMode(host, "details", g_ParadoxModsContextObj:GetSelectedMod())
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "enable",
@@ -158,11 +154,11 @@ end,
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonY",
 								'ActionState', function (self, host)
-return ModsUIShowItemAction(host, "enabled", false) or "hidden"
-end,
+									return ModsUIShowItemAction(host, "enabled", false) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIToggleEnabled(nil, host)
-end,
+									ModsUIToggleEnabled(nil, host)
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "disable",
@@ -170,11 +166,11 @@ end,
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonY",
 								'ActionState', function (self, host)
-return ModsUIShowItemAction(host, "enabled", true) or "hidden"
-end,
+									return ModsUIShowItemAction(host, "enabled", true) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIToggleEnabled(nil, host)
-end,
+									ModsUIToggleEnabled(nil, host)
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "install",
@@ -182,15 +178,19 @@ end,
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonX",
 								'ActionState', function (self, host)
-if g_PopsDownloadingMods[host.context.selected_mod_id] then
-	return "disabled"
-end
-return ModsUIShowItemAction(host, "installed", false) or "hidden"
-end,
+									if g_PopsDownloadingMods[host.context.selected_mod_id] then
+										return "disabled"
+									end
+									return ModsUIShowItemAction(host, "installed", false) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIInstallMod()
-host:UpdateActionViews(host)
-end,
+									if not g_ParadoxAccountLoggedIn then
+										ModsUIOpenLoginPopup(host.idContentWrapper)
+									else
+										ModsUIInstallMod()
+									end
+									host:UpdateActionViews(host)
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "uninstall",
@@ -198,11 +198,11 @@ end,
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonX",
 								'ActionState', function (self, host)
-return ModsUIShowItemAction(host, "installed", true) or "hidden"
-end,
+									return ModsUIShowItemAction(host, "installed", true) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIUninstallMod()
-end,
+									ModsUIUninstallMod()
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "search",
@@ -210,12 +210,12 @@ end,
 								'ActionToolbar', "ActionBarRight",
 								'ActionGamepad', "Back",
 								'ActionState', function (self, host)
-return not ModsUIIsPopupShown(host) or "hidden"
-end,
+									return not ModsUIIsPopupShown(host) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIConsoleSearch(host.idContentWrapper)
-host:UpdateActionViews(host)
-end,
+									ModsUIConsoleSearch(host.idContentWrapper)
+									host:UpdateActionViews(host)
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "filter",
@@ -223,12 +223,12 @@ end,
 								'ActionToolbar', "ActionBarRight",
 								'ActionGamepad', "Start",
 								'ActionState', function (self, host)
-return not ModsUIIsPopupShown(host) or "hidden"
-end,
+									return not ModsUIIsPopupShown(host) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIChooseFilter(host.idContentWrapper)
-host:UpdateActionViews(host)
-end,
+									ModsUIChooseFilter(host.idContentWrapper)
+									host:UpdateActionViews(host)
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "sort",
@@ -236,12 +236,12 @@ end,
 								'ActionToolbar', "ActionBarRight",
 								'ActionGamepad', "RightThumbClick",
 								'ActionState', function (self, host)
-return not ModsUIIsPopupShown(host) or "hidden"
-end,
+									return not ModsUIIsPopupShown(host) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIChooseSort(host.idContentWrapper)
-host:UpdateActionViews(host)
-end,
+									ModsUIChooseSort(host.idContentWrapper)
+									host:UpdateActionViews(host)
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "back",
@@ -250,11 +250,11 @@ end,
 								'ActionShortcut', "Escape",
 								'ActionGamepad', "ButtonB",
 								'ActionState', function (self, host)
-return not ModsUIIsPopupShown(host) or "hidden"
-end,
+									return not ModsUIIsPopupShown(host) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIDialogEnd(host)
-end,
+									ModsUIDialogEnd(host)
+								end,
 							}),
 							}),
 						PlaceObj('XTemplateMode', {
@@ -266,11 +266,11 @@ end,
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonA",
 								'ActionState', function (self, host)
-return ModsUIShowItemAction(host) or "hidden"
-end,
+									return ModsUIShowItemAction(host) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUISetDialogMode(host, "details", g_ParadoxModsContextObj:GetSelectedMod("installed_mods"))
-end,
+									ModsUISetDialogMode(host, "details", g_ParadoxModsContextObj:GetSelectedMod("installed_mods"))
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "enable",
@@ -278,11 +278,11 @@ end,
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonY",
 								'ActionState', function (self, host)
-return ModsUIShowItemAction(host, "enabled", false) or "hidden"
-end,
+									return ModsUIShowItemAction(host, "enabled", false) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIToggleEnabled(nil, host, "installed_mods")
-end,
+									ModsUIToggleEnabled(nil, host, "installed_mods")
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "disable",
@@ -290,11 +290,11 @@ end,
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonY",
 								'ActionState', function (self, host)
-return ModsUIShowItemAction(host, "enabled", true) or "hidden"
-end,
+									return ModsUIShowItemAction(host, "enabled", true) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIToggleEnabled(nil, host, "installed_mods")
-end,
+									ModsUIToggleEnabled(nil, host, "installed_mods")
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "uninstall",
@@ -302,11 +302,35 @@ end,
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonX",
 								'ActionState', function (self, host)
-return ModsUIShowItemAction(host, "installed", true) or "hidden"
-end,
+									return ModsUIShowItemAction(host, "installed", true) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIUninstallMod(nil, "installed_mods")
-end,
+									ModsUIUninstallMod(nil, "installed_mods")
+								end,
+							}),
+							PlaceObj('XTemplateAction', {
+								'ActionId', "disableAll",
+								'ActionName', T(123411309724, --[[XTemplate ModsUIDialog ActionName]] "Disable All"),
+								'ActionToolbar', "ActionBarLeft",
+								'ActionGamepad', "LeftThumbClick",
+								'ActionState', function (self, host)
+									return (ModsUIShowItemAction(host) and ModsUIGetEnableAllButtonState() == true) or "hidden"
+								end,
+								'OnAction', function (self, host, source)
+									ModsUISetAllModsEnabledState(host, false)
+								end,
+							}),
+							PlaceObj('XTemplateAction', {
+								'ActionId', "enableAll",
+								'ActionName', T(339914669630, --[[XTemplate ModsUIDialog ActionName]] "Enable All"),
+								'ActionToolbar', "ActionBarLeft",
+								'ActionGamepad', "LeftThumbClick",
+								'ActionState', function (self, host)
+									return (ModsUIShowItemAction(host) and ModsUIGetEnableAllButtonState() == false) or "hidden"
+								end,
+								'OnAction', function (self, host, source)
+									ModsUISetAllModsEnabledState(host, true)
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "search",
@@ -314,12 +338,12 @@ end,
 								'ActionToolbar', "ActionBarRight",
 								'ActionGamepad', "Back",
 								'ActionState', function (self, host)
-return not ModsUIIsPopupShown(host) or "hidden"
-end,
+									return not ModsUIIsPopupShown(host) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIConsoleSearch(host.idContentWrapper)
-host:UpdateActionViews(host)
-end,
+									ModsUIConsoleSearch(host.idContentWrapper)
+									host:UpdateActionViews(host)
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "filter",
@@ -327,12 +351,12 @@ end,
 								'ActionToolbar', "ActionBarRight",
 								'ActionGamepad', "Start",
 								'ActionState', function (self, host)
-return not ModsUIIsPopupShown(host) or "hidden"
-end,
+									return not ModsUIIsPopupShown(host) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIChooseFilter(host.idContentWrapper)
-host:UpdateActionViews(host)
-end,
+									ModsUIChooseFilter(host.idContentWrapper)
+									host:UpdateActionViews(host)
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "sort",
@@ -340,12 +364,12 @@ end,
 								'ActionToolbar', "ActionBarRight",
 								'ActionGamepad', "RightThumbClick",
 								'ActionState', function (self, host)
-return not ModsUIIsPopupShown(host) or "hidden"
-end,
+									return not ModsUIIsPopupShown(host) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIChooseSort(host.idContentWrapper)
-host:UpdateActionViews(host)
-end,
+									ModsUIChooseSort(host.idContentWrapper)
+									host:UpdateActionViews(host)
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "back",
@@ -354,11 +378,11 @@ end,
 								'ActionShortcut', "Escape",
 								'ActionGamepad', "ButtonB",
 								'ActionState', function (self, host)
-return not ModsUIIsPopupShown(host) or "hidden"
-end,
+									return not ModsUIIsPopupShown(host) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIDialogEnd(host)
-end,
+									ModsUIDialogEnd(host)
+								end,
 							}),
 							}),
 						PlaceObj('XTemplateMode', {
@@ -370,11 +394,11 @@ end,
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonY",
 								'ActionState', function (self, host)
-return ModsUIShowItemAction(host, "enabled", false, host.idContent.context.ModID) or "hidden"
-end,
+									return ModsUIShowItemAction(host, "enabled", false, host.idContent.context.ModID) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIToggleEnabled(GetDialogModeParam(host), host)
-end,
+									ModsUIToggleEnabled(GetDialogModeParam(host), host)
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "disable",
@@ -382,11 +406,11 @@ end,
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonY",
 								'ActionState', function (self, host)
-return ModsUIShowItemAction(host, "enabled", true, host.idContent.context.ModID) or "hidden"
-end,
+									return ModsUIShowItemAction(host, "enabled", true, host.idContent.context.ModID) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIToggleEnabled(GetDialogModeParam(host), host)
-end,
+									ModsUIToggleEnabled(GetDialogModeParam(host), host)
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "install",
@@ -394,16 +418,20 @@ end,
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonX",
 								'ActionState', function (self, host)
-local mod_id = host.idContent.context.ModID
-if g_PopsDownloadingMods[mod_id] then
-	return "disabled"
-end
-return ModsUIShowItemAction(host, "installed", false, mod_id) or "hidden"
-end,
+									local mod_id = host.idContent.context.ModID
+									if g_PopsDownloadingMods[mod_id] then
+										return "disabled"
+									end
+									return ModsUIShowItemAction(host, "installed", false, mod_id) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIInstallMod(GetDialogModeParam(host))
-host:UpdateActionViews(host)
-end,
+									if not g_ParadoxAccountLoggedIn then
+										ModsUIOpenLoginPopup(host.idContentWrapper)
+									else
+										ModsUIInstallMod(GetDialogModeParam(host))
+									end
+									host:UpdateActionViews(host)
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "uninstall",
@@ -411,11 +439,11 @@ end,
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonX",
 								'ActionState', function (self, host)
-return ModsUIShowItemAction(host, "installed", true, host.idContent.context.ModID) or "hidden"
-end,
+									return ModsUIShowItemAction(host, "installed", true, host.idContent.context.ModID) or "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIUninstallMod(GetDialogModeParam(host))
-end,
+									ModsUIUninstallMod(GetDialogModeParam(host))
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "rate",
@@ -423,27 +451,31 @@ end,
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "LeftThumbClick",
 								'ActionState', function (self, host)
-local context = GetDialogModeParam(host)
-return (context.Local or ModsUIIsPopupShown(host)) and "hidden"
-end,
+									local context = GetDialogModeParam(host)
+									return (context.Local or ModsUIIsPopupShown(host)) and "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIChooseModRating(host.idContentWrapper)
-host:UpdateActionViews(host)
-end,
+									if not g_ParadoxAccountLoggedIn then
+										ModsUIOpenLoginPopup(host.idContentWrapper)
+									else
+										ModsUIChooseModRating(host.idContentWrapper)
+									end
+									host:UpdateActionViews(host)
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "flag",
-								'ActionName', T(418357045244, --[[XTemplate ModsUIDialog ActionName]] "Flag"),
+								'ActionName', T(12306, --[[XTemplate ModsUIDialog ActionName]] "Report"),
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "RightThumbClick",
 								'ActionState', function (self, host)
-local context = GetDialogModeParam(host)
-return (context.Local or ModsUIIsPopupShown(host)) and "hidden"
-end,
+									local context = GetDialogModeParam(host)
+									return (context.Local or ModsUIIsPopupShown(host)) and "hidden"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIChooseFlagReason(host.idContentWrapper)
-host:UpdateActionViews(host)
-end,
+									ModsUIChooseFlagReason(host.idContentWrapper)
+									host:UpdateActionViews(host)
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "back",
@@ -452,8 +484,8 @@ end,
 								'ActionShortcut', "Escape",
 								'ActionGamepad', "ButtonB",
 								'ActionState', function (self, host)
-return not ModsUIIsPopupShown(host) or "hidden"
-end,
+									return not ModsUIIsPopupShown(host) or "hidden"
+								end,
 								'OnActionEffect', "back",
 							}),
 							PlaceObj('XTemplateAction', {
@@ -462,9 +494,9 @@ end,
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonA",
 								'ActionState', function (self, host)
-local popup = ModsUIIsPopupShown(host)
-return popup ~= "flag" and "hidden"
-end,
+									local popup = ModsUIIsPopupShown(host)
+									return popup ~= "flag" and "hidden"
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "popupflagsubmit",
@@ -472,14 +504,14 @@ end,
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "Start",
 								'ActionState', function (self, host)
-local popup = ModsUIIsPopupShown(host)
-if popup ~= "flag" then return "hidden" end
-return not host.mode_param.flag_reason and "disabled"
-end,
+									local popup = ModsUIIsPopupShown(host)
+									if popup ~= "flag" then return "hidden" end
+									return not host.mode_param.flag_reason and "disabled"
+								end,
 								'OnAction', function (self, host, source)
-ModsUIFlagMod(host)
-host:UpdateActionViews(host)
-end,
+									ModsUIFlagMod(host)
+									host:UpdateActionViews(host)
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "popuprateselect",
@@ -487,9 +519,9 @@ end,
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonA",
 								'ActionState', function (self, host)
-local popup = ModsUIIsPopupShown(host)
-return popup ~= "rate" and "hidden"
-end,
+									local popup = ModsUIIsPopupShown(host)
+									return popup ~= "rate" and "hidden"
+								end,
 							}),
 							}),
 						PlaceObj('XTemplateMode', nil, {
@@ -499,23 +531,10 @@ end,
 								'ActionToolbar', "ActionBarLeft",
 								'ActionGamepad', "ButtonA",
 								'ActionState', function (self, host)
-return not ModsUIIsPopupShown(host) or "hidden"
-end,
+									return not ModsUIIsPopupShown(host) or "hidden"
+								end,
 							}),
 							}),
-						PlaceObj('XTemplateAction', {
-							'ActionId', "login",
-							'ActionName', T(598975766059, --[[XTemplate ModsUIDialog ActionName]] "Login"),
-							'ActionToolbar', "ActionBarLeft",
-							'ActionGamepad', "ButtonX",
-							'ActionState', function (self, host)
-return not g_ParadoxAccountLoggedIn and not g_PopsAttemptingLogin and not ModsUIIsPopupShown(host) and host.Mode == "browse" or "hidden"
-end,
-							'OnAction', function (self, host, source)
-ModsUIOpenLoginPopup(host.idContentWrapper)
-host:UpdateActionViews(host)
-end,
-						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "search",
 							'ActionName', T(10123, --[[XTemplate ModsUIDialog ActionName]] "Search"),
@@ -523,24 +542,24 @@ end,
 							'ActionShortcut', "Enter",
 							'ActionGamepad', "ButtonY",
 							'ActionState', function (self, host)
-local popup = ModsUIIsPopupShown(host)
-return popup ~= "search" and "hidden"
-end,
+								local popup = ModsUIIsPopupShown(host)
+								return popup ~= "search" and "hidden"
+							end,
 							'OnAction', function (self, host, source)
-local context = host.context
-if host.Mode == "browse" then
-	if context.query ~= context.temp_query then
-		context.query = context.temp_query
-		context:GetMods()
-	end
-else
-	if context.installed_query ~= context.temp_query then
-		context.installed_query = context.temp_query
-		context:GetInstalledMods()
-	end
-end
-ModsUIClosePopup(host)
-end,
+								local context = host.context
+								if host.Mode == "browse" then
+									if context.query ~= context.temp_query then
+										context.query = context.temp_query
+										context:GetMods()
+									end
+								else
+									if context.installed_query ~= context.temp_query then
+										context.installed_query = context.temp_query
+										context:GetInstalledMods()
+									end
+								end
+								ModsUIClosePopup(host)
+							end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "popupcancel",
@@ -549,46 +568,59 @@ end,
 							'ActionShortcut', "Escape",
 							'ActionGamepad', "ButtonB",
 							'ActionState', function (self, host)
-local popup = ModsUIIsPopupShown(host)
-return (not popup or popup == "login") and "hidden"
-end,
+								local popup = ModsUIIsPopupShown(host)
+								return (not popup or popup == "login") and "hidden"
+							end,
 							'OnAction', function (self, host, source)
-ModsUIClosePopup(host)
-end,
+								ModsUIClosePopup(host)
+							end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "popupsortsave",
-							'ActionName', T(409477211325, --[[XTemplate ModsUIDialog ActionName]] "Save"),
+							'ActionName', T(12307, --[[XTemplate ModsUIDialog ActionName]] "Apply"),
 							'ActionToolbar', "ActionBarLeft",
 							'ActionGamepad', "ButtonA",
 							'ActionState', function (self, host)
-local popup = ModsUIIsPopupShown(host)
-return popup ~= "sort" and "hidden"
-end,
+								local popup = ModsUIIsPopupShown(host)
+								return popup ~= "sort" and "hidden"
+							end,
 							'OnAction', function (self, host, source)
-ModsUIClosePopup(host)
-end,
+								ModsUIClosePopup(host)
+							end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "popupfiltersave",
-							'ActionName', T(301269983303, --[[XTemplate ModsUIDialog ActionName]] "Save"),
+							'ActionName', T(12307, --[[XTemplate ModsUIDialog ActionName]] "Apply"),
 							'ActionToolbar', "ActionBarLeft",
 							'ActionGamepad', "ButtonY",
 							'ActionState', function (self, host)
-local popup = ModsUIIsPopupShown(host)
-return popup ~= "filter" and "hidden"
-end,
+								local popup = ModsUIIsPopupShown(host)
+								return popup ~= "filter" and "hidden"
+							end,
 							'OnAction', function (self, host, source)
-if host.Mode == "installed" then
-	ModsUISetInstalledTags()
-	ModsUIClosePopup(host)
-	host.context:GetInstalledMods()
-else
-	ModsUISetTags()
-	ModsUIClosePopup(host)
-	host.context:GetMods()
-end
-end,
+								if host.Mode == "installed" then
+									ModsUISetInstalledTags()
+									ModsUIClosePopup(host)
+									host.context:GetInstalledMods()
+								else
+									ModsUISetTags()
+									ModsUIClosePopup(host)
+									host.context:GetMods()
+								end
+							end,
+						}),
+						PlaceObj('XTemplateAction', {
+							'ActionId', "popupfilterclear",
+							'ActionName', T(828218723298, --[[XTemplate ModsUIDialog ActionName]] "Clear Filters"),
+							'ActionToolbar', "ActionBarLeft",
+							'ActionGamepad', "ButtonX",
+							'ActionState', function (self, host)
+								local popup = ModsUIIsPopupShown(host)
+								return popup ~= "filter" and "hidden"
+							end,
+							'OnAction', function (self, host, source)
+								ModsUIClearFilter(GetDialog(host):GetMode())
+							end,
 						}),
 						}),
 					}),

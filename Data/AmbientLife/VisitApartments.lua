@@ -42,6 +42,15 @@ PlaceObj('AmbientLife', {
 	}),
 	PlaceObj('XPrgDefineSlot', {
 		'groups', "A",
+		'spot_type', "Petlay",
+		'goto_spot', "Teleport",
+		'move_end', "TeleportToExit",
+		'flags_missing', 1,
+		'usable_by_child', false,
+		'pet_only', true,
+	}),
+	PlaceObj('XPrgDefineSlot', {
+		'groups', "A",
 		'spot_type', "Visittable",
 		'goto_spot', "LeadToSpot",
 		'flags_missing', 1,

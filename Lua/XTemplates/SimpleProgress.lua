@@ -5,7 +5,6 @@ PlaceObj('XTemplate', {
 	group = "InGame",
 	id = "SimpleProgress",
 	PlaceObj('XTemplateWindow', {
-		'__context', function (parent, context) return UICity end,
 		'__class', "XFrameProgress",
 		'Image', "UI/Infopanel/progress_bar.tga",
 		'FrameBox', box(5, 0, 5, 0),

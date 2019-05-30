@@ -63,10 +63,12 @@ function Mine:GatherConstructionStatuses(statuses)
 				grade = Max(grade or 1, table.find(DepositGradesTable, self.nearby_deposits[i].grade) or 1)
 			end
 		end
-		grade = DepositGradesTable[grade] -- index to name
-		grade = DepositGradeToDisplayName[grade] -- name to display name
-		status.text = T{status.text, {resource = FormatResource(empty_table, amount, self.exploitation_resource), grade = grade, col = ConstructionStatusColors.info.color_tag}}
-		statuses[#statuses + 1] = status
+		if amount and grade then
+			grade = DepositGradesTable[grade] -- index to name
+			grade = DepositGradeToDisplayName[grade] -- name to display name
+			status.text = T{status.text, {resource = FormatResource(empty_table, amount, self.exploitation_resource), grade = grade, col = ConstructionStatusColors.info.color_tag}}
+			statuses[#statuses + 1] = status
+		end
 	end
 end
 
@@ -271,9 +273,9 @@ function RegolithExtractor:GetExtractionShapeExtended()
 	if not RegolithExtractorExtendedExtractionShape then
 		local extraction_shape = table.copy(self:GetExtractionShape())
 		local peripheral_shape = GetPeripheralHexShape(extraction_shape)
-		local one_hex_extended_shape = table.append(extraction_shape, peripheral_shape)
+		local one_hex_extended_shape = table.iappend(extraction_shape, peripheral_shape)
 		peripheral_shape = GetPeripheralHexShape(one_hex_extended_shape)
-		RegolithExtractorExtendedExtractionShape = table.append(one_hex_extended_shape, peripheral_shape)
+		RegolithExtractorExtendedExtractionShape = table.iappend(one_hex_extended_shape, peripheral_shape)
 	end
 	return RegolithExtractorExtendedExtractionShape
 end
@@ -473,17 +475,17 @@ function RegolithMineVisual:InitMineAttaches()
 	self.ring = ring
 	rawset(ring, "SelectionPropagate", function() return self.mine end)
 	
-	local digger = PlaceObject("RegolithExtractorDigger", nil, const.cfComponentAttach)
+	local digger = PlaceObject("RegolithExtractorDigger", nil, const.cofComponentAttach)
 	digger:SetEnumFlags(const.efSelectable)
 	ring:Attach(digger, ring:GetSpotBeginIndex("Digger"))
 	self.digger = digger
 
-	local rope = PlaceObject("RegolithExtractorRope", nil, const.cfComponentAttach)
+	local rope = PlaceObject("RegolithExtractorRope", nil, const.cofComponentAttach)
 	rope:SetZClip(3*guim)
 	digger:Attach(rope, digger:GetSpotBeginIndex("Rope1"))
 	self.rope1 = rope
 	
-	rope = PlaceObject("RegolithExtractorRope", nil, const.cfComponentAttach)
+	rope = PlaceObject("RegolithExtractorRope", nil, const.cofComponentAttach)
 	rope:SetZClip(3*guim)
 	digger:Attach(rope, digger:GetSpotBeginIndex("Rope2"))
 	self.rope2 = rope
@@ -607,7 +609,7 @@ end
 
 function RegolithMineVisual:OnDestroyed()
 	local angle = self.ring:GetVisualAngle() - self.mine:GetAngle()
-	local ring = PlaceObject("RegolithExtractorRing", nil, const.cfComponentAttach)
+	local ring = PlaceObject("RegolithExtractorRing", nil, const.cofComponentAttach)
 	ring:SetAttachAngle(angle)
 	self.mine:Attach(ring, self.mine:GetSpotBeginIndex("Origin"))
 	DoneObject(self)
@@ -623,6 +625,14 @@ function RegolithMineVisual:SetDustVisuals(...)
 end
 
 function RegolithMineVisual:StripDone()
+	if self.current_depth == self.target_depth then
+		self.current_strip = self.current_strip + 1	
+		if self.current_strip > #self.strips then
+			self.current_strip = 1
+		end
+		return
+	end
+	
 	local first = self.current_strip + 1	
 	self.current_strip = false
 	

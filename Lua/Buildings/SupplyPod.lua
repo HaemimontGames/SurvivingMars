@@ -16,6 +16,7 @@ DefineClass.SupplyPod = {
 	-- landing/takeoff parameters
 	orbital_altitude = 2500*guim,
 	orbital_velocity = 200*guim,
+	rocket_palette = { "rocket_base", "rocket_accent", "outside_dark", "outside_dark" },
 	
 	affected_by_dust_storm = false,
 	accept_requester_connects = false,
@@ -46,7 +47,7 @@ function SupplyPod:Done()
 		Building.RemoveFromGrids(self)
 	end
 	if self.refund > 0 then
-		self.city:ChangeFunding(self.refund)
+		self.city:ChangeFunding(self.refund, "refund")
 	end
 end
 
@@ -139,6 +140,7 @@ function SupplyPod:Shutdown()
 	if self == SelectedObj then
 		ReopenSelectionXInfopanel()
 	end
+	self:SetPinned(false)
 	self:SetCommand(false)
 end
 

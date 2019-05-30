@@ -11,7 +11,7 @@ PlaceObj('XTemplate', {
 		'Subtitle', T(599355083725, --[[XTemplate AchievementsContent Subtitle]] "Unlocked <white><unlocked> / <total>"),
 	}),
 	PlaceObj('XTemplateGroup', {
-		'__condition', function (parent, context) return GameState.gameplay and not GetDialog("IGMainMenu") end,
+		'__condition', function (parent, context) return GameState.gameplay and not GetInGameMainMenu() end,
 	}, {
 		PlaceObj('XTemplateLayer', {
 			'__condition', function (parent, context) return GameState.gameplay end,
@@ -33,7 +33,7 @@ PlaceObj('XTemplate', {
 		'ActionShortcut', "Escape",
 		'ActionGamepad', "ButtonB",
 		'OnActionEffect', "mode",
-		'__condition', function (parent, context) return GetDialog("IGMainMenu") or not GameState.gameplay end,
+		'__condition', function (parent, context) return GetInGameMainMenu() or not GameState.gameplay end,
 	}),
 	PlaceObj('XTemplateWindow', {
 		'Margins', box(60, 10, 0, 10),
@@ -55,22 +55,22 @@ PlaceObj('XTemplate', {
 		}, {
 			PlaceObj('XTemplateForEach', {
 				'array', function (parent, context)
-		-- do not just table.values() it, because we need to keep the sort order
-		local t = {}
-		ForEachPreset(Achievement, function(achievement, group_list) table.insert(t, achievement) end)
-		return t
-end,
+					-- do not just table.values() it, because we need to keep the sort order
+					local t = {}
+					ForEachPreset(Achievement, function(achievement, group_list) table.insert(t, achievement) end)
+					return t
+				end,
 				'__context', function (parent, context, item, i, n) return item end,
 				'run_after', function (child, context, item, i, n)
-child.idImage:SetImage("UI/Achievements/" .. item.image .. ".tga")
-if not GetAchievementFlags(item.id) then
-	-- gray out locked ones
-	child.idPad:SetDesaturation(255)
-	child.idImage:SetEnabled(false)
-	child.idTitle:SetEnabled(false)
-	child.idText:SetEnabled(false)
-end
-end,
+					child.idImage:SetImage("UI/Achievements/" .. item.image .. ".tga")
+					if not GetAchievementFlags(item.id) then
+						-- gray out locked ones
+						child.idPad:SetDesaturation(255)
+						child.idImage:SetEnabled(false)
+						child.idTitle:SetEnabled(false)
+						child.idText:SetEnabled(false)
+					end
+				end,
 			}, {
 				PlaceObj('XTemplateWindow', {
 					'comment', "achievement item",
@@ -135,21 +135,21 @@ end,
 			'ActionId', "idScrollDown",
 			'ActionGamepad', "RightThumbDown",
 			'OnAction', function (self, host, source)
-local list_area = host:ResolveId("idList")
-if list_area:GetVisible() then
-	return list_area:OnMouseWheelBack()
-end
-end,
+				local list_area = host:ResolveId("idList")
+				if list_area:GetVisible() then
+					return list_area:OnMouseWheelBack()
+				end
+			end,
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "idScrollUp",
 			'ActionGamepad', "RightThumbUp",
 			'OnAction', function (self, host, source)
-local list_area = host:ResolveId("idList")
-if list_area:GetVisible() then
-	return list_area:OnMouseWheelForward()
-end
-end,
+				local list_area = host:ResolveId("idList")
+				if list_area:GetVisible() then
+					return list_area:OnMouseWheelForward()
+				end
+			end,
 		}),
 		}),
 })

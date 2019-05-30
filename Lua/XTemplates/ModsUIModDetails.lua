@@ -21,13 +21,13 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-if GetUIStyleGamepad() then
-	self:SetMinHeight(868)
-	self:SetMaxHeight(868)
-	self:ResolveId("idScrollAreaWrapper"):SetMaxHeight(755)
-end
-XWindow.Open(self, ...)
-end,
+				if GetUIStyleGamepad() then
+					self:SetMinHeight(868)
+					self:SetMaxHeight(868)
+					self:ResolveId("idScrollAreaWrapper"):SetMaxHeight(755)
+				end
+				XWindow.Open(self, ...)
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'comment', "content",
@@ -37,81 +37,77 @@ end,
 			'LayoutMethod', "VList",
 			'ContextUpdateOnOpen', true,
 			'OnContextUpdate', function (self, context, ...)
-XContextWindow.OnContextUpdate(self, context, ...)
-local spinner = self:ResolveId("idSpinner")
-spinner:SetVisible(not context.details_retrieved)
-if not context.details_retrieved then
-	ModsUIRetrieveModDetails(context)
-end
-local obj = GetDialog(self).context
-self:ResolveId("idTitle"):SetText(context.DisplayName or "")
-local author = context.Author or ""
-if author ~= "" then
-	author = T{10486, "by <author>", author = Untranslated(author)}
-end
-self:ResolveId("idAuthor"):SetText(author)
-local game_version_win = self:ResolveId("idSuggestedVersionWindow")
-if game_version_win then
-	game_version_win:SetVisible(context.RequiredVersion and context.RequiredVersion ~= "")
-	self:ResolveId("idSuggestedVersion"):SetText(context.RequiredVersion or "")
-end
-local current_rating_win = self:ResolveId("idCurrentRating")
-if context.Rating and current_rating_win then
-	for i = 1, context.Rating do
-		current_rating_win[i]:SetImage("UI/Mods/rate-orange.tga")
-	end
-	current_rating_win:SetVisible(true)
-	local ratings_total = self:ResolveId("idRatingsTotal")
-	ratings_total:SetText("(" .. context.RatingsTotal .. ")")
-	ratings_total:SetVisible(true)
-end
-local mod_id = context.ModID
-if obj.installed_retrieved then
-	local installed = obj.installed[mod_id] and not g_PopsDownloadingMods[mod_id]
-	if installed then
-		local corrupted, warning = context.Corrupted, context.Warning
-		if corrupted == nil then
-			local mod_def = obj.mod_defs[mod_id]
-			if mod_def then
-				corrupted, warning = ModsUIGetModCorruptedStatus(mod_def)
-				context.Corrupted, context.Warning = corrupted, warning
-			end
-		end
-		local warning_label = self:ResolveId("idWarning")
-		warning_label:SetText(warning or "")
-		warning_label:SetVisible((warning or "") ~= "")
-		if not corrupted then
-			local enabled = obj.enabled[mod_id]
-			local status = self:ResolveId("idStatus")
-			if status then				
-				if status then status:SetVisible(installed) end
-				status.idTick:SetVisible(enabled)
-				status.idEnabled:SetVisible(enabled)
-				status.idDisabled:SetVisible(not enabled)
-			end
-			if not GetUIStyleGamepad() then
-				local check_button = self:ResolveId("idEnabled")
-				if check_button then
-					check_button:SetCheck(enabled)
-					check_button:SetVisible(true)
-					check_button.idEnabled:SetVisible(enabled)
-					check_button.idDisabled:SetVisible(not enabled)
+				XContextWindow.OnContextUpdate(self, context, ...)
+				local spinner = self:ResolveId("idSpinner")
+				spinner:SetVisible(not context.details_retrieved)
+				if not context.details_retrieved then
+					ModsUIRetrieveModDetails(context)
 				end
-			end
-		end
-	end
-	local install_button = self:ResolveId("idInstall")
-	if not GetUIStyleGamepad() and install_button then
-		install_button:SetVisible(not installed)
-		install_button:SetEnabled(not g_PopsDownloadingMods[mod_id])
-		self:ResolveId("idRemove"):SetVisible(installed)
-	end
-	local spinner = self:ResolveId("idInstallSpinner")
-	if spinner then
-		spinner:SetVisible(g_PopsDownloadingMods[mod_id])
-	end
-end
-end,
+				local obj = GetDialog(self).context
+				self:ResolveId("idTitle"):SetText(context.DisplayName or "")
+				local author = context.Author or ""
+				if author ~= "" then
+					author = T{10486, "by <author>", author = Untranslated(author)}
+				end
+				self:ResolveId("idAuthor"):SetText(author)
+				local current_rating_win = self:ResolveId("idCurrentRating")
+				if context.Rating and current_rating_win then
+					for i = 1, context.Rating do
+						current_rating_win[i]:SetImage("UI/Mods/rate-orange.tga")
+					end
+					current_rating_win:SetVisible(true)
+					local ratings_total = self:ResolveId("idRatingsTotal")
+					ratings_total:SetText("(" .. context.RatingsTotal .. ")")
+					ratings_total:SetVisible(true)
+				end
+				local mod_id = context.ModID
+				if obj.installed_retrieved then
+					local uninstalling = g_PopsUninstallingMods[mod_id]
+					local installed = obj.installed[mod_id] and not g_PopsDownloadingMods[mod_id]
+					if installed then
+						local corrupted, warning, warning_id = context.Corrupted, context.Warning, context.Warning_id
+						if corrupted == nil then
+							local mod_def = obj.mod_defs[mod_id]
+							if mod_def then
+								corrupted, warning, warning_id = ModsUIGetModCorruptedStatus(mod_def)
+								context.Corrupted, context.Warning, context.Warning_id = corrupted, warning, warning_id
+							end
+						end
+						local warning_label = self:ResolveId("idWarning")
+						warning_label:SetText(warning or "")
+						warning_label:SetVisible((warning or "") ~= "")
+						if not corrupted then
+							local enabled = obj.enabled[mod_id]
+							local status = self:ResolveId("idStatus")
+							if status then				
+								if status then status:SetVisible(installed) end
+								status.idTick:SetVisible(enabled)
+								status.idEnabled:SetVisible(enabled)
+								status.idDisabled:SetVisible(not enabled)
+							end
+							if not GetUIStyleGamepad() then
+								local check_button = self:ResolveId("idEnabled")
+								if check_button then
+									check_button:SetCheck(enabled)
+									check_button:SetVisible(not uninstalling)
+									check_button.idEnabled:SetVisible(enabled)
+									check_button.idDisabled:SetVisible(not enabled)
+								end
+							end
+						end
+					end
+					local install_button = self:ResolveId("idInstall")
+					if not GetUIStyleGamepad() and install_button then
+						install_button:SetVisible(not installed)
+						install_button:SetEnabled(not g_PopsDownloadingMods[mod_id])
+						self:ResolveId("idRemove"):SetVisible(installed and not uninstalling)
+					end
+					local spinner = self:ResolveId("idInstallSpinner")
+					if spinner then
+						spinner:SetVisible(g_PopsDownloadingMods[mod_id] or uninstalling)
+					end
+				end
+			end,
 		}, {
 			PlaceObj('XTemplateWindow', {
 				'comment', "title",
@@ -151,8 +147,8 @@ end,
 						'MouseCursor', "UI/Cursors/Rollover.tga",
 						'FocusedBackground', RGBA(0, 0, 0, 0),
 						'OnPress', function (self, gamepad)
-SetBackDialogMode(GetDialog(self))
-end,
+							SetBackDialogMode(GetDialog(self))
+						end,
 						'RolloverBackground', RGBA(0, 0, 0, 0),
 						'PressedBackground', RGBA(0, 0, 0, 0),
 						'Icon', "UI/Mods/x_large.tga",
@@ -275,9 +271,16 @@ end,
 					'ActionName', T(4165, --[[XTemplate ModsUIModDetails ActionName]] "Back"),
 					'ActionShortcut', "Escape",
 					'ActionState', function (self, host)
-return ModsUIIsPopupShown(host) and "hidden"
-end,
+						return ModsUIIsPopupShown(host) and "hidden"
+					end,
 					'OnActionEffect', "back",
+					'OnAction', function (self, host, source)
+						if ModsUIIsPopupShown(host) then
+							ModsUIClosePopup(host)
+							return
+						end
+						XAction.OnAction(self, host, source)
+					end,
 					'__condition', function (parent, context) return not GetUIStyleGamepad() end,
 				}),
 				}),
@@ -331,8 +334,8 @@ end,
 					'FoldWhenHidden', true,
 					'MouseCursor', "UI/Cursors/Rollover.tga",
 					'OnPress', function (self, gamepad)
-ModsUIToggleEnabled(self.context, self)
-end,
+						ModsUIToggleEnabled(self.context, self)
+					end,
 					'Icon', "UI/Mods/enable_disable.tga",
 					'IconScale', point(1000, 1000),
 					'IconColor', RGBA(255, 255, 255, 255),
@@ -340,9 +343,9 @@ end,
 					PlaceObj('XTemplateFunc', {
 						'name', "OnChange(self, check)",
 						'func', function (self, check)
-self.idEnabled:SetVisible(check)
-self.idDisabled:SetVisible(not check)
-end,
+							self.idEnabled:SetVisible(check)
+							self.idDisabled:SetVisible(not check)
+						end,
 					}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XLabel",
@@ -384,9 +387,14 @@ end,
 					'MouseCursor', "UI/Cursors/Rollover.tga",
 					'DisabledBackground', RGBA(255, 255, 255, 255),
 					'OnPress', function (self, gamepad)
-ModsUIInstallMod(self.context)
-self:SetEnabled(false)
-end,
+						if not g_ParadoxAccountLoggedIn then
+							local host = GetDialog(self)
+							ModsUIOpenLoginPopup(host.idContentWrapper)
+						else
+							ModsUIInstallMod(self.context)
+							self:SetEnabled(false)
+						end
+					end,
 					'Image', "UI/Mods/install.tga",
 					'FrameBox', box(18, 18, 18, 18),
 					'Columns', 2,
@@ -401,9 +409,9 @@ end,
 					PlaceObj('XTemplateFunc', {
 						'name', "SetEnabled(self, enabled)",
 						'func', function (self, enabled)
-XTextButton.SetEnabled(self, enabled)
-self:SetDesaturation(enabled and 0 or 255)
-end,
+							XTextButton.SetEnabled(self, enabled)
+							self:SetDesaturation(enabled and 0 or 255)
+						end,
 					}),
 					}),
 				PlaceObj('XTemplateWindow', {
@@ -418,8 +426,8 @@ end,
 					'MouseCursor', "UI/Cursors/Rollover.tga",
 					'FocusedBackground', RGBA(0, 0, 0, 0),
 					'OnPress', function (self, gamepad)
-ModsUIUninstallMod(self.context)
-end,
+						ModsUIUninstallMod(self.context)
+					end,
 					'RolloverBackground', RGBA(0, 0, 0, 0),
 					'PressedBackground', RGBA(0, 0, 0, 0),
 					'Icon', "UI/Mods/remove.tga",
@@ -512,10 +520,13 @@ end,
 						'MouseCursor', "UI/Cursors/Rollover.tga",
 						'RelativeFocusOrder', "new-line",
 						'OnPress', function (self, gamepad)
-local dlg = GetDialog(self)
-ModsUIChooseModRating(dlg.idContentWrapper)
-dlg:UpdateActionViews(dlg)
-end,
+							local dlg = GetDialog(self)
+							if not g_ParadoxAccountLoggedIn then
+								ModsUIOpenLoginPopup(dlg.idContentWrapper)
+							else
+								ModsUIChooseModRating(dlg.idContentWrapper)
+							end
+						end,
 						'Image', "UI/Mods/button_black_border.tga",
 						'FrameBox', box(18, 18, 18, 18),
 						'SqueezeX', true,
@@ -542,10 +553,10 @@ end,
 						'MouseCursor', "UI/Cursors/Rollover.tga",
 						'RelativeFocusOrder', "new-line",
 						'OnPress', function (self, gamepad)
-local dlg = GetDialog(self)
-ModsUIChooseFlagReason(dlg.idContentWrapper)
-dlg:UpdateActionViews(dlg)
-end,
+							local dlg = GetDialog(self)
+							ModsUIChooseFlagReason(dlg.idContentWrapper)
+							dlg:UpdateActionViews(dlg)
+						end,
 						'Image', "UI/Mods/button_black_border.tga",
 						'FrameBox', box(18, 18, 18, 18),
 						'SqueezeX', true,
@@ -553,7 +564,7 @@ end,
 						'IconScale', point(240, 240),
 						'TextStyle', "DarkButtons",
 						'Translate', true,
-						'Text', T(656241940093, --[[XTemplate ModsUIModDetails Text]] "FLAG"),
+						'Text', T(12411, --[[XTemplate ModsUIModDetails Text]] "REPORT"),
 					}),
 					}),
 				}),
@@ -604,48 +615,54 @@ end,
 						'LayoutMethod', "HList",
 						'LayoutHSpacing', 130,
 						'OnContextUpdate', function (self, context, ...)
-XContentTemplate.OnContextUpdate(self, context, ...)
-self:SetContentTexts()
-end,
+							XContentTemplate.OnContextUpdate(self, context, ...)
+							self:SetContentTexts()
+						end,
 						'RespawnOnDialogMode', false,
 					}, {
 						PlaceObj('XTemplateFunc', {
 							'name', "Open",
 							'func', function (self, ...)
-XContentTemplate.Open(self, ...)
-self:SetContentTexts()
-end,
+								XContentTemplate.Open(self, ...)
+								self:SetContentTexts()
+							end,
 						}),
 						PlaceObj('XTemplateFunc', {
 							'name', "SetContentTexts",
 							'func', function (self, ...)
-local context = self.context
-local description = self:ResolveId("idDescription")
-description:SetText(context.LongDescription or "")
-description:SetVisible(context.LongDescription)
-
-self:ResolveId("idRequirements"):SetVisible(context.RequiredMods or context.RequiredDlcs)
-self:ResolveId("idDlcs"):SetVisible(context.RequiredDlcs)
-self:ResolveId("idMods"):SetVisible(context.RequiredMods)
-self:ResolveId("idTags"):SetVisible(#(context.Tags or "") > 0)
-
-self:ResolveId("idChangelog"):SetVisible(context.ChangeLog and #context.ChangeLog > 0)
-if context.Thumbnail then
-	self:ResolveId("idThumbnail"):SetImage(context.Thumbnail)
-	local thumb_small = self:ResolveId("idThumbSmall")
-	if thumb_small then
-		thumb_small:SetImage(context.Thumbnail)
-	end
-end
-local size_win = self:ResolveId("idFileSizeWindow")
-size_win:SetVisible(context.FileSize)
-if context.FileSize then
-	self:ResolveId("idSize"):SetText(T(10487, "<FormatSize(FileSize, 2)>"))
-end
-local version_win = self:ResolveId("idVersionWindow")
-version_win:SetVisible(context.ModVersion and context.ModVersion ~= "")
-self:ResolveId("idVersion"):SetText(context.ModVersion or "")
-end,
+								local context = self.context
+								local description = self:ResolveId("idDescription")
+								description:SetText(context.LongDescription or "")
+								description:SetVisible(context.LongDescription)
+								
+								self:ResolveId("idRequirements"):SetVisible(ModsUIGetRequiredMods(context) or context.RequiredDlcs)
+								self:ResolveId("idDlcs"):SetVisible(context.RequiredDlcs)
+								self:ResolveId("idMods"):SetVisible(ModsUIGetRequiredMods(context))
+								self:ResolveId("idTags"):SetVisible(#(context.Tags or "") > 0)
+								
+								self:ResolveId("idChangelog"):SetVisible(context.ChangeLog and #context.ChangeLog > 0)
+								if context.Thumbnail then
+									self:ResolveId("idThumbnail"):SetImage(context.Thumbnail)
+									local thumb_small = self:ResolveId("idThumbSmall")
+									if thumb_small then
+										thumb_small:SetImage(context.Thumbnail)
+									end
+								end
+								self:ResolveId("idFileSizeWindow"):SetVisible(context.FileSize)
+								if context.FileSize then
+									self:ResolveId("idSize"):SetText(T(10487, "<FormatSize(FileSize, 2)>"))
+								end
+								local mod_version = context.ModVersion
+								self:ResolveId("idVersionWindow"):SetVisible(mod_version and mod_version ~= "")
+								self:ResolveId("idVersion"):SetText(mod_version or "")
+								local required_version = context.RequiredVersion
+								self:ResolveId("idSuggestedVersionWindow"):SetVisible(required_version and required_version ~= "")
+								self:ResolveId("idSuggestedVersion"):SetText(required_version or "")
+								local line = self:ResolveId("idGameVersionLine")
+								if line then
+									line:SetVisible(required_version and required_version ~= "")
+								end
+							end,
 						}),
 						PlaceObj('XTemplateWindow', {
 							'comment', "left column",
@@ -697,28 +714,28 @@ end,
 									PlaceObj('XTemplateFunc', {
 										'name', "OnMouseButtonDown(self, pos, button)",
 										'func', function (self, pos, button)
-if button == "L" then
-	self:ResolveId("idThumbnail"):SetImage(self:GetImage())
-	self:SetFocus(true)
-	return "break"
-end
-return XImage.OnMouseButtonDown(self, pos, button)
-end,
+											if button == "L" then
+												self:ResolveId("idThumbnail"):SetImage(self:GetImage())
+												self:SetFocus(true)
+												return "break"
+											end
+											return XImage.OnMouseButtonDown(self, pos, button)
+										end,
 									}),
 									PlaceObj('XTemplateFunc', {
 										'name', "SetSelected(self, selected)",
 										'func', function (self, selected)
-if selected then
-	self:OnMouseButtonDown(nil, "L")
-end
-end,
+											if selected then
+												self:OnMouseButtonDown(nil, "L")
+											end
+										end,
 									}),
 									}),
 								PlaceObj('XTemplateForEach', {
 									'array', function (parent, context) return context.ScreenshotPaths end,
 									'run_after', function (child, context, item, i, n)
-child:SetImage(item)
-end,
+										child:SetImage(item)
+									end,
 								}, {
 									PlaceObj('XTemplateWindow', {
 										'__class', "XImage",
@@ -737,21 +754,21 @@ end,
 										PlaceObj('XTemplateFunc', {
 											'name', "OnMouseButtonDown(self, pos, button)",
 											'func', function (self, pos, button)
-if button == "L" then
-	self:ResolveId("idThumbnail"):SetImage(self:GetImage())
-	self:SetFocus(true)
-	return "break"
-end
-return XImage.OnMouseButtonDown(self, pos, button)
-end,
+												if button == "L" then
+													self:ResolveId("idThumbnail"):SetImage(self:GetImage())
+													self:SetFocus(true)
+													return "break"
+												end
+												return XImage.OnMouseButtonDown(self, pos, button)
+											end,
 										}),
 										PlaceObj('XTemplateFunc', {
 											'name', "SetSelected(self, selected)",
 											'func', function (self, selected)
-if selected then
-	self:OnMouseButtonDown(nil, "L")
-end
-end,
+												if selected then
+													self:OnMouseButtonDown(nil, "L")
+												end
+											end,
 										}),
 										}),
 									}),
@@ -764,8 +781,8 @@ end,
 								PlaceObj('XTemplateFunc', {
 									'name', "OnHyperLink(self, hyperlink, argument, hyperlink_box, pos, button)",
 									'func', function (self, hyperlink, argument, hyperlink_box, pos, button)
-OpenUrl(argument)
-end,
+										OpenUrl(argument)
+									end,
 								}),
 								}),
 							}),
@@ -777,12 +794,47 @@ end,
 							'LayoutMethod', "VList",
 						}, {
 							PlaceObj('XTemplateWindow', {
+								'__condition', function (parent, context) return GetUIStyleGamepad() end,
+								'Id', "idSuggestedVersionWindow",
+								'Margins', box(0, 0, 30, 0),
+								'VAlign', "center",
+								'LayoutMethod', "VList",
+								'Visible', false,
+								'FoldWhenHidden', true,
+							}, {
+								PlaceObj('XTemplateWindow', {
+									'__class', "XLabel",
+									'Padding', box(0, 0, 0, 0),
+									'VAlign', "center",
+									'TextStyle', "ModsUIDetailsVersionConsole",
+									'Translate', true,
+									'Text', T(10133, --[[XTemplate ModsUIModDetails Text]] "SUGGESTED GAME VERSION"),
+								}),
+								PlaceObj('XTemplateWindow', {
+									'__class', "XLabel",
+									'Id', "idSuggestedVersion",
+									'Padding', box(0, 0, 0, 0),
+									'VAlign', "center",
+									'TextStyle', "ModsUIDetailsVersionConsole",
+								}),
+								}),
+							PlaceObj('XTemplateWindow', {
+								'comment', "line",
+								'__condition', function (parent, context) return GetUIStyleGamepad() end,
+								'Id', "idGameVersionLine",
+								'Margins', box(0, 20, 0, 20),
+								'MinHeight', 1,
+								'MaxHeight', 1,
+								'FoldWhenHidden', true,
+								'Background', RGBA(235, 235, 235, 255),
+							}),
+							PlaceObj('XTemplateWindow', {
 								'LayoutMethod', "HList",
-								'LayoutHSpacing', 20,
 							}, {
 								PlaceObj('XTemplateWindow', {
 									'__condition', function (parent, context) return GetUIStyleGamepad() end,
 									'Id', "idFileSizeWindow",
+									'Margins', box(0, 0, 20, 0),
 									'LayoutMethod', "VList",
 									'Visible', false,
 									'FoldWhenHidden', true,
@@ -799,7 +851,6 @@ end,
 										'comment', "file size",
 										'__class', "XLabel",
 										'Id', "idSize",
-										'Margins', box(0, 0, 0, 20),
 										'Padding', box(0, 0, 0, 0),
 										'VAlign', "top",
 										'TextStyle', "ModsUIDetailsVersionConsole",
@@ -827,30 +878,23 @@ end,
 										'Id', "idVersion",
 										'Padding', box(0, 0, 0, 0),
 										'VAlign', "top",
-										'TextStyle', "ModsUIDetailsVersionNumber",
+										'TextStyle', "ModsUIDetailsVersionConsole",
 									}),
 									}),
 								}),
 							PlaceObj('XTemplateWindow', {
+								'comment', "line",
+								'__condition', function (parent, context) return GetUIStyleGamepad() end,
+								'Margins', box(0, 20, 0, 20),
+								'MinHeight', 1,
+								'MaxHeight', 1,
+								'Background', RGBA(235, 235, 235, 255),
+							}),
+							PlaceObj('XTemplateWindow', {
 								'Id', "idRequirements",
-								'Margins', box(0, 0, 0, 40),
 								'LayoutMethod', "VList",
 								'FoldWhenHidden', true,
 							}, {
-								PlaceObj('XTemplateWindow', {
-									'__class', "XLabel",
-									'Id', "idRequirementsLabel",
-									'TextStyle', "ModsUIDetailsColumnHeadings",
-									'Translate', true,
-									'Text', T(346268031765, --[[XTemplate ModsUIModDetails Text]] "REQUIREMENTS"),
-								}),
-								PlaceObj('XTemplateWindow', {
-									'comment', "line",
-									'Margins', box(0, 20, 0, 20),
-									'MinHeight', 1,
-									'MaxHeight', 1,
-									'Background', RGBA(235, 235, 235, 255),
-								}),
 								PlaceObj('XTemplateWindow', {
 									'comment', "dlcs",
 									'Id', "idDlcs",
@@ -859,15 +903,16 @@ end,
 								}, {
 									PlaceObj('XTemplateWindow', {
 										'__class', "XLabel",
+										'Margins', box(0, 0, 0, 20),
 										'TextStyle', "ModsUIDetailsColumnHeadings",
 										'Translate', true,
-										'Text', T(428472374324, --[[XTemplate ModsUIModDetails Text]] "DLCs"),
+										'Text', T(12412, --[[XTemplate ModsUIModDetails Text]] "Required DLC"),
 									}),
 									PlaceObj('XTemplateForEach', {
 										'array', function (parent, context) return context.RequiredDlcs end,
 										'run_after', function (child, context, item, i, n)
-child:SetText(item)
-end,
+											child:SetText(item)
+										end,
 									}, {
 										PlaceObj('XTemplateWindow', {
 											'__class', "XText",
@@ -891,15 +936,21 @@ end,
 								}, {
 									PlaceObj('XTemplateWindow', {
 										'__class', "XLabel",
+										'Margins', box(0, 0, 0, 20),
 										'TextStyle', "ModsUIDetailsColumnHeadings",
 										'Translate', true,
-										'Text', T(265664686175, --[[XTemplate ModsUIModDetails Text]] "Mods"),
+										'Text', T(12413, --[[XTemplate ModsUIModDetails Text]] "Required Mods"),
 									}),
 									PlaceObj('XTemplateForEach', {
-										'array', function (parent, context) return context.RequiredMods end,
+										'array', function (parent, context) return ModsUIGetRequiredMods(context) end,
 										'run_after', function (child, context, item, i, n)
-child:SetText(item)
-end,
+											child:SetText(item[1])
+											if item[2] == "hard" then
+												child:SetTextStyle("ModsUIDetailsColumnItemsRed")
+											elseif item[2] == "soft" then
+												child:SetTextStyle("ModsUIDetailsColumnItemsYellow")
+											end
+										end,
 									}, {
 										PlaceObj('XTemplateWindow', {
 											'__class', "XText",
@@ -920,6 +971,7 @@ end,
 								'comment', "tags",
 								'Id', "idTags",
 								'LayoutMethod', "VList",
+								'FoldWhenHidden', true,
 							}, {
 								PlaceObj('XTemplateWindow', {
 									'__class', "XLabel",
@@ -931,8 +983,8 @@ end,
 								PlaceObj('XTemplateForEach', {
 									'array', function (parent, context) return context.Tags end,
 									'run_after', function (child, context, item, i, n)
-child:SetText(item)
-end,
+										child:SetText(item)
+									end,
 								}, {
 									PlaceObj('XTemplateWindow', {
 										'__class', "XText",
@@ -964,9 +1016,9 @@ end,
 									'array', function (parent, context) return context.ChangeLog end,
 									'__context', function (parent, context, item, i, n) return item end,
 									'run_after', function (child, context, item, i, n)
-child.idReleasedVersion:SetText(T{10488, "v<ModVersion> - Released <Released>", ModVersion = Untranslated(item.ModVersion), Released = Untranslated(item.Released)})
-child.idDetails:SetText(item.Details)
-end,
+										child.idReleasedVersion:SetText(T{10488, "v<ModVersion> - Released <Released>", ModVersion = Untranslated(item.ModVersion), Released = Untranslated(item.Released)})
+										child.idDetails:SetText(item.Details)
+									end,
 								}, {
 									PlaceObj('XTemplateWindow', {
 										'IdNode', true,
@@ -1009,21 +1061,21 @@ end,
 					'ActionId', "idScrollDown",
 					'ActionGamepad', "RightThumbDown",
 					'OnAction', function (self, host, source)
-local scroll_area = host:ResolveId("idScrollArea")
-if scroll_area:GetVisible() then
-	return scroll_area:OnMouseWheelBack()
-end
-end,
+						local scroll_area = host:ResolveId("idScrollArea")
+						if scroll_area:GetVisible() then
+							return scroll_area:OnMouseWheelBack()
+						end
+					end,
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "idScrollUp",
 					'ActionGamepad', "RightThumbUp",
 					'OnAction', function (self, host, source)
-local scroll_area = host:ResolveId("idScrollArea")
-if scroll_area:GetVisible() then
-	return scroll_area:OnMouseWheelForward()
-end
-end,
+						local scroll_area = host:ResolveId("idScrollArea")
+						if scroll_area:GetVisible() then
+							return scroll_area:OnMouseWheelForward()
+						end
+					end,
 				}),
 				}),
 			}),

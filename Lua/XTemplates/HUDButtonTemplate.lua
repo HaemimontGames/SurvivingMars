@@ -23,9 +23,9 @@ PlaceObj('XTemplate', {
 			PlaceObj('XTemplateFunc', {
 				'name', "OnChange(self, toggled)",
 				'func', function (self, toggled)
-self.Row = toggled and 2 or 1
-self:Invalidate()
-end,
+					self.Row = toggled and 2 or 1
+					self:Invalidate()
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateWindow', {

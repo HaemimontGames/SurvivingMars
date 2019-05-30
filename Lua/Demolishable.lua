@@ -8,7 +8,7 @@ DefineClass.Demolishable = {
 
 	properties = {
 		{ template = true, category = "Demolish", name = T(934, "Can demolish?"), id = "can_demolish", editor = "bool", default = true, help = "Specify if the building can be destroyed by demolishing." },
-		{ template = true, category = "Demolish", name = T(175, "Use demolished state?"), id = "use_demolished_state", editor = "bool", default = false, object_update = true, help = "If true, the destroyed target will transofrm into ruins, instead of disappearing after destruction." },
+		{ template = true, category = "Demolish", name = T(175, "Use demolished state?"), id = "use_demolished_state", editor = "bool", default = false, help = "If true, the destroyed target will transofrm into ruins, instead of disappearing after destruction." },
 	},
 
 	demolishing = false,
@@ -18,9 +18,7 @@ DefineClass.Demolishable = {
 }
 
 function Demolishable:Done()
-	if SelectedObj == self then
-		SelectObj(false)
-	end
+	SelectionRemove(self)
 end
 
 function Demolishable:ShouldShowDemolishButton()
@@ -89,6 +87,11 @@ function Demolishable:DoDemolish()
 	if self.demolishing_countdown > 0 then
 		if self:HasSpot("Top") then
 			self:Attach(PlaceObject("RotatyThing"), self:GetSpotBeginIndex("Top"))
+		elseif self:HasMember("rotaty_spot") then
+			local attach = AttachToObject(self, "RotatyThing", self.rotaty_spot)
+			if self:HasMember("rotaty_offset") then
+				attach:SetAttachOffset(self.rotaty_offset)
+			end
 		end
 		PlayFX("Demolish", "start", self)
 
@@ -124,19 +127,20 @@ function Demolishable:DoDemolish()
 	
 	if IsValid(self) then
 		self:OnDemolish()
-		if self.use_demolished_state then
+		if self:UseDemolishedState() then
 			PlayFXAroundBuilding(self, "Demolish")
+			self:DestroyAttaches("RotatyThing")
 		else
 			PlayFXAroundBuilding(self, "Remove")
-		end
-		if not self.use_demolished_state then
 			DoneObject(self)
-		else
-			self:DestroyAttaches("RotatyThing")
 		end
 	end
 
 	Msg("Demolished", self)
+end
+
+function Demolishable:UseDemolishedState()
+	return self.use_demolished_state
 end
 
 function Demolishable:IsDemolishing()
@@ -156,7 +160,7 @@ end
 
 DefineClass.RotatyThing = {
 	__parents = { "SpawnFXObject" },
-	class_flags = { cfConstructible = false },
+	flags = { cfConstructible = false },
 	entity = "DemolishLight",	
 	speed = 360*60, --min per sec
 	update_thread = false,

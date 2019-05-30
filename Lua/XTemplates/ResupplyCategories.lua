@@ -12,9 +12,9 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-XDialog.Open(self, ...)
-self:SetPadding(GetSafeMargins(self:GetPadding()))
-end,
+				XDialog.Open(self, ...)
+				self:SetPadding(GetSafeMargins(self:GetPadding()))
+			end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "ActionBarNew",
@@ -178,15 +178,15 @@ end,
 					'ShowPartialItems', false,
 					'MouseScroll', true,
 					'OnContextUpdate', function (self, context, ...)
-XContentTemplateList.OnContextUpdate(self, context, ...)
-if self.focused_item then
-	self.focused_item =  Min(self.focused_item, #self)
-	self:DeleteThread("select")
-	self:CreateThread("select", function()
-		self:SetSelection(self.focused_item)
-	end)
-end
-end,
+						XContentTemplateList.OnContextUpdate(self, context, ...)
+						if self.focused_item then
+							self.focused_item =  Min(self.focused_item, #self)
+							self:DeleteThread("select")
+							self:CreateThread("select", function()
+								self:SetSelection(self.focused_item)
+							end)
+						end
+					end,
 				}, {
 					PlaceObj('XTemplateTemplate', {
 						'__template', "ResupplyCategoryItem",
@@ -194,21 +194,21 @@ end,
 						'RolloverDisabledTitle', T(1115, --[[XTemplate ResupplyCategories RolloverDisabledTitle]] "Cargo Rocket"),
 						'Id', "idCargo",
 						'OnContextUpdate', function (self, context, ...)
-if g_UIAvailableRockets <= 0 or (g_Tutorial and not g_Tutorial.EnableCargoRockets) then
-	self:SetEnabled(false)
-end
-end,
+							if g_UIAvailableRockets <= 0 or (g_Tutorial and not g_Tutorial.EnableCargoRockets) then
+								self:SetEnabled(false)
+							end
+						end,
 						'OnPress', function (self, gamepad)
-if UICity then
-	UICity.launch_mode = "rocket"
-end
-if g_CargoMode ~= "rocket" then
-	ClearRocketCargo()
-	g_CargoMode = "rocket"
-end
-local host = GetDialog(self)
-host:SetMode("cargo", "resupply")
-end,
+							if UICity then
+								UICity.launch_mode = "rocket"
+							end
+							if g_CargoMode ~= "rocket" then
+								ClearRocketCargo()
+								g_CargoMode = "rocket"
+							end
+							local host = GetDialog(self)
+							host:SetMode("cargo", "resupply")
+						end,
 						'Icon', "UI/CommonNew/re_icon_rocket.tga",
 						'Text', T(357083234594, --[[XTemplate ResupplyCategories Text]] "CARGO ROCKET"),
 					}),
@@ -218,17 +218,17 @@ end,
 						'RolloverDisabledTitle', T(8542, --[[XTemplate ResupplyCategories RolloverDisabledTitle]] "<PassengerRocketDisabledRolloverTitle>"),
 						'Id', "idPassenger",
 						'OnContextUpdate', function (self, context, ...)
-if g_UIAvailableRockets <= 0 or not AreNewColonistsAccepted() then
-	self:SetEnabled(false)
-end
-end,
+							if g_UIAvailableRockets <= 0 or not AreNewColonistsAccepted() then
+								self:SetEnabled(false)
+							end
+						end,
 						'OnPress', function (self, gamepad)
-if UICity then
-	UICity.launch_mode = "rocket"
-end
-local host = GetDialog(self)
-host:SetMode("passengers")
-end,
+							if UICity then
+								UICity.launch_mode = "rocket"
+							end
+							local host = GetDialog(self)
+							host:SetMode("passengers")
+						end,
 						'Icon', "UI/CommonNew/re_icon_rocket.tga",
 						'Text', T(11630, --[[XTemplate ResupplyCategories Text]] "PASSENGER ROCKET"),
 					}),
@@ -239,16 +239,16 @@ end,
 						'RolloverDisabledTitle', T(1120, --[[XTemplate ResupplyCategories RolloverDisabledTitle]] "Space Elevator"),
 						'Id', "idElevator",
 						'OnPress', function (self, gamepad)
-if UICity then
-	UICity.launch_mode = "elevator"
-end
-if g_CargoMode ~= "elevator" then
-	ClearRocketCargo()
-	g_CargoMode = "elevator"
-end
-local host = GetDialog(self)
-host:SetMode("cargo", "resupply")
-end,
+							if UICity then
+								UICity.launch_mode = "elevator"
+							end
+							if g_CargoMode ~= "elevator" then
+								ClearRocketCargo()
+								g_CargoMode = "elevator"
+							end
+							local host = GetDialog(self)
+							host:SetMode("cargo", "resupply")
+						end,
 						'Icon', "UI/CommonNew/re_icon_space_elevator.tga",
 						'Text', T(11631, --[[XTemplate ResupplyCategories Text]] "SPACE ELEVATOR"),
 					}),
@@ -259,26 +259,26 @@ end,
 						'RolloverDisabledTitle', T(10873, --[[XTemplate ResupplyCategories RolloverDisabledTitle]] "<PodItemText>"),
 						'Id', "idCargoPod",
 						'OnContextUpdate', function (self, context, ...)
-if context:GetNumAvailablePods("SupplyPod") == 0 and UICity.funding < GetMissionSponsor().pod_price then
-	self:SetEnabled(false)
-end
-end,
+							if context:GetNumAvailablePods("SupplyPod") == 0 and UICity.funding < GetMissionSponsor().pod_price then
+								self:SetEnabled(false)
+							end
+						end,
 						'OnPress', function (self, gamepad)
-if UICity then
-	UICity.launch_mode = "pod"
-end
-if g_CargoMode ~= "pod" then
-	ClearRocketCargo()
-	g_CargoMode = "pod"
-end
-
-if self.context:GetNumAvailablePods("SupplyPod") == 0 then
-	CreateRefundablePod(GetMissionSponsor().pod_class, "SupplyPod")
-end
-
-local host = GetDialog(self)
-host:SetMode("cargo", "resupply")
-end,
+							if UICity then
+								UICity.launch_mode = "pod"
+							end
+							if g_CargoMode ~= "pod" then
+								ClearRocketCargo()
+								g_CargoMode = "pod"
+							end
+							
+							if self.context:GetNumAvailablePods("SupplyPod") == 0 then
+								CreateRefundablePod(GetMissionSponsor().pod_class, "SupplyPod")
+							end
+							
+							local host = GetDialog(self)
+							host:SetMode("cargo", "resupply")
+						end,
 						'Icon', "UI/CommonNew/re_icon_drop_pod.tga",
 						'Text', T(10873, --[[XTemplate ResupplyCategories Text]] "<PodItemText>"),
 					}),
@@ -292,8 +292,8 @@ end,
 						'ActionShortcut', "Escape",
 						'ActionGamepad', "ButtonB",
 						'OnAction', function (self, host, source)
-host.parent.parent:Close()
-end,
+							host.parent.parent:Close()
+						end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "buyRocket",
@@ -301,8 +301,8 @@ end,
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonY",
 						'OnAction', function (self, host, source)
-BuyRocket(host)
-end,
+							BuyRocket(host)
+						end,
 					}),
 					}),
 				}),

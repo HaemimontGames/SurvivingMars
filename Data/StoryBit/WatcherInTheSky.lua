@@ -30,13 +30,22 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	ScriptDone = true,
-	Text = T(268319532855, --[[StoryBit WatcherInTheSky Text]] "The signal seems harmless but can very well be a spying device.\n\nDo we ignore it? "),
+	Text = T(12240, --[[StoryBit WatcherInTheSky Text]] "The signal seems harmless but can very well be a spying device.\n\nDo we ignore it?"),
 	TextReadyForValidation = true,
 	TextsDone = true,
 	Title = T(348128839780, --[[StoryBit WatcherInTheSky Title]] "The Watcher"),
 	VoicedText = T(284947371309, --[[voice:narrator]] "A faint signal was traced to originate from the high mountains just outside our Colony's vicinity."),
 	group = "Colonists",
 	id = "WatcherInTheSky",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1550843475,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitReply', {
 		'Text', T(982697491816, --[[StoryBit WatcherInTheSky Text]] "Send a Colonist in a Shuttle to investigate."),
 	}),

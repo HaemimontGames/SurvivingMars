@@ -54,6 +54,7 @@ PlaceObj('StoryBitCategory', {
 })
 
 PlaceObj('StoryBitCategory', {
+	Chance = 10,
 	Prerequisites = {},
 	Trigger = "SanityBreakdown",
 	group = "Default",
@@ -72,6 +73,31 @@ PlaceObj('StoryBitCategory', {
 	Trigger = "StoryBitTick",
 	group = "Default",
 	id = "Tick",
+})
+
+PlaceObj('StoryBitCategory', {
+	DecreaseCooldownPercent = 60,
+	Prerequisites = {
+		PlaceObj('CheckObjectCount', {
+			'Label', "Colonist",
+			'Filters', {},
+			'Condition', "<=",
+			'Amount', 0,
+		}),
+		PlaceObj('IsSolInRange', {
+			'Min', 2,
+			'Max', 40,
+		}),
+		PlaceObj('CheckObjectCount', {
+			'Label', "Building",
+			'Filters', {},
+			'Condition', ">=",
+			'Amount', 3,
+		}),
+	},
+	Trigger = "StoryBitTick",
+	group = "Default",
+	id = "Tick_BeforeFounders",
 })
 
 PlaceObj('StoryBitCategory', {
@@ -189,6 +215,7 @@ PlaceObj('StoryBitCategory', {
 })
 
 PlaceObj('StoryBitCategory', {
+	Chance = 10,
 	Prerequisites = {},
 	Trigger = "RivalMilestone",
 	group = "Rivals",
@@ -196,6 +223,7 @@ PlaceObj('StoryBitCategory', {
 })
 
 PlaceObj('StoryBitCategory', {
+	Chance = 10,
 	Prerequisites = {},
 	Trigger = "RivalStartsAnomaly",
 	group = "Rivals",

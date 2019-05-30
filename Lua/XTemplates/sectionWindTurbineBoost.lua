@@ -7,8 +7,8 @@ PlaceObj('XTemplate', {
 		'__context_of_kind', "WindTurbine",
 		'__template', "InfopanelSection",
 		'OnContextUpdate', function (self, context, ...)
-self:SetVisible(context.dust_storm_boost)
-end,
+			self:SetVisible(context.dust_storm_boost)
+		end,
 		'Title', T(277, --[[XTemplate sectionWindTurbineBoost Title]] "Attention"),
 		'Icon', "UI/Icons/Sections/attention.tga",
 		'TitleHAlign', "stretch",

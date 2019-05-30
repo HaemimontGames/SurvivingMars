@@ -46,18 +46,31 @@ function RebuildSelectionShapes()
 end
 
 OnMsg.EntitiesLoaded = RebuildSelectionShapes
-GlobalVar("building_selection_particle", false) --selobj is a global var, so it seems appropriate for this to be as well.
+GlobalVar("building_selection_particle", { }) --selobj is a global var, so it seems appropriate for this to be as well.
+
+function SavegameFixups.MultiSelectionParticles()
+	local new_particles = { }
+	if building_selection_particle then
+		new_particles[SelectedObj] = building_selection_particle
+	end
+	
+	building_selection_particle = new_particles
+end
 
 local particle_name_override = { --[entity] = { p1, p2 }
-	Excavator = { "Selection_Buildings_Double_01", "Selection_Buildings_Double_02", "Selection_Buildings_Base" },
+	Excavator = { "Selection_Buildings_Huge" },
 	Default = { "Selection_Buildings", "Selection_Buildings_Base" },
 }
 
 CObject.GetSelectionAngle = CObject.GetAngle
 
 function AddSelectionParticlesToObj(obj)
-	building_selection_particle = building_selection_particle or {}
-	local s_i = #building_selection_particle + 1
+	if building_selection_particle[obj] then return end
+	
+	local particles = { }
+	building_selection_particle[obj] = particles
+	
+	local s_i = #particles + 1
 	local e = obj:GetEntity()
 	local s = GetEntityOutlineShape(e)
 	local s_s = SelectionShapes[e]
@@ -65,7 +78,7 @@ function AddSelectionParticlesToObj(obj)
 	local a = obj:GetSelectionAngle()
 	
 	if #s == 1 then
-		table.insert(building_selection_particle, PlaceParticles("Selection_Buildings_Single"))
+		table.insert(particles, PlaceParticles("Selection_Buildings_Single"))
 		a = a + 30*60 -- fix wrong particle form (Iva made me do it)
 	elseif s_s then
 		local names = particle_name_override[e] or particle_name_override.Default
@@ -73,12 +86,12 @@ function AddSelectionParticlesToObj(obj)
 		for _, name in ipairs(names) do
 			p = PlaceParticles(name)
 			p:SetPolylineAsString(s_s)
-			table.insert(building_selection_particle, p)
+			table.insert(particles, p)
 		end
 	end
 	
-	for i = s_i, #building_selection_particle do
-		local p = building_selection_particle[i]
+	for i = s_i, #particles do
+		local p = particles[i]
 		p:SetPos(x, y, z)
 		p:SetAngle(a)
 	end
@@ -87,17 +100,14 @@ end
 --This object will be selectable and will show selection particles around it
 DefineClass.SelectableWithParticles = {
 	__parents = { "CObject" },
-	enum_flags = { efSelectable = true },
+	flags = { efSelectable = true },
 }
 
-function OnMsg.SelectedObjChange(obj, prev)
-	if building_selection_particle then
-		for _, obj in ipairs(building_selection_particle) do
-			DoneObject(obj)
-		end
-		building_selection_particle = false
-	end
-	
+local function IsTunnel(obj)
+	return IsKindOf(obj, "Tunnel") or (IsKindOf(obj, "ConstructionSite") and IsKindOf(obj.building_class_proto, "Tunnel"))
+end
+
+function OnMsg.SelectionAdded(obj)
 	if (IsKindOf(obj, "SupplyGridSwitch") and obj.is_switch) or
 		(IsKindOf(obj, "BreakableSupplyGridElement") and obj.auto_connect) or
 		(IsKindOf(obj, "LifeSupportGridElement") and obj.pillar) or
@@ -105,13 +115,42 @@ function OnMsg.SelectedObjChange(obj, prev)
 		(IsKindOf(obj, "SelectableWithParticles"))
 	then
 		AddSelectionParticlesToObj(obj)
-		if IsKindOf(obj, "ConstructionSite") and IsKindOf(obj.building_class_proto, "Tunnel") or IsKindOf(obj, "Tunnel") then
+		if IsTunnel(obj) then
 			AddSelectionParticlesToObj(obj.linked_obj)
 		end
 		if IsKindOf(obj, "Passage") then
 			--passage is in first element pos, so sel last
 			local el = obj:GetEndElement()
 			AddSelectionParticlesToObj(el)
+		end
+	end
+end
+
+local function ClearParticles(obj)
+	if not building_selection_particle then return end
+	if not building_selection_particle[obj] then return end
+	
+	local particles = building_selection_particle[obj]
+	for _,ps in ipairs(particles) do
+		DoneObject(ps)
+	end
+	
+	building_selection_particle[obj] = nil
+end
+
+function OnMsg.SelectionRemoved(obj)
+	ClearParticles(obj)
+	if IsKindOf(obj, "Passage") then
+		local el = obj:GetEndElement()
+		ClearParticles(el)
+	end
+	if IsTunnel(obj) then
+		ClearParticles(obj.linked_obj)
+	end
+	
+	for k, v in pairs(building_selection_particle) do
+		if not IsValid(k) then
+			ClearParticles(k)
 		end
 	end
 end

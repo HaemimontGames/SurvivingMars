@@ -15,24 +15,24 @@ PlaceObj('XTemplate', {
 			'RolloverHintGamepad', T(6736, --[[XTemplate customDroneFactory RolloverHintGamepad]] "<ButtonA> Construct Drone Prefab\n<ButtonX> Cancel Drone Prefab <newline><center><ButtonY> Construct five Drone Prefabs"),
 			'OnPressParam', "ConstructDrone",
 			'OnPress', function (self, gamepad)
-self.context:ConstructDrone(1 * (not gamepad and IsMassUIModifierPressed() and 5 or 1))
-end,
+				self.context:ConstructDrone(1 * (not gamepad and IsMassUIModifierPressed() and 5 or 1))
+			end,
 			'AltPress', true,
 			'OnAltPress', function (self, gamepad)
-self.context:ConstructDrone(-1 * (not gamepad and IsMassUIModifierPressed() and 5 or 1))
-end,
+				self.context:ConstructDrone(-1 * (not gamepad and IsMassUIModifierPressed() and 5 or 1))
+			end,
 			'Icon', "UI/Icons/IPButtons/drone.tga",
 		}, {
 			PlaceObj('XTemplateFunc', {
 				'name', "OnShortcut(self, shortcut, source)",
 				'func', function (self, shortcut, source)
-if shortcut == "ButtonY" then
-	self.context:ConstructDrone(5)
-	return "break"
-end
-
-return XTextButton.OnShortcut(self, shortcut, source)
-end,
+					if shortcut == "ButtonY" then
+						self.context:ConstructDrone(5)
+						return "break"
+					end
+					
+					return XTextButton.OnShortcut(self, shortcut, source)
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
@@ -45,24 +45,24 @@ end,
 			'RolloverHintGamepad', T(353, --[[XTemplate customDroneFactory RolloverHintGamepad]] "<ButtonA> Construct Biorobot\n<ButtonX> Cancel Biorobot <newline><center><ButtonY> Construct five Biorobots"),
 			'OnPressParam', "ConstructAndroid",
 			'OnPress', function (self, gamepad)
-self.context:ConstructAndroid(1 * (not gamepad and IsMassUIModifierPressed() and 5 or 1))
-end,
+				self.context:ConstructAndroid(1 * (not gamepad and IsMassUIModifierPressed() and 5 or 1))
+			end,
 			'AltPress', true,
 			'OnAltPress', function (self, gamepad)
-self.context:ConstructAndroid(-1 * (not gamepad and IsMassUIModifierPressed() and 5 or 1))
-end,
+				self.context:ConstructAndroid(-1 * (not gamepad and IsMassUIModifierPressed() and 5 or 1))
+			end,
 			'Icon', "UI/Icons/IPButtons/biorobot.tga",
 		}, {
 			PlaceObj('XTemplateFunc', {
 				'name', "OnShortcut(self, shortcut, source)",
 				'func', function (self, shortcut, source)
-if shortcut == "ButtonY" then
-	self.context:ConstructAndroid(5)
-	return "break"
-end
-
-return XTextButton.OnShortcut(self, shortcut, source)
-end,
+					if shortcut == "ButtonY" then
+						self.context:ConstructAndroid(5)
+						return "break"
+					end
+					
+					return XTextButton.OnShortcut(self, shortcut, source)
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {

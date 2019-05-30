@@ -5,8 +5,13 @@ config.FollowCameraLookAtOffset = point(0, 0, -18*guim)
 
 GlobalVar("CameraFollowObj", false)
 GlobalVar("CameraFollowObjWaiting", false)
+GlobalVar("CameraFollowVerticalOffset", false)
 
 function Camera3pUnfollow()
+	if CameraFollowVerticalOffset then
+		const.CameraVerticalOffset = CameraFollowVerticalOffset
+		CameraFollowVerticalOffset = false
+	end
 	local obj = CameraFollowObj
 	if IsValid(obj) then
 		camera3p.DetachObject(obj) 
@@ -53,6 +58,10 @@ function Camera3pFollow(obj)
 	if IsValid(CameraFollowObj) then
 		camera3p.DetachObject(CameraFollowObj)
 	end
+	if IsKindOf(obj, "CameraFollowObject") then
+		CameraFollowVerticalOffset = const.CameraVerticalOffset
+		const.CameraVerticalOffset = obj.follow_camera_vertical_offset
+	end
 	if not camera3p.IsActive() then
 		camera3p.Activate(1)
 		camera3p.EnableFollow(true, 1)
@@ -91,12 +100,14 @@ function OnMsg.UIModeChange(mode)
 end
 
 OnMsg.SaveGame = UnfollowObjAndCloseModeDialog
-OnMsg.SelectedObjChange = UnfollowObjAndCloseModeDialog
+OnMsg.SelectionAdded = UnfollowObjAndCloseModeDialog
+OnMsg.SelectionRemoved = UnfollowObjAndCloseModeDialog
 OnMsg.MessageBoxPreOpen = UnfollowObjAndCloseModeDialog
 
 DefineClass.CameraFollowObject = {
 	__parents = { "Object", },
 	camera_follow_disabled = false,
+	follow_camera_vertical_offset = 18 * guim,
 }
 
 function CameraFollowObject:Done()

@@ -14,6 +14,7 @@ PlaceObj('AmbientLife', {
 		'spot_type', "Visitbench",
 		'attach', "DecorInt_04",
 		'goto_spot', "Pathfind",
+		'flags_missing', 1,
 	}),
 	PlaceObj('XPrgHasVisitTime', {
 		'form', "while-do",
@@ -52,15 +53,5 @@ PlaceObj('AmbientLife', {
 			}),
 			}),
 		}),
-	PlaceObj('XPrgNearestSpot', {
-		'obj', "bld",
-		'spot_type', "Door",
-		'target', "unit",
-		'var_pos', "pos",
-	}),
-	PlaceObj('XPrgGoto', {
-		'unit', "unit",
-		'pos', "pos",
-	}),
 })
 

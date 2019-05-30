@@ -69,6 +69,7 @@ DefineClass.City = {
 	research_queue = false,
 	tech_status = false,
 	tech_field = false,
+	tech_will_be_granted = false,
 	discover_idx = 0,
 	TechBoostPerField = false,
 	TechBoostPerTech = false,
@@ -107,6 +108,7 @@ DefineClass.City = {
 function City:Init()
 	self:InitRandom()
 	
+	self.selected_dome = {}
 	self.available_prefabs = {}
 	self.compound_effects = {}
 	self.electricity = SupplyGrid:new{ city = self }
@@ -153,6 +155,8 @@ function City:Init()
 	
 	CreateGameTimeThread(function(self)
 		self:GameInitResearch()
+		self.tech_will_be_granted = {}
+		GetCommanderProfile():EffectsGatherTech(self.tech_will_be_granted)
 		self:InitBreakThroughAnomalies()
 		self:InitHeat()
 		self:InitExploration()
@@ -184,6 +188,7 @@ function City:Init()
 		end
 		GetMissionSponsor():EffectsApply(self)
 		GetCommanderProfile():EffectsApply(self)
+		self.tech_will_be_granted = false
 		local rules = GetActiveGameRules()
 		for _, rule_id in ipairs(rules) do
 			local rule = GameRulesMap[rule_id]
@@ -271,6 +276,9 @@ function City:CreateResearchRand(...)
 end
 
 function City:IsUpgradeUnlocked(id)
+	if id == "" then
+		return false
+	end
 	return self.unlocked_upgrades[id] or false
 end
 
@@ -391,10 +399,8 @@ function City:StartChallenge()
 	if challenge.TrackProgress then
 		params_tbl.current = 0
 		params_tbl.target = challenge.TargetValue
-		params_tbl.rollover_text = challenge.description .. Untranslated("<newline><newline>") .. T{challenge.ProgressText, params_tbl}
-	else
-		params_tbl.rollover_text = challenge.description
 	end
+	params_tbl.rollover_text = challenge:GetChallengeDescriptionProgressText(params_tbl)
 	
 	self.challenge_thread = CreateGameTimeThread(function(challenge, params_tbl)
 		local regs = {}
@@ -408,7 +414,7 @@ function City:StartChallenge()
 					break -- win
 				elseif progress ~= params_tbl.current then
 					params_tbl.current = progress
-					params_tbl.rollover_text = challenge.description .. Untranslated("<newline><newline>") .. T{challenge.ProgressText, params_tbl}
+					params_tbl.rollover_text = challenge:GetChallengeDescriptionProgressText(params_tbl)
 					AddOnScreenNotification("ChallengeTimer", nil, params_tbl)
 				end
 			end
@@ -457,7 +463,8 @@ function City:StartChallenge()
 					WaitMsg("ChallengeDefaultScreenshotSaved")
 					break -- keep playing
 				elseif res == 2 then
-					OpenPhotoMode(challenge.id)
+					g_PhotoModeChallengeId = challenge.id
+					StartPhotoMode()
 					WaitMsg("ChallengeScreenshotSaved")
 				elseif res == 3 then
 					CreateRealTimeThread(function()
@@ -478,14 +485,14 @@ function City:StartChallenge()
 		params_tbl.expiration2 = challenge.time_perfected
 		params_tbl.additional_text = T(10489, "<newline>Perfect time: <countdown2>")
 		if challenge.TrackProgress then
-			params_tbl.rollover_text = challenge.description .. Untranslated("<newline><newline>") .. T{challenge.ProgressText, params_tbl}
+			params_tbl.rollover_text = challenge:GetChallengeDescriptionProgressText(params_tbl)
 		end
 		AddOnScreenNotification("ChallengeTimer", nil, params_tbl)
 		Sleep(challenge.time_perfected)
 		params_tbl.expiration2 = nil
 		params_tbl.additional_text = nil
 		if challenge.TrackProgress then
-			params_tbl.rollover_text = challenge.description .. Untranslated("<newline><newline>") .. T{challenge.ProgressText, params_tbl}
+			params_tbl.rollover_text = challenge:GetChallengeDescriptionProgressText(params_tbl)
 		end
 		AddOnScreenNotification("ChallengeTimer", nil, params_tbl)
 		Sleep(challenge.time_completed - challenge.time_perfected)
@@ -618,9 +625,14 @@ function City:UpdatePlanetaryAnomalies(day)
 	
 	self.next_anomaly_day = day + self.next_anomaly_interval + self:Random(5)
 	self.next_anomaly_interval = Min(100, self.next_anomaly_interval + 20)
-		
+	
+	self:BatchSpawnPlanetaryAnomalies()
+end
+
+function City:BatchSpawnPlanetaryAnomalies()
 	local num = 2 + self:Random(3) -- todo: stable somehow
 	local lat, long
+	local breakthrough_placed = false
 	for i = 1, num do
 		lat, long = GenerateMarsScreenPoI("anomaly")
 		local obj = PlaceObject("PlanetaryAnomaly", {
@@ -628,6 +640,19 @@ function City:UpdatePlanetaryAnomalies(day)
 			longitude = long,
 			latitude = lat,			
 		})
+		if obj.reward == "breakthrough" then
+			breakthrough_placed = true
+		end
+	end
+	if not breakthrough_placed and #BreakthroughOrder > 0 then --if no breakthrough is placed yet and there are still some breakthroughs available
+		lat, long = GenerateMarsScreenPoI("anomaly")
+		local obj = PlaceObject("PlanetaryAnomaly", {
+			display_name = T(11234, "Planetary Anomaly"),
+			longitude = long,
+			latitude = lat,
+			reward = "breakthrough",
+		})
+		num = num + 1
 	end
 	local function CenterOnSpawnedAnomaly()
 		MarsScreenMapParams.latitude = lat
@@ -797,6 +822,7 @@ end
 function City:OnResourceGathered(r_type, r_amount)
 	self.gathered_resources_today[r_type] = self.gathered_resources_today[r_type] + r_amount
 	self.gathered_resources_total[r_type] = self.gathered_resources_total[r_type] + r_amount
+	Msg("ResourceGathered", r_type, r_amount)
 end
 
 function City:OnConsumptionResourceConsumed(r_type, r_amount)
@@ -956,7 +982,14 @@ function City:GetConstructionCost(building, resource, modifier_obj)
 	local percent_modifier = building_costs_percent[resource] or 100
 	local building_costs_amount = self.construction_cost_mods_amount[building_name] or empty_table
 	local amount_modifier = building_costs_amount[resource] or 0
-	return MulDivRound(value, percent_modifier, 100) + amount_modifier
+	
+	local mod = {
+		percent = percent_modifier,
+		amount = amount_modifier,
+	}
+	Msg("ModifyConstructionCost", building_name, resource, mod)
+	
+	return MulDivRound(value, mod.percent, 100) + mod.amount
 end
 
 function OnMsg.LoadGame() --patch to fix old saves (see bug:0122359)
@@ -990,51 +1023,108 @@ end
 ---------------------Dome------------------------
 
 function City:SelectDome(dome, trigger)
-	if self.selected_dome == dome then return end
-	if self.selected_dome then
-		if IsValid(self.selected_dome) then
-			local bm = GetDialog("XBuildMenu")
-			if not bm or bm.context.selected_dome ~= self.selected_dome then --handles special case when build menu is being opened, it will take care of the closing for us.
-				self.selected_dome:Close()
-			end
-		else
-			self.selected_dome = false
-		end
+	if not dome then
+		assert(dome)
+		return
 	end
+	
+	if self.selected_dome[dome] and self.selected_dome[dome][trigger] then return end
+	self.selected_dome[dome] = self.selected_dome[dome] or {}
+	self.selected_dome[dome][trigger] = true
+	dome:Open()
 	
 	if IsValidThread(self.selected_dome_unit_tracking_thread) then
 		DeleteThread(self.selected_dome_unit_tracking_thread)
 	end
 	
-	self.selected_dome = dome
+	if IsKindOf(trigger, "Unit") then
+		--keep track when the unit will exit the dome.
+		self.selected_dome_unit_tracking_thread = CreateGameTimeThread(function(self, dome, trigger)
+			while true do
+				if not IsValid(dome) then return end
+				
+				if not self.selected_dome[dome] then break end
+				if not IsValid(SelectedObj) then break end
+				if IsKindOf(SelectedObj, "MultiSelectionWrapper") then
+					if not table.find(SelectedObj.objects, trigger) then break end
+				else
+					if SelectedObj ~= trigger then break end
+				end
+				
+				local should_break = true
+				if trigger:GetPos() ~= InvalidPos() then
+					if trigger:HasMember("holder") and
+						IsValid(trigger.holder) and
+						self.selected_dome[IsObjInDome(trigger.holder)][trigger]
+					then
+						should_break = false
+					end
+				end
+				if IsObjInDome(trigger) == dome then should_break = false end
+				local hex_building = HexGetBuilding(WorldToHex(trigger))
+				if hex_building == dome or hex_building == dome.my_interior then should_break = false end
+				if should_break then break end
+				
+				Sleep(1000)
+			end
+			
+			if self.selected_dome[dome] and self.selected_dome[dome][trigger] then
+				CreateRealTimeThread(self.DeselectDome, self, dome, trigger)
+			end
+			
+		end, self, dome, trigger)
+	end
+end
+
+function City:DeselectDome(dome, trigger)
+	if not self.selected_dome[dome] or not self.selected_dome[dome][trigger] then return end
 	
-	if self.selected_dome then
-		self.selected_dome:Open()
-		if IsKindOf(trigger, "Unit") then
-			--keep track when the unit will exit the dome.
-			self.selected_dome_unit_tracking_thread = CreateGameTimeThread(function()
-				while self.selected_dome == dome and IsValid(trigger) and IsValid(SelectedObj)
-					and trigger == SelectedObj and
-					((SelectedObj:GetPos() == InvalidPos() and SelectedObj:HasMember("holder") and IsValid(SelectedObj.holder) and IsObjInDome(SelectedObj.holder) == self.selected_dome)
-					or (IsObjInDome(SelectedObj) == self.selected_dome) 
-					or HexGetBuilding(WorldToHex(SelectedObj)) == self.selected_dome) do
-					Sleep(1000)
-				end
-				
-				if self.selected_dome == dome then
-					CreateRealTimeThread(function()
-						self:SelectDome(false)
-					end)
-				end
-				
-			end)
+	--handles special case when build menu is being opened, it will take care of the closing for us.
+	local bm = GetDialog("XBuildMenu")
+	if not bm or bm.context.selected_dome ~= self.selected_dome then
+		dome:Close()
+	end
+	
+	self.selected_dome[dome][trigger] = nil
+	if not next(self.selected_dome[dome]) then
+		self.selected_dome[dome] = nil
+	end
+end
+
+function OnMsg.SelectionAdded(obj)
+	if IsKindOf(obj, "MultiSelectionWrapper") and obj:IsClassSupported("Unit") then
+		for i,subobj in ipairs(obj.objects) do
+			local dome_to_select = IsObjInDome(subobj)
+			if IsValid(dome_to_select) then
+				UICity:SelectDome(dome_to_select, subobj)
+			end
+		end
+	else
+		local dome_to_select = IsKindOf(obj, "Dome") and obj or IsObjInDome(obj)
+		if IsValid(dome_to_select) then
+			UICity:SelectDome(dome_to_select, obj)
 		end
 	end
 end
 
-function OnMsg.SelectionChange()
-	local dome_to_select = IsKindOf(SelectedObj, "Dome") and SelectedObj or IsObjInDome(SelectedObj)
-	UICity:SelectDome(dome_to_select, SelectedObj)
+function OnMsg.SelectionRemoved(obj)
+	for dome,triggers in pairs(UICity.selected_dome) do
+		if triggers[obj] then
+			UICity:DeselectDome(dome, obj)
+		end
+	end
+end
+
+function SavegameFixups.OpenManyDomesWithMultiselection()
+	if UICity.selected_dome and SelectedObj == UICity.selected_dome then
+		UICity.selected_dome = {
+			[UICity.selected_dome] = {
+				[UICity.selected_dome] = true,
+			},
+		}
+	else
+		UICity.selected_dome = { }
+	end
 end
 
 function City:CountDomeLabel(label)
@@ -1091,16 +1181,16 @@ function City:CalcBaseExportFunding(amount)
 	return MulDivRound(amount or 0, g_Consts.ExportPricePreciousMetals*1000000, const.ResourceScale)
 end
 
-function City:CalcModifiedFunding(amount)
+function City:CalcModifiedFunding(amount, source)
 	amount = amount or 0
-	if amount > 0 then
+	if amount > 0 and source~="refund" then
 		amount = MulDivRound(amount, g_Consts.FundingGainsModifier, 100)
 	end
 	return amount
 end
 
 function City:ChangeFunding(amount, source)
-	amount = self:CalcModifiedFunding(amount)
+	amount = self:CalcModifiedFunding(amount, source)
 	if amount == 0 then
 		return
 	end
@@ -1139,15 +1229,6 @@ function City:GetWorkshopWorkersPercent()
 	if #colonists==0 or #workshops==0 then 
 		return 0 
 	end
-	local col_count = 0
-	for _, colonist in ipairs(colonists) do
-		if colonist:CanWork() then
-			col_count = col_count + 1
-		end
-	end
-	if col_count==0 then 
-		return 0 
-	end
 	local workers= 0
 	for _, workshop in ipairs(workshops) do
 		if workshop.working then
@@ -1157,6 +1238,15 @@ function City:GetWorkshopWorkersPercent()
 		end
 	end
 	if workers==0 then 
+		return 0 
+	end
+	local col_count = 0
+	for _, colonist in ipairs(colonists) do
+		if colonist:CanWork() then
+			col_count = col_count + 1
+		end
+	end
+	if col_count==0 then 
 		return 0 
 	end
 	return MulDivRound(workers, 100, col_count)
@@ -1696,7 +1786,7 @@ function City:UpdateTimeSeries()
 	water.stored:AddValue(resource_overview_obj:GetTotalStoredWater())
 	air.stored:AddValue(resource_overview_obj:GetTotalStoredAir())
 	electricity.stored:AddValue(resource_overview_obj:GetTotalStoredPower())
-    
+	
 	local data = resource_overview_obj.data
 	if data.total_grid_samples > 0 then
 		air.consumption:AddValue(data.total_air_consumption_sum / data.total_grid_samples)
@@ -1728,6 +1818,18 @@ function OnMsg.ConstructionComplete(bld)
 	UICity.constructions_completed_today = (UICity.constructions_completed_today or 0) + 1
 end
 
+function TimeSeries_CalculateGraphValues(rel, desc, scale, terraforming_param, div, mul, day)
+	local value1 = desc[1]:GetValue(rel)
+	local value2 = desc[2] and desc[2]:GetValue(rel) or nil
+	return {
+		MulDivRound(value1, mul, div), 
+		value1 / scale,
+		value2 and MulDivRound(value2, mul, div) or nil,
+		value2 and value2 / scale or nil,
+		day + rel,
+	}
+end
+
 -- desc - { ts1, ts2, scale = xxx }
 -- day - current day number
 -- n - number of values to return, pad with zeroes those not present in timeseries
@@ -1744,6 +1846,7 @@ function TimeSeries_GetGraphValueHeights(desc, day, n, height, axis_divisions)
 		max = Max(max, desc[2]:GetMaxOfLastValues(n))
 	end
 	local scale = desc.scale or 1
+	local terraforming_param = desc.terraforming_param
 	local axis_step = scale
 	while axis_step < 1000000000 do
 		if not max or axis_divisions * axis_step > max then break end
@@ -1759,28 +1862,12 @@ function TimeSeries_GetGraphValueHeights(desc, day, n, height, axis_divisions)
 	if day > n then
 		for i = 1, n do
 			local rel = i - n - 1
-			local value1 = desc[1]:GetValue(rel)
-			local value2 = desc[2] and desc[2]:GetValue(rel) or nil
-			values[i] = {
-				MulDivRound(value1, mul, div), 
-				value1 / scale,
-				value2 and MulDivRound(value2, mul, div) or nil,
-				value2 and value2 / scale or nil,
-				day + rel,
-			}
+			values[i] = TimeSeries_CalculateGraphValues(rel, desc, scale, terraforming_param, div, mul, day)
 		end
 	else
 		for i = 1, day - 1 do
 			local rel = i - day
-			local value1 = desc[1]:GetValue(rel)
-			local value2 = desc[2] and desc[2]:GetValue(rel) or nil
-			values[i] = {
-				MulDivRound(value1, mul, div), 
-				value1 / scale,
-				value2 and MulDivRound(value2, mul, div) or nil,
-				value2 and value2 / scale or nil,
-				day + rel,
-			}
+			values[i] = TimeSeries_CalculateGraphValues(rel, desc, scale, terraforming_param, div, mul, day)
 		end
 		for i = day, n do
 			values[i] = {0,0,0,0,i}

@@ -13,22 +13,22 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-local content = self:ResolveId("idContent")
-if content then
-	content:SetChildrenHandleMouse(false)
-end
-XContextWindow.Open(self, ...)
-end,
+				local content = self:ResolveId("idContent")
+				if content then
+					content:SetChildrenHandleMouse(false)
+				end
+				XContextWindow.Open(self, ...)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnDelete",
 			'func', function (self, ...)
-local content = self:ResolveId("idContent")
-if content then
-	content:SetChildrenHandleMouse(true)
-end
-XContextWindow.OnDelete(self, ...)
-end,
+				local content = self:ResolveId("idContent")
+				if content then
+					content:SetChildrenHandleMouse(true)
+				end
+				XContextWindow.OnDelete(self, ...)
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XFrame",
@@ -44,12 +44,12 @@ end,
 			PlaceObj('XTemplateFunc', {
 				'name', "OnMouseButtonDown(self, pos, button)",
 				'func', function (self, pos, button)
-if button == "L" then
-	--cancel and close
-	ModsUIClosePopup(self)
-	return "break"
-end
-end,
+					if button == "L" then
+						--cancel and close
+						ModsUIClosePopup(self)
+						return "break"
+					end
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateWindow', {
@@ -70,11 +70,11 @@ end,
 			PlaceObj('XTemplateFunc', {
 				'name', "Open",
 				'func', function (self, ...)
-if not GetUIStyleGamepad() then
-	self:SetMaxHeight(920)
-end
-XFrame.Open(self, ...)
-end,
+					if not GetUIStyleGamepad() then
+						self:SetMaxHeight(920)
+					end
+					XFrame.Open(self, ...)
+				end,
 			}),
 			PlaceObj('XTemplateWindow', {
 				'comment', "close",
@@ -91,9 +91,9 @@ end,
 				'FocusedBackground', RGBA(0, 0, 0, 0),
 				'OnPressEffect', "close",
 				'OnPress', function (self, gamepad)
-local dlg = GetDialog(self)
-ModsUIClosePopup(dlg)
-end,
+					local dlg = GetDialog(self)
+					ModsUIClosePopup(dlg)
+				end,
 				'RolloverBackground', RGBA(0, 0, 0, 0),
 				'PressedBackground', RGBA(0, 0, 0, 0),
 				'Icon', "UI/Mods/x_large.tga",

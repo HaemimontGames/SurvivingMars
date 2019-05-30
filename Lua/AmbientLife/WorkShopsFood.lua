@@ -21,6 +21,6 @@ PrgAmbientLife["WorkShopsFood"] = function(unit, bld)
 		PrgVisitSlot(unit, bld, _obj, _spot, _slot_desc, _slot, _slotname)
 		if unit.visit_restart then return end
 	end
-	PrgLeadToExit(unit, bld)
+	PrgLeadToExit(unit, bld, nil, nil, true)
 	if unit.visit_restart then return end
 end

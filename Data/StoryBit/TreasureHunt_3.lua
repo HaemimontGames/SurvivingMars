@@ -7,6 +7,7 @@ PlaceObj('StoryBit', {
 	Effects = {
 		PlaceObj('ResumeExpedition', nil),
 	},
+	InheritsObject = false,
 	Prerequisites = {
 		PlaceObj('IsCustomAnomaly', {
 			'id', "XMarksTheSpot",

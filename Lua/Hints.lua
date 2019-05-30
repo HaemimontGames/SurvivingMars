@@ -328,11 +328,11 @@ function OnMsg.SelectedObjChange(obj, prev)
 				ContextAwareHintShow("HintUndergroundWater", true)
 			end
 		elseif IsKindOf(obj, "SubsurfaceDepositMetals") then
-			if obj.depth_layer == 1 then
+			if obj.depth_layer == 1 and GetSponsorLocks(g_CurrentMissionParams.idMissionSponsor)["RCDriller"] ~= false then --default is nil (meaning RCDriller is locked), true - locked, false - unlocked
 				ContextAwareHintShow("HintUndergroundMetals", true)
 			end
 		elseif IsKindOf(obj, "SubsurfaceDepositPreciousMetals") then
-			if obj.depth_layer == 1 then
+			if obj.depth_layer == 1 and GetSponsorLocks(g_CurrentMissionParams.idMissionSponsor)["RCDriller"] ~= false then
 				ContextAwareHintShow("HintUndergroundPreciousMetals", true)
 			end
 		elseif IsKindOf(obj, "TerrainDepositConcrete") then
@@ -341,7 +341,7 @@ function OnMsg.SelectedObjChange(obj, prev)
 			end
 		elseif IsKindOf(obj, "RCRover") then
 			ContextAwareHintShow("HintRover", true)
-		elseif IsKindOf(obj, "RCTransport") then
+		elseif obj and obj.class == "RCTransport" then
 			ContextAwareHintShow("HintTransport", true)
 		elseif IsKindOf(obj, "ExplorerRover") then
 			ContextAwareHintShow("HintExplorer", true)
@@ -622,7 +622,7 @@ DefineClass.HintResearchAvailable = {
 DefineClass.HintSuggestHydroponicFarm = {
 	__parents = { "BaseHint" },
 	highlight_dialog = "XBuildMenu",
-	highlight_element = "HydrophonicFarm",
+	highlight_element = "HydroponicFarm",
 }
 
 DefineClass.HintGameSpeed = {

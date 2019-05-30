@@ -174,6 +174,7 @@ PlaceObj('LandingSpot', {
 	id = "AoniaAlpha",
 	latitude = 37,
 	longitude = -129,
+	quickstart = true,
 })
 
 PlaceObj('LandingSpot', {
@@ -249,6 +250,5 @@ PlaceObj('LandingSpot', {
 	id = "XantheAlpha",
 	latitude = -2,
 	longitude = -35,
-	quickstart = true,
 })
 

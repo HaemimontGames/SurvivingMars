@@ -32,7 +32,7 @@ int percent
 
 Change funding  by adding or removing any value(in millions).<br>
 
-void **ChangeFunding**(int funding)
+void **ChangeFunding**(int funding, [string source])
 int funding
 : +/- value in M 1M=1000*1000
 
@@ -171,6 +171,19 @@ _returns_ bool available
 : true if the trait is unlocked.
 
 
+## IsVegetationPlantAvailable
+
+Tests vegetation plant lock state controlled by LockVegetationPlant and UnlockVegetationPlant functions.<br>
+<br>
+
+bool ret **IsVegetationPlantAvailable**(string plant)
+string plant
+: The template name of the vegetation.
+
+_returns_ bool ret
+: Whether the vegetation plant is unlocked.
+
+
 ## LockBuilding
 
 Locks a building from the build menu. This method ignores tech effects. Note that this method will override anything done to the same building by the "Control Building Prerequisites" sequence action.<br>
@@ -180,10 +193,10 @@ void **LockBuilding**(string template_name[, string lock_type, T disable_reason]
 string template_name
 : The template name of the building to be locked.
 
-string template_name
+string lock_type
 : Optional. Lock type can be "hide", where the building will not be visible in the build menu, "disable", where the building will be visible but not clickable. Any string different from "hide" and "disable" defaults to "hide". Omitting the value defaults to "hide".
 
-T template_name
+T disable_reason
 : Optional. If lock type is "disable" the rollover information string can be provided with this param. It has to be a localized string. If omitted will default to "This building has been disabled".
 
 
@@ -224,6 +237,19 @@ string trait_name
 
 string lock_reason
 : the unique reason of the lock. Use it to unlock the trait. To unlock a trait all unique lock reasons must be removed.
+
+
+## LockVegetationPlant
+
+Locks a vegetation plant from the plant selector. Once locked a plant will no longer be selectable for current and future farms until unlocked. Already selected vegetation plants are unaffected.<br>
+<br>
+
+void **LockVegetationPlant**(string plant, string lock_id)
+string plant
+: The template name of the plant to be locked.
+
+string lock_id
+: Lock id of the lock. For a plant to be unlocked all unique locks must be removed.
 
 
 ## ModifyConstructionCost
@@ -353,6 +379,19 @@ Unlock upgrade so it is available for construction in all building types that ha
 void **UnlockUpgrade**(string upgrade_id)
 string upgrade_id
 : Unique upgrade id set in upgrade definition in building templates.
+
+
+## UnlockVegetationPlant
+
+Removes a lock or all locks from a vegetation plant. Unlocked plants will appear in the vegetation plant selector of all current and future farms.<br>
+<br>
+
+void **UnlockVegetationPlant**(string plant[, string lock_id])
+string plant
+: The template name of the crop to be unlocked.
+
+string lock_id
+: Optional. Lock id of the lock. For a plant to be unlocked all unique locks must be removed. If omitted all locks for the relevant plant will be removed.
 
 
 

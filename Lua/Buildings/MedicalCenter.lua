@@ -66,7 +66,7 @@ DefineClass.MedicalCenter = {
 
 DefineClass.Infirmary = {
 	__parents = { "MedicalBuilding", "InteriorAmbientLife"},
-	enum_flags = { efWalkable = true },
+	flags = { efWalkable = true },
 	interior = {"InfirmaryInterior"},
 	rejuvenation_upgrade = "Infirmary_RejuvenationTreatment",
 }

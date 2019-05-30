@@ -73,7 +73,7 @@ DefineClass.TerrainDepositMarker = {
 	properties = {
 		{ category = "Deposit", name = T(817, "Resource "), id = "resource",    editor = "combo",        default = TerrainDeposits[1] or "", items = TerrainDeposits, buttons = {{"Reapply", "ActionDepositReapply"}} },	
 		{ category = "Deposit", name = T(1000100, "Amount"),    id = "max_amount",  editor = "number",       default = 1000*rscale, min = 0, scale = rscale, help = "Used for the procedural generation only" },
-		{ category = "Deposit", name = T(16, "Grade"),     id = "grade",       editor = "dropdownlist", default = "Average", items = DepositGradesTable, object_update = true },
+		{ category = "Deposit", name = T(16, "Grade"),     id = "grade",       editor = "dropdownlist", default = "Average", items = DepositGradesTable, },
 		{ category = "Deposit", name = T(637, "Prefab"),    id = "prefab",      editor = "combo",        default = "", items = PrefabDepositMarkers },
 		{ category = "Deposit", name = T(818, "Density 1"), id = "density",     editor = "number",       default = -1 },
 		{ category = "Deposit", name = T(819, "Density 2"), id = "density2",    editor = "number",       default = -1 },
@@ -333,7 +333,7 @@ end
 
 DefineClass.TerrainDeposit = {
 	__parents = { "Deposit", "EditorRangeObject" },
-	enum_flags = { efWalkable = false, efCollision = false, efApplyToGrids = false },
+	flags = { efWalkable = false, efCollision = false, efApplyToGrids = false },
 	properties = {
 		{ category = "Deposit", name = T(782, "Max amount"), id = "max_amount", editor = "number", default = 50000, scale = const.ResourceScale, read_only = true},	 --quantity
 		{ category = "Deposit", name = T(16, "Grade"),      id = "grade",      editor = "text", default = "Average", read_only = true },
@@ -359,12 +359,10 @@ DefineClass.TerrainDeposit = {
 	ip_template = "ipTerrainDeposit",
 	
 	amount = false,
+	
+	depleting = false,
+	auto_rovers = 0,
 }
-
-function TerrainDeposit:GameInit()
-	self:SetScale(g_CurrentDepositScale)
-	self:SetZ(terrain.GetHeight(self:GetPos()))
-end
 
 function TerrainDeposit:EditorGetRange()
 	return self.radius_max
@@ -491,15 +489,24 @@ function TerrainDepositExtractor:ExtractResource(amount)
 		return 0
 	end
 	
+	local extracted, remaining = 0, 0
 	local deposit = self:GetDeposit()
-	local deposit_amount = deposit:GetAmount()
-	local extracted = Min(amount, deposit_amount)
-	local remaining = Max(0, deposit_amount - amount)
-	deposit.amount = remaining
+	if IsValid(deposit) then
+		local deposit_amount = deposit:GetAmount()
+		extracted = Min(amount, deposit_amount)
+		remaining = Max(0, deposit_amount - amount)
+		deposit.amount = remaining
+	end
 	
 	Msg("ResourceExtracted", self.exploitation_resource, extracted)
 	
-	if remaining == 0 and IsValid(deposit) then
+	if remaining == 0 and IsValid(deposit) and not deposit.depleting then
+		deposit.depleting = true
+		MapForEach("map", "TerrainDepositExtractor", function(o, deposit)
+			if o:GetDeposit() == deposit then 
+				o:OnDepositDepleted()
+			end 
+		end, deposit)
 		self:OnDepositDepleted()
 		DoneObject(deposit)
 	end

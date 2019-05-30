@@ -51,4 +51,15 @@ local MapSettings_Meteor ={
 		'deposit_anomaly_chance', 1,
 		'deposit_polymers_chance', 1,
 	}),
+	PlaceObj('MapSettings_Meteor', {
+		'name', "Meteor_POI",
+		'strength', 3,
+		'spawntime', 1500000,
+		'spawntime_random', 750000,
+		'birth_hour', 7500000,
+		'use_in_gen', false,
+		'deposit_rock_chance', 28,
+		'deposit_metals_chance', 40,
+		'deposit_polymers_chance', 30,
+	}),
 	}

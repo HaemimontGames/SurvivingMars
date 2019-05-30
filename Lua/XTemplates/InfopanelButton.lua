@@ -18,31 +18,31 @@ PlaceObj('XTemplate', {
 		'MouseCursor', "UI/Cursors/Rollover.tga",
 		'RelativeFocusOrder', "next-in-line",
 		'OnContextUpdate', function (self, context, ...)
-local param_update = self.OnPressParam .. "_Update"
-if context:HasMember(param_update) then
-	context[param_update](context, self)
-end
-end,
+			local param_update = self.OnPressParam .. "_Update"
+			if context:HasMember(param_update) then
+				context[param_update](context, self)
+			end
+		end,
 		'FXMouseIn', "MenuItemHover",
 		'FXPress', "MenuItemClick",
 		'FXPressDisabled', "UIDisabledButtonPressed",
 		'FocusedBackground', RGBA(0, 0, 0, 0),
 		'OnPress', function (self, gamepad)
-local param = self.OnPressParam
-local obj = self.context
-if param ~= "" and obj:HasMember(param) then
-	obj[param](obj, 1)
-	RebuildInfopanel(obj)
-end
-end,
+			local param = self.OnPressParam
+			local obj = self.context
+			if param ~= "" and obj:HasMember(param) then
+				obj[param](obj, 1)
+				RebuildInfopanel(obj)
+			end
+		end,
 		'OnAltPress', function (self, gamepad)
-local param = self.OnPressParam
-local obj = self.context
-if param ~= "" and obj:HasMember(param) then
-	obj[param](obj, -1)
-	RebuildInfopanel(obj)
-end
-end,
+			local param = self.OnPressParam
+			local obj = self.context
+			if param ~= "" and obj:HasMember(param) then
+				obj[param](obj, -1)
+				RebuildInfopanel(obj)
+			end
+		end,
 		'RolloverBackground', RGBA(0, 0, 0, 0),
 		'PressedBackground', RGBA(0, 0, 0, 0),
 	}, {

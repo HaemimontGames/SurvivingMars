@@ -84,10 +84,10 @@ PlaceObj('XTemplate', {
 				'MaxWidth', 39,
 				'ContextUpdateOnOpen', true,
 				'OnContextUpdate', function (self, context, ...)
-for i = 1, 4 do
-	self["idScale" .. i]:SetText(tostring(context.unit * i))
-end
-end,
+					for i = 1, 4 do
+						self["idScale" .. i]:SetText(tostring(context.unit * i))
+					end
+				end,
 			}, {
 				PlaceObj('XTemplateWindow', {
 					'__class', "XLabel",
@@ -145,39 +145,39 @@ end,
 				PlaceObj('XTemplateFunc', {
 					'name', "OnShortcut(self, shortcut, source)",
 					'func', function (self, shortcut, source)
-if XShortcutToRelation[shortcut] == "down" or XShortcutToRelation[shortcut] == "up" then
-	local dir = XShortcutToRelation[shortcut]
-	local dlg = GetDialog(self)
-	local content = dlg.idContent
-	local parent_graph = self.parent.parent
-	local idx = table.find(content, parent_graph)
-	local next_id = dir == "down" and idx + 1 or idx - 1
-	if content[next_id] then
-		rawset(dlg, "focused_graph", next_id)
-		local graph = content[next_id]
-		graph.idList:SetFocus()
-		graph.idList:SetSelection(self.focused_item or 1)
-	end
-	return "break"
-end
-return XList.OnShortcut(self, shortcut, source)
-end,
+						if XShortcutToRelation[shortcut] == "down" or XShortcutToRelation[shortcut] == "up" then
+							local dir = XShortcutToRelation[shortcut]
+							local dlg = GetDialog(self)
+							local content = dlg.idContent
+							local parent_graph = self.parent.parent
+							local idx = table.find(content, parent_graph)
+							local next_id = dir == "down" and idx + 1 or idx - 1
+							if content[next_id] then
+								rawset(dlg, "focused_graph", next_id)
+								local graph = content[next_id]
+								graph.idList:SetFocus()
+								graph.idList:SetSelection(self.focused_item or 1)
+							end
+							return "break"
+						end
+						return XList.OnShortcut(self, shortcut, source)
+					end,
 				}),
 				PlaceObj('XTemplateForEach', {
 					'comment', "single bars",
 					'array', function (parent, context) return context.data end,
 					'condition', function (parent, context, item, i) return context.columns == 1 end,
 					'run_after', function (child, context, item, i, n)
-local value = item[1]
-local height = Max(5, value)
-child.idBar:SetMinHeight(height)
-child.idBar:SetMaxHeight(height)
-if value < 5 then
-	child.idBar:SetScaleModifier(point(1000, MulDivRound(1000, value, 5)))
-end
-
-child:SetRolloverText(T{8985, "Sol <sol>: <value>", sol = item[5], value = item[2]})
-end,
+						local value = item[1]
+						local height = Max(5, value)
+						child.idBar:SetMinHeight(height)
+						child.idBar:SetMaxHeight(height)
+						if value < 5 then
+							child.idBar:SetScaleModifier(point(1000, MulDivRound(1000, value, 5)))
+						end
+						
+						child:SetRolloverText(T{8985, "Sol <sol>: <value>", sol = item[5], value = item[2]})
+					end,
 				}, {
 					PlaceObj('XTemplateWindow', {
 						'RolloverTemplate', "GraphRollover",
@@ -193,21 +193,21 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "OnSetRollover(self, rollover)",
 							'func', function (self, rollover)
-if rollover then
-	self.idBar:SetImage("UI/CommonNew/ccc_graph_indicator_blue1.tga")
-else
-	self.idBar:SetImage("UI/CommonNew/ccc_graph_indicator_blue.tga")
-end
-XWindow.OnSetRollover(self, rollover)
-PlayFX("MenuItemHover", "start", self)
-self:Invalidate()
-end,
+								if rollover then
+									self.idBar:SetImage("UI/CommonNew/ccc_graph_indicator_blue1.tga")
+								else
+									self.idBar:SetImage("UI/CommonNew/ccc_graph_indicator_blue.tga")
+								end
+								XWindow.OnSetRollover(self, rollover)
+								PlayFX("MenuItemHover", "start", self)
+								self:Invalidate()
+							end,
 						}),
 						PlaceObj('XTemplateFunc', {
 							'name', "SetSelected(self, selected)",
 							'func', function (self, selected)
-self:SetFocus(selected)
-end,
+								self:SetFocus(selected)
+							end,
 						}),
 						PlaceObj('XTemplateWindow', {
 							'__class', "XFrame",
@@ -226,24 +226,24 @@ end,
 					'array', function (parent, context) return context.data end,
 					'condition', function (parent, context, item, i) return context.columns == 2 end,
 					'run_after', function (child, context, item, i, n)
-local value = item[1]
-local height = Max(5, value)
-child.idBarLeft:SetMinHeight(height)
-child.idBarLeft:SetMaxHeight(height)
-if value < 5 then
-	child.idBarLeft:SetScaleModifier(point(1000, MulDivRound(1000, value, 5)))
-end
-
-local value = item[3]
-local height = Max(5, value)
-child.idBarRight:SetMinHeight(height)
-child.idBarRight:SetMaxHeight(height)
-if value < 5 then
-	child.idBarRight:SetScaleModifier(point(1000, MulDivRound(1000, value, 5)))
-end
-
-child:SetRolloverText(T{8986, "Sol <sol>: <value1>/<value2>", sol = item[5], value1 = item[2], value2 = item[4]})
-end,
+						local value = item[1]
+						local height = Max(5, value)
+						child.idBarLeft:SetMinHeight(height)
+						child.idBarLeft:SetMaxHeight(height)
+						if value < 5 then
+							child.idBarLeft:SetScaleModifier(point(1000, MulDivRound(1000, value, 5)))
+						end
+						
+						local value = item[3]
+						local height = Max(5, value)
+						child.idBarRight:SetMinHeight(height)
+						child.idBarRight:SetMaxHeight(height)
+						if value < 5 then
+							child.idBarRight:SetScaleModifier(point(1000, MulDivRound(1000, value, 5)))
+						end
+						
+						child:SetRolloverText(T{8986, "Sol <sol>: <value1>/<value2>", sol = item[5], value1 = item[2], value2 = item[4]})
+					end,
 				}, {
 					PlaceObj('XTemplateWindow', {
 						'RolloverTemplate', "GraphRollover",
@@ -259,23 +259,23 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "OnSetRollover(self, rollover)",
 							'func', function (self, rollover)
-if rollover then
-	self.idBarLeft:SetImage("UI/CommonNew/ccc_graph_indicator_green1.tga")
-	self.idBarRight:SetImage("UI/CommonNew/ccc_graph_indicator_blue1.tga")
-else
-	self.idBarLeft:SetImage("UI/CommonNew/ccc_graph_indicator_green.tga")
-	self.idBarRight:SetImage("UI/CommonNew/ccc_graph_indicator_blue.tga")
-end
-XWindow.OnSetRollover(self, rollover)
-PlayFX("MenuItemHover", "start", self)
-self:Invalidate()
-end,
+								if rollover then
+									self.idBarLeft:SetImage("UI/CommonNew/ccc_graph_indicator_green1.tga")
+									self.idBarRight:SetImage("UI/CommonNew/ccc_graph_indicator_blue1.tga")
+								else
+									self.idBarLeft:SetImage("UI/CommonNew/ccc_graph_indicator_green.tga")
+									self.idBarRight:SetImage("UI/CommonNew/ccc_graph_indicator_blue.tga")
+								end
+								XWindow.OnSetRollover(self, rollover)
+								PlayFX("MenuItemHover", "start", self)
+								self:Invalidate()
+							end,
 						}),
 						PlaceObj('XTemplateFunc', {
 							'name', "SetSelected(self, selected)",
 							'func', function (self, selected)
-self:SetFocus(selected)
-end,
+								self:SetFocus(selected)
+							end,
 						}),
 						PlaceObj('XTemplateWindow', {
 							'__class', "XFrame",
@@ -308,18 +308,18 @@ end,
 				'LayoutHSpacing', 53,
 				'ContextUpdateOnOpen', true,
 				'OnContextUpdate', function (self, context, ...)
-local sol = UICity.day
-sol = Max(sol - 1, 50)
-for i = 3, 1, -1 do
-	local label = self["idLegend" .. i]
-	local text = tostring(sol)
-	label:SetText(text)
-	local circle = self["idLegendCircle" .. i]
-	local spacing = 
-	circle:SetMargins(box(40 + (i - 1) * 447, 0, 0, 0))
-	sol = sol - 25
-end
-end,
+					local sol = UICity.day
+					sol = Max(sol - 1, 50)
+					for i = 3, 1, -1 do
+						local label = self["idLegend" .. i]
+						local text = tostring(sol)
+						label:SetText(text)
+						local circle = self["idLegendCircle" .. i]
+						local spacing = 
+						circle:SetMargins(box(40 + (i - 1) * 447, 0, 0, 0))
+						sol = sol - 25
+					end
+				end,
 			}, {
 				PlaceObj('XTemplateWindow', {
 					'comment', "units text",

@@ -43,7 +43,6 @@ DefineClass.ResourceOverview =
 	description = T(3610, "Aggregated information for all resources in the Colony."),
 	
 	data = false,
-	city = false,
 	encyclopedia_id = false,
 	overview = "ResourceOverview",
 	
@@ -60,11 +59,6 @@ end
 
 function ResourceOverview:Init()
 	self.data = {}
-	self.city = self.city or UICity
-end
-
-function ResourceOverview:GameInit()
-	self.city = self.city or UICity
 end
 
 function ResourceOverview:GetDisplayName()
@@ -136,19 +130,19 @@ function ResourceOverview:GetAvailable(resource_type) --stuff stored in stockpil
 end
 
 function ResourceOverview:GetProducedYesterday(resource_type) --includes both gathered and produced resources
-	return RoundResourceAmount(self.city.gathered_resources_yesterday[resource_type] + self.data.produced_resources_yesterday[resource_type])
+	return RoundResourceAmount(UICity.gathered_resources_yesterday[resource_type] + self.data.produced_resources_yesterday[resource_type])
 end
 
 function ResourceOverview:GetGatheredYesterday(resource_type) --only gathered resources (includes only surf deps atm)
-	return RoundResourceAmount(self.city.gathered_resources_yesterday[resource_type])
+	return RoundResourceAmount(UICity.gathered_resources_yesterday[resource_type])
 end
 
 function ResourceOverview:GetConsumedByConsumptionYesterday(resource_type)
-	return RoundResourceAmount(self.city.consumption_resources_consumed_yesterday[resource_type])
+	return RoundResourceAmount(UICity.consumption_resources_consumed_yesterday[resource_type])
 end
 
 function ResourceOverview:GetConsumedByMaintenanceYesterday(resource_type)
-	return RoundResourceAmount(self.city.maintenance_resources_consumed_yesterday[resource_type])
+	return RoundResourceAmount(UICity.maintenance_resources_consumed_yesterday[resource_type])
 end
 
 function ResourceOverview:GetEstimatedDailyMaintenance(resource_type)
@@ -169,8 +163,8 @@ function ResourceOverview:GetTotalExportFunding()
 end
 
 function ResourceOverview:GatherPerDomeInfo()
-	if not self.city then return end
-	local domes = self.city.labels.Dome or {}
+	if not UICity then return end
+	local domes = UICity.labels.Dome or {}
 	local celebrity_count, renegades, martianborn, earthborn, tourists = 0, 0, 0, 0, 0
 	local children, adults, youths, middleageds, seniors = 0,0,0,0,0
 	for _, dome in ipairs(domes) do
@@ -194,13 +188,12 @@ function ResourceOverview:GatherPerDomeInfo()
 	self.data.seniors         = seniors
 	self.data.martianborn     = martianborn
 	self.data.tourists    		= tourists
-	self.data.earthborn       = #(self.city.labels.Colonist or empty_table) - martianborn
-	self.data.temporaryill = #(table.filter(self.city.labels.Colonist or {}, function(idx, c) return c:IsTemporaryIll() end))
+	self.data.earthborn       = #(UICity.labels.Colonist or empty_table) - martianborn
 end
 
 function ResourceOverview:GetLastExportStr()
-	if self.city.last_export then
-		local t = self.city.last_export
+	if UICity.last_export then
+		local t = UICity.last_export
 		return T{3611, "Last export<right>Sol <day>, Hour <hour><newline><left>Rare Metals exported<right><preciousmetals(amount)>", day = t.day, hour = t.hour, amount = t.amount}
 	else
 		return T(3612, "Last export<right>N/A")
@@ -208,7 +201,7 @@ function ResourceOverview:GetLastExportStr()
 end
 
 function ResourceOverview:GetRocketRefuelFuelYesterday()
-	return self.city.fuel_for_rocket_refuel_yesterday
+	return UICity.fuel_for_rocket_refuel_yesterday
 end
 
 FundingSourceTexts = {
@@ -265,7 +258,7 @@ function ResourceOverview:GetFundingRollover()
 end
 
 function ResourceOverview:GetFunding()
-	return self.city and self.city:GetFunding() or 0
+	return UICity and UICity:GetFunding() or 0
 end
 
 function ResourceOverview:GetAvailableRockets(label)
@@ -307,7 +300,7 @@ function ResourceOverview:GetProductionBuildingsCount()
 end
 
 function ResourceOverview:GetResearchProgress()
-	local city = self.city
+	local city = UICity
 	local queue = city and city:GetResearchQueue() or empty_table
 	if not next(queue) then
 		return T(9765, "n/a")
@@ -317,23 +310,23 @@ function ResourceOverview:GetResearchProgress()
 end
 
 function ResourceOverview:GetEstimatedRP()
-	return self.city and self.city:GetEstimatedRP() or 0
+	return UICity and UICity:GetEstimatedRP() or 0
 end
 
 function ResourceOverview:GetResearchRolloverItems()
 	local ret = {
-			T{4533, "Sponsor<right><ResearchPoints(EstimatedRP_Sponsor)>", self.city},
-			T{4534, "Outsourcing<right><ResearchPoints(EstimatedRP_Outsource)>", self.city},
-			T{11829, "Research Buildings<right><ResearchPoints(EstimatedRP_ResearchBuildings)>", self.city},
-			T{4537, "Genius Colonists<right><ResearchPoints(EstimatedRP_Genius)>", self.city},
+			T{4533, "Sponsor<right><ResearchPoints(EstimatedRP_Sponsor)>", UICity},
+			T{4534, "Outsourcing<right><ResearchPoints(EstimatedRP_Outsource)>", UICity},
+			T{11829, "Research Buildings<right><ResearchPoints(EstimatedRP_ResearchBuildings)>", UICity},
+			T{4537, "Genius Colonists<right><ResearchPoints(EstimatedRP_Genius)>", UICity},
 		}
-	if self.city:IsTechResearched("ExplorerAI") then
-		ret[#ret+1] = T{4538, "Explorers<right><ResearchPoints(EstimatedRP_Explorer)>", self.city}
+	if UICity:IsTechResearched("ExplorerAI") then
+		ret[#ret+1] = T{4538, "Explorers<right><ResearchPoints(EstimatedRP_Explorer)>", UICity}
 	end
 	if g_Consts.ElectricityForResearchPoint ~= 0 then
-		ret[#ret+1] = T{4539, "Excess Power<right><ResearchPoints(EstimatedRP_SuperconductingComputing)>", self.city}
+		ret[#ret+1] = T{4539, "Excess Power<right><ResearchPoints(EstimatedRP_SuperconductingComputing)>", UICity}
 	end
-	Msg("AddResearchRolloverTexts", ret, self.city)
+	Msg("AddResearchRolloverTexts", ret, UICity)
 	return ret
 end
 
@@ -342,14 +335,42 @@ function ResourceOverview:GetResearchRollover()
 	return table.concat(ret, "<newline><left>")
 end
 
+function ResourceOverview:GetElectricityStorageCapacity()
+	local buildings = MapGet("map","ElectricityStorage", nil, const.efVisible ) 
+	local capacity = 0
+	for _, building in ipairs(buildings)do
+		capacity = capacity + building.capacity
+	end
+	return capacity
+end
+
 function ResourceOverview:GetElectricityGridRollover()
 	local ret = {
 		T(3619, "Power, Water and Oxygen are distributed via Power and Life Support grids.<newline>") ,
 		T{3620, "Power production<right><power(TotalProducedPower)>", self}, 
 		T{3621, "Power demand<right><power(TotalRequiredPower)>", self}, 
 		T{3622, "Stored Power<right><power(TotalStoredPower)>", self}, 
+		T{12597, "Capacity<right><power(ElectricityStorageCapacity)>", self}, 
 	}
 	return table.concat(ret, "<newline><left>")
+end
+
+function ResourceOverview:GetWaterStorageCapacity()
+	local buildings = MapGet("map","WaterStorage", nil, const.efVisible ) 
+	local capacity = 0
+	for _, building in ipairs(buildings)do
+		capacity = capacity + building.water_capacity
+	end
+	return capacity
+end
+
+function ResourceOverview:GetAirStorageCapacity()
+	local buildings = MapGet("map","AirStorage", nil, const.efVisible ) 
+	local capacity = 0
+	for _, building in ipairs(buildings)do
+		capacity = capacity + building.air_capacity
+	end
+	return capacity
 end
 
 function ResourceOverview:GetLifesupportGridRollover()
@@ -357,11 +378,13 @@ function ResourceOverview:GetLifesupportGridRollover()
 		T(3619, "Power, Water and Oxygen are distributed via Power and Life Support grids.<newline>") ,
 		T{3623, "Oxygen production<right><air(TotalProducedAir)>", self}, 
 		T{3624, "Oxygen demand<right><air(TotalRequiredAir)>", self}, 
-		T{3625, "Stored Oxygen<right><air(TotalStoredAir)>", self}, 
+		T{3625, "Stored Oxygen<right><air(TotalStoredAir)>", self},
+		T{12598, "Capacity<right><air(AirStorageCapacity)>", self}, 
 		T(316, "<newline>"),
 		T{3626, "Water production<right><water(TotalProducedWater)>", self}, 
 		T{3627, "Water demand<right><water(TotalRequiredWater)>", self}, 
 		T{3628, "Stored Water<right><water(TotalStoredWater)>", self}, 
+		T{12599, "Capacity<right><water(WaterStorageCapacity)>", self}, 
 	}
 	return table.concat(ret, "<newline><left>")
 end
@@ -482,6 +505,10 @@ function ResourceOverview:GetAdvancedResourcesHeading()
 	return T(3654, "Advanced resource production, consumption and other stats from the <em>last Sol</em>. Resources in consumption buildings are not counted towards the total available amount. Resource maintenance is estimated per Sol.")
 end
 
+function ResourceOverview:GetOtherResourcesHeading()
+	return T(12292, "Other resource production, consumption and stats from the <em>last Sol</em>. Resources in consumption buildings are not counted towards the total available amount.")
+end
+
 function ResourceOverview:GetPolymersRollover()
 	local ret = {
 			self:GetAdvancedResourcesHeading(),
@@ -530,6 +557,26 @@ function ResourceOverview:GetFuelRollover()
 			T{3666, "Fuel consumption<right><fuel(FuelConsumedByConsumptionYesterday)>", self},
 			T{3667, "Fuel maintenance<right><fuel(FuelConsumedByMaintenanceYesterday)>", self},
 			T{3668, "Refueling of Rockets<right><fuel(RocketRefuelFuelYesterday)>", self},
+		}
+	return table.concat(ret, "<newline><left>")
+end
+
+function ResourceOverview:GetSeedsRollover()
+	local ret = {
+			self:GetOtherResourcesHeading(),
+			T(316, "<newline>"),
+			T{12085, "Seeds production<right><seeds(SeedsProducedYesterday)>", self},
+			T{12293, "Seeds consumption<right><seeds(SeedsConsumedByConsumptionYesterday)>", self},
+		}
+	return table.concat(ret, "<newline><left>")
+end
+
+function ResourceOverview:GetWasteRockRollover()
+	local ret = {
+			self:GetOtherResourcesHeading(),
+			T(316, "<newline>"),
+			T{12294, "Waste Rock production<right><wasterock(WasteRockProducedYesterday)>", self},
+			T{12295, "Waste Rock consumption<right><wasterock(WasteRockConsumedByConsumptionYesterday)>", self},
 		}
 	return table.concat(ret, "<newline><left>")
 end
@@ -589,20 +636,20 @@ end
 
 --------- colonists--------------
 function ResourceOverview:GetColonistCount()
-	return #(self.city.labels.Colonist or empty_table)
+	return #(UICity.labels.Colonist or empty_table)
 end
 
 function ResourceOverview:GetDronesCount()
-	return #(self.city.labels.Drone or empty_table)
+	return #(UICity.labels.Drone or empty_table)
 end
 
 function ResourceOverview:GetFreeLivingSpace(count_children)
-	return GetFreeLivingSpace(self.city, count_children)
+	return GetFreeLivingSpace(UICity, count_children)
 end
 
 function ResourceOverview:GetClosedLivingSpace()
 	local closed = 0
-	for _, home in ipairs(self.city.labels.Residence or empty_table) do
+	for _, home in ipairs(UICity.labels.Residence or empty_table) do
 		if not home.destroyed then
 			closed = closed + home.closed
 		end
@@ -611,16 +658,16 @@ function ResourceOverview:GetClosedLivingSpace()
 end
 
 function ResourceOverview:GetHomelessColonists()
-	local city_labels = self.city.labels
+	local city_labels = UICity.labels
 	return city_labels.Homeless and #city_labels.Homeless or 0
 end
 
 function ResourceOverview:GetFreeWorkplaces()
-	return GetFreeWorkplaces(self.city)
+	return GetFreeWorkplaces(UICity)
 end
 
 function ResourceOverview:GetUnemployedColonists()
-	local city_labels = self.city.labels
+	local city_labels = UICity.labels
 	return city_labels.Unemployed and #city_labels.Unemployed or 0
 end
 
@@ -629,9 +676,9 @@ function ResourceOverview:GetDetrimentalColonistsCount()
 end
 
 function ResourceOverview:GetEmploymentMessage()
-	local city_labels = self.city.labels
+	local city_labels = UICity.labels
 	local unemployed = city_labels.Unemployed and #city_labels.Unemployed or 0
-	local vacant_on, vacant_off = GetFreeWorkplaces(self.city)
+	local vacant_on, vacant_off = GetFreeWorkplaces(UICity)
 	if unemployed > 0 then
 		return T{566, "Unemployed<right><unemployed(number)>", number = unemployed}
 	elseif vacant_on > 0 then
@@ -645,17 +692,17 @@ function ResourceOverview:GetEmploymentMessage()
 end
 
 function ResourceOverview:GetUnemployedBtnEnabled()
-	local city_labels = self.city.labels
+	local city_labels = UICity.labels
 	return city_labels.Unemployed and #city_labels.Unemployed>0 or false
 end
 
 function ResourceOverview:GetResidenceMessage()
-	local city_labels = self.city.labels
+	local city_labels = UICity.labels
 	local homeless = city_labels.Homeless and #city_labels.Homeless or 0
 	if homeless > 0 then
 		return T{551, "Homeless<right><homeless(number)>", number = homeless}
 	end
-	local free = GetFreeLivingSpace(self.city)
+	local free = GetFreeLivingSpace(UICity)
 	if free > 0 then
 		return T{552, "Vacant residential slots<right><home(number)>", number = free}
 	end
@@ -663,7 +710,7 @@ function ResourceOverview:GetResidenceMessage()
 end
 
 function ResourceOverview:GetHomelessBtnEnabled()
-	local city_labels = self.city.labels
+	local city_labels = UICity.labels
 	return city_labels.Homeless and #city_labels.Homeless>0 or false
 end
 
@@ -673,12 +720,12 @@ function ResourceOverview:GetAverageComfort() return UICity:GetAverageStat("Comf
 function ResourceOverview:GetAverageMorale() return UICity:GetAverageStat("Morale") end
 
 function ResourceOverview:GetJobsText()
-	local city_labels = self.city.labels
-	local ui_on_vacant, ui_off_vacant = GetFreeWorkplaces(self.city)
+	local city_labels = UICity.labels
+	local ui_on_vacant, ui_off_vacant = GetFreeWorkplaces(UICity)
 	local renegades = rawget(self.data,"renegades")
 	if not renegades then
 		renegades = 0
-		for _, dome in ipairs(self.city.labels.Dome) do
+		for _, dome in ipairs(UICity.labels.Dome) do
 			renegades = renegades + (dome.labels.Renegade and #dome.labels.Renegade or 0)
 		end
 	end
@@ -690,17 +737,17 @@ function ResourceOverview:GetJobsText()
 		T(3879, "Earthsick") .. T{9719, "<right><colonist(number)>", number = #g_EarthSickColonists},
 	}	
 	if city_labels.Workshop and next(city_labels.Workshop) then
-		texts[#texts +1] = T{8802, "Workers in Workshops<right><percent(WorkshopWorkersPercent)>", self.city}		
+		texts[#texts +1] = T{8802, "Workers in Workshops<right><percent(WorkshopWorkersPercent)>", UICity}		
 	end
 	return table.concat(texts, "<newline><left>")
 end
 
 function ResourceOverview:GetLivingSpaceText()
-	local city_labels = self.city.labels
-	local free = GetFreeLivingSpace(self.city)
+	local city_labels = UICity.labels
+	local free = GetFreeLivingSpace(UICity)
 	local texts = {
 		T{552, "Vacant residential slots<right><home(number)>", number = free},
-		T{7624, "Vacant nursery slots<right><home(number)>", number = GetFreeLivingSpace(self.city,true) - free},
+		T{7624, "Vacant nursery slots<right><home(number)>", number = GetFreeLivingSpace(UICity,true) - free},
 		T{551, "Homeless<right><homeless(number)>",   number = city_labels.Homeless and #city_labels.Homeless or 0},
 	}
 	return table.concat(texts, "<newline><left>")
@@ -730,7 +777,7 @@ function ResourceOverview:GetColonistsRollover()
 		self:GatherPerDomeInfo()
 	end
 	
-	local city_labels = self.city.labels	
+	local city_labels = UICity.labels	
 	local texts = {
 		T{553, "<newline><center><em>Age Groups</em>", newline = ""},
 		T{554, "Children<right><colonist(number)>",    number = data.children },
@@ -749,7 +796,7 @@ function ResourceOverview:GetHomesRollover()
 	local free_all = self:GetFreeLivingSpace(true)
 	local free_adult = self:GetFreeLivingSpace()
 	local closed_slots = self:GetClosedLivingSpace()
-	local 	city_labels = self.city.labels
+	local 	city_labels = UICity.labels
 	
 	local texts = {	
 		T{7623, "<newline><center><em>Living space</em>", newline = ""},
@@ -763,10 +810,9 @@ end
 
 function ResourceOverview:GetJobsRollover()
 	local data = self.data
-	local ui_on_vacant, ui_off_vacant = GetFreeWorkplaces(self.city)
-	local city_labels = self.city.labels
+	local ui_on_vacant, ui_off_vacant = GetFreeWorkplaces(UICity)
+	local city_labels = UICity.labels
 	local tourists = rawget(self.data, "tourists")
-	local temporaryill= rawget(self.data, "temporaryill")
 	local renegades = rawget(self.data, "renegades")
 	if not renegades or not tourists then
 		renegades = 0
@@ -776,8 +822,11 @@ function ResourceOverview:GetJobsRollover()
 			tourists = tourists + (dome.labels.Tourist and #dome.labels.Tourist or 0)
 		end
 	end
-	if not temporaryill then
-		temporaryill = #(table.filter(city_label.Colonist or {}, function(idx, c) return c:IsTemporaryIll() end))
+	local temporaryill = 0
+	for _, col in ipairs(city_labels.Colonist or empty_table) do
+		if col:IsTemporaryIll() then
+			temporaryill = temporaryill + 1
+		end
 	end
 	
 	local texts = {	
@@ -788,14 +837,14 @@ function ResourceOverview:GetJobsRollover()
 		T{7346, "Renegades<right><colonist(number)>",               number = renegades },
 		T{11700, "Earthsick<right><colonist(number)>", number = #g_EarthSickColonists},
 		T{11701, "Tourists<right><colonist(number)>", number = tourists },
-		T{11702, "Temporary ill<right><colonist(number)>", number = temporaryill},
+		T{12481, "Temporarily ill<right><colonist(number)>", number = temporaryill},
 		T(316, "<newline>"),
 		T(7622, "<center><em>Specialization</em>"),		
 	}
-	texts[#texts+1] = T{7858, "<specialization><right><colonist(number)>", specialization = const.ColonistSpecialization["none"].display_name_plural, number = #(self.city.labels["none"] or empty_table)}
+	texts[#texts+1] = T{7858, "<specialization><right><colonist(number)>", specialization = const.ColonistSpecialization["none"].display_name_plural, number = #(UICity.labels["none"] or empty_table)}
 	for  id, spec in sorted_pairs(const.ColonistSpecialization) do
 		if id~="none" then
-			texts[#texts+1] = T{7858, "<specialization><right><colonist(number)>", specialization = spec.display_name_plural, number = #(self.city.labels[id] or empty_table)}
+			texts[#texts+1] = T{7858, "<specialization><right><colonist(number)>", specialization = spec.display_name_plural, number = #(UICity.labels[id] or empty_table)}
 		end
 	end
 	return table.concat(texts, "<newline><left>")
@@ -804,23 +853,23 @@ end
 -----------------------traits--------------
 function ResourceOverview:GetSpecializationsText()
 	local texts = {}
-	texts[#texts+1] = T{7858, "<specialization><right><colonist(number)>", specialization = const.ColonistSpecialization["none"].display_name_plural, number = #(self.city.labels["none"] or empty_table)}
+	texts[#texts+1] = T{7858, "<specialization><right><colonist(number)>", specialization = const.ColonistSpecialization["none"].display_name_plural, number = #(UICity.labels["none"] or empty_table)}
 	for  id, spec in sorted_pairs(const.ColonistSpecialization) do
 		if id~="none" then
-			texts[#texts+1] = T{7858, "<specialization><right><colonist(number)>", specialization = spec.display_name_plural, number = #(self.city.labels[id] or empty_table)}
+			texts[#texts+1] = T{7858, "<specialization><right><colonist(number)>", specialization = spec.display_name_plural, number = #(UICity.labels[id] or empty_table)}
 		end
 	end
 	return #texts>0 and table.concat(texts, "<newline><left>") or T(6761, "None")
 end
 
 function ResourceOverview:CalcColonistsTraits()
-	if not self.city then return end
+	if not UICity then return end
 	local traits_count = {["Positive"] = {}, ["Negative"] = {}, ["rare"] = {}}
 	--local max = {["Positive"] = {}, ["Negative"] = {}, ["rare"] = {}}
 	ForEachPreset(TraitPreset, function(trait, group_list)
 		local in_category = trait.group=="Positive" or trait.group=="Negative" 
 		if in_category or trait.rare then
-			for _, dome in ipairs(self.city.labels.Dome) do
+			for _, dome in ipairs(UICity.labels.Dome) do
 				local count = #(dome.labels[trait.id] or empty_table)
 				if count>0 then
 					if in_category then
@@ -911,15 +960,15 @@ end
 
 ------------------------------------------------------------------
 function ResourceOverview:GetFirstWithDetrimentalStatusEffect()
-	return GetDetrimentalStatusColonists(self.city, true)
+	return GetDetrimentalStatusColonists(UICity, true)
 end
 
 function ResourceOverview:GetHomelessRolloverTitle()
-	return T{7864, --[[Post-Cert]] "Homeless colonists: <homeless(number)>", number = #(self.city.labels.Homeless or empty_table)}
+	return T{7864, --[[Post-Cert]] "Homeless colonists: <homeless(number)>", number = #(UICity.labels.Homeless or empty_table)}
 end
 
 function ResourceOverview:GetHomelessRolloverText()
-	if #(self.city.labels.Homeless or empty_table)>0 then
+	if #(UICity.labels.Homeless or empty_table)>0 then
 		return T(9624, --[[Post-Cert]] "Inspect all homeless colonists in the Command Center.")
 	else	
 		return T(7866, --[[Post-Cert]] "There are no homeless colonists.")
@@ -927,11 +976,11 @@ function ResourceOverview:GetHomelessRolloverText()
 end
 
 function ResourceOverview:GetUnemployedRolloverTitle()
-	return T{7867, --[[Post-Cert]] "Unemployed colonists: <unemployed(number)>", number = #(self.city.labels.Unemployed or empty_table)}
+	return T{7867, --[[Post-Cert]] "Unemployed colonists: <unemployed(number)>", number = #(UICity.labels.Unemployed or empty_table)}
 end
 
 function ResourceOverview:GetUnemployedRolloverText()
-	if #(self.city.labels.Unemployed or empty_table)>0 then
+	if #(UICity.labels.Unemployed or empty_table)>0 then
 		return T(9625, --[[Post-Cert]] "Inspect all unemployed colonists in the Command Center.")
 	else	
 		return T(7869, --[[Post-Cert]] "There are no unemployed colonists.")
@@ -939,7 +988,7 @@ function ResourceOverview:GetUnemployedRolloverText()
 end
 
 function ResourceOverview:GetProblematicRolloverTitle()
-	return T{7870, --[[Post-Cert]] "Problematic colonists: <colonist(number)>", number = #(GetDetrimentalStatusColonists(self.city))}
+	return T{7870, --[[Post-Cert]] "Problematic colonists: <colonist(number)>", number = #(GetDetrimentalStatusColonists(UICity))}
 end
 
 function ResourceOverview:GetProblematicRolloverText()

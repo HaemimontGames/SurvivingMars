@@ -11,6 +11,9 @@ PlaceObj('StoryBit', {
 	},
 	Image = "UI/Messages/Events/18_moxie.tga",
 	Prerequisites = {
+		PlaceObj('AreDomesOpen', {
+			'Negate', true,
+		}),
 		PlaceObj('PickFromLabel', {
 			'Label', "MOXIE",
 			'Conditions', {},
@@ -25,6 +28,15 @@ PlaceObj('StoryBit', {
 	VoicedText = T(231334389170, --[[voice:narrator]] "You tap the red light on the terminal with your finger. It should have turned green when the Dust Storm dissipated. Looks like a MOXIE unit is out of order."),
 	group = "Disasters",
 	id = "BadMOXIE",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1550843847,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitReply', {
 		'Text', T(651105259439, --[[StoryBit BadMOXIE Text]] "Let’s bypass the filter."),
 		'OutcomeText', "custom",

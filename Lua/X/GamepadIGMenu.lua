@@ -73,7 +73,7 @@ GamepadIGMenu_game_items = {
 	{ --markers
 		name = "idMilestones",
 		display_name = T(973748367669, "Milestones"),
-		icon = "UI/Icons/console_markers.tga",
+		icon = "UI/Icons/console_milestones.tga",
 		action = function() HUD.idMilestonesOnPress() end,
 		description = "",
 	},

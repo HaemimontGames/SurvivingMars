@@ -9,11 +9,11 @@ PlaceObj('XTemplate', {
 		'RolloverText', T(7852, --[[XTemplate customColonyOverviewButtons RolloverText]] "View information about the resources in your Colony."),
 		'RolloverTitle', T(692, --[[XTemplate customColonyOverviewButtons RolloverTitle]] "Resources"),
 		'OnContextUpdate', function (self, context, ...)
-self:SetIcon(self.context.overview == "ResourceOverview" and "UI/Icons/IPButtons/resources_section_active.tga" or "UI/Icons/IPButtons/resources_section.tga" )
-end,
+			self:SetIcon(self.context.overview == "ResourceOverview" and "UI/Icons/IPButtons/resources_section_active.tga" or "UI/Icons/IPButtons/resources_section.tga" )
+		end,
 		'OnPress', function (self, gamepad)
-SetResourceOverviewDlgMode("ResourceOverview")
-end,
+			SetResourceOverviewDlgMode("ResourceOverview")
+		end,
 		'Icon', "UI/Icons/IPButtons/resources_section.tga",
 	}),
 	PlaceObj('XTemplateTemplate', {
@@ -23,11 +23,11 @@ end,
 		'RolloverDisabledText', T(396776430312, --[[XTemplate customColonyOverviewButtons RolloverDisabledText]] "There are currently no colonists in this category."),
 		'RolloverTitle', T(547, --[[XTemplate customColonyOverviewButtons RolloverTitle]] "Colonists"),
 		'OnContextUpdate', function (self, context, ...)
-self:SetIcon(self.context.overview == "ColonistOverview" and "UI/Icons/IPButtons/colonist_section_active.tga" or "UI/Icons/IPButtons/colonist_section.tga" )
-end,
+			self:SetIcon(self.context.overview == "ColonistOverview" and "UI/Icons/IPButtons/colonist_section_active.tga" or "UI/Icons/IPButtons/colonist_section.tga" )
+		end,
 		'OnPress', function (self, gamepad)
-SetResourceOverviewDlgMode("ColonistOverview")
-end,
+			SetResourceOverviewDlgMode("ColonistOverview")
+		end,
 		'Icon', "UI/Icons/IPButtons/colonist_section.tga",
 	}),
 	PlaceObj('XTemplateTemplate', {
@@ -37,11 +37,11 @@ end,
 		'RolloverDisabledText', T(596215171316, --[[XTemplate customColonyOverviewButtons RolloverDisabledText]] "There are currently no colonists in this category."),
 		'RolloverTitle', T(235, --[[XTemplate customColonyOverviewButtons RolloverTitle]] "Traits"),
 		'OnContextUpdate', function (self, context, ...)
-self:SetIcon(self.context.overview == "TraitsOverview" and "UI/Icons/IPButtons/traits_section_active.tga" or "UI/Icons/IPButtons/traits_section.tga" )
-end,
+			self:SetIcon(self.context.overview == "TraitsOverview" and "UI/Icons/IPButtons/traits_section_active.tga" or "UI/Icons/IPButtons/traits_section.tga" )
+		end,
 		'OnPress', function (self, gamepad)
-SetResourceOverviewDlgMode("TraitsOverview")
-end,
+			SetResourceOverviewDlgMode("TraitsOverview")
+		end,
 		'Icon', "UI/Icons/IPButtons/traits_section.tga",
 	}),
 	PlaceObj('XTemplateTemplate', {
@@ -51,11 +51,11 @@ end,
 		'RolloverDisabledText', T(632550459351, --[[XTemplate customColonyOverviewButtons RolloverDisabledText]] "There are currently no colonists in this category."),
 		'RolloverTitle', T(112546540868, --[[XTemplate customColonyOverviewButtons RolloverTitle]] "<HomelessRolloverTitle>"),
 		'OnContextUpdate', function (self, context, ...)
-self:SetEnabled(context:GetHomelessBtnEnabled())
-end,
+			self:SetEnabled(context:GetHomelessBtnEnabled())
+		end,
 		'OnPress', function (self, gamepad)
-OpenCommandCenter({homeless = true}, "Colonists")
-end,
+			OpenCommandCenter({homeless = true}, "Colonists")
+		end,
 		'Icon', "UI/Icons/IPButtons/homeless_colonists.tga",
 	}),
 	PlaceObj('XTemplateTemplate', {
@@ -65,11 +65,11 @@ end,
 		'RolloverDisabledText', T(901758528440, --[[XTemplate customColonyOverviewButtons RolloverDisabledText]] "There are currently no colonists in this category."),
 		'RolloverTitle', T(494678213027, --[[XTemplate customColonyOverviewButtons RolloverTitle]] "<UnemployedRolloverTitle>"),
 		'OnContextUpdate', function (self, context, ...)
-self:SetEnabled(context:GetUnemployedBtnEnabled())
-end,
+			self:SetEnabled(context:GetUnemployedBtnEnabled())
+		end,
 		'OnPress', function (self, gamepad)
-OpenCommandCenter({unemployed = true}, "Colonists")
-end,
+			OpenCommandCenter({unemployed = true}, "Colonists")
+		end,
 		'Icon', "UI/Icons/IPButtons/unemployed_colonists.tga",
 	}),
 	PlaceObj('XTemplateTemplate', {
@@ -79,11 +79,11 @@ end,
 		'RolloverDisabledText', T(560192517207, --[[XTemplate customColonyOverviewButtons RolloverDisabledText]] "There are currently no colonists in this category."),
 		'RolloverTitle', T(235056803468, --[[XTemplate customColonyOverviewButtons RolloverTitle]] "<ProblematicRolloverTitle>"),
 		'OnContextUpdate', function (self, context, ...)
-self:SetEnabled(context:GetFirstWithDetrimentalStatusEffect())
-end,
+			self:SetEnabled(context:GetFirstWithDetrimentalStatusEffect())
+		end,
 		'OnPress', function (self, gamepad)
-OpenCommandCenter({problematic_colonists = true}, "Colonists")
-end,
+			OpenCommandCenter({problematic_colonists = true}, "Colonists")
+		end,
 		'Icon', "UI/Icons/IPButtons/status_effects.tga",
 	}),
 })

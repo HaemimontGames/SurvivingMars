@@ -54,6 +54,9 @@ local function GameInit_ForEachFn(building, deposit)
 	end
 end
 
+function EffectDeposit:GetConstructionStatusText(building, all_deposits)
+end
+
 function EffectDeposit:GameInit()
 	MapForEach("map", self.building_class, GameInit_ForEachFn, self)
 end
@@ -120,6 +123,7 @@ function BeautyEffectDeposit:GetInfopanelDetails()
 end
 
 function BeautyEffectDeposit:Init()
+	self.encyclopedia_id = "Colonist"
 	self.modifier = Modifier:new{
 		prop = "dome_comfort",
 		amount = self.comfort_increase,
@@ -130,6 +134,14 @@ end
 
 function BeautyEffectDeposit:AffectBuilding(building)
 	building:UpdateModifier("add", self.modifier, self.modifier.amount, self.modifier.percent)
+end
+
+function BeautyEffectDeposit:GetConstructionStatusText(building, all_deposits)
+	local sum = 0
+	for i,deposit in ipairs(all_deposits) do
+		sum = sum + deposit.comfort_increase / const.Scale.Stat
+	end
+	return T{12263, "Vista - Comfort of residences will be boosted by <sum>", sum = sum}
 end
 
 ----
@@ -175,4 +187,12 @@ function ResearchEffectDeposit:AffectBuilding(building)
 	elseif IsKindOf(building, "Dome") then
 		building:SetLabelModifier("ResearchBuildings", self, self.modifier, false)
 	end
+end
+
+function ResearchEffectDeposit:GetConstructionStatusText(building, all_deposits)
+	local sum = 0
+	for i,deposit in ipairs(all_deposits) do
+		sum = sum + deposit.research_increase
+	end
+	return T{12264, "Research Site - all Research will be boosted by <percent(sum)>.", sum = sum}
 end

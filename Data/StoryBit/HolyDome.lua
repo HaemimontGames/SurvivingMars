@@ -4,6 +4,7 @@ PlaceObj('StoryBit', {
 	ActivationEffects = {},
 	Category = "BuildingConstructed",
 	Effects = {},
+	EnableChance = 70,
 	Enabled = true,
 	Image = "UI/Messages/dome.tga",
 	Prerequisites = {

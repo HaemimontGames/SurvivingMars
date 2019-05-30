@@ -9,8 +9,8 @@ PlaceObj('XTemplate', {
 		'RolloverText', T(462868881410, --[[XTemplate sectionServiceArea RolloverText]] "Determines the radius in which the Drones harvest resources or construct, service and clean buildings.<newline><newline>Service range<right><SelectionRadiusScale> hexes<newline><left>Construction sites<right><count(constructions)>"),
 		'RolloverHintGamepad', T(253409130526, --[[XTemplate sectionServiceArea RolloverHintGamepad]] "<LB> / <RB>    change service radius"),
 		'OnContextUpdate', function (self, context, ...)
-self:SetVisible(not context:IsKindOf("SupplyRocket") or context.landed)
-end,
+			self:SetVisible(not context:IsKindOf("SupplyRocket") or context.landed)
+		end,
 		'Title', T(994862568830, --[[XTemplate sectionServiceArea Title]] "Service area"),
 		'Icon', "UI/Icons/Sections/facility.tga",
 	}, {

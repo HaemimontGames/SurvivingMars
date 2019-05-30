@@ -7,8 +7,8 @@ PlaceObj('XTemplate', {
 		'__context_of_kind', "InfopanelObj",
 		'__template', "InfopanelSection",
 		'OnContextUpdate', function (self, context, ...)
-self:SetVisible(ResolveValue(context, "UIWarning") and true)
-end,
+			self:SetVisible(ResolveValue(context, "UIWarning") and true)
+		end,
 		'Title', T(47, --[[XTemplate sectionWarning Title]] "<red>Warning</red>"),
 		'Icon', "UI/Icons/Sections/warning.tga",
 	}, {
@@ -19,11 +19,11 @@ end,
 		}),
 		PlaceObj('XTemplateCode', {
 			'run', function (self, parent, context)
-local background = parent.parent.idBackground
-background:SetImage("UI/CommonNew/warning.tga")
-background:SetFrameBox(box(0,3,0,3))
-background:SetMargins(box(0,0,0,0))
-end,
+				local background = parent.parent.idBackground
+				background:SetImage("UI/CommonNew/warning.tga")
+				background:SetFrameBox(box(0,3,0,3))
+				background:SetMargins(box(0,0,0,0))
+			end,
 		}),
 		}),
 })

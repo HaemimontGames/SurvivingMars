@@ -13,9 +13,9 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-XDialog.Open(self, ...)
-self:SetPadding(GetSafeMargins(self:GetPadding()))
-end,
+				XDialog.Open(self, ...)
+				self:SetPadding(GetSafeMargins(self:GetPadding()))
+			end,
 		}),
 		PlaceObj('XTemplateLayer', {
 			'layer', "EarthPlanet",
@@ -23,15 +23,15 @@ end,
 		PlaceObj('XTemplateFunc', {
 			'name', "OnContextUpdate(self, context)",
 			'func', function (self, context)
-local prop_meta = GetDialogModeParam(self)
-if not prop_meta or prop_meta.id == "idMissionLogo" then
-	local logo = g_TitleObj and g_TitleObj.replace_param == "idMissionLogo" and g_TitleObj.replace_value or context:GetProperty("idMissionLogo")
-	local data = Presets.MissionLogoPreset.Default[logo] or Presets.MissionLogoPreset.Default[1]
-	if data then
-		self.idLogo:SetImage(data.image)
-	end
-end
-end,
+				local prop_meta = GetDialogModeParam(self)
+				if not prop_meta or prop_meta.id == "idMissionLogo" then
+					local logo = g_TitleObj and g_TitleObj.replace_param == "idMissionLogo" and g_TitleObj.replace_value or context:GetProperty("idMissionLogo")
+					local data = Presets.MissionLogoPreset.Default[logo] or Presets.MissionLogoPreset.Default[1]
+					if data then
+						self.idLogo:SetImage(data.image)
+					end
+				end
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XImage",
@@ -96,14 +96,14 @@ end,
 							'condition', function (parent, context, item, i) return not item.filter or item.filter() end,
 							'item_in_context', "prop_meta",
 							'run_after', function (child, context, item, i, n)
-local obj = ResolvePropObj(context)
-local rollover = GetMissionParamRollover(item, obj.params[item.id])
-if rollover then
-	child:SetRolloverTitle(rollover.title)
-	child:SetRolloverText(rollover.descr)
-	child:SetRolloverHintGamepad(rollover.gamepad_hint)
-end
-end,
+								local obj = ResolvePropObj(context)
+								local rollover = GetMissionParamRollover(item, obj.params[item.id])
+								if rollover then
+									child:SetRolloverTitle(rollover.title)
+									child:SetRolloverText(rollover.descr)
+									child:SetRolloverHintGamepad(rollover.gamepad_hint)
+								end
+							end,
 						}, {
 							PlaceObj('XTemplateTemplate', {
 								'__template', "PGMissionPropChoice",
@@ -126,13 +126,13 @@ end,
 							}),
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-if g_TitleObj then
-	g_TitleObj.replace_param = false
-	g_TitleObj.replace_value = false
-	ObjModified(g_TitleObj)
-	ObjModified(context)
-end
-end,
+								if g_TitleObj then
+									g_TitleObj.replace_param = false
+									g_TitleObj.replace_value = false
+									ObjModified(g_TitleObj)
+									ObjModified(context)
+								end
+							end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "back",
@@ -141,10 +141,10 @@ end,
 							'ActionShortcut', "Escape",
 							'ActionGamepad', "ButtonB",
 							'OnAction', function (self, host, source)
-CreateRealTimeThread(function()
-	OpenPreGameMainMenu()
-end)
-end,
+								CreateRealTimeThread(function()
+									OpenPreGameMainMenu()
+								end)
+							end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "next",
@@ -152,13 +152,13 @@ end,
 							'ActionToolbar', "ActionBar",
 							'ActionGamepad', "ButtonX",
 							'ActionState', function (self, host)
-if not g_CurrentMissionParams.idMissionSponsor
-	or not g_CurrentMissionParams.idCommanderProfile
-	or not g_CurrentMissionParams.idMissionLogo
-	or not g_CurrentMissionParams.idMystery then
-	return "disabled"
-end
-end,
+								if not g_CurrentMissionParams.idMissionSponsor
+									or not g_CurrentMissionParams.idCommanderProfile
+									or not g_CurrentMissionParams.idMissionLogo
+									or not g_CurrentMissionParams.idMystery then
+									return "disabled"
+								end
+							end,
 							'OnActionEffect', "mode",
 							'OnActionParam', "payload",
 						}),
@@ -171,15 +171,16 @@ end,
 							'array', function (parent, context) local param = GetDialogModeParam(parent) return param and param.items() end,
 							'__context', function (parent, context, item, i, n) return item end,
 							'run_after', function (child, context, item, i, n)
-if item.rollover then
-	child:SetRolloverTitle(item.rollover.title)
-	local descr = item.rollover.descr
-	child:SetRolloverText(descr)
-	child:SetRolloverHintGamepad(item.rollover.gamepad_hint)
-else
-	child:SetRolloverTitle(item.text)
-end
-end,
+								if item.rollover then
+									child:SetRolloverTitle(item.rollover.title)
+									local descr = item.rollover.descr
+									child:SetRolloverText(descr)
+									child:SetRolloverHintGamepad(item.rollover.gamepad_hint)
+								else
+									child:SetRolloverTitle(item.text)
+								end
+								child:SetEnabled(item.enabled)
+							end,
 						}, {
 							PlaceObj('XTemplateTemplate', {
 								'__template', "PGMissionItem",
@@ -187,16 +188,16 @@ end,
 								PlaceObj('XTemplateFunc', {
 									'name', "OnSetRollover(self, rollover)",
 									'func', function (self, rollover)
-XTextButton.OnSetRollover(self, rollover)
-local prop_meta = GetDialogModeParam(self)
-if prop_meta and g_TitleObj then
-	local obj = GetDialogContext(self)
-	g_TitleObj.replace_param = prop_meta.id
-	g_TitleObj.replace_value = self.context.value
-	ObjModified(g_TitleObj)
-	ObjModified(obj)
-end
-end,
+										XTextButton.OnSetRollover(self, rollover)
+										local prop_meta = GetDialogModeParam(self)
+										if prop_meta and g_TitleObj then
+											local obj = GetDialogContext(self)
+											g_TitleObj.replace_param = prop_meta.id
+											g_TitleObj.replace_value = self.context.value
+											ObjModified(g_TitleObj)
+											ObjModified(obj)
+										end
+									end,
 								}),
 								}),
 							}),
@@ -262,21 +263,21 @@ end,
 							'ActionId', "actionScrollAreaDown",
 							'ActionGamepad', "RightThumbDown",
 							'OnAction', function (self, host, source)
-local text_area = host.idTextBox:ResolveId("idEffectsTextArea")
-if text_area:GetVisible() then
-	return text_area:OnMouseWheelBack()
-end
-end,
+								local text_area = host.idTextBox:ResolveId("idEffectsTextArea")
+								if text_area:GetVisible() then
+									return text_area:OnMouseWheelBack()
+								end
+							end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "actionScrollAreaUp",
 							'ActionGamepad', "RightThumbUp",
 							'OnAction', function (self, host, source)
-local text_area = host.idTextBox:ResolveId("idEffectsTextArea")
-if text_area:GetVisible() then
-	return text_area:OnMouseWheelForward()
-end
-end,
+								local text_area = host.idTextBox:ResolveId("idEffectsTextArea")
+								if text_area:GetVisible() then
+									return text_area:OnMouseWheelForward()
+								end
+							end,
 						}),
 						}),
 					}),

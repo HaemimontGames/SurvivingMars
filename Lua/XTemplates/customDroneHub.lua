@@ -12,18 +12,18 @@ PlaceObj('XTemplate', {
 		'RolloverHint', T(8461, --[[XTemplate customDroneHub RolloverHint]] "<left_click> Unpack Drone <em>Ctrl + <left_click></em> Unpack five Drones"),
 		'RolloverHintGamepad', T(8462, --[[XTemplate customDroneHub RolloverHintGamepad]] "<ButtonA> Unpack Drone <ButtonX> Unpack five Drones"),
 		'OnContextUpdate', function (self, context, ...)
-self:SetEnabled(UICity.drone_prefabs > 0)
-end,
+			self:SetEnabled(UICity.drone_prefabs > 0)
+		end,
 		'OnPressParam', "UseDronePrefab",
 		'OnPress', function (self, gamepad)
-	self.context:UseDronePrefab(not gamepad and IsMassUIModifierPressed())
-end,
+			self.context:UseDronePrefab(not gamepad and IsMassUIModifierPressed())
+		end,
 		'AltPress', true,
 		'OnAltPress', function (self, gamepad)
-if gamepad then
-	self.context:UseDronePrefab(true)
-end
-end,
+			if gamepad then
+				self.context:UseDronePrefab(true)
+			end
+		end,
 		'Icon', "UI/Icons/IPButtons/drone_assemble.tga",
 	}),
 	PlaceObj('XTemplateTemplate', {
@@ -36,18 +36,18 @@ end,
 		'RolloverHint', T(8668, --[[XTemplate customDroneHub RolloverHint]] "<left_click> Pack Drone for reassignment <em>Ctrl + <left_click></em> Pack five Drones"),
 		'RolloverHintGamepad', T(8669, --[[XTemplate customDroneHub RolloverHintGamepad]] "<ButtonA> Pack Drone for reassignment <ButtonX> Pack five Drones"),
 		'OnContextUpdate', function (self, context, ...)
-self:SetEnabled(not not context:FindDroneToConvertToPrefab())
-end,
+			self:SetEnabled(not not context:FindDroneToConvertToPrefab())
+		end,
 		'OnPressParam', "ConvertDroneToPrefab",
 		'OnPress', function (self, gamepad)
-	self.context:ConvertDroneToPrefab(not gamepad and IsMassUIModifierPressed())
-end,
+			self.context:ConvertDroneToPrefab(not gamepad and IsMassUIModifierPressed())
+		end,
 		'AltPress', true,
 		'OnAltPress', function (self, gamepad)
-if gamepad then
-	self.context:ConvertDroneToPrefab(true)
-end
-end,
+			if gamepad then
+				self.context:ConvertDroneToPrefab(true)
+			end
+		end,
 		'Icon', "UI/Icons/IPButtons/drone_dismantle.tga",
 	}),
 	PlaceObj('XTemplateTemplate', {
@@ -68,9 +68,9 @@ end,
 			'FoldWhenHidden', true,
 			'ContextUpdateOnOpen', true,
 			'OnContextUpdate', function (self, context, ...)
-self:SetVisible(context.total_requested_drones > 0)
-XText.OnContextUpdate(self, context, ...)
-end,
+				self:SetVisible(context.total_requested_drones > 0)
+				XText.OnContextUpdate(self, context, ...)
+			end,
 			'Text', T(8463, --[[XTemplate customDroneHub Text]] "<OrderedDronesCount>"),
 		}),
 		}),

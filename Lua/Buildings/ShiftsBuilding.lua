@@ -45,7 +45,7 @@ end
 
 function ShiftsBuilding:RemoveFromShiftsBuildingLabel()
 	self.city:RemoveFromLabel("ShiftsBuilding", self)
-	self.RemoveFromShiftsBuildingLabel = __empty_function__
+	self.RemoveFromShiftsBuildingLabel = empty_func
 end
 
 function ShiftsBuilding:OnDestroyed()
@@ -60,14 +60,25 @@ function ShiftsBuilding:GetUnitsInShifts()
 	return empty_table
 end
 
+GlobalVar("ChangeWorkshiftThread", false)
 function OnMsg.NewWorkshift(workshift)
-	for _, city in ipairs(Cities) do
-		city:ForEachLabelObject("ShiftsBuilding", "SetWorkshift", workshift)
+	DeleteThread(ChangeWorkshiftThread)
+	ChangeWorkshiftThread = CreateGameTimeThread(WaitChangeWorkshift, workshift)
+end
+
+function WaitChangeWorkshift(workshift)
+	for i, bld in ipairs(UICity.labels.ShiftsBuilding or empty_table) do
+		if IsValid(bld) then
+			bld:SetWorkshift(workshift)
+			if i % 50 == 0 then
+				Sleep(50)
+			end
+		end
 	end
 end
 
 function ShiftsBuilding:SetWorkshift(workshift)
-	if self.destroyed then 
+	if self.destroyed or self.current_shift == workshift then 
 		return 
 	end
 	self:OnChangeWorkshift(self.current_shift, workshift)							
@@ -81,6 +92,7 @@ function ShiftsBuilding:UpdateAttachedSigns()
 end
 
 function ShiftsBuilding:InitPersistShifts()
+	self.closed_shifts = self.closed_shifts or {}
 	local shift = self.closed_shifts_persist
 	if shift ~= "" then 
 		local idx = 1
@@ -108,7 +120,7 @@ end
 
 function ShiftsBuilding:SetWorkplaceWorking()
 	local shift = self.active_shift > 0 and self.active_shift or self.current_shift
-	if self.closed_shifts[shift] then
+	if (self.closed_shifts or empty_table)[shift] then
 		self:OnSetWorkplaceWorking()
 		self:UpdateWorking(false)
 	else	
@@ -140,7 +152,7 @@ function ShiftsBuilding:OnSetUIWorking(work)
 end
 
 function ShiftsBuilding:IsClosedShift(shift)
-	return self.closed_shifts[shift]
+	return (self.closed_shifts or empty_table)[shift]
 end
 
 function ShiftsBuilding:IsShiftUIActive(shift)
@@ -148,8 +160,9 @@ function ShiftsBuilding:IsShiftUIActive(shift)
 end
 
 function ShiftsBuilding:AreAllShiftsClosed()
+	local closed_shifts = self.closed_shifts or empty_table
 	for idx = 1, self.max_shifts do
-		if not self.closed_shifts[idx] then
+		if not closed_shifts[idx] then
 			return false
 		end
 	end
@@ -157,6 +170,7 @@ function ShiftsBuilding:AreAllShiftsClosed()
 end
 
 function ShiftsBuilding:CloseShift(shift)
+	self.closed_shifts = self.closed_shifts or {}
 	self.closed_shifts[shift] = true
 	if self:AreAllShiftsClosed() then
 		self:SetUIWorking(false)
@@ -174,6 +188,7 @@ function ShiftsBuilding:MoveWorkers(from_shift, to_shift)
 end
 
 function ShiftsBuilding:OpenShift(shift)
+	self.closed_shifts = self.closed_shifts or {}
 	local all_closed = self:AreAllShiftsClosed()
 	local prev_active
 	if self.active_shift > 0 then
@@ -206,4 +221,20 @@ end
 
 function ShiftsBuilding:ShouldShowNotWorkingNotification()
 	return not self:IsClosedShift(self.current_shift) and Building.ShouldShowNotWorkingNotification(self)
+end
+
+function ShiftsBuilding:CanWorkTrainHereDomeCheck(colonist)
+	local his_dome = colonist.dome
+	if not his_dome then return false end
+	local my_dome = self.parent_dome
+	if not my_dome then
+		--checking outside bld would be way 2 hvy, just assume it's fine, generally colo cant see this bld if his dome isn't connected
+		my_dome = his_dome
+	end
+	return (his_dome == my_dome
+				or (his_dome.allow_work_in_connected and his_dome.accept_colonists
+					and AreDomesConnected(his_dome, my_dome)
+					and my_dome:CanColonistsFromDifferentDomesWorkServiceTrainHere()
+				))
+				
 end

@@ -13,7 +13,7 @@ PlaceObj('StoryBit', {
 	},
 	Category = "Tick",
 	Effects = {},
-	EnableChance = 25,
+	EnableChance = 15,
 	Enabled = true,
 	Enables = {},
 	Image = "UI/Messages/Events/03_discussion.tga",

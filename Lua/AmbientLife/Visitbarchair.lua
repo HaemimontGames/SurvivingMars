@@ -7,10 +7,11 @@ PrgAmbientLife["Visitbarchair"] = function(unit, bld, obj, spot, slot_data, slot
 		unit:Detach()
 	end)
 
+	obj:SetStateText("idle", const.eDontCrossfade)
 	unit:PlayState("spacebarSitStart")
 	unit:SetStateText("spacebarSitIdle", const.eDontCrossfade)
 	obj:Attach(unit, spot)
-	obj:PlayState("up", 1, const.eDontCrossfade + const.eDontCrossfadeNext)
+	obj:PlayState("up", 1, const.eDontCrossfade)
 	while unit:VisitTimeLeft() > 0 do
 		rnd = bld:Random(100)
 		if rnd < 50 then
@@ -22,7 +23,7 @@ PrgAmbientLife["Visitbarchair"] = function(unit, bld, obj, spot, slot_data, slot
 		if unit.visit_restart then unit:PopAndCallDestructor() return end
 	end
 	obj:PlayState("up", 1, const.eReverse + const.eDontCrossfade + const.eDontCrossfadeNext)
-	obj:SetStateText("idle", const.eReverse + const.eDontCrossfade + const.eDontCrossfadeNext)
+	obj:SetStateText("idle", const.eDontCrossfade)
 	unit:Detach()
 	_x, _y, _z = obj:GetSpotLocPosXYZ(spot)
 	unit:SetPos(_x, _y, _z, 0)

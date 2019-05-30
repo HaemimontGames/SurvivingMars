@@ -44,6 +44,15 @@ function SkinChangeable:GetNextSkinIdx(skins)
 	return skin_idx
 end
 
+function SkinChangeable:GetCurrentSkin()
+	local skins, palettes = self:GetSkins()
+	if not skins or #skins <= 1 then return end
+	local skin_idx = table.find(skins, self:GetEntity()) or 1
+	local skin = skins[skin_idx]
+	local palette = palettes and palettes[skin_idx]
+	return skin, palette
+end
+
 function SkinChangeable:ChangeSkin(skin, palette)
 	self:ChangeEntity(skin)
 	self:OnSkinChanged(skin, palette)

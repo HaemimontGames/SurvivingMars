@@ -14,6 +14,9 @@ PlaceObj('StoryBit', {
 			'Condition', ">=",
 			'Amount', 120,
 		}),
+		PlaceObj('AreDomesOpen', {
+			'Negate', true,
+		}),
 	},
 	ScriptDone = true,
 	Text = T(292383748563, --[[StoryBit WinterWonderland Text]] "It has become a somewhat common occurrence for colonists to sneak outside of Domes and have some fun in the frost. It goes against at least half a dozen regulations but it’s been overlooked until now.\n\nIf you allow recreational walks outside the dome many colonists will gain a permanent <perm_morale_boost> Morale bonus but may suffer an occasional injury."),
@@ -24,6 +27,15 @@ PlaceObj('StoryBit', {
 	VoicedText = T(773713262024, --[[voice:narrator]] "As you gaze out of the dome glass you witness something unexpected outside. A group of colonists in their space suits are having a low gravity snowball fight."),
 	group = "Disasters",
 	id = "WinterWonderland",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1550844947,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitParamNumber', {
 		'Name', "perm_morale_boost",
 		'Value', 10,

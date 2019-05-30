@@ -1,6 +1,94 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 PlaceObj('TraitPreset', {
+	SortKey = 100000,
+	add_interest = "interestPlaying",
+	auto = false,
+	description = T(6687, --[[TraitPreset Child description]] "Children are too young to work and use many of the buildings in the Colony. They can go to School and use certain special buildings such as the Playground and Nursery."),
+	display_name = T(4775, --[[TraitPreset Child display_name]] "Child"),
+	group = "Age Group",
+	id = "Child",
+	incompatible = {},
+	initial_filter = true,
+	show_in_traits_ui = false,
+})
+
+PlaceObj('TraitPreset', {
+	SortKey = 100100,
+	apply_func = function (colonist, trait, init)
+if not init then -- if is from aplicants or is spawn as youth his traits are already generated and will be applied
+	local max = g_Consts.MaxColonistTraitsToGenerate
+	if colonist.playground_visit and colonist:Random(100)<=g_Consts.positive_playground_chance then
+		local new_trait = GetRandomTrait(colonist.traits, {}, {}, "Positive", "base",GetRareTraitChance(colonist))
+		colonist:AddTrait(new_trait,init)
+		max = max - 1
+		colonist.playground_visit = nil
+	end
+	colonist:ApplyTraits(GenerateTraits(colonist, false, max))
+	colonist:ChooseEntity()
+end
+
+if IsKindOf(colonist.workplace, "School") then
+	colonist.workplace:FireWorker(colonist)
+end
+if IsKindOf(colonist.residence, "Nursery") then
+	colonist.lock_residence = nil
+	colonist:SetResidence(false)
+	colonist:UpdateResidence()
+end
+colonist:UpdateHomelessLabels()
+colonist:UpdateEmploymentLabels()
+end,
+	auto = false,
+	description = T(6688, --[[TraitPreset Youth description]] "A young Colonist, able to work in all buildings."),
+	display_name = T(4777, --[[TraitPreset Youth display_name]] "Youth"),
+	group = "Age Group",
+	id = "Youth",
+	incompatible = {},
+	show_in_traits_ui = false,
+})
+
+PlaceObj('TraitPreset', {
+	SortKey = 100200,
+	auto = false,
+	description = T(6689, --[[TraitPreset Adult description]] "An adult Colonist, able to work in all buildings."),
+	display_name = T(4779, --[[TraitPreset Adult display_name]] "Adult"),
+	group = "Age Group",
+	id = "Adult",
+	incompatible = {},
+	show_in_traits_ui = false,
+})
+
+PlaceObj('TraitPreset', {
+	SortKey = 100300,
+	auto = false,
+	description = T(6690, --[[TraitPreset Middle Aged description]] "A middle aged Colonist, approaching retirement, but still able to work in all buildings."),
+	display_name = T(4781, --[[TraitPreset Middle Aged display_name]] "Middle Aged"),
+	group = "Age Group",
+	id = "Middle Aged",
+	incompatible = {},
+	show_in_traits_ui = false,
+})
+
+PlaceObj('TraitPreset', {
+	SortKey = 100400,
+	apply_func = function (colonist, trait, init)
+colonist:ChooseEntity()
+if not g_SeniorsCanWork then
+	colonist:SetWorkplace(false)
+end	
+end,
+	auto = false,
+	description = T(6691, --[[TraitPreset Senior description]] "A senior Colonist, too old to work."),
+	display_name = T(4783, --[[TraitPreset Senior display_name]] "Senior"),
+	group = "Age Group",
+	id = "Senior",
+	incompatible = {},
+	initial_filter = true,
+	show_in_traits_ui = false,
+})
+
+PlaceObj('TraitPreset', {
 	auto = false,
 	description = T(6676, --[[TraitPreset Female description]] "The birth rate in any Dome is determined by the number of Male/Female couples at high Comfort."),
 	display_name = T(6675, --[[TraitPreset Female display_name]] "Female"),
@@ -50,7 +138,9 @@ end,
 	display_name = T(6636, --[[TraitPreset ChronicCondition display_name]] "Chronic Condition"),
 	group = "Negative",
 	id = "ChronicCondition",
-	incompatible = {},
+	incompatible = {
+		Immortal = true,
+	},
 	initial_filter = true,
 	param = 8,
 })
@@ -110,7 +200,9 @@ PlaceObj('TraitPreset', {
 	display_name = T(6662, --[[TraitPreset Hypochondriac display_name]] "Hypochondriac"),
 	group = "Negative",
 	id = "Hypochondriac",
-	incompatible = {},
+	incompatible = {
+		Immortal = true,
+	},
 	param = 10,
 })
 
@@ -121,6 +213,7 @@ PlaceObj('TraitPreset', {
 	id = "Idiot",
 	incompatible = {
 		Genius = true,
+		Immortal = true,
 	},
 	initial_filter = true,
 	param = 10,
@@ -556,7 +649,7 @@ PlaceObj('TraitPreset', {
 	_incompatible = "Martianborn",
 	add_interest = "interestGambling",
 	auto = false,
-	description = T(6715, --[[TraitPreset Tourist description]] "Doesn’t work. Grants $10 Million Funding on arrival. Leaves at first opportunity after 5 Sols. More Tourists appear when Tourists successfully return to Earth. +Gambling"),
+	description = T(12243, --[[TraitPreset Tourist description]] "Doesn’t work. Grants <if(has_researched('TeraTourism'))>$15</if><if(not(has_researched('TeraTourism')))>$10</if> Million Funding on arrival. Leaves at first opportunity after 5 Sols. More Tourists appear when Tourists successfully return to Earth. +Gambling"),
 	display_name = T(6714, --[[TraitPreset Tourist display_name]] "Tourist"),
 	group = "other",
 	id = "Tourist",
@@ -567,7 +660,7 @@ PlaceObj('TraitPreset', {
 })
 
 PlaceObj('TraitPreset', {
-	description = T(6719, --[[TraitPreset Vegan description]] "Don't worry. They’ll tell you."),
+	description = T(12573, --[[TraitPreset Vegan description]] "Don't worry. They’ll tell you.<if(has_dlc('shepard'))><newline><newline>Has decreased Comfort when living near a Ranch and won't work in such buildings. Has increased Comfort when away from Ranches.</if>"),
 	display_name = T(6718, --[[TraitPreset Vegan display_name]] "Vegan"),
 	group = "other",
 	id = "Vegan",
@@ -681,94 +774,6 @@ end,
 	id = "medic",
 	incompatible = {},
 	remove_interest = "interestRelaxation",
-	show_in_traits_ui = false,
-})
-
-PlaceObj('TraitPreset', {
-	SortKey = 100000,
-	add_interest = "interestPlaying",
-	auto = false,
-	description = T(6687, --[[TraitPreset Child description]] "Children are too young to work and use many of the buildings in the Colony. They can go to School and use certain special buildings such as the Playground and Nursery."),
-	display_name = T(4775, --[[TraitPreset Child display_name]] "Child"),
-	group = "Age Group",
-	id = "Child",
-	incompatible = {},
-	initial_filter = true,
-	show_in_traits_ui = false,
-})
-
-PlaceObj('TraitPreset', {
-	SortKey = 100100,
-	apply_func = function (colonist, trait, init)
-if not init then -- if is from aplicants or is spawn as youth his traits are already generated and will be applied
-	local max = g_Consts.MaxColonistTraitsToGenerate
-	if colonist.playground_visit and colonist:Random(100)<=g_Consts.positive_playground_chance then
-		local new_trait = GetRandomTrait(colonist.traits, {}, {}, "Positive", "base",GetRareTraitChance(colonist))
-		colonist:AddTrait(new_trait,init)
-		max = max - 1
-		colonist.playground_visit = nil
-	end
-	colonist:ApplyTraits(GenerateTraits(colonist, false, max))
-	colonist:ChooseEntity()
-end
-
-if IsKindOf(colonist.workplace, "School") then
-	colonist.workplace:FireWorker(colonist)
-end
-if IsKindOf(colonist.residence, "Nursery") then
-	colonist.lock_residence = nil
-	colonist:SetResidence(false)
-	colonist:UpdateResidence()
-end
-colonist:UpdateHomelessLabels()
-colonist:UpdateEmploymentLabels()
-end,
-	auto = false,
-	description = T(6688, --[[TraitPreset Youth description]] "A young Colonist, able to work in all buildings."),
-	display_name = T(4777, --[[TraitPreset Youth display_name]] "Youth"),
-	group = "Age Group",
-	id = "Youth",
-	incompatible = {},
-	show_in_traits_ui = false,
-})
-
-PlaceObj('TraitPreset', {
-	SortKey = 100200,
-	auto = false,
-	description = T(6689, --[[TraitPreset Adult description]] "An adult Colonist, able to work in all buildings."),
-	display_name = T(4779, --[[TraitPreset Adult display_name]] "Adult"),
-	group = "Age Group",
-	id = "Adult",
-	incompatible = {},
-	show_in_traits_ui = false,
-})
-
-PlaceObj('TraitPreset', {
-	SortKey = 100300,
-	auto = false,
-	description = T(6690, --[[TraitPreset Middle Aged description]] "A middle aged Colonist, approaching retirement, but still able to work in all buildings."),
-	display_name = T(4781, --[[TraitPreset Middle Aged display_name]] "Middle Aged"),
-	group = "Age Group",
-	id = "Middle Aged",
-	incompatible = {},
-	show_in_traits_ui = false,
-})
-
-PlaceObj('TraitPreset', {
-	SortKey = 100400,
-	apply_func = function (colonist, trait, init)
-colonist:ChooseEntity()
-if not g_SeniorsCanWork then
-	colonist:SetWorkplace(false)
-end	
-end,
-	auto = false,
-	description = T(6691, --[[TraitPreset Senior description]] "A senior Colonist, too old to work."),
-	display_name = T(4783, --[[TraitPreset Senior display_name]] "Senior"),
-	group = "Age Group",
-	id = "Senior",
-	incompatible = {},
-	initial_filter = true,
 	show_in_traits_ui = false,
 })
 

@@ -4,6 +4,7 @@ PlaceObj('StoryBit', {
 	ActivationEffects = {},
 	Category = "Tick_FounderStageDone",
 	Effects = {},
+	EnableChance = 70,
 	Enabled = true,
 	Image = "UI/Messages/Events/02_video_call_2.tga",
 	Prerequisites = {},

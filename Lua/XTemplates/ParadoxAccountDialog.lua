@@ -11,8 +11,15 @@ PlaceObj('XTemplate', {
 	}, {
 		PlaceObj('XTemplateCode', {
 			'run', function (self, parent, context)
-context:SetDialog(parent)
-end,
+				context:SetDialog(parent)
+			end,
+		}),
+		PlaceObj('XTemplateFunc', {
+			'name', "OnDelete",
+			'func', function (self, ...)
+				g_ParadoxMenuContextObj = false
+				XDialog.OnDelete(self, ...)
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XAspectWindow",
@@ -27,9 +34,9 @@ end,
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
 					'func', function (self, ...)
-XWindow.Open(self, ...)
-self:SetPadding(GetSafeMargins(self:GetPadding()))
-end,
+						XWindow.Open(self, ...)
+						self:SetPadding(GetSafeMargins(self:GetPadding()))
+					end,
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XContentTemplate",
@@ -48,12 +55,12 @@ end,
 							'ActionShortcut', "Enter",
 							'ActionGamepad', "ButtonY",
 							'ActionState', function (self, host)
-return (host.context.loading or g_PopsAttemptingLogin) and "disabled"
-end,
+								return (host.context.loading or g_PopsAttemptingLogin) and "disabled"
+							end,
 							'OnAction', function (self, host, source)
-local obj = ResolvePropObj(host.context)
-obj:Login()
-end,
+								local obj = ResolvePropObj(host.context)
+								obj:Login()
+							end,
 							'__condition', function (parent, context) return ShowParadoxLoginButton() end,
 						}),
 						PlaceObj('XTemplateAction', {
@@ -62,9 +69,9 @@ end,
 							'ActionToolbar', "ActionBarLeft",
 							'ActionGamepad', "ButtonX",
 							'OnAction', function (self, host, source)
-local obj = ResolvePropObj(host.context)
-obj:Connect()
-end,
+								local obj = ResolvePropObj(host.context)
+								obj:Connect()
+							end,
 							'__condition', function (parent, context) return ShowParadoxConnectButton() end,
 						}),
 						PlaceObj('XTemplateAction', {
@@ -73,9 +80,9 @@ end,
 							'ActionToolbar', "ActionBarLeft",
 							'ActionGamepad', "ButtonX",
 							'OnAction', function (self, host, source)
-local obj = ResolvePropObj(host.context)
-obj:Disconnect()
-end,
+								local obj = ResolvePropObj(host.context)
+								obj:Disconnect()
+							end,
 							'__condition', function (parent, context) return ShowParadoxDisconnectButton() end,
 						}),
 						PlaceObj('XTemplateAction', {
@@ -84,20 +91,21 @@ end,
 							'ActionToolbar', "ActionBarLeft",
 							'ActionGamepad', "ButtonY",
 							'OnAction', function (self, host, source)
-local obj = ResolvePropObj(host.context)
-obj:LogOut()
-end,
+								local obj = ResolvePropObj(host.context)
+								obj:LogOut()
+							end,
 							'__condition', function (parent, context) return ShowParadoxLogOutButton() end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "signup",
-							'ActionName', T(373509942742, --[[XTemplate ParadoxAccountDialog ActionName]] "Sign Up"),
+							'ActionName', T(12310, --[[XTemplate ParadoxAccountDialog ActionName]] "Create Account"),
 							'ActionToolbar', "ActionBarLeft",
 							'ActionGamepad', "ButtonX",
 							'OnAction', function (self, host, source)
-host:SetMode("signup")
-host:UpdateActionViews(host)
-end,
+								ResolvePropObj(host.context):ClearSavedParams()
+								host:SetMode("signup")
+								host:UpdateActionViews(host)
+							end,
 							'__condition', function (parent, context) return not g_ParadoxAccountLoggedIn end,
 						}),
 						PlaceObj('XTemplateAction', {
@@ -116,19 +124,19 @@ end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "signup",
-							'ActionName', T(373509942742, --[[XTemplate ParadoxAccountDialog ActionName]] "Sign Up"),
+							'ActionName', T(12310, --[[XTemplate ParadoxAccountDialog ActionName]] "Create Account"),
 							'ActionToolbar', "ActionBarLeft",
 							'ActionGamepad', "ButtonY",
 							'ActionState', function (self, host)
-local obj = ResolvePropObj(host.context)
-if not obj:CanCreateAccount() or obj.creating_account then
-	return "disabled"
-end
-end,
+								local obj = ResolvePropObj(host.context)
+								if not obj:CanCreateAccount() or obj.creating_account then
+									return "disabled"
+								end
+							end,
 							'OnAction', function (self, host, source)
-local obj = ResolvePropObj(host.context)
-obj:CreateAccount()
-end,
+								local obj = ResolvePropObj(host.context)
+								obj:CreateAccount()
+							end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "login",
@@ -136,9 +144,10 @@ end,
 							'ActionToolbar', "ActionBarLeft",
 							'ActionGamepad', "ButtonX",
 							'OnAction', function (self, host, source)
-host:SetMode("login")
-host:UpdateActionViews(host)
-end,
+								ResolvePropObj(host.context):ClearSavedParams()
+								host:SetMode("login")
+								host:UpdateActionViews(host)
+							end,
 						}),
 						}),
 					PlaceObj('XTemplateAction', {

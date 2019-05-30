@@ -216,7 +216,7 @@ PlaceObj('SoundPreset', {
 	id = "Ambience Disaster DustelectricStart",
 	mindistance = 5000,
 	type = "AmbienceSpot",
-	volume = 50,
+	volume = 40,
 	PlaceObj('Sample', {
 		'file', "Sounds/Ambients/dustelectric_start1",
 		'frequency', 50,
@@ -803,6 +803,94 @@ PlaceObj('SoundPreset', {
 
 PlaceObj('SoundPreset', {
 	group = "Ambience",
+	id = "Ambience Lake Big 1",
+	looping = true,
+	mindistance = 1500,
+	type = "AmbienceSpot",
+	PlaceObj('Sample', {
+		'file', "Sounds/Ambients/lakewaves_big1",
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Ambience",
+	id = "Ambience Lake Big 2",
+	looping = true,
+	mindistance = 1500,
+	type = "AmbienceSpot",
+	PlaceObj('Sample', {
+		'file', "Sounds/Ambients/lakewaves_big2",
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Ambience",
+	id = "Ambience Lake Huge 1",
+	looping = true,
+	mindistance = 1500,
+	type = "AmbienceSpot",
+	PlaceObj('Sample', {
+		'file', "Sounds/Ambients/lakewaves_huge1",
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Ambience",
+	id = "Ambience Lake Huge 2",
+	looping = true,
+	mindistance = 1500,
+	type = "AmbienceSpot",
+	PlaceObj('Sample', {
+		'file', "Sounds/Ambients/lakewaves_huge2",
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Ambience",
+	id = "Ambience Lake Medium 1",
+	looping = true,
+	mindistance = 1500,
+	type = "AmbienceSpot",
+	PlaceObj('Sample', {
+		'file', "Sounds/Ambients/lakewaves_medium1",
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Ambience",
+	id = "Ambience Lake Medium 2",
+	looping = true,
+	mindistance = 1500,
+	type = "AmbienceSpot",
+	PlaceObj('Sample', {
+		'file', "Sounds/Ambients/lakewaves_medium2",
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Ambience",
+	id = "Ambience Lake Small 1",
+	looping = true,
+	mindistance = 1500,
+	type = "AmbienceSpot",
+	PlaceObj('Sample', {
+		'file', "Sounds/Ambients/lakewaves_small1",
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Ambience",
+	id = "Ambience Lake Small 2",
+	looping = true,
+	mindistance = 1500,
+	type = "AmbienceSpot",
+	PlaceObj('Sample', {
+		'file', "Sounds/Ambients/lakewaves_small2",
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Ambience",
 	id = "Ambience Subroar 1",
 	looping = true,
 	mindistance = 10000,
@@ -852,8 +940,8 @@ PlaceObj('SoundPreset', {
 PlaceObj('SoundPreset', {
 	group = "Ambience",
 	id = "Ambience ThunderClose 1",
-	mindistance = 10000,
-	type = "AmbienceSpot",
+	mindistance = 20000,
+	type = "DisasterThunder",
 	volume = 90,
 	PlaceObj('Sample', {
 		'file', "Sounds/Ambients/amb_thunderclose1",
@@ -863,8 +951,8 @@ PlaceObj('SoundPreset', {
 PlaceObj('SoundPreset', {
 	group = "Ambience",
 	id = "Ambience ThunderClose 2",
-	mindistance = 10000,
-	type = "AmbienceSpot",
+	mindistance = 20000,
+	type = "DisasterThunder",
 	volume = 90,
 	PlaceObj('Sample', {
 		'file', "Sounds/Ambients/amb_thunderclose2",
@@ -874,8 +962,8 @@ PlaceObj('SoundPreset', {
 PlaceObj('SoundPreset', {
 	group = "Ambience",
 	id = "Ambience ThunderClose 3",
-	mindistance = 10000,
-	type = "AmbienceSpot",
+	mindistance = 20000,
+	type = "DisasterThunder",
 	volume = 90,
 	PlaceObj('Sample', {
 		'file', "Sounds/Ambients/amb_thunderclose3",
@@ -885,8 +973,8 @@ PlaceObj('SoundPreset', {
 PlaceObj('SoundPreset', {
 	group = "Ambience",
 	id = "Ambience ThunderClose 4",
-	mindistance = 10000,
-	type = "AmbienceSpot",
+	mindistance = 20000,
+	type = "DisasterThunder",
 	volume = 90,
 	PlaceObj('Sample', {
 		'file', "Sounds/Ambients/amb_thunderclose4",
@@ -1911,6 +1999,36 @@ PlaceObj('SoundPreset', {
 
 PlaceObj('SoundPreset', {
 	group = "Building",
+	id = "Building Dome Construct",
+	mindistance = 3000,
+	type = "BuildingOperation",
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/DomeBasic/dome_construct1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/DomeBasic/dome_construct2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Building",
+	id = "Building Dome Deconstruct",
+	mindistance = 3000,
+	type = "BuildingOperation",
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/DomeBasic/dome_deconstruct1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/DomeBasic/dome_deconstruct2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Building",
 	id = "Building Dome DoorClose",
 	mindistance = 500,
 	type = "BuildingOperation",
@@ -1953,6 +2071,22 @@ PlaceObj('SoundPreset', {
 	}),
 	PlaceObj('Sample', {
 		'file', "Sounds/Buildings/DomeBasic/dome_fail2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Building",
+	id = "Building Dome Glassdissolve",
+	mindistance = 3000,
+	type = "BuildingOperation",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/DomeBasic/dome_glassdissolved1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/DomeBasic/dome_glassdissolved2",
 		'frequency', 50,
 	}),
 })
@@ -4785,6 +4919,94 @@ PlaceObj('SoundPreset', {
 
 PlaceObj('SoundPreset', {
 	group = "Building",
+	id = "Building Ranch Complete",
+	type = "BuildingPhase",
+	volume = 130,
+})
+
+PlaceObj('SoundPreset', {
+	group = "Building",
+	id = "Building Ranch Demolition",
+	mindistance = 2500,
+	type = "BuildingDestruction",
+	volume = 120,
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionSmall4",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionSmall3",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionSmall2",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionSmall1",
+		'frequency', 30,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Building",
+	id = "Building Ranch Fail",
+	mindistance = 3000,
+	type = "BuildingPhase",
+	volume = 130,
+})
+
+PlaceObj('SoundPreset', {
+	group = "Building",
+	id = "Building Ranch Loop",
+	looping = true,
+	mindistance = 1500,
+	type = "BuildingLoop",
+	volume = 30,
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/Ranch/ranch_work1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/Ranch/ranch_work2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Building",
+	id = "Building Ranch Select",
+	mindistance = 2000,
+	type = "BuildingOperation",
+	volume = 140,
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/Ranch/ranch_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/Ranch/ranch_select2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Building",
+	id = "Building Ranch SelectIncomplete",
+	mindistance = 2000,
+	type = "BuildingOperation",
+	volume = 90,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Building",
 	id = "Building ResearchLab Complete",
 	type = "BuildingPhase",
 	volume = 130,
@@ -5889,7 +6111,7 @@ PlaceObj('SoundPreset', {
 	id = "Building WorkshopBiorobotics Arm",
 	mindistance = 1200,
 	type = "BuildingOperation",
-	volume = 80,
+	volume = 40,
 	PlaceObj('Sample', {
 		'file', "Sounds/Buildings/WorkshopBiorobotics/bioroboticsworkshop_arm1",
 	}),
@@ -5963,6 +6185,7 @@ PlaceObj('SoundPreset', {
 	looping = true,
 	mindistance = 1200,
 	type = "BuildingLoop",
+	volume = 50,
 	PlaceObj('Sample', {
 		'file', "Sounds/Buildings/WorkshopBiorobotics/bioroboticsworkshop_work1",
 		'frequency', 50,
@@ -7447,9 +7670,68 @@ PlaceObj('SoundPreset', {
 PlaceObj('SoundPreset', {
 	group = "Object",
 	id = "Object 0 Hydraulic",
-	mindistance = 2000,
+	mindistance = 3000,
 	type = "ObjectOneshot",
-	volume = 80,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectHydraulics/object_hydraulics1",
+		'frequency', 10,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectHydraulics/object_hydraulics2",
+		'frequency', 10,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectHydraulics/object_hydraulics3",
+		'frequency', 10,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectHydraulics/object_hydraulics4",
+		'frequency', 10,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectHydraulics/object_hydraulics5",
+		'frequency', 10,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectHydraulics/object_hydraulics6",
+		'frequency', 10,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectHydraulics/object_hydraulics7",
+		'frequency', 10,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectHydraulics/object_hydraulics8",
+		'frequency', 10,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectHydraulics/object_hydraulics9",
+		'frequency', 10,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectHydraulics/object_hydraulics10",
+		'frequency', 10,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectHydraulics/object_hydraulics11",
+		'frequency', 10,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectHydraulics/object_hydraulics12",
+		'frequency', 10,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectHydraulics/object_hydraulics13",
+		'frequency', 10,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectHydraulics/object_hydraulics14",
+		'frequency', 10,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectHydraulics/object_hydraulics15",
+		'frequency', 10,
+	}),
 })
 
 PlaceObj('SoundPreset', {
@@ -7878,6 +8160,133 @@ PlaceObj('SoundPreset', {
 
 PlaceObj('SoundPreset', {
 	group = "Object",
+	id = "Object CarbonateProcessor Complete",
+	type = "ObjectPhase",
+	volume = 130,
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object CarbonateProcessor Demolition",
+	mindistance = 2500,
+	type = "ObjectDestruction",
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionMedium1",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionMedium2",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionMedium3",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionMedium4",
+		'frequency', 30,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object CarbonateProcessor Fail",
+	mindistance = 4000,
+	type = "ObjectPhase",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CarbonateProcessor/carbonateprocessor_fail1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CarbonateProcessor/carbonateprocessor_fail2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object CarbonateProcessor Loop",
+	looping = true,
+	mindistance = 2500,
+	type = "ObjectLoop",
+	volume = 110,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CarbonateProcessor/carbonateprocessor_work1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CarbonateProcessor/carbonateprocessor_work2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object CarbonateProcessor LoopStart",
+	mindistance = 2500,
+	type = "ObjectOneshot",
+	volume = 120,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CarbonateProcessor/carbonateprocessor_workstart1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CarbonateProcessor/carbonateprocessor_workstart2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object CarbonateProcessor LoopStop",
+	mindistance = 2500,
+	type = "ObjectOneshot",
+	volume = 120,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CarbonateProcessor/carbonateprocessor_workstop1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CarbonateProcessor/carbonateprocessor_workstop2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object CarbonateProcessor Select",
+	mindistance = 2500,
+	type = "ObjectOperation",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CarbonateProcessor/carbonateprocessor_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CarbonateProcessor/carbonateprocessor_select2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object CarbonateProcessor SelectIncomplete",
+	mindistance = 2500,
+	type = "ObjectOperation",
+	volume = 90,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
 	id = "Object ConcretePlant Complete",
 	type = "ObjectPhase",
 	volume = 130,
@@ -7990,6 +8399,133 @@ PlaceObj('SoundPreset', {
 PlaceObj('SoundPreset', {
 	group = "Object",
 	id = "Object ConcretePlant SelectIncomplete",
+	mindistance = 2500,
+	type = "ObjectOperation",
+	volume = 90,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object CoreHeatConvector Complete",
+	type = "ObjectPhase",
+	volume = 130,
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object CoreHeatConvector Demolition",
+	mindistance = 2500,
+	type = "ObjectDestruction",
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionMedium1",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionMedium2",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionMedium3",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionMedium4",
+		'frequency', 30,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object CoreHeatConvector Fail",
+	mindistance = 4000,
+	type = "ObjectPhase",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CoreHeatConvector/coreheatconvector_fail1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CoreHeatConvector/coreheatconvector_fail2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object CoreHeatConvector Loop",
+	looping = true,
+	mindistance = 2500,
+	type = "ObjectLoop",
+	volume = 110,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CoreHeatConvector/coreheatconvector_work1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CoreHeatConvector/coreheatconvector_work2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object CoreHeatConvector LoopStart",
+	mindistance = 2500,
+	type = "ObjectOneshot",
+	volume = 120,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CoreHeatConvector/coreheatconvector_workstart1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CoreHeatConvector/coreheatconvector_workstart2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object CoreHeatConvector LoopStop",
+	mindistance = 2500,
+	type = "ObjectOneshot",
+	volume = 120,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CoreHeatConvector/coreheatconvector_workstop1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CoreHeatConvector/coreheatconvector_workstop2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object CoreHeatConvector Select",
+	mindistance = 2500,
+	type = "ObjectOperation",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CoreHeatConvector/coreheatconvector_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/CoreHeatConvector/coreheatconvector_select2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object CoreHeatConvector SelectIncomplete",
 	mindistance = 2500,
 	type = "ObjectOperation",
 	volume = 90,
@@ -8475,6 +9011,102 @@ PlaceObj('SoundPreset', {
 
 PlaceObj('SoundPreset', {
 	group = "Object",
+	id = "Object ForestationPlant Complete",
+	type = "ObjectPhase",
+	volume = 130,
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object ForestationPlant Demolition",
+	mindistance = 2500,
+	type = "ObjectDestruction",
+	volume = 120,
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionSmall1",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionSmall2",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionSmall3",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionSmall4",
+		'frequency', 30,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object ForestationPlant Fail",
+	mindistance = 4000,
+	type = "ObjectPhase",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/ForestationPlant/forestationplant_fail1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/ForestationPlant/forestationplant_fail2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object ForestationPlant Loop",
+	looping = true,
+	mindistance = 2200,
+	type = "ObjectLoop",
+	volume = 120,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/ForestationPlant/forestationplant_work1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/ForestationPlant/forestationplant_work2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object ForestationPlant Select",
+	mindistance = 2500,
+	type = "ObjectOperation",
+	volume = 160,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/ForestationPlant/forestationplant_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/ForestationPlant/forestationplant_select2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object ForestationPlant SelectIncomplete",
+	mindistance = 2500,
+	type = "ObjectOperation",
+	volume = 90,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
 	id = "Object Fountain1 Loop1",
 	looping = true,
 	mindistance = 500,
@@ -8926,6 +9558,109 @@ PlaceObj('SoundPreset', {
 
 PlaceObj('SoundPreset', {
 	group = "Object",
+	id = "Object GHGFactory Complete",
+	type = "ObjectPhase",
+	volume = 130,
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object GHGFactory Demolition",
+	mindistance = 1500,
+	type = "ObjectDestruction",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction1",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction2",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction3",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction4",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction5",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destruction6",
+		'frequency', 20,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object GHGFactory Fail",
+	mindistance = 3000,
+	type = "ObjectPhase",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GHGFactory/GHGFactory_fail1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GHGFactory/GHGFactory_fail2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object GHGFactory Loop",
+	looping = true,
+	mindistance = 2100,
+	type = "ObjectLoop",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GHGFactory/GHGFactory_work1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GHGFactory/GHGFactory_work2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object GHGFactory Select",
+	mindistance = 2500,
+	type = "ObjectOperation",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GHGFactory/GHGFactory_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GHGFactory/GHGFactory_select2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object GHGFactory SelectIncomplete",
+	type = "ObjectOperation",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
 	id = "Object GiantLaser Complete",
 	type = "ObjectPhase",
 	volume = 130,
@@ -8960,6 +9695,14 @@ PlaceObj('SoundPreset', {
 	id = "Object GiantLaser SelectIncomplete",
 	type = "ObjectOperation",
 	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
 })
 
 PlaceObj('SoundPreset', {
@@ -9644,6 +10387,132 @@ PlaceObj('SoundPreset', {
 PlaceObj('SoundPreset', {
 	group = "Object",
 	id = "Object MOXIE SelectIncomplete",
+	mindistance = 2500,
+	type = "ObjectOperation",
+	volume = 90,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object MagneticFieldGenerator Complete",
+	type = "ObjectPhase",
+	volume = 130,
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object MagneticFieldGenerator Demolition",
+	mindistance = 3000,
+	type = "ObjectDestruction",
+	volume = 160,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionMedium1",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionMedium2",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionMedium3",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionMedium4",
+		'frequency', 30,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object MagneticFieldGenerator Fail",
+	mindistance = 4000,
+	type = "ObjectPhase",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorMagneticField/generatormagnetic_fail1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorMagneticField/generatormagnetic_fail2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object MagneticFieldGenerator Loop",
+	looping = true,
+	mindistance = 2200,
+	type = "ObjectLoopLimited-A",
+	volume = 110,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorMagneticField/generatormagnetic_work1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorMagneticField/generatormagnetic_work2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object MagneticFieldGenerator LoopStart",
+	mindistance = 2200,
+	type = "ObjectOneshot",
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorMagneticField/generatormagnetic_workstart1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorMagneticField/generatormagnetic_workstart2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object MagneticFieldGenerator LoopStop",
+	mindistance = 2200,
+	type = "ObjectOneshot",
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorMagneticField/generatormagnetic_workstop1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorMagneticField/generatormagnetic_workstop2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object MagneticFieldGenerator Select",
+	mindistance = 2500,
+	type = "ObjectOperation",
+	volume = 140,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorMagneticField/generatormagnetic_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorMagneticField/generatormagnetic_select2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object MagneticFieldGenerator SelectIncomplete",
 	mindistance = 2500,
 	type = "ObjectOperation",
 	volume = 90,
@@ -10627,6 +11496,134 @@ PlaceObj('SoundPreset', {
 
 PlaceObj('SoundPreset', {
 	group = "Object",
+	id = "Object OpenFarm Complete",
+	type = "ObjectPhase",
+	volume = 130,
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object OpenFarm Demolition",
+	mindistance = 4000,
+	type = "ObjectDestruction",
+	volume = 190,
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionSmall1",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionSmall2",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionSmall3",
+		'frequency', 30,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Buildings/_BuildingDestruction/building_destructionSmall4",
+		'frequency', 30,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object OpenFarm Fail",
+	mindistance = 4000,
+	type = "ObjectPhase",
+	volume = 150,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/OpenFarm/openfarm_fail1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/OpenFarm/openfarm_fail2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object OpenFarm Loop",
+	looping = true,
+	mindistance = 2000,
+	type = "ObjectLoopLimited-A",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/OpenFarm/openfarm_work1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/OpenFarm/openfarm_work2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object OpenFarm LoopStart",
+	mindistance = 2500,
+	type = "ObjectOneshot",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/OpenFarm/openfarm_workstart1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/OpenFarm/openfarm_workstart2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object OpenFarm LoopStop",
+	mindistance = 2000,
+	type = "ObjectOneshot",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/OpenFarm/openfarm_workstop1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/OpenFarm/openfarm_workstop2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object OpenFarm Select",
+	mindistance = 2500,
+	type = "ObjectOperation",
+	volume = 210,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/OpenFarm/openfarm_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/OpenFarm/openfarm_select2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object OpenFarm SelectIncomplete",
+	mindistance = 2500,
+	type = "ObjectOperation",
+	volume = 90,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
 	id = "Object Passage Complete",
 	type = "ObjectPhase",
 	volume = 130,
@@ -10903,8 +11900,17 @@ PlaceObj('SoundPreset', {
 PlaceObj('SoundPreset', {
 	group = "Object",
 	id = "Object Pipes Complete",
+	mindistance = 1500,
 	type = "ObjectPhase",
-	volume = 130,
+	volume = 15,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/PipesBasic/pipes_complete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/PipesBasic/pipes_complete2",
+		'frequency', 50,
+	}),
 })
 
 PlaceObj('SoundPreset', {
@@ -11268,8 +12274,17 @@ PlaceObj('SoundPreset', {
 PlaceObj('SoundPreset', {
 	group = "Object",
 	id = "Object PowerCables Complete",
+	mindistance = 1500,
 	type = "ObjectPhase",
-	volume = 130,
+	volume = 15,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/PowerCablesBasic/powercables_complete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/PowerCablesBasic/powercables_complete2",
+		'frequency', 50,
+	}),
 })
 
 PlaceObj('SoundPreset', {
@@ -13974,6 +14989,92 @@ PlaceObj('SoundPreset', {
 
 PlaceObj('SoundPreset', {
 	group = "Object",
+	id = "Object StorageTrade Complete",
+	type = "ObjectPhase",
+	volume = 130,
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object StorageTrade Demolition",
+	mindistance = 1500,
+	type = "ObjectDestruction",
+	volume = 80,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall1",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall2",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall3",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall4",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall5",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall6",
+		'frequency', 20,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object StorageTrade Fail",
+	mindistance = 3000,
+	type = "ObjectPhase",
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LandingPad/landingpad_fail1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/LandingPad/landingpad_fail2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object StorageTrade Select",
+	mindistance = 2000,
+	type = "ObjectOperation",
+	volume = 80,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageDepot/storagedepot_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/StorageDepot/storagedepot_select2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object StorageTrade SelectIncomplete",
+	mindistance = 1500,
+	type = "ObjectOperation",
+	volume = 90,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectSelection/object_incomplete2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
 	id = "Object SubsurfaceHeater Complete",
 	type = "ObjectPhase",
 	volume = 130,
@@ -14715,6 +15816,111 @@ PlaceObj('SoundPreset', {
 
 PlaceObj('SoundPreset', {
 	group = "Object",
+	id = "Object WaterPump Complete",
+	type = "ObjectPhase",
+	volume = 130,
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object WaterPump Demolition",
+	mindistance = 3000,
+	type = "ObjectDestruction",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall1",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall2",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall3",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall4",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall5",
+		'frequency', 20,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/_ObjectDestruction/object_destructionSmall6",
+		'frequency', 20,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object WaterPump Fail",
+	mindistance = 4000,
+	type = "ObjectPhase",
+	volume = 170,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorWind/generatorWind_fail1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorWind/generatorWind_fail2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object WaterPump LoopRPMHigh",
+	looping = true,
+	mindistance = 2000,
+	type = "ObjectWindLoop",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorWind/generatorWind_work6",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorWind/generatorWind_work7",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object WaterPump LoopRPMLow",
+	looping = true,
+	mindistance = 2000,
+	type = "ObjectWindLoop",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorWind/generatorWind_work6",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorWind/generatorWind_work7",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object WaterPump Select",
+	mindistance = 2500,
+	type = "ObjectOperation",
+	volume = 160,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorWind/generatorWind_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorWind/generatorWind_select2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
 	id = "Object WaterTankLarge Complete",
 	type = "ObjectPhase",
 	volume = 130,
@@ -14993,6 +16199,84 @@ PlaceObj('SoundPreset', {
 
 PlaceObj('SoundPreset', {
 	group = "Object",
+	id = "Object WindTurbineLarge Fail",
+	mindistance = 4000,
+	type = "ObjectPhase",
+	volume = 150,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorWind/generatorWind_fail1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorWind/generatorWind_fail2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object WindTurbineLarge Loop",
+	looping = true,
+	mindistance = 3000,
+	type = "ObjectWindLoop",
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorWindLarge/generatorWindLarge_work1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorWindLarge/generatorWindLarge_work2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object WindTurbineLarge LoopStart",
+	mindistance = 20000,
+	type = "ObjectOneshot",
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorWindLarge/generatorWindLarge_workstart1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorWindLarge/generatorWindLarge_workstart2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object WindTurbineLarge LoopStop",
+	mindistance = 3000,
+	type = "ObjectOneshot",
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorWindLarge/generatorWindLarge_workstop1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorWindLarge/generatorWindLarge_workstop2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
+	id = "Object WindTurbineLarge Select",
+	mindistance = 2500,
+	type = "ObjectOperation",
+	volume = 150,
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorWindLarge/generatorWindLarge_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Objects/GeneratorWindLarge/generatorWindLarge_select2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Object",
 	id = "Object Workshop Complete",
 	type = "ObjectPhase",
 	volume = 130,
@@ -15195,7 +16479,7 @@ PlaceObj('SoundPreset', {
 PlaceObj('SoundPreset', {
 	group = "UI",
 	id = "UI BuildCancel",
-	type = "UI",
+	type = "UILimited",
 	volume = 7,
 	PlaceObj('Sample', {
 		'file', "Sounds/UI/ui_buildcancel2",
@@ -15205,7 +16489,7 @@ PlaceObj('SoundPreset', {
 PlaceObj('SoundPreset', {
 	group = "UI",
 	id = "UI BuildCommence",
-	type = "UI",
+	type = "UILimitedStrict",
 	volume = 5,
 	PlaceObj('Sample', {
 		'file', "Sounds/UI/ui_buildcommence2",
@@ -15215,8 +16499,8 @@ PlaceObj('SoundPreset', {
 PlaceObj('SoundPreset', {
 	group = "UI",
 	id = "UI BuildComplete",
-	type = "UILimited",
-	volume = 5,
+	type = "UILimitedStrict",
+	volume = 7,
 	PlaceObj('Sample', {
 		'file', "Sounds/UI/ui_buildcomplete3",
 	}),
@@ -15939,8 +17223,8 @@ PlaceObj('SoundPreset', {
 PlaceObj('SoundPreset', {
 	group = "UI",
 	id = "UI PlaceBuildingGround",
-	type = "UILimited",
-	volume = 42,
+	type = "UILimitedStrict",
+	volume = 20,
 	PlaceObj('Sample', {
 		'file', "Sounds/UI/ui_placebuildingground2",
 	}),
@@ -15979,7 +17263,7 @@ PlaceObj('SoundPreset', {
 PlaceObj('SoundPreset', {
 	group = "UI",
 	id = "UI PlacePassage",
-	type = "UILimited",
+	type = "UILimitedStrict",
 	volume = 10,
 	PlaceObj('Sample', {
 		'file', "Sounds/UI/ui_placepipes2",
@@ -15990,7 +17274,7 @@ PlaceObj('SoundPreset', {
 	group = "UI",
 	id = "UI PlacePipes",
 	type = "UILimited",
-	volume = 10,
+	volume = 5,
 	PlaceObj('Sample', {
 		'file', "Sounds/UI/ui_placepipes2",
 	}),
@@ -16033,6 +17317,28 @@ PlaceObj('SoundPreset', {
 	volume = 15,
 	PlaceObj('Sample', {
 		'file', "Sounds/UI/ui_prioritychange",
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "UI",
+	id = "UI RainAcid",
+	looping = true,
+	type = "UIAmbience",
+	volume = 10,
+	PlaceObj('Sample', {
+		'file', "Sounds/UI/amb_rainacid",
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "UI",
+	id = "UI RainClean",
+	looping = true,
+	type = "UIAmbience",
+	volume = 10,
+	PlaceObj('Sample', {
+		'file', "Sounds/UI/amb_rainclean",
 	}),
 })
 
@@ -16249,7 +17555,7 @@ PlaceObj('SoundPreset', {
 PlaceObj('SoundPreset', {
 	group = "UI",
 	id = "UI SelectBuilding",
-	type = "UI",
+	type = "UILimited",
 	volume = 38,
 	PlaceObj('Sample', {
 		'file', "Sounds/UI/ui_selectBuilding4",
@@ -16271,9 +17577,9 @@ PlaceObj('SoundPreset', {
 	group = "UI",
 	id = "UI SelectColonySiteEnd",
 	type = "UI",
-	volume = 20,
+	volume = 15,
 	PlaceObj('Sample', {
-		'file', "Sounds/UI/ui_selectColonySiteEnd2",
+		'file', "Sounds/UI/ui_selectColonySiteEnd3",
 	}),
 })
 
@@ -16290,7 +17596,7 @@ PlaceObj('SoundPreset', {
 PlaceObj('SoundPreset', {
 	group = "UI",
 	id = "UI SelectConstructionsite",
-	type = "UI",
+	type = "UILimitedStrict",
 	volume = 15,
 	PlaceObj('Sample', {
 		'file', "Sounds/UI/ui_selectConstructionsite",
@@ -17417,7 +18723,7 @@ PlaceObj('SoundPreset', {
 	group = "Unit",
 	id = "Unit Rover DeployLoop",
 	looping = true,
-	mindistance = 1000,
+	mindistance = 500,
 	type = "UnitRoverLoop",
 	volume = 50,
 	PlaceObj('Sample', {
@@ -18109,6 +19415,182 @@ PlaceObj('SoundPreset', {
 		'file', "Sounds/Units/RoverConstructor/roverconstructor_select2",
 		'frequency', 50,
 	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Unit",
+	id = "Unit RoverDozer Complete",
+	mindistance = 1500,
+	type = "UnitRoverComplete",
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverDriller/roverdriller_complete1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverDriller/roverdriller_complete2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Unit",
+	id = "Unit RoverDozer Fail",
+	mindistance = 2500,
+	type = "UnitRoverOperation",
+	volume = 110,
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverDozer/roverdozer_fail1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverDozer/roverdozer_fail2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Unit",
+	id = "Unit RoverDozer Load",
+	mindistance = 1500,
+	type = "UnitRoverOperation",
+	volume = 130,
+})
+
+PlaceObj('SoundPreset', {
+	group = "Unit",
+	id = "Unit RoverDozer MotionLoop",
+	looping = true,
+	mindistance = 1500,
+	type = "UnitRoverMotionLoop",
+	volume = 160,
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverExplorer/roverexpedition_motion1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverExplorer/roverexpedition_motion2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Unit",
+	id = "Unit RoverDozer MotionStart",
+	mindistance = 1500,
+	type = "UnitRoverMotion",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverExplorer/roverexpedition_motionstart1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverExplorer/roverexpedition_motionstart2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Unit",
+	id = "Unit RoverDozer MotionStop",
+	mindistance = 1500,
+	type = "UnitRoverMotion",
+	volume = 120,
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverExplorer/roverexpedition_motionstop1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverExplorer/roverexpedition_motionstop2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Unit",
+	id = "Unit RoverDozer Select",
+	mindistance = 2500,
+	type = "UnitRoverSelect",
+	volume = 110,
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverDozer/roverdozer_select1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverDozer/roverdozer_select2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Unit",
+	id = "Unit RoverDozer Shovel",
+	mindistance = 1500,
+	type = "UnitRoverOperation",
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverDozer/roverdozer_shovel1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverDozer/roverdozer_shovel2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Unit",
+	id = "Unit RoverDozer TerraformLoop",
+	looping = true,
+	mindistance = 2000,
+	type = "UnitRoverLoop",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverDozer/roverdozer_terraformloop1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverDozer/roverdozer_terraformloop2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Unit",
+	id = "Unit RoverDozer TerraformStart",
+	mindistance = 2000,
+	type = "UnitRoverOperation",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverDozer/roverdozer_terraformstart1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverDozer/roverdozer_terraformstart2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Unit",
+	id = "Unit RoverDozer TerraformStop",
+	mindistance = 2000,
+	type = "UnitRoverOperation",
+	volume = 130,
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverDozer/roverdozer_terraformstop1",
+		'frequency', 50,
+	}),
+	PlaceObj('Sample', {
+		'file', "Sounds/Units/RoverDozer/roverdozer_terraformstop2",
+		'frequency', 50,
+	}),
+})
+
+PlaceObj('SoundPreset', {
+	group = "Unit",
+	id = "Unit RoverDozer Unload",
+	mindistance = 1500,
+	type = "UnitRoverOperation",
+	volume = 130,
 })
 
 PlaceObj('SoundPreset', {

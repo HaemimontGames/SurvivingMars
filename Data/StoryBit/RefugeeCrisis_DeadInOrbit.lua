@@ -14,8 +14,10 @@ PlaceObj('StoryBit', {
 			},
 		}),
 	},
+	DetachObj = true,
 	Effects = {},
 	Image = "UI/Messages/Events/21_meteors.tga",
+	NotificationText = "",
 	Prerequisites = {
 		PlaceObj('IsAssociatedObject', nil),
 	},

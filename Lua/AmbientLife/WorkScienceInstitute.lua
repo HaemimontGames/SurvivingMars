@@ -49,7 +49,7 @@ PrgAmbientLife["WorkScienceInstitute"] = function(unit, bld)
 	PrgChangeSpotFlags(bld, bld, spot, 1, 0, slotname, slot)
 	if spot then
 		if slotname == "Worktablet" then
-			__placed = PlaceObject("Tablet", nil, const.cfComponentEx + const.cfComponentAttach)
+			__placed = PlaceObject("Tablet", nil, const.cofComponentAttach)
 			NetTempObject(__placed)
 			unit:Attach(__placed, unit:GetRandomSpot("Tablet"))
 		end

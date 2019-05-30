@@ -229,7 +229,7 @@ end
 
 function HUD.idPlanetaryViewOnPress()
 	if GetDialog("PlanetaryView") then
-		CloseDialog("PlanetaryView")
+		ClosePlanetaryView()
 	else
 		OpenPlanetaryView()
 	end

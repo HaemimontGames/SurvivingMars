@@ -113,7 +113,7 @@ function TrainingBuilding:OnModifiableValueChanged(prop, old_value, new_valaue)
 end
 
 function TrainingBuilding:IsSuitable(colonist)
-	return colonist:CanTrain() and self:CanTrain(colonist)
+	return colonist:CanTrain() and self:CanTrain(colonist) and self:CanWorkTrainHereDomeCheck(colonist)
 end
 
 function TrainingBuilding:ColonistCanInteract(col)
@@ -366,6 +366,19 @@ end
 
 function TrainingBuilding:OnTrainingCompleted(unit)
 end
+
+function InitInsideTrainingAndWorkplaceBld(self, dome)
+	local label = self.dome_label
+	for _, dome in ipairs(UICity.labels.Dome or empty_table) do
+		if IsBuildingInDomeRange(self, dome) then
+			dome:RemoveFromLabel(label, self)
+		end
+	end
+	Building.InitInside(self, dome)
+	self:AddToDomeLabels(dome)
+end
+
+TrainingBuilding.InitInside = InitInsideTrainingAndWorkplaceBld
 
 function SavegameFixups.SetOccupationForExistingTrainingBuildings()
 	MapForEach("map", "TrainingBuilding", function(o)

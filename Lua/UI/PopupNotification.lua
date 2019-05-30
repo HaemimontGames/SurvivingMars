@@ -161,7 +161,10 @@ local function OpenPopupNotification(parent, context)
 			if shortcut == "DPadUp" and self:GetSelection()[1] == 1 then
 				infobar.idPad.idElectricity:SetFocus()
 				return "break"
-			elseif shortcut == "DPadLeft" or shortcut == "DPadRight" then
+			elseif shortcut == "DPadLeft" or shortcut == "DPadRight" or 
+					shortcut == "LeftThumbLeft" or shortcut == "LeftThumbRight" or
+					shortcut == "LeftThumbDownLeft" or shortcut == "LeftThumbDownRight" or
+					shortcut == "LeftThumbUpLeft" or shortcut == "LeftThumbUpRight" then
 				return "break"
 			end
 			
@@ -238,14 +241,15 @@ function ShowPopupNotification(preset, params, bPersistable, parent, callback)
 	else
 		context.async_signal = context.async_signal or {}
 	end
+	local notification_id
 	if context.start_minimized == false then
 		table.insert(g_PopupQueue, context)
 		PopPopupNotification(parent)
 	else
 		--spawn an OnScreenNotification
-		AddOnScreenNotification(nil, callback, context)
+		notification_id = AddOnScreenNotification(nil, callback, context)
 	end
-	return context.sync_popup_id, context.async_signal
+	return context.sync_popup_id, context.async_signal, notification_id
 end
 
 function WaitPopupNotification(preset, params, bPersistable, parent, callback)

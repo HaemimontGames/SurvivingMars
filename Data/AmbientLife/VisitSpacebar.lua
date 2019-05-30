@@ -8,6 +8,7 @@ PlaceObj('AmbientLife', {
 	PlaceObj('XPrgDefineSlot', {
 		'groups', "A",
 		'spot_type', "Visitbarchair",
+		'spot_state', "idle",
 		'attach', "SpacebarChair",
 		'goto_spot', "Pathfind",
 		'flags_missing', 1,

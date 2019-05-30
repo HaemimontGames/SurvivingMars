@@ -17,16 +17,16 @@ PlaceObj('XTemplate', {
 			'RolloverHintGamepad', T(870954837374, --[[XTemplate ipResourcePile RolloverHintGamepad]] "<left><ButtonA> Increase priority<right><ButtonX> Decrease priority"),
 			'FoldWhenHidden', true,
 			'OnContextUpdate', function (self, context, ...)
-if context.priority == 1 then
-	self:SetIcon("UI/Icons/IPButtons/normal_priority.tga")
-elseif context.priority == 2 then
-	self:SetIcon("UI/Icons/IPButtons/high_priority.tga")
-else
-	self:SetIcon("UI/Icons/IPButtons/urgent_priority.tga")
-end
-
-	self:SetVisible(UICity.mystery and UICity.mystery.class == "BlackCubeMystery" and UICity.mystery.can_destroy_cubes)
-end,
+				if context.priority == 1 then
+					self:SetIcon("UI/Icons/IPButtons/normal_priority.tga")
+				elseif context.priority == 2 then
+					self:SetIcon("UI/Icons/IPButtons/high_priority.tga")
+				else
+					self:SetIcon("UI/Icons/IPButtons/urgent_priority.tga")
+				end
+				
+					self:SetVisible(UICity.mystery and UICity.mystery.class == "BlackCubeMystery" and UICity.mystery.can_destroy_cubes)
+			end,
 			'OnPressParam', "TogglePriority",
 			'AltPress', true,
 		}),
@@ -37,48 +37,48 @@ end,
 			'__template', "InfopanelButton",
 			'RolloverHintGamepad', T(7657, --[[XTemplate ipResourcePile RolloverHintGamepad]] "<ButtonY> Activate"),
 			'OnContextUpdate', function (self, context, ...)
-self:SetIcon(context.is_being_destroyed and "UI/Icons/IPButtons/cancel.tga" or "UI/Icons/IPButtons/demolition.tga")
-if context.is_being_destroyed then
-	self:SetRolloverTitle(T(6764, "Cancel"))
-	self:SetRolloverText(T(699, "Cancel demolition."))
-else
-	self:SetRolloverTitle(T(697, "Destroy"))
-	self:SetRolloverText(T(698, "Destroy this pile of cubes."))
-end
-end,
+				self:SetIcon(context.is_being_destroyed and "UI/Icons/IPButtons/cancel.tga" or "UI/Icons/IPButtons/demolition.tga")
+				if context.is_being_destroyed then
+					self:SetRolloverTitle(T(6764, "Cancel"))
+					self:SetRolloverText(T(699, "Cancel demolition."))
+				else
+					self:SetRolloverTitle(T(697, "Destroy"))
+					self:SetRolloverText(T(698, "Destroy this pile of cubes."))
+				end
+			end,
 			'OnPress', function (self, gamepad)
-self.context:Destroy()
-ObjModified(self.context)
-end,
+				self.context:Destroy()
+				ObjModified(self.context)
+			end,
 		}, {
 			PlaceObj('XTemplateFunc', {
 				'name', "OnXButtonDown(self, button)",
 				'func', function (self, button)
-if button == "ButtonY" then
-	return self:OnButtonDown(false)
-elseif button == "ButtonX" then
-	return self:OnButtonDown(true)
-end
-return (button == "ButtonA") and "break"
-end,
+					if button == "ButtonY" then
+						return self:OnButtonDown(false)
+					elseif button == "ButtonX" then
+						return self:OnButtonDown(true)
+					end
+					return (button == "ButtonA") and "break"
+				end,
 			}),
 			PlaceObj('XTemplateFunc', {
 				'name', "OnXButtonUp(self, button)",
 				'func', function (self, button)
-if button == "ButtonY" then
-	return self:OnButtonUp(false)
-elseif button == "ButtonX" then
-	return self:OnButtonUp(true)
-end
-return (button == "ButtonA") and "break"
-end,
+					if button == "ButtonY" then
+						return self:OnButtonUp(false)
+					elseif button == "ButtonX" then
+						return self:OnButtonUp(true)
+					end
+					return (button == "ButtonA") and "break"
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelSection",
 			'OnContextUpdate', function (self, context, ...)
-self:SetVisible(not IsKindOf(context, "BlackCubeStockpileBase") or UICity.mystery.can_destroy_cubes == true )
-end,
+				self:SetVisible(not IsKindOf(context, "BlackCubeStockpileBase") or UICity.mystery.can_destroy_cubes == true )
+			end,
 			'Title', T(489, --[[XTemplate ipResourcePile Title]] "Available resources"),
 			'Icon', "UI/Icons/Sections/deposit.tga",
 		}, {

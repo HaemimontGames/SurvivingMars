@@ -197,7 +197,7 @@ PlaceObj('PlanetaryAnomalyDescription', {
 })
 
 PlaceObj('PlanetaryAnomalyDescription', {
-	description = T(413641279296, --[[PlanetaryAnomalyDescription Default Rare_Rover_1 description]] "Spectrographic analyses revealed a ground cavity which seems to contain a huge deposit of precious metals. We can send a RC Rover to enter it and gather the treasure. Mission Control insisted that we name the rover “Siegfried”."),
+	description = T(12374, --[[PlanetaryAnomalyDescription Default Rare_Rover_1 description]] "Spectrographic analyses revealed a ground cavity which seems to contain a huge deposit of precious metals. We can send an RC Commander to enter it and gather the treasure. Mission Control insisted that we name the rover “Siegfried”."),
 	group = "Default",
 	id = "Rare_Rover_1",
 	requirement_type = "rover",

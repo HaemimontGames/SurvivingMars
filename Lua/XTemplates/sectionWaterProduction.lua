@@ -15,6 +15,13 @@ PlaceObj('XTemplate', {
 			'Text', T(840359936837, --[[XTemplate sectionWaterProduction Text]] "<WaterProductionText>"),
 		}),
 		PlaceObj('XTemplateTemplate', {
+			'__dlc', "armstrong",
+			'__context_of_kind', "MoistureVaporator",
+			'__condition', function (parent, context) return not g_NoTerraforming end,
+			'__template', "InfopanelText",
+			'Text', T(12022, --[[XTemplate sectionWaterProduction Text]] "Terraforming boost<right><modifier_percent('water_production', 'TP Boost Water')>"),
+		}),
+		PlaceObj('XTemplateTemplate', {
 			'__condition', function (parent, context) return context:IsKindOf("ResourceProducer") and context.wasterock_producer end,
 			'__template', "InfopanelText",
 			'Text', T(474, --[[XTemplate sectionWaterProduction Text]] "Stored Waste Rock<right><wasterock(GetWasterockAmountStored,wasterock_max_storage)>"),

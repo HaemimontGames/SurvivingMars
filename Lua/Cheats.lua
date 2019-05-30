@@ -1,5 +1,5 @@
 function CheatsEnabled()
-	return false
+	return mapdata.GameLogic
 end
 
 function CheatMapExplore(status)
@@ -38,6 +38,10 @@ function CheatSpawnPlanetaryAnomalies()
 	end
 end
 
+function CheatBatchSpawnPlanetaryAnomalies()
+	UICity:BatchSpawnPlanetaryAnomalies()
+end
+
 local function GetCameraLookAtPassable()
 	local _, lookat = GetCamera()
 	return terrain.IsPassable(lookat) and lookat or GetRandomPassableAround(lookat, 100 * guim)
@@ -63,25 +67,13 @@ function CheatMeteors(meteors_type, setting)
 		local data = DataInstances.MapSettings_Meteor
 		local descr = setting ~= "disabled" and data[setting] or data["Meteor_VeryLow"]
 		CreateGameTimeThread(function()
-			if meteors_type == "storm" then
-				g_MeteorStorm = true
-			end
 			MeteorsDisaster(descr, meteors_type, pos)
-			if meteors_type == "storm" then
-				g_MeteorStorm = false
-			end
 		end)
 	end
 end
 
 function CheatStopDisaster()
-	if g_DustStorm then
-		StopDustStorm()
-	elseif g_ColdWave then
-		StopColdWave()
-	elseif g_MeteorStorm then
-		StopMeteorStorm()
-	end
+	Msg("CheatStopDisaster")
 end
 
 function CheatResearchAll()
@@ -115,7 +107,7 @@ function CheatCompleteAllWiresAndPipes(list)
 end
 
 local function CompleteBuildConstructionSite(site)
-	if not site.construction_group or site.construction_group[1] == site then
+	if not GameInitThreads[site] and (not site.construction_group or site.construction_group[1] == site) then
 		site:Complete("quick_build")
 	end
 end
@@ -222,16 +214,28 @@ function CheatToggleInfopanelCheats()
 end
 
 GamepadCheatsList = {
-	{ display_name = T(7790, "Research Current Tech"),      func = CheatResearchCurrent },
-	{ display_name = T(7791, "Research all Techs"),         func = CheatResearchAll },
-	{ display_name = T(7792, "Unlock all Techs"),           func = CheatUnlockAllTech },
-	{ display_name = T(7793, "Unlock all Breakthroughs"),   func = CheatUnlockBreakthroughs },
-	{ display_name = T(7794, "Construct all buildings"),    func = CheatCompleteAllConstructions },
-	{ display_name = T(7795, "Add funding ($500,000,000)"), func = CheatAddFunding },
-	{ display_name = T(7796, "Spawn 1 Colonist"),           func = function() CheatSpawnNColonists(1) end },
-	{ display_name = T(7797, "Spawn 10 Colonists"),         func = function() CheatSpawnNColonists(10) end },
-	{ display_name = T(7798, "Spawn 100 Colonists"),        func = function() CheatSpawnNColonists(100) end },
-}
+	{ display_name = T(7790, "Research Current Tech"),      					func = CheatResearchCurrent },
+	{ display_name = T(7791, "Research all Techs"),         					func = CheatResearchAll },
+	{ display_name = T(7792, "Unlock all Techs"),           					func = CheatUnlockAllTech },
+	{ display_name = T(7793, "Unlock all Breakthroughs"),   					func = CheatUnlockBreakthroughs },
+	{ display_name = T(7794, "Construct all buildings"),    					func = CheatCompleteAllConstructions },
+	{ display_name = T(7795, "Add funding ($500,000,000)"), 					func = CheatAddFunding },
+	{ display_name = T(7796, "Spawn 1 Colonist"),           					func = function() CheatSpawnNColonists(1) end },
+	{ display_name = T(7797, "Spawn 10 Colonists"),         					func = function() CheatSpawnNColonists(10) end },
+	{ display_name = T(7798, "Spawn 100 Colonists"),        					func = function() CheatSpawnNColonists(100) end },
+	{ display_name = T(12266, "Stop Disaster"),				        					func = function() CheatStopDisaster() end },
+	{ display_name = T(12267, "Unlock All SponsorBuildings"),		  					func = function() CheatUnlockAllSponsorBuildings() end },
+	{ display_name = T(12268, "Unlock All Buildings"),				  					func = function() CheatUnlockAllBuildings() end },
+	{ display_name = T(12269, "Max All Terraforming Parameters"),	  					func = function() for param in pairs(Terraforming) do SetTerraformParamPct(param, 100) end end },
+	{ display_name = T(12270, "Increase Soil Quality by 25%"),	  					func = function() dbg_ChangeSoilQuality(25) end },
+	{ display_name = T(12271, "Decrease Soil Quality by 25%"),	  					func = function() dbg_ChangeSoilQuality(-25) end },
+	{ display_name = T(12272, "TP Atmosphere +10%"),	  				  					func = function() SetTerraformParamPct("Atmosphere"	, 10 + GetTerraformParamPct("Atmosphere")) end },
+	{ display_name = T(12273, "TP Water +10%"),	  					  					func = function() SetTerraformParamPct("Water"			, 10 + GetTerraformParamPct("Water")) end },
+	{ display_name = T(12274, "TP Temperature +10%"),	 			  					func = function() SetTerraformParamPct("Temperature"	, 10 + GetTerraformParamPct("Temperature")) end },
+	{ display_name = T(12275, "TP Vegetation +10%"),	  				  					func = function() SetTerraformParamPct("Vegetation"	, 10 + GetTerraformParamPct("Vegetation")) end },
+	{ display_name = T(12276, "Increase all Terraforming Parameters by 10%"),	   func = function() for param in pairs(Terraforming) do SetTerraformParamPct(param, 10 + GetTerraformParamPct(param))  end end },
+	{ display_name = T(12277, "Decrease all Terraforming Parameters by 10%"),	   func = function() for param in pairs(Terraforming) do SetTerraformParamPct(param, -10 + GetTerraformParamPct(param)) end end },	
+	}
 
 function OnMsg.ChangeMap(map)
 	if not Platform.developer then
@@ -243,4 +247,13 @@ function OnMsg.ChangeMap(map)
 			ConsoleSetEnabled(false)
 		end
 	end
+end
+
+function MultiCheat()
+	CheatUnlockAllBuildings()
+	if g_AvailableDlc["gagarin"] then
+		CheatUnlockAllSponsorBuildings()
+	end
+	CheatMapExplore("deep scanned")
+	CheatResearchAll()
 end

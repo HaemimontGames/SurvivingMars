@@ -1,6 +1,8 @@
 DefineClass.Drone =
 {
 	__parents = { "DroneBase", "Shapeshifter", "ComponentAttach", "PinnableObject", "Demolishable", "SkinChangeable" },
+	SelectionClass = "Drone",
+	display_name_pl = T(517, "Drones"),
 	
 	properties = {
 		{ category = "Drone", name = T(4388, "Drone Battery Capacity"), id = "battery_max",       default = const.DroneBatteryMax, scale = 100, editor = "number", modifiable = true },
@@ -19,6 +21,7 @@ DefineClass.Drone =
 	dust_max = const.MaxMaintenance,
 	battery = false,
 	repair_drone = false,
+	follow_camera_vertical_offset = 20 * guim,
 	
 	move_speed = 1440,
 	resource = false,
@@ -65,6 +68,7 @@ DefineClass.Drone =
 	unreachable_buildings_count = 0,
 	
 	fx_actor_base_class = "Drone",
+	delivery_state = false,
 }
 
 GlobalGameTimeThread("OrphanedDronesNotif", function()
@@ -133,7 +137,14 @@ function Drone:Done()
 	if self.is_orphan then
 		table.remove_entry(g_OrphanedDrones, self)
 	elseif self.command_center and IsValid(self.command_center) then
-		table.remove_entry(self.command_center.drones, self)
+		local hub = self.command_center
+		table.remove_entry(hub.drones, self)
+		if IsKindOf(hub, "RCRover") then
+			table.remove_entry(hub.attached_drones, self)
+			if hub.guided_drone == self then
+				hub.guided_drone = false
+			end
+		end
 	end
 	if self.is_broken then
 		table.remove_entry(g_BrokenDrones, self)
@@ -188,8 +199,8 @@ function Drone:TryFindNewCommandCenter()
 								end, self)
 end
 
-GlobalVar("g_OrphanedDrones", objlist:new())
-GlobalVar("g_BrokenDrones", objlist:new()) --keeps track of all drones that need repair.
+GlobalVar("g_OrphanedDrones", {})
+GlobalVar("g_BrokenDrones", {}) --keeps track of all drones that need repair.
 
 local DroneEntities = {
 	command_center_type = {
@@ -218,6 +229,14 @@ function Drone:GetCommandCenter()
 	return self.command_center
 end
 
+function SavegameFixups.ResetRestrictRadiusForDrones()
+	MapForEach("map", "Drone", function(d)
+		if d.command_center and d.command ~= "Embark" then
+			d:RestrictArea(d.command_center:GetPos(), const.DroneRestrictRadius)
+		end
+	end)
+end
+
 function Drone:SetCommandCenter(command_center, do_not_orphan)
 	local should_change_cmd = command_center and not self.command_center and self.command == "WaitingCommand"
 	if command_center and not command_center[true] then -- when loading
@@ -234,10 +253,12 @@ function Drone:SetCommandCenter(command_center, do_not_orphan)
 	self.command_center = command_center
 	if command_center then
 		table.insert(command_center.drones, self)
+		self:RestrictArea(command_center:GetPos(), const.DroneRestrictRadius)
 	elseif not self:IsDead() and not do_not_orphan then --dead drones cannot be orphans.
 		--just became orphan.
 		self.is_orphan = true
 		table.insert(g_OrphanedDrones, self)
+		self:RestrictArea(point30, 0)
 	end
 	
 	if not self:IsDead() then
@@ -249,6 +270,10 @@ function Drone:SetCommandCenter(command_center, do_not_orphan)
 	end
 end
 
+function Drone:CanBeThawed() --i.e. can be repaired when frozne
+	return not g_ColdWave or GetHeatAt(self) >= const.DefaultFreezeHeat
+end
+
 function Drone:FindDroneToRepair()
 	local closest_drone
 	local command_center = self.command_center
@@ -257,7 +282,9 @@ function Drone:FindDroneToRepair()
 	assert(command_center)
 	for _, drone in ipairs(g_BrokenDrones) do
 		if IsValid(drone) then
-			if not drone.repair_drone and drone.command ~= "Dead" then --nobody is currently repairing him
+			if not drone.repair_drone --nobody is currently repairing him
+				and drone.command ~= "Dead"
+				and (drone.command ~= "Freeze" or drone:CanBeThawed())	then 
 				local dist = HexAxialDistance(drone, self)
 				if dist < best_dist then
 					closest_drone = drone
@@ -278,6 +305,7 @@ end
 
 local DelayAfterUserCommands = {
 	Goto = const.DroneTimeAfterUserGotoToRest,
+	UseTunnel = const.DroneTimeAfterUserGotoToRest,
 	GotoFromUser = const.DroneTimeAfterUserGotoToRest,
 	PickUp = const.DroneTimeAfterUserPickUpToRest,
 	DropCarriedResource = const.DroneTimeAfterUserPickUpToRest
@@ -355,7 +383,7 @@ function CanShootRogueDrone(unit, drone, ignore_command)
 	if unit:IsDying() or (not ignore_command and unit.command == "InterceptRogueDrone") then
 		return false
 	end
-	if GetDomeAtPoint(unit) ~= GetDomeAtPoint(drone) or unit:IsVisitingBuilding() or unit:GetVisualDist2D(drone) > drone.rogue_shoot_range then
+	if unit:IsVisitingBuilding() or unit:GetVisualDist2D(drone) > drone.rogue_shoot_range or GetDomeAtPoint(unit) ~= GetDomeAtPoint(drone) then
 		return false
 	end
 	return IsObjectVisibleFromPoint(drone, unit:GetVisualPos() + point(0, 0, 180*guic))
@@ -477,8 +505,9 @@ function Drone:RogueAttack(target)
 		self:SetAnim(1, "rogueAttack")
 		target:SetCommand("AttackedByDrone", self)
 		Sleep(self:TimeToAnimEnd())
-		if IsValid(target.current_dome) then
-			target.current_dome:AddPanicMarker(target:GetPos(), 15*guim, 3*const.HourDuration)
+		local current_dome = IsUnitInDome(target)
+		if IsValid(current_dome) then
+			current_dome:AddPanicMarker(target:GetPos(), 15*guim, 3*const.HourDuration)
 		end
 	else
 		-- sanity check: range
@@ -513,6 +542,10 @@ function Drone:CanDemolish()
 end
 
 function Drone:Idle()
+	if self:GetParent() then
+		assert(false)
+		self:SetCommand("Embark")
+	end
 	self:ResetUnitControlInteractionState() --if we made it to idle any interaction we may have had is over.
 	Sleep(10)
 	local force_go_home = self.force_go_home
@@ -600,9 +633,14 @@ function Drone:GoHome(min, max, pos, ui_str_override)
 	end
 	self:ExitHolder(command_center)
 	pos = pos or command_center:GetPos()
-	pos = self:GoToRandomPos(max, min, pos, GetPointOutsideDomes)
-	if not pos then --stuck drone
-		Sleep(1000)
+	pos = self:GoToRandomPos(max, min, pos, function(...) 
+														return GetPointOutsideDomes(...) and IsBuildableZone(...)
+													end)
+	if not pos then
+		self:GoToRandomPos(max, min, pos, GetPointOutsideDomes) --go in hollow rocks
+		if not pos then --stuck drone
+			Sleep(1000)
+		end
 	end
 	self:PopAndCallDestructor()
 end
@@ -645,6 +683,7 @@ if FirstLoad then
 	DroneResourceUnits = setmetatable({}, { __index = function(self, key)
 		return rawget(self, key) or const.ResourceScale
 	end})
+	ResourceUnits = DroneResourceUnits
 end
 
 function UpdateDroneResourceUnits()
@@ -666,11 +705,13 @@ OnMsg.NewMap = UpdateDroneResourceUnits
 OnMsg.ConstValueChanged = UpdateDroneResourceUnits
 OnMsg.LoadGame = UpdateDroneResourceUnits
 
-function Drone:ContinuousTask(request, amount, battery_use, anim_start, anim_idle, anim_end, fx, functor)
+function Drone:ContinuousTask(request, amount, battery_use, anim_start, anim_idle, anim_end, fx, functor, use_spot_facing)
 	local building = request:GetBuilding()
 	if not IsValid(building) then return end --building got destroyed en route
-	local whom_to_face = IsKindOf(building, "ConstructionGroupLeader") and FindNearestObject(building.construction_group, self:GetPos():SetInvalidZ()) or building
-	self:Face(whom_to_face, 100)
+	if not use_spot_facing then
+		local whom_to_face = IsKindOf(building, "ConstructionGroupLeader") and FindNearestObject(building.construction_group, self:GetPos():SetInvalidZ()) or building
+		self:Face(whom_to_face, 100)
+	end
 	self:UseBattery(battery_use)
 	if fx then
 		self:StartFX(fx, building)
@@ -685,10 +726,10 @@ function Drone:ContinuousTask(request, amount, battery_use, anim_start, anim_idl
 			subtract = amount
 		end
 		request:AddAmount(-subtract)
-		self:UseBattery(battery_use)
 		if functor then
 			functor(self, request, subtract)
 		end
+		self:UseBattery(battery_use)
 		Sleep(1000)
 	end
 	if fx then
@@ -773,6 +814,9 @@ function Drone:ApproachWrapper(building, resource)
 		unreachable_buildings[building] = GameTime()
 		self.unreachable_buildings_count = self.unreachable_buildings_count + 1
 		self.unreachable_buildings = unreachable_buildings
+		if IsKindOf(building, "ConstructionSite") and self.command_center then
+			self.command_center:UpdateConstructions()
+		end
 	end
 	
 	return IsValid(building) and result
@@ -785,13 +829,17 @@ function BumpDroneUnreachablesVersion()
 	g_DroneUnreachablesVersion = g_DroneUnreachablesVersion + 1
 end
 
+function Drone:ResetUnreachablesTable()
+	self.unreachable_buildings = setmetatable({version = g_DroneUnreachablesVersion}, weak_keys_meta)
+	self.unreachable_buildings_count = 0
+end
+
 function Drone:CleanUnreachables()
 	local t = self.unreachable_buildings
 	if not t then
 		return
 	elseif (t.version or -1) ~= g_DroneUnreachablesVersion then
-		self.unreachable_buildings = setmetatable({version = g_DroneUnreachablesVersion}, weak_keys_meta)
-		self.unreachable_buildings_count = 0
+		self:ResetUnreachablesTable()
 		return
 	end
 	
@@ -840,6 +888,7 @@ function Drone:Work(request, resource, amount)
 		self.resource = false
 		self.amount = false
 		self.target = false
+		self.override_ui_status = nil
 	end)
 	building:DroneWork(self, request, resource, amount)
 	self:PopAndCallDestructor()
@@ -945,39 +994,76 @@ function Drone:SetCarriedResource(resource, amount)
 	end
 end
 
-function Drone:CreateDumpingStockpile()
-	local pos = self:GetPos()
+function FindStockpileDumpSpot(pos, resource, path_test_obj)
 	local q, r = WorldToHex(pos)
 	local bld = HexGetLowBuilding(q, r)
 	local pipe = HexGetPipe(q, r)
-	local units = HexGetUnits(nil, nil, pos, 0, nil, self.resource == "WasteRock" and StockpileDumpSpotFilterForWasteRock or StockpileDumpSpotFilter, StockpileDumpQueryClasses)
-	if bld or pipe or #units > 0 then
+	local ls_cs = GetLandscapeConstructionAt(q, r, true)
+	local units = HexGetUnits(nil, nil, pos, 0, nil, resource == "WasteRock" and StockpileDumpSpotFilterForWasteRock or StockpileDumpSpotFilter, StockpileDumpQueryClasses)
+	local res = false
+	if bld or pipe or #units > 0 or ls_cs then
 		--there is a building here.
-		local obj = bld or units[1] or pipe
+		local obj = bld or units[1] or pipe or ls_cs
 		local p_shape = GetEntityPeripheralHexShape(obj:GetEntity())
 		if #p_shape == 6 then p_shape = HexSurroundingsCheckShapeLarge end --1 hex buildings can get surrounded pretty quickly so extend the search.
-		local res
-		q, r = WorldToHex(obj)
-		res, q, r = TryFindStockpileDumpSpot(q, r, obj:GetAngle(), p_shape, HexGetAnyObj, self.resource == "WasteRock")
+		if not ls_cs then
+			q, r = WorldToHex(obj)
+			res, q, r = TryFindStockpileDumpSpot(q, r, obj:GetAngle(), p_shape, HexGetLandscapeOrAnyObjButToxicPool, resource == "WasteRock")
+		end
 		if not res then
 			--try again
-			q, r = WorldToHex(self)
-			res, q, r = TryFindStockpileDumpSpot(q, r, 0, HexSurroundingsCheckShapeLarge, HexGetAnyObj, self.resource == "WasteRock")
+			q, r = WorldToHex(pos)
+			res, q, r = TryFindStockpileDumpSpot(q, r, 0, HexSurroundingsCheckShapeLarge, HexGetLandscapeOrAnyObjButToxicPool, resource == "WasteRock", nil, path_test_obj)
 		end
-		if not res then
-			PlaceResourcePile(GetPassablePointNearby(self), self.resource, self.amount)
-			self.resource = false
-			self.amount = false
-			RebuildInfopanel(self)
-			self:DestroyAttaches("ResourceStockpileBox")
+	else
+		res = true
+	end
+	return res, q, r
+end
+
+function Drone:CreateDumpingStockpile()
+	local s_req = self.picked_up_from_req
+	local s_bld = s_req and s_req:GetBuilding()
+	local input_pos = IsKindOf(s_bld, "ResourceStockpileBase") and s_bld:GetPos() or self:GetPos()
+	local mark = LandscapeCheck(input_pos, false)
+	local ls = mark and Landscapes[mark]
+	local site = ls and ls.site
+	if site and IsKindOf(site, "LandscapeConstructionSiteBase") then
+		--exit the ls b4 searching for pos
+		if not self:Goto(site.drone_dests_cache) then
 			Sleep(1000)
-			return --failed to find a suitable location
+			return false
 		end
+		input_pos = self:GetPos()
 	end
 	
-	pos = point(HexToWorld(q, r))
+	local res, q, r = FindStockpileDumpSpot(input_pos, self.resource, self) --prefer stockpile pos as ref so all drones see the same positions
+	
+	if not res then
+		local dropped = false
+		if s_bld and s_req and s_req:IsAnyFlagSet(const.rfCanExecuteAlone) then
+			s_bld = GetTopmostParent(s_bld)
+			if s_bld:HasMember("ExecuteAloneResourceOutputBlocked") then
+				dropped = s_bld:ExecuteAloneResourceOutputBlocked(self.resource, self.amount, self)
+			end
+		end
+		
+		if not dropped then
+			PlaceResourcePile(GetPassablePointNearby(self), self.resource, self.amount)
+		end
+		
+		self.resource = false
+		self.amount = false
+		RebuildInfopanel(self)
+		self:DestroyAttaches("ResourceStockpileBox")
+		Sleep(1000)
+		return --failed to find a suitable location
+	end
+	
+	local pos = point(HexToWorld(q, r))
 	self:ExitHolder(pos)
-	if not self:Goto(pos, const.HexSize * 3 / 4, const.HexSize * 1 / 2) or HexGetLowBuilding(q, r) then --someone took the spot while we traveled.
+	if not self:Goto(pos, const.HexSize * 3 / 4, const.HexSize * 1 / 2) or HexGetLowBuilding(q, r)
+		or (self.resource == "WasteRock" and HexGetUnits(nil, nil, pos, 0, nil, StockpileDumpSpotFilterForWasteRock, StockpileDumpQueryClasses)[1]) then --someone took the spot while we traveled.
 		Sleep(1000)
 		return
 	end
@@ -1019,7 +1105,7 @@ function Drone:CreateDumpingStockpile()
 end
 
 function Drone:Deliver(d_request, do_not_improve_req)
-	local state = "approach"
+	self.delivery_state = "approach"
 	local resource = self.resource
 	local amount = self.amount
 	
@@ -1067,13 +1153,13 @@ function Drone:Deliver(d_request, do_not_improve_req)
 			cc:UpdateRockets()
 		end
 	end
-	
+	local is_fulfilled = false
 	self:PushDestructor(function(self)
 		if d_request then
-			d_request:UnassignUnit(amount, state == "done") 
+			d_request:UnassignUnit(amount, is_fulfilled) 
 		end
 		
-		if state == "done" then
+		if self.delivery_state == "done" then
 			--we delivered, clean up
 			self.resource = false
 			self.amount = false
@@ -1110,7 +1196,8 @@ function Drone:Deliver(d_request, do_not_improve_req)
 		RebuildInfopanel(self)
 	end
 	-- unload animation
-	state = "done" --this must come first because the below call can hijack our drone.
+	is_fulfilled = true
+	self.delivery_state = "done" --this must come first because the below call can hijack our drone.
 	building:DroneUnloadResource(self, d_request, resource, amount)
 	
 	self:PopAndCallDestructor()
@@ -1419,11 +1506,11 @@ function Drone:Embark() --while in transin in rover
 	self:StopFX()
 	self:ClearPath()
 	self:SetState("idle", const.eDontCrossfade)
-	self:ClearEnumFlags(const.efPathExecObstacle + const.efResting) --resting so it does not interfere with rover pathing.
+	self:ClearEnumFlags(const.efPathExecObstacle + const.efResting + const.efSelectable) --resting so it does not interfere with rover pathing.
 	self:PushDestructor(function(self)
 		if not IsValid(self) then return end
 		self.accumulate_dust = true
-		self:SetEnumFlags(const.efPathExecObstacle + const.efResting)
+		self:SetEnumFlags(const.efPathExecObstacle + const.efResting + const.efSelectable)
 	end)
 	Halt()
 end
@@ -1604,7 +1691,8 @@ function Drone:ToggleReassignInteractionMode_Update(button)
 	button:SetIcon(to_mode and
 		"UI/Icons/IPButtons/reassign.tga"
 		or "UI/Icons/IPButtons/cancel.tga")
-	button:SetEnabled(self:CanBeControlled())
+	local tutorial2_enable = not g_Tutorial or ((g_Tutorial.Id == "Tutorial2") and g_Tutorial.DisableReassignButtons and AreAllUnassignedDronesSelected()) or false
+	button:SetEnabled(self:CanBeControlled() and tutorial2_enable)
 	button:SetRolloverText(T(4428, "Assign to target Hub, Commander or Rocket."))
 	local shortcuts = GetShortcuts("actionReassignDrone")
 	local hint = ""
@@ -1620,7 +1708,8 @@ function Drone:ToggleReassignAllInteractionMode_Update(button)
 	button:SetIcon(to_mode and
 		"UI/Icons/IPButtons/reassign_all.tga"
 		or "UI/Icons/IPButtons/cancel.tga")
-	button:SetEnabled(self:CanBeControlled())
+	local tutorial2_enable = not g_Tutorial or ((g_Tutorial.Id == "Tutorial2") and g_Tutorial.DisableReassignButtons and AreAllUnassignedDronesSelected()) or false
+	button:SetEnabled(self:CanBeControlled() and tutorial2_enable)
 	button:SetRolloverText(T(8719, "Assign as many drones to target Hub, Commander or Rocket as possible."))
 	button:SetRolloverHint(to_mode and T(7509, "<left_click> Select target mode") or T(7510, "<left_click> on target to select it  <right_click> Cancel"))
 	button:SetRolloverHintGamepad(to_mode and T(7511, "<ButtonA> Select target mode") or T(7512, "<ButtonA> Cancel"))
@@ -1759,7 +1848,7 @@ function Drone:OnStrandedFallback()
 				end
 				
 				if self.last_spot_tried <= i2 then
-					p = building:GetSpotPos(self.last_spot_tried)
+					local p = building:GetSpotPos(self.last_spot_tried)
 					if terrain.IsPassable(p, self.pfclass) then
 						teleport_pos = p
 					end
@@ -1782,18 +1871,23 @@ function Drone:OnStrandedFallback()
 	end
 	--]]
 	if teleport_pos then
-		assert(GetDomeAtPoint(my_pos) == GetDomeAtPoint(teleport_pos))
 		self:SetPos(teleport_pos)
 		return true
 	end
 	return Unit.OnStrandedFallback(self)
 end
 
+function Drone:OnModifiableValueChanged(prop, old_val, new_val)
+	if prop == "battery_max" then
+		self.battery = Min(self.battery, self.battery_max)
+	end
+end
+
 function GetSupplyReq(bld, resource)
 	if IsKindOfClasses(bld, "SurfaceDeposit", "ResourcePile") then
 		return bld.transport_request
 	else
-		return bld.supply_request or bld.supply[resource]
+		return bld.supply_request or bld:HasMember("supply") and bld.supply[resource]
 	end
 end
 
@@ -1803,7 +1897,8 @@ local function CanPickupResourceFrom(o, resource)
 	return res == resource or type(res) == "table" and table.find(res, resource) and true or false
 end
 
-ResourceSources_func = function(o, resource, amount)
+ResourceSources_func = function(o, resource, amount, unreachables)
+	if unreachables and unreachables[o] then return false end
 	if IsKindOfClasses(o, "SharedStorageBaseVisualOnly", "ConsumptionResourceStockpile") then return false end
 	if not CanPickupResourceFrom(o, resource) then return end
 	local req = GetSupplyReq(o, resource)
@@ -1814,12 +1909,18 @@ function Drone:InteractionObjTest_Construct(obj)
 	return IsKindOf(obj, "ConstructionSite")
 end
 
-local function parse_cs_reqs_and_find_source(self, obj)
-	local next_req, source
-	for res, req in pairs(obj.construction_resources) do
-		if TestReq(req, nil, 1) then
-			next_req = req
-			break
+function Drone:InteractionObjTest_LandscapeConstruct(obj)
+	return IsKindOf(obj, "LandscapeConstructionSiteBase")
+end
+
+local function parse_cs_reqs_and_find_source(self, obj, next_req)
+	local source
+	if not next_req then
+		for res, req in pairs(obj.construction_resources) do
+			if TestReq(req, nil, 1) then
+				next_req = req
+				break
+			end
 		end
 	end
 	if next_req then
@@ -1830,6 +1931,42 @@ local function parse_cs_reqs_and_find_source(self, obj)
 									Min(DroneResourceUnits[resource], next_req:GetTargetAmount()))
 	end
 	return next_req, source
+end
+
+function Drone:InteractionObjCheck_LandscapeConstruct(obj)
+	local s = obj.state
+	local txt
+	local ret = false
+	if s == "clean" then
+		if obj.clear_obstructors_request:CanAssignUnit(const.ResourceScale)
+			or obj.obstructors_supply_request:CanAssignUnit(const.ResourceScale) then
+			txt = T{4398, "<UnitMoveControl('ButtonA',interaction_mode)>: Work on this construction", self}
+			ret = true
+		end
+	elseif s == "transport" then
+		if obj.supply_request:CanAssignUnit(const.ResourceScale) then
+			txt = T{4398, "<UnitMoveControl('ButtonA',interaction_mode)>: Work on this construction", self}
+			ret = true
+		elseif obj.demand_request:GetTargetAmount() > 0 then
+			local _, source = parse_cs_reqs_and_find_source(self, obj, obj.demand_request)
+			if source then
+				txt = T{4398, "<UnitMoveControl('ButtonA',interaction_mode)>: Work on this construction", self}
+				ret = true
+			else
+				txt = T(11248, "Can't find the required resources")
+			end
+		end
+	elseif s == "work" then
+		local req = IsKindOf(obj, "TerrainPaintConstructionSite") and obj.work_request or obj.waste_rock_juggle_work_request
+		if req:CanAssignUnit(const.ResourceScale) then
+			txt = T{4398, "<UnitMoveControl('ButtonA',interaction_mode)>: Work on this construction", self}
+			ret = true
+		end
+	end
+	
+	txt = not txt and T(4399, "<red>Too many Drones are already constructing this building</red>") or txt
+	
+	return ret, txt
 end
 
 function Drone:InteractionObjCheck_Construct(obj)
@@ -1862,6 +1999,41 @@ function Drone:InteractionObjCheck_Construct(obj)
 	end
 	
 	return ret, txt
+end
+
+function Drone:Interaction_LandscapeConstruct(obj)
+	local s = obj.state
+	if s == "clean" then
+		if obj.clear_obstructors_request:CanAssignUnit(const.ResourceScale) then
+			local r = obj.clear_obstructors_request
+			local res = r:GetResource()
+			self:SetCommandUserInteraction("Work", r, res, Min(DroneResourceUnits[res], r:GetActualAmount()))
+		elseif obj.obstructors_supply_request:CanAssignUnit(const.ResourceScale) then
+			local r = obj.obstructors_supply_request
+			local res = r:GetResource()
+			self:SetCommandUserInteraction("PickUp", r, nil, res, Min(DroneResourceUnits[res], r:GetTargetAmount()))
+		end
+	elseif s == "transport" then
+		if obj.supply_request:CanAssignUnit(const.ResourceScale) then
+			local r = obj.supply_request
+			local res = r:GetResource()
+			self:SetCommandUserInteraction("PickUp", r, nil, res, Min(DroneResourceUnits[res], r:GetTargetAmount()))
+		elseif obj.demand_request:GetTargetAmount() > 0 then
+			local r = obj.demand_request
+			local res = r:GetResource()
+			local _, source = parse_cs_reqs_and_find_source(self, obj, r)
+			if source then
+				local s_req = FindSupplyReq(source, res)
+				self:SetCommandUserInteraction("PickUp", s_req, r, res, Min(DroneResourceUnits[res], r:GetTargetAmount()))
+			end
+		end
+	elseif s == "work" then
+		local r = IsKindOf(obj, "TerrainPaintConstructionSite") and obj.work_request or obj.waste_rock_juggle_work_request
+		if r:CanAssignUnit(const.ResourceScale) then
+			local res = r:GetResource()
+			self:SetCommandUserInteraction("Work", r, res, Min(DroneResourceUnits[res], r:GetActualAmount()))
+		end
+	end
 end
 
 function Drone:Interaction_Construct(obj)
@@ -1955,32 +2127,52 @@ function Drone:Interaction_PickupFromRCTransport(obj)
 	end
 end
 
+local function assign_to_req_helper(self, req) --assigns with carried resource
+	assert(self.resource == req:GetResource())
+	local amount = self.amount
+	local target_amount = req:GetTargetAmount()
+	assert((amount or 0) > 0 and target_amount > 0) 
+	if target_amount < amount then --assign will fail
+		self:DropCarriedResource(amount - target_amount)
+		amount = self.amount
+	end
+	return req:AssignUnit(amount)
+end
+
 function Drone:InteractionObjTest_RepairSupplyGridElement(obj)
 	return not IsKindOf(obj, "ConstructionSite") and IsKindOfClasses(obj, "ElectricityGridElement", "LifeSupportGridElement") and obj:IsBroken()
 end
 
-function Drone:InteractionCheck_RepairSupplyGridElement(obj)
+function Drone:InteractionCheck_RepairSupplyGridElement(obj, carrying_resource)
 	local r = obj.repair_resource_request
 	if not r or not r:CanAssignUnit() or r:GetTargetAmount() <= 0 then
 		return false --other drone working on it.
 	end
 	local resource = r:GetResource()
-	local source = MapFindNearest(self, self, Drone_AutoFindResourceRadius, "ResourceStockpile", "ResourcePile", "SurfaceDeposit", "StorageDepot", ResourceSources_func, resource, Min(DroneResourceUnits[resource], r:GetTargetAmount()))
-	if not source then
-		return false, T{4393, "<red>Cannot find any <resource_icon> nearby</red>", resource_icon = TLookupTag("<icon_" .. resource .. ">")}
+	local source
+	if resource ~= carrying_resource then	
+		source = MapFindNearest(self, self, Drone_AutoFindResourceRadius, "ResourceStockpile", "ResourcePile", "SurfaceDeposit", "StorageDepot", ResourceSources_func, resource, Min(DroneResourceUnits[resource], r:GetTargetAmount()))
+		if not source then
+			return false, T{4393, "<red>Cannot find any <resource_icon> nearby</red>", resource_icon = TLookupTag("<icon_" .. resource .. ">")}
+		end
 	end
 	
 	return true, T{9631, "<UnitMoveControl('ButtonB',interaction_mode)>: Repair this building", self}, source
 end
 
-function Drone:Interaction_RepairSupplyGridElement(obj)
-	local r, _, source = self:InteractionCheck_RepairSupplyGridElement(obj)
+function Drone:Interaction_RepairSupplyGridElement(obj, carrying_resource)
+	local r, _, source = self:InteractionCheck_RepairSupplyGridElement(obj, carrying_resource)
 	
 	if source then
 		local d_req = obj.repair_resource_request
 		local resource = d_req:GetResource()
 		local s_req = GetSupplyReq(source, resource)
 		self:SetCommandUserInteraction("PickUp", s_req, d_req, resource, Min(DroneResourceUnits[resource], s_req:GetTargetAmount(), d_req:GetActualAmount()))
+	elseif carrying_resource then
+		local d_req = obj.repair_resource_request
+		if assign_to_req_helper(self, d_req) then
+			self:SetCommandUserInteraction("Deliver", d_req, true)
+		end
 	end
 end
 
@@ -1988,7 +2180,7 @@ function Drone:CanInteractWithObject(obj)
 	if self:IsDisabled() then return false, T(4392, "This Drone is disabled") end
 	RebuildInfopanel(self)
 	if self.interaction_mode == false or self.interaction_mode == "default" or self.interaction_mode == "move" then
-		if not IsKindOfClasses(obj, "Building", "DroneBase", "ResourceStockpileBase", "SurfaceDeposit", "ResourcePile", "Tunnel", "ElectricityGridElement", "LifeSupportGridElement") then
+		if not IsKindOfClasses(obj, "Building", "DroneBase", "ResourceStockpileBase", "SurfaceDeposit", "ResourcePile", "Tunnel", "ElectricityGridElement", "LifeSupportGridElement", "ToxicPool") then
 			return false, GetUIStyleGamepad() and  T{4339, "<UnitMoveControl('ButtonA',interaction_mode)>: Move",self} or false
 		end
 
@@ -2004,7 +2196,7 @@ function Drone:CanInteractWithObject(obj)
 		elseif IsKindOf(obj, "BaseRover") and obj:IsMalfunctioned() then
 			if  obj.repair_work_request:CanAssignUnit() then
 				return true, T{9720, "<UnitMoveControl('ButtonA',interaction_mode)>: Repair",self}	
-			elseif IsKindOf(obj, "AttackRover") and not UICity.mystery.enable_rover_repair then
+			elseif IsKindOf(obj, "AttackRover") and (not UICity.mystery.enable_rover_repair or not obj.is_repair_request_initialized) then
 				return false, ""
 			else
 				return false, T(7589, "<red>Too many Drones are repairing this vehicle</red>"), true
@@ -2024,7 +2216,7 @@ function Drone:CanInteractWithObject(obj)
 				return true, T{9632, "<UnitMoveControl('ButtonY',interaction_mode)>: Assign to this command center",self}
 			end
 		elseif self:InteractionObjTest_RepairSupplyGridElement(obj) then
-			return self:InteractionCheck_RepairSupplyGridElement(obj)
+			return self:InteractionCheck_RepairSupplyGridElement(obj, carrying_resource)
 		elseif IsKindOf(obj, "Building") and (obj.maintenance_phase or obj.accumulated_maintenance_points > 0) then
 			local phase = obj.maintenance_phase or "demand"
 			local d_req = obj.maintenance_resource_request
@@ -2062,8 +2254,12 @@ function Drone:CanInteractWithObject(obj)
 			return false
 		elseif self:InteractionObjTest_PickupFromRCTransport(obj) then
 			return self:InteractionObjCheck_PickupFromRCTransport(obj)
+		elseif self:InteractionObjTest_LandscapeConstruct(obj) then
+			return self:InteractionObjCheck_LandscapeConstruct(obj)
 		elseif self:InteractionObjTest_Construct(obj) then
 			return self:InteractionObjCheck_Construct(obj)
+		elseif IsKindOf(obj, "ToxicPool") and obj:CanBeCleaned() then
+			return true, T{12052, "<UnitMoveControl('ButtonA',interaction_mode)>: Clean", self}
 		end	
 		return false, GetUIStyleGamepad() and  T{4339, "<UnitMoveControl('ButtonA',interaction_mode)>: Move",self} or false
 	elseif self.interaction_mode == "reassign" or self.interaction_mode == "reassign_all" then
@@ -2083,7 +2279,7 @@ function Drone:CanInteractWithObject(obj)
 		local resource_demand_req = self:ShouldDeliverResourcesToBld(obj, self.resource)
 		
 		if self:InteractionObjTest_RepairSupplyGridElement(obj) then
-			return self:InteractionCheck_RepairSupplyGridElement(obj)
+			return self:InteractionCheck_RepairSupplyGridElement(obj, carrying_resource)
 		elseif IsKindOf(obj, "Building") and obj.maintenance_phase then
 			if obj.maintenance_resource_request == resource_demand_req then
 				return true, T{4396, "<UnitMoveControl('ButtonA',interaction_mode)>: Deliver <resource(amount, resource)>", amount = self.amount, resource = self.resource, self}
@@ -2107,7 +2303,7 @@ function Drone:CanInteractWithObject(obj)
 		elseif IsKindOf(obj, "BaseRover") and obj:IsMalfunctioned() then
 			if  obj.repair_work_request:CanAssignUnit() then
 				return true, T{7588, "<UnitMoveControl('ButtonA',interaction_mode)>: Repair this vehicle",self}	
-			elseif IsKindOf(obj, "AttackRover") and not UICity.mystery.enable_rover_repair then
+			elseif IsKindOf(obj, "AttackRover") and (not UICity.mystery.enable_rover_repair or not obj.is_repair_request_initialized) then
 				return false, ""
 			else
 				return false, T(7589, "<red>Too many Drones are repairing this vehicle</red>"), true
@@ -2136,17 +2332,6 @@ function Drone:InteractWithObject(obj, interaction_mode)
 		- (if target is a position) go to there and wait a minute before becoming idle
 		]]
 		
-		local function assign_to_req_helper(self, req)
-			local amount = self.amount
-			local target_amount = req:GetTargetAmount()
-			assert((amount or 0) > 0 and target_amount > 0) 
-			if target_amount < amount then --assign will fail
-				self:DropCarriedResource(amount - target_amount)
-				amount = self.amount
-			end
-			return req:AssignUnit(amount)
-		end
-		
 		local resource_demand_req = self:ShouldDeliverResourcesToBld(obj, self.resource)
 		if resource_demand_req then --we are carrying a resource and this bld needs it, or is a storage depot that accepts it
 			if assign_to_req_helper(self, resource_demand_req) then
@@ -2154,7 +2339,7 @@ function Drone:InteractWithObject(obj, interaction_mode)
 			end
 		elseif IsKindOf(obj, "Tunnel") then
 			if obj.working then
-				self:SetCommand("UseTunnel", obj)
+				self:SetCommandUserInteraction("UseTunnel", obj)
 				SetUnitControlInteractionMode(self, false) --toggle button
 			end
 		elseif IsKindOf(obj, "BaseRover") and obj:IsMalfunctioned() and obj.repair_work_request:CanAssignUnit() then
@@ -2165,14 +2350,14 @@ function Drone:InteractWithObject(obj, interaction_mode)
 				(IsKindOfClasses(obj, "RechargeStationBase", "DroneHub") and obj == self.command_center)) --if we select our command center go charge there
 				and obj.working then 
 			if IsKindOf(obj, "DroneHub") then
-				obj = FindNearestObject(obj:GetAttaches("RechargeStationBase"), self:GetPos())
+				obj = FindNearestObject(obj:GetAttaches("RechargeStationBase"), self)
 			end
 			self:SetCommandUserInteraction("EmergencyPower", obj)
 		elseif obj ~= self.command_center and IsKindOf(obj, "DroneControl") and obj:CanHaveMoreDrones() then
 			drop_resource = true
 			self:SetCommandCenterUser(obj)
 		elseif self:InteractionObjTest_RepairSupplyGridElement(obj) then
-			self:Interaction_RepairSupplyGridElement(obj)
+			self:Interaction_RepairSupplyGridElement(obj, carrying_resource)
 		elseif IsKindOf(obj, "Building") and (obj.maintenance_phase or obj.accumulated_maintenance_points > 0) then
 			if obj.maintenance_phase == "work" then
 				drop_resource = true
@@ -2241,8 +2426,14 @@ function Drone:InteractWithObject(obj, interaction_mode)
 			self:SetInteractionState(false)
 		elseif self:InteractionObjTest_PickupFromRCTransport(obj) then
 			return self:Interaction_PickupFromRCTransport(obj)
+		elseif self:InteractionObjTest_LandscapeConstruct(obj) then
+			return self:Interaction_LandscapeConstruct(obj)
 		elseif self:InteractionObjTest_Construct(obj) then
 			return self:Interaction_Construct(obj)
+		elseif IsKindOf(obj, "ToxicPool") and obj:CanBeCleaned() then
+			local request = obj.clean_request
+			self:SetCommandUserInteraction("PickUp", request, false, "WasteRock", Min(DroneResourceUnits.WasteRock, request:GetTargetAmount()))
+			return true
 		end
 	elseif self.interaction_mode == "reassign" then
 		-- "Reassign" - assign to target hub/rover
@@ -2284,12 +2475,12 @@ function Drone:InteractWithObject(obj, interaction_mode)
 		local resource_demand_req = self:ShouldDeliverResourcesToBld(obj, self.resource, self.amount)
 		
 		if self:InteractionObjTest_RepairSupplyGridElement(obj) then
-			self:Interaction_RepairSupplyGridElement(obj)
+			self:Interaction_RepairSupplyGridElement(obj, carrying_resource)
 		elseif IsKindOf(obj, "Building") and obj.maintenance_phase then
 			if obj.maintenance_phase == "work" then
 				drop_resource = true
 				self:SetCommandUserInteraction("Work", obj.maintenance_work_request, "repair", Min(DroneResourceUnits.repair, obj.maintenance_work_request:GetTargetAmount()))
-			elseif obj.maintenance_resource_request == resource_demand_req then
+			elseif obj.maintenance_resource_request == resource_demand_req and assign_to_req_helper(self, resource_demand_req) then
 				self:SetCommandUserInteraction("Deliver", resource_demand_req, true)
 			else
 				drop_resource = true
@@ -2364,7 +2555,7 @@ function Drone:GetSelectorItems(dataset)
 							if req then
 								local pickup_amount = Min(DroneResourceUnits[res_id], req:GetTargetAmount())
 								if TestReq(req, res_id, pickup_amount) then
-									self:SetCommandUserInteraction("PickUp", req, false, res_id, pickup_amount, true)
+									dataset.object:SetCommandUserInteraction("PickUp", req, false, res_id, pickup_amount, true)
 								end
 							end
 						end
@@ -2455,7 +2646,7 @@ function Drone:CheatRechargeBattery()
 	self.battery = self.battery_max
 end
 
-local DroneCommands = {
+DroneCommands = {
 	Goto = T(63, "Travelling"),
 	GotoFromUser = T(63, "Travelling"),
 	Malfunction = T(65, "Malfunctioned"),
@@ -2470,7 +2661,7 @@ local DroneCommands = {
 	WaitingCommand = T(4410, "Waiting for tasks"),
 	Deliver = T(7398, "Delivering <Resource>"),
 	PickUp = T(4411, "Going to pick up <SRequestResource>"),
-	Freeze = T(7813, "<red>This unit is frozen and will suffer a critical malfunction unless repaired quickly.</red>"),
+	Freeze = T(12298, "<red>This unit is frozen and can be fixed when the Cold Wave is over or when the area is heated.</red>"),
 	Dead = T(4413, "<red>This unit has been destroyed. It can be salvaged for materials.</red>"),
 	GoHome = T(4414, "Deploying"),
 	ReturningToController = T(8105, "Returning to controller"), --gohome alt str
@@ -2481,6 +2672,11 @@ local DroneCommands = {
 	Dismantle = T(8106, "Dismantling target"),
 	DespawnAtHub = T(8663, "Returning to Drone Hub to be dismantled into a Drone Prefab"),
 	GotoAndEmbark =  T(11216, "Boarding Rocket"),
+	CleanLSCS = T(12600, "Clearing Waste Rock"),
+	WorkLSCS = T(12601, "Flattening site"),
+	PickUpLSCS = T(12602, "Extracting Waste Rock"), --for 100 secs
+	DeliverLSCS = T(12603, "Depositing Waste Rock"), --for 100 secs
+	WaitingCommand = T(12549, "<red>Orphaned Drone. Assign to a Drone commander.</red>")
 }
 
 function Drone:GetSRequestResource()
@@ -2525,7 +2721,7 @@ end
 
 function Drone:SetCommandUserInteraction(command, ...)
 	self:SetCommand(command, ...)
-	self.idle_wait = DelayAfterUserCommands[command] or false
+	self.idle_wait = DelayAfterUserCommands[command] or false --wait == last queued cmd
 end
 
 function Drone:SaveCompatDifferentiateDisablingFromBroken()
@@ -2567,11 +2763,12 @@ Drone.SetDisablingCommand = Drone.SetCommand
 function Drone:Getui_command()
 	if self:IsDeadUI() then
 		return DroneCommands.Dead
-	elseif (not self.command_center or not self.command_center.working)
-			and (self.command == "Idle" or self.command == "WaitingCommand") then
+	elseif (self.command_center and not self.command_center.working) then
+		return T(12550, "<red>Not receiving commands. Drone commander is not working.</red>")
+	elseif self.command == "Idle" then
 		return T(4418, "No orders")
-	else 
-		local resource = DroneCommands[self.resource]
+	else
+		local resource = DroneCommands[self.override_ui_status or self.resource]
 		if resource then
 			return resource
 		end
@@ -2706,4 +2903,27 @@ end
 function dbg_GetDetachedDrone()
 	for _, drone in ipairs(SelectedObj.drones) do if drone:GetPos() == InvalidPos() then return drone end end
 end
+end
+
+function OnMsg.PostNewMapLoaded()
+	--fix poc maps
+	CreateGameTimeThread(function()
+		--lbl is empty out of thread
+		local lbl = UICity and UICity.labels.Drone
+		for i = #(lbl or ""), 1, -1 do
+			local d = lbl[i]
+			if not IsValid(d) then
+				table.remove(lbl, i)
+			elseif d:GetPos() == InvalidPos() and not d.holder and not d:GetParent() then
+				if d.command_center then
+					local p = d.command_center:GetPos()
+					p = GetPassablePointNearby(p, d.pfclass)
+					d:SetPos(p)
+				else
+					DoneObject(d)
+					table.remove(lbl, i)
+				end
+			end
+		end
+	end)
 end

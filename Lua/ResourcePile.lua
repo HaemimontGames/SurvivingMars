@@ -1,7 +1,6 @@
 DefineClass.ResourcePile = {
 	__parents = { "TaskRequester", "Shapeshifter", "InfopanelObj" },
-	enum_flags = { efRemoveUnderConstruction = true },
-	game_flags = { gofPermanent = true, gofTemporalConstructionBlock = true },
+	flags = { efRemoveUnderConstruction = true, gofPermanent = true, gofTemporalConstructionBlock = true },
 	properties = {
 		{ id = "resource", editor = "text", default = "WasteRock", no_edit = true },
 	},
@@ -32,13 +31,13 @@ function ResourcePile:SetResource(resource)
 end
 
 function ResourcePile:DroneLoadResource(drone, request, resource, amount)
-	if self.transport_request:GetActualAmount() <= 0 then
+	if self:GetStoredAmount() <= 0 then
 		DoneObject(self)
 	end
 end
 
 function ResourcePile:RoverWork(rover, request, resource, amount)
-	if self.transport_request:GetActualAmount() <= 0 then
+	if self:GetStoredAmount() <= 0 then
 		DoneObject(self)
 	end
 end
@@ -60,17 +59,50 @@ function ResourcePile:GetDescription()
 end
 
 function ResourcePile:GetStoredAmount()
-	return self.amount
+	local request = self.transport_request
+	if request then
+		return request:GetActualAmount()
+	else
+		return self.amount
+	end
+end
+
+function ResourcePile:GetTargetAmount()
+	local request = self.transport_request
+	if request then
+		return request:GetTargetAmount()
+	else
+		return self.amount
+	end
 end
 
 function ResourcePile:GetShapePoints()
 	return GetEntityOutlineShape(nil)
 end
 
+function ResourcePile:AddAmount(amount)
+	local request = self.transport_request
+	if request then
+		request:AddAmount(amount)
+	else
+		self.amount = self.amount + amount
+	end
+end
+
+local function ResourceFilter(pile, resource)
+	return pile.resource == resource
+end
+
 function PlaceResourcePile(pos, resource, amount)
-	local dome_at_pt = GetDomeAtPoint(pos)
-	local pile = PlaceObject("ResourcePile", {resource = resource, amount = amount, parent_dome = dome_at_pt})
-	pile:SetPos(pos)
+	local pile = MapFindNearest(pos, pos, const.HexSize, "ResourcePile", ResourceFilter, resource)
+	if pile then
+		pile:AddAmount(amount)
+	else
+		local dome_at_pt = GetDomeAtPoint(pos)
+		pile = PlaceObject("ResourcePile", {resource = resource, amount = amount, parent_dome = dome_at_pt})
+		pile:SetPos(pos)
+	end
+	
 	return pile
 end
 

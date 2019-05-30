@@ -32,12 +32,12 @@ PlaceObj('XTemplate', {
 			'name', "Open",
 			'parent', function (parent, context) return GetDialog(parent) end,
 			'func', function (self, ...)
-XDialog.Open(self, ...)
-local pad = self.idFrame:GetPadding()
-self.idFrame:SetPadding(box(pad:minx() + 90, pad:miny(), pad:maxx(), pad:maxy()))
-local margins = self.idToolbarFrame:GetMargins()
-self.idToolbarFrame:SetMargins(box(margins:minx()-90, margins:miny(), margins:maxx(), margins:maxy()))
-end,
+				XDialog.Open(self, ...)
+				local pad = self.idFrame:GetPadding()
+				self.idFrame:SetPadding(box(pad:minx() + 90, pad:miny(), pad:maxx(), pad:maxy()))
+				local margins = self.idToolbarFrame:GetMargins()
+				self.idToolbarFrame:SetMargins(box(margins:minx()-90, margins:miny(), margins:maxx(), margins:maxy()))
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XLabel",

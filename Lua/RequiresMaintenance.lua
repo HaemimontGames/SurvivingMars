@@ -53,7 +53,7 @@ DefineClass.RequiresMaintenance = {
 	
 	show_dust_visuals = true, --uses dust visuals to represent maintenance pnts, 0-70% dust visual = 0-100% mnt pnts, 100% dust vis = malfunction
 	
-	UpdateConsumption = __empty_function__,
+	UpdateConsumption = empty_func,
 	maintenance_request_is_highest_prio = false, --save compat with rev 225026 saves
 }
 --[[
@@ -96,7 +96,7 @@ function RequiresMaintenance:InitMaintenanceRequests() --init is 2 early, gamein
 	else
 		self.accumulate_maintenance_points = false
 		self.GetPriorityForRequest = g_Classes[self.class].GetPriorityForRequest or TaskRequester.GetPriorityForRequest --flatten
-		self.AccumulateMaintenancePoints = __empty_function__
+		self.AccumulateMaintenancePoints = empty_func
 	end
 end
 
@@ -201,7 +201,7 @@ function RequiresMaintenance:StartWorkPhase(drone)
 		req:AddAmount(self.accumulated_maintenance_points)
 		if drone then --we've been given a drone by the drone gods.
 			local amount = Min(g_Consts.DroneBuildingRepairAmount, self.accumulated_maintenance_points)
-			drone:SetCommand("Work", req, "repair", amount)
+			drone:SetCommandKeepQueue("Work", req, "repair", amount)
 		end
 		RebuildInfopanel(self)
 	else
@@ -297,8 +297,11 @@ function RequiresMaintenance:Repair()
 		self:Setexceptional_circumstances(false)
 		self.maintenance_resource_type = nil
 		self:CreateResourceRequest()
-		if self:DoesMaintenanceRequireResources() then
+		if self:DoesMaintenanceRequireResources() 
+			and self.maintenance_resource_request:GetResource() ~= self.maintenance_resource_type then
+			self:DisconnectFromCommandCenters()
 			self.maintenance_resource_request:ChangeResource(self.maintenance_resource_type)
+			self:ConnectToCommandCenters()
 		end
 	end	
 	
@@ -322,7 +325,7 @@ function RequiresMaintenance:ResetMaintenanceWorkRequest()
 end
 
 function RequiresMaintenance:ResetMaintenanceRequests()
-	if not self:DoesRequireMaintenance() or self.maintenance_request_lookup == false then return end --maintenance_request_lookup == false when not initialized, hence nothign to reset
+	if self.maintenance_resource_type == "no_maintenance" or self.maintenance_request_lookup == false then return end --maintenance_request_lookup == false when not initialized, hence nothign to reset
 	local should_reset_drones = false
 	
 	for req, _ in pairs(self.maintenance_request_lookup) do
@@ -548,9 +551,11 @@ function RequiresMaintenance:OnSetUIWorking(working)
 									 end)
 	self:DisconnectFromCommandCenters()
 	if working then
-		assert(self.maintenance_work_request and self.maintenance_resource_request)
+		assert(self.maintenance_work_request)
 		table.insert(self.task_requests, self.maintenance_work_request)
-		table.insert(self.task_requests, self.maintenance_resource_request)
+		if self.maintenance_resource_request then
+			table.insert(self.task_requests, self.maintenance_resource_request)
+		end
 	else
 		table.remove_entry(self.task_requests, self.maintenance_work_request)
 		table.remove_entry(self.task_requests, self.maintenance_resource_request)

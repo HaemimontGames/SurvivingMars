@@ -7,6 +7,7 @@ DefineClass.ForeignAidRocket = {
 	show_service_area = false,
 	allow_export = false,
 	owned = false,
+	rocket_palette = { "rocket_base", "rocket_accent", "outside_dark", "outside_dark" },
 	
 	launch_fuel = 0,
 
@@ -19,12 +20,12 @@ DefineClass.ForeignAidRocket = {
 function ForeignAidRocket:GameInit()
 	self.fx_actor_class = "SupplyRocket"
 	local rocket_class = GetMissionSponsor(self.sponsor_id).rocket_class or "SupplyRocket"
+	local rocket_color_scheme = ColonyColorSchemes[GetMissionSponsor(self.sponsor_id).colony_color_scheme or "default"]
 	local template = BuildingTemplates[rocket_class]
 	self:ChangeEntity(template.entity)
 	self:DestroyAttaches()
 	AutoAttachObjectsToShapeshifter(self)
-	self.rocket_palette = g_Classes[rocket_class].rocket_palette
-	self:SetPalette(DecodePalette(self.rocket_palette))
+	self:SetPalette(DecodePalette(self:GetRocketPalette(rocket_color_scheme), rocket_color_scheme))
 	self.display_icon = template.display_icon
 	local logo = self:GetAttach("Logo")
 	if logo then
@@ -92,4 +93,8 @@ end
 
 function ForeignAidRocket:GetSponsorName()
 	return GetMissionSponsor(self.sponsor_id).display_name
+end
+
+function ForeignAidRocket:GetColorScheme()
+	return ColonyColorSchemes[GetMissionSponsor(self.sponsor_id).colony_color_scheme or "default"]
 end

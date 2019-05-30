@@ -29,40 +29,40 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "SetRollover(self, rollover)",
 			'func', function (self, rollover)
-if self.idText:GetText()=="" then return end
-XWindow.SetRollover(self, rollover)
-self:SetVisible(true)
-
-self.idFrame:AddInterpolation{
-	id = "move",
-	type = const.intRect,
-	duration = 200,
-	startRect =  self.box,
-	endRect =sizebox(self.box:minx(),self.box:maxy(),self.box:sizex(),0),
-	flags =rollover and const.intfInverse or nil,
-}
-self.idText:AddInterpolation{
-	id = "move",
-	type = const.intRect,
-	start = GetPreciseTicks() + 100,
-	duration = 100,
-	startRect =  self.box,
-	endRect =sizebox(self.box:minx(),self.box:maxy(),self.box:sizex(),0),
-	flags =rollover and const.intfInverse or nil,
-}
-self.idText:SetVisible(rollover)
-end,
+				if self.idText:GetText()=="" then return end
+				XWindow.SetRollover(self, rollover)
+				self:SetVisible(true)
+				
+				self.idFrame:AddInterpolation{
+					id = "move",
+					type = const.intRect,
+					duration = 200,
+					originalRect =  self.box,
+					targetRect =sizebox(self.box:minx(),self.box:maxy(),self.box:sizex(),0),
+					flags =rollover and const.intfInverse or nil,
+				}
+				self.idText:AddInterpolation{
+					id = "move",
+					type = const.intRect,
+					start = GetPreciseTicks() + 100,
+					duration = 100,
+					originalRect =  self.box,
+					targetRect =sizebox(self.box:minx(),self.box:maxy(),self.box:sizex(),0),
+					flags =rollover and const.intfInverse or nil,
+				}
+				self.idText:SetVisible(rollover)
+			end,
 		}),
 		}),
 	PlaceObj('XTemplateProperty', {
 		'id', "Text",
 		'editor', "text",
 		'Set', function (self, value)
-self.idText:SetText(value)
-end,
+			self.idText:SetText(value)
+		end,
 		'Get', function (self)
-return self.idText:GetText()
-end,
+			return self.idText:GetText()
+		end,
 		'name', T(720368811140, --[[XTemplate PGRollover name]] "Text"),
 	}),
 })

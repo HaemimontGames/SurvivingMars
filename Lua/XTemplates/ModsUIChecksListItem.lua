@@ -23,8 +23,8 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "SetSelected(self, selected)",
 			'func', function (self, selected)
-self:SetFocus(selected)
-end,
+				self:SetFocus(selected)
+			end,
 		}),
 		}),
 })

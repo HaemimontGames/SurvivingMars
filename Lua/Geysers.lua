@@ -201,19 +201,19 @@ end
 function BaseGeyser:ActionBurstOutStart(obj)
 	local C02_marker = obj:GetMarker()
 	local markers = obj:GetMarkers(C02_marker, obj.base_geyser_class)
-	markers:ForEach(function(m) PlayFX(m.play_fx, "start", m, C02_marker) end)
+	for _, m in ipairs(markers) do PlayFX(m.play_fx, "start", m, C02_marker) end
 end
 
 function BaseGeyser:ActionBurstOutEnd(obj)
 	local C02_marker = obj:GetMarker()
 	local markers = obj:GetMarkers(C02_marker, obj.base_geyser_class)
-	markers:ForEach(function(m) PlayFX(m.play_fx, "end", m, C02_marker) end)
+	for _, m in ipairs(markers) do PlayFX(m.play_fx, "end", m, C02_marker) end
 end
 
 DefineClass.DecGeyser =
 {
 	__parents = { "BakedTerrainDecal", "GeyserObject" },
-	enum_flags = { efBakedTerrainDecal = false, efVisible = true },
+	flags = { efBakedTerrainDecal = false, efVisible = true },
 }
 
 DefineClass.GeyserBurstOut = { __parents = { "BaseGeyser" }, play_fx = "BurstOut", base_geyser_class = "GeyserBurstOut" }

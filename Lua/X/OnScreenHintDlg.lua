@@ -69,9 +69,11 @@ function OnScreenHintDlg:Init()
 		HAlign = "center",
 		LayoutMethod = "VList",
 		MouseCursor = "UI/Cursors/Rollover.tga",
-		Press = function(this)
+		OnPress = function(this)
 			OpenEncyclopedia(LastDisabledHint or "HintGameStart")
 		end,
+		FXMouseIn = "UIButtonMouseIn",
+		FXPress = "BuildMenuButtonClick",
 	}, min_win)
 	XText:new({
 		Id = "idActualText",
@@ -103,9 +105,11 @@ function OnScreenHintDlg:Init()
 		HAlign = "left",
 		ColumnsUse = "abaa",
 		MouseCursor = "UI/Cursors/Rollover.tga",
-		Press = function(this)
+		OnPress = function(this)
 			self:ShowPage(self.current_page - 1)
 		end,
+		FXMouseIn = "UIButtonMouseIn",
+		FXPress = "BuildMenuButtonClick",
 	}, bottom_buttons)
 	XTextButton:new({
 		Id = "idNext",
@@ -113,9 +117,11 @@ function OnScreenHintDlg:Init()
 		HAlign = "right",
 		ColumnsUse = "abaa",
 		MouseCursor = "UI/Cursors/Rollover.tga",
-		Press = function(this)
+		OnPress = function(this)
 			self:ShowPage(self.current_page + 1)
 		end,
+		FXMouseIn = "UIButtonMouseIn",
+		FXPress = "BuildMenuButtonClick",
 	}, bottom_buttons)
 	XText:new({
 		Id = "idPage",
@@ -187,19 +193,23 @@ function OnScreenHintDlg:Init()
 		Image = "UI/CommonNew/encyclopedia_button.tga",
 		ColumnsUse = "abaa",
 		MouseCursor = "UI/Cursors/Rollover.tga",
-		Press = function(this)
+		OnPress = function(this)
 			CloseDialog("Resupply")
 			OpenEncyclopedia("HintGameStart")
 		end,
+		FXMouseIn = "UIButtonMouseIn",
+		FXPress = "BuildMenuButtonClick",
 	}, button_window)
 	XTextButton:new({
 		Id = "idClose",
 		Image = "UI/CommonNew/X.tga",
 		ColumnsUse = "abaa",
 		MouseCursor = "UI/Cursors/Rollover.tga",
-		Press = function(this)
+		OnPress = function(this)
 			HintDisable(self:CurrentHintId())
 		end,
+		FXMouseIn = "UIButtonMouseIn",
+		FXPress = "BuildMenuButtonClick",
 	}, button_window)
 	-------- text
 	local content = XWindow:new({
@@ -245,7 +255,7 @@ function OnScreenHintDlg:RecalculateMargins()
 	local infobar = GetDialog("Infobar")
 	if infobar then
 		local left, top, right, bottom = margins:xyxy()
-		local infobar_offset = infobar.PadHeight
+		local infobar_offset = MulDivRound(infobar.box:sizey(), 100, GetUIScale())
 		margins = box(left, top + infobar_offset, right, bottom)
 	end
 	self:SetMargins(margins)
@@ -353,8 +363,8 @@ function OnScreenHintDlg:SetMinimized(minimized)
 				id = "move",
 				type = const.intRect,
 				duration = duration,
-				startRect = ctrl.box,
-				endRect = box(ctrl.box:minx(), -ctrl.box:sizey(), ctrl.box:maxx(), 0),
+				originalRect = ctrl.box,
+				targetRect = box(ctrl.box:minx(), -ctrl.box:sizey(), ctrl.box:maxx(), 0),
 				flags = show_this_ctrl and const.intfInverse or 0,
 				autoremove = true,
 			}
@@ -561,8 +571,8 @@ function HintHighlightIconAnimation(element)
 		element:AddInterpolation{
 			id = "zoomin",
 			type = const.intRect,
-			startRect = small_size,
-			endRect = big_size,
+			originalRect = small_size,
+			targetRect = big_size,
 			duration = 150,
 		}
 		Sleep(200)
@@ -577,8 +587,8 @@ function HintHighlightIconAnimation(element)
 		element:AddInterpolation{
 			id = "zoomout",
 			type = const.intRect,
-			startRect = big_size,
-			endRect = small_size,
+			originalRect = big_size,
+			targetRect = small_size,
 			duration = 1000,
 		}
 		Sleep(1000)

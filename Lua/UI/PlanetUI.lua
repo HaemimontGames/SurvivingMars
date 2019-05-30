@@ -110,9 +110,21 @@ GlobalVar("PlanetObj", false)
 GlobalVar("PlanetRotationObj", false)
 GlobalVar("PlanetRocket", false)
 
+--- Armstrong DLC stub.
+function GetTerraformParamPct(name)
+	return 0
+end
+
 local RocketOffsets = {
 	ZeusRocket = point(0, -20*guic, 0),
 }
+
+GlobalVar("PlanetMaxWaterLevel", false)
+
+function SetMaxWaterLevelAndRefresh(level)
+	PlanetMaxWaterLevel = level
+	hr.PlanetWater = MulDivRound(PlanetMaxWaterLevel, GetTerraformParamPct("Water"), 1000)
+end
 
 function PlacePlanet(scene)
 	if IsValid(PlanetObj) then
@@ -143,6 +155,28 @@ function PlacePlanet(scene)
 		rotation_obj:SetState("idle")
 		rotation_obj:SetAnimSpeed(1, planet_mars_rotation_speed)
 		rotation_obj:SetGameFlags(const.gofBoneTransform)
+		local idx = 1
+		for _, value in ipairs(MarsScreenLandingSpots or {}) do
+			if value.add_hr_info_onplace then
+				hr["PlanetColony"..idx.."Longitude"] = value.longitude
+				hr["PlanetColony"..idx.."Latitude"] = value.latitude
+				idx = idx + 1
+			end
+		end
+		if not PlanetMaxWaterLevel then
+			local lower_bound = 300
+			PlanetMaxWaterLevel = lower_bound + AsyncRand(1000 - lower_bound)
+		end
+		SetMaxWaterLevelAndRefresh(PlanetMaxWaterLevel)
+		hr.PlanetVegetation = GetTerraformParamPct("Vegetation")
+		hr.PlanetAtmosphere = GetTerraformParamPct("Atmosphere")
+		hr.PlanetTemperature = GetTerraformParamPct("Temperature")
+
+		-- TODO: Make an actual atmoshpere entity and update the material(blending mode, transparency)
+		local atmosphere = PlaceObject("PlanetClouds")
+		rotation_obj:Attach(atmosphere, rotation_obj:GetSpotBeginIndex("Planet"))
+		atmosphere:SetScale(101)
+		atmosphere:SetOpacity(GetTerraformParamPct("Atmosphere"))
 	elseif class == "PlanetEarth" then
 		rotation_obj:SetState("idleSlow")
 		rotation_obj:SetAxis(point(-1361, 1113, 3700))
@@ -156,8 +190,12 @@ function PlacePlanet(scene)
 			rocket_obj = PlaceObject("Rocket")
 			rocket_obj:ClearEnumFlags(const.efCollision + const.efApplyToGrids)
 			rocket_obj:ChangeEntity(rocket_entity)
-			SetObjectPaletteRecursive(rocket_obj, DecodePalette(clsdef.rocket_palette))
+			g_CurrentCCS = UICity and g_CurrentCCS or ColonyColorSchemes[GetMissionSponsor().colony_color_scheme or "default"]
+			local palette = GetAdjustedRocketPalette(rocket_obj.entity or "Rocket", clsdef.rocket_palette, GetCurrentColonyColorScheme())
+			SetObjectPaletteRecursive(rocket_obj, DecodePalette(palette))
 			rocket_obj:SetState("inSpace")
+			rocket_obj:DestroyAttaches()
+			AutoAttachObjectsToShapeshifter(rocket_obj)
 			rocket_obj:SetScale(1)
 			rocket_obj:SetGameFlags(const.gofAlwaysRenderable + const.gofRealTimeAnim)
 			rocket_obj:SetAxis(point(973, 1217, 3787))
@@ -227,8 +265,8 @@ function RoundCoordToFullDegrees(coord)
 end
 
 function FormatCoordinates(latitude, longitude)
-	local latitude_dir = latitude > 0 and T(6886, "S") or T(6887, "N")
-	local longitude_dir = longitude > 0 and T(6888, "E") or T(6889, "W")
+	local latitude_dir = latitude > 0 and Untranslated("S") or Untranslated("N")
+	local longitude_dir = longitude > 0 and Untranslated("E") or Untranslated("W")
 	latitude = abs(latitude)
 	longitude = abs(longitude)
 	return latitude, longitude, latitude_dir, longitude_dir
@@ -256,7 +294,7 @@ function PlanetFormatStringCoords(lat, long, spot_name, spot_style, hint, challe
 		if UseGamepadUI() then
 			return T{11173, "<style PlanetCoordinatesHint><control_img> Move spot</style>", control_img = TLookupTag("<LS>")}
 		else
-			return T(11174, "<style PlanetCoordinatesHint><left_click> Move spot<newline><right_click> Rotate</style>")
+			return T(12296, "<style PlanetCoordinatesHint><left_click> Move spot <right_click> Rotate</style>")
 		end
 	end
 	if type(challenge) == "table" then
@@ -270,7 +308,7 @@ function PlanetFormatStringCoords(lat, long, spot_name, spot_style, hint, challe
 	if hint and UseGamepadUI() then
 		return T{4129, "<pos_name><lat>°<lat_dir> <long>°<long_dir><newline><style PlanetCoordinatesHint><control_img> Move spot</style>", pos_name = name, lat = lat / 60, lat_dir = lat_dir, long = long / 60, long_dir = long_dir, control_img = TLookupTag("<LS>")}
 	elseif hint then
-		return T{4130, "<pos_name><lat>°<lat_dir> <long>°<long_dir><newline><style PlanetCoordinatesHint><left_click> Move spot<newline><right_click> Rotate</style>", pos_name = name, lat = lat / 60, lat_dir = lat_dir, long = long / 60, long_dir = long_dir}
+		return T{12297, "<pos_name><lat>°<lat_dir> <long>°<long_dir><newline><style PlanetCoordinatesHint><left_click> Move spot <right_click> Rotate</style>", pos_name = name, lat = lat / 60, lat_dir = lat_dir, long = long / 60, long_dir = long_dir}
 	elseif not challenge then
 		return T{4131, "<pos_name><lat>°<lat_dir> <long>°<long_dir>", pos_name = name, lat = lat / 60, lat_dir = lat_dir, long = long / 60, long_dir = long_dir}
 	else
@@ -322,18 +360,18 @@ end
 DefineClass.LandingSiteObject = {
 	__parents = { "PropertyObject" },
 	properties = {
-		{id = "TerrainType",    name = T(4134, "Terrain"),    grid_filename = "UI/Data/Overlays/MarsTerrainType.jpg", editor = "landing_param", default = 0},
-		{id = "Altitude",       name = T(4135, "Altitude"),        grid_filename = "UI/Data/Overlays/MarsTopography.jpg", editor = "landing_param", default = 0},
-		{id = "Metals",         name = T(3514, "Metals"),          grid_filename = "UI/Data/Overlays/MarsIron.jpg",        category = "Resources", resource = true, editor = "landing_param", default = 0, challenge_mod = {15, 10, 5, 0}, rollover = {title = T(3514, "Metals"),          descr = T(4136, "Metals and Rare metals. Metals are important for field buildings while Rare Metals are exported to Earth and used in the production of Electronics.")} },
-		{id = "Concrete",       name = T(3513, "Concrete"),        grid_filename = "UI/Data/Overlays/MarsRegolith.jpg",    category = "Resources", resource = true, editor = "landing_param", default = 0, challenge_mod = {15, 10, 5, 0}, rollover = {title = T(3513, "Concrete"),        descr = T(4137, "Concrete is used in the construction of many Colony buildings, especially in the interior of the Domes")} },
-		{id = "Water",          name = T(681, "Water"),           grid_filename = "UI/Data/Overlays/MarsWater.jpg",       category = "Resources", resource = true, editor = "landing_param", default = 0, challenge_mod = {15, 10, 5, 0}, rollover = {title = T(681, "Water"),           descr = T(4138, "Most vital resource for sustaining humans on Mars. Water can be extracted from deposits using prefab Moisture Vaporators transported from Earth")} },
-		{id = "PreciousMetals", name = T(4139, "Rare Metals"),     grid_filename = "UI/Data/Overlays/MarsIron.jpg",									resource = true, editor = "landing_param", default = 0, challenge_mod = {15, 10, 5, 0}, rollover = {title = T(4139, "Rare Metals"), descr = T(4140, "Rare Metals can be exported by refueled Rockets that return to Earth, increasing the Funding for the Colony. They are also used for creating Electronics")} },
-		{id = "Temperature",    name = T(4141, "Temperature"),     grid_filename = "UI/Data/Overlays/MarsTemperature.jpg", editor = "landing_param", default = 0},
-		{id = "DustDevils",     name = T(4142, "Dust Devils"),     grid_filename = "UI/Data/Overlays/MarsTopography.jpg",  category = "Threats", threat = true, editor = "landing_param", default = 0,   challenge_mod = {[-1] = 0, 0, 5, 10, 15, 0}, rollover = {title = T(4142, "Dust Devils"),     descr = T(4143, "Dust Devils contaminate buildings in their area with Martian Sand. Contaminated buildings require maintenance and may malfunction. Dust devils contaminate nearby buildings quickly, but disappear relatively fast.")} },
-		{id = "DustStorm",      name = T(4144, "Dust Storms"),     grid_filename = "UI/Data/Overlays/MarsDust.jpg",        category = "Threats", threat = true, editor = "landing_param", default = 0,   challenge_mod = {[-1] = 0, 0, 10, 20, 30, 0}, rollover = {title = T(4144, "Dust Storms"),     descr = T(4145, "Dust Storms contaminate all field buildings with dust and can last several Sols. Colonies in areas with intense Dust Storms will require shorter maintenance cycles. MOXIEs and Moisture Vaporators are not operational during Dust Storms.")} },
-		{id = "Meteor",         name = T(4146, "Meteors"),         grid_filename = "UI/Data/Overlays/MarsMeteors.jpg",     category = "Threats", threat = true, editor = "landing_param", default = 0,   challenge_mod = {[-1] = 0, 0, 10, 20, 30, 0}, rollover = {title = T(4146, "Meteors"),         descr = T(4147, "Meteors can destroy or damage structures, colonists and vehicles in their impact area. Some meteors are composed of useful resources like Metal or Polymers.")} },
-		{id = "ColdWave",       name = T(4148, "Cold Waves"),      grid_filename = "UI/Data/Overlays/MarsTemperature.jpg", category = "Threats", threat = true, editor = "landing_param", default = 0,   challenge_mod = {[-1] = 0, 0, 10, 20, 30, 0}, rollover = {title = T(4149, "Cold Wave"),       descr = T(4150, "Cold Waves last several Sols, increasing the power consumption of vehicles, Drones and many field buildings. Water Towers are frozen during Cold Waves.")} },
-		{id = "Locales",        name = T(4151, "Mars Locales"),    grid_filename = "UI/Data/Overlays/MarsLocales.jpg", editor = "landing_param", default = 0},
+		{id = "TerrainType",    name = T(4134, "Terrain"),         grid_filename = "Textures/Misc/Overlays/MarsTerrainType.png", editor = "landing_param", default = 0},
+		{id = "Altitude",       name = T(4135, "Altitude"),        grid_filename = "Textures/Misc/Overlays/MarsTopography.png",  editor = "landing_param", default = 0},
+		{id = "Metals",         name = T(3514, "Metals"),          grid_filename = "Textures/Misc/Overlays/MarsIron.png",        category = "Resources", resource = true, editor = "landing_param", default = 0, challenge_mod = {15, 10, 5, 0}, rollover = {title = T(3514, "Metals"),          descr = T(4136, "Metals and Rare metals. Metals are important for field buildings while Rare Metals are exported to Earth and used in the production of Electronics.")} },
+		{id = "Concrete",       name = T(3513, "Concrete"),        grid_filename = "Textures/Misc/Overlays/MarsRegolith.png",    category = "Resources", resource = true, editor = "landing_param", default = 0, challenge_mod = {15, 10, 5, 0}, rollover = {title = T(3513, "Concrete"),        descr = T(4137, "Concrete is used in the construction of many Colony buildings, especially in the interior of the Domes.")} },
+		{id = "Water",          name = T(681, "Water"),            grid_filename = "Textures/Misc/Overlays/MarsWater.png",       category = "Resources", resource = true, editor = "landing_param", default = 0, challenge_mod = {15, 10, 5, 0}, rollover = {title = T(681, "Water"),           descr = T(4138, "Most vital resource for sustaining humans on Mars. Water can be extracted from deposits using Water Extractors.")} },
+		{id = "PreciousMetals", name = T(4139, "Rare Metals"),     grid_filename = "Textures/Misc/Overlays/MarsIron.png",									resource = true, editor = "landing_param", default = 0, challenge_mod = {15, 10, 5, 0}, rollover = {title = T(4139, "Rare Metals"), descr = T(4140, "Rare Metals can be exported by refueled Rockets that return to Earth, increasing the Funding for the Colony. They are also used for creating Electronics.")} },
+		{id = "Temperature",    name = T(4141, "Temperature"),     grid_filename = "Textures/Misc/Overlays/MarsTemperature.png", editor = "landing_param", default = 0},
+		{id = "DustDevils",     name = T(4142, "Dust Devils"),     grid_filename = "Textures/Misc/Overlays/MarsTopography.png",  category = "Threats", threat = true, editor = "landing_param", default = 0,   challenge_mod = {[-1] = 0, 0, 5, 10, 15, 0}, rollover = {title = T(4142, "Dust Devils"),     descr = T(4143, "Dust Devils contaminate buildings in their area with Martian Sand. Contaminated buildings require maintenance and may malfunction. Dust devils contaminate nearby buildings quickly, but disappear relatively fast.")} },
+		{id = "DustStorm",      name = T(4144, "Dust Storms"),     grid_filename = "Textures/Misc/Overlays/MarsDust.png",        category = "Threats", threat = true, editor = "landing_param", default = 0,   challenge_mod = {[-1] = 0, 0, 10, 20, 30, 0}, rollover = {title = T(4144, "Dust Storms"),     descr = T(4145, "Dust Storms contaminate all field buildings with dust and can last several Sols. Colonies in areas with intense Dust Storms will require shorter maintenance cycles. MOXIEs and Moisture Vaporators are not operational during Dust Storms.")} },
+		{id = "Meteor",         name = T(4146, "Meteors"),         grid_filename = "Textures/Misc/Overlays/MarsMeteors.png",     category = "Threats", threat = true, editor = "landing_param", default = 0,   challenge_mod = {[-1] = 0, 0, 10, 20, 30, 0}, rollover = {title = T(4146, "Meteors"),         descr = T(4147, "Meteors can destroy or damage structures, colonists and vehicles in their impact area. Some meteors are composed of useful resources like Metal or Polymers.")} },
+		{id = "ColdWave",       name = T(4148, "Cold Waves"),      grid_filename = "Textures/Misc/Overlays/MarsTemperature.png", category = "Threats", threat = true, editor = "landing_param", default = 0,   challenge_mod = {[-1] = 0, 0, 10, 20, 30, 0}, rollover = {title = T(4149, "Cold Wave"),       descr = T(4150, "Cold Waves last several Sols, increasing the power consumption of vehicles, Drones and many field buildings. Water Towers are frozen during Cold Waves.")} },
+		{id = "Locales",        name = T(4151, "Mars Locales"),    grid_filename = "Textures/Misc/Overlays/MarsLocales.png", editor = "landing_param", default = 0},
 	},
 	dialog = false,
 	anim_duration = false,
@@ -376,6 +414,7 @@ DefineClass.LandingSiteObject = {
 	spot_logo_selection_size = false,
 	selector_image_size = false,
 	spot_image_size = false,
+	image_boxes = false,
 }
 
 function LandingSiteObject.new(class, obj)
@@ -465,7 +504,7 @@ function LandingSiteObject:GetGameRulesList()
 			end
 		end
 		if #names > 0 then
-			return table.concat(names, ",")
+			return table.concat(names, ", ")
 		end
 	end
 	
@@ -601,12 +640,22 @@ function LandingSiteObject:GetSpotImage(win)
 			PlanetUISpotLogoSizeCache[image] = image_size
 			local x,y = image_size:xy()
 			return image, x, y, 90
-		else
-			local image = "UI/Icons/Logos/anomaly.tga"
+		elseif spot and spot.spot_type == "project" then
+			local image = Presets.POI.Default[spot.project_id].display_icon
 			local image_size = PlanetUISpotLogoSizeCache[image] or point(UIL.MeasureImage(image))
 			PlanetUISpotLogoSizeCache[image] = image_size
 			local x,y = image_size:xy()
-			return image, x, y, 70
+			return image, x/2, y, 90
+		else
+			local image = "UI/Icons/Logos/anomaly.tga"
+			local orbital = spot and spot.spot_type == "anomaly" and spot.is_orbital 
+			if orbital then
+				image = "UI/Icons/pm_ capture_story_bit.tga"
+			end
+			local image_size = PlanetUISpotLogoSizeCache[image] or point(UIL.MeasureImage(image))
+			PlanetUISpotLogoSizeCache[image] = image_size
+			local x,y = image_size:xy()
+			return image, orbital and x/2 or x, y, orbital and 90 or 70
 		end
 	end
 	local image = win.Id == self.snapped_id and self.spot_image_selected or self.spot_image
@@ -639,7 +688,7 @@ function LandingSiteObject:DrawSelector(win)
 	UIL.DrawImage(self.selector_image, box(-left, -up, right, down), box(0, 0, x, y), -1, 0, 0)
 end
 
-function LandingSiteObject:DrawSpot(win)
+function LandingSiteObject:GetSpotImageData(win)
 	local image, x, y, size
 	if self.challenge_mode then
 		image, x, y = self:GetChallengeSpotImage(win)
@@ -647,6 +696,11 @@ function LandingSiteObject:DrawSpot(win)
 		image, x, y, size = self:GetSpotImage(win)
 	end
 	size = size or 50
+	return image, x,y, size
+end			
+
+function LandingSiteObject:DrawSpot(win)
+	local image, x, y, size = self:GetSpotImageData(win)
 	local width, height = ScaleXY(win.scale, size, size)
 	local left = width/2
 	local right = width - left
@@ -662,6 +716,30 @@ function LandingSiteObject:DrawSpot(win)
 	end
 end
 
+function LandingSiteObject:MouseInBox(pos)
+	for marker_id,box in pairs(self.image_boxes or empty_table) do	
+		if pos:InBox2D(box) then
+			return marker_id
+		end
+	end
+end
+
+function LandingSiteObject:GetMarkerLatLong(marker_id)
+	if not marker_id then return end
+	local id = self.marker_id_to_spot_id[marker_id]
+	local preset
+	local is_orbital = false
+	if self.challenge_mode then
+		preset = Presets.Challenge.Default[id]	
+	else
+		local presets = GetLandingSpotsForGroup(self.landing_preset_group)
+		preset = presets[id]
+		is_orbital = rawget(preset, "is_orbital")
+	end
+	return preset.latitude * 60, preset.longitude * 60,is_orbital		
+		
+end
+
 function LandingSiteObject:MouseButtonDown(pos, button)
 	if not IsValid(PlanetObj) then return end
 	if button == "R" then
@@ -671,8 +749,16 @@ function LandingSiteObject:MouseButtonDown(pos, button)
 		self.prev_pt = pos
 		return "break"
 	elseif button == "L" then
+		self:GetImageBoxes()
+
 		self.dialog.desktop:SetMouseCapture(self.dialog)
-		local new_lat, new_long = PlanetGetClickCoords(pos)
+		local new_lat, new_long
+		local marker_id = self:MouseInBox(pos)
+		if marker_id then		
+			new_lat, new_long = self:GetMarkerLatLong(marker_id)			
+		else
+			new_lat, new_long = PlanetGetClickCoords(pos)
+		end
 		if new_lat then
 			self.mouse_ctrl_state = "dragging"
 			self:StopAnimation()
@@ -690,7 +776,7 @@ end
 
 function LandingSiteObject:MouseButtonUp(pos, button)
 	if button == "R" then
-		self:EaseStopRotation((pos - self.prev_pt):Len())
+		self:EaseStopRotation((pos - (self.prev_pt or pos)):Len())
 		if self.lat then
 			local lat, long = self:CalcPlanetCoordsFromScreenCoords(self.lat, self.long)
 			local click_pos = self:CalcClickPosFromCoords(lat, long)
@@ -769,6 +855,10 @@ function LandingSiteObject:KbdKeyUp(virtual_key, repeated)
 	end]]
 end
 
+function LandingSiteObject:OnShortcut(shortcut, source)
+	return XDialog.OnShortcut(self.dialog, shortcut, source)
+end
+
 local gamepad_disabled = false
 
 function OnMsg.MessageBoxOpened()
@@ -840,7 +930,7 @@ function LandingSiteObject:AddPosModifiers()
 	self.dialog.idtxtCoord:AddDynamicPosModifier({id = "planet_pos", target = self.pt_attach})
 end
 
-function LandingSiteObject:CreateLandingMarker(template, id, lat, long)
+function LandingSiteObject:CreateLandingMarker(template, id, lat, long, dest)
 	local attach = PlaceObject("Shapeshifter")
 	local marker = template:Clone()
 	marker:SetParent(self.dialog)
@@ -851,12 +941,53 @@ function LandingSiteObject:CreateLandingMarker(template, id, lat, long)
 	marker:SetZOrder(-1)
 		
 	local _lat, _long = self:CalcPlanetCoordsFromScreenCoords(lat, long)
-	local _, world_pt = self:CalcClickPosFromCoords(_lat, _long)
-	local offset = world_pt - PlanetRotationObj:GetPos()
-	--compensate for the planet's rotation
-	local planet_angle = 360*60 - MulDivRound(PlanetRotationObj:GetAnimPhase(1), 360 * 60, self.anim_duration)
-	offset = RotateAxis(offset, PlanetRotationObj:GetAxis(), -planet_angle)
-	attach:SetAttachOffset(offset)
+	attach:SetAttachOffset(self:CalcAttachOffset(_lat, _long, dest))
+end
+
+local orbital_dist_mul = 24
+local orbital_dist_div = 21
+function LandingSiteObject:GetImageBoxes()
+	local dialog = self.dialog
+	local olddraw = dialog.DrawContent
+		
+--[[-- debug boxes draw	
+	dialog.DrawContent = function(...)
+		olddraw(...)		
+		for marker_id,box in pairs(self.image_boxes) do	
+			UIL.DrawSolidRect(box, RGBA(255,0,255,128))
+		end
+	end
+--]]
+	--  does not recalc on each click, just on stop planet rotation
+	if self.image_boxes and next(self.image_boxes) then
+		return
+	end
+	self.image_boxes = {}
+	for marker_id, preset_id in pairs(self.marker_id_to_spot_id) do
+		local marker = dialog:ResolveId(marker_id)
+		if marker:GetVisible() then
+			local modifiers = marker.modifiers
+			local modifier = table.find_value(modifiers, "modifier_type", const.modDynPos)
+			local attach = modifier.target
+			
+			local marker_lat, marker_long, dest = self:GetMarkerLatLong(marker_id)
+			marker_lat, marker_long = self:CalcPlanetCoordsFromScreenCoords(marker_lat, marker_long)
+			local _, world_pt = self:CalcClickPosFromCoords(marker_lat, marker_long )
+			local offset = world_pt - PlanetRotationObj:GetPos()			
+			if dest then
+				offset = orbital_dist_mul*offset/orbital_dist_div
+			end
+			local ok, screenpos = GameToScreen(attach:GetPos()+ offset)
+			--local box
+			local _, __, ___, size = self:GetSpotImageData(marker)
+			local width, height = ScaleXY(marker.scale, size, size)
+			local left = screenpos:x() - width/2
+			local right = screenpos:x() + width/2
+			local up = screenpos:y() - height/2
+			local down = screenpos:y() + height/2
+			self.image_boxes[marker_id] = box(left, up, right, down)
+		end
+	end
 end
 
 function LandingSiteObject:AttachPredefinedSpots()
@@ -879,7 +1010,7 @@ function LandingSiteObject:AttachPredefinedSpots()
 		else
 			for k, v in ipairs(presets) do
 				local marker_id = "idMarker" .. idx
-				self:CreateLandingMarker(template, marker_id, v.latitude * 60, v.longitude * 60)
+				self:CreateLandingMarker(template, marker_id, v.latitude * 60, v.longitude * 60, rawget(v,"is_orbital"))
 				self.marker_id_to_spot_id[marker_id] = v.id or k
 				self.spot_id_to_marker_id[v.id or k] = marker_id
 				idx = idx + 1
@@ -1038,6 +1169,7 @@ function LandingSiteObject:StopAnimation()
 	self.dialog:DeleteThread("visibility")
 	self.dialog:DeleteThread("easing")
 	PlanetRotationObj:SetAnimSpeed(1, 0)
+	self.image_boxes = false
 end
 
 function LandingSiteObject:EaseStopRotation(speed)
@@ -1054,6 +1186,7 @@ function LandingSiteObject:EaseStopRotation(speed)
 					self:CalcMarkersVisibility()
 				end
 				PlanetRotationObj:SetAnimSpeed(1, 0)
+				self.image_boxes = false
 			end
 		end, speed)
 	end
@@ -1149,6 +1282,18 @@ function LandingSiteObject:ConvertStrLocationToCoords(coords_str)
 	return true, lat, long
 end
 
+function LandingSiteObject:CalcAttachOffset(lat_org, long_org, dest)
+	local _, world_pt = self:CalcClickPosFromCoords(lat_org, long_org)
+	local offset =world_pt - PlanetRotationObj:GetPos()
+	if dest then
+		offset = orbital_dist_mul*offset/orbital_dist_div
+	end
+	--compensate for the planet's rotation
+	local planet_angle = 360*60 - MulDivRound(PlanetRotationObj:GetAnimPhase(1), 360 * 60, self.anim_duration)
+	offset = RotateAxis(offset, PlanetRotationObj:GetAxis(), -planet_angle)
+	return offset
+end		
+		
 function LandingSiteObject:DisplayCoord(pt, lat, long, lat_org, long_org)
 	if not lat then
 		lat, long = PlanetGetClickCoords(pt)
@@ -1175,13 +1320,15 @@ function LandingSiteObject:DisplayCoord(pt, lat, long, lat_org, long_org)
 		end
 		self.dialog.idSelector:SetVisible(not self.snapped_id)
 		self.dialog.idtxtCoord:SetVisible(true)
+		local is_orbital = false
+		local poi_id = self.snapped_id and self.marker_id_to_spot_id[self.snapped_id]
+		poi_id = poi_id and string.gsub(poi_id, "%d$", "")
+		local preset = POIPresets[poi_id]
+		if preset and preset.is_orbital then
+			is_orbital = true
+		end
 		
-		local _, world_pt = self:CalcClickPosFromCoords(lat_org, long_org)
-		local offset = world_pt - PlanetRotationObj:GetPos()
-		--compensate for the planet's rotation
-		local planet_angle = 360*60 - MulDivRound(PlanetRotationObj:GetAnimPhase(1), 360 * 60, self.anim_duration)
-		offset = RotateAxis(offset, PlanetRotationObj:GetAxis(), -planet_angle)
-		self.pt_attach:SetAttachOffset(offset)
+		self.pt_attach:SetAttachOffset(self:CalcAttachOffset(lat_org, long_org, is_orbital))
 		
 		local spot_name = self:ResolveSpotName()
 		self.coord_text = PlanetFormatStringCoords(self.lat, self.long, spot_name, nil, nil, self.challenge_mode)
@@ -1238,11 +1385,19 @@ function LandingSiteObject:SetUIResourceValues()
 	if research then
 		research:SetText(T{445913619019, "<research(ResearchPoints)>", ResearchPoints = ResourceOverviewObj:GetEstimatedRP()})
 	end
+	if UICity:IsTechResearched("MartianVegetation") then	
+		local terraformingLabel  = self.dialog:ResolveId("idTerraformingResourceLabel")
+		terraformingLabel:SetText(T(12086, "Other Resources"))
+		local terraforming = self.dialog:ResolveId("idTerraformingResource")
+		terraforming:SetText(T{12087, "<seeds(seeds)> <wasterock(wasterock)>", 
+			seeds = ResourceOverviewObj:GetAvailableSeeds(),
+			wasterock =ResourceOverviewObj:GetAvailableWasteRock()})
+	end
 end
 
 function LandingSiteObject:GetAnomalyDescription()
 	local spot = self.selected_spot
-	if spot and spot.spot_type == "anomaly" then
+	if spot and (spot.spot_type == "anomaly" or spot.spot_type == "project") then
 		return spot.description or ""
 	end
 	return ""
@@ -1251,10 +1406,17 @@ end
 function LandingSiteObject:SetUIAnomalyProgress()
 	local spot = self.selected_spot
 	if spot and spot.spot_type == "anomaly" and spot.rocket then
+		local rocket = spot.rocket
 		local stage = self.dialog:ResolveId("idStage")
-		if stage then stage:SetText(spot.rocket:GetUIRocketStatus("first_only")) end
+		if stage then 
+			local text = rocket:GetUIRocketStatus("first_only")
+			if not text or text=="" then
+				text = rocket:GetUIWarning()
+			end	
+			stage:SetText(text) 
+		end
 		local remaining_time = self.dialog:ResolveId("idRemainingTime")
-		if remaining_time then remaining_time:SetText(T{11604, "<time(time)>", time = spot.rocket.expedition_return_time - GameTime()}) end
+		if remaining_time then remaining_time:SetText(T{11604, "<time(time)>", time = rocket.expedition_return_time - GameTime()}) end
 	end
 end
 
@@ -1271,25 +1433,98 @@ function LandingSiteObject:SetUIAnomalyParams()
 				local spec = self.dialog:ResolveId("idSpecialization")
 				if spec then spec:SetText(name) end
 			end
+			local inventory = {}
 			if requirements.num_drones or requirements.rover_type then
-				local inventory = ""
 				if requirements.num_drones then
-					inventory = T{11180, "<drone(num)>", num = requirements.num_drones}
+					inventory[#inventory + 1] = T{11180, "<drone(num)>", num = requirements.num_drones}
 				end
 				if requirements.rover_type then
-					inventory = g_Classes[requirements.rover_type].display_name
+					inventory[#inventory + 1] = g_Classes[requirements.rover_type].display_name
 				end
-				local inv = self.dialog:ResolveId("idInventory")
-				if inv then inv:SetText(inventory) end
 			end
+		if requirements.required_resources then
+			for _, res in ipairs(requirements.required_resources or empty_table) do
+				local text = res:GetText()
+				if text~="" then 
+					inventory[#inventory + 1]  = text
+				end
+			end
+		end
+		inventory = table.concat(inventory, ", ")
+		local inv = self.dialog:ResolveId("idInventory")
+		if inv then inv:SetText(inventory) end
 		end
 		if not spot.rocket or not spot.rocket.expedition_return_time then
 			local time = self.dialog:ResolveId("idExpeditionTime")
 			if time then time:SetText(T{11604, "<time(time)>", time = RocketExpedition.ExpeditionTime * 2}) end
 		end
+		local txt = spot:GetOutcomeText()
+		if txt and txt~="" then
+			local outcome = self.dialog:ResolveId("idOutcome")
+			if outcome then outcome:SetText(txt) end
+		end
 	end
 end
 
+function LandingSiteObject:SetUIProjectParams()
+	local spot = self.selected_spot
+	if spot and spot.spot_type == "project" then
+		local resources = spot:GetRocketResources()
+		if next(resources) then
+			local inv_table = {}
+			for _, res in ipairs(resources) do
+				local text = res:GetText()
+				if text~="" then 
+					inv_table[#inv_table +1] = text
+				end
+			end
+			if next(inv_table) then
+				local inv = self.dialog:ResolveId("idInventory")
+				if inv then inv:SetText(table.concat(inv_table," ")) end
+			end
+		end
+		if not spot.rocket then
+			local time = self.dialog:ResolveId("idExpeditionTime")
+			if time then time:SetText(T{11604, "<time(time)>", time = spot.expedition_time}) end
+		end
+		local txt = spot:GetOutcomeText()
+		if txt and txt~="" then
+			local outcome = self.dialog:ResolveId("idOutcome")
+			if outcome then outcome:SetText(txt) end
+		end
+	end
+end
+
+function LandingSiteObject:SetUIProjectProgress()
+	local spot = self.selected_spot
+	if spot and spot.spot_type == "project"  then
+		local stage = self.dialog:ResolveId("idStage")		
+		if spot.rocket then
+			local rocket = spot.rocket
+			local stage = self.dialog:ResolveId("idStage")
+			if stage then 
+				local text = rocket:GetUIRocketStatus("first_only")
+				if not text or text=="" then
+					text = rocket:GetUIWarning()
+				end	
+				stage:SetText(text) 
+			end
+			local remaining_time = self.dialog:ResolveId("idRemainingTime")
+			if remaining_time then remaining_time:SetText(T{11604, "<time(time)>", time = rocket.expedition_return_time - GameTime()}) end
+		else
+			local ok, reason = spot:PrerequisiteToStart() 
+			if not ok then
+				if reason=="funding" then
+					stage:SetText(T(12050, "<red>Insufficient Funding to start the mission.<red>"))
+				elseif reason=="seeds" then
+					stage:SetText(T(12051, "<red>Not enough Seeds to start the mission.<red>"))
+				elseif reason=="frozen" then	
+					stage:SetText(T(12399, "<red>Surface water is still frozen. Increase the Temperature of the planet.<red>"))
+				end
+			end
+		end
+	end
+end
 function LandingSiteObject:ShowContent()
 	if not self.dialog then return end
 	local content = self.dialog:ResolveId("idContent")
@@ -1512,27 +1747,15 @@ function GalleryScreenshotLoad(fade_win, image_win)
 			WaitNextFrame()
 		end
 
-		-- proper sequence for unloading images:
-		local old_image = image_win:GetImage() -- remember name to unload
-		image_win:SetImage("") -- stop using it in UI
-		WaitNextFrame() -- wait one frame so it stops being used by rendering
-		UIL.UnloadImage(old_image) -- request unloading
-
 		if current_screenshot then
 			Savegame.CancelLoad()
-			Savegame.Unmount()
 			Savegame.Load(current_screenshot, function(mountpoint)
 				local filename = io.listfiles(mountpoint, "*.jpg")[1]
-				if filename then
-					UIL.RequestImage(filename)
-					while not UIL.IsImageReady(filename) do
-						WaitNextFrame()
-					end
-				end
 				image_win:SetImage(filename or "")
 				fade_win:SetVisible(false)
 			end)
 		else
+			image_win:SetImage("")
 			fade_win:SetVisible(false)
 		end
 	end
@@ -1731,4 +1954,23 @@ if Platform.developer then
 		DbgPlanetColors = cmesh
 		ResumeInfiniteLoopDetection("DbgShowPlanetColors")
 	end
+end
+
+
+function TestMarsPlanetTransition(value)
+	if value == nil then
+		TestMarsPlanetTransition("PlanetWater")
+		TestMarsPlanetTransition("PlanetTemperature")
+		TestMarsPlanetTransition("PlanetVegetation")
+		return
+	end
+	CreateRealTimeThread(function()
+	local old_value = hr[value]
+	for i = 1, 100 do
+		hr[value] = i
+		Sleep(75)
+	end
+	Sleep(1000)
+	hr[value] = old_value
+	end)
 end

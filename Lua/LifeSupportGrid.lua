@@ -4,6 +4,7 @@ TubeSkins = {
 		dlc = false,
 		Tube = "Tube",
 		TubePillar = "TubePillar",
+		TubeHubSlope = "TubePillarSlope",
 		TubeHub = "TubeHub",
 		TubeHubPlug = "TubeHubPlug",
 		TubeJoint = "TubeJoint",
@@ -15,6 +16,7 @@ TubeSkins = {
 		dlc = "dde",
 		Tube = "TubeChrome",
 		TubePillar = "TubeChromePillar",
+		TubeHubSlope = "TubeChromePillarSlope",
 		TubeHub = "TubeChromeHub",
 		TubeHubPlug = "TubeChromeHubPlug",
 		TubeJoint = "TubeChromeJoint",
@@ -452,9 +454,13 @@ function LifeSupportGridObject:GetEntityNameForPipeConnections(grid_skin_name)
 	return grid_skin_name ~= "Default" and self.entity .. grid_skin_name or self.entity
 end
 ----- LifeSupportGridElement
+function SavegameFixups.ApplyTemporalConstructionBlockToAllPipes()
+	MapForEach("map", "LifeSupportGridElement", LifeSupportGridElement.SetGameFlags, const.gofTemporalConstructionBlock)
+end
+
 DefineClass.LifeSupportGridElement = {
 	__parents = { "LifeSupportGridObject", "Shapeshifter", "Constructable", "DustGridElement", "SupplyGridSwitch", "BreakableSupplyGridElement", "SkinChangeable" },
-	game_flags = { gofPermanent = true },
+	flags = { efApplyToGrids = false, gofPermanent = true, gofTemporalConstructionBlock = true },
 	is_tall = true,
 	properties = {
 		{name = "Pillar", id = "pillar", editor = "number"},
@@ -474,7 +480,6 @@ DefineClass.LifeSupportGridElement = {
 	display_name_pl = T(11674, "Life Support Pipes"),
 	display_icon = "UI/Icons/Buildings/pipes.tga", --pin dialog icon during construction
 	
-	enum_flags = { efApplyToGrids = false },
 	construction_connections = -1,
 	
 	supply_element = "water",
@@ -559,11 +564,25 @@ local full_connections = { 63 * 256 + 128 }
 local full_connections_switched = { 63 * 256 + 128 + 16384}
 local pipe_connections = { (1 + 8) * 256 + 128 }
 local pipe_connections_switched = { (1 + 8) * 256 + 128 + 16384}
+local no_connector_versions = {
+	[full_connections] = { 63 * 256 },
+	[full_connections_switched] = { 63 * 256 + 16384 },
+	[pipe_connections] = { (1 + 8) * 256 },
+	[pipe_connections_switched] = { (1 + 8) * 256 + 16384 },
+}
 
 function LifeSupportGridElement:GetShapeConnections()
 	local q, r = WorldToHex(self)
 	local bld = HexGetBuilding(q, r)
-	return (bld == nil or bld == self) and not self.chain and (self.switched_state and full_connections_switched or full_connections) or (self.switched_state and pipe_connections_switched or pipe_connections)
+	local result = (bld == nil or bld == self) and not self.chain and (self.switched_state and full_connections_switched or full_connections) 
+						or (self.switched_state and pipe_connections_switched or pipe_connections)
+
+	local is_buildable = IsBuildableZoneQR(q, r)
+	if not is_buildable and not self.chain then
+		result = no_connector_versions[result]
+	end
+	
+	return result
 end
 
 function LifeSupportGridElement:MakePipe(dir, dont_demote, skin)
@@ -609,6 +628,7 @@ function LifeSupportGridElement:PromoteConnectionMask()
 end
 
 function LifeSupportGridElement:CanMakePillar(excluded_obj)
+	if self.chain then return false end
 	local q, r = WorldToHex(self)
 	local bld = HexGetBuilding(q, r)
 	local is_buildable = IsBuildableZoneQR(q, r)
@@ -678,7 +698,7 @@ function QueueForEnableBlockPass(obj)
 end
 
 function LifeSupportGridElement:CanMakeSwitch(constr_site)
-	return SupplyGridSwitch.CanMakeSwitch(self) and self:CanMakePillar(constr_site)
+	return SupplyGridSwitch.CanMakeSwitch(self) and self:CanMakePillar(constr_site) and IsBuildableZone(self)
 end
 
 function LifeSupportGridElement:UpdateVisuals(supply_resource)
@@ -717,7 +737,8 @@ function LifeSupportGridElement:UpdateVisuals(supply_resource)
 			self.conn = conn
 		end
 	else
-		self:ChangeEntity(self.is_switch and skin.TubeSwitch or skin.TubeHub)
+		local e = self.is_switch and skin.TubeSwitch or IsBuildableZone(self) and skin.TubeHub or skin.TubeHubSlope
+		self:ChangeEntity(e)
 		if self:GetAngle() ~= 0 then
 			self:SetAngle(0)
 		end
@@ -727,7 +748,7 @@ function LifeSupportGridElement:UpdateVisuals(supply_resource)
 			if testbit(conn, dir) then
 				local dq, dr = HexNeighbours[dir + 1]:xy()
 				local pipe = HexGetPipe(my_q + dq, my_r + dr)
-				local plug = PlaceObject(pipe and pipe.chain and pipe.chain.delta ~= 0 and skin.TubeJointSeam or skin.TubeHubPlug, nil, const.cfComponentAttach)
+				local plug = PlaceObject(pipe and pipe.chain and pipe.chain.delta ~= 0 and skin.TubeJointSeam or skin.TubeHubPlug, nil, const.cofComponentAttach)
 				if self:GetGameFlags(const.gofUnderConstruction) ~= 0 then
 					plug:SetGameFlags(const.gofUnderConstruction)
 				end
@@ -736,7 +757,7 @@ function LifeSupportGridElement:UpdateVisuals(supply_resource)
 				plug:SetAttachAngle(180 * 60 + dir * 60 * 60)
 				
 				if pipe and pipe.chain and pipe.chain.delta ~= 0 then
-					local tube_joint = PlaceObject(skin.TubeJoint, nil, const.cfComponentAttach)
+					local tube_joint = PlaceObject(skin.TubeJoint, nil, const.cofComponentAttach)
 					plug:Attach(tube_joint, plug:GetSpotBeginIndex("Joint"))
 					tube_joint:SetAttachAxis(axis_y)
 					local dist = const.GridSpacing * pipe.chain.length
@@ -807,7 +828,7 @@ end
 
 const.SupplyGridElementsAllowUnbuildableChunksPipes = true
 
-function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_require_construction, input_constr_grp, input_data, skin_name)
+function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_require_construction, input_constr_grp, input_data, skin_name, supplied)
 	local pillar_spacing = g_Consts.PipesPillarSpacing
 	local last_pillar = 0
 	local dq, dr = HexNeighbours[dir + 1]:xy()
@@ -840,6 +861,7 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 			cs_grp_elements_in_this_group = #input_constr_grp - 1
 		else
 			construction_group = CreateConstructionGroup("LifeSupportGridElement", point(HexToWorld(start_q, start_r)), 3, not elements_require_construction)
+			construction_group[1].supplied = supplied
 		end
 	end
 	
@@ -860,6 +882,7 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 	local current_chunk_group_has_hub = false
 	local last_non_chunk_element = false
 	local total_chunk_cost = 0
+	local last_connect_dir = connect_dir
 	
 	if input_data and #input_data > 0 then
 		last_placed_data_cell = input_data[#input_data]
@@ -875,6 +898,7 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 		if input_data.last_group_had_no_hub then
 			has_group_with_no_hub = false
 		end
+		last_connect_dir = input_data.connect_dir
 	end
 	
 	--preprocess
@@ -892,8 +916,9 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 		local bld = HexGetBuilding(q, r)
 		local cable = HexGetCable(q, r)
 		local pipe = HexGetPipe(q, r)
-		local is_buildable = IsBuildableZoneQR(q, r)
 		local world_pos = point(HexToWorld(q, r))
+		local is_buildable = IsBuildableZoneQR(q, r)
+		local is_buildable2 = pipe and pipe.pillar or CableBuildableTest(world_pos, q, r)
 		local surf_deps = is_buildable and HexGetUnits(nil, nil, world_pos, 0, nil, function(o) return not obstructors or not table.find(obstructors, o) end, "SurfaceDeposit") or empty_table
 		local rocks = is_buildable and HexGetUnits(nil, nil, world_pos, 0, false, nil, "WasteRockObstructor") or empty_table
 		local stockpiles = is_buildable and HexGetUnits(nil, nil, world_pos, 0, false, function(obj) return obj:GetParent() == nil and IsKindOf(obj, "DoesNotObstructConstruction") and not IsKindOf(obj, "Unit") end, "ResourceStockpileBase") or empty_table
@@ -904,9 +929,13 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 		data[i].place_construction_site = elements_require_construction or construction_group or #rocks > 0 or #stockpiles > 0
 		data[i].chunk = data[i].chunk or unbuildable_chunks[chunk_idx] and (not unbuildable_chunks[chunk_idx].chunk_end or unbuildable_chunks[chunk_idx].chunk_end < 0) and unbuildable_chunks[chunk_idx] or nil
 		data[i].pillar = not data[i].chunk and pillar or nil
+		data[i].is_buildable = is_buildable
+		data[i].is_buildable2 = is_buildable2
+		
+		local no_pillar_count = 0
 		
 		if pillar then
-			table.append(all_rocks, rocks)
+			table.iappend(all_rocks, rocks)
 		end
 		
 		--test hex
@@ -916,15 +945,18 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 				data[i].status = SupplyGridElementHexStatus.blocked
 			end
 			data[i].can_make_pillar = false
+			no_pillar_count = no_pillar_count + 1
 		end
 		
-		if pipe and not pipe:CanMakePillar() then
+		if pipe and (not pipe:CanMakePillar() 
+			or (i > 0 and i < steps and not is_buildable)) then --no crossing in unbuildable
 			if bld then
 				table.insert_unique(obstructors, bld)
 			end
 			table.insert(obstructors, pipe)
 			data[i].status = SupplyGridElementHexStatus.blocked
 			data[i].can_make_pillar = false
+			no_pillar_count = no_pillar_count + 1
 		end
 		
 		if data[i] ~= last_placed_data_cell and pipe and construction_group and table.find(construction_group, pipe) then
@@ -933,10 +965,11 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 		
 		if surf_deps and #surf_deps > 0 then
 			if data[i].pillar then
-				table.append(obstructors, surf_deps)
+				table.iappend(obstructors, surf_deps)
 				data[i].status = SupplyGridElementHexStatus.blocked
 			else
 				data[i].can_make_pillar = false
+				no_pillar_count = no_pillar_count + 1
 			end
 		end
 		
@@ -946,18 +979,35 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 		end
 		
 		if not is_buildable then
-			data[i].status = const.SupplyGridElementsAllowUnbuildableChunksPipes and SupplyGridElementHexStatus.unbuildable or SupplyGridElementHexStatus.unbuildable_blocked
-			data[i].can_make_pillar = false
+			if i ~= steps 
+				or not data[i].chunk 
+				or not is_buildable2 
+				or (i + last_pass_idx - 1 - data[i].chunk.chunk_start < 1) then
+				data[i].status = const.SupplyGridElementsAllowUnbuildableChunksPipes and SupplyGridElementHexStatus.unbuildable or SupplyGridElementHexStatus.unbuildable_blocked
+				data[i].can_make_pillar = false
+				no_pillar_count = no_pillar_count + 1
+			end
 		end
 		
 		if not const.SupplyGridElementsAllowUnbuildableChunksPipes and last_status == SupplyGridElementHexStatus.unbuildable_blocked then
 			data[i].status = SupplyGridElementHexStatus.unbuildable_blocked
 		end
 		
+		data[i].no_pillar_count = no_pillar_count
+		
+		if i == 1 and input_data and #input_data > 0 and data[0].chunk and not data[0].is_buildable and
+				data[i].is_buildable and not data[i].chunk and connect_dir ~= last_connect_dir then
+			--very special case - going from unbuildable to buildable with a turn and having 2 pillars
+			--next to each other on diff heights
+			data[i].can_make_pillar = false
+			no_pillar_count = no_pillar_count + 1
+		end
+		
 		--analyze status and build unbuildable chunks
 		if last_status then
 			if (last_status == SupplyGridElementHexStatus.clear
-				and data[i].status == SupplyGridElementHexStatus.unbuildable) --normal behavior				
+				and data[i].status == SupplyGridElementHexStatus.unbuildable
+				and (i > 0 or last_connect_dir == connect_dir)) --normal behavior
 				or (last_placed_data_cell and i == 1 and 
 					(data[i].status == SupplyGridElementHexStatus.unbuildable) and
 					(last_status == SupplyGridElementHexStatus.blocked or last_status == SupplyGridElementHexStatus.unbuildable))--sepcifically for placement tool visuals, catch turn
@@ -970,7 +1020,8 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 				local chunk = { chunk_start = i + last_pass_idx - 1, chunk_end = -(i + last_pass_idx), status = SupplyGridElementHexStatus.blocked, connect_dir = connect_dir }
 				chunk.place_construction_site = data[i].place_construction_site
 				
-				local start_node = data[i - 1]
+				local start_node = i > 0 and data[i - 1] or input_data and input_data[#input_data - 1]
+				assert(start_node and start_node.idx == chunk.chunk_start)
 				if start_node.chunk then
 					start_node.chunk_end = start_node.chunk
 					start_node.chunk_end.chunk_end = i + last_pass_idx - 1
@@ -983,6 +1034,13 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 				
 				unbuildable_chunks[chunk_idx] = chunk
 				
+				if not start_node.can_make_pillar then
+					if start_node.is_buildable2 and start_node.no_pillar_count == 1 and not start_node.is_buildable then
+						start_node.can_make_pillar = true
+						start_node.status = SupplyGridElementHexStatus.clear
+					end
+				end
+				
 				if start_node.cable and start_node.cable.pillar or
 					start_node.pipe and not start_node.pipe:CanMakePillar() or
 					not start_node.can_make_pillar then
@@ -992,7 +1050,7 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 						table.insert(obstructors, start_node.bld)
 					end
 				elseif not start_node.pillar then
-					table.append(all_rocks, start_node.rocks)
+					table.iappend(all_rocks, start_node.rocks)
 				end
 				
 				cs_grp_elements_in_this_group = cs_grp_elements_in_this_group - 1
@@ -1020,9 +1078,10 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 				and unbuildable_chunks[chunk_idx] and unbuildable_chunks[chunk_idx].chunk_end < 0 then
 				--possible buildable unbuildable chunk
 				unbuildable_chunks[chunk_idx].chunk_end = i + last_pass_idx
+				local chunk_size = unbuildable_chunks[chunk_idx].chunk_end - unbuildable_chunks[chunk_idx].chunk_start
 				data[i].chunk_end = unbuildable_chunks[chunk_idx]
 				unbuildable_chunks[chunk_idx].place_construction_site = unbuildable_chunks[chunk_idx].place_construction_site or data[i].place_construction_site
-				unbuildable_chunks[chunk_idx].status = not chunk_has_blocked_members and SupplyGridElementHexStatus.clear or unbuildable_chunks[chunk_idx].status
+				unbuildable_chunks[chunk_idx].status = chunk_size >= 1 and not chunk_has_blocked_members and SupplyGridElementHexStatus.clear or unbuildable_chunks[chunk_idx].status
 				
 				--ui counters
 				cs_chunk_grp_counter_for_cost = cs_chunk_grp_counter_for_cost + 1
@@ -1033,11 +1092,14 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 				end
 				
 				--build z data
-				local cell_data = data[unbuildable_chunks[chunk_idx].chunk_start - last_pass_idx]
+				local arr_idx = unbuildable_chunks[chunk_idx].chunk_start - last_pass_idx
+				local cell_data = arr_idx >= 0 and data[arr_idx] 
+										or input_data and input_data[#input_data + arr_idx]
+				assert(cell_data and cell_data.idx == unbuildable_chunks[chunk_idx].chunk_start)
 				local x1, y1 = HexToWorld(cell_data.q, cell_data.r)
 				local z1 = unbuildable_chunks[chunk_idx].z1
 				local x2, y2 = HexToWorld(q, r)
-				local z2 = GetBuildableZ(q, r)
+				local z2 = is_buildable and GetBuildableZ(q, r) or terrain.GetHeight(x2, y2)
 				unbuildable_chunks[chunk_idx].z2 = z2
 				unbuildable_chunks[chunk_idx].zd = z2 - z1
 				--test for pipe/cable block
@@ -1059,13 +1121,13 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 				end
 				
 				if not pillar then
-					table.append(all_rocks, rocks)
+					table.iappend(all_rocks, rocks)
 				end
 			end
 			if data[i].chunk and data[i].chunk.chunk_end < 0 then
 				data[i].chunk.chunk_end = -(i + last_pass_idx)
 				local x, y = HexToWorld(q, r)
-				data[i].chunk.z2 = IsBuildableZoneQR(q, r) and GetBuildableZ(q, r) or terrain.GetHeight(x, y)
+				data[i].chunk.z2 = is_buildable and GetBuildableZ(q, r) or terrain.GetHeight(x, y)
 				data[i].chunk.zd = data[i].chunk.z2 - data[i].chunk.z1
 			end
 		end
@@ -1129,6 +1191,7 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 		last_status = data[i].status
 	end
 	
+	data.connect_dir = connect_dir
 	data.cs_grp_counter_for_cost = cs_grp_counter_for_cost
 	data.cs_grp_elements_in_this_group = cs_grp_elements_in_this_group
 	data.cs_chunk_grp_counter_for_cost = cs_chunk_grp_counter_for_cost
@@ -1173,7 +1236,7 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 			local node = data[last_chunk.chunk_end - last_pass_idx]
 			node.chunk_end = last_chunk
 			if not node.pillar then
-				table.append(all_rocks, node.rocks)
+				table.iappend(all_rocks, node.rocks)
 			end
 		end
 	end
@@ -1219,7 +1282,7 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 		params.chain = chain
 		params.construction_grid_skin = skin_name
 		
-		local cs = PlaceConstructionSite(city, "LifeSupportGridElement", point(HexToWorld(q, r)), angle, params, nil, chain)
+		local cs = PlaceConstructionSite(city, "LifeSupportGridElement", point(HexToWorld(q, r)), angle, params, nil, chain or not IsBuildableZoneQR(q, r))
 		if not chain and cell_data.status == SupplyGridElementHexStatus.clear then
 			cs:AppendWasteRockObstructors(cell_data.rocks)
 			cs:AppendStockpilesUnderneath(cell_data.stockpiles)
@@ -1241,7 +1304,7 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 		el:SetPos(x, y, z)
 		el:SetAngle(angle)
 		el:SetGameFlags(const.gofPermanent)
-		if not chain then
+		if not chain and IsBuildableZoneQR(q, r) then
 			FlattenTerrainInBuildShape(nil, el)
 		end
 		SetObjectPaletteRecursive(el, cm1, cm2, cm3, cm4)
@@ -1268,6 +1331,7 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 				--place constr grp, chunks are their own groups
 				local chunk_construction_group = CreateConstructionGroup("LifeSupportGridElement", point(HexToWorld(q, r)), 3, not elements_require_construction)
 				local chunk_group_leader = chunk_construction_group[1]
+				chunk_group_leader.supplied = supplied
 				--add pillar 1
 				local p1 = place_pipe_cs(i, chunk_construction_group, max_int) --pillar == number means it cant auto demote
 				--place the lines
@@ -1314,6 +1378,7 @@ function PlacePipeLine(city, start_q, start_r, dir, steps, test, elements_requir
 						--new group
 						if elements_require_construction or #data[i].rocks > 0 or #data[i].stockpiles > 0 then
 							construction_group = CreateConstructionGroup("LifeSupportGridElement", point(HexToWorld(q, r)), 3, not elements_require_construction)
+							construction_group[1].supplied = supplied
 						end
 					end
 					
@@ -1556,6 +1621,8 @@ DefineClass.LifeSupportConsumer = {
 	properties = {
 		{ template = true, id = "water_consumption", name = T(656, "Water consumption"),  category = "Consumption", editor = "number", default = 10000, scale = const.ResourceScale, modifiable = true, min = 0, },
 		{ template = true, id = "air_consumption",   name = T(1067, "Oxygen consumption"), category = "Consumption", editor = "number", default = 10000, scale = const.ResourceScale, modifiable = true, min = 0, },
+		{ template = true, id = "disable_water_consumption", name = T(12289, "Disable Water Consumption"), no_edit = true, modifiable = true, editor = "number", default = 0, help = "So consumption can be turned off with modifiers"},
+		{ template = true, id = "disable_air_consumption", name = T(12290, "Disable Oxygen Consumption"), no_edit = true, modifiable = true, editor = "number", default = 0, help = "So consumption can be turned off with modifiers"},
 	},
 	
 	is_tall = true,
@@ -1613,6 +1680,18 @@ end
 function LifeSupportConsumer:OnModifiableValueChanged(prop)
 	if prop == "water_consumption" or prop == "air_consumption" then
 		self:UpdateConsumption()
+	elseif prop == "disable_water_consumption" then
+		if self.disable_water_consumption >= 1 then
+			self:SetBase("water_consumption", 0)
+		else
+			self:RestoreBase("water_consumption")
+		end
+	elseif prop == "disable_air_consumption" then
+		if self.disable_air_consumption >= 1 then
+			self:SetBase("air_consumption", 0)
+		else
+			self:RestoreBase("air_consumption")
+		end
 	end
 end
 

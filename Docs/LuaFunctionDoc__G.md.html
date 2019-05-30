@@ -1,5 +1,36 @@
 # Documentation for *_G*
 
+## AddCustomGameNotification
+
+Display a custom on-screen notification.<br>
+
+void **AddCustomGameNotification**(string id, string title, string text, string image, function callback, table params)
+string id
+: unique identifier of the notification.
+
+string title
+: title of the notification.
+
+string text
+: body text of the notification.
+
+string image
+: path to the notification icon.
+
+function callback
+: optional. Function called when the user clicks the notification.
+
+table params
+: optional. additional parameters.
+
+Additional parameters are supplied to the translatable texts, but can also be used to tweak the functionality of the notification:<br>
+- _'cycle_objs'_ will cause the camera to cycle through a list of _GameObjects_ or _points_ when the user clicks the notification.<br>
+- _'priority'_ changes the priority of the notification (choose between _"Normal"_, _"Important"_ and _"Critical"_; default=_"Normal"_).<br>
+- _'dismissable'_ dictates the dismissability of the notification (default=_true_)<br>
+- _'close_on_read'_ will cause the notification to disappear when the user clicks on it (default=_false_).<br>
+- _'expiration'_ is the amount of time (in _milliseconds_) that the notification will stay on the screen (default=_-1_).<br>
+- _'game_time'_ decides if the expiration countdown is done in _RealTime_ or _GameTime_ (default=_false_).<br>
+
 ## AddCustomOnScreenNotification
 
 Display a custom on-screen notification.<br>
@@ -103,6 +134,35 @@ _returns_
 : the result from the division, rounded to the nearest integer.
 
 
+## GetDomeAtHex
+
+Check for a dome at given hex coordinates.<br>
+Fast procedure that uses the object grid only.<br>
+
+object, bool **GetDomeAtHex**(q, r)
+int q, r
+: hex coordinates.
+
+_returns_ object dome
+: the dome found.
+
+_returns_ bool interior
+: specifies if the pos is located in the interior area (not at the border).
+
+
+## GetDomeAtPoint
+
+Check for a dome at given object or point location.<br>
+Procedure that uses the object grid or a fast surface collision test with the dome glass if the pos is at the dome border.<br>
+
+object **GetDomeAtPoint**(pos)
+point pos
+: point or object which location to be checked.
+
+_returns_ object dome
+: the dome found.
+
+
 ## GetPassablePointNearby
 
 Searches around and returns the nearest passable/walkable point.<br>
@@ -113,6 +173,44 @@ point pt
 
 _returns_ point
 : nearest passable point or an *invalid* point, if none was found.
+
+
+## IsDlcAvailable
+
+Returns if the player has a specific DLC installed.<br>
+
+bool **IsDlcAvailable**(string dlc)
+dlc
+: The ID of a DLC.
+
+_returns_ bool
+: If the DLC is available and loaded.
+
+
+## IsObjInDome
+
+Check if an object is located in a dome.<br>
+General purpose procedure that handle all possible cases (buildings, units, etc).<br>
+
+object **IsObjInDome**(obj)
+object obj
+: object to be checked.
+
+_returns_ object dome
+: the dome found.
+
+
+## IsUnitInDome
+
+Check if an unit is located in a dome.<br>
+Specialized procedure for faster checking if a unit is located in a dome (colonists, drones, etc).<br>
+
+object **IsUnitInDome**(unit)
+object unit
+: unit to be checked.
+
+_returns_ object dome
+: the dome found.
 
 
 ## LuaCodeToTuple
@@ -286,7 +384,7 @@ _returns_ string code
 ## ValueToLuaCode
 
 Converts a value to an executable Lua expresion.<br>
-Use _'dostring()'_ or _'LuaCodeToTuple()'_ for evaluating the Lua expression.<br>
+Use _'LuaCodeToTuple()'_ for evaluating the Lua expression.<br>
 
 string code **ValueToLuaCode**(value, int indent)
 value
@@ -297,6 +395,28 @@ int indent
 
 _returns_ string code
 : the supplied value, converted to Lua code.
+
+
+## WaitCustomPopup
+
+Displays a custom popup and waits for the players response.<br>
+This function should always be called from within a GameTime thread.<br>
+
+int choice **WaitCustomPopup**(string title, string text, table choices, window parent)
+string title
+: title of the popup.
+
+string text
+: body text of the popup.
+
+table choices
+: array of up to four choices for the user.
+
+window parent
+: parent window (this is optional only ingame).
+
+_returns_ int choice
+: The users choice.
 
 
 ## WaitCustomPopupNotification
@@ -346,6 +466,21 @@ number **xxhash**(...)
 
 _returns_ number
 : hash of the concatenated byte content of all the parameters.
+
+
+## xxhash64
+
+Calculates a hash of all its parameters. Uses [xxhash64](http://cyan4973.github.io/xxHash/).<br>
+No bitshifting or XOR magic, xxhash functions only.<br>
+
+number **xxhash64**(...)
+...
+: arbitrary number of params of type string, number, bool, nil, grid, userdata
+
+_returns_ number
+: hash of the concatenated byte content of all the parameters.
+
+
 
 
 

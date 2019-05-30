@@ -33,12 +33,25 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	NotificationText = T(11377, --[[StoryBit MartianVice_Crash NotificationText]] "Another shuttle race - another crash"),
-	Prerequisites = {},
+	Prerequisites = {
+		PlaceObj('AreDomesOpen', {
+			'Negate', true,
+		}),
+	},
 	ScriptDone = true,
 	SuppressTime = 1440000,
 	TextReadyForValidation = true,
 	TextsDone = true,
 	group = "Renegades",
 	id = "MartianVice_Crash",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1550837306,
+				user = "Radomir",
+			},
+		},
+	}),
 })
 

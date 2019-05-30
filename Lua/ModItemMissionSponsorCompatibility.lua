@@ -58,19 +58,19 @@ end
 function OnMsg.ClassesBuilt()
 	do
 		for i=1,const.MissionSponsorPriceModifiers do
-			table.append(ModItemMissionSponsor.properties, {
+			table.iappend(ModItemMissionSponsor.properties, {
 				{ category = "Price Modifiers", id = "modifier_name" .. i,  name = T{3541, "Modifier name <number>", number = i}, editor = "combo", default = "", items = ResupplyItemsCombo },
 				{ category = "Price Modifiers", id = "modifier_value" .. i, name = T{3542, "Modifier value <number>", number = i}, editor = "number", default = 0},
 			})
 		end
 		for i=1,const.MissionSponsorLockModifiers do
-			table.append(ModItemMissionSponsor.properties, {
+			table.iappend(ModItemMissionSponsor.properties, {
 				{ category = "Lock Modifiers", id = "lock_name" .. i,  name = T{8691, "Cargo <number>", number = i}, editor = "combo",         default = "", items = ResupplyItemsCombo },
 				{ category = "Lock Modifiers", id = "lock_value" .. i, name = T{8692, "Status <number>", number = i}, editor = "dropdownlist", default = false, items = LockStatusCombo},
 			})
 		end
 		for i=1,const.MissionSponsorNations do
-			table.append(ModItemMissionSponsor.properties, {
+			table.iappend(ModItemMissionSponsor.properties, {
 				{ category = "Sponsor Nations", id = "sponsor_nation_name" .. i,    name = T{3543, "Sponsor nation name <number>", number = i}, editor = "combo", default = "",items = Nations },
 				{ category = "Sponsor Nations", id = "sponsor_nation_percent" .. i, name = T{3544, "Sponsor nation percent <number>", number = i}, editor = "number", default = 0},
 			})

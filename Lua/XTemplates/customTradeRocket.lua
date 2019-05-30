@@ -21,8 +21,8 @@ PlaceObj('XTemplate', {
 			'__template', "InfopanelSection",
 			'RolloverText', T(416, --[[XTemplate customTradeRocket RolloverText]] "Payload of the Rocket."),
 			'OnContextUpdate', function (self, context, ...)
-self:SetVisible(context.cargo)
-end,
+				self:SetVisible(context.cargo)
+			end,
 			'Title', T(415, --[[XTemplate customTradeRocket Title]] "Payload"),
 			'Icon', "UI/Icons/Sections/storage.tga",
 		}, {

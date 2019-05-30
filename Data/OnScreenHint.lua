@@ -6,10 +6,10 @@ PlaceObj('OnScreenHint', {
 	group = "Default",
 	id = "HintGameStart",
 	text = T(5501, --[[OnScreenHint HintGameStart text]] "Let's <em>designate a landing site</em> for the rocket! A promising area has already been scanned for resources.\nSelect the Rocket from the highlighted icon at the bottom of your screen."),
-	title = T(5500, --[[OnScreenHint HintGameStart title]] "Welcome to Mars!"),
+	title = T(12463, --[[OnScreenHint HintGameStart title]] "Welcome to Mars!"),
 	video = "Movies/Hint/desktop/GameStartRocket.ivf",
-	video_ps4 = "Movies/Hint/ps4/GameStartRocket.bsf",
 	video_durango = "Movies/Hint/durango/GameStartRocket.h264",
+	video_ps4 = "Movies/Hint/ps4/GameStartRocket.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -29,8 +29,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5508, --[[OnScreenHint HintRocket text]] "Pick a landing site. Ideally this location would be in a large flat area near discovered resource deposits.\n\n<left_click> - land the Rocket"),
 	title = T(1685, --[[OnScreenHint HintRocket title]] "Rocket"),
 	video = "Movies/Hint/desktop/GameStartRocket.ivf",
-	video_ps4 = "Movies/Hint/ps4/GameStartRocket.bsf",
 	video_durango = "Movies/Hint/durango/GameStartRocket.h264",
+	video_ps4 = "Movies/Hint/ps4/GameStartRocket.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -41,8 +41,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5498, --[[OnScreenHint HintCameraControls text]] "Pan - <em><ShortcutName('actionPanUp')>, <ShortcutName('actionPanDown')>, <ShortcutName('actionPanLeft')>, <ShortcutName('actionPanRight')></em>\nTilt or rotate - hold <middle_click> or <em>Alt</em> and move the mouse\nZoom - <middle_click>, alternatively use <em><ShortcutName('actionZoomOut')></em> and <em><ShortcutName('actionZoomIn')></em>\nOverview mode - Maximum zoom out or <em>M</em>"),
 	title = T(5497, --[[OnScreenHint HintCameraControls title]] "Camera Controls"),
 	video = "Movies/Hint/desktop/CameraControl.ivf",
-	video_ps4 = "Movies/Hint/ps4/CameraControl.bsf",
 	video_durango = "Movies/Hint/durango/CameraControl.h264",
+	video_ps4 = "Movies/Hint/ps4/CameraControl.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -53,8 +53,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5511, --[[OnScreenHint HintBuildingConstruction text]] "Permanent buildings are constructed by Drones. <OpenBuildMenuHint()>.\nSuggested Building: A <em>Large Solar Panel</em> will generate electrical Power required for other buildings"),
 	title = T(5510, --[[OnScreenHint HintBuildingConstruction title]] "Building Construction"),
 	video = "Movies/Hint/desktop/BuildingConstruction.ivf",
-	video_ps4 = "Movies/Hint/ps4/BuildingConstruction.bsf",
 	video_durango = "Movies/Hint/durango/BuildingConstruction.h264",
+	video_ps4 = "Movies/Hint/ps4/BuildingConstruction.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -65,8 +65,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5506, --[[OnScreenHint HintGameSpeed text]] "Use the controls on the HUD or the following shortcuts to control the game speed:\n<em><ShortcutName('actionPauseGame')></em> - pause/unpause\n<em><ShortcutName('actionSpeedUp')> key</em> - increase game speed\n<em><ShortcutName('actionSpeedDown')> key</em> - decrease game speed"),
 	title = T(5505, --[[OnScreenHint HintGameSpeed title]] "Game Speed"),
 	video = "Movies/Hint/desktop/GameSpeed.ivf",
-	video_ps4 = "Movies/Hint/ps4/GameSpeed.bsf",
 	video_durango = "Movies/Hint/durango/GameSpeed.h264",
+	video_ps4 = "Movies/Hint/ps4/GameSpeed.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -77,8 +77,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5514, --[[OnScreenHint HintProbes text]] "<em>Probes</em> will instantly scan a Sector of the map, revealing resource deposits and Anomalies in the area. Deploy a Probe with <left_click> or <em><ShortcutName('actionDeployProbe')></em>."),
 	title = T(5513, --[[OnScreenHint HintProbes title]] "Probes"),
 	video = "Movies/Hint/desktop/Probes.ivf",
-	video_ps4 = "Movies/Hint/ps4/Probes.bsf",
 	video_durango = "Movies/Hint/durango/Probes.h264",
+	video_ps4 = "Movies/Hint/ps4/Probes.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -97,8 +97,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5519, --[[OnScreenHint HintSuggestConcreteExtractor text]] "Concrete Extractors automatically produce <em>Concrete</em>, but they still need Power and <em>Drones</em> to service them. Place a <em>Concrete Extractor</em> near a Concrete deposit in a scanned Sector."),
 	title = T(5518, --[[OnScreenHint HintSuggestConcreteExtractor title]] "Suggested Building: Concrete Extractor"),
 	video = "Movies/Hint/desktop/SuggestConcreteExtractor.ivf",
-	video_ps4 = "Movies/Hint/ps4/SuggestConcreteExtractor.bsf",
 	video_durango = "Movies/Hint/durango/SuggestConcreteExtractor.h264",
+	video_ps4 = "Movies/Hint/ps4/SuggestConcreteExtractor.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -108,8 +108,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5521, --[[OnScreenHint HintUndergroundWater text]] "Underground Water deposits can be exploited by <em>Water Extractors</em>. Water Extractors need Power and <em>Drones</em> to service them. Place a Water Extractor near a Water deposit."),
 	title = T(5520, --[[OnScreenHint HintUndergroundWater title]] "Underground Deposit (Water)"),
 	video = "Movies/Hint/desktop/UndergroundWater.ivf",
-	video_ps4 = "Movies/Hint/ps4/UndergroundWater.bsf",
 	video_durango = "Movies/Hint/durango/UndergroundWater.h264",
+	video_ps4 = "Movies/Hint/ps4/UndergroundWater.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -135,8 +135,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5526, --[[OnScreenHint HintAnomaly text]] "We are detecting anomalous readings at this location. An <em>RC Explorer</em> vehicle can analyze the Anomaly."),
 	title = T(9, --[[OnScreenHint HintAnomaly title]] "Anomaly"),
 	video = "Movies/Hint/desktop/Anomaly.ivf",
-	video_ps4 = "Movies/Hint/ps4/Anomaly.bsf",
 	video_durango = "Movies/Hint/durango/Anomaly.h264",
+	video_ps4 = "Movies/Hint/ps4/Anomaly.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -144,7 +144,7 @@ PlaceObj('OnScreenHint', {
 	gamepad_text = T(5528, --[[OnScreenHint HintRover gamepad_text]] "<em>The RC Commander</em> serves as a mobile base for your Drones. Manage the vehicle with <RT>. Relocate it by holding <RT> and then pressing <ButtonA>."),
 	group = "Default",
 	id = "HintRover",
-	text = T(5527, --[[OnScreenHint HintRover text]] "<em>The RC Commander</em> serves as a mobile base for your Drones. It can be relocated by the <em>Move/Interact</em> button in its Infopanel or using <UnitMoveControl()>."),
+	text = T(12567, --[[OnScreenHint HintRover text]] "<em>The RC Commander</em> serves as a mobile base for your Drones. It can be relocated by the <em>Move/Interact</em> button in its Infopanel or using <UnitMoveControl()>.\nQueue tasks by using <em>Shift + <right_click></em>"),
 	title = T(4828, --[[OnScreenHint HintRover title]] "RC Commander"),
 })
 
@@ -156,8 +156,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5531, --[[OnScreenHint HintVehicleOrders text]] "To command the selected vehicle, use the buttons in its Infopanel or use <UnitMoveControl()>."),
 	title = T(5530, --[[OnScreenHint HintVehicleOrders title]] "Vehicle Orders"),
 	video = "Movies/Hint/desktop/VehicleOrders.ivf",
-	video_ps4 = "Movies/Hint/ps4/VehicleOrders.bsf",
 	video_durango = "Movies/Hint/durango/VehicleOrders.h264",
+	video_ps4 = "Movies/Hint/ps4/VehicleOrders.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -165,11 +165,11 @@ PlaceObj('OnScreenHint', {
 	gamepad_text = T(5535, --[[OnScreenHint HintTransport gamepad_text]] "The <em>RC Transport</em> is used to carry resources at long range or gather resources from surface deposits. Manage the vehicle with <RT> or hold <RT> and press any of the button shortcuts to give orders quickly.\nThe Transport can establish a supply route between two points on the map."),
 	group = "Default",
 	id = "HintTransport",
-	text = T(5534, --[[OnScreenHint HintTransport text]] "The <em>RC Transport</em> is used to carry resources at long range or gather resources from surface deposits. Orders are given with the buttons in the Infopanel or using <UnitMoveControl()>.\nThe Transport can establish a supply route between two points on the map."),
+	text = T(12568, --[[OnScreenHint HintTransport text]] "The <em>RC Transport</em> is used to carry resources at long range or gather resources from surface deposits. Orders are given with the buttons in the Infopanel or using <UnitMoveControl()>.\nQueue tasks by using <em>Shift + <right_click></em>\nThe Transport can establish a supply route between two points on the map."),
 	title = T(1683, --[[OnScreenHint HintTransport title]] "RC Transport"),
 	video = "Movies/Hint/desktop/Transport.ivf",
-	video_ps4 = "Movies/Hint/ps4/Transport.bsf",
 	video_durango = "Movies/Hint/durango/Transport.h264",
+	video_ps4 = "Movies/Hint/ps4/Transport.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -177,7 +177,7 @@ PlaceObj('OnScreenHint', {
 	gamepad_text = T(7025, --[[OnScreenHint HintExplorer gamepad_text]] "The <em>RC Explorer</em> can analyze anomalies found on the surface of Mars. Manage the vehicle with <RT> or hold <RT> and press any of the button shortcuts to give orders quickly."),
 	group = "Default",
 	id = "HintExplorer",
-	text = T(7024, --[[OnScreenHint HintExplorer text]] "The <em>RC Explorer</em> can analyze Anomalies found on the surface of Mars. Orders are given with the buttons in the Infopanel or using <UnitMoveControl()>."),
+	text = T(12569, --[[OnScreenHint HintExplorer text]] "The <em>RC Explorer</em> can analyze Anomalies found on the surface of Mars. Orders are given with the buttons in the Infopanel or using <UnitMoveControl()>.\nQueue tasks by using <em>Shift + <right_click></em>"),
 	title = T(1684, --[[OnScreenHint HintExplorer title]] "RC Explorer"),
 })
 
@@ -196,8 +196,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5537, --[[OnScreenHint HintPower text]] "One of your buildings needs electrical Power produced by <em>Solar Panels</em>, <em>Wind Turbines</em>, or another Power generator. Power consumers must be connected to producers by being adjacent to them or via <em>Power Cables</em>.\nNote that Solar Panels work only during <em>daylight hours</em>, so you may want to store the excess energy in a <em>Power Accumulator</em>."),
 	title = T(79, --[[OnScreenHint HintPower title]] "Power"),
 	video = "Movies/Hint/desktop/Power.ivf",
-	video_ps4 = "Movies/Hint/ps4/Power.bsf",
 	video_durango = "Movies/Hint/durango/Power.h264",
+	video_ps4 = "Movies/Hint/ps4/Power.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -231,8 +231,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5544, --[[OnScreenHint HintSuggestSensorTower text]] "Sensor Towers significantly boost your scanning speed for nearby Sectors. They also give advance warning for disasters.\n\nNote that <em>Sensor Towers</em> require electrical Power that must be provided by a Power generating building such as a <em>Large Solar Panel</em>."),
 	title = T(5543, --[[OnScreenHint HintSuggestSensorTower title]] "Suggested Building: Sensor Tower"),
 	video = "Movies/Hint/desktop/SuggestSensorTower.ivf",
-	video_ps4 = "Movies/Hint/ps4/SuggestSensorTower.bsf",
 	video_durango = "Movies/Hint/durango/SuggestSensorTower.h264",
+	video_ps4 = "Movies/Hint/ps4/SuggestSensorTower.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -243,8 +243,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5546, --[[OnScreenHint HintScanningSectors text]] "Your first Sensor Tower is now completed. It will significantly boost the speed for scanning Sectors nearby.\nTo add a Sector to the scanning queue, go to the <em>Overview Mode</em> and <left_click> on the desired sector."),
 	title = T(5545, --[[OnScreenHint HintScanningSectors title]] "Scanning Sectors"),
 	video = "Movies/Hint/desktop/ScanningSectors.ivf",
-	video_ps4 = "Movies/Hint/ps4/ScanningSectors.bsf",
 	video_durango = "Movies/Hint/durango/ScanningSectors.h264",
+	video_ps4 = "Movies/Hint/ps4/ScanningSectors.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -254,8 +254,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5549, --[[OnScreenHint HintSuggestDroneHub text]] "The Drone Hub is a stationary command center that can control more Drones than the <em>RC Commander</em>. Consider constructing a Drone Hub in each of your major outposts."),
 	title = T(5548, --[[OnScreenHint HintSuggestDroneHub title]] "Suggested Building: Drone Hub"),
 	video = "Movies/Hint/desktop/SuggestDroneHub.ivf",
-	video_ps4 = "Movies/Hint/ps4/SuggestDroneHub.bsf",
 	video_durango = "Movies/Hint/durango/SuggestDroneHub.h264",
+	video_ps4 = "Movies/Hint/ps4/SuggestDroneHub.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -290,8 +290,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5553, --[[OnScreenHint HintResupply text]] "A Cargo Rocket can deliver additional supplies for the Colony, for example Advanced resources such as <em>Polymers, Machine Parts and Electronics</em>. Open the Resupply screen to order a Cargo Rocket from Earth."),
 	title = T(3997, --[[OnScreenHint HintResupply title]] "Resupply"),
 	video = "Movies/Hint/desktop/Resupply.ivf",
-	video_ps4 = "Movies/Hint/ps4/Resupply.bsf",
 	video_durango = "Movies/Hint/durango/Resupply.h264",
+	video_ps4 = "Movies/Hint/ps4/Resupply.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -309,8 +309,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5504, --[[OnScreenHint HintRefuelingTheRocket text]] "Rockets require fuel to return to Earth. Fuel is produced in a <em>Fuel Refinery</em> building that can be constructed from a prefab or researched. Fuel production requires Power and Water."),
 	title = T(5503, --[[OnScreenHint HintRefuelingTheRocket title]] "Refueling the Rocket"),
 	video = "Movies/Hint/desktop/RefuelingTheRocket.ivf",
-	video_ps4 = "Movies/Hint/ps4/RefuelingTheRocket.bsf",
 	video_durango = "Movies/Hint/durango/RefuelingTheRocket.h264",
+	video_ps4 = "Movies/Hint/ps4/RefuelingTheRocket.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -328,8 +328,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5557, --[[OnScreenHint HintWaterProduction text]] "Water can be produced by <em>Water Extractors</em> or <em>Moisture Vaporators</em>. Water Extractors require Water deposits, while Vaporator prefabs must be brought from Earth with resupply ships. Also consider setting up a <em>Water Tower</em> as an emergency storage. <em>Pipes</em> are used to connect all life support buildings."),
 	title = T(4806, --[[OnScreenHint HintWaterProduction title]] "Water Production"),
 	video = "Movies/Hint/desktop/WaterProduction.ivf",
-	video_ps4 = "Movies/Hint/ps4/WaterProduction.bsf",
 	video_durango = "Movies/Hint/durango/WaterProduction.h264",
+	video_ps4 = "Movies/Hint/ps4/WaterProduction.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -339,8 +339,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5559, --[[OnScreenHint HintAirProduction text]] "Oxygen can be extracted from the atmosphere by a <em>MOXIE</em>. Since it is crucial for the survival of your future Colonists, an <em>Oxygen Tank</em> for storage is highly recommended. <em>Pipes</em> are used to connect all life support buildings."),
 	title = T(5558, --[[OnScreenHint HintAirProduction title]] "Air Production"),
 	video = "Movies/Hint/desktop/AirProduction.ivf",
-	video_ps4 = "Movies/Hint/ps4/AirProduction.bsf",
 	video_durango = "Movies/Hint/durango/AirProduction.h264",
+	video_ps4 = "Movies/Hint/ps4/AirProduction.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -358,8 +358,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5562, --[[OnScreenHint HintDomes text]] "<em>Domes</em> are habitable mega-structures in which the future Colonists on Mars will live. Their construction will take significant time and resources. Plan carefully when placing your first Dome – it has to be connected to a Water and Oxygen supply and Colonists from it will be able to work in the immediate area around it."),
 	title = T(83, --[[OnScreenHint HintDomes title]] "Domes"),
 	video = "Movies/Hint/desktop/Domes.ivf",
-	video_ps4 = "Movies/Hint/ps4/Domes.bsf",
 	video_durango = "Movies/Hint/durango/Domes.h264",
+	video_ps4 = "Movies/Hint/ps4/Domes.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -369,8 +369,8 @@ PlaceObj('OnScreenHint', {
 	text = T(5563, --[[OnScreenHint HintLifeSupport text]] "<em>Domes</em> have to be connected to working supply of Oxygen and Water with Pipes. <em>Colonists</em> will not be able to survive within the Dome if life support is not secured, so storage for Water and Oxygen is also recommended."),
 	title = T(81, --[[OnScreenHint HintLifeSupport title]] "Life Support"),
 	video = "Movies/Hint/desktop/LifeSupport.ivf",
-	video_ps4 = "Movies/Hint/ps4/LifeSupport.bsf",
 	video_durango = "Movies/Hint/durango/LifeSupport.h264",
+	video_ps4 = "Movies/Hint/ps4/LifeSupport.bsf",
 })
 
 PlaceObj('OnScreenHint', {
@@ -698,10 +698,10 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	SortKey = 7100,
 	encyclopedia_image = "UI/Messages/Tutorials/Tutorial1/Tutorial1_Fuel.tga",
-	gamepad_text = T(9071, --[[OnScreenHint Tutorial_1_Fuel gamepad_text]] "Wait for the Fuel Factory to produce <em>Fuel</em> and the Drones to load it to the Rocket\n\nYou may select the Rocket with <ButtonA> and check out how much Fuel has already been delivered in its Info Panel to the right."),
+	gamepad_text = T(12231, --[[OnScreenHint Tutorial_1_Fuel gamepad_text]] "Wait for the Fuel Refinery to produce <em>Fuel</em> and the Drones to load it to the Rocket\n\nYou may select the Rocket with <ButtonA> and check out how much Fuel has already been delivered in its Info Panel to the right."),
 	group = "Default",
 	id = "Tutorial_1_Fuel",
-	text = T(9070, --[[OnScreenHint Tutorial_1_Fuel text]] "Wait for the Fuel Factory to produce <em>Fuel</em> and the Drones to load it to the Rocket.\n\nYou can select the Rocket and check out how much Fuel has already been delivered in its Info Panel to the right."),
+	text = T(12232, --[[OnScreenHint Tutorial_1_Fuel text]] "Wait for the Fuel Refinery to produce <em>Fuel</em> and the Drones to load it to the Rocket.\n\nYou can select the Rocket and check out how much Fuel has already been delivered in its Info Panel to the right."),
 	title = T(4765, --[[OnScreenHint Tutorial_1_Fuel title]] "Fuel"),
 	tutorial = "Tutorial1",
 })
@@ -776,10 +776,10 @@ PlaceObj('OnScreenHint', {
 PlaceObj('OnScreenHint', {
 	SortKey = 7800,
 	encyclopedia_image = "UI/Messages/Tutorials/Tutorial2/Tutorial2_OrphanedDrones.tga",
-	gamepad_text = T(9095, --[[OnScreenHint Tutorial_2_OrphanedDrones gamepad_text]] 'Select one of the orphaned Drones with <ButtonX> and use the "<em>Reassign All</em>" action to assign it and its brothers to the Drone Hub back in the base.\n\nRemember to focus the Drone\'s Info Panel with <RT> once selected.'),
+	gamepad_text = T(12181, --[[OnScreenHint Tutorial_2_OrphanedDrones gamepad_text]] 'Press and hold <ButtonX> over a Drone to select all four orphaned Drones. Then use the "<em>Reassign</em>" action to assign them to the Drone Hub back in the base.\n\nThe longer you hold <ButtonX>, the larger the screen selection area becomes.\n\nRemember to focus the Drone\'s Info Panel with <RT> once selected.'),
 	group = "Default",
 	id = "Tutorial_2_OrphanedDrones",
-	text = T(9094, --[[OnScreenHint Tutorial_2_OrphanedDrones text]] 'Select one of the orphaned Drones and use the "<em>Reassign All</em>" action to assign it and its brothers to the Drone Hub back in the base.'),
+	text = T(12182, --[[OnScreenHint Tutorial_2_OrphanedDrones text]] 'Press and hold <left_click> then drag to select all four orphaned Drones. Once selected, use the "<em>Reassign</em>" action to assign them to the Drone Hub back in the base.'),
 	title = T(5672, --[[OnScreenHint Tutorial_2_OrphanedDrones title]] "Orphaned Drones"),
 	tutorial = "Tutorial2",
 })
@@ -1052,7 +1052,7 @@ PlaceObj('OnScreenHint', {
 	gamepad_text = T(9155, --[[OnScreenHint Tutorial_3_WaitRocket gamepad_text]] "Wait for the arrival of the Rocket, then land it near the base.\n\nRemember you can speed up time via <ShortcutName('actionSpeedUp')>."),
 	group = "Default",
 	id = "Tutorial_3_WaitRocket",
-	text = T(12124, --[[OnScreenHint Tutorial_3_WaitRocket text]] "Wait for the arrival of the Rocket, then land it near the base.\n\nRemember you can speed up time via the HUD buttons at the bottom center of the screen."),
+	text = T(9154, --[[OnScreenHint Tutorial_3_WaitRocket text]] "Wait for the arrival of the Rocket, then land it near the base.\n\nRemember you can speed up time via the HUD buttons at the bottom left of the screen."),
 	title = T(9153, --[[OnScreenHint Tutorial_3_WaitRocket title]] "Awaiting Rocket"),
 	tutorial = "Tutorial3",
 })

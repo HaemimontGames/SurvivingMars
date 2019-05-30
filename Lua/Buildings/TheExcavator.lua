@@ -34,6 +34,7 @@ DefineClass.TheExcavator = {
 	arm_rope_dist = 0, --length from the arms origin to the end of the rope
 	rope = false,
 	belt = false,	
+	use_shape_selection = false,
 }
 
 GlobalVar("OldExcavatorMineLocations", {})

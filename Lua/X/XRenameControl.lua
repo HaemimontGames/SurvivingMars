@@ -5,8 +5,8 @@ function CreateMarsRenameControl(actionbar_parent, title, initial_text, ok_func,
 	params = params or {}
 	context = SubContext(context, params)
 	local max_len = params and params.max_len
-	ok_func = ok_func or __empty_function__
-	cancel_func = cancel_func or __empty_function__
+	ok_func = ok_func or empty_func
+	cancel_func = cancel_func or empty_func
 	local steam_keyboard = Platform.steam and GetUIStyleGamepad()
 	local function Keyboard(dialog)
 		CreateRealTimeThread(function(dialog)

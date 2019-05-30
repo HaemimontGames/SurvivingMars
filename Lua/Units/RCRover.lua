@@ -1,4 +1,4 @@
-GlobalVar("WorkRadiusShownForRover", false) --== to a RCRover obj whos work radius is currently shown or false if no rad is shown.
+GlobalVar("WorkRadiusShownForRover", {}) --list of rovers whos work radiuses are currently shown
 GlobalVar("WorkRadiusShownForRoverReasons", {})
 
 RCRoverResources = {
@@ -18,7 +18,7 @@ local RCRoverColorModifiers = {
 DefineClass.RCRover =
 {
 	__parents = { "RechargeStationBase", "BaseRover", "ComponentAttach", "DroneControl" },
-	
+	SelectionClass = "RCRover",
 	entity = "DroneTruck",
 	work_spot_task = "Workrover",
 	work_spot_deposit = "Workrover",
@@ -38,6 +38,7 @@ DefineClass.RCRover =
 	scan_time = false,
 	
 	display_name = T(7678, "RC Commander"),
+	display_name_pl = T(12091, "RC Commanders"),
 	description = T(4477, "Remote-controlled vehicle that transports, commands and repairs Drones."),
 	display_icon = "UI/Icons/Buildings/rcrover.tga",
 	
@@ -399,8 +400,8 @@ function RCRover:Siege(do_not_halt) --wip name
 	self:SetPos(self:GetVisualPos())
 
 	if not self:RotateAwayFromDomes() then --we failed to find a good siege spot
-		self:SetCommand("Unsiege")
 		self.sieged_state = false
+		self:SetCommand("Unsiege")
 		return
 	end
 	
@@ -434,7 +435,8 @@ function RCRover:Siege(do_not_halt) --wip name
 		self.working = false
 		self.accept_requester_connects = false
 		self:OnSiege(false)
-				
+		self:RestrictAllDrones(false)
+		
 		self:InterupIncomingDronesForRecharge()
 		
 		--notify charged drone, needs to be done when drone is in charge's lead in
@@ -470,8 +472,8 @@ function RCRover:Siege(do_not_halt) --wip name
 		end
 		
 		--if a drone is currently exiting, wait up
-		if self.guided_drone or #self.embarking_drones > 0 then --wait for exiting drone to exit
-			WaitWakeup()
+		while self.guided_drone or #self.embarking_drones > 0 do --wait for exiting drone to exit
+			WaitWakeup(2000)
 		end
 		
 		if not self.siege_state_name and self:GetState() == GetStateIdx("deployIdle") then
@@ -486,6 +488,7 @@ function RCRover:Siege(do_not_halt) --wip name
 	
 	self:OnSiege(true)
 	self:ExitAllDrones()
+	self:RestrictAllDrones(true)
 	self:WakeControlCenterUpdateThread()
 	
 	if not do_not_halt and self.command_thread == CurrentThread() then
@@ -496,6 +499,14 @@ end
 function RCRover:ExitDronesOutOfCommand()
 	if not self.exit_drones_thread then
 		self.exit_drones_thread = CreateGameTimeThread(RCRover.ExitAllDrones, self)
+	end
+end
+
+function RCRover:RestrictAllDrones(restrict)
+	local v1, v2 = restrict and self:GetPos() or point30, restrict and const.DroneRestrictRadius or 0
+	for i = 1, #self.drones do
+		local d = self.drones[i]
+		d:RestrictArea(v1, v2)
 	end
 end
 
@@ -523,9 +534,15 @@ function RCRover:ExitAllDrones()
 					assert(self.guided_drone == false)
 					self.guided_drone = drone
 					drone:SetCommand("ExitRover", self)
-					WaitWakeup()
+					if not WaitWakeup(10000) then
+						self:CleanupGuidedDrones()
+					end
 				end
 			end
+		else
+			print("dead drone removed from rover attached drones")
+			table.remove_entry(self.drones, drone)
+			self.attached_drones[#self.attached_drones] = nil
 		end
 	end
 	
@@ -535,7 +552,7 @@ function RCRover:ExitAllDrones()
 end
 
 function RCRover:GetSelectionRadiusScale()
-	if self == WorkRadiusShownForRover then
+	if WorkRadiusShownForRover[self] then
 		return self.work_radius
 	else
 		return 0
@@ -708,6 +725,16 @@ function RCRover:DisconnectTaskRequesters()
 	self:DebugCheckIfAllQueuesAreEmpty()
 end
 ]]
+
+function SavegameFixups.WakeStuckRovers()
+	MapForEach("map", "RCRover", RCRover.WakeFromWaitingOnDroneToEnterOrExit)
+	MapForEach("map", "Drone", function(o)
+		if o.command == "Embark" then
+			o:SetCommand("Embark")
+		end
+	end)
+end
+
 function RCRover:WakeFromWaitingOnDroneToEnterOrExit()
 	local t_to_wake = IsValidThread(self.exit_drones_thread) and self.exit_drones_thread or IsValidThread(self.thread_running_destructors) and self.thread_running_destructors or self.command_thread --always wake the destructor thread first
 	Wakeup(t_to_wake)
@@ -775,14 +802,18 @@ function RCRover:InteractWithObject(obj, interaction_mode)
 			obj.repair_drone = self		-- assign it earlier to prevent a Drone to mark it in the meanwhile
 			drone:SetCommand("Idle")
 		end
-		self:SetCommand("RepairDrone", obj, obj.battery_max)
+		GetCommandFunc(self)(self, "RepairDrone", obj, obj.battery_max)
 	end
 	
 	return BaseRover.InteractWithObject(self, obj, interaction_mode)
 end
 
 function RCRover:GoToPos(pos)
-	self:SetCommand("Goto", pos)
+	local func = GetCommandFunc(self)
+	if self.QueueCommand == func and self.command == "Siege" and not self:HasMoreCommandsAfterThis() then
+		func = self.SetCommand
+	end
+	func(self, "Goto", pos)
 end
 
 function RCRover:ShouldUnsiegeDueToGotoDist(...) --<-- .. are goto params
@@ -840,10 +871,14 @@ end
 
 function RCRover:SetCommand(command, ...)
 	if command == "Malfunction" and self.command == "Malfunction" then
+		self.dont_clear_queue = nil
 		return
 	end
 	
-	if self.dont_interrupt_current_command then return end
+	if self.dont_interrupt_current_command then
+		self.dont_clear_queue = nil
+		return 
+	end
 	--exec:
 	if (command == "Unsiege" or command == "Goto") and self.guided_drone then --if a drone is currently exiting store it so it can enter first
 		self.last_guided_drone = self.guided_drone
@@ -1045,12 +1080,16 @@ function RCRover:ToggleSiegeMode(broadcast)
 		local list = self.city.labels.RCRover or empty_table
 		for _, obj in ipairs(list) do
 			if obj.siege_state_name ~= command then
-				obj:SetCommand(command)
+				if not obj:IsCurrentCommandPartOfQueue() then
+					obj:SetCommand(command)
+				end
 				obj.sieged_state = state
 			end
 		end
 	else
-		self:SetCommand(command)
+		if not self:IsCurrentCommandPartOfQueue() then --if table, we are part of a queue, dont interrupt
+			self:SetCommand(command)
+		end
 		self.sieged_state = state
 	end
 	
@@ -1075,21 +1114,43 @@ function RCRover:ToggleSiegeMode_Update(button)
 end
 
 function RCRover:ShowWorkRadius(show, reason)
+	local reasons = WorkRadiusShownForRoverReasons[self] or { }
+	
 	if show then
-		if next(WorkRadiusShownForRoverReasons) == nil then
-			WorkRadiusShownForRover = self
+		if next(reasons) == nil then
+			WorkRadiusShownForRover[self] = true
 			PlayFX("ShowWorkRadius", "start", self)
 		end
 		
-		WorkRadiusShownForRoverReasons[reason] = true
+		reasons[reason] = true
 	else
-		if WorkRadiusShownForRover == self then
-			WorkRadiusShownForRoverReasons[reason] = nil
-			if next(WorkRadiusShownForRoverReasons) == nil then
+		if WorkRadiusShownForRover[self] then
+			reasons[reason] = nil
+			if next(reasons) == nil then
 				PlayFX("ShowWorkRadius", "end", self)
-				WorkRadiusShownForRover = false
+				WorkRadiusShownForRover[self] = nil
 			end
 		end
+	end
+	
+	if next(reasons) then
+		WorkRadiusShownForRoverReasons[self] = reasons
+	else
+		WorkRadiusShownForRoverReasons[self] = nil
+	end
+end
+
+function SavegameFixups.MultiselectionRoverWorkRadius()
+	if not WorkRadiusShownForRover then
+		WorkRadiusShownForRover = { }
+	else
+		WorkRadiusShownForRoverReasons = {
+			[WorkRadiusShownForRover] = WorkRadiusShownForRoverReasons,
+		}
+		
+		WorkRadiusShownForRover = {
+			[WorkRadiusShownForRover] = true,
+		}
 	end
 end
 
@@ -1119,16 +1180,18 @@ function RCRover:GetDronesStatusText()
 	return DroneControl.GetDronesStatusText(self)
 end
 
-function OnMsg.SelectedObjChange(obj, prev)
-	if IsKindOf(prev, "RCRover") then
-		WorkRadiusShownForRoverReasons = {} -- when rover loses selection clean all other reasons, needed for when button corresponding handler doesn't fire.
-		prev:ShowWorkRadius(false, "selected_and_sieged")
-	end
-	
+function OnMsg.SelectionAdded(obj)
 	if IsKindOf(obj, "RCRover") then
 		if obj.siege_state_name == "Siege" then
 			obj:ShowWorkRadius(true, "selected_and_sieged")
 		end
+	end
+end
+
+function OnMsg.SelectionRemoved(obj)
+	if IsKindOf(obj, "RCRover") then
+		WorkRadiusShownForRoverReasons = {} -- when rover loses selection clean all other reasons, needed for when button corresponding handler doesn't fire.
+		obj:ShowWorkRadius(false, "selected_and_sieged")
 	end
 end
 

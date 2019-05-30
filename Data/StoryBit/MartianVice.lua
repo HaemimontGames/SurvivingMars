@@ -30,6 +30,9 @@ PlaceObj('StoryBit', {
 	Enables = {},
 	Image = "UI/Messages/Events/29_shuttle.tga",
 	Prerequisites = {
+		PlaceObj('AreDomesOpen', {
+			'Negate', true,
+		}),
 		PlaceObj('CheckObjectCount', {
 			'Label', "Colonist",
 			'Filters', {
@@ -52,6 +55,15 @@ PlaceObj('StoryBit', {
 	VoicedText = T(390815295270, --[[voice:narrator]] "Busy at your office one day, you decide to take a walk and breath in some of the, well, less stale Dome air outside."),
 	group = "Renegades",
 	id = "MartianVice",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1550837288,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitReply', {
 		'Text', T(306971651058, --[[StoryBit MartianVice Text]] "Close all Shuttle Hubs for <sols(time_off)> Sols to improve security."),
 	}),

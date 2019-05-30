@@ -1,8 +1,9 @@
 DefineClass.ExplorerRover = {
 	__parents = {  "BaseRover", "ComponentAttach" },
 	entity = "RoverExplorer",
-	
+	SelectionClass = "ExplorerRover",
 	display_name = T(1684, "RC Explorer"),
+	display_name_pl = T(12090, "RC Explorers"),
 	description = T(4455, "A remote-controlled exploration vehicle that can analyze Anomalies."),
 	display_icon = "UI/Icons/Buildings/rover_human.tga",
 	
@@ -20,6 +21,7 @@ DefineClass.ExplorerRover = {
 	
 	StopResearchCommands = {
 		Malfunction = true,
+		Dead = true,
 	},
 	research_points_lifetime = false,
 	palette = {"rover_accent","rover_dark","outside_metal","rover_base"},
@@ -133,7 +135,7 @@ end
 function ExplorerRover:InteractWithObject(obj, interaction_mode)
 	if self.command=="Dead" then return false end
 	if interaction_mode ~= "recharge" and IsKindOf(obj, "SubsurfaceAnomaly") then
-		self:SetCommand("Analyze", obj)
+		GetCommandFunc(self)(self, "Analyze", obj)
 		SetUnitControlInteractionMode(self, false)
 		return
 	end

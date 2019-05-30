@@ -3,7 +3,7 @@
 ## Overview
 
 Consts is a class container for modifiable game constants. g_Consts is its global instance used to access the const values.<br>
-
+Reference: [GameValue](ModItemGameValue.md.html)<br>
 ## Parent classes
 
 * InitDone
@@ -60,6 +60,9 @@ Consts is a class container for modifiable game constants. g_Consts is its globa
 **ForcedByUserLockTimeout**
 : Lock time to Workplace, Residence, Dome selected by user
 
+**FundingFromTourist**
+: Funding received from each tourist when landing on Mars (in M)
+
 **NonHomeDomePerformancePenalty**
 : Performance penalty for colonists working in another connected dome
 
@@ -74,6 +77,9 @@ Consts is a class container for modifiable game constants. g_Consts is its globa
 
 **TimeBeforeStarving**
 : Time before starting to starve
+
+**TouristSolsOnMars**
+: The number of sols that tourists stay on Mars.
 
 **VisitFailPenalty**
 : Comfort penalty when failing to satisfy a need via a visit
@@ -134,6 +140,9 @@ Consts is a class container for modifiable game constants. g_Consts is its globa
 **Metals_dome_cost_modifier**
 : All Dome construction costs in in Metals will be modified by this percent
 
+**PolymersPerFracture**
+: The number of polymers required to fix a single dome/passage fracture
+
 **Polymers_cost_modifier**
 : All building construction costs in Polymers will be modified by this percent
 
@@ -145,6 +154,9 @@ Consts is a class container for modifiable game constants. g_Consts is its globa
 
 **PreciousMetals_dome_cost_modifier**
 : All Dome construction costs in in Rare Metals will be modified by this percent
+
+**RocketPrice**
+: Rocket Price
 
 **rebuild_cost_modifier**
 : All building rebuild construction costs will be modified by this percent
@@ -199,9 +211,6 @@ Consts is a class container for modifiable game constants. g_Consts is its globa
 **DroneMaxDustBonus**
 : Additional dust limit increase (in %) beyond which a dirty Drone will Malfunction
 
-**DroneMeteorMalfunctionChance**
-: Drones may malfunction (with this chance) when close to a meteor impact site
-
 **DroneMoveBatteryUse**
 : Battery usage when Drone is moving (without carrying resources) (per second)
 
@@ -216,6 +225,9 @@ Consts is a class container for modifiable game constants. g_Consts is its globa
 
 **DroneResourceCarryAmount**
 : Drone resource carry amount
+
+**DroneTimeToWorkOnLandscapeMultiplier**
+: The time drones take to work on landscaping is modified by this value.
 
 **DroneTransformWasteRockObstructorToStockpileAmount**
 : Drones generate 'transform_to_waste_rock' points (per second) when removing Waste Rock obstructions
@@ -255,8 +267,14 @@ Consts is a class container for modifiable game constants. g_Consts is its globa
 **FundingGainsModifier**
 : All Funding is multiplied by this percent
 
+**GameRuleRebelYellProgress**
+: GameRule - RebelYell -  points to add to renegade generation.
+
 **InstantCables**
 : Cables are built instantly when this is not 0
+
+**InstantPassages**
+: Passages are built instantly and cost nothing when this is not 0
 
 **InstantPipes**
 : Pipes are built instantly when this is not 0
@@ -270,6 +288,9 @@ Consts is a class container for modifiable game constants. g_Consts is its globa
 **IsDeepWaterExploitable**
 : Deep Water deposits are exploitable when this is not 0
 
+**MaxColonistsPerPod**
+: Maximum number of Colonists that can arrive on Mars in a single Pod
+
 **MaxColonistsPerRocket**
 : Maximum number of Colonists that can arrive on Mars in a single Rocket
 
@@ -278,6 +299,9 @@ Consts is a class container for modifiable game constants. g_Consts is its globa
 
 **OutsourceDisabled**
 : Determines whether the player can buy research points via outsourcing.
+
+**OutsourceMaxOrderCount**
+: Maximum Outsource Orders
 
 **OutsourceResearch**
 : Outsource Research Points
@@ -288,11 +312,17 @@ Consts is a class container for modifiable game constants. g_Consts is its globa
 **OutsourceResearchTime**
 : Outsource Research Duration
 
+**OverpopulatedDome**
+: The number of Homless colonists that Overpopulated the dome.
+
 **SponsorFundingInterval**
 : Period (in Sols) of additional periodical Funding from mission sponsors
 
 **SponsorFundingPerInterval**
 : Amount of additional Funding (in millions) received periodically from mission sponsor
+
+**SponsorGoalsCount**
+: Number of sponsor goals
 
 **SupplyMissionsEnabled**
 : Determines where supply missions are enabled
@@ -305,6 +335,60 @@ Consts is a class container for modifiable game constants. g_Consts is its globa
 
 **WasteRockToConcreteRatio**
 : WasteRock To Concrete Ratio
+
+**VegetationGrowthMultiplier**
+: Vegetation growth times are modified by this number.
+
+**DistressCallFundingThreshold**
+: 
+
+**DistressCallMaxFundingAmount**
+: 
+
+**DistressCallMaxResourceAmount**
+: 
+
+**DistressCallMinFundingAmount**
+: Minimum amount of funding given as aid by a rival AI
+
+**DistressCallMinResourceAmount**
+: Minimum amount of a resource given as aid by a rival AI
+
+**DistressCallResourceThreshold**
+: Distress call resource threshold amount
+
+**MaxGameDevelopmentCollaborationLoss**
+: Max Game Development Collaboration Loss (%)
+
+**ProgressPointsPerGame**
+: Progress points needed for Game Developer buildings to publish a new game
+
+**RivalAIMinResourceAmount**
+: Rival will not help if resource amount is lower than this number
+
+**RivalNeutralStandingHelpChance**
+: Rival's chance of sending aid when in neutral standing
+
+**RivalPositiveStandingHelpChance**
+: Rival's chance of sending aid when standing is positive
+
+**RivalStandingBad**
+: 
+
+**RivalStandingGood**
+: 
+
+**RivalStandingHelpReduction**
+: Rival's standing reduction when sending aid
+
+**RivalStandingHostile**
+: Threshold for RIval AI hostile standing
+
+**RivalStandingNeutral**
+: Threshold for RIval AI neutral standing
+
+**RivalStandingNoHelpReduction**
+: Rival's standing reduction when not sending aid
 #### Research
 
 
@@ -321,7 +405,10 @@ Consts is a class container for modifiable game constants. g_Consts is its globa
 : Research point multiplier for Experimental Research (in %)
 
 **ExplorerRoverResearchPoints**
-: Research points generated per RC Rover
+: Research points generated per RC Commander
+
+**PlanetaryBreakthroughCount**
+: Number of Breakthroughs reserved for Planetary Anomalies
 
 **SponsorResearch**
 : Sponsor Funding gained per Sol
@@ -332,16 +419,16 @@ Consts is a class container for modifiable game constants. g_Consts is its globa
 : Go To command will automatically cause unsiege if target is further than this distance
 
 **RCRoverDroneRechargeCost**
-: The amount of battery drained from RC Rover when recharging a Drone.
+: The amount of battery drained from RC Commander when recharging a Drone.
 
 **RCRoverMaxDrones**
-: Maximum Drones an RC Rover can control
+: Maximum Drones an RC Commander can control
 
 **RCRoverScanAnomalyTime**
-: RC Rover Anomaly scanning time (for each layer of depth)
+: RC Commander Anomaly scanning time (for each layer of depth)
 
 **RCRoverTransferResourceWorkTime**
-: The time it takes for an RC Rover to transfer 1 resource to a Depot.
+: The time it takes for an RC Commander to transfer 1 resource to a Depot.
 
 **RCTransportGatherResourceWorkTime**
 : The time it takes the RC Transport to gather 1 resource from a deposit
@@ -353,6 +440,9 @@ Consts is a class container for modifiable game constants. g_Consts is its globa
 
 **DustStormSanityDamage**
 : Sanity damage from Dust Storms (per hour)
+
+**GameRuleRebelYellRenegadeCreation**
+: Renegade creation point when game rule Rebel Yell is activated
 
 **HighStatLevel**
 : Stats above this level are considered high
@@ -408,6 +498,9 @@ Consts is a class container for modifiable game constants. g_Consts is its globa
 **OxygenMaxOutsideTime**
 : This is the time it takes for Colonists outside of Domes to start losing health
 
+**WaterMaxOutsideTime**
+: This is the time it takes for Colonists outside of Domes to become dehydrated
+
 **PerformanceEffectOnServiceComfort**
 : Max effect of worker performance on Service Quality
 
@@ -421,16 +514,569 @@ Consts is a class container for modifiable game constants. g_Consts is its globa
 : When working during dark hours Colonists will lose this much Sanity (per work shift)
 
 **WorkInWorkshopComfortBoost**
-: Workers in Workshops receive 10 Morale boost
+: Workers in Workshop receive Comfort boost
 
 **WorkInWorkshopMoraleBoost**
-: Workers in Workshop building receive additional comfort boost at the end of their workshift 
+: Workers in Workshop receive Morale boost
 
 **WorkOvertimeHealth**
 : Decreased Health from heavy workloads
 
 **WorkOvertimeSanityDecrease**
 : Decreased Sanity from heavy workloads
+
+**WorkInCorporateOfficeComfortDecrease**
+: Workers in Corporate Offices receive Comfort penalty
+#### Traits
+
+
+**ExtrovertIncreaseComfortThreshold**
+: Increases Comfort Threshold for Social Buildings when used by extroverts
+
+**MaxColonistTraitsToGenerate**
+: Max base traits generated per Colonist
+#### Workplace
+
+
+**AvoidWorkplaceSols**
+: After being fired, Colonists will avoid that Workplace for this many days when searching for a Workplace
+
+**DefaultOutsideWorkplacesRadius**
+: Colonists search this far (in hexes) outisde their Dome when looking for a Workplace
+
+**OvertimedShiftPerformance**
+: Heavy workload Shift Performance change
+
+**WorkingHours**
+: Normal shift duration
+
+## Overview
+
+Consts is a class container for modifiable game constants. g_Consts is its global instance used to access the const values.<br>
+Reference: [GameValue](ModItemGameValue.md.html)<br>
+## Parent classes
+
+* InitDone
+* Modifiable
+* PropertyObject
+## Class properties
+
+### Modifiable Properties
+
+#### Buildings
+
+
+**BuildingDailyDustAccumulation**
+: Dust accumulation per Sol
+
+**BuildingDailyDustMaxPercents**
+: Maximum dust accumulated per Sol
+
+**BuildingDailyDustMin**
+: Minimum dust accumulated per Sol
+
+**BuildingDustModifier**
+: Modifier applied to dust accumulated by buildings
+
+**BuildingMaintenancePointsModifier**
+: Modifier applied to maintenance points accumulated by buildings
+
+**CommandCenterMaxDrones**
+: Maximum number of Drones a Drone Hub can control
+
+**ConstructionNanitesTimeDelta**
+: How often the construction nanite tech picks up resources from nearby storages.
+
+**CropFailThreshold**
+: Average performance of Farms required for Crops to succeed
+
+**LargeBuildingHexes**
+: Buildings with this many or more hexes are considered 'large' (affects Dust Devils' paths and dust accumulation during them)
+
+**PipesPillarSpacing**
+: When building pipes, every 'PipesPillarSpacing'-th pipe will have a support pillar underneath it
+
+**RechargeStationTimeMod**
+: Time multiplier only when recharging from a station
+#### Colonist
+
+
+**ApplicantsPoolStartingSize**
+: Applicants pool starting size
+
+**BirthThreshold**
+: Threshold of accumulated stat points to trigger birth of a new Colonist
+
+**ForcedByUserLockTimeout**
+: Lock time to Workplace, Residence, Dome selected by user
+
+**FundingFromTourist**
+: Funding received from each tourist when landing on Mars (in M)
+
+**NonHomeDomePerformancePenalty**
+: Performance penalty for colonists working in another connected dome
+
+**NonSpecialistPerformancePenalty**
+: Performance penalty for non-Specialists assigned to a specialized work position
+
+**Other_gender_chance**
+: The chance to generate a Colonist with 'Other' sex
+
+**ProjectMorphiousPositiveTraitChance**
+: Chance to get positive trait when Resting and ProjectMorpheus is active
+
+**TimeBeforeStarving**
+: Time before starting to starve
+
+**TouristSolsOnMars**
+: The number of sols that tourists stay on Mars.
+
+**VisitFailPenalty**
+: Comfort penalty when failing to satisfy a need via a visit
+
+**botanist_arrival_chance**
+: Arrival chance (Botanist)
+
+**cloning_points**
+: Cloning points at full performance per hour
+
+**eat_food_per_visit**
+: Food eaten per visit to building, Farm or stockpile
+
+**engineer_arrival_chance**
+: Arrival chance (Engineer)
+
+**geologist_arrival_chance**
+: Arrival chance (Geologist)
+
+**medic_arrival_chance**
+: Arrival chance (Medic)
+
+**positive_playground_chance**
+: Colonist's chance to get a Perk when grown if they’ve visited a playground as a child
+
+**scientist_arrival_chance**
+: Arrival chance (Scientist)
+
+**security_arrival_chance**
+: Arrival chance (Officer)
+
+**specialist_chance_mul**
+: Multiplier for arrival chances of all Specialist types
+#### Cost
+
+
+**Concrete_cost_modifier**
+: All building construction costs in Concrete will be modified by this percent
+
+**Concrete_dome_cost_modifier**
+: All Dome construction costs in in Concrete will be modified by this percent
+
+**Electronics_cost_modifier**
+: All building construction costs in Electronics will be modified by this percent
+
+**Electronics_dome_cost_modifier**
+: All Dome construction costs in in Electronics will be modified by this percent
+
+**MachineParts_cost_modifier**
+: All building construction costs in Machine Parts will be modified by this percent
+
+**MachineParts_dome_cost_modifier**
+: All Dome construction costs in in Machine Parts will be modified by this percent
+
+**Metals_cost_modifier**
+: All building construction costs in Metals will be modified by this percent
+
+**Metals_dome_cost_modifier**
+: All Dome construction costs in in Metals will be modified by this percent
+
+**PolymersPerFracture**
+: The number of polymers required to fix a single dome/passage fracture
+
+**Polymers_cost_modifier**
+: All building construction costs in Polymers will be modified by this percent
+
+**Polymers_dome_cost_modifier**
+: All Dome construction costs in in Polymers will be modified by this percent
+
+**PreciousMetals_cost_modifier**
+: All building construction costs in Rare Metals will be modified by this percent
+
+**PreciousMetals_dome_cost_modifier**
+: All Dome construction costs in in Rare Metals will be modified by this percent
+
+**RocketPrice**
+: Rocket Price
+
+**rebuild_cost_modifier**
+: All building rebuild construction costs will be modified by this percent
+#### Drone
+
+
+**AndroidConstructionTime**
+: Biorobot construction time
+
+**AndroidElectronicsCost**
+: Price for constructing a Biorobot in a Drone Factory
+
+**DroneBuildingRepairAmount**
+: Drones generate this many Repair points (per second) when repairing a building
+
+**DroneBuildingRepairBatteryUse**
+: Battery usage when Drone is repairing a building (per second)
+
+**DroneCarryBatteryUse**
+: Battery usage when Drone is moving and carrying a resource (per second)
+
+**DroneCleanAmount**
+: When cleaning a building Drones generate this many Clean points (per second)
+
+**DroneConstructAmount**
+: Drones generate this many Construct points (per second) when constructing a building
+
+**DroneConstructBatteryUse**
+: Battery usage when Drone is constructing a building (per second)
+
+**DroneConstructionTime**
+: Drone construction time using the Drone Hub
+
+**DroneDeconstructAmount**
+: Drones generate this many Destroy points (per second) when destroying a Black Cube
+
+**DroneDeconstructBatteryUse**
+: Battery usage when Drone is destroying a Black Cube (per second)
+
+**DroneElectronicsCost**
+: Price for constructing a Drone using the Drone Hub
+
+**DroneEmergencyPower**
+: Drones will go to recharge when looking for work at twice this limit; They will drop what they're doing and go to recharge at this limit
+
+**DroneGatherResourceWorkTime**
+: Drones will load resources for this amount of time
+
+**DroneHubOrderDroneRange**
+: How far away from the drone hub it would look for factories when ordering drone construction.
+
+**DroneMaxDustBonus**
+: Additional dust limit increase (in %) beyond which a dirty Drone will Malfunction
+
+**DroneMoveBatteryUse**
+: Battery usage when Drone is moving (without carrying resources) (per second)
+
+**DroneRechargeTime**
+: The time it takes for a Drone to be fully recharged
+
+**DroneRepairAnimReps**
+: Drone repair time is dictated by the number of repetitions of the Repair animation
+
+**DroneRepairSupplyLeak**
+: The amount of time in seconds it takes a Drone to fix a supply leak
+
+**DroneResourceCarryAmount**
+: Drone resource carry amount
+
+**DroneTimeToWorkOnLandscapeMultiplier**
+: The time drones take to work on landscaping is modified by this value.
+
+**DroneTransformWasteRockObstructorToStockpileAmount**
+: Drones generate 'transform_to_waste_rock' points (per second) when removing Waste Rock obstructions
+
+**DroneTransformWasteRockObstructorToStockpileBatteryUse**
+: Battery usage when Drone is removing Waste Rock obstructions (per second)
+
+**RechargeCleansDrones**
+: Drones will be cleaned of dust when being recharged if this value is bigger than 0
+#### Gameplay
+
+
+**ApplicantGenerationInterval**
+: How long it takes to generate a new Applicant in the Applicant Pool
+
+**ApplicantSuspendGenerate**
+: Determines whether the applicant pool gains new entries.
+
+**CargoCapacity**
+: Maximum payload (in kg) of a resupply Rocket
+
+**CrimeEventDestroyedBuildingsCount**
+: CrimeEvent -  the number of destroyed buildings from single crime event
+
+**CrimeEventSabotageBuildingsCount**
+: CrimeEvent -  the number of sabotaged buildings from single crime event
+
+**DeepScanAvailable**
+: Deep scanning is available when this is not 0
+
+**ExportPricePreciousMetals**
+: Amount of Funding (in millions) received by exporting one unit of Rare Metals
+
+**FoodPerRocketPassenger**
+: The amount of Food (unscaled) supplied with each Colonist arrival
+
+**FundingGainsModifier**
+: All Funding is multiplied by this percent
+
+**GameRuleRebelYellProgress**
+: GameRule - RebelYell -  points to add to renegade generation.
+
+**InstantCables**
+: Cables are built instantly when this is not 0
+
+**InstantPassages**
+: Passages are built instantly and cost nothing when this is not 0
+
+**InstantPipes**
+: Pipes are built instantly when this is not 0
+
+**IsDeepMetalsExploitable**
+: Deep Metals deposits are exploitable when this is not 0
+
+**IsDeepPreciousMetalsExploitable**
+: Deep Rare Metals deposits are exploitable when this is not 0
+
+**IsDeepWaterExploitable**
+: Deep Water deposits are exploitable when this is not 0
+
+**MaxColonistsPerPod**
+: Maximum number of Colonists that can arrive on Mars in a single Pod
+
+**MaxColonistsPerRocket**
+: Maximum number of Colonists that can arrive on Mars in a single Rocket
+
+**MaxResearchCollaborationLoss**
+: Max Research Collaboration Loss (%)
+
+**OutsourceDisabled**
+: Determines whether the player can buy research points via outsourcing.
+
+**OutsourceMaxOrderCount**
+: Maximum Outsource Orders
+
+**OutsourceResearch**
+: Outsource Research Points
+
+**OutsourceResearchCost**
+: Outsource Research Cost (in millions)
+
+**OutsourceResearchTime**
+: Outsource Research Duration
+
+**OverpopulatedDome**
+: The number of Homless colonists that Overpopulated the dome.
+
+**SponsorFundingInterval**
+: Period (in Sols) of additional periodical Funding from mission sponsors
+
+**SponsorFundingPerInterval**
+: Amount of additional Funding (in millions) received periodically from mission sponsor
+
+**SponsorGoalsCount**
+: Number of sponsor goals
+
+**SupplyMissionsEnabled**
+: Determines where supply missions are enabled
+
+**TravelTimeEarthMars**
+: Time it takes for a Rocket to travel from Earth to Mars
+
+**TravelTimeMarsEarth**
+: Time it takes for a Rocket to travel from Mars to Earth
+
+**WasteRockToConcreteRatio**
+: WasteRock To Concrete Ratio
+
+**VegetationGrowthMultiplier**
+: Vegetation growth times are modified by this number.
+
+**DistressCallFundingThreshold**
+: 
+
+**DistressCallMaxFundingAmount**
+: 
+
+**DistressCallMaxResourceAmount**
+: 
+
+**DistressCallMinFundingAmount**
+: Minimum amount of funding given as aid by a rival AI
+
+**DistressCallMinResourceAmount**
+: Minimum amount of a resource given as aid by a rival AI
+
+**DistressCallResourceThreshold**
+: Distress call resource threshold amount
+
+**MaxGameDevelopmentCollaborationLoss**
+: Max Game Development Collaboration Loss (%)
+
+**ProgressPointsPerGame**
+: Progress points needed for Game Developer buildings to publish a new game
+
+**RivalAIMinResourceAmount**
+: Rival will not help if resource amount is lower than this number
+
+**RivalNeutralStandingHelpChance**
+: Rival's chance of sending aid when in neutral standing
+
+**RivalPositiveStandingHelpChance**
+: Rival's chance of sending aid when standing is positive
+
+**RivalStandingBad**
+: 
+
+**RivalStandingGood**
+: 
+
+**RivalStandingHelpReduction**
+: Rival's standing reduction when sending aid
+
+**RivalStandingHostile**
+: Threshold for RIval AI hostile standing
+
+**RivalStandingNeutral**
+: Threshold for RIval AI neutral standing
+
+**RivalStandingNoHelpReduction**
+: Rival's standing reduction when not sending aid
+#### Research
+
+
+**BreakThroughTechCostMod**
+: Breakthrough tech cost modifier
+
+**BreakthroughResearchSpeedMod**
+: Research point multiplier for Breakthrough Research (in %)
+
+**ElectricityForResearchPoint**
+: Excess electrical Power will be converted to research at the rate defined by this value.
+
+**ExperimentalResearchSpeedMod**
+: Research point multiplier for Experimental Research (in %)
+
+**ExplorerRoverResearchPoints**
+: Research points generated per RC Commander
+
+**PlanetaryBreakthroughCount**
+: Number of Breakthroughs reserved for Planetary Anomalies
+
+**SponsorResearch**
+: Sponsor Funding gained per Sol
+#### Rover
+
+
+**RCRoverDistanceToProvokeAutomaticUnsiege**
+: Go To command will automatically cause unsiege if target is further than this distance
+
+**RCRoverDroneRechargeCost**
+: The amount of battery drained from RC Commander when recharging a Drone.
+
+**RCRoverMaxDrones**
+: Maximum Drones an RC Commander can control
+
+**RCRoverScanAnomalyTime**
+: RC Commander Anomaly scanning time (for each layer of depth)
+
+**RCRoverTransferResourceWorkTime**
+: The time it takes for an RC Commander to transfer 1 resource to a Depot.
+
+**RCTransportGatherResourceWorkTime**
+: The time it takes the RC Transport to gather 1 resource from a deposit
+#### Stat
+
+
+**ColdWaveSanityDamage**
+: Sanity damage from a Cold Wave (per hour)
+
+**DustStormSanityDamage**
+: Sanity damage from Dust Storms (per hour)
+
+**GameRuleRebelYellRenegadeCreation**
+: Renegade creation point when game rule Rebel Yell is activated
+
+**HighStatLevel**
+: Stats above this level are considered high
+
+**HighStatMoraleEffect**
+: High Health, Sanity and Comfort increase the Colonist's morale by this much
+
+**LowSanityNegativeTraitChance**
+: Chance of getting a negative trait when Sanity reaches zero, in %
+
+**LowSanitySuicideChance**
+: Chance of suicide when Sanity reaches zero, in %
+
+**LowStatLevel**
+: Stats below this level are considered low
+
+**LowStatMoraleEffect**
+: Low Health, Sanity and Comfort decreases a Colonist's morale by this amount
+
+**MalfunctionedDome**
+: Colonist Sanity decreased when rest in malfunctioned Dome
+
+**MedicalBuildingMinComfortBirthDecrease**
+: Decreases minimum Colonist Comfort for giving birth in a Dome Medical Building
+
+**MeteorHealthDamage**
+: Health damage from small meteor (one-time on impact)
+
+**MeteorSanityDamage**
+: Sanity damage from meteor (one-time on impact)
+
+**MinComfortBirth**
+: Minimum Colonist Comfort for Birth
+
+**MoraleInitRange**
+: Morale of new Colonists starts randomly in this range, centered around half of maximum Morale
+
+**MysteryDreamSanityDamage**
+: Sanity damage for Dreamers from Mirages (per hour)
+
+**NoHomeComfort**
+: Colonist Comfort decreases when homeless
+
+**NonHomeDomeServiceThresholdDecrement**
+: Service threshold penalty for colonists being serviced in another connected dome
+
+**OutsideFoodConsumptionComfort**
+: Comfort damage from eating raw food from piles
+
+**OutsideWorkplaceSanityDecrease**
+: Outside Workplace Sanity Penalty
+
+**OxygenMaxOutsideTime**
+: This is the time it takes for Colonists outside of Domes to start losing health
+
+**WaterMaxOutsideTime**
+: This is the time it takes for Colonists outside of Domes to become dehydrated
+
+**PerformanceEffectOnServiceComfort**
+: Max effect of worker performance on Service Quality
+
+**RenegadeCreation**
+: Renegade creation point
+
+**SeeDeadSanity**
+: Colonist Sanity decreases when a Colonist from the same Residence dies from non-natural causes
+
+**WorkDarkHoursSanityDecrease**
+: When working during dark hours Colonists will lose this much Sanity (per work shift)
+
+**WorkInWorkshopComfortBoost**
+: Workers in Workshop receive Comfort boost
+
+**WorkInWorkshopMoraleBoost**
+: Workers in Workshop receive Morale boost
+
+**WorkOvertimeHealth**
+: Decreased Health from heavy workloads
+
+**WorkOvertimeSanityDecrease**
+: Decreased Sanity from heavy workloads
+
+**WorkInCorporateOfficeComfortDecrease**
+: Workers in Corporate Offices receive Comfort penalty
 #### Traits
 
 

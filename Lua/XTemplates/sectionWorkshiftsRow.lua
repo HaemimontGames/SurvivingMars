@@ -9,8 +9,8 @@ PlaceObj('XTemplate', {
 		'RolloverHint', T(7415, --[[XTemplate sectionWorkshiftsRow RolloverHint]] "<left_click> Toggle workshift\n<em>Ctrl + <left_click></em> Toggle workshift on all <display_name_pl>\n"),
 		'RolloverHintGamepad', T(7416, --[[XTemplate sectionWorkshiftsRow RolloverHintGamepad]] "<ButtonA> Toggle workshift\n<ButtonX> Toggle workshift on all <display_name_pl>\n"),
 		'OnContextUpdate', function (self, context, ...)
-UIWorkshiftUpdate(self, ResolvePropObj(context), context.shift)
-end,
+			UIWorkshiftUpdate(self, ResolvePropObj(context), context.shift)
+		end,
 	}, {
 		PlaceObj('XTemplateWindow', {
 			'__class', "XContextControl",
@@ -32,21 +32,21 @@ end,
 			'MouseCursor', "UI/Cursors/Rollover.tga",
 			'FocusOrder', point(1000, 1),
 			'OnPress', function (self, gamepad)
-local building = ResolvePropObj(self.context)
-local broadcast = not gamepad and IsMassUIModifierPressed()
-building:ToggleOvertime(self.context.shift, broadcast)
-ObjModified(building)
-XCreateRolloverWindow(self, gamepad, true)
-end,
+				local building = ResolvePropObj(self.context)
+				local broadcast = not gamepad and IsMassUIModifierPressed()
+				building:ToggleOvertime(self.context.shift, broadcast)
+				ObjModified(building)
+				XCreateRolloverWindow(self, gamepad, true)
+			end,
 			'AltPress', true,
 			'OnAltPress', function (self, gamepad)
-if gamepad then
-	local building = ResolvePropObj(self.context)
-	building:ToggleOvertime(self.context.shift, true)
-	ObjModified(building)
-	XCreateRolloverWindow(self, gamepad, true)
-end
-end,
+				if gamepad then
+					local building = ResolvePropObj(self.context)
+					building:ToggleOvertime(self.context.shift, true)
+					ObjModified(building)
+					XCreateRolloverWindow(self, gamepad, true)
+				end
+			end,
 			'Image', "UI/Infopanel/infopanel_workshift_time.tga",
 			'ImageScale', point(800, 800),
 			'Rows', 2,

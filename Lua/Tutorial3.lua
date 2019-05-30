@@ -208,13 +208,13 @@ g_TutorialScenarios.Tutorial3 = function()
 	end
 	
 	-- 9. Advanced Resources	
+	PlaceBuilding("SupplyRocket", {city = UICity, custom_travel_time_earth = 6*const.HourDuration, custom_travel_time_mars = 6*const.HourDuration})
+	WaitOneMsGameTime()
+	
 	WaitTutorialPopup("Tutorial3_Popup9_AdvancedResources")
 	TutorialNextHint("Tutorial_3_OpenResupplyUI")
 	g_Tutorial.EnableResupply = true
 	g_Tutorial.EnableCargoRockets = true
-	
-	PlaceBuilding("SupplyRocket", {city = UICity, custom_travel_time_earth = 6*const.HourDuration, custom_travel_time_mars = 6*const.HourDuration})
-	WaitOneMsGameTime()
 	
 	local resup_arrow = TutorialUIArrow:new({	
 		AnchorType = "center-top", 
@@ -268,7 +268,7 @@ g_TutorialScenarios.Tutorial3 = function()
 			if not Dialogs.Resupply or Dialogs.Resupply.Mode ~= "cargo" or g_Tutorial.SuppressResupplyLaunch then 
 				return false
 			end
-			return Dialogs.Resupply.idTemplate.idPayload.idToolBar.idlaunch
+			return Dialogs.Resupply.idTemplate.idPayload.idToolBar:ResolveId("idlaunch")
 		end,
 	}, terminal.desktop)	
 

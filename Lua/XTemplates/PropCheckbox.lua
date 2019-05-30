@@ -22,10 +22,10 @@ PlaceObj('XTemplate', {
 			PlaceObj('XTemplateFunc', {
 				'name', "CalcTextColor",
 				'func', function (self, ...)
-return self.enabled and 
-				(self.parent.rollover and self.RolloverTextColor or self.TextColor)
-				or self.DisabledTextColor
-end,
+					return self.enabled and 
+									(self.parent.rollover and self.RolloverTextColor or self.TextColor)
+									or self.DisabledTextColor
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
@@ -42,38 +42,38 @@ end,
 		PlaceObj('XTemplateFunc', {
 			'name', "OnPropUpdate(self, context, prop_meta, value)",
 			'func', function (self, context, prop_meta, value)
-self.idOn:SetVisible(value)
-self.idOff:SetVisible(not value)
-end,
+				self.idOn:SetVisible(value)
+				self.idOff:SetVisible(not value)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnMouseButtonDown(self, pos, button)",
 			'func', function (self, pos, button)
-XPropControl.OnMouseButtonDown(self, pos, button)
-if button == "L" then
-	local id = self.prop_meta.id
-	local value = not ResolveValue(self.context, id)
-	local obj = ResolvePropObj(self.context)
-	SetProperty(obj, id, value)
-	self:OnPropUpdate(self.context, self.prop_meta, value)
-end
-end,
+				XPropControl.OnMouseButtonDown(self, pos, button)
+				if button == "L" then
+					local id = self.prop_meta.id
+					local value = not ResolveValue(self.context, id)
+					local obj = ResolvePropObj(self.context)
+					SetProperty(obj, id, value)
+					self:OnPropUpdate(self.context, self.prop_meta, value)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnShortcut(self, shortcut, source)",
 			'func', function (self, shortcut, source)
-if shortcut == "ButtonA" then
-  self:OnMouseButtonDown(nil, "L")
-end
-end,
+				if shortcut == "ButtonA" then
+				  self:OnMouseButtonDown(nil, "L")
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "SetSelected(self, selected)",
 			'func', function (self, selected)
-if GetUIStyleGamepad() then
-	self:SetFocus(selected)
-end
-end,
+				if GetUIStyleGamepad() then
+					self:SetFocus(selected)
+				end
+			end,
 		}),
 		}),
 })

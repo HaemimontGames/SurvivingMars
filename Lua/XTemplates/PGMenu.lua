@@ -7,9 +7,9 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-XWindow.Open(self, ...)
-self:SetMargins(GetSafeMargins(self:GetMargins()))
-end,
+				XWindow.Open(self, ...)
+				self:SetMargins(GetSafeMargins(self:GetMargins()))
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XAspectWindow",
@@ -32,9 +32,9 @@ end,
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
 					'func', function (self, ...)
-XWindow.Open(self, ...)
-UIShowParadoxFeeds(self, true)
-end,
+						XWindow.Open(self, ...)
+						UIShowParadoxFeeds(self, true)
+					end,
 				}),
 				PlaceObj('XTemplateWindow', {
 					'comment', "upper line",
@@ -104,8 +104,8 @@ end,
 							PlaceObj('XTemplateFunc', {
 								'name', "CalcTextColor",
 								'func', function (self, ...)
-return self.parent.parent.rollover and self.RolloverTextColor or self.TextColor
-end,
+									return self.parent.parent.rollover and self.RolloverTextColor or self.TextColor
+								end,
 							}),
 							}),
 						}),
@@ -114,8 +114,8 @@ end,
 					'ActionId', "idSelectFeedEntry",
 					'ActionGamepad', "+RightShoulder",
 					'OnAction', function (self, host, source)
-host.idContent.idLinkButton:Press()
-end,
+						host.idContent.idLinkButton:Press()
+					end,
 				}),
 				}),
 			PlaceObj('XTemplateWindow', {
@@ -179,11 +179,11 @@ end,
 						'ActionIcon', "UI/Icons/main_menu_tutorial.tga",
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
-CreateRealTimeThread(function()
-	WaitWarnTutorialWithMods(host)
-	host:SetMode("Tutorial")
-end)
-end,
+							CreateRealTimeThread(function()
+								WaitWarnTutorialWithMods(host)
+								host:SetMode("Tutorial")
+							end)
+						end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'RolloverText', T(427174640796, --[[XTemplate PGMenu RolloverText]] "Start a survival game, which allows you to choose Mission Sponsor, Commander Profile, Rocket payload and landing location."),
@@ -193,8 +193,8 @@ end,
 						'ActionIcon', "UI/Icons/main_menu_new_game.tga",
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
-StartNewGame(host, "Mission")
-end,
+							StartNewGame(host, "Mission")
+						end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'RolloverText', T(650579644429, --[[XTemplate PGMenu RolloverText]] "Create the colony that you imagine and test how it works without worrying about survival threats.<newline><newline><NoAchievements()>"),
@@ -204,17 +204,17 @@ end,
 						'ActionIcon', "UI/Icons/main_menu_creative_mode.tga",
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
-StartNewGame(host, "Mission", {
-	EasyResearch = true,
-	FastRockets = true,
-	FastScan = true,
-	FreeConstruction = true,
-	EasyMaintenance = true,
-	IronColonists = true,
-	MoreApplicants = true,
-	RichCoffers = true,
-})
-end,
+							StartNewGame(host, "Mission", {
+								EasyResearch = true,
+								FastRockets = true,
+								FastScan = true,
+								FreeConstruction = true,
+								EasyMaintenance = true,
+								IronColonists = true,
+								MoreApplicants = true,
+								RichCoffers = true,
+							})
+						end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'RolloverText', T(554914047909, --[[XTemplate PGMenu RolloverText]] "Challenge yourself to accomplish a specific objective within a time limit.\n\nMission parameters and colony site are predetermined."),
@@ -223,8 +223,8 @@ end,
 						'ActionIcon', "UI/Icons/main_menu_challenges.tga",
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
-StartNewGame(host, "Challenge")
-end,
+							StartNewGame(host, "Challenge")
+						end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idLoad",
@@ -232,8 +232,8 @@ end,
 						'ActionIcon', "UI/Icons/main_menu_load_game.tga",
 						'ActionToolbar', "mainmenu",
 						'ActionState', function (self, host)
-return IsLoadButtonDisabled(host.context) and "disabled"
-end,
+							return IsLoadButtonDisabled(host.context) and "disabled"
+						end,
 						'OnActionEffect', "mode",
 						'OnActionParam', "Load",
 					}),
@@ -252,11 +252,11 @@ end,
 						'ActionIcon', "UI/Icons/main_menu_mod_editor.tga",
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
-CreateRealTimeThread(function()
-	ModEditorOpen()
-	host:delete()
-end)
-end,
+							CreateRealTimeThread(function()
+								ModEditorOpen()
+								host:delete()
+							end)
+						end,
 						'__condition', function (parent, context) return Platform.pc end,
 					}),
 					PlaceObj('XTemplateAction', {
@@ -273,8 +273,8 @@ end,
 						'ActionIcon', "UI/Icons/main_menu_achievements.tga",
 						'ActionToolbar', "mainmenu",
 						'OnAction', function (self, host, source)
-OpenDialog("Achievements")
-end,
+							OpenDialog("Achievements")
+						end,
 						'__condition', function (parent, context) return not Platform.steam and not Platform.console end,
 					}),
 					PlaceObj('XTemplateAction', {
@@ -283,11 +283,11 @@ end,
 						'ActionIcon', "UI/Icons/main_menu_paradox.tga",
 						'ActionToolbar', "mainmenu",
 						'ActionState', function (self, host)
-if Platform.durango and (Durango.IsPlayerGuest(XPlayerActive) or not Durango.IsPlayerSigned(XPlayerActive)) 
-	or (Platform.ps4 and not OrbisNetworkFeatures()) then
-	return "disabled"
-end
-end,
+							if Platform.durango and (Durango.IsPlayerGuest(XPlayerActive) or not Durango.IsPlayerSigned(XPlayerActive)) 
+								or (Platform.ps4 and not OrbisNetworkFeatures()) then
+								return "disabled"
+							end
+						end,
 						'OnActionEffect', "mode",
 						'OnActionParam', "Paradox",
 						'__condition', function (parent, context) return Platform.pops end,
@@ -299,8 +299,8 @@ end,
 						'ActionToolbar', "mainmenu",
 						'ActionShortcut', "Escape",
 						'OnAction', function (self, host, source)
-QuitGame(terminal.desktop)
-end,
+							QuitGame(terminal.desktop)
+						end,
 						'__condition', function (parent, context) return not Platform.console end,
 					}),
 					}),
@@ -317,24 +317,24 @@ end,
 					PlaceObj('XTemplateForEachAction', {
 						'toolbar', "mainmenu",
 						'run_after', function (child, context, action, n)
-local valign = n % 2 == 1 and "top" or "bottom"
-local top = valign=="top"
-	child:SetVAlign(valign)
-	child.idText:SetMargins(box(0,  top and 0 or 15, 0, not top and 0 or 15))
-	child.idText:SetDock(valign)
-	child.idText:SetText(action.ActionName)
-	child.idButton:SetFocusOrder(point(n, 0))
-	child.idButton:SetImage(action.ActionIcon)
-	child.idButton:SetOnPressParam(action.ActionId)
-	child.idSelection:SetAngle(top  and 180*60 or 0)
-	child.idSelection:SetMargins(box(0, top and -50 or 0, 0, top and 0 or -50))
-	child.idSelection:SetVAlign(valign)
-	if n == 1 and GetUIStyleGamepad() then
-		child:CreateThread("FocusThread", function()
-			child.idButton:SetFocus()
-		end)
-	end
-end,
+							local valign = n % 2 == 1 and "top" or "bottom"
+							local top = valign=="top"
+								child:SetVAlign(valign)
+								child.idText:SetMargins(box(0,  top and 0 or 15, 0, not top and 0 or 15))
+								child.idText:SetDock(valign)
+								child.idText:SetText(action.ActionName)
+								child.idButton:SetFocusOrder(point(n, 0))
+								child.idButton:SetImage(action.ActionIcon)
+								child.idButton:SetOnPressParam(action.ActionId)
+								child.idSelection:SetAngle(top  and 180*60 or 0)
+								child.idSelection:SetMargins(box(0, top and -50 or 0, 0, top and 0 or -50))
+								child.idSelection:SetVAlign(valign)
+								if n == 1 and GetUIStyleGamepad() then
+									child:CreateThread("FocusThread", function()
+										child.idButton:SetFocus()
+									end)
+								end
+						end,
 					}, {
 						PlaceObj('XTemplateWindow', {
 							'IdNode', true,
@@ -376,25 +376,25 @@ end,
 								PlaceObj('XTemplateFunc', {
 									'name', "SetRollover(self, rollover)",
 									'func', function (self, rollover)
-self.parent:SetRollover(rollover)
-self.parent.idSelection:SetVisible(self:GetEnabled() and rollover)
-XTextButton.SetRollover(self, rollover)
-local text = self.parent:ResolveId("idText")
-if text then
-	text:SetRollover(rollover)	
-end
-end,
+										self.parent:SetRollover(rollover)
+										self.parent.idSelection:SetVisible(self:GetEnabled() and rollover)
+										XTextButton.SetRollover(self, rollover)
+										local text = self.parent:ResolveId("idText")
+										if text then
+											text:SetRollover(rollover)	
+										end
+									end,
 								}),
 								PlaceObj('XTemplateFunc', {
 									'name', "SetEnabled(self, enabled)",
 									'func', function (self, enabled)
-XTextButton.SetEnabled(self, enabled)
-self.parent.idText:SetEnabled(enabled)
-if not enabled then
-	self.parent:AddInterpolation{id = "desat", type = const.intDesaturation, startValue = 255}
-	self.parent.GetEnabled = function() return false end
-end
-end,
+										XTextButton.SetEnabled(self, enabled)
+										self.parent.idText:SetEnabled(enabled)
+										if not enabled then
+											self.parent:AddInterpolation{id = "desat", type = const.intDesaturation, startValue = 255}
+											self.parent.GetEnabled = function() return false end
+										end
+									end,
 								}),
 								PlaceObj('XTemplateWindow', {
 									'__class', "XImage",
@@ -419,21 +419,21 @@ end,
 					PlaceObj('XTemplateFunc', {
 						'name', "OnShortcut(self, shortcut, source)",
 						'func', function (self, shortcut, source)
-if shortcut == "DPadLeft" or shortcut == "LeftThumbLeft" then
-	local focus = self.desktop:GetKeyboardFocus()
-	if focus:IsWithin(self) and focus:GetFocusOrder():x() == 1 then
-		self:GetRelativeFocus(point(#self,0), "exact"):SetFocus(true)
-		return "break"
-	end
-elseif shortcut == "DPadRight" or shortcut == "LeftThumbRight" then
-	local focus = self.desktop:GetKeyboardFocus()
-	if focus:IsWithin(self) and focus:GetFocusOrder():x() == #self then
-		self:GetRelativeFocus(point(1,0), "exact"):SetFocus(true)
-		return "break"
-	end
-end
-return XWindow.OnShortcut(self, shortcut, source)
-end,
+							if shortcut == "DPadLeft" or shortcut == "LeftThumbLeft" then
+								local focus = self.desktop:GetKeyboardFocus()
+								if focus:IsWithin(self) and focus:GetFocusOrder():x() == 1 then
+									self:GetRelativeFocus(point(#self,0), "exact"):SetFocus(true)
+									return "break"
+								end
+							elseif shortcut == "DPadRight" or shortcut == "LeftThumbRight" then
+								local focus = self.desktop:GetKeyboardFocus()
+								if focus:IsWithin(self) and focus:GetFocusOrder():x() == #self then
+									self:GetRelativeFocus(point(1,0), "exact"):SetFocus(true)
+									return "break"
+								end
+							end
+							return XWindow.OnShortcut(self, shortcut, source)
+						end,
 					}),
 					}),
 				}),

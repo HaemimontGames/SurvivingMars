@@ -14,9 +14,18 @@ PlaceObj('XTemplate', {
 			'Fit', "smallest",
 		}, {
 			PlaceObj('XTemplateWindow', {
-				'comment', "MM Video player",
+				'comment', "MM Video player base game",
+				'__condition', function (parent, context) return not IsDlcAvailable("armstrong") end,
 				'__class', "XVideo",
-				'FileName', "Movies/Main Menu",
+				'VideoDefId', "Movies_Main Menu.avi",
+				'Looping', true,
+				'AutoPlay', true,
+			}),
+			PlaceObj('XTemplateWindow', {
+				'comment', "MM Video player armstrong",
+				'__condition', function (parent, context) return IsDlcAvailable("armstrong") end,
+				'__class', "XVideo",
+				'VideoDefId', "MainMenu_Armstrong",
 				'Looping', true,
 				'AutoPlay', true,
 			}),

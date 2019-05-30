@@ -31,7 +31,7 @@ PlaceObj('XTemplate', {
 				'Padding', box(120, 12, 120, 0),
 				'HAlign', "center",
 				'MinWidth', 400,
-				'Image', "UI/CommonNew/Hud.tga",
+				'Image', "UI/CommonNew/hud.tga",
 				'FrameBox', box(43, 42, 43, 0),
 			}, {
 				PlaceObj('XTemplateWindow', {
@@ -80,8 +80,8 @@ PlaceObj('XTemplate', {
 						'Image', "UI/Icons/mod_0.tga",
 						'Rows', 2,
 						'OnPress', function (self, gamepad)
-XToggleButton.OnPress(self, gamepad)
-end,
+							XToggleButton.OnPress(self, gamepad)
+						end,
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'__template', "HUDButtonTemplate",
@@ -91,8 +91,8 @@ end,
 						'Image', "UI/Icons/mod_x.tga",
 						'Rows', 2,
 						'OnPress', function (self, gamepad)
-XToggleButton.OnPress(self, gamepad)
-end,
+							XToggleButton.OnPress(self, gamepad)
+						end,
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'__template', "HUDButtonTemplate",
@@ -102,8 +102,8 @@ end,
 						'Image', "UI/Icons/mod_y.tga",
 						'Rows', 2,
 						'OnPress', function (self, gamepad)
-XToggleButton.OnPress(self, gamepad)
-end,
+							XToggleButton.OnPress(self, gamepad)
+						end,
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'__template', "HUDButtonTemplate",
@@ -113,8 +113,8 @@ end,
 						'Image', "UI/Icons/mod_z.tga",
 						'Rows', 2,
 						'OnPress', function (self, gamepad)
-XToggleButton.OnPress(self, gamepad)
-end,
+							XToggleButton.OnPress(self, gamepad)
+						end,
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'__template', "HUDButtonTemplate",
@@ -123,8 +123,8 @@ end,
 						'ScaleModifier', point(650, 650),
 						'Image', "UI/HUD/encyclopedia.tga",
 						'OnPress', function (self, gamepad)
-self.context.idHelpWindow:SetVisible(not self.context.idHelpWindow:GetVisible(),true)
-end,
+							self.context.idHelpWindow:SetVisible(not self.context.idHelpWindow:GetVisible(),true)
+						end,
 					}),
 					}),
 				}),

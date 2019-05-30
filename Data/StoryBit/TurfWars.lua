@@ -38,6 +38,15 @@ PlaceObj('StoryBit', {
 	VoicedText = T(284586289332, --[[voice:narrator]] "Our Renegade situation has gotten out of control as of late, with many Renegade colonists joining gangs spread around the Domes, competing for territories."),
 	group = "Renegades",
 	id = "TurfWars",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1551086031,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitParamNumber', {
 		'Name', "casulties_big",
 		'Value', 9,
@@ -104,7 +113,6 @@ PlaceObj('StoryBit', {
 	}),
 	PlaceObj('StoryBitReply', {
 		'Text', T(565162592300, --[[StoryBit TurfWars Text]] "Pay off the leaders of the gangs to abandon these plans."),
-		'OutcomeText', "custom",
 		'Cost', "<pay_off>",
 	}),
 })

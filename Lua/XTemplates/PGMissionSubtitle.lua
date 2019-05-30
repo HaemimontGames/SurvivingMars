@@ -19,8 +19,8 @@ PlaceObj('XTemplate', {
 			}),
 			PlaceObj('XTemplateCode', {
 				'run', function (self, parent, context)
-parent.idTitle:SetTitle(GetDialogModeParam(parent).title)
-end,
+					parent.idTitle:SetTitle(GetDialogModeParam(parent).title)
+				end,
 			}),
 			}),
 		}),

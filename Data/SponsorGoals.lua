@@ -190,18 +190,9 @@ end,
 PlaceObj('SponsorGoals', {
 	Completed = function (self, state,  param1, param2, param3)
 state.target = tonumber(param1) 
-state.progress = 0
 while true do
-	local defs = TechDef
-	local progress = 0
-	for tech, status in pairs(UICity.tech_status) do
-		local def = defs[tech]
-		if def and def.group == "Breakthroughs" and status.researched then
-			progress = progress + 1
-		end
-	end
-	state.progress = progress
-	if progress >= state.target and GameTime() > 1 then
+	state.progress = g_BreakthroughsResearched
+	if state.progress >= state.target then 
 		return true
 	end
 	WaitMsg("TechResearched", 10000)
@@ -216,19 +207,19 @@ PlaceObj('SponsorGoals', {
 	Completed = function (self, state,  param1, param2, param3)
 state.target = tonumber(param1) 
 state.progress = 0
-for idx, tech in ipairs(UICity.tech_field[param2]) do
-	if UICity.tech_status[tech].researched then
-		state.progress = state.progress + 1
+while true do
+	local progress = 0
+	for idx, tech in ipairs(UICity.tech_field[param2] or empty_table) do
+		if UICity.tech_status[tech].researched then
+			progress = progress + 1
+		end
 	end
-end
-while state.progress < state.target do
-	local ok, tech_id, city = WaitMsg("TechResearched")
-	local tech = TechDef[tech_id]
-	if ok and tech and tech.group == param2 and GameTime() > 1 then
-		 state.progress = state.progress + 1
+	state.progress = progress
+	if state.progress >= state.target and GameTime() > 1 then
+		return true
 	end
+	WaitMsg("TechResearched", 10000)
 end
-return true
 end,
 	description = T(655611441668, --[[SponsorGoals CompleteFieldTechs description]] "Research <param1> <param2> technologies"),
 	group = "Default",

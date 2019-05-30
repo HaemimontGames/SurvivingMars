@@ -18,12 +18,6 @@ function OnMsg.ClassesPreprocess()
 	Colonist.ForceDie = function(self, reason)
 		self:SetCommand("Die", reason)
 	end
-	Dome.OnEnterDome = function(self, unit)
-		unit:OnEnterDome(self)
-	end
-	Dome.OnExitDome = function(self, unit)
-		unit:OnExitDome(self)
-	end
 	GetXDialog = GetDialog
 end
 
@@ -384,7 +378,7 @@ function SavegameFixups.pre_fixup(metadata, lua_revision)
 	if lua_revision < 227241 then
 		MapForEach(true, "Colonist", function(c) 				
 			if IsValid(c) and not c:IsDying() and not (c.holder or c:IsValidPos()) then				
-				local dome = c.current_dome or c.emigration_dome or c.dome
+				local dome = IsUnitInDome(c) or c.emigration_dome or c.dome
 				if dome then
 					c:SetDome(dome)
 					c:SetPos(dome:PickColonistSpawnPt())
@@ -507,8 +501,9 @@ end
 
 function SavegameFixups.DomePassageTables_ColonistWrongDome()
 	MapForEach(true, "Colonist", function(c) 
-		if c.current_dome and c.current_dome ~= c.dome then
-			c:SetDome(c.current_dome)
+		local current_dome = IsUnitInDome(c)
+		if current_dome and current_dome ~= c.dome then
+			c:SetDome(current_dome)
 		end
 	end)
 end
@@ -688,7 +683,7 @@ function SavegameFixups.RenameFlyingMaxSpeed()
 	end)
 end
 
-function SavegameFixups.FixDomeWalkablePoints()
+function SavegameFixups.FixDomeWalkablePointsAgain()
 	for _,dome in ipairs(UICity.labels.Dome or empty_table) do
 		dome:GenerateWalkablePoints()
 	end
@@ -954,3 +949,90 @@ function SavegameFixups.DisablePlayTutorialPopup()
 	AccountStorage.DisablePlayTutorialPopup = AccountStorage.DisablePlayTutorialPopup or g_ColonyNotViableUntil>=-2
 	SaveAccountStorage(5000)
 end
+
+function CommandObject:OnCommandDestructors(...)
+	return self:OnCommandStart(...)
+end
+
+function SavegameFixups.CountingBreakthroughsResearched()
+	g_BreakthroughsResearched = 0
+	for tech, status in pairs(UICity.tech_status) do
+		local def = TechDef[tech]
+		if def and def.group == "Breakthroughs" and status.researched then
+			g_BreakthroughsResearched = g_BreakthroughsResearched + 1
+		end
+	end
+end
+
+function SavegameFixups.SpecialProjectNextSpawnTable()
+	for id, day in pairs(g_SpecialProjectNextSpawn) do
+		if type(day)=="number" then
+			g_SpecialProjectNextSpawn[id] = {}
+			g_SpecialProjectNextSpawn[id].day = day
+		end
+	end
+end
+
+DefineClass("ComponentEx", "ComponentInterpolation")
+const.cfComponentEx = const.cofComponentInterpolation
+
+const.cfComponentAttach = const.cofComponentAttach
+const.cfComponentCustomData = const.cofComponentCustomData
+const.cfComponentColorizationMaterial = const.cofComponentColorizationMaterial
+const.cfComponentPath = const.cofComponentPath
+const.cfComponentSound = const.cofComponentSound
+const.cfComponentInterpolation = const.cofComponentInterpolation
+const.cfComponentAnim = const.cofComponentAnim
+
+function SavegameFixups.AddPostInQueueToRocketUnloadRequests()
+	MapForEach(true, "SupplyRocket", function(o)
+		local reconnect = o.auto_connect
+		if reconnect then
+			o:DisconnectFromCommandCenters()
+		end
+		
+		local r = o.unload_fuel_request
+		if r then
+			r:AddFlags(const.rfPostInQueue)
+		end
+		r = o.unload_request
+		if r then
+			r:AddFlags(const.rfPostInQueue)
+		end
+		
+		if reconnect then
+			o:ConnectToCommandCenters()
+		end
+	end)
+end
+
+function SavegameFixups.MysteryLogDismissable()
+	if MysteryInProgress then return end	
+
+	if g_ActiveOnScreenNotifications then
+		local idx = table.find(g_ActiveOnScreenNotifications, 1, "MysteryLog")
+		if idx and g_ActiveOnScreenNotifications[idx][3] then
+			g_ActiveOnScreenNotifications[idx][3].dismissable = true
+		end
+	end
+end
+
+function SavegameFixups.CreateSolarPanelbuildingLabel()
+	for _, city in ipairs(Cities) do
+		city:ForEachLabelObject("SolarPanelBase", 
+		function(obj) 
+			if obj:IsKindOf("SolarPanelBuilding") then 
+				city:AddToLabel("SolarPanelBuilding", obj)
+			end 
+		end)
+	end	
+end
+
+function SavegameFixups.RemoveAllSpotsForSpecialProject()
+	RemoveAllSpotsForSpecialProject("StoryBit_RemoteMartianLaboratory")
+end
+
+function SavegameFixups.CreatePlanetAnomaliesList()
+	g_PlanetaryAnomalies = g_PlanetaryAnomalies or {}
+end
+

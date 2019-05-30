@@ -14,8 +14,8 @@ PlaceObj('XTemplate', {
 		'HandleKeyboard', false,
 		'ChildrenHandleMouse', false,
 		'OnContextUpdate', function (self, context, ...)
-self.idImage:OnContextUpdate(context)
-end,
+			self.idImage:OnContextUpdate(context)
+		end,
 		'FocusOnOpen', "",
 	}, {
 		PlaceObj('XTemplateWindow', {
@@ -28,25 +28,25 @@ end,
 			PlaceObj('XTemplateFunc', {
 				'name', "Open(self, ...)",
 				'func', function (self, ...)
-XImage.Open(self, ...)
-self:OnContextUpdate(self.parent.context)
--- Thread to update and cursor size depending on camera angle
-self:CreateThread("UpdateThread", function(self)
-	while true do
-		WaitMsg("OnRender")
-		
-		local h = CalculateGamepadCursorSize(self)
-		self:SetMinHeight(h)
-		self:SetMaxHeight(h)
-	end
-end, self)
-end,
+					XImage.Open(self, ...)
+					self:OnContextUpdate(self.parent.context)
+					-- Thread to update and cursor size depending on camera angle
+					self:CreateThread("UpdateThread", function(self)
+						while true do
+							WaitMsg("OnRender")
+							
+							local h = CalculateGamepadCursorSize(self)
+							self:SetMinHeight(h)
+							self:SetMaxHeight(h)
+						end
+					end, self)
+				end,
 			}),
 			PlaceObj('XTemplateFunc', {
 				'name', "OnContextUpdate(self, context)",
 				'func', function (self, context)
-	self:SetImage(GetPlatformSpecificImagePath(context:GetCursorStateImage()))
-end,
+					self:SetImage(GetPlatformSpecificImagePath(context:GetCursorStateImage()))
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateWindow', {
@@ -61,8 +61,8 @@ end,
 				'VAlign', "top",
 				'ContextUpdateOnOpen', true,
 				'OnContextUpdate', function (self, context, ...)
-self:SetVisible(context:IsButtonActive("ButtonY"))
-end,
+					self:SetVisible(context:IsButtonActive("ButtonY"))
+				end,
 				'Translate', true,
 				'Text', T(649120194813, --[[XTemplate GamepadCursorDlg Text]] "<ButtonY>"),
 			}),
@@ -74,8 +74,8 @@ end,
 				'VAlign', "top",
 				'ContextUpdateOnOpen', true,
 				'OnContextUpdate', function (self, context, ...)
-self:SetVisible(context:IsButtonActive("ButtonX"))
-end,
+					self:SetVisible(context:IsButtonActive("ButtonX"))
+				end,
 				'Translate', true,
 				'Text', T(500955334824, --[[XTemplate GamepadCursorDlg Text]] "<ButtonX>"),
 			}),
@@ -87,8 +87,8 @@ end,
 				'VAlign', "top",
 				'ContextUpdateOnOpen', true,
 				'OnContextUpdate', function (self, context, ...)
-self:SetVisible(context:IsButtonActive("ButtonA"))
-end,
+					self:SetVisible(context:IsButtonActive("ButtonA"))
+				end,
 				'Translate', true,
 				'Text', T(262988649795, --[[XTemplate GamepadCursorDlg Text]] "<ButtonA>"),
 			}),
@@ -100,8 +100,8 @@ end,
 				'VAlign', "top",
 				'ContextUpdateOnOpen', true,
 				'OnContextUpdate', function (self, context, ...)
-self:SetVisible(context:IsButtonActive("ButtonB"))
-end,
+					self:SetVisible(context:IsButtonActive("ButtonB"))
+				end,
 				'Translate', true,
 				'Text', T(278990799792, --[[XTemplate GamepadCursorDlg Text]] "<ButtonB>"),
 			}),

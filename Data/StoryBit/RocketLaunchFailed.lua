@@ -4,6 +4,7 @@ PlaceObj('StoryBit', {
 	ActivationEffects = {},
 	Category = "RocketManualLaunch",
 	Effects = {},
+	EnableChance = 30,
 	Enabled = true,
 	Image = "UI/Messages/rocket.tga",
 	NotificationText = "",

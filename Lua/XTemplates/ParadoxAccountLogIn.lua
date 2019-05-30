@@ -110,33 +110,33 @@ PlaceObj('XTemplate', {
 							PlaceObj('XTemplateFunc', {
 								'name', "OnShortcut(self, shortcut, source)",
 								'func', function (self, shortcut, source)
-if shortcut == "ButtonA" then
-	self:OpenControllerTextInput()
-	return "break"
-end
-return XEdit.OnShortcut(self, shortcut, source)
-end,
+									if shortcut == "ButtonA" then
+										self:OpenControllerTextInput()
+										return "break"
+									end
+									return XEdit.OnShortcut(self, shortcut, source)
+								end,
 							}),
 							PlaceObj('XTemplateFunc', {
 								'name', "OnTextChanged",
 								'func', function (self, ...)
-XEdit.OnTextChanged(self, ...)
-local prop_meta = self.parent.prop_meta
-local obj = ResolvePropObj(self.parent.context)
-obj:SetProperty(prop_meta.id, self:GetText())
-end,
+									XEdit.OnTextChanged(self, ...)
+									local prop_meta = self.parent.prop_meta
+									local obj = ResolvePropObj(self.parent.context)
+									obj:SetProperty(prop_meta.id, self:GetText())
+								end,
 							}),
 							}),
 						PlaceObj('XTemplateFunc', {
 							'name', "OnPropUpdate(self, context, prop_meta, value)",
 							'func', function (self, context, prop_meta, value)
-value = value or ""
-self.idEdit:SetText(value)
-self.idEdit:SetPassword(prop_meta.password)
-if prop_meta.disabled and prop_meta.disabled() then
-	self:SetEnabled(false)
-end
-end,
+								value = value or ""
+								self.idEdit:SetText(value)
+								self.idEdit:SetPassword(prop_meta.password)
+								if prop_meta.disabled and prop_meta.disabled() then
+									self:SetEnabled(false)
+								end
+							end,
 						}),
 						}),
 					PlaceObj('XTemplateWindow', nil, {
@@ -163,33 +163,33 @@ end,
 								PlaceObj('XTemplateFunc', {
 									'name', "OnShortcut(self, shortcut, source)",
 									'func', function (self, shortcut, source)
-if shortcut == "ButtonA" then
-	self:OpenControllerTextInput()
-	return "break"
-end
-return XEdit.OnShortcut(self, shortcut, source)
-end,
+										if shortcut == "ButtonA" then
+											self:OpenControllerTextInput()
+											return "break"
+										end
+										return XEdit.OnShortcut(self, shortcut, source)
+									end,
 								}),
 								PlaceObj('XTemplateFunc', {
 									'name', "OnTextChanged",
 									'func', function (self, ...)
-XEdit.OnTextChanged(self, ...)
-local prop_meta = self.parent.prop_meta
-local obj = ResolvePropObj(self.parent.context)
-obj:SetProperty(prop_meta.id, self:GetText())
-end,
+										XEdit.OnTextChanged(self, ...)
+										local prop_meta = self.parent.prop_meta
+										local obj = ResolvePropObj(self.parent.context)
+										obj:SetProperty(prop_meta.id, self:GetText())
+									end,
 								}),
 								}),
 							PlaceObj('XTemplateFunc', {
 								'name', "OnPropUpdate(self, context, prop_meta, value)",
 								'func', function (self, context, prop_meta, value)
-value = value or ""
-self.idEdit:SetText(value)
-self.idEdit:SetPassword(prop_meta.password)
-if prop_meta.disabled and prop_meta.disabled() then
-	self:SetEnabled(false)
-end
-end,
+									value = value or ""
+									self.idEdit:SetText(value)
+									self.idEdit:SetPassword(prop_meta.password)
+									if prop_meta.disabled and prop_meta.disabled() then
+										self:SetEnabled(false)
+									end
+								end,
 							}),
 							}),
 						PlaceObj('XTemplateWindow', {
@@ -238,8 +238,8 @@ end,
 						'RelativeFocusOrder', "new-line",
 						'FocusedBackground', RGBA(246, 246, 246, 255),
 						'OnPress', function (self, gamepad)
-OpenParadoxTermsURL()
-end,
+							OpenParadoxTermsURL()
+						end,
 						'RolloverBackground', RGBA(0, 0, 0, 0),
 						'PressedBackground', RGBA(0, 0, 0, 0),
 						'TextStyle', "LogInText",
@@ -259,16 +259,16 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "OnSetRollover(self, rollover)",
 							'func', function (self, rollover)
-self.idUnderline:SetVisible(rollover)
-XTextButton.OnSetRollover(self, rollover)
-end,
+								self.idUnderline:SetVisible(rollover)
+								XTextButton.OnSetRollover(self, rollover)
+							end,
 						}),
 						PlaceObj('XTemplateFunc', {
 							'name', "OnShortcut(self, shortcut, source)",
 							'func', function (self, shortcut, source)
-if shortcut == "ButtonX" then return end
-return XTextButton.OnShortcut(self, shortcut, source)
-end,
+								if shortcut == "ButtonX" then return end
+								return XTextButton.OnShortcut(self, shortcut, source)
+							end,
 						}),
 						}),
 					PlaceObj('XTemplateWindow', {
@@ -280,8 +280,8 @@ end,
 						'RelativeFocusOrder', "new-line",
 						'FocusedBackground', RGBA(246, 246, 246, 255),
 						'OnPress', function (self, gamepad)
-OpenParadoxPrivacyPolicyURL()
-end,
+							OpenParadoxPrivacyPolicyURL()
+						end,
 						'RolloverBackground', RGBA(0, 0, 0, 0),
 						'PressedBackground', RGBA(0, 0, 0, 0),
 						'TextStyle', "LogInText",
@@ -301,16 +301,16 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "OnSetRollover(self, rollover)",
 							'func', function (self, rollover)
-self.idUnderline:SetVisible(rollover)
-XTextButton.OnSetRollover(self, rollover)
-end,
+								self.idUnderline:SetVisible(rollover)
+								XTextButton.OnSetRollover(self, rollover)
+							end,
 						}),
 						PlaceObj('XTemplateFunc', {
 							'name', "OnShortcut(self, shortcut, source)",
 							'func', function (self, shortcut, source)
-if shortcut == "ButtonX" then return end
-return XTextButton.OnShortcut(self, shortcut, source)
-end,
+								if shortcut == "ButtonX" then return end
+								return XTextButton.OnShortcut(self, shortcut, source)
+							end,
 						}),
 						}),
 					PlaceObj('XTemplateWindow', {
@@ -343,9 +343,9 @@ end,
 							PlaceObj('XTemplateFunc', {
 								'name', "SetEnabled(self, enabled)",
 								'func', function (self, enabled)
-XTextButton.SetEnabled(self, enabled)
-self:SetDesaturation(enabled and 0 or 255)
-end,
+									XTextButton.SetEnabled(self, enabled)
+									self:SetDesaturation(enabled and 0 or 255)
+								end,
 							}),
 							}),
 						PlaceObj('XTemplateWindow', {
@@ -371,9 +371,9 @@ end,
 							PlaceObj('XTemplateFunc', {
 								'name', "SetEnabled(self, enabled)",
 								'func', function (self, enabled)
-XTextButton.SetEnabled(self, enabled)
-self:SetDesaturation(enabled and 0 or 255)
-end,
+									XTextButton.SetEnabled(self, enabled)
+									self:SetDesaturation(enabled and 0 or 255)
+								end,
 							}),
 							}),
 						PlaceObj('XTemplateWindow', {
@@ -453,7 +453,7 @@ end,
 							'FrameBox', box(18, 18, 18, 18),
 							'TextStyle', "DarkButtons",
 							'Translate', true,
-							'Text', T(571213680646, --[[XTemplate ParadoxAccountLogIn Text]] "SIGN UP"),
+							'Text', T(12311, --[[XTemplate ParadoxAccountLogIn Text]] "CREATE ACCOUNT"),
 						}),
 						}),
 					}),
@@ -501,9 +501,9 @@ end,
 			}),
 			PlaceObj('XTemplateCode', {
 				'run', function (self, parent, context)
-local spinner = parent:ResolveId("idSpinner")
-spinner:SetVisible(context.loading or g_PopsAttemptingLogin)
-end,
+					local spinner = parent:ResolveId("idSpinner")
+					spinner:SetVisible(context.loading or g_PopsAttemptingLogin)
+				end,
 			}),
 			}),
 		}),

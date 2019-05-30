@@ -41,7 +41,7 @@ PrgAmbientLife["WorkVRWorkshop"] = function(unit, bld)
 		PrgChangeSpotFlags(bld, bld, spot, 4, 0, slotname, slot)
 		PrgVisitHolder(unit, bld, bld, 0)
 		if unit.visit_restart then unit:PopAndCallDestructor() return end
-		__placed = PlaceObject("VRHeadset", nil, const.cfComponentEx + const.cfComponentAttach)
+		__placed = PlaceObject("VRHeadset", nil, const.cofComponentAttach)
 		NetTempObject(__placed)
 		unit:Attach(__placed, unit:GetRandomSpot("Head"))
 		_unit_move = _unit_move or unit:GetMoveAnim()

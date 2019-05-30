@@ -1,6 +1,6 @@
 DefineClass.SavedGlobalVars = {
 	__parents = { "Object" },
-	game_flags = { gofPermanent = true },
+	flags = { gofPermanent = true },
 	properties = {
 		{ id = "Walkable", dont_save = true },
 		{ id = "Collision", dont_save = true },

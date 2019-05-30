@@ -15,20 +15,20 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-XDialog.Open(self, ...)
-self:SetPadding(GetSafeMargins(self:GetPadding()))
-end,
+				XDialog.Open(self, ...)
+				self:SetPadding(GetSafeMargins(self:GetPadding()))
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnDelete",
 			'func', function (self, ...)
-if GameState.gameplay then
-	if UICity then
-		--UICity.launch_elevator_mode = false
-		UICity.launch_mode = false
-	end
-end
-end,
+				if GameState.gameplay then
+					if UICity then
+						--UICity.launch_elevator_mode = false
+						UICity.launch_mode = false
+					end
+				end
+			end,
 		}),
 		PlaceObj('XTemplateLayer', {
 			'__condition', function (parent, context) return not GameState.gameplay end,
@@ -37,8 +37,8 @@ end,
 		PlaceObj('XTemplateFunc', {
 			'name', "OnContextUpdate(self, context)",
 			'func', function (self, context)
-RocketPayload_CalcCargoWeightCost()
-end,
+				RocketPayload_CalcCargoWeightCost()
+			end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "ActionBarNew",
@@ -77,9 +77,9 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "OnHyperLink(self, hyperlink, argument, hyperlink_box, pos, button)",
 							'func', function (self, hyperlink, argument, hyperlink_box, pos, button)
-local host = GetDialog(self)
-host.context:RenameRocket(host)
-end,
+								local host = GetDialog(self)
+								host.context:RenameRocket(host)
+							end,
 						}),
 						}),
 					PlaceObj('XTemplateAction', {
@@ -97,8 +97,8 @@ end,
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "RightThumbClick",
 						'OnAction', function (self, host, source)
-host.context:RenameRocket(host)
-end,
+							host.context:RenameRocket(host)
+						end,
 						'__condition', function (parent, context) return not UICity or UICity.launch_mode ~= "elevator" end,
 					}),
 					PlaceObj('XTemplateAction', {
@@ -107,9 +107,12 @@ end,
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonX",
 						'OnAction', function (self, host, source)
-MarkNameAsUsed("Rocket", g_CurrentMapParams.rocket_name_base)
-GenerateCurrentRandomMap()
-end,
+							CreateRealTimeThread(function()
+								WaitWarnAboutSkippedMods()
+								MarkNameAsUsed("Rocket", g_CurrentMapParams.rocket_name_base)
+								GenerateCurrentRandomMap()
+							end)
+						end,
 					}),
 					}),
 				PlaceObj('XTemplateMode', {
@@ -197,15 +200,15 @@ end,
 					'ShowPartialItems', false,
 					'MouseScroll', true,
 					'OnContextUpdate', function (self, context, ...)
-XContentTemplateList.OnContextUpdate(self, context, ...)
-if self.focused_item then
-	self.focused_item =  Min(self.focused_item, #self)
-	self:DeleteThread("select")
-	self:CreateThread("select", function()
-		self:SetSelection(self.focused_item)
-	end)
-end
-end,
+						XContentTemplateList.OnContextUpdate(self, context, ...)
+						if self.focused_item then
+							self.focused_item =  Min(self.focused_item, #self)
+							self:DeleteThread("select")
+							self:CreateThread("select", function()
+								self:SetSelection(self.focused_item)
+							end)
+						end
+					end,
 					'RespawnOnContext', false,
 				}, {
 					PlaceObj('XTemplateMode', {
@@ -213,8 +216,8 @@ end,
 					}, {
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-parent:ResolveId("idTitle"):SetTitle(T(11442, "SELECT PAYLOAD"))
-end,
+								parent:ResolveId("idTitle"):SetTitle(T(11442, "SELECT PAYLOAD"))
+							end,
 						}),
 						PlaceObj('XTemplateForEach', {
 							'comment', "item",
@@ -222,14 +225,14 @@ end,
 							'condition', function (parent, context, item, i) return (not item.filter or item.filter()) and not context:IsLocked(item.id) and not context:IsBlacklisted(item) and not BuildingTemplates[item.id] end,
 							'item_in_context', "prop_meta",
 							'run_after', function (child, context, item, i, n)
-local rollover = context:GetRollover(item.id)
-if rollover then
-	child:SetRolloverTitle(rollover.title)
-	child:SetRolloverText(rollover.descr)
-	child:SetRolloverHint(rollover.hint)
-	child:SetRolloverHintGamepad(rollover.gamepad_hint)
-end
-end,
+								local rollover = context:GetRollover(item.id)
+								if rollover then
+									child:SetRolloverTitle(rollover.title)
+									child:SetRolloverText(rollover.descr)
+									child:SetRolloverHint(rollover.hint)
+									child:SetRolloverHintGamepad(rollover.gamepad_hint)
+								end
+							end,
 						}, {
 							PlaceObj('XTemplateTemplate', {
 								'__template', "PropPayload",
@@ -256,8 +259,8 @@ end,
 					}, {
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-parent:ResolveId("idTitle"):SetTitle(T(4068, "PREFABS"))
-end,
+								parent:ResolveId("idTitle"):SetTitle(T(4068, "PREFABS"))
+							end,
 						}),
 						PlaceObj('XTemplateForEach', {
 							'comment', "item",
@@ -265,14 +268,14 @@ end,
 							'condition', function (parent, context, item, i) return (not item.filter or item.filter()) and not context:IsLocked(item.id) and not context:IsBlacklisted(item) and BuildingTemplates[item.id] end,
 							'item_in_context', "prop_meta",
 							'run_after', function (child, context, item, i, n)
-local rollover = context:GetRollover(item.id)
-if rollover then
-	child:SetRolloverTitle(rollover.title)
-	child:SetRolloverText(rollover.descr)
-	child:SetRolloverHint(rollover.hint)
-	child:SetRolloverHintGamepad(rollover.gamepad_hint)
-end
-end,
+								local rollover = context:GetRollover(item.id)
+								if rollover then
+									child:SetRolloverTitle(rollover.title)
+									child:SetRolloverText(rollover.descr)
+									child:SetRolloverHint(rollover.hint)
+									child:SetRolloverHintGamepad(rollover.gamepad_hint)
+								end
+							end,
 						}, {
 							PlaceObj('XTemplateTemplate', {
 								'__template', "PropPayload",

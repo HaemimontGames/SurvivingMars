@@ -13,19 +13,19 @@ Object are CObject that have also allocated Lua memory and thus can participate 
 
 ## Object:Done
 
-Called when the object is being destroyed. The method isn't overriden by chuild classes, but instead all implementations are called starting from the last child class.<br>
+Called when the object is being destroyed. The method isn't overriden by child classes, but instead all implementations are called starting from the last child class.<br>
 
 void **Object:Done**()
 
 ## Object:GameInit
 
-Called after the object's creation has been completed and the game is running. The method isn't overriden by chuild classes, but instead all implementations are called starting from the topmost parent.<br>
+Called after the object's creation has been completed and the game is running. The method isn't overriden by child classes, but instead all implementations are called starting from the topmost parent.<br>
 
 void **Object:GameInit**()
 
 ## Object:Init
 
-Called in the beginning of the object's creation. The method isn't overriden by chuild classes, but instead all implementations are called starting from the topmost parent.<br>
+Called in the beginning of the object's creation. The method isn't overriden by child classes, but instead all implementations are called starting from the topmost parent.<br>
 
 void **Object:Init**()
 

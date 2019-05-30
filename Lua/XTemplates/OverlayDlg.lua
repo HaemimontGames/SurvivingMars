@@ -23,11 +23,11 @@ PlaceObj('XTemplate', {
 			PlaceObj('XTemplateFunc', {
 				'name', "Open",
 				'func', function (self, ...)
-XFrame.Open(self, ...)
-local pad = self:GetPadding()
-local margin = GetSafeMargins(pad)
-self:SetPadding(box(pad:minx(), margin:miny(), margin:maxx(), margin:maxy()))
-end,
+					XFrame.Open(self, ...)
+					local pad = self:GetPadding()
+					local margin = GetSafeMargins(pad)
+					self:SetPadding(box(pad:minx(), margin:miny(), margin:maxx(), margin:maxy()))
+				end,
 			}),
 			PlaceObj('XTemplateWindow', {
 				'Id', "idActionBar",
@@ -73,15 +73,15 @@ end,
 		'id', "Transparent",
 		'default', true,
 		'Set', function (self, value)
-self.idFrame:SetImage(value and "UI/Common/menu_pad_1.tga" or "UI/Common/menu_pad_1a.tga")
-end,
+			self.idFrame:SetImage(value and "UI/Common/menu_pad_1.tga" or "UI/Common/menu_pad_1a.tga")
+		end,
 	}),
 	PlaceObj('XTemplateProperty', {
 		'category', "Visual",
 		'id', "Vertical",
 		'Set', function (self, value)
-self.idToolbar:SetLayoutMethod(value and "VList" or "HList")
-end,
+			self.idToolbar:SetLayoutMethod(value and "VList" or "HList")
+		end,
 	}),
 })
 

@@ -25,9 +25,9 @@ PlaceObj('XTemplate', {
 					'Image', "UI/Infopanel/progress_bar.tga",
 					'FrameBox', box(5, 0, 5, 0),
 					'OnContextUpdate', function (self, context, ...)
-self:SetVisible(context.action)
-return XFrameProgress.OnContextUpdate(self, context, ...)
-end,
+						self:SetVisible(context.action)
+						return XFrameProgress.OnContextUpdate(self, context, ...)
+					end,
 					'BindTo', "ActionProgress",
 					'MinProgressSize', 8,
 					'ProgressImage', "UI/Infopanel/progress_bar_green.tga",
@@ -57,16 +57,16 @@ end,
 				'__template', "InfopanelButton",
 				'RolloverTitle', T(1204, --[[XTemplate ipMirrorSphereBuilding RolloverTitle]] "Attempt to Pierce the Shell"),
 				'OnContextUpdate', function (self, context, ...)
-local enabled, reason = context:IsActionEnabled("PierceTheShell")
-self:SetRolloverText(enabled and T(1205, "Attempt to penetrate the outer shell of the Mirror Sphere with several Drones in the area.") or reason)
-
-self:SetEnabled(enabled or context.action == "PierceTheShell")
-if enabled or context.action ~= "PierceTheShell" then
-	self:SetIcon("UI/Icons/IPButtons/pierce.tga")
-else
-	self:SetIcon("UI/Icons/IPButtons/cancel.tga")
-end
-end,
+					local enabled, reason = context:IsActionEnabled("PierceTheShell")
+					self:SetRolloverText(enabled and T(1205, "Attempt to penetrate the outer shell of the Mirror Sphere with several Drones in the area.") or reason)
+					
+					self:SetEnabled(enabled or context.action == "PierceTheShell")
+					if enabled or context.action ~= "PierceTheShell" then
+						self:SetIcon("UI/Icons/IPButtons/pierce.tga")
+					else
+						self:SetIcon("UI/Icons/IPButtons/cancel.tga")
+					end
+				end,
 				'OnPressParam', "ActionPierceTheShell",
 			}),
 			PlaceObj('XTemplateTemplate', {
@@ -74,16 +74,16 @@ end,
 				'__template', "InfopanelButton",
 				'RolloverTitle', T(1206, --[[XTemplate ipMirrorSphereBuilding RolloverTitle]] "Attempt to Communicate"),
 				'OnContextUpdate', function (self, context, ...)
-local enabled, reason = context:IsActionEnabled("Communicate")
-self:SetRolloverText(enabled and T(1207, "Attempt to communicate with the Mirror Sphere via a nearby Sensor Tower.") or reason)
-
-self:SetEnabled(enabled or context.action == "Communicate")
-if enabled or context.action ~= "Communicate" then
-	self:SetIcon("UI/Icons/IPButtons/communicate.tga")
-else
-	self:SetIcon("UI/Icons/IPButtons/cancel.tga")
-end
-end,
+					local enabled, reason = context:IsActionEnabled("Communicate")
+					self:SetRolloverText(enabled and T(1207, "Attempt to communicate with the Mirror Sphere via a nearby Sensor Tower.") or reason)
+					
+					self:SetEnabled(enabled or context.action == "Communicate")
+					if enabled or context.action ~= "Communicate" then
+						self:SetIcon("UI/Icons/IPButtons/communicate.tga")
+					else
+						self:SetIcon("UI/Icons/IPButtons/cancel.tga")
+					end
+				end,
 				'OnPressParam', "ActionCommunicate",
 			}),
 			PlaceObj('XTemplateTemplate', {
@@ -91,39 +91,39 @@ end,
 				'__template', "InfopanelButton",
 				'RolloverTitle', T(1208, --[[XTemplate ipMirrorSphereBuilding RolloverTitle]] "Feed with Power"),
 				'OnContextUpdate', function (self, context, ...)
-local enabled, reason = context:IsActionEnabled("FeedPower")
-self:SetRolloverText(enabled and T(1209, "Divert energy towards the Mirror Sphere from a nearby Power Accumulator.") or reason)
-
-self:SetEnabled(enabled or context.action == "FeedPower")
-if enabled or context.action ~= "FeedPower" then
-	self:SetIcon("UI/Icons/IPButtons/power.tga")
-else
-	self:SetIcon("UI/Icons/IPButtons/cancel.tga")
-end
-end,
+					local enabled, reason = context:IsActionEnabled("FeedPower")
+					self:SetRolloverText(enabled and T(1209, "Divert energy towards the Mirror Sphere from a nearby Power Accumulator.") or reason)
+					
+					self:SetEnabled(enabled or context.action == "FeedPower")
+					if enabled or context.action ~= "FeedPower" then
+						self:SetIcon("UI/Icons/IPButtons/power.tga")
+					else
+						self:SetIcon("UI/Icons/IPButtons/cancel.tga")
+					end
+				end,
 				'OnPressParam', "ActionFeedPower",
 			}),
 			PlaceObj('XTemplateAction', {
 				'ActionId', "Enable all",
 				'ActionToolbar', "cheats",
 				'OnAction', function (self, host, source)
-host.context.dbg_enable_all = true
-RebuildInfopanel(host.context)
-end,
+					host.context.dbg_enable_all = true
+					RebuildInfopanel(host.context)
+				end,
 			}),
 			PlaceObj('XTemplateAction', {
 				'ActionId', "Finish action",
 				'ActionToolbar', "cheats",
 				'OnAction', function (self, host, source)
-Wakeup(host.context.action_thread)
-end,
+					Wakeup(host.context.action_thread)
+				end,
 			}),
 			PlaceObj('XTemplateAction', {
 				'ActionId', "Escavate",
 				'ActionToolbar', "cheats",
 				'OnAction', function (self, host, source)
-host.context:SetProgressPct(100)
-end,
+					host.context:SetProgressPct(100)
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
@@ -133,8 +133,8 @@ end,
 			'ActionId', "PlaceAnomaly",
 			'ActionToolbar', "cheats",
 			'OnAction', function (self, host, source)
-host.context:PlaceAnomaly(true)
-end,
+				host.context:PlaceAnomaly(true)
+			end,
 			'__condition', function (parent, context) return not context.scanned end,
 		}),
 		}),

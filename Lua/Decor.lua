@@ -7,35 +7,33 @@ DefineClass("#Test_01", "Object", "Deposition")
 DefineClass.BuildingEntityClass =
 {
 	__parents = { "EntityClass", "AutoAttachObject", "NightLightObject", "WaypointsObj" },
-	enum_flags = { efSelectable = true },
+	flags = { efSelectable = true },
 	__hierarchy_cache = true,
 }
 
 DefineClass.CropEntityClass =
 {
 	__parents = { "EntityClass" },
-	enum_flags = { efSelectable = true },
+	flags = { efSelectable = true },
 	__hierarchy_cache = true,
 }
 
-DefineClass.BakedTerrainDecalLarge = 
+DefineClass.VegetationEntityClass =
 {
-	__parents = { "EntityClass", "AutoAttachObject" },
-	enum_flags = { efBakedTerrainDecal = true, efBakedTerrainDecalLarge = true, efVisible = false  },
-	class_flags = { cfDecal = true, cfConstructible = false, cfAudible = false, cfTerrainObject = true }
+	__parents = { "EntityClass" },
+	flags = { efSelectable = true },
+	__hierarchy_cache = true,
 }
 
 DefineClass.BakedTerrainDecalOutside = 
 {
-	__parents = { "EntityClass", "AutoAttachObject" },
-	enum_flags = { efBakedTerrainDecal = true, efVisible = false },
-	class_flags = { cfDecal = true, cfConstructible = false, cfAudible = false, cfTerrainObject = true },
-	game_flags = { gofBakedTerrainDecalOutside = true },
+	__parents = { "BakedTerrainDecal" },
+	flags = { gofBakedTerrainDecalOutside = true },
 }
 
 DefineClass.BakedTerrainDecalOutsideLarge = 
 {
-	__parents = { "BakedTerrainDecalOutside", "BakedTerrainDecalLarge" }
+	__parents = { "BakedTerrainDecalOutside", "BakedTerrainDecalLarge" },
 }
 
 DefineClass.AnimatedTextureObject = 
@@ -50,7 +48,7 @@ end
 DefineClass.BakedDomeDecal = 
 {
 	__parents = { "EntityClass", "AutoAttachObject", "BakedTerrainDecal" },
-	class_flags = { cfDetailedDecal = true },
+	flags = { gofDetailedDecal = true },
 }
 
 DefineClass.BakedDomeDecalLarge = 
@@ -65,8 +63,8 @@ DefineClass.NonTerrainDecal =
 
 DefineClass.TerrainObject = 
 {
-	__parents = { "EntityClass", "AutoAttachObject" },
-	class_flags = { cfTerrainObject = true },
+	__parents = { "EntityClass", "AutoAttachObject", "SoilInfluenceable" },
+	flags = { gofTerrainObject = true },
 }
 
 DefineClass.NonTerrainObject = 
@@ -75,8 +73,7 @@ DefineClass.NonTerrainObject =
 }
 
 DefineClass.StoneSmall = {
-	enum_flags = { efRemoveUnderConstruction = true },
-	game_flags = { gofTemporalConstructionBlock = true },
+	flags = { gofTemporalConstructionBlock = true, efRemoveUnderConstruction = true },
 	__parents = { "EntityClass" },
 }
 
@@ -88,20 +85,19 @@ DefineClass.Garden = {
 
 DefineClass.LightSphereHalo = {
 	__parents = { "EntityClass" },
-	game_flags = { gofSpecialOrientMode = true },
+	flags = { gofSpecialOrientMode = true },
 	orient_mode = "facing",
 }
 
 DefineClass.LightPillarHalo = {
 	__parents = { "EntityClass" },
-	game_flags = { gofSpecialOrientMode = true },
+	flags = { gofSpecialOrientMode = true },
 	orient_mode = "facing_vertical",
 }
 
 DefineClass.DecCrater = {
 	__parents = { "BakedTerrainDecal" },
-	enum_flags = { efRemoveUnderConstruction = true },
-	game_flags = { gofTemporalConstructionBlock = true },
+	flags = { gofTemporalConstructionBlock = true, efRemoveUnderConstruction = true },
 	creation_time = 0,
 }
 
@@ -113,7 +109,7 @@ DefineClass("DecCrater_05", "DecCrater")
 
 DefineClass.DecDebris = {
 	__parents = { "BakedTerrainDecal" },
-	enum_flags = { efRemoveUnderConstruction = true },
+	flags = { efRemoveUnderConstruction = true },
 }
 DefineClass("DecDebris_01", "DecDebris")
 DefineClass("DecDebris_02", "DecDebris")
@@ -129,7 +125,7 @@ DefineClass.Bush = {
 
 DefineClass.UIAttach = {
 	__parents = { "CObject" },
-	game_flags = { gofUIAttach = true },
+	flags = { gofUIAttach = true },
 }
 
 DefineClass.CliffDark_01_100 = {

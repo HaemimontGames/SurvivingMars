@@ -21,6 +21,19 @@ PlaceObj('XTemplate', {
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
+			'comment', "construction cost",
+			'__condition', function (parent, context) return IsKindOf(context, "LandscapeConstructionController") end,
+			'__template', "InfopanelSection",
+			'RolloverText', T(4518, --[[XTemplate ipConstruction RolloverText]] "Waste Rock"),
+			'Title', T(12019, --[[XTemplate ipConstruction Title]] "Landscape"),
+			'Icon', "UI/Icons/Sections/construction.tga",
+		}, {
+			PlaceObj('XTemplateTemplate', {
+				'__template', "InfopanelText",
+				'Text', T(383306856338, --[[XTemplate ipConstruction Text]] "<ConstructionCost>"),
+			}),
+			}),
+		PlaceObj('XTemplateTemplate', {
 			'comment', "consumption",
 			'__condition', function (parent, context) return context:HasConsumption() end,
 			'__template', "InfopanelSection",
@@ -44,6 +57,24 @@ PlaceObj('XTemplate', {
 			PlaceObj('XTemplateTemplate', {
 				'__template', "InfopanelText",
 				'Text', T(906, --[[XTemplate ipConstruction Text]] "Elevation Boost<right><ElevationBoost>%"),
+			}),
+			}),
+		PlaceObj('XTemplateTemplate', {
+			'comment', "soil quality info",
+			'__dlc', "armstrong",
+			'__condition', function (parent, context) return context.template_obj:IsKindOf("VegetationPlant") end,
+			'__template', "InfopanelSection",
+			'RolloverText', T(905, --[[XTemplate ipConstruction RolloverText]] "Wind Turbines produce more Power at higher elevation."),
+			'Title', T(852464821035, --[[XTemplate ipConstruction Title]] "Soil Quality"),
+			'Icon', "UI/Icons/Sections/construction.tga",
+		}, {
+			PlaceObj('XTemplateTemplate', {
+				'__template', "InfopanelText",
+				'Text', T(493502715544, --[[XTemplate ipConstruction Text]] "Average in range<right><AvgSoilQualityInRange>%"),
+			}),
+			PlaceObj('XTemplateTemplate', {
+				'__template', "InfopanelText",
+				'Text', T(264432180534, --[[XTemplate ipConstruction Text]] "Highest<right><HighestSoilQualityInRange>%"),
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
@@ -83,11 +114,16 @@ PlaceObj('XTemplate', {
 					'Text', T(910, --[[XTemplate ipConstruction Text]] "<middle_click> <em>(press)</em> / <em><ShortcutName('actionRotBuildingLeft')>, <ShortcutName('actionRotBuildingRight')></em> Rotate"),
 				}),
 				PlaceObj('XTemplateTemplate', {
+					'__condition', function (parent, context) return context.template_obj.can_resize_during_placement end,
+					'__template', "InfopanelText",
+					'Text', T(12020, --[[XTemplate ipConstruction Text]] "<middle_click> <em>(press)</em> / <em><ShortcutName('actionRotBuildingLeft')>, <ShortcutName('actionRotBuildingRight')></em> Resize"),
+				}),
+				PlaceObj('XTemplateTemplate', {
 					'__template', "InfopanelText",
 					'Text', T(911, --[[XTemplate ipConstruction Text]] "<middle_click> Zoom in/out"),
 				}),
 				PlaceObj('XTemplateTemplate', {
-					'__condition', function (parent, context) return not context.rocket end,
+					'__condition', function (parent, context) return not context.rocket and not IsKindOf(context, "LandscapeRampController") end,
 					'__template', "InfopanelText",
 					'Text', T(912, --[[XTemplate ipConstruction Text]] "<em>Hold Shift</em> Place multiple"),
 				}),
@@ -119,7 +155,12 @@ PlaceObj('XTemplate', {
 					'Text', T(916, --[[XTemplate ipConstruction Text]] "<LB> Rotate <RB>"),
 				}),
 				PlaceObj('XTemplateTemplate', {
-					'__condition', function (parent, context) return not context.rocket end,
+					'__condition', function (parent, context) return context.template_obj.can_resize_during_placement end,
+					'__template', "InfopanelText",
+					'Text', T(12021, --[[XTemplate ipConstruction Text]] "<LB> Resize <RB>"),
+				}),
+				PlaceObj('XTemplateTemplate', {
+					'__condition', function (parent, context) return not context.rocket and not IsKindOf(context, "LandscapeRampController") end,
 					'__template', "InfopanelText",
 					'Text', T(7365, --[[XTemplate ipConstruction Text]] "<em>Hold<LT></em> Place multiple"),
 				}),

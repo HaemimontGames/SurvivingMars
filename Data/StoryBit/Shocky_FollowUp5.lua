@@ -14,6 +14,7 @@ PlaceObj('StoryBit', {
 		PlaceObj('IsAssociatedObject', nil),
 	},
 	ScriptDone = true,
+	SuppressTime = 720000,
 	Text = T(650163717247, --[[StoryBit Shocky_FollowUp5 Text]] "However, the mystic influence of Shocky somehow gifted him with an insight far beyond the normal people.\n\n<effect>Matthew Gore has grown up as a Genius Scientist."),
 	TextReadyForValidation = true,
 	TextsDone = true,

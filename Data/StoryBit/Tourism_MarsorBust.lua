@@ -27,13 +27,21 @@ PlaceObj('StoryBit', {
 	VoicedText = T(421044078672, --[[voice:narrator]] 'A jaunty tourist approaches you on the street. "Let me give you a tip – you need a simple tourism campaign and people would be dying to visit Mars. Why don’t you start with a catchy slogan?"'),
 	group = "Earth",
 	id = "Tourism_MarsorBust",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1550845122,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitParamNumber', {
 		'Name', "tourism_applicants_bonus",
 		'Value', 50,
 	}),
 	PlaceObj('StoryBitReply', {
 		'Text', T(344561667066, --[[StoryBit Tourism_MarsorBust Text]] '"Mars – just add water!"'),
-		'OutcomeText', "custom",
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},

@@ -93,8 +93,6 @@ PlaceObj('StoryBit', {
 	}),
 	PlaceObj('StoryBitReply', {
 		'Text', T(613100878264, --[[StoryBit RainMan Text]] "Poor soul! It must be a terrible experience!"),
-		'OutcomeText', "custom",
-		'CustomOutcomeText', T(565717162248, --[[StoryBit RainMan CustomOutcomeText]] "No effect"),
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},

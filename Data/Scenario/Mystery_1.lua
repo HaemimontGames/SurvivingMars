@@ -445,7 +445,7 @@ PlaceObj('Scenario', {
 			'State', "Researched",
 		}),
 		PlaceObj('SA_Exec', {
-			'expression', 'AtRandomPos = IsInRangeOfLabel(RandomObject, "SensorTower",  UICity.mystery.tower_protect_range)',
+			'expression', 'AtRandomPos = IsInRangeOfLabel(RandomObject, "SensorTower",  "GetBlackCubeProtectionRange")',
 		}),
 		PlaceObj('SA_Block', {
 			'sa_id', 2,

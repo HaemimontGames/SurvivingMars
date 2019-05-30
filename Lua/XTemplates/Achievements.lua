@@ -24,9 +24,9 @@ PlaceObj('XTemplate', {
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
 					'func', function (self, ...)
-XWindow.Open(self, ...)
-self:SetMargins(GetSafeMargins(self:GetMargins()))
-end,
+						XWindow.Open(self, ...)
+						self:SetMargins(GetSafeMargins(self:GetMargins()))
+					end,
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'__template', "ActionBarNew",

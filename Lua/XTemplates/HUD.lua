@@ -7,6 +7,15 @@ PlaceObj('XTemplate', {
 		'__class', "HUD",
 	}, {
 		PlaceObj('XTemplateWindow', {
+			'Id', "idMultiselectionBox",
+			'BorderWidth', 1,
+			'Dock', "box",
+			'HAlign', "left",
+			'VAlign', "top",
+			'BorderColor', RGBA(49, 124, 195, 200),
+			'Background', RGBA(49, 124, 195, 48),
+		}),
+		PlaceObj('XTemplateWindow', {
 			'__class', "XText",
 			'Id', "idtxtConstructionStatus",
 			'Dock', "box",
@@ -29,6 +38,7 @@ PlaceObj('XTemplate', {
 				'IdNode', false,
 				'HAlign', "left",
 				'MinWidth', 350,
+				'HandleMouse', true,
 				'Image', "UI/CommonNew/options.tga",
 				'FrameBox', box(0, 0, 190, 0),
 			}, {
@@ -57,15 +67,15 @@ PlaceObj('XTemplate', {
 							'FXMouseIn', "SpeedControlMouseOver",
 							'Rows', 2,
 							'OnPress', function (self, gamepad)
-if GetTimeFactor() == 0 then
-	UICity:SetGameSpeed(false)
-	UISpeedState = rawget(self, "PrevUISpeedState") or "play"
-else
-	UICity:SetGameSpeed(0)
-	rawset(self, "PrevUISpeedState", UISpeedState)
-	UISpeedState = "pause"
-end
-end,
+								if GetTimeFactor() == 0 then
+									UICity:SetGameSpeed(false)
+									UISpeedState = rawget(self, "PrevUISpeedState") or "play"
+								else
+									UICity:SetGameSpeed(0)
+									rawset(self, "PrevUISpeedState", UISpeedState)
+									UISpeedState = "pause"
+								end
+							end,
 							'ImageScale', 900,
 						}),
 						PlaceObj('XTemplateTemplate', {
@@ -79,9 +89,9 @@ end,
 							'FXMouseIn', "SpeedControlMouseOver",
 							'Rows', 2,
 							'OnPress', function (self, gamepad)
-UICity:SetGameSpeed(1)
-UISpeedState = "play"
-end,
+								UICity:SetGameSpeed(1)
+								UISpeedState = "play"
+							end,
 							'ImageScale', 900,
 						}),
 						PlaceObj('XTemplateTemplate', {
@@ -95,9 +105,9 @@ end,
 							'FXMouseIn', "SpeedControlMouseOver",
 							'Rows', 2,
 							'OnPress', function (self, gamepad)
-UICity:SetGameSpeed(const.mediumGameSpeed)
-UISpeedState = "medium"
-end,
+								UICity:SetGameSpeed(const.mediumGameSpeed)
+								UISpeedState = "medium"
+							end,
 							'ImageScale', 900,
 						}),
 						PlaceObj('XTemplateTemplate', {
@@ -111,9 +121,9 @@ end,
 							'FXMouseIn', "SpeedControlMouseOver",
 							'Rows', 2,
 							'OnPress', function (self, gamepad)
-UICity:SetGameSpeed(const.fastGameSpeed)
-UISpeedState = "fast"
-end,
+								UICity:SetGameSpeed(const.fastGameSpeed)
+								UISpeedState = "fast"
+							end,
 							'ImageScale', 900,
 						}),
 						}),
@@ -168,7 +178,7 @@ end,
 				'Padding', box(120, 0, 120, 0),
 				'HAlign', "center",
 				'MinWidth', 350,
-				'Image', "UI/CommonNew/Hud.tga",
+				'Image', "UI/CommonNew/hud.tga",
 				'FrameBox', box(216, 0, 216, 0),
 			}, {
 				PlaceObj('XTemplateWindow', {
@@ -192,8 +202,8 @@ end,
 						'FXPress', "BuildMenuButtonClick",
 						'Rows', 2,
 						'OnPress', function (self, gamepad)
-HUD.idBuildOnPress()
-end,
+							HUD.idBuildOnPress()
+						end,
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'__template', "HUDButtonTemplate",
@@ -207,8 +217,8 @@ end,
 						'FXPress', "OverviewButtonClick",
 						'Rows', 2,
 						'OnPress', function (self, gamepad)
-HUD.idOverviewOnPress()
-end,
+							HUD.idOverviewOnPress()
+						end,
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'__template', "HUDButtonTemplate",
@@ -222,18 +232,18 @@ end,
 						'ImageShine', "UI/HUD/resupply_shine.tga",
 						'FXPress', "ResupplyButtonClick",
 						'OnPress', function (self, gamepad)
-HUD.idResupplyOnPress()
-end,
+							HUD.idResupplyOnPress()
+						end,
 						'OnContextUpdate', function (self, context, ...)
-self:SetEnabled(IsHUDResupplyEnabled())
-HUD.UpdateDesatModifier(self)
-
-if g_Tutorial and not g_Tutorial.EnableResupply then
-	self:SetRolloverDisabledText(T(8958, "Not yet available."))
-else
-	self:SetRolloverDisabledText(T(4009, "<red>All resupply missions are suspended.</red>"))
-end
-end,
+							self:SetEnabled(IsHUDResupplyEnabled())
+							HUD.UpdateDesatModifier(self)
+							
+							if g_Tutorial and not g_Tutorial.EnableResupply then
+								self:SetRolloverDisabledText(T(8958, "Not yet available."))
+							else
+								self:SetRolloverDisabledText(T(4009, "<red>All resupply missions are suspended.</red>"))
+							end
+						end,
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'__template', "HUDButtonTemplate",
@@ -247,26 +257,26 @@ end,
 						'ImageShine', "UI/HUD/research_shine.tga",
 						'FXPress', "ResearchButtonClick",
 						'OnPress', function (self, gamepad)
-HUD.idResearchOnPress()
-end,
+							HUD.idResearchOnPress()
+						end,
 						'OnContextUpdate', function (self, context, ...)
-self:SetEnabled(IsHUDResearchEnabled())
-HUD.UpdateDesatModifier(self)
-end,
+							self:SetEnabled(IsHUDResearchEnabled())
+							HUD.UpdateDesatModifier(self)
+						end,
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'__template', "HUDButtonTemplate",
 						'RolloverText', T(8980, --[[XTemplate HUD RolloverText]] "Provides historical stats and tools to inspect and manage Buildings, Domes, Colonists and transportation."),
 						'RolloverTitle', T(137542936955, --[[XTemplate HUD RolloverTitle]] "Command Center"),
-						'RolloverHint', T(11868, --[[XTemplate HUD RolloverHint]] "<em><ShortcutName('actionColonyControlCenter', 'keyboard')></em> Тoggle Command Center"),
-						'RolloverHintGamepad', T(8981, --[[XTemplate HUD RolloverHintGamepad]] "<em><ShortcutName('actionColonyControlCenter')></em> Тoggle Command Center"),
+						'RolloverHint', T(12303, --[[XTemplate HUD RolloverHint]] "<em><ShortcutName('actionColonyControlCenter', 'keyboard')></em> Toggle Command Center"),
+						'RolloverHintGamepad', T(12304, --[[XTemplate HUD RolloverHintGamepad]] "<em><ShortcutName('actionColonyControlCenter')></em> Toggle Command Center"),
 						'Id', "idColonyControlCenter",
 						'Image', "UI/HUD/command_center.tga",
 						'ImageShine', "UI/HUD/command_center_shine.tga",
 						'FXPress', "ColonyControlCenterButtonClick",
 						'OnPress', function (self, gamepad)
-HUD.idColonyControlCenterOnPress()
-end,
+							HUD.idColonyControlCenterOnPress()
+						end,
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'__template', "HUDButtonTemplate",
@@ -281,16 +291,17 @@ end,
 						'FXPress', "ColonyControlCenterButtonClick",
 						'Rows', 2,
 						'OnPress', function (self, gamepad)
-HUD.idMilestonesOnPress()
-end,
+							HUD.idMilestonesOnPress()
+						end,
 						'OnContextUpdate', function (self, context, ...)
-self:SetEnabled(not g_Tutorial)
-HUD.UpdateDesatModifier(self)
-end,
+							self:SetEnabled(not g_Tutorial)
+							HUD.UpdateDesatModifier(self)
+						end,
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'__template', "HUDButtonTemplate",
 						'RolloverText', T(10093, --[[XTemplate HUD RolloverText]] "Information about sponsor goals and mission parameters."),
+						'RolloverDisabledText', T(8958, --[[XTemplate HUD RolloverDisabledText]] "Not yet available."),
 						'RolloverTitle', T(10092, --[[XTemplate HUD RolloverTitle]] "Mission Profile"),
 						'RolloverHint', T(11870, --[[XTemplate HUD RolloverHint]] "<em><ShortcutName('actionMissionProfile', 'keyboard')></em> Open Mission Profile"),
 						'RolloverHintGamepad', T(11029, --[[XTemplate HUD RolloverHintGamepad]] "<em><ShortcutName('actionMissionProfile')></em> Open Mission Profile"),
@@ -299,12 +310,12 @@ end,
 						'ImageShine', "UI/HUD/goals_shine.tga",
 						'FXPress', "BuildMenuButtonClick",
 						'OnPress', function (self, gamepad)
-HUD.idGoalsOnPress()
-end,
+							HUD.idGoalsOnPress()
+						end,
 						'OnContextUpdate', function (self, context, ...)
-self:SetEnabled(not g_Tutorial and #SponsorGoalProgress > 0)
-HUD.UpdateDesatModifier(self)
-end,
+							self:SetEnabled(not g_Tutorial and #SponsorGoalProgress > 0)
+							HUD.UpdateDesatModifier(self)
+						end,
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'__template', "HUDButtonPlanetaryView",
@@ -317,6 +328,7 @@ end,
 				'IdNode', false,
 				'HAlign', "right",
 				'MinWidth', 350,
+				'HandleMouse', true,
 				'Image', "UI/CommonNew/options.tga",
 				'FrameBox', box(0, 0, 190, 0),
 				'FlipX', true,
@@ -328,6 +340,7 @@ end,
 					'VAlign', "center",
 					'LayoutMethod', "HList",
 					'LayoutHSpacing', 10,
+					'HandleMouse', true,
 				}, {
 					PlaceObj('XTemplateTemplate', {
 						'__template', "HUDButtonTemplate",
@@ -340,8 +353,8 @@ end,
 						'ImageShine', "UI/HUD/radio_shine.tga",
 						'FXPress', "RadioButtonClick",
 						'OnPress', function (self, gamepad)
-HUD.idRadioOnPress()
-end,
+							HUD.idRadioOnPress()
+						end,
 					}),
 					PlaceObj('XTemplateTemplate', {
 						'__template', "HUDButtonTemplate",
@@ -352,8 +365,8 @@ end,
 						'ImageShine', "UI/HUD/hud_menu_shine.tga",
 						'FXPress', "MainMenuButtonClick",
 						'OnPress', function (self, gamepad)
-HUD.idMenuOnPress()
-end,
+							HUD.idMenuOnPress()
+						end,
 					}),
 					}),
 				}),

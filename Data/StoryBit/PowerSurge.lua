@@ -10,6 +10,7 @@ PlaceObj('StoryBit', {
 	Category = "Tick",
 	Disables = {},
 	Effects = {},
+	EnableChance = 40,
 	Enabled = true,
 	Image = "UI/Messages/Events/23_red_alert.tga",
 	Prerequisites = {

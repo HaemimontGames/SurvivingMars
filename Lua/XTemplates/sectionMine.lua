@@ -12,8 +12,8 @@ PlaceObj('XTemplate', {
 	}, {
 		PlaceObj('XTemplateCode', {
 			'run', function (self, parent, context)
-parent.parent:SetIcon(context:GetResourceProducedIcon())
-end,
+				parent.parent:SetIcon(context:GetResourceProducedIcon())
+			end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelText",

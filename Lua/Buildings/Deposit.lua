@@ -2,6 +2,8 @@
 
 DefineClass.Deposit = {
 	__parents = { "EditorObject", "PinnableObject", "InfopanelObj" },
+	flags = { efMarker = true },
+	
 	encyclopedia_id = false,
 	resource = false, --"Metals", "Concrete", "Polymers" --something from Resources global table preferably.
 	
@@ -56,6 +58,7 @@ function Deposit:Init()
 end
 
 function Deposit:GameInit()
+	self:AdjustVisuals()
 	self:AddToCitiesLabel()
 end
 
@@ -103,6 +106,32 @@ function Deposit:DoesHaveSupplyRequestForResource(resource)
 	return self.resource == resource
 end
 
+local UnbuildableZ = buildUnbuildableZ()
+
+function CalcDepositZ(...)
+	local q, r = WorldToHex(...)
+	local z = HexMaxHeight(q, r)
+	local bz = GetBuildableZ(q, r)
+	if bz ~= UnbuildableZ then
+		z = Max(z, bz) 
+	end
+	return z - 30
+end
+
+GlobalVar( "g_CurrentDepositScale", const.SignsOverviewCameraScaleDown )
+GlobalVar( "g_CurrentDepositOpacity", const.SignsOverviewCameraOpacityDown )
+
+function Deposit:AdjustVisuals()
+	self:SetScale(g_CurrentDepositScale)
+	self:SetOpacity(g_CurrentDepositOpacity)
+	self:SetZ(CalcDepositZ(self))
+end
+
+function SavegameFixups.Deposit_AdjustVisuals()
+	MapForEach("map", "Deposit", function(obj)
+		obj:AdjustVisuals()
+	end)
+end
 
 ----
 
@@ -259,4 +288,18 @@ end
 function ToggleResourceIcons()
 	g_ResourceIconsTurnedOff = not g_ResourceIconsTurnedOff
 	SetResourceIconsVisible(not g_ResourceIconsTurnedOff)
+end
+
+----
+
+function SavegameFixups.FixMarkerEnumFlag()
+	local IsKindOf = IsKindOf
+	local GetEnumFlags = CObject.GetEnumFlags
+	local SetEnumFlags = CObject.SetEnumFlags
+	local efMarker = const.efMarker
+	MapForEach(function(obj)
+		if GetEnumFlags(obj, efMarker) == 0 and IsKindOfClasses(obj, "Deposit", "TerrainWaterObject") then
+			SetEnumFlags(obj, efMarker)
+		end
+	end)
 end

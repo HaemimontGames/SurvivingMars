@@ -52,7 +52,7 @@ do
 			v.category = upgrade_pretty_name
 			v.id = upgrade_id_preposition .. v.id
 		end
-		table.append(upgradable_building_props, upgrade_properties)
+		table.iappend(upgradable_building_props, upgrade_properties)
 	end
 end
 

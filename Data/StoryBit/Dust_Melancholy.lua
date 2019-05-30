@@ -27,9 +27,17 @@ PlaceObj('StoryBit', {
 	VoicedText = T(871253857670, --[[voice:narrator]] "The dome resonates with a quiet but never ending howl. You toss and turn in bed but sleep escapes you."),
 	group = "Disasters",
 	id = "Dust_Melancholy",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1550844844,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitReply', {
 		'Text', T(501781221141, --[[StoryBit Dust_Melancholy Text]] "That’s the reality of Mars."),
-		'OutcomeText', "custom",
 	}),
 	PlaceObj('StoryBitParamNumber', {
 		'Name', "comfort_penalty",

@@ -5,6 +5,7 @@ DefineClass.OmegaTelescope = {
 	antenna = false,
 	antenna_anim_thread = false,
 	antenna_moments_thread = false,
+	use_shape_selection = false,
 }
 
 function OmegaTelescope:GameInit()

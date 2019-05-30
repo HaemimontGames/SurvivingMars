@@ -36,6 +36,15 @@ PlaceObj('StoryBit', {
 	VoicedText = T(960167046928, --[[voice:narrator]] "A tragedy has mired the colony today."),
 	group = "Renegades",
 	id = "Oppression",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1551084963,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitReply', {
 		'Text', T(121445056181, --[[StoryBit Oppression Text]] "This kind of behavior doesn't suit their station. Punish the Officers."),
 		'OutcomeText', "custom",
@@ -77,7 +86,7 @@ PlaceObj('StoryBit', {
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},
-		'VoicedText', T(181587119678, --[[voice:narrator]] "Your answer was met by furry from the colonists."),
+		'VoicedText', T(12238, --[[voice:narrator]] "Your answer was met with fury from the colonists."),
 		'Text', T(807192936015, --[[StoryBit Oppression Text]] "Violent protests and unflattering slurs could be heard for several more hours.\n\nWhile we do not have precise numbers, its safe to say that our renegade population has increased."),
 		'Effects', {
 			PlaceObj('ForEachExecuteEffects', {

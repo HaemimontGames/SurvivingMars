@@ -2,6 +2,7 @@ DefineClass.Milestone = {
 	__parents = { "Preset" },
 	properties = {
 		{ id = "display_name", name = T(1153, "Display Name"), editor = "text", default = "", translate = true, },
+		{ id = "description", name = T(1000017, "Description"), editor = "text", default = "", translate = true, lines = 3, },
 		{ id = "base_score", name = T(1154, "Base Score"), editor = "number", default = 1000, },
 		{ id = "bonus_score", name = T(1155, "Bonus Score"), editor = "number", default = 1000, },
 		{ id = "bonus_score_expiration", name = T(1156, "Bonus score expiration Sols"), editor = "number", default = 10, },
@@ -18,6 +19,7 @@ DefineClass.Milestone = {
 
 function Milestone:Complete()
 	print("Milestone without a complete func", self.id)
+	return true
 end
 
 -- nil means not-yet, false means failed, X means completed with score X
@@ -63,44 +65,59 @@ function OnMsg.NewDay()
 end
 
 function MilestoneRestartThreads()
-	if g_Tutorial then return end
-	local all_milestones = {}
-	local completed_milestones = {}
-	local score_sum = 0
-	for _, milestone in ipairs(Presets.Milestone.Default) do
+	if g_Tutorial or not mapdata.GameLogic then return end
+	local available_milestones = GetAvailablePresets(Presets.Milestone.Default)
+	for _, milestone in ipairs(available_milestones) do
 		local id = milestone.id
 		if MilestoneCompleted[id] == nil then
 			DeleteThread(MilestoneThreads[id])
-			completed_milestones[id] = true
 			MilestoneThreads[id] = CreateGameTimeThread(function(id)
-				local milestone = Presets.Milestone.Default[id]
+				assert(UICity)
+				if not UICity then
+					return
+				end
 				local res = milestone:Complete(UICity)
+				if milestone.class == "UnpersistedMissingPreset" then
+					return
+				end
 				MilestoneThreads[id] = nil
-				if milestone and MilestoneCompleted[id] ~= false then -- some milestones might have disappeared (loadgame after patch) or could have already been failed
-					all_milestones[id] = true
-					MilestoneCompleted[id] = res and GameTime() or false
-					MilestoneEnactors[id] = UICity
-					Msg("MilestoneCompleted", id)
-					if res then
-						AddOnScreenNotification("MilestoneComplete", function() OpenDialog("Milestones") end, {
-							display_name = milestone.display_name,
-							reward_research = milestone.reward_research,
-							score = milestone:GetScore()
-						})
-						if milestone.trigger_fireworks then
-							TriggerFireworks()
-						end
-						score_sum = score_sum + milestone:GetScore()
-						local sponsor = GetMissionSponsor()
-						local commander = GetCommanderProfile()
-						if id == "Evaluation" and sponsor.goal == "" then
-							WaitPopupNotification(sponsor.goal_completed_message, { params = { sponsor_name = sponsor.display_name, commander_profile = commander.display_name, score = milestone:GetScore() } })
-						end
-						if #completed_milestones > 0 and #completed_milestones == #all_milestones then
-							WaitPopupNotification("AllMilestonesCompleted", { params = { sponsor = sponsor.display_name, commander = commander.display_name, sol = UICity.day, score = score_sum } })
-						end
+				if MilestoneCompleted[id] ~= nil then 
+					-- some milestones could have already been failed
+					return
+				end
+				MilestoneCompleted[id] = res and GameTime() or false
+				ObjModified(MilestoneCompleted)
+				if not res then
+					return
+				end
+				MilestoneEnactors[id] = UICity
+				Msg("MilestoneCompleted", id)
+				AddOnScreenNotification("MilestoneComplete", function() OpenDialog("Milestones") end, {
+					display_name = milestone.display_name,
+					reward_research = milestone.reward_research,
+					score = milestone:GetScore()
+				})
+				if milestone.trigger_fireworks then
+					TriggerFireworks()
+				end
+				local sponsor = GetMissionSponsor()
+				local commander = GetCommanderProfile()
+				if id == "Evaluation" and sponsor.goal == "" then
+					WaitPopupNotification(sponsor.goal_completed_message, { params = { sponsor_name = sponsor.display_name, commander_profile = commander.display_name, score = milestone:GetScore() } })
+				end
+				
+				local all_completed = true
+				local score_sum = 0
+				for _, milestone in ipairs(available_milestones) do
+					local id = milestone.id
+					if not MilestoneCompleted[id] then
+						all_completed = false
+						break
 					end
-					ObjModified(MilestoneCompleted)
+					score_sum = score_sum + milestone:GetScore()
+				end
+				if all_completed then
+					WaitPopupNotification("AllMilestonesCompleted", { params = { sponsor = sponsor.display_name, commander = commander.display_name, sol = UICity.day, score = score_sum } })
 				end
 			end, id)
 		end
@@ -178,12 +195,16 @@ function Milestone_AllSectorsScanned()
 	end
 end
 
-function Milestone_WorkshopWorkersPercent(city, percent)
+function Milestone_WorkshopWorkersPercent(city, target_percent)
+	local min_interval = const.HourDuration
+	local max_interval = const.DayDuration
 	while true do
-		Sleep(5000)
-		if city and city:GetWorkshopWorkersPercent() >= percent then 
+		local current_percent = city and city:GetWorkshopWorkersPercent() or 0
+		if current_percent >= target_percent then
 			return true
 		end
+		local interval = min_interval + MulDivRound(max_interval - min_interval, target_percent - current_percent, target_percent)
+		Sleep(interval)
 	end
 end
 

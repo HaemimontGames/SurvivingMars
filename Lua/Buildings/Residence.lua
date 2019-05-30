@@ -59,6 +59,7 @@ function Residence:OnDestroyed()
 end
 
 function Residence:AddResident(unit)
+	assert(self:IsSuitable(unit))
 	if table.find(self.colonists, unit) then
 		assert(false, "Already a resident!")
 		return
@@ -165,7 +166,7 @@ function Residence:OnSelected()
 end
 
 function Residence:GetFreeSpace()
-	return self.capacity - self.closed - (#self.reserved + #self.colonists)
+	return Max(0, self.capacity - self.closed - (#self.reserved + #self.colonists))
 end
 
 function Residence:OnModifiableValueChanged(prop, old_value, new_value)
@@ -176,29 +177,41 @@ function Residence:OnModifiableValueChanged(prop, old_value, new_value)
 		end
 		if old_value > new_value then
 			local ncolonists = #self.colonists	
-			local empty = old_value - ncolonists
 			local change = old_value - new_value
-			local to_remove = change - empty
-			self.closed = Max(0, self.closed-change) 
+			-- has empty slots
+			if self.closed>0 then
+				if change<=self.closed then				
+					self.closed = Max(0, self.closed-change)
+					return 
+				else	
+					change = change - self.closed
+					self.closed = 0
+				end
+			end
 			
 			-- cancel reserved
 			local reserved = #self.reserved
-			local to_cancel = Min(to_remove, reserved)
+			local to_cancel = Min(change, reserved)
 			if to_cancel>0 then
 				for i = reserved, reserved-to_cancel+1, -1 do
 					local unit = self.reserved[i]
 					unit:CancelResidenceReservation()
 				end
 			end
-			to_remove = to_remove - to_cancel
+			change = change - to_cancel
 			-- kick some inhabitants
-			if to_remove >0  then
-				local count = Min(ncolonists, to_remove)
+			if change >0  then
+				local count = Min(ncolonists, change)
 				for i = ncolonists, ncolonists-count+1, -1  do
 					self.colonists[i]:SetResidence(false)
 				end
 			end		
 		end
+		-- validity check
+		local home_capacity = self.capacity - self.closed
+		local home_used = #self.colonists + #self.reserved
+		assert(home_capacity >= home_used, string.format("change residents capacity: capcacity: %d, colonists: %d, reserved: %d, closed: %d",home_capacity,#self.colonists,#self.reserved, self.closed))
+			
 		if SelectedObj == self then
 			ReopenSelectionXInfopanel()
 		end
@@ -306,6 +319,9 @@ function Residence:CancelResidenceReservation(unit)
 	end
 	table.remove_entry(self.reserved, unit)
 	self.reserved[unit] = nil
+	if IsValid(unit) then
+		unit.reserved_residence = false
+	end
 	if self.parent_dome then
 		self.parent_dome:RecalcFreeSpace()
 	end
@@ -319,7 +335,7 @@ function Residence:Service(unit, duration)
 end
 
 function Residence:GetUICapacity()
-	return self.capacity - self.closed
+	return Max(0, self.capacity - self.closed)
 end
 
 function Residence:GetUIResidentsCount()
@@ -345,7 +361,7 @@ function ChooseResidence(unit)
 	local dome = unit.dome
 	local best_score, best_space = min_int, 0
 	local current_home = unit.residence
-	if current_home and current_home.parent_dome == dome and current_home.ui_working then
+	if current_home and current_home.parent_dome == dome and current_home.ui_working and current_home:IsSuitable(unit) then
 		best_home = current_home
 		best_score = GetResidenceComfort(current_home, is_child) or min_int
 		best_space = current_home:GetFreeSpace() + 1
@@ -354,11 +370,13 @@ function ChooseResidence(unit)
 	for i = 1, #buildings do
 		local home = buildings[i]
 		local space = home.ui_working and home:GetFreeSpace() or 0
-		local score = space > 0 and GetResidenceComfort(home, is_child) or min_int
-		if score > best_score or score == best_score and space > best_space and best_home ~= current_home then
-			best_home = home
-			best_score = score
-			best_space = space
+		if space > 0 and home:IsSuitable(unit) then
+			local score = GetResidenceComfort(home, is_child) or min_int
+			if score > best_score or score == best_score and space > best_space and best_home ~= current_home then
+				best_home = home
+				best_score = score
+				best_space = space
+			end
 		end
 	end
 	return best_home
@@ -419,19 +437,19 @@ DefineClass.LivingQuartersHouseBase =
 
 DefineClass.LivingQuarters = {
 	__parents = { "LivingBase", "InteriorAmbientLife" },
-	enum_flags = { efWalkable = true },
+	flags = { efWalkable = true },
 	interior = {"LivingQuartersInterior_01", "LivingQuartersInterior_02"},
 	living_attaches = { "LivingQuartersHouse_01", "LivingQuartersHouse_02" },
 }
 
 DefineClass.Apartments = {
 	__parents = { "LivingBase" , "WaypointsObj"},
-	enum_flags = { efWalkable = true },
+	flags = { efWalkable = true },
 }
 
 DefineClass.SmartHome = {
 	__parents = { "LivingBase" },
-	enum_flags = { efWalkable = true },
+	flags = { efWalkable = true },
 	living_attaches = { "SmartHomeHouse_01", "SmartHomeHouse_02" },
 }
 
@@ -442,7 +460,7 @@ end
 
 DefineClass.Nursery = {
 	__parents = { "LivingBase", "WaypointsObj" },
-	enum_flags = { efWalkable = true },
+	flags = { efWalkable = true },
 }
 function SavegameFixups.SetOccupationForExistingResidences()
 	MapForEach("map", "Residence", function(o)

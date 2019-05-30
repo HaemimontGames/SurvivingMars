@@ -13,7 +13,7 @@ DefineClass.PGTitleObject = {
 }
 
 function PGTitleObject:GetTitleText()
-	local dlg = GetDialog("PGMainMenu")	
+	local dlg = GetPreGameMainMenu()
 	if dlg and dlg.Mode == "Challenge" then
 		local mode = dlg.idContent.PGChallenge.Mode
 		if mode == "landing" then
@@ -98,12 +98,17 @@ local function MissionParamCombo(id)
 			else
 				rollover = GetEntryRollover(v)
 			end
+			local enabled = true
+			if IsKindOf(v, "PropertyObject") and v:HasMember("IsEnabled") then
+				enabled = v:IsEnabled()
+			end
 			items[#items + 1] = {
 				value = v.id,
 				text = T{11438, "<new_in(new_in)>", new_in = v.new_in} .. v.display_name,
 				rollover = rollover,
 				image = id == "idMissionLogo" and v.image,
 				item_type = id,
+				enabled = enabled,
 			}
 		end
 	end
@@ -323,6 +328,7 @@ function ResupplyDialogClose(host, ...)
 	ResetCargo()
 	g_UIAvailableRockets = 0
 	g_UITotalRockets = 0
+	g_UITraitsObject = false
 	
 	if g_ActiveHints["HintResupplyUI"] then
 		ContextAwareHintShow("HintResupplyUI", false)
@@ -338,7 +344,7 @@ end
 
 function BuyRocket(host)
 	CreateRealTimeThread(function()
-		local price = GetMissionSponsor().rocket_price
+		local price = g_Consts.RocketPrice
 		if UICity and (UICity:GetFunding() - g_CargoCost) >= price then
 			if WaitMarsQuestion(host, T(6880, "Warning"), T{6881, "Are you sure you want to buy a new Rocket for <funding(price)>?", price = price}, T(1138, "Yes"), T(1139, "No"), "UI/Messages/rocket.tga") == "ok" then
 				g_UIAvailableRockets = g_UIAvailableRockets + 1
@@ -417,7 +423,7 @@ end
 
 function RocketPayloadObject:GetProperties()
 	local props = table.icopy(self.properties)
-	table.append(props, ResupplyItemDefinitions)
+	table.iappend(props, ResupplyItemDefinitions)
 	return props
 end
 

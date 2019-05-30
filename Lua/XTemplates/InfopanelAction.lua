@@ -31,9 +31,9 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnSetRollover(self, rollover)",
 			'func', function (self, rollover)
-XTextButton.OnSetRollover(self, rollover)
-self.idIcon:SetColumn(rollover and 2 or 1)
-end,
+				XTextButton.OnSetRollover(self, rollover)
+				self.idIcon:SetColumn(rollover and 2 or 1)
+			end,
 		}),
 		}),
 })

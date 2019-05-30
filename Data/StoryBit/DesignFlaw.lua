@@ -12,6 +12,10 @@ PlaceObj('StoryBit', {
 			'Building', "WindTurbine",
 			'Lock', true,
 		}),
+		PlaceObj('LockUnlockBuildingFromBuildMenu', {
+			'Building', "WindTurbine_Large",
+			'Lock', true,
+		}),
 	},
 	Category = "BuildingConstructed",
 	Effects = {

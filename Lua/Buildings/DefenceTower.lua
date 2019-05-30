@@ -241,9 +241,8 @@ function MeteorInterceptParabolicRocket:Move()
 		t = t + tSleep
 	end
 	
-	
-	self:SetPos(self.target_pt, time)
-	Sleep(time)
+	self:SetPos(self.target_pt, time - t)
+	Sleep(time - t)
 	
 	Msg("MeteorIntercepted", meteor, self.shooter)
 	meteor:ExplodeInAir()

@@ -14,12 +14,12 @@ PlaceObj('XTemplate', {
 		'ImageShine', "UI/HUD/goals_shine.tga",
 		'FXPress', "BuildMenuButtonClick",
 		'OnPress', function (self, gamepad)
-HUD.idPlanetaryViewOnPress()
-end,
+			HUD.idPlanetaryViewOnPress()
+		end,
 		'OnContextUpdate', function (self, context, ...)
-self:SetEnabled(not g_Tutorial)
-HUD.UpdateDesatModifier(self)
-end,
+			self:SetEnabled(not g_Tutorial)
+			HUD.UpdateDesatModifier(self)
+		end,
 	}),
 })
 

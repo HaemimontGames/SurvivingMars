@@ -11,6 +11,7 @@ PlaceObj('AmbientLife', {
 		'attach', "LivingQuartersHouseBase",
 		'move_start', "GoToExitSpot",
 		'goto_spot', "LeadToSpot",
+		'move_end', "LeadToExit",
 		'flags_missing', 1,
 		'usable_night', false,
 	}),
@@ -20,8 +21,20 @@ PlaceObj('AmbientLife', {
 		'attach', "LivingQuartersHouseBase",
 		'move_start', "GoToExitSpot",
 		'goto_spot', "LeadToSpot",
+		'move_end', "LeadToExit",
 		'flags_missing', 1,
 		'usable_day', false,
+	}),
+	PlaceObj('XPrgDefineSlot', {
+		'groups', "A",
+		'spot_type', "Petlay",
+		'attach', "LivingQuartersHouseBase",
+		'move_start', "GoToExitSpot",
+		'goto_spot', "Teleport",
+		'move_end', "TeleportToExit",
+		'flags_missing', 1,
+		'usable_by_child', false,
+		'pet_only', true,
 	}),
 	PlaceObj('XPrgDefineSlot', {
 		'groups', "A",
@@ -30,6 +43,30 @@ PlaceObj('AmbientLife', {
 		'goto_spot', "Pathfind",
 		'flags_missing', 1,
 		'usable_night', false,
+	}),
+	PlaceObj('XPrgDefineSlot', {
+		'groups', "A",
+		'spot_type', "Petlay1",
+		'goto_spot', "Pathfind",
+		'flags_missing', 1,
+		'usable_by_child', false,
+		'pet_only', true,
+	}),
+	PlaceObj('XPrgDefineSlot', {
+		'groups', "A",
+		'spot_type', "Petjump",
+		'goto_spot', "Pathfind",
+		'flags_missing', 1,
+		'usable_by_child', false,
+		'pet_only', true,
+	}),
+	PlaceObj('XPrgDefineSlot', {
+		'groups', "A",
+		'spot_type', "Petpee",
+		'goto_spot', "Pathfind",
+		'flags_missing', 1,
+		'usable_by_child', false,
+		'pet_only', true,
 	}),
 	PlaceObj('XPrgDefineSlot', {
 		'groups', "A",
@@ -44,6 +81,7 @@ PlaceObj('AmbientLife', {
 		'attach', "LivingQuartersHouseBase",
 		'move_start', "GoToExitSpot",
 		'goto_spot', "LeadToSpot",
+		'move_end', "LeadToExit",
 	}),
 	PlaceObj('XPrgVisitSlot', {
 		'unit', "unit",
@@ -52,14 +90,5 @@ PlaceObj('AmbientLife', {
 		'group_fallback', "Holder",
 		'var_obj', "house",
 	}),
-	PlaceObj('XPrgCheckExpression', {
-		'expression', 'IsKindOf(house, "LivingQuartersHouseBase")',
-	}, {
-		PlaceObj('XPrgLeadTo', {
-			'loc', "Exit",
-			'unit', "unit",
-			'spot_obj', "house",
-		}),
-		}),
 })
 

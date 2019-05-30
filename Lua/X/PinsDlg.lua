@@ -118,8 +118,8 @@ function PinsDlg:SetVisible(visible, instant, ...)
 		button:AddInterpolation{
 			id = "drop",
 			type = const.intRect,
-			startRect = Offset(box, point(0, -box:sizey())),
-			endRect = box,
+			originalRect = Offset(box, point(0, -box:sizey())),
+			targetRect = box,
 			start = start_time,
 			duration = 250,
 			flags = show and const.intfInverse or nil,
@@ -268,6 +268,9 @@ function PinsDlg:GetPinConditionImage(obj)
 	elseif obj:IsKindOf("LifeSupportConsumer") and obj:ShouldShowNoWaterSign() then
 		img = "UI/Icons/pin_water.tga"
 	elseif obj:IsKindOf("BaseRover") then
+		if obj:IsDead() then
+			img = "UI/Icons/pin_not_working.tga"
+		end
 		if obj:IsStorageFull() then
 			img = "UI/Icons/pin_full.tga"
 		elseif	obj.command == "Idle" or obj.command == "LoadingComplete" then
@@ -281,6 +284,8 @@ function PinsDlg:GetPinConditionImage(obj)
 			img = "UI/Icons/pin_unload.tga"
 		elseif obj.command == "PickupResource" or obj.command == "Load" then
 			img = "UI/Icons/pin_load.tga"
+		elseif obj:IsKindOf("RCTerraformer") and obj.command == "Construct" then
+			img = "UI/Icons/pin_landscaping.tga"
 		end
 	elseif obj:IsKindOf("Drone") and obj.command == "Idle" then
 		img = "UI/Icons/pin_idle.tga"
@@ -288,6 +293,8 @@ function PinsDlg:GetPinConditionImage(obj)
 		img = "UI/Icons/pin_drone.tga"
 	elseif obj:HasMember("working") and not obj.working then
 		img = "UI/Icons/pin_not_working.tga"
+	elseif obj:IsKindOf("Dome") and obj.overpopulated then
+		img = "UI/Icons/pin_overpopulated.tga"
 	end
 	return img
 end
@@ -407,23 +414,26 @@ function PinsDlg:InitPinButton(button)
 		if context.pin_blink ~= self.blinking then
 			self:SetBlinking(context.pin_blink, context.pin_obvious_blink)
 		end
+		assert(obj.pin_rollover~="" or (type(obj.description)== "string" and obj.description~="")or obj:GetProperty("description"), "Add pin description for object: ".. tostring(obj.class))
+		local text = "" 
+		local rollover = obj.pin_rollover
+		if type(rollover) == "function" then 
+			rollover =  rollover(obj)
+		end
+		if rollover == "" then
+			text = (obj.description ~= "" and T{obj.description, obj}) or obj:GetProperty("description") or ""
+		elseif IsT(rollover) or type(rollover) == "string" then
+			text = T{rollover, obj}
+		end
+		
+		self:SetRolloverTitle(T{8108, "<Title>", obj})
+		self:SetRolloverText(text)
+		self:SetRolloverHint(resolve_pin_rollover_hint(obj))
+		self:SetRolloverHintGamepad(resolve_pin_rollover_hint(obj, "gamepad"))
+	
 		return XTextButton.OnContextUpdate(self, context)
 	end
-	
-	assert(obj.pin_rollover~="" or (type(obj.description)== "string" and obj.description~="")or obj:GetProperty("description"), "Add pin description for object: ".. tostring(obj.class))
-	local text = "" 
-	local rollover = obj.pin_rollover
-	if rollover == "" then
-		text = (obj.description ~= "" and T{obj.description, obj}) or obj:GetProperty("description") or ""
-	elseif IsT(rollover) or type(rollover) == "string" then
-		text = T{rollover, obj}
-	end
-	
-	button:SetRolloverTitle(T{8108, "<Title>", obj})
-	button:SetRolloverText(text)
-	button:SetRolloverHint(resolve_pin_rollover_hint(obj))
-	button:SetRolloverHintGamepad(resolve_pin_rollover_hint(obj, "gamepad"))
-	
+		
 	local old_OnSetFocus = button.OnSetFocus
 	if obj and IsValid(obj) and obj:IsKindOf("InfopanelObj") and obj:HasMember("GetPos") then
 		function button:OnSetFocus(...)
@@ -452,8 +462,9 @@ function PinsDlg:InitPinButton(button)
 end
 
 local function AddPinnedObjs(objects_to_add, list, used)
+	local IsKindOf = IsKindOf
 	for i,obj in ipairs(objects_to_add or empty_table) do
-		if obj:IsPinned() and not used[obj] then
+		if IsKindOf(obj, "PinnableObject") and obj:IsPinned() and not used[obj] then
 			list[#list + 1] = obj
 			used[obj] = true
 		end
@@ -474,7 +485,7 @@ function SortPinnedObjs()
 	AddPinnedObjs(labels.Drone, new_order, used)
 	--orbital probes (only the first in the label is pinned)
 	local probes = labels.OrbitalProbe or empty_table
-	if probes[1] and probes[1]:IsPinned() then
+	if IsKindOf(probes[1], "PinnableObject") and probes[1]:IsPinned() then
 		new_order[#new_order + 1] = probes[1]
 		used[probes[1]] = true
 	end
@@ -527,29 +538,32 @@ function OnMsg.OnControllerTypeChanged(controller_type)
 	end
 end
 
-function OnMsg.SelectedObjChange(obj, prev)
+function OnMsg.SelectionAdded(obj)
 	local pins_dlg = GetDialog("PinsDlg")
-	if not pins_dlg then
-		return
-	end
+	if not pins_dlg then return end
 	
 	for i,pin in ipairs(pins_dlg) do
-		if not pin.Dock then
-			if pin.context == prev then
-				pin.keep_highlighted = false
-				pin:OnMouseLeft()
-				pin:SetFocus(false, true)
+		if not pin.Dock and pin.context == obj then
+			pin.keep_highlighted = true
+			local focus = pin.desktop:GetKeyboardFocus()
+			if focus and focus:IsWithin(pins_dlg) then
+				pin:SetFocus(true)
+			else
+				pin:OnMouseEnter()
 			end
-			
-			if pin.context == obj then
-				pin.keep_highlighted = true
-				local focus = pin.desktop:GetKeyboardFocus()
-				if focus and focus:IsWithin(pins_dlg) then
-					pin:SetFocus(true)
-				else
-					pin:OnMouseEnter()
-				end
-			end
+		end
+	end
+end
+
+function OnMsg.SelectionRemoved(obj)
+	local pins_dlg = GetDialog("PinsDlg")
+	if not pins_dlg then return end
+	
+	for i,pin in ipairs(pins_dlg) do
+		if not pin.Dock and pin.context == obj then
+			pin.keep_highlighted = false
+			pin:OnMouseLeft()
+			pin:SetFocus(false, true)
 		end
 	end
 end

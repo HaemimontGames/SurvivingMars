@@ -18,9 +18,9 @@ PlaceObj('XTemplate', {
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
 					'func', function (self, ...)
-XWindow.Open(self, ...)
-self:SetMargins(GetSafeMargins(self:GetMargins()))
-end,
+						XWindow.Open(self, ...)
+						self:SetMargins(GetSafeMargins(self:GetMargins()))
+					end,
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'__template', "DialogTitleNew",
@@ -30,8 +30,8 @@ end,
 				}, {
 					PlaceObj('XTemplateCode', {
 						'run', function (self, parent, context)
-parent:ResolveId("node"):SetSubtitle(T{11443, "Completed (<completed>/<max>)", completed = CountCompletedTutorials(),max = CountTotalTutorials})
-end,
+							parent:ResolveId("node"):SetSubtitle(T{11443, "Completed (<completed>/<max>)", completed = CountCompletedTutorials(),max = CountTotalTutorials})
+						end,
 					}),
 					}),
 				PlaceObj('XTemplateWindow', {
@@ -45,19 +45,19 @@ end,
 						'array', function (parent, context) return Presets.TutorialPreset.Default end,
 						'__context', function (parent, context, item, i, n) return item end,
 						'run_after', function (child, context, item, i, n)
-child.idText:SetText(item.pregame_title)
-	child.idButton:SetFocusOrder(point(n, 0))
-	child.idButton:SetImage(item.image)
-	child.idDownImage:SetFlipX(n%2==0)
-	child.idButton.itemid = item.id
-	child.idTextRollover:SetText(item.description)
-	if n == 1 and GetUIStyleGamepad() then
-		child:CreateThread("FocusThread", function()
-			child.idButton:SetFocus()
-		end)
-	end
-	child.idTextRollover:SetVisible(false)
-end,
+							child.idText:SetText(item.pregame_title)
+								child.idButton:SetFocusOrder(point(n, 0))
+								child.idButton:SetImage(item.image)
+								child.idDownImage:SetFlipX(n%2==0)
+								child.idButton.itemid = item.id
+								child.idTextRollover:SetText(item.description)
+								if n == 1 and GetUIStyleGamepad() then
+									child:CreateThread("FocusThread", function()
+										child.idButton:SetFocus()
+									end)
+								end
+								child.idTextRollover:SetVisible(false)
+						end,
 					}, {
 						PlaceObj('XTemplateWindow', {
 							'IdNode', true,
@@ -80,62 +80,62 @@ end,
 								'FXPressDisabled', "UIDisabledButtonPressed",
 								'DisabledBackground', RGBA(120, 120, 120, 255),
 								'OnPress', function (self, gamepad)
-CreateRealTimeThread(StartTutorial, self.itemid)
-end,
+									CreateRealTimeThread(StartTutorial, self.itemid)
+								end,
 							}, {
 								PlaceObj('XTemplateFunc', {
 									'name', "SetEnabled(self, enabled)",
 									'func', function (self, enabled)
-XTextButton.SetEnabled(self, enabled)
-self.parent.idText:SetEnabled(enabled)
-if not enabled then
-	self.parent:AddInterpolation{id = "desat", type = const.intDesaturation, startValue = 255}
-	self.parent.GetEnabled = function() return false end
-end
-end,
+										XTextButton.SetEnabled(self, enabled)
+										self.parent.idText:SetEnabled(enabled)
+										if not enabled then
+											self.parent:AddInterpolation{id = "desat", type = const.intDesaturation, startValue = 255}
+											self.parent.GetEnabled = function() return false end
+										end
+									end,
 								}),
 								PlaceObj('XTemplateFunc', {
 									'name', "SetRollover(self, rollover)",
 									'func', function (self, rollover)
-self.parent:SetRollover(rollover)
-XTextButton.SetRollover(self, rollover)
-
-local duration = 200
-local frame = self.parent:ResolveId("idFrame")
-local image = self.parent:ResolveId("idDownImage")
-local textContainer = self.parent:ResolveId("idTextContainer")
-local rText = self.parent:ResolveId("idTextRollover")
-
-frame:AddInterpolation{
-	id = "move",
-	type = const.intRect,
-	duration = duration,
-	endRect = sizebox(frame.box:minx(), frame.box:miny() - rText.box:sizey(), frame.box:sizex(), frame.box:sizey() + 1+ rText.box:sizey()),
-	startRect =  frame.box,
-	flags = (not rollover) and const.intfInverse or nil,
-}
-
-rText:SetVisible(rollover)
-rText:AddInterpolation{
-	id = "move",
-	type = const.intRect,
-	start = GetPreciseTicks() + duration/2,
-	duration = duration/2,
-	startRect = rText.box,
-	endRect = sizebox(image.box:minx(),image.box:miny(),rText.box:sizex(),0),
-	flags =rollover and const.intfInverse or nil,
-}
-
-textContainer:SetRollover(rollover)
-textContainer:AddInterpolation{
-	id = "move",
-	type = const.intRect,
-	duration = duration,
-	endRect = Offset(textContainer.box,0, -rText.box:sizey()),
-	startRect = textContainer.box,
-	flags = (not rollover) and const.intfInverse or nil,
-}
-end,
+										self.parent:SetRollover(rollover)
+										XTextButton.SetRollover(self, rollover)
+										
+										local duration = 200
+										local frame = self.parent:ResolveId("idFrame")
+										local image = self.parent:ResolveId("idDownImage")
+										local textContainer = self.parent:ResolveId("idTextContainer")
+										local rText = self.parent:ResolveId("idTextRollover")
+										
+										frame:AddInterpolation{
+											id = "move",
+											type = const.intRect,
+											duration = duration,
+											targetRect = sizebox(frame.box:minx(), frame.box:miny() - rText.box:sizey(), frame.box:sizex(), frame.box:sizey() + 1+ rText.box:sizey()),
+											originalRect =  frame.box,
+											flags = (not rollover) and const.intfInverse or nil,
+										}
+										
+										rText:SetVisible(rollover)
+										rText:AddInterpolation{
+											id = "move",
+											type = const.intRect,
+											start = GetPreciseTicks() + duration/2,
+											duration = duration/2,
+											originalRect = rText.box,
+											targetRect = sizebox(image.box:minx(),image.box:miny(),rText.box:sizex(),0),
+											flags =rollover and const.intfInverse or nil,
+										}
+										
+										textContainer:SetRollover(rollover)
+										textContainer:AddInterpolation{
+											id = "move",
+											type = const.intRect,
+											duration = duration,
+											targetRect = Offset(textContainer.box,0, -rText.box:sizey()),
+											originalRect = textContainer.box,
+											flags = (not rollover) and const.intfInverse or nil,
+										}
+									end,
 								}),
 								PlaceObj('XTemplateWindow', {
 									'__class', "XImage",
@@ -186,8 +186,8 @@ end,
 											}, {
 												PlaceObj('XTemplateCode', {
 													'run', function (self, parent, context)
-parent:SetVisible(AccountStorage and AccountStorage.CompletedTutorials and AccountStorage.CompletedTutorials[context.id])
-end,
+														parent:SetVisible(AccountStorage and AccountStorage.CompletedTutorials and AccountStorage.CompletedTutorials[context.id])
+													end,
 												}),
 												}),
 											}),
@@ -226,30 +226,30 @@ end,
 							PlaceObj('XTemplateFunc', {
 								'name', "Open",
 								'func', function (self, ...)
-XWindow.Open(self, ...)
-self.idTextRollover:SetVisible(false)
-end,
+									XWindow.Open(self, ...)
+									self.idTextRollover:SetVisible(false)
+								end,
 							}),
 							}),
 						}),
 					PlaceObj('XTemplateFunc', {
 						'name', "OnShortcut(self, shortcut, source)",
 						'func', function (self, shortcut, source)
-if shortcut == "DPadLeft" or shortcut == "LeftThumbLeft" then
-	local focus = self.desktop:GetKeyboardFocus()
-	if focus:IsWithin(self) and focus:GetFocusOrder():x() == 1 then
-		self:GetRelativeFocus(point(#self,0), "exact"):SetFocus(true)
-		return "break"
-	end
-elseif shortcut == "DPadRight" or shortcut == "LeftThumbRight" then
-	local focus = self.desktop:GetKeyboardFocus()
-	if focus:IsWithin(self) and focus:GetFocusOrder():x() == #self then
-		self:GetRelativeFocus(point(1,0), "exact"):SetFocus(true)
-		return "break"
-	end
-end
-return XWindow.OnShortcut(self, shortcut, source)
-end,
+							if shortcut == "DPadLeft" or shortcut == "LeftThumbLeft" then
+								local focus = self.desktop:GetKeyboardFocus()
+								if focus:IsWithin(self) and focus:GetFocusOrder():x() == 1 then
+									self:GetRelativeFocus(point(#self,0), "exact"):SetFocus(true)
+									return "break"
+								end
+							elseif shortcut == "DPadRight" or shortcut == "LeftThumbRight" then
+								local focus = self.desktop:GetKeyboardFocus()
+								if focus:IsWithin(self) and focus:GetFocusOrder():x() == #self then
+									self:GetRelativeFocus(point(1,0), "exact"):SetFocus(true)
+									return "break"
+								end
+							end
+							return XWindow.OnShortcut(self, shortcut, source)
+						end,
 					}),
 					}),
 				PlaceObj('XTemplateAction', {

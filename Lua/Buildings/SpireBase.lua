@@ -7,11 +7,15 @@ DefineClass.SpireBase = {
 	
 	properties = {
 		{template = true, name = T(764, "Spire Frame Entity"), id = "spire_frame_entity", editor = "text", category = "Misc", default = "none"},
+		{template = true, name = T(12425, "Spire Frame Hide Open"), id = "spire_frame_hide_open", editor = "bool", category = "Misc", default = false},
 	},
 }
 
 for i=2,MaxAltEntityIdx do
-	table.insert(SpireBase.properties, {template = true, name = T{11069, "Alternative Spire Frame Entity <number>", number = i}, id = "spire_frame_entity" .. i, editor = "text", category = "Misc", default = "none"})
+	table.iappend(SpireBase.properties, {
+		{template = true, name = T{11069, "Alternative Spire Frame Entity <number>", number = i}, id = "spire_frame_entity" .. i, editor = "text", category = "Misc", default = "none"},
+		{template = true, name = T{12426, "Alternative Spire Frame Hide Open <number>", number = i}, id = "spire_frame_hide_open" .. i, editor = "bool", category = "Misc", default = false},
+	})
 end
 
 function SpireBase:Done()
@@ -31,11 +35,11 @@ function SpireBase:GetFrameEntity(in_template)
 	for i = 2, MaxAltEntityIdx do
 		local entity = template["entity" .. i]
 		if entity ~= "" and self.entity == entity then
-			return template["spire_frame_entity" .. i]
+			return template["spire_frame_entity" .. i], template["spire_frame_hide_open" .. i]
 		end
 	end
 	
-	return template.spire_frame_entity
+	return template.spire_frame_entity, template.spire_frame_hide_open
 end
 
 function SpireBase:SaveCompat_FindAndDestroyOldFrame()
@@ -88,7 +92,7 @@ function SpireBase:UpdateFrame()
 	local frame
 	local attaches = self:GetAttaches("SpireFrame") or empty_table
 	frame = attaches[1]
-	local frame_entity = self:GetFrameEntity()
+	local frame_entity, hide_open = self:GetFrameEntity()
 	
 	if frame_entity == "none" then
 		if IsValid(frame) then
@@ -119,6 +123,8 @@ function SpireBase:UpdateFrame()
 		end
 	end
 	
+	local hide = OpenAirBuildings and hide_open
+	frame:SetVisible(not hide)
 	frame:ChangeEntity(frame_entity)
 	CopyColorizationMaterial(self, frame)
 	local spot = dome:GetNearestSpot("idle", "Spireframe", self)

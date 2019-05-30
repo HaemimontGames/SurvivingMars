@@ -17,7 +17,13 @@ function Sanatorium:OnTrainingCompleted(unit)
 	local traits = {}
 	for i=1, self.max_traits do
 		local id = self["trait"..i]
-		if unit.traits[id] then
+		if id == "auto" then
+			for _, trait_id in pairs(g_SanatoriumTraits or empty_table) do				
+				if unit.traits[trait_id] then
+					traits[#traits + 1] = trait_id
+				end
+			end
+		elseif unit.traits[id] then
 			traits[#traits + 1] = id
 		end
 	end
@@ -41,12 +47,19 @@ function Sanatorium:OnTrainingCompleted(unit)
 end
 
 function Sanatorium:CanTrain(unit)
-	if not TrainingBuilding.CanTrain(self, unit) then
+	if unit.traits.Tourist or not TrainingBuilding.CanTrain(self, unit) then
 		return false
 	end
 	local traits = unit.traits
 	for k = 1, self.max_traits do
-		if traits[ self["trait"..k] ] then
+		local id = self["trait"..k]
+		if id == "auto" then
+			for _, trait_id in pairs(g_SanatoriumTraits or empty_table) do
+				if unit.traits[trait_id] then
+					return true
+				end
+			end
+		elseif traits[ id ] then
 			return true
 		end
 	end

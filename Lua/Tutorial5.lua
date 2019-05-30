@@ -20,7 +20,7 @@ g_TutorialScenarios.Tutorial5 = function()
 	local mining_dome
 	local research_dome
 	for _, dome in ipairs(domes) do
-		if not dome.labels.Buildings or #dome.labels.Buildings==0 then
+		if not dome.labels.Building or #dome.labels.Building==0 then
 			mining_dome = dome
 		else
 			research_dome = dome

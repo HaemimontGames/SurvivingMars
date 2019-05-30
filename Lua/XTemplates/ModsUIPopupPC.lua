@@ -15,27 +15,27 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-local content = self:ResolveId("idContent")
-content:SetChildrenHandleMouse(false)
-content:SetHandleMouse(true)
-content.OnMouseButtonDown = function(this, pos, button)
-	if button == "L" then
-		ModsUIToggleSortPC(this:ResolveId("idContentWrapper"))
-		return "break"
-	end
-end
-XPopup.Open(self, ...)
-end,
+				local content = self:ResolveId("idContent")
+				content:SetChildrenHandleMouse(false)
+				content:SetHandleMouse(true)
+				content.OnMouseButtonDown = function(this, pos, button)
+					if button == "L" then
+						ModsUIToggleSortPC(this:ResolveId("idContentWrapper"))
+						return "break"
+					end
+				end
+				XPopup.Open(self, ...)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnDelete",
 			'func', function (self, ...)
-local content = self:ResolveId("idContent")
-content:SetChildrenHandleMouse(true)
-content:SetHandleMouse(false)
-content.OnMouseButtonDown = nil
-XPopup.OnDelete(self, ...)
-end,
+				local content = self:ResolveId("idContent")
+				content:SetChildrenHandleMouse(true)
+				content:SetHandleMouse(false)
+				content.OnMouseButtonDown = nil
+				XPopup.OnDelete(self, ...)
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XContextWindow",
@@ -60,32 +60,32 @@ end,
 					PlaceObj('XTemplateForEach', {
 						'array', function (parent, context) return GetPopsModsUISortItems(GetDialogMode(parent)) end,
 						'run_after', function (child, context, item, i, n)
-local dlg = GetDialog(child)
-local mode = dlg.Mode
-child:SetText(item.name)
-if mode == "browse" then
-	child:SetCheck(context.set_sort==item.id)
-else
-	child:SetCheck(context.set_installed_sort==item.id)
-end
-child.OnChange = function(this, check)
-	local obj = dlg.context
-	if mode == "browse" then
-		obj:SetSortMethod(item.id)
-	else
-		obj:SetInstalledSortMethod(item.id)
-	end
-	if not GetUIStyleGamepad() then
-		local btn = dlg:ResolveId("idSortButton")
-		if btn then
-			btn:SetText(btn:GetText())
-		end
-		ModsUIToggleSortPC(dlg.idContentWrapper)
-	else
-		ModsUIClosePopup(dlg)
-	end
-end
-end,
+							local dlg = GetDialog(child)
+							local mode = dlg.Mode
+							child:SetText(item.name)
+							if mode == "browse" then
+								child:SetCheck(context.set_sort==item.id)
+							else
+								child:SetCheck(context.set_installed_sort==item.id)
+							end
+							child.OnChange = function(this, check)
+								local obj = dlg.context
+								if mode == "browse" then
+									obj:SetSortMethod(item.id)
+								else
+									obj:SetInstalledSortMethod(item.id)
+								end
+								if not GetUIStyleGamepad() then
+									local btn = dlg:ResolveId("idSortButton")
+									if btn then
+										btn:SetText(btn:GetText())
+									end
+									ModsUIToggleSortPC(dlg.idContentWrapper)
+								else
+									ModsUIClosePopup(dlg)
+								end
+							end
+						end,
 					}, {
 						PlaceObj('XTemplateTemplate', {
 							'__template', "ModsUIChecksListItem",

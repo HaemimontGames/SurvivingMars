@@ -24,15 +24,15 @@ PlaceObj('XTemplate', {
 		'id', "Name",
 		'editor', "text",
 		'Set', function (self, value)
-self.idName:SetText(value)
-end,
+			self.idName:SetText(value)
+		end,
 	}),
 	PlaceObj('XTemplateProperty', {
 		'id', "Value",
 		'editor', "text",
 		'Set', function (self, value)
-self.idValue:SetText(value)
-end,
+			self.idValue:SetText(value)
+		end,
 	}),
 })
 

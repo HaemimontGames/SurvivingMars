@@ -1,12 +1,3 @@
--- TaskRequester
-GlobalVar("LastRequesterId", 0)
-GlobalVar("TaskResourceIdx", {})
-GlobalVar("TaskRequesters", {}, weak_values_meta)
-
-function OnMsg.PersistGatherPermanents(permanents)
-	permanents["TaskRequest.meta"] = Request_GetMeta()
-end
-
 --[[@@@
 @class TaskRequest
 TaskRequests are Lua userdata objects that represent drone tasks. For example all resources that a drone can take are represented as supply task requests, while all buildings that require resources represent this need through demand task requests. A third type of a task request is the work request, where a drone is needed to perform a certain amount of work. The amount of work is specified in the request itself. While drones work with task requests, finding and assigning requests is done by DroneControl objects (Drone Hub, RCRover, etc.). The [TaskRequester](LuaFunctionDoc_TaskRequester.md.html) class provides facilities for task request management. All [Buildings](LuaFunctionDoc_Building.md.html) are task requesters. Resource amounts represented in requests are integers, generally scaled by const.ResourceScale (1000 at the time of writing).
@@ -16,35 +7,8 @@ TaskRequests are Lua userdata objects that represent drone tasks. For example al
 @class TaskRequester
 Tha TaskRequester class helps manage drone [TaskRequests](LuaFunctionDoc_TaskRequest.md.html).
 --]]
-DefineClass.TaskRequester = {
-	__parents = { "BaseBuilding" },	
-	task_requests = false,
-	command_centers = false,
-	priority = 2,
-	auto_connect = true,
-	supply_dist_modifier = 1000, -- modifier (promiles) of the distance when considering this supply
-	requester_id = false,
-}
 
-function TaskRequester:Init()
-	self.command_centers = {}
-	self.task_requests = {}
-end
-
-function TaskRequester:GameInit()
-	self:CreateResourceRequests()
-	if self.auto_connect then
-		self:ConnectToCommandCenters()
-	end
-end
-
-function TaskRequester:Done()
-	self:DisconnectFromCommandCenters()
-	if self.requester_id then
-		TaskRequesters[self.requester_id] = nil
-		self.requester_id = nil
-	end
-end
+TaskRequester.__parents = {"BaseBuilding"}
 
 --[[@@@
 TaskRequester callback called in the object's game init thread. Useful for initializing the object's [TaskRequests](LuaFunctionDoc_TaskRequest.md.html).
@@ -52,6 +16,7 @@ TaskRequester callback called in the object's game init thread. Useful for initi
 @function void TaskRequester@CreateResourceRequests()
 @result void
 --]]
+
 function TaskRequester:CreateResourceRequests()
 end
 
@@ -100,35 +65,6 @@ function TaskRequester:AddSupplyRequest(resource, amount, flags, max_units, desi
 	return self:AddRequest(resource, amount, flags, max_units, desired_amount)
 end
 
-function TaskRequester:AddRequest(resource, amount, flags, max_units, desired_amount)
-	if not self.requester_id then
-		LastRequesterId = LastRequesterId + 1
-		self.requester_id = LastRequesterId
-		TaskRequesters[LastRequesterId] = self
-	end
-	assert(#self.command_centers == 0)
-	local request = Request_New(self, resource, amount, flags, max_units or -1, desired_amount or 0)
-	self.task_requests[#self.task_requests + 1] = request
-	assert(request:GetBuilding() == self)
-	return request
-end
-
-local table_find = table.find
-function TaskRequester:AddCommandCenter(center)
-	if table_find(self.command_centers, center) then return false end
-	self.command_centers[#self.command_centers + 1] = center
-	center:AddBuilding(self)
-	return true	
-end
-
-local remove_entry = table.remove_entry
-function TaskRequester:RemoveCommandCenter(center)
-	if remove_entry(self.command_centers, center) then
-		center:RemoveBuilding(self)
-		return true
-	end
-end
-
 function TaskRequester:SetPriority(priority)
 	if self.priority == priority then return end
 	self:Gossip("Priority", priority)
@@ -136,7 +72,7 @@ function TaskRequester:SetPriority(priority)
 		HintDisable("HintPriority")
 	end
 	for _, center in ipairs(self.command_centers) do
-		center:RemoveBuilding(self)
+		center:RemoveBuilding(self, self.priority, priority)
 	end
 	self.priority = priority
 	for _, center in ipairs(self.command_centers) do
@@ -172,13 +108,6 @@ function dbg_TestAttachedStockPriorities(class)
 		end)
 end
 
-function TaskRequester:GetPriorityForRequest(req)
-	if req:IsAnyFlagSet(const.rfStorageDepot) then
-		return 0
-	else
-		return self.priority
-	end
-end
 ----- UI
 
 function TaskRequester:TogglePriority(change)
@@ -192,9 +121,6 @@ function TaskRequester:TogglePriority(change)
 	RebuildInfopanel(self)
 end
 
-function TaskRequester:SetUrgentPriority() self:SetPriority(3) end
-function TaskRequester:SetHighPriority()   self:SetPriority(2) end
-function TaskRequester:SetNormalPriority() self:SetPriority(1) end
 local PriorityNames = {
 	T(4862, "Low"),
 	T(646, "Medium"),
@@ -283,6 +209,7 @@ function TaskRequester:InterruptDrones(command_center_filter, drone_filter, on_d
 			for j = 1, #cc.drones do
 				local drone = drone_filter(cc.drones[j])
 				if drone then
+					assert(drone.command ~= "Embark")
 					drone:SetCommand("Reset")
 					if on_drone_interrupted_callback(drone) == "break" then
 						break
@@ -307,5 +234,3 @@ function TaskRequester:ChangeDeficit(resource, amount)
 		t[resource] = t[resource] - amount
 	end
 end
-
-Request_GetMeta().__persist = "custom"

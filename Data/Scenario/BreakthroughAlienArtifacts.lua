@@ -8,23 +8,7 @@ PlaceObj('Scenario', {
 		'name', "Alien Artifacts",
 	}, {
 		PlaceObj('SA_GrantTechBoost', {
-			'Field', "Biotech",
-			'Amount', 3,
-		}),
-		PlaceObj('SA_GrantTechBoost', {
-			'Field', "Engineering",
-			'Amount', 3,
-		}),
-		PlaceObj('SA_GrantTechBoost', {
-			'Field', "Physics",
-			'Amount', 3,
-		}),
-		PlaceObj('SA_GrantTechBoost', {
-			'Field', "Robotics",
-			'Amount', 3,
-		}),
-		PlaceObj('SA_GrantTechBoost', {
-			'Field', "Social",
+			'Field', "All Fields",
 			'Amount', 3,
 		}),
 		}),

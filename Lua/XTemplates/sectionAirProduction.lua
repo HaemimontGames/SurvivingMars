@@ -14,6 +14,13 @@ PlaceObj('XTemplate', {
 			'__template', "InfopanelText",
 			'Text', T(486, --[[XTemplate sectionAirProduction Text]] "Oxygen production<right><air(AirProduction)>"),
 		}),
+		PlaceObj('XTemplateTemplate', {
+			'__dlc', "armstrong",
+			'__context_of_kind', "MOXIE",
+			'__condition', function (parent, context) return not g_NoTerraforming end,
+			'__template', "InfopanelText",
+			'Text', T(938653781377, --[[XTemplate sectionAirProduction Text]] "Terraforming boost<right><modifier_percent('air_production', 'TP Boost Atmosphere')>"),
+		}),
 		}),
 })
 

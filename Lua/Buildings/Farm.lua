@@ -63,7 +63,13 @@ function Farm:Init()
 	
 	ForEachPreset(CropPreset, function(crop, group, self)
 		if self.class == crop.FarmClass then
-			self.crops_available[#self.crops_available + 1] = crop.id
+			if crop.save_in == "armstrong" then
+				if not g_NoTerraforming then
+					self.crops_available[#self.crops_available + 1] = crop.id
+				end
+			else
+				self.crops_available[#self.crops_available + 1] = crop.id
+			end
 		end
 	end, self)
 	assert(#self.crops_available > 0, "can't find any crops for building " .. self.class)
@@ -165,10 +171,10 @@ end
 
 function Farm:GetCropEffects()
 	if not self.crop_effects or not next(self.crop_effects) then
-		return ""
+		return empty_table
 	end
 	
-	local texts = {}		
+	local texts = {}	
 	for i = 1, #self.crop_effects do
 		local effect_id = self.crop_effects[i]
 		local effect_text = FarmPerformanceEffects[effect_id]
@@ -211,8 +217,8 @@ function Farm:SwitchProducerType(resource_type)
 	
 	--find dump pos
 	local qq, rr = WorldToHex(self)
-	local res, q, r = TryFindStockpileDumpSpot(qq, rr, self:GetAngle() + 90 * 60, GetEntityPeripheralHexShape(self:GetEntity()), HexGetAnyButDomeInterior)
-	local pos = point(HexToWorld(q, r))
+	local res, q, r = TryFindStockpileDumpSpot(qq, rr, self:GetAngle(), GetEntityPeripheralHexShape(self:GetEntity()), HexGetAnyButDomeInterior)
+	local pos = res and point(HexToWorld(q, r))
 	if not res or not terrain.IsPassable(pos) then 
 		--nowhere to dump. stocks are not in the def filters, so unpassable == too many stockpiles around.
 		if Platform.developer then
@@ -254,9 +260,9 @@ function Farm:BuildingUpdate(dt, day, hour)
 	local crop = self.selected_crop[self.current_crop]
 	crop = crop and CropPresets[crop]
 	
-	if crop then		
+	if crop then
 		self:LogCropEffects()
-		if self.working then			
+		if self.working then
 			self.crop_production = self.crop_production + self.performance
 		end
 		self.crop_ticks = self.crop_ticks + 1
@@ -289,6 +295,9 @@ function Farm:BuildingUpdate(dt, day, hour)
 				
 				if crop.OnProduce then
 					crop.OnProduce(self.parent_dome, self, self.expected_output)
+				end
+				if self.expected_output > 0 then
+					Msg("CropProduced", crop.ResourceType, self.expected_output)
 				end
 				
 				if not self.hydroponic then
@@ -488,25 +497,22 @@ function Farm:PlantNextCrop(forced, prev)
 	local crop 
 	local last = self.selected_crop[self.current_crop]
 	prev = prev or last
-	if self.working then
-		if not forced then
-			for i = 1, 3 do
-				if not crop then
-					self.current_crop = self.current_crop + 1
-					if self.current_crop > 3 then
-						self.current_crop = 1
-					end
-					crop = self.selected_crop[self.current_crop]
-					if crop and not self:CanGrow(crop) then
-						crop = false
-					end
+	if not forced then
+		for i = 1, 3 do
+			if not crop then
+				self.current_crop = self.current_crop + 1
+				if self.current_crop > 3 then
+					self.current_crop = 1
 				end
-			end	
-		else	
-			crop = self:CanGrow(last) and last
-		end
+				crop = self.selected_crop[self.current_crop]
+				if crop and not self:CanGrow(crop) then
+					crop = false
+				end
+			end
+		end	
+	else	
+		crop = self:CanGrow(last) and last
 	end
-	
 	
 	self.crop_production = 0
 	self.crop_ticks = 0	
@@ -597,6 +603,7 @@ function Farm:SetCrop(idx, crop, broadcast)
 	end
 	
 	local prev = self.selected_crop[idx]
+	if prev == crop then return end					-- don't replant the same crop to avoid wasting production
 	self.selected_crop[idx] = crop
 	self:UpdateWorking()
 	if idx == self.current_crop then
@@ -852,7 +859,7 @@ function UICropUpdate(self, farm, index)
 			end
 		end
 		if crop and index == farm.current_crop then
-			table.append(texts, farm:GetCropEffects())
+			table.iappend(texts, farm:GetCropEffects())
 		end
 		return table.concat(texts, "\n<left>")
 	end

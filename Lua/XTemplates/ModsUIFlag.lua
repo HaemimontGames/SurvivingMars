@@ -19,13 +19,13 @@ PlaceObj('XTemplate', {
 			PlaceObj('XTemplateFunc', {
 				'name', "Open",
 				'func', function (self, ...)
-local button = self:ResolveId("idSubmit")
-if button then
-	local context = GetDialogModeParam(self)
-	button:SetEnabled(not not context.flag_reason)
-end
-XWindow.Open(self, ...)
-end,
+					local button = self:ResolveId("idSubmit")
+					if button then
+						local context = GetDialogModeParam(self)
+						button:SetEnabled(not not context.flag_reason)
+					end
+					XWindow.Open(self, ...)
+				end,
 			}),
 			PlaceObj('XTemplateWindow', {
 				'LayoutMethod', "VList",
@@ -71,25 +71,25 @@ end,
 					PlaceObj('XTemplateForEach', {
 						'array', function (parent, context) return PopsModsUIFlagReasons end,
 						'run_after', function (child, context, item, i, n)
-child:SetText(item.name)
-child:SetCheck(item.id == context.flag_reason)
-child.OnChange = function(this, check)
-	local parent = this.parent
-	for _, ctrl in ipairs(parent) do
-		ctrl:SetCheck(this == ctrl)
-	end
-	local submit_button = this:ResolveId("idSubmit")
-	if submit_button and not submit_button.enabled then
-		submit_button:SetEnabled(true)
-	end
-	local has_reason = context.flag_reason
-	context.flag_reason = item.id
-	if not has_reason then
-		local dlg = GetDialog(this)
-		dlg:UpdateActionViews(dlg)
-	end
-end
-end,
+							child:SetText(item.name)
+							child:SetCheck(item.id == context.flag_reason)
+							child.OnChange = function(this, check)
+								local parent = this.parent
+								for _, ctrl in ipairs(parent) do
+									ctrl:SetCheck(this == ctrl)
+								end
+								local submit_button = this:ResolveId("idSubmit")
+								if submit_button and not submit_button.enabled then
+									submit_button:SetEnabled(true)
+								end
+								local has_reason = context.flag_reason
+								context.flag_reason = item.id
+								if not has_reason then
+									local dlg = GetDialog(this)
+									dlg:UpdateActionViews(dlg)
+								end
+							end
+						end,
 					}, {
 						PlaceObj('XTemplateTemplate', {
 							'__template', "ModsUIChecksListItem",
@@ -101,12 +101,12 @@ end,
 					PlaceObj('XTemplateFunc', {
 						'name', "OnShortcut(self, shortcut, source)",
 						'func', function (self, shortcut, source)
-if shortcut == "Down" and self.focused_item == #self then
-	self:ResolveId("idComment"):SetFocus()
-	return "break"
-end
-return XList.OnShortcut(self, shortcut, source)
-end,
+							if shortcut == "Down" and self.focused_item == #self then
+								self:ResolveId("idComment"):SetFocus()
+								return "break"
+							end
+							return XList.OnShortcut(self, shortcut, source)
+						end,
 					}),
 					}),
 				}),
@@ -130,33 +130,33 @@ end,
 					PlaceObj('XTemplateFunc', {
 						'name', "Open",
 						'func', function (self, ...)
-XMultiLineEdit.Open(self, ...)
-local context = GetDialogModeParam(self)
-self:SetText(context.flag_description or "")
-end,
+							XMultiLineEdit.Open(self, ...)
+							local context = GetDialogModeParam(self)
+							self:SetText(context.flag_description or "")
+						end,
 					}),
 					PlaceObj('XTemplateFunc', {
 						'name', "OnTextChanged",
 						'func', function (self, ...)
-XMultiLineEdit.OnTextChanged(self, ...)
-local context = GetDialogModeParam(self)
-context.flag_description = self:GetText()
-end,
+							XMultiLineEdit.OnTextChanged(self, ...)
+							local context = GetDialogModeParam(self)
+							context.flag_description = self:GetText()
+						end,
 					}),
 					PlaceObj('XTemplateFunc', {
 						'name', "OnShortcut(self, shortcut, source)",
 						'func', function (self, shortcut, source)
-if shortcut == "DPadUp" or shortcut == "LeftThumbUp" then
-	local list = self:ResolveId("idReasons")
-	list:SetFocus()
-	list:SetSelection(#list)
-	return "break"
-elseif shortcut == "ButtonA" then
-	self:OpenControllerTextInput()
-	return "break"
-end
-return XMultiLineEdit.OnShortcut(self, shortcut, source)
-end,
+							if shortcut == "DPadUp" or shortcut == "LeftThumbUp" then
+								local list = self:ResolveId("idReasons")
+								list:SetFocus()
+								list:SetSelection(#list)
+								return "break"
+							elseif shortcut == "ButtonA" then
+								self:OpenControllerTextInput()
+								return "break"
+							end
+							return XMultiLineEdit.OnShortcut(self, shortcut, source)
+						end,
 					}),
 					}),
 				}),
@@ -170,8 +170,8 @@ end,
 				'MouseCursor', "UI/Cursors/Rollover.tga",
 				'DisabledBackground', RGBA(255, 255, 255, 255),
 				'OnPress', function (self, gamepad)
-ModsUIFlagMod(self)
-end,
+					ModsUIFlagMod(self)
+				end,
 				'Image', "UI/Mods/green_button.tga",
 				'FrameBox', box(18, 18, 18, 18),
 				'Columns', 2,
@@ -183,9 +183,9 @@ end,
 				PlaceObj('XTemplateFunc', {
 					'name', "SetEnabled(self, enabled)",
 					'func', function (self, enabled)
-XTextButton.SetEnabled(self, enabled)
-self:SetDesaturation(enabled and 0 or 255)
-end,
+						XTextButton.SetEnabled(self, enabled)
+						self:SetDesaturation(enabled and 0 or 255)
+					end,
 				}),
 				}),
 			}),
@@ -195,8 +195,8 @@ end,
 			'ActionToolbar', "ActionBarRight",
 			'ActionShortcut', "Escape",
 			'OnAction', function (self, host, source)
-ModsUIClosePopup(host)
-end,
+				ModsUIClosePopup(host)
+			end,
 			'__condition', function (parent, context) return not GetUIStyleGamepad() end,
 		}),
 		}),

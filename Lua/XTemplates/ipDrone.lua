@@ -48,38 +48,38 @@ PlaceObj('XTemplate', {
 			'RolloverDisabledTitle', T(640517755907, --[[XTemplate ipDrone RolloverDisabledTitle]] "Salvage"),
 			'RolloverHintGamepad', T(7657, --[[XTemplate ipDrone RolloverHintGamepad]] "<ButtonY> Activate"),
 			'OnContextUpdate', function (self, context, ...)
-local refund = context:GetRefundResources() or empty_table
-local rollover = T(7824, "Destroy this Drone.")
-if #refund > 0 then
-	rollover = rollover .. "<newline><newline>" .. T(7823, "<UIRefundRes> will be refunded upon salvage.")
-end
-self:SetRolloverText(rollover)
-context:ToggleDemolish_Update(self)
-end,
+				local refund = context:GetRefundResources() or empty_table
+				local rollover = T(7824, "Destroy this Drone.")
+				if #refund > 0 then
+					rollover = rollover .. "<newline><newline>" .. T(7823, "<UIRefundRes> will be refunded upon salvage.")
+				end
+				self:SetRolloverText(rollover)
+				context:ToggleDemolish_Update(self)
+			end,
 			'OnPressParam', "ToggleDemolish",
 			'Icon', "UI/Icons/IPButtons/salvage_1.tga",
 		}, {
 			PlaceObj('XTemplateFunc', {
 				'name', "OnXButtonDown(self, button)",
 				'func', function (self, button)
-if button == "ButtonY" then
-	return self:OnButtonDown(false)
-elseif button == "ButtonX" then
-	return self:OnButtonDown(true)
-end
-return (button == "ButtonA") and "break"
-end,
+					if button == "ButtonY" then
+						return self:OnButtonDown(false)
+					elseif button == "ButtonX" then
+						return self:OnButtonDown(true)
+					end
+					return (button == "ButtonA") and "break"
+				end,
 			}),
 			PlaceObj('XTemplateFunc', {
 				'name', "OnXButtonUp(self, button)",
 				'func', function (self, button)
-if button == "ButtonY" then
-	return self:OnButtonUp(false)
-elseif button == "ButtonX" then
-	return self:OnButtonUp(true)
-end
-return (button == "ButtonA") and "break"
-end,
+					if button == "ButtonY" then
+						return self:OnButtonUp(false)
+					elseif button == "ButtonX" then
+						return self:OnButtonUp(true)
+					end
+					return (button == "ButtonA") and "break"
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
@@ -119,13 +119,13 @@ end,
 				'Image', "UI/Infopanel/progress_bar.tga",
 				'FrameBox', box(5, 0, 5, 0),
 				'OnContextUpdate', function (self, context, ...)
-XFrameProgress.OnContextUpdate(self, context, ...)
-local image = "UI/Infopanel/progress_bar_green.tga"
-if self.Progress < 10 then
-  image = "UI/Infopanel/progress_bar_red.tga"
-end
-self:SetProgressImage(image)
-end,
+					XFrameProgress.OnContextUpdate(self, context, ...)
+					local image = "UI/Infopanel/progress_bar_green.tga"
+					if self.Progress < 10 then
+					  image = "UI/Infopanel/progress_bar_red.tga"
+					end
+					self:SetProgressImage(image)
+				end,
 				'BindTo', "BatteryProgress",
 				'MinProgressSize', 8,
 				'ProgressImage', "UI/Infopanel/progress_bar_green.tga",
@@ -142,9 +142,9 @@ end,
 				'FoldWhenHidden', true,
 				'ContextUpdateOnOpen', true,
 				'OnContextUpdate', function (self, context, ...)
-self:SetVisible(not not context.dust_devils)
-XText.OnContextUpdate(self, context, ...)
-end,
+					self:SetVisible(not not context.dust_devils)
+					XText.OnContextUpdate(self, context, ...)
+				end,
 				'Text', T(222599397553, --[[XTemplate ipDrone Text]] "Slowed down <red><percent(DustDevilPenalty)></red> by a Dust Devil"),
 			}),
 			}),
@@ -161,13 +161,13 @@ end,
 				'Image', "UI/Infopanel/progress_bar.tga",
 				'FrameBox', box(5, 0, 5, 0),
 				'OnContextUpdate', function (self, context, ...)
-XFrameProgress.OnContextUpdate(self, context, ...)
-local image = "UI/Infopanel/progress_bar_green.tga"
-if self.Progress > 90 then
-  image = "UI/Infopanel/progress_bar_red.tga"
-end
-self:SetProgressImage(image)
-end,
+					XFrameProgress.OnContextUpdate(self, context, ...)
+					local image = "UI/Infopanel/progress_bar_green.tga"
+					if self.Progress > 90 then
+					  image = "UI/Infopanel/progress_bar_red.tga"
+					end
+					self:SetProgressImage(image)
+				end,
 				'BindTo', "dust",
 				'MinProgressSize', 8,
 				'ProgressImage', "UI/Infopanel/progress_bar_green.tga",

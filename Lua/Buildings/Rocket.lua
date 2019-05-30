@@ -18,6 +18,7 @@ DefineClass.SupplyRocket = {
 	properties = {
 		{ category = "Rocket", id = "name", name = T(1000037, "Name"), editor = "text", default = ""},
 		{ template = true, category = "Rocket", name = T(702, "Launch Fuel"),      	id = "launch_fuel",      	editor = "number", default = 10*const.ResourceScale, min = 0*const.ResourceScale, max = 1000*const.ResourceScale, scale = const.ResourceScale, modifiable = true, help = "The amount of fuel it takes to launch the rocket.",},	
+		{ template = true, category = "Rocket", name = T(11993, "Launch Fuel Expedition"),      	id = "launch_fuel_expedition",      	editor = "number", default = 0, min = 0*const.ResourceScale, max = 1000*const.ResourceScale, scale = const.ResourceScale, modifiable = true, help = "The amount of fuel it takes to launch the rocket for expedition.",},	
 		{ template = true, category = "Rocket", name = T(758, "Max Export Storage"), id = "max_export_storage", editor = "number", scale = const.ResourceScale, default = 100*const.ResourceScale, min = 0, modifiable = true },
 		{ template = true, category = "Rocket", name = T(8457, "Passenger Orbit Lifetime"), id = "passenger_orbit_life",      	editor = "number", default = 120*const.HourDuration, min = 1*const.HourDuration, scale = const.HourDuration, modifiable = true, help = "Passengers on board will die if the rocket doesn't land this many hours after arriving in orbit.",},
 		{ template = true, category = "Rocket", name = T(9830, "Sponsor Selectable"), id = "sponsor_selectable", editor = "bool", default = true },
@@ -39,6 +40,7 @@ DefineClass.SupplyRocket = {
 	pin_progress_value = "",
 	pin_progress_max = "",
 	pin_obvious_blink = true,
+	show_pin_toggle = false,
 	
 	pin_rollover_arriving = T(707, "<RocketType><newline><image UI/Icons/pin_rocket_incoming.tga 1500>Travelling to Mars.<newline>Flight progress: <em><ArrivalTimePercent></em>%.<newline>Payload:<newline><CargoManifest>"),
 	pin_rollover_in_orbit = T(710, "<image UI/Icons/pin_rocket_orbiting.tga 1500>Ready to land.<newline>Payload:<newline><CargoManifest>"),
@@ -60,9 +62,10 @@ DefineClass.SupplyRocket = {
 	fx_actor_base_class = "FXRocket",
 	fx_actor_class = "SupplyRocket",
 	show_logo = true,
-	rocket_palette = { "rocket_base", "rocket_base", "outside_dark", "outside_dark" }, -- "RocketStandard",
+	rocket_palette = { "rocket_base", "rocket_accent", "outside_dark", "outside_dark" }, -- "RocketStandard",
 	landing_site_class = "RocketLandingSite",
 	disembark_anim = "disembarkRocket",
+	disembark_anim_walk = "disembarkRocket2",
 	
 	show_service_area = true,
 	
@@ -83,7 +86,6 @@ DefineClass.SupplyRocket = {
 	arrival_time = false,
 	arrival_time_earth = false,
 	first_arrival = false,
-	is_pinned = false, -- remembers the pin state while on mars, as the travel/landing/takeoff modifies the state
 	status = false,
 	category = false, -- cargo, passenger, founder, etc.
 	orbit_arrive_time = false,
@@ -153,6 +155,8 @@ DefineClass.SupplyRocket = {
 	affected_by_dust_storm = true,
 	waiting_resources = false,
 	
+	palette = false,
+	
 	launch_valid_cmd = {
 		WaitLaunchOrder = true,
 		Refuel = true, 
@@ -166,14 +170,15 @@ DefineClass.SupplyRocket = {
 		["in orbit"] 				= "UIStatusInOrbit",
 		["suspended in orbit"] 	= "UIStatusSuspendedInOrbit",
 		["landing disabled"] 		= "UIStatusLandingDisabled",
-		["landed"] 					= "UIStatusLanded",
-		["refueling"] 				= "UIStatusRefueling",
+		["landing"]				= "UIStatusLanding",
+		["landed"] 				= "UIStatusLanded",
+		["refueling"] 			= "UIStatusRefueling",
 		["maintenance"] 			= "UIStatusMaintenance",
 		["ready for launch"] 		= "UIStatusReadyForLaunch",
 		["launch suspended"] 		= "UIStatusLaunchSuspended",
-		["countdown"] 				= "UIStatusCountdown",
-		["takeoff"] 					= "UIStatusTakeoff",
-		["departing"] 				= "UIStatusDeparting",
+		["countdown"] 			= "UIStatusCountdown",
+		["takeoff"] 				= "UIStatusTakeoff",
+		["departing"] 			= "UIStatusDeparting",
 	},
 }
 
@@ -195,6 +200,10 @@ function SupplyRocket:FlyToMars(cargo, cost, flight_time, initial, launch_time)
 	local tt = ((self.custom_travel_time_mars or 0) > 0) and self.custom_travel_time_mars or g_Consts.TravelTimeEarthMars
 	flight_time = initial and 0 or (flight_time or tt)
 	launch_time = launch_time or GameTime()
+	
+	if config.RocketInstantTravel then
+		flight_time = 0
+	end
 
 	if IsGameRuleActive("FastRockets") then
 		flight_time = flight_time / 10 -- Rockets & supply pods travel faster
@@ -248,7 +257,7 @@ function SupplyRocket:FlyToMars(cargo, cost, flight_time, initial, launch_time)
 	if initial then -- special case: first rocket is already in orbit and lands faster
 		self.first_arrival = true
 	else
-		Sleep(flight_time)
+		WaitMsg("RocketInstantTravel", flight_time)
 	end
 	self:SetCommand("WaitInOrbit")
 end
@@ -283,7 +292,7 @@ function SupplyRocket:WaitInOrbit(arrive_time)
 	end
 	
 	local landing_disabled = self.landing_disabled
-	self:UpdateStatus(self:IsFlightPermitted()  and (landing_disabled and "landing disabled" or "in orbit") or "suspended in orbit")
+	self:UpdateStatus(self:IsFlightPermitted() and (landing_disabled and "landing disabled" or "in orbit") or "suspended in orbit")
 	
 	if not self:IsLandAutomated() or not self:IsFlightPermitted() or landing_disabled then
 		if self.orbit_arrive_time then
@@ -433,10 +442,14 @@ function SupplyRocket:LandOnMars(site, from_ui)
 		end
 	end
 
+	self:SetIsNightLightPossible(true)
 	--@@@msg RocketLanded,rocket- fired when a rocket has landed on Mars.
 	Msg("RocketLanded", self)
 	if from_ui then	
 		self:PopDestructor() -- landing site cleanup
+	end
+	if self.auto_export then
+		self:AttachSign(true, "SignTradeRocket")
 	end
 	self:SetCommand("Unload")
 end
@@ -569,7 +582,7 @@ function SupplyRocket:Refuel(initialized)
 		assert(false, "Missing landing site for Refuel")
 		self:SetCommand("OnEarth")
 	end
-	local sol_started = UICity.day
+	local sol_refuel_start = self:GetRefuelProgress() == 0 and UICity.day or 0
 	if not initialized then
 		self:ResetDemandRequests()
 		table.insert_unique(g_LandedRocketsInNeedOfFuel, self)
@@ -580,7 +593,7 @@ function SupplyRocket:Refuel(initialized)
 	while not self:HasEnoughFuelToLaunch() do
 		WaitMsg("RocketRefueled")
 	end
-	if sol_started == UICity.day then
+	if sol_refuel_start == UICity.day then
 		Msg("RocketRefueledInADay")
 	end
 	self:SetCommand("WaitLaunchOrder")
@@ -659,15 +672,32 @@ end
 function SupplyRocket:WaitLaunchOrder()
 	while true do -- looped so UpdateFlightPermissions can just wakeup the thread instead of duplicating the checks
 		local issue = self:GetLaunchIssue()
-		local can_take_off = not issue or issue == "cargo"
-
-		self:UpdateStatus(can_take_off and "ready for launch" or "launch suspended")
+		local can_take_off = not issue
+		local new_status = can_take_off and "ready for launch" or "launch suspended"
+		if self.status~=new_status then
+			self:UpdateStatus(new_status)
+		end
 		
 		if self:IsLaunchAutomated() and not self:HasCargoSpaceLeft() and not issue then
 			self:SetCommand("Countdown")
 		end
-		self:WaitForResources()
+		if issue == "cargo" then
+			self:WaitForResources()
+		else
+			Sleep(5000)
+		end
 	end
+end
+
+function SavegameFixups.RocketWaitLaunchOrder()
+	CreateGameTimeThread(function()
+		local list = UICity.labels.AllRockets or empty_table
+		for _, rocket in ipairs(list) do
+			if IsValid(rocket) and rocket.command == "WaitLaunchOrder" then
+				rocket:SetCommand("WaitLaunchOrder")
+			end
+		end
+	end)
 end
 
 function SupplyRocket:DropBrokenDrones(t)
@@ -752,6 +782,7 @@ function SupplyRocket:Countdown()
 end
 
 function SupplyRocket:Takeoff()
+	self:AttachSign(false, "SignTradeRocket")
 	self:UpdateStatus("takeoff")
 	if SelectedObj == self then
 		SelectObj(false)
@@ -765,8 +796,10 @@ function SupplyRocket:Takeoff()
 	self.departures = nil
 	self.boarding = nil
 	
+	self:SetIsNightLightPossible(false)
 	--@@@msg RocketLaunched,rocket - fired when a rocket takes off from Mars
 	Msg("RocketLaunched", self)
+	
 	
 	self.cargo = nil
 	local pt = self:GetPos()
@@ -816,6 +849,10 @@ function SupplyRocket:FlyToEarth(flight_time, launch_time)
 	local tt = ((self.custom_travel_time_earth or 0) > 0) and self.custom_travel_time_earth or g_Consts.TravelTimeMarsEarth
 	flight_time = flight_time or tt
 	
+	if config.RocketInstantTravel then
+		flight_time = 0
+	end
+	
 	if IsGameRuleActive("FastRockets") then
 		flight_time = flight_time / 10 -- Rockets & supply pods travel faster
 	end
@@ -831,7 +868,7 @@ function SupplyRocket:FlyToEarth(flight_time, launch_time)
 	
 	Flight_Unmark(self)
 		
-	Sleep(flight_time)
+	WaitMsg("RocketInstantTravel", flight_time)
 
 	self:UpdateStatus("on earth")
 	--@@@msg RocketReachedEarth,rocket - fired when a rocket finishes its travel from Mars to Earth
@@ -899,7 +936,7 @@ function SupplyRocket:OnModifiableValueChanged(prop, old_val, new_val)
 				if extra > 0 then
 					self:DisconnectFromCommandCenters()
 					local unit_count = 1 + (new_val / (const.ResourceScale * 10)) --1 per 10
-					self.unload_fuel_request = self:AddSupplyRequest("Fuel", extra, 0, unit_count)
+					self.unload_fuel_request = self:AddSupplyRequest("Fuel", extra, const.rfPostInQueue, unit_count)
 					self.refuel_request:SetAmount(0)
 					self:ConnectToCommandCenters()
 				end
@@ -908,6 +945,7 @@ function SupplyRocket:OnModifiableValueChanged(prop, old_val, new_val)
 		end
 	elseif prop == "max_export_storage" then
 		if self.command == "Refuel" or self.waiting_resources and self.export_requests then
+			assert(#self.export_requests == 1)
 			local delta = new_val - old_val
 			self.export_requests[1]:AddAmount(delta)
 			self:InterruptDrones(nil, function(drone) return drone.d_request == self.export_requests[1] and drone end)
@@ -972,14 +1010,29 @@ end
 -- end backward compatibility
 
 function SupplyRocket:BuildingUpdate(dt, day, hour)	
-	if GetMissionSponsor().id == "IMM" and self.command == "Refuel" then
+	if GetMissionSponsor().id == "IMM" and (self.command == "Refuel" or self.command == "ExpeditionRefuelAndLoad") then
 		self.accumulated_fuel = self.accumulated_fuel + MulDivRound(dt, self:GetLaunchFuel()/10, const.DayDuration)
 		local amount = self.accumulated_fuel - self.accumulated_fuel % const.ResourceScale
 		self.accumulated_fuel = self.accumulated_fuel - amount
-		self.refuel_request:AddAmount( -Min(amount, self.refuel_request:GetTargetAmount() ) )
-		if self:HasEnoughFuelToLaunch() then
+		local refuel_request = self.refuel_request
+		local refueling, exporting
+		if refuel_request:GetTargetAmount() > 0 then
+			refueling = true
+		elseif self.export_requests then
+			for _, request in ipairs(self.export_requests) do
+				if request:GetResource() == "Fuel" and request:GetTargetAmount() > 0 then
+					refuel_request = request
+					exporting = true
+				end
+			end		
+		end
+		refuel_request:AddAmount( -Min(amount, refuel_request:GetTargetAmount() ) )
+		if refueling and self:HasEnoughFuelToLaunch() then
 			--@@@msg RocketRefueled,rocket - fired when a rocket is completely refueled for its trip back to Earth
 			Msg("RocketRefueled", self)
+		end
+		if exporting and self.waiting_resources then
+			Wakeup(self.command_thread)
 		end
 	end
 end
@@ -988,7 +1041,7 @@ function SupplyRocket:OffPlanet()
 	if self:IsValidPos() then
 		self:DetachFromMap()
 	end
-	if IsValid(self.landing_site) and not self.auto_export then
+	if IsValid(self.landing_site) and not self.auto_export and not self:IsKindOf("ForeignTradeRocket") then
 		DoneObject(self.landing_site)
 		self.landing_site = nil
 	end
@@ -1040,6 +1093,7 @@ function SupplyRocket:StartDustThread(total_dust_to_apply, delay)
 end
 
 function SupplyRocket:Done()
+	self:SetPinned(false)
 	if IsValidThread(self.dust_thread) then
 		DeleteThread(self.dust_thread)
 	end
@@ -1071,7 +1125,7 @@ function SupplyRocket:GameInit()
 		self:DestroyAttaches("Logo")
 	end
 	
-	self:SetPalette(DecodePalette(self.rocket_palette))
+	self:SetPalette(DecodePalette(self:GetRocketPalette(), self:GetColorScheme()))
 	
 	self.city:AddToLabel("AllRockets", self)
 end
@@ -1135,10 +1189,10 @@ function SupplyRocket:OnDemolish()
 	Building.OnDemolish(self)
 end
 
-function SupplyRocket:TogglePin(force, transparent)
-	PinnableObject.TogglePin(self, force)
-	if not transparent then
-		self.is_pinned = not not self:IsPinned()
+function SupplyRocket:SetPinned(pinned)
+	pinned = not not pinned
+	if pinned ~= self:IsPinned() then
+		self:TogglePin("force")
 	end
 end
 
@@ -1156,6 +1210,42 @@ function SupplyRocket:GetRocketType()
 	return RocketTypeNames.Fallback
 end
 
+function SupplyRocket:GetColorScheme()
+	return GetCurrentColonyColorScheme()
+end
+
+function SupplyRocket:GetRocketPalette(ccs)
+	if not ccs then
+		ccs = self:GetColorScheme()
+	end
+	if #self.rocket_palette ~= 4 then
+		self.rocket_palette = g_Classes[self.class].rocket_palette
+	end
+	return GetAdjustedRocketPalette(self.entity, self.rocket_palette, ccs)
+end
+
+function GetConstructableRocketPalette()
+	return GetAdjustedRocketPalette(GetConstructionRocketEntity(), SupplyRocket.rocket_palette, GetCurrentColonyColorScheme())
+end
+
+function GetConstructionRocketEntity()
+	local cls_str = GetRocketClass()
+	local t = BuildingTemplates[cls_str]
+	if t then
+		return t.entity
+	end
+	local cls = g_Classes[cls_str]
+	return cls:GetEntity()
+end
+
+function GetAdjustedRocketPalette(rocket_entity, palette, ccs)
+	ccs = ccs or GetCurrentColonyColorScheme()
+	if (rocket_entity == "Rocket") and ccs.id == "default" then
+		return {palette[2], palette[1], palette[3], palette[4]}
+	end
+	return palette
+end
+
 function SupplyRocket:SetCategory(cat)
 	self.category = cat
 end
@@ -1168,7 +1258,6 @@ function SupplyRocket:UIStatusArrive(template)
 	self.pin_rollover_hint = ""
 	self.pin_rollover_hint_xbox = ""
 	self.pin_status_img = "UI/Icons/pin_rocket_incoming.tga"
-	self:TogglePin("force", true)
 	self.is_demolishable_state = false
 	self.can_change_skin = false
 end
@@ -1184,27 +1273,26 @@ function SupplyRocket:UIStatusInOrbit(template)
 	end
 	self.pin_summary1 = nil
 	self.pin_status_img = "UI/Icons/pin_rocket_orbiting.tga"
-	self:TogglePin("force", true)
 	self.is_demolishable_state = false
 	self.can_change_skin = false
 end
 function SupplyRocket:UIStatusSuspendedInOrbit(template)
-		self.pin_blink = false
-		self.pin_rollover = self.pin_rollover_in_orbit
-		if template then
-			self.pin_rollover_hint = template.pin_rollover_hint
-			self.pin_rollover_hint_xbox = template.pin_rollover_hint_xbox
-		end
-		if self.orbit_arrive_time then
-			self.pin_rollover = self.pin_rollover .. "<newline><newline>" .. T(8052, "Passengers on board will die if the rocket doesn't land in <em><UIOrbitTimeLeft> h</em>.")
-		end
-		self.pin_rollover = self.pin_rollover .. "<newline><newline>" .. T(8523, "<red>Rockets can't land during dust storms.</red>")
-		self.pin_summary1 = nil
-		self.pin_status_img = "UI/Icons/pin_rocket_orbiting.tga"
-		self:TogglePin("force", true)
-		self.is_demolishable_state = false
-		self.can_change_skin = false
+	self.pin_blink = false
+	self.pin_rollover = self.pin_rollover_in_orbit
+	if template then
+		self.pin_rollover_hint = template.pin_rollover_hint
+		self.pin_rollover_hint_xbox = template.pin_rollover_hint_xbox
+	end
+	if self.orbit_arrive_time then
+		self.pin_rollover = self.pin_rollover .. "<newline><newline>" .. T(8052, "Passengers on board will die if the rocket doesn't land in <em><UIOrbitTimeLeft> h</em>.")
+	end
+	self.pin_rollover = self.pin_rollover .. "<newline><newline>" .. T(8523, "<red>Rockets can't land during dust storms.</red>")
+	self.pin_summary1 = nil
+	self.pin_status_img = "UI/Icons/pin_rocket_orbiting.tga"
+	self.is_demolishable_state = false
+	self.can_change_skin = false
 end
+
 function SupplyRocket:UIStatusLandingDisabled(template)
 	self.pin_blink = false
 	self.pin_rollover = self.pin_rollover_in_orbit
@@ -1217,9 +1305,6 @@ function SupplyRocket:UIStatusLandingDisabled(template)
 	end
 	self.pin_rollover = self.pin_rollover .. "<newline><newline>" .. T(11166, "<red>Rocket landing is suspended.</red>")
 	self.pin_summary1 = nil
-	if self.is_pinned then
-		self:TogglePin("force", true)
-	end
 	self.pin_status_img = "UI/Icons/pin_rocket_orbiting.tga"
 	self.is_demolishable_state = false
 	self.can_change_skin = false
@@ -1233,12 +1318,14 @@ function SupplyRocket:UIStatusLanding(template)
 	end
 	self.pin_summary1 = nil
 	self.pin_status_img = nil
-	if self.is_pinned then
-		self:TogglePin("force", true)
-	end
 	self.is_demolishable_state = false
 	self.can_change_skin = false
 end
+
+function SupplyRocket:UIStatusLanding(template)
+	self.pin_blink = false
+end
+
 function SupplyRocket:UIStatusLanded(template)
 	self.pin_blink = false
 	if template then
@@ -1248,12 +1335,10 @@ function SupplyRocket:UIStatusLanded(template)
 	end
 	self.pin_summary1 = nil
 	self.pin_status_img = nil
-	if self.is_pinned then
-		self:TogglePin("force", true)
-	end
 	self.is_demolishable_state = false
 	self.can_change_skin = false
 end
+
 function SupplyRocket:UIStatusRefueling(template)
 	self.pin_blink = false
 	if template then
@@ -1263,12 +1348,10 @@ function SupplyRocket:UIStatusRefueling(template)
 	end
 	self.pin_summary1 = nil
 	self.pin_status_img = nil
-	if self.is_pinned then
-		self:TogglePin("force", true)
-	end
 	self.is_demolishable_state = true
 	self.can_change_skin = true
 end
+
 function SupplyRocket:UIStatusMaintenance(template)
 	self.pin_blink = false
 	if template then
@@ -1278,9 +1361,6 @@ function SupplyRocket:UIStatusMaintenance(template)
 	end
 	self.pin_summary1 = nil
 	self.pin_status_img = nil
-	if self.is_pinned then
-		self:TogglePin("force", true)
-	end
 	self.is_demolishable_state = false
 	self.can_change_skin = false
 end
@@ -1293,7 +1373,6 @@ function SupplyRocket:UIStatusReadyForLaunch(template)
 	end
 	self.pin_summary1 = nil
 	self.pin_status_img = "UI/Icons/pin_rocket_outgoing.tga"
-	self:TogglePin("force", true)
 	self.is_demolishable_state = true
 	self.can_change_skin = true
 end
@@ -1304,9 +1383,11 @@ function SupplyRocket:UIStatusLaunchSuspended(template)
 		self.pin_rollover_hint = PinnableObject.pin_rollover_hint
 		self.pin_rollover_hint_xbox = PinnableObject.pin_rollover_hint_xbox
 	end
+	if not self:IsFlightPermitted() then
+		self.pin_rollover = self.pin_rollover .. "<newline><newline>" .. T(12467, "<red>Rockets can't launch during dust storms.</red>")
+	end
 	self.pin_summary1 = nil
 	self.pin_status_img = "UI/Icons/pin_rocket_outgoing.tga"
-	self:TogglePin("force", true)
 	self.is_demolishable_state = true
 	self.can_change_skin = true
 end
@@ -1319,7 +1400,6 @@ function SupplyRocket:UIStatusCountdown(template)
 	end
 	self.pin_summary1 = nil
 	self.pin_status_img = "UI/Icons/pin_rocket_outgoing.tga"
-	self:TogglePin("force", true)
 	self.is_demolishable_state = false
 	self.can_change_skin = false
 end
@@ -1332,9 +1412,6 @@ function SupplyRocket:UIStatusTakeoff(template)
 	end
 	self.pin_summary1 = nil
 	self.pin_status_img = "UI/Icons/pin_rocket_outgoing.tga"
-	if self.is_pinned then
-		self:TogglePin("force", true)
-	end
 	self.is_demolishable_state = false
 	self.can_change_skin = false
 end
@@ -1348,20 +1425,29 @@ function SupplyRocket:UIStatusDeparting(template)
 	self.pin_rollover_hint = ""
 	self.pin_rollover_hint_xbox = ""
 	self.pin_status_img = "UI/Icons/pin_rocket_outgoing.tga"
-	self:TogglePin("force", true)
 	self.is_demolishable_state = false
 	self.can_change_skin = false
 end
 ---------------- End UI status funcs ----------------
-function SupplyRocket:UpdateStatus(status)
-	if self:IsPinned() then
-		self:TogglePin("force", true)
+
+local s_ShouldBeNotPinned = {["on earth"] = true, ["landing"] = true, ["countdown"] = true, ["takeoff"] = true}
+
+function SupplyRocket:ShouldBePinned()
+	local pinned = self.first_arrival or not s_ShouldBeNotPinned[self.status]
+	if self:IsKindOf("SupplyPod") and not self.command then
+		pinned = false
 	end
+	
+	return pinned
+end
+
+function SupplyRocket:UpdateStatus(status)
+	self.status = status
+	self:SetPinned(self:ShouldBePinned())
 	
 	local could_change_skin = self.can_change_skin
 	
 	local template = BuildingTemplates[self.template_name]		
-	self.status = status
 	self:CompatConvertToCommand()
 	local func_name = self.ui_status_func[status]
 	if func_name then
@@ -1378,6 +1464,18 @@ function SupplyRocket:UpdateStatus(status)
 	
 	--@@@msg RocketStatusUpdate,rocket,status - fired when rocket's status is updated. 'status' can be one of "on earth", "arriving", "in orbit", "suspended in orbit", "landing", "landed", "refueling", "maintenance", "ready for launch", "launch suspended", "countdown", "takeoff" or "departing"
 	Msg("RocketStatusUpdate", self, status)
+end
+
+function SavegameFixups.RocketsAndSupplyPodsPins()
+	CreateGameTimeThread(function()
+		local list = UICity.labels.AllRockets
+		if not list then return end
+		for _, rocket in ipairs(list) do
+			if IsValid(rocket) then
+				rocket:SetPinned(rocket:ShouldBePinned())
+			end
+		end
+	end)
 end
 
 function PrepareApplicantsForTravel(city, host, capacity)
@@ -1436,17 +1534,7 @@ function PrepareApplicantsForTravel(city, host, capacity)
 end
 
 function SupplyRocket:CanBeUnpinned()
-	if self.command == "OnEarth" or 
-		self.command == "FlyToMars" or 
-		self.command == "FlyToEarth" or 
-		self.command == "FlyToColony" or
-		self.command == "Takeoff" or
-		self.command == "WaitInOrbit"
-	then
-		return false
-	end
-	
-	return true
+	return false
 end
 
 function SupplyRocket:OnPinClicked(gamepad)
@@ -1459,8 +1547,7 @@ function SupplyRocket:OnPinClicked(gamepad)
 		self.command == "FlyToEarth" or 		
 		self.command == "FlyToColony" or
 		self.command == "Takeoff" or
-		self.command == "LandingDisabled" or
-		self:IsLandAutomated() -- will land on its own
+		self.command == "LandingDisabled"
 	then
 		return true
 	end
@@ -1492,7 +1579,7 @@ function SupplyRocket:OnPinClicked(gamepad)
 			passengers = passengers,
 			drones = drones,
 			stockpiles_obstruct = true,
-			override_palette = self.rocket_palette,
+			override_palette = self:GetRocketPalette(),
 			rocket = self,
 			ui_callback = function(site)
 				self:SetCommand("LandOnMars", site, "from ui")
@@ -1512,16 +1599,19 @@ function SupplyRocket:PlaceEngineDecal(pos, delay)
 		
 		MapDelete(pos, 20*guim, self.rocket_engine_decal_name)
 		local engine_decal = PlaceObject(self.rocket_engine_decal_name)
-		engine_decal:SetPos(pos)			
+		engine_decal:SetPos(pos)
 		engine_decal:SetOpacity(100)
-		local fade_time = self.decal_fade_time	
-				
+		local fade_time = self.decal_fade_time
+		local bbox = ObjectHierarchyBBox(engine_decal)
+		
 		for opacity = 100, 0, -5 do
 			Sleep(fade_time / 20)
 			if not IsValid(engine_decal) then return end
 			engine_decal:SetOpacity(opacity)
+			terrain.InvalidateType(bbox)
 		end
 		DoneObject(engine_decal)
+		terrain.InvalidateType(bbox)
 	end)
 end
 
@@ -1806,6 +1896,7 @@ function SupplyRocket:GetLaunchFuel()
 	return self.launch_fuel
 end
 
+
 function SupplyRocket:CreateResourceRequests()
 	UniversalStorageDepot.CreateResourceRequests(self)
 	
@@ -1838,7 +1929,17 @@ function SupplyRocket:CreateExportRequests()
 	end	
 end
 
-function SupplyRocket:ResetDemandRequests(skip_exports)			
+function SupplyRocket:GetExportRequest(rocket, res)
+	local rocket = rocket or self
+	local res = res or "PreciousMetals"
+	for _, req in ipairs(rocket.export_requests or empty_table) do
+		if req:GetResource() == res then
+			return req
+		end
+	end
+end		
+
+function SupplyRocket:ResetFuelDemandRequests()			
 	if #self.command_centers > 0 then
 		--reseting reqs with drones working on them may leave them in a broken state,
 		--as far as i can tell this can be called from an old thread without passing countdown
@@ -1854,17 +1955,22 @@ function SupplyRocket:ResetDemandRequests(skip_exports)
 		table.remove_entry(self.task_requests, self.unload_fuel_request)
 		self.unload_fuel_request = nil
 	end
-	if skip_exports then return end
+end
+
+function SupplyRocket:ResetDemandRequests()			
+	self:ResetFuelDemandRequests()
+	local req = self:GetExportRequest()
 	if self.allow_export then
-		if self.export_requests then
-			self.export_requests[1]:ResetAmount(self.max_export_storage)
+		if req then			
+			 req:ResetAmount(self.max_export_storage)
 		else
 			local unit_count = self:GetRequestUnitCount(self.max_export_storage)
-			self.export_requests = { self:AddDemandRequest("PreciousMetals", self.max_export_storage, 0, unit_count) }
+			self.export_requests = self.export_requests or {}
+			self.export_requests[#self.export_requests + 1] = self:AddDemandRequest("PreciousMetals", self.max_export_storage, 0, unit_count)
 		end
 	else
 		if self.export_requests then
-			table.remove_entry(self.task_requests, self.export_requests[1])
+			table.remove_entry(self.task_requests, req)
 		end
 		self.export_requests = nil
 	end
@@ -1919,6 +2025,28 @@ function SupplyRocket:DroneApproach(drone, r)
 	else
 		return drone:GotoBuildingSpot(self, drone.work_spot_task)
 	end
+end
+
+function SupplyRocket:RoverWork(rover, request, resource, amount, reciprocal_req, interaction_type, total_amount)
+	StorageDepot.RoverWork(self, rover, request, resource, amount, reciprocal_req, interaction_type, total_amount)
+	
+	if resource ~= "clean" and resource ~= "repair" 
+		and self.export_requests and table.find(self.export_requests, request) then
+		
+		rover:ContinuousTask(request, interaction_type == "unload" and abs(amount) or amount, "gatherStart", "gatherIdle", "gatherEnd",
+		interaction_type == "load" and "Load" or "Unload",	"step", g_Consts.RCRoverTransferResourceWorkTime, "add resource", reciprocal_req, total_amount)
+	end
+end
+
+function SupplyRocket:AddResource(amount, resource)
+	if self.export_requests and #self.export_requests > 0 then
+		local idx = table.find_if(self.export_requests, function(r) return r:GetResource() == resource end)
+		if idx then
+			self.export_requests[idx]:AddAmount(-amount)
+			return
+		end
+	end
+	UniversalStorageDepot.AddResource(self, amount, resource)
 end
 
 function SupplyRocket:PlaceAdjacent(obj, def_pt, set_pos, move)
@@ -2109,6 +2237,11 @@ function SupplyRocket:SpawnRovers()
 					rover:ClearGameFlags(const.gofSpecialOrientMode)
 					n = n + 1
 				end
+				
+				if rover:HasState("idleRocket") then
+					rover:SetState("idleRocket")
+				end
+				
 				item.amount = item.amount - 1
 			end
 		else
@@ -2323,7 +2456,7 @@ function SupplyRocket:GenerateDepartures()
 end
 
 function SupplyRocket:HasEnoughFuelToLaunch()
-	return self.refuel_request:GetActualAmount() <= 0
+	return self.refuel_request and self.refuel_request:GetActualAmount() <= 0
 end
 
 function SupplyRocket:HasExtraFuel()
@@ -2369,6 +2502,11 @@ function SupplyRocket:GetLaunchIssue(skip_flight_ban)
 	
 	if self.launch_disabled then
 		return "disabled"
+	end
+	
+	local fuel = self:HasExtraFuel()
+	if fuel then 
+		return "cargo"
 	end
 	
 	local stored, unload = self:GetStoredAmount()
@@ -2421,10 +2559,21 @@ function SupplyRocket:UILaunch() -- blizzard promised no broadcast
 	end
 	
 	-- all ok
-	self:SetCommand("Countdown")
+	if self.command~="Countdown" and self.command~="TakeOff" then	
+		self:SetCommand("Countdown")
+	end
 	Msg("RocketManualLaunch", self)
 end
 
+function SupplyRocket:UILaunch_Update(button)
+	button:SetEnabled(self.command~="Countdown" and self.command~="TakeOff")
+end
+
+function SupplyRocket:GetUIWarning()
+	if not self:MaintenanceDone() then
+		return T{12393, "This rocket has malfunctioned and needs <resource(number, maintenance_resource)>.", number = self.maintenance_requirements.amount, maintenance_resource = self.maintenance_requirements.resource}
+	end
+end
 
 function SupplyRocket:IsLaunchAutomated()
 	return self.auto_export
@@ -2473,7 +2622,8 @@ end
 
 -- ui getters
 function SupplyRocket:GetRefuelProgress()
-	return MulDivRound(self:GetLaunchFuel() - self.refuel_request:GetActualAmount(), 100, Max(1, self:GetLaunchFuel()))
+	local extra = self.unload_fuel_request and self.unload_fuel_request:GetActualAmount() or 0
+	return self:GetLaunchFuel() - self.refuel_request:GetActualAmount() + extra
 end
 
 function SupplyRocket:GetArrivalTimePercent()
@@ -2552,6 +2702,7 @@ end
 
 function SupplyRocket:ToggleAutoExport()
 	self.auto_export = not self.auto_export
+	self:AttachSign(self.auto_export, "SignTradeRocket")
 	if not self.auto_export then -- can be disabled at any time
 		if self.reserved_site then
 			assert(IsValid(self.landing_site))
@@ -2634,7 +2785,7 @@ function SupplyRocket:ToggleAllowExport(broadcast)
 				-- create unload request, transfer the amount delivered, close the export request
 				local amount = self:GetStoredExportResourceAmount()
 				local unit_count = 1 + (self.max_export_storage / (const.ResourceScale * 10)) --1 per 10
-				self.unload_request = self:AddSupplyRequest("PreciousMetals", amount, 0, unit_count)
+				self.unload_request = self:AddSupplyRequest("PreciousMetals", amount, const.rfPostInQueue, unit_count)
 				table.remove_entry(self.task_requests, self.export_requests[1])
 				self.export_requests = nil
 							
@@ -2677,10 +2828,9 @@ function SupplyRocket:GetUIRocketStatus()
 	if self.exported_amount and self.command == "FlyToEarth" then
 		return T(284, "<green>Exporting</green><right><preciousmetals(exported_amount, max_export_storage)>")
 	end
-	local extra = self.unload_fuel_request and self.unload_fuel_request:GetActualAmount() or 0	
 	local items = {}
 	if self:GetLaunchFuel()~=0 then
-		items[#items +1] = T{285, "Refueling<right><current>/<fuel(launch_fuel)>", current = (self:GetLaunchFuel() - self.refuel_request:GetActualAmount() + extra) / const.ResourceScale}
+		items[#items +1] = T{285, "Refueling<right><current>/<fuel(launch_fuel)>", current = self:GetRefuelProgress() / const.ResourceScale}
 	end	
 	local export_status = self:GetUIExportStatus()
 	if export_status then
@@ -2772,7 +2922,7 @@ DefineClass.RocketLandingSite = {
 	disable_selection = true,
 	default_label = false,
 	landing_pad = false,
-	SetSuspended = __empty_function__,
+	SetSuspended = empty_func,
 }
 
 function RocketLandingSite:GameInit()
@@ -2803,9 +2953,27 @@ function RocketLandingSite:SelectionPropagate()
 	end
 end
 
+function GetLandingRocket(site)
+	local rockets = UICity.labels.AllRockets or ""
+	for i = 1, #rockets do
+		if rockets[i].landing_site == site and rockets[i]:GetEnumFlags(const.efSelectable) ~= 0 then
+			return rockets[i]
+		end
+	end
+end
+
+function OnMsg.GatherSelectedObjectsOnHexGrid(q, r, objects)
+	local site = HexGridGetObject(ObjectGrid, q, r, "RocketLandingSite")
+	local rocket = site and GetLandingRocket(site)
+	if rocket then
+		table.insert_unique(objects, rocket)
+	end
+end
+
 DefineClass.LandingPad = {
 	__parents = { "Building" },
-	SetSuspended = __empty_function__,
+	rocket_construction = false,
+	SetSuspended = empty_func,
 }
 
 function LandingPad:GameInit()
@@ -2824,6 +2992,9 @@ function LandingPad:OnDemolish()
 end
 
 function LandingPad:HasRocket()
+	if self.rocket_construction then
+		return self.rocket_construction
+	end
 	local rockets = UICity.labels.AllRockets or empty_table
 	for _, rocket in ipairs(rockets) do
 		if rocket.landing_site and rocket.landing_site.landing_pad == self and (rocket_on_gnd_cmd[rocket.command] or rocket:IsLandAutomated()) then
@@ -2947,16 +3118,34 @@ DefineClass.RocketCargoItem = {
 	},
 }
 
-function test_rocket_explosion()
-	local test = ExplodeRocket:new {}
-	test:Execute(UICity.labels.SupplyRocket[1])
-end
-
 DefineStoryBitTrigger("RocketLaunchedEvent", "RocketLaunchedEvent")
 function OnMsg.RocketLaunched(rocket)
 	Msg("RocketLaunchedEvent", rocket)
 end
 
--- dlc stubs
-DefineClass("TradePad")
-DefineClass("ForeignTradeRocket")
+----
+
+function dbg_ToggleRocketInstantTravel()
+	config.RocketInstantTravel = not config.RocketInstantTravel
+	if config.RocketInstantTravel then
+		Msg("RocketInstantTravel")
+	end
+	print("Rocket Instant Travel:", config.RocketInstantTravel)
+end
+
+if Platform.developer then
+
+local function FixRockets()
+	if not string.match(GetMap(), "Maps/POCMap_") then return end
+	local rockets = UICity.labels.AllRockets or {}
+	for _, rocket in ipairs(rockets) do
+		local state = rocket:GetState()
+		rocket:SetState("idle")
+		rocket:SetState(state)
+	end
+end
+
+OnMsg.GameTimeStart = FixRockets
+OnMsg.LoadGame = FixRockets
+
+end

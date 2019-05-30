@@ -162,6 +162,13 @@ function HasConsumption:CreateVisualStockpile()
 	self.consumption_resource_stockpile = stock
 end
 
+function ConsumptionResourceStockpile:GetEntrance(target, entrance_type, spot_name)
+	if self:HasSpot("Visit") then
+		return nil, nil, "Visit"
+	end
+	return WaypointsObj.GetEntrance(self, target, entrance_type, spot_name)
+end
+
 function SavegameFixups.ConsumptionStockpileAddAssignAndUnassignFuncs()
 	MapForEach(true, "HasConsumption", function(o)
 					local stock = o.consumption_resource_stockpile
@@ -204,7 +211,7 @@ function HasConsumption:ConsumptionDroneUnload(drone, req, resource, amount)
 		self:UpdateVisualStockpile()
 		self:UpdateRequestConnectivity()
 		
-		if not was_work_possible then --only try to turn on if we were the reason to be off.
+		if not was_work_possible and self:CanConsume() then --only try to turn on if we were the reason to be off and can consume now.
 			if self:IsKindOf("Building") then
 				self:AttachSign(false, "SignNoConsumptionResource")
 			end
@@ -276,7 +283,7 @@ function HasConsumption:Consume_Production(for_amount_to_produce, delim) --pass 
 		self:AccumulateFracProduction(frac)
 		ret_amount = ret_amount + frac
 	end
-	if self.consumption_resource_type == "WasteRock" then
+	if self.consumption_resource_type == "WasteRock" and self:IsKindOf("ResourceProducer") then
 		Msg("WasteRockConversion", amount_to_consume, self.producers)
 	end
 	return ret_amount, amount_to_consume
@@ -308,7 +315,7 @@ function HasConsumption:Consume_Internal(input_amount_to_consume)
 	self:UpdateVisualStockpile()
 	self:UpdateRequestConnectivity()
 	
-	if amount_to_consume ~= input_amount_to_consume then
+	if not self:CanConsume() then
 		if self:IsKindOf("Building") then
 			self:AttachSign(true, "SignNoConsumptionResource")
 		end

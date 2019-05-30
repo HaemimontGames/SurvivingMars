@@ -10,13 +10,13 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Close",
 			'func', function (self, ...)
-g_CommandCenterSavedContext = self:GetContext()
-g_CommandCenterSavedMode = self:GetMode()		
-local mode_dlg = GetInGameInterfaceModeDlg()
-mode_dlg:SetParent(GetInGameInterface())
-g_CommandCenterOpen = false
-XDialog.Close(self, ...)
-end,
+				g_CommandCenterSavedContext = self:GetContext()
+				g_CommandCenterSavedMode = self:GetMode()		
+				local mode_dlg = GetInGameInterfaceModeDlg()
+				mode_dlg:SetParent(GetInGameInterface())
+				g_CommandCenterOpen = false
+				XDialog.Close(self, ...)
+			end,
 		}),
 		PlaceObj('XTemplateLayer', {
 			'__condition', function (parent, context) return GameState.gameplay end,

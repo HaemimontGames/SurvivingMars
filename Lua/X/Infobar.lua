@@ -4,63 +4,82 @@ end
 
 DefineClass.Infobar = {
 	__parents = { "XDialog" },
-	PadHeight = 30,
+	navigation_button = false,
+	
+	last_width = false,
+	last_height = false,
 }
 
-local function SetContextRecursive(root, context)
-	if IsKindOf(root, "XContextWindow") then
-		root:SetContext(context)
+function CreateInfobarContextObject()
+	if not g_InfobarContextObj then
+		g_InfobarContextObj = InfobarObj:new()
 	end
-	for i,child in ipairs(root) do
-		SetContextRecursive(child, context)
-	end
+	return g_InfobarContextObj
 end
 
 function Infobar:Open(...)
 	XDialog.Open(self, ...)
 	
-	self.idGamepadHint:SetImage(GetPlatformSpecificImagePath("DPadUp"))
-	self.idPad:SetMaxHeight(self.PadHeight)
-	self.idPad:SetMinHeight(self.PadHeight)
+	self.idGamepadHint:SetImage(GetPlatformSpecificImagePath(self.navigation_button or "DPadUp"))
+	local ctrlSeeds = self.idPad:ResolveId("idSeedsResources")
+	if ctrlSeeds then
+		ctrlSeeds:SetVisible(UICity:IsTechResearched("MartianVegetation"))
+	end
 	self:RecalculateMargins()
 	
-	local dlg = GetDialog("OnScreenHintDlg")
-	if dlg then
-		CreateGameTimeThread(dlg.RecalculateMargins, dlg)
-	end
-	
-	--create context object & begin update thread
-	if not g_InfobarContextObj then
-		g_InfobarContextObj = InfobarObj:new()
-	end
 	self:CreateThread("UpdateThread", self.UpdateThreadFunc, self)
-	
-	--set contexts to each text field
-	SetContextRecursive(self.idPad, g_InfobarContextObj)
-	
 	self:UpdateGamepadHint()
 end
 
 function Infobar:Close(...)
 	XDialog.Close(self, ...)
-	
+	self:UpdateHintDlgMargins()
+end
+
+function Infobar:UpdateHintDlgMargins()
 	local dlg = GetDialog("OnScreenHintDlg")
 	if dlg then
 		CreateGameTimeThread(dlg.RecalculateMargins, dlg)
 	end
 end
 
+function Infobar:UpdateContext()
+	ObjModified(g_InfobarContextObj)
+end
+
 function Infobar:UpdateThreadFunc()
 	--triggers UI update every 1 second
 	while self.window_state ~= "destroying" do
-		ObjModified(g_InfobarContextObj)
+		self:UpdateContext()
 		Sleep(1000)
 	end
 end
 
 function Infobar:RecalculateMargins()
-	--This is temporarily and should be removed when implementing InGameInterface with new UI
 	self:SetMargins(GetSafeMargins())
+end
+
+function Infobar:OnLayoutComplete()
+	if self.last_width ~= self.measure_width then
+		local hint = self:ResolveId("idGamepadHint")
+		if hint and hint:GetVisible() then
+			local x, y = self.content_box:minxyz()
+			local width, height = self.content_box:sizexyz()
+			hint:SetLayoutSpace(x, y, width, height)
+		end
+		self.last_width = self.measure_width
+	end
+	if self.last_height ~= self.measure_height then
+		self:UpdateHintDlgMargins()
+		self.last_height = self.measure_height
+	end
+end
+
+function OnMsg.SystemSize(pt)
+	local dlg = GetDialog("Infobar")
+	if dlg then
+		dlg:RecalculateMargins()
+	end
 end
 
 function Infobar:DockInPopupNotification(popup, dock)
@@ -142,6 +161,18 @@ function OnMsg.GamepadUIStyleChanged()
 	if infobar then infobar:UpdateGamepadHint() end
 end
 
+function OnMsg.TechResearched(tech_id, city, first_time)
+	if tech_id == "MartianVegetation" then
+		local infobar = GetDialog("Infobar")
+		if infobar then
+			local ctrlSeeds = infobar.idPad:ResolveId("idSeedsResources")
+			if ctrlSeeds then
+				ctrlSeeds:SetVisible(true)
+			end
+		end
+	end
+end
+
 function Infobar:OnShortcut(shortcut, ...)
 	if shortcut == "DPadDown" then
 		self:SetFocus(false, true)
@@ -193,11 +224,10 @@ function InfobarObj:FmtRes(n, colorized)
 	--formatting resource in the infobar happens in a specific manner:
 	--0,1,2...,999, 1k,1.9k,2k,...,999k, 1M,1.9M,2M,...,999M, 1B,1.9B,2B,...
 	local tnum
-	local abs_n = abs(n)
+	local abs_n, sign_n = abs(n), (n < 0) and -1 or 1
 	if abs_n >= 1000000000 then --billion (B)
 		local div = 1000000000
-		local value = n / div
-		local rem = (n % div) / (div / 10)
+		local value, rem = (abs_n / div) * sign_n, (abs_n % div) / (div / 10)
 		if rem > 0 then
 			tnum = T{9807, --[[Infobar number formatting (billion)]] "<n>.<rem>B", n = T{tostring(value)}, rem = T{tostring(rem)}}
 		else
@@ -205,7 +235,7 @@ function InfobarObj:FmtRes(n, colorized)
 		end
 	elseif abs_n >= 1000000 then --million (M)
 		local div = 1000000
-		local value, rem = n / div, (n % div) / (div / 10)
+		local value, rem = (abs_n / div) * sign_n, (abs_n % div) / (div / 10)
 		if rem > 0 then
 			tnum = T{9808, --[[Infobar number formatting (million)]] "<n>.<rem>M", n = T{tostring(value)}, rem = T{tostring(rem)}}
 		else
@@ -213,7 +243,7 @@ function InfobarObj:FmtRes(n, colorized)
 		end
 	elseif abs_n >= 1000 then --thousand (k)
 		local div = 1000
-		local value, rem = n / div, (n % div) / (div / 10)
+		local value, rem = (abs_n / div) * sign_n, (abs_n % div) / (div / 10)
 		if rem > 0 then
 			tnum = T{9809, --[[Infobar number formatting (thousand)]] "<n>.<rem>k", n = T{tostring(value)}, rem = T{tostring(rem)}}
 		else
@@ -258,13 +288,20 @@ end
 
 function InfobarObj:GetResearchRollover()
 	local rollover_items = ResourceOverviewObj:GetResearchRolloverItems()
-	local current_research = T{10095, "Current Research<right><em><name></em>",
-		name = function()
-			local current_research = UICity and UICity:GetResearchInfo()
-			return current_research and TechDef[current_research].display_name or T(6761, "None")
-		end,
-	}
-	table.insert(rollover_items, current_research)
+	local research_text = T(5621, "No Active Research")
+	if UICity and UICity:GetResearchInfo() then
+		research_text = T{12475, "Researching <em><name></em> (<percent(progress)>)",
+			name = function()
+				local current_research = UICity:GetResearchInfo()
+				return current_research and TechDef[current_research].display_name or T(6761, "None")
+			end,
+			progress = function()
+				local _, points, max_points = UICity:GetResearchInfo()
+				return max_points and MulDivRound(100, points, max_points) or 0
+			end,
+		}
+	end
+	table.insert(rollover_items, research_text)
 	return table.concat(rollover_items, "<newline><left>")
 end
 
@@ -446,6 +483,24 @@ end
 
 function InfobarObj:CycleLabel(label)
 	CycleObjects(UICity.labels[label])
+end
+
+function InfobarObj:GetSeedsText()
+	local seeds = ResourceOverviewObj:GetAvailableSeeds() / const.ResourceScale
+	return T{12096, "<seeds><icon_Seeds_orig>", seeds = self:FmtRes(seeds)}
+end
+
+function InfobarObj:GetSeedsRollover()
+	return ResourceOverviewObj:GetSeedsRollover()
+end
+
+function InfobarObj:GetWasteRockText()
+	local waste_rock = ResourceOverviewObj:GetAvailableWasteRock() / const.ResourceScale
+	return T{12299, "<waste_rock><icon_WasteRock_orig>", waste_rock = self:FmtRes(waste_rock)}
+end
+
+function InfobarObj:GetWasteRockRollover()
+	return ResourceOverviewObj:GetWasteRockRollover()
 end
 
 function InfobarObj:CycleFreeHomes()

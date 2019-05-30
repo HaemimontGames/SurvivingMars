@@ -8,6 +8,7 @@ local _slots = {
 		groups = {
 			["A"] = true,
 		},
+		move_end = "LeadToExit",
 		move_start = "GoToExitSpot",
 		spots = {
 			"Visitlounge",
@@ -24,11 +25,27 @@ local _slots = {
 		groups = {
 			["A"] = true,
 		},
+		move_end = "LeadToExit",
 		move_start = "GoToExitSpot",
 		spots = {
 			"Visitbed",
 		},
 		usable_day = false,
+	},
+	{
+		attach = "LivingQuartersHouseBase",
+		flags_missing = 1,
+		goto_spot = "Teleport",
+		groups = {
+			["A"] = true,
+		},
+		move_end = "TeleportToExit",
+		move_start = "GoToExitSpot",
+		pet_only = true,
+		spots = {
+			"Petlay",
+		},
+		usable_by_child = false,
 	},
 	{
 		attach = "DecorInt_03",
@@ -41,6 +58,42 @@ local _slots = {
 			"Visitbench",
 		},
 		usable_night = false,
+	},
+	{
+		flags_missing = 1,
+		goto_spot = "Pathfind",
+		groups = {
+			["A"] = true,
+		},
+		pet_only = true,
+		spots = {
+			"Petlay1",
+		},
+		usable_by_child = false,
+	},
+	{
+		flags_missing = 1,
+		goto_spot = "Pathfind",
+		groups = {
+			["A"] = true,
+		},
+		pet_only = true,
+		spots = {
+			"Petjump",
+		},
+		usable_by_child = false,
+	},
+	{
+		flags_missing = 1,
+		goto_spot = "Pathfind",
+		groups = {
+			["A"] = true,
+		},
+		pet_only = true,
+		spots = {
+			"Petpee",
+		},
+		usable_by_child = false,
 	},
 	{
 		attach = "DecorInt_04",
@@ -60,6 +113,7 @@ local _slots = {
 		groups = {
 			Holder = true,
 		},
+		move_end = "LeadToExit",
 		move_start = "GoToExitSpot",
 	},
 }
@@ -75,9 +129,5 @@ PrgAmbientLife["VisitLivingQuarters"] = function(unit, bld)
 			PrgVisitSlot(unit, bld, house, _spot, _slot_desc, _slot, _slotname)
 			if unit.visit_restart then return end
 		end
-	end
-	if IsKindOf(house, "LivingQuartersHouseBase") then
-		PrgLeadToExit(unit, house)
-		if unit.visit_restart then return end
 	end
 end

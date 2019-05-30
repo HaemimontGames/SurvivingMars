@@ -12,6 +12,7 @@ local _slots = {
 	},
 	{
 		attach = "DecorInt_04",
+		flags_missing = 1,
 		goto_spot = "Pathfind",
 		groups = {
 			["B"] = true,
@@ -22,7 +23,7 @@ local _slots = {
 	},
 }
 PrgAmbientLife["VisitPlayground"] = function(unit, bld)
-	local _spot, _obj, _slot_desc, _slot, _slotname, pos
+	local _spot, _obj, _slot_desc, _slot, _slotname
 	while unit:VisitTimeLeft() > 0 do
 		if unit:VisitTimeLeft() > 0 then
 			_spot, _obj, _slot_desc, _slot, _slotname = PrgGetObjRandomSpotFromGroup(bld, nil, "A", _slots, unit)
@@ -56,7 +57,4 @@ PrgAmbientLife["VisitPlayground"] = function(unit, bld)
 		end
 		if unit.visit_restart then return end
 	end
-	_spot = bld:GetNearestSpot("Door", unit)
-	pos = bld:GetSpotLocPos(_spot)
-	unit:Goto(pos)
 end

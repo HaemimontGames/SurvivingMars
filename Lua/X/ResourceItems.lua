@@ -69,7 +69,7 @@ end
 function ResourceItems:GetItems(category_id)
 	local buttons = {}
 	local items = self.context.object:GetSelectorItems(self.context)
-	if #items<=0 then self:delete() end	
+	if #items<=0 then self:Close() end	
 	
 	for i=1, #items do
 		local item = items[i]
@@ -86,16 +86,18 @@ function ResourceItems:OpenItemsInterpolation(bFirst, set_focus)
 	ItemMenuBase.OpenItemsInterpolation(self, bFirst, set_focus)
 	self:CreateThread(function()
 		local items = self.items
-		local offs = self.idBackground.box:miny() - self.idBackground.box:maxy()
-		local item_pop_time = self.lines_stretch_time_init/#items
-		local duration = item_pop_time 
-		for i = 1, #items do
-			items[i]:SetVisible(true, "instant")
-			if duration > 0 then
-				if i % 2 == 0 then
-					EdgeAnimation(true, items[i], 0, offs / 4, duration)
-				else
-					EdgeAnimation(true, items[i], 0, -offs / 4, duration)
+		if next(items) then
+			local offs = self.idBackground.box:miny() - self.idBackground.box:maxy()
+			local item_pop_time = self.lines_stretch_time_init/#items
+			local duration = item_pop_time 
+			for i = 1, #items do
+				items[i]:SetVisible(true, "instant")
+				if duration > 0 then
+					if i % 2 == 0 then
+						EdgeAnimation(true, items[i], 0, offs / 4, duration)
+					else
+						EdgeAnimation(true, items[i], 0, -offs / 4, duration)
+					end
 				end
 			end
 		end
@@ -153,15 +155,20 @@ function ResourceItems:OnMouseButtonDown(pt, button)
 end
 
 function OpenResourceSelector(object, context)
+	if IsKindOf(SelectedObj, "MultiSelectionWrapper") and table.find(SelectedObj.objects, object) then
+		context.object = SelectedObj
+	else
+		context.object = object
+	end
+
 	local dlg = GetDialog("ResourceItems")
 	if dlg then
-		if not dlg.context or dlg.context.object~=object then
+		if not dlg.context or dlg.context.object ~= context.object then
 			CloseDialog("ResourceItems")
 		else
 			return
 		end
 	end
-	context.object = object
 	return OpenDialog("ResourceItems", GetInGameInterface(), context)
 end
 

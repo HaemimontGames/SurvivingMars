@@ -44,25 +44,25 @@ PlaceObj('XTemplate', {
 				PlaceObj('XTemplateFunc', {
 					'name', "OnShortcut(self, shortcut, source)",
 					'func', function (self, shortcut, source)
-local prev_item = self.focused_item
-local ret = XList.OnShortcut(self, shortcut, source)
-if shortcut == "Down" and prev_item == #self then
-	self:SetSelection(1)
-	return "break"
-elseif shortcut == "Up" and prev_item == 1 then
-	self:SetSelection(#self)
-	return "break"
-end
-return ret
-end,
+						local prev_item = self.focused_item
+						local ret = XList.OnShortcut(self, shortcut, source)
+						if shortcut == "Down" and prev_item == #self then
+							self:SetSelection(1)
+							return "break"
+						elseif shortcut == "Up" and prev_item == 1 then
+							self:SetSelection(#self)
+							return "break"
+						end
+						return ret
+					end,
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "idSaveGame",
 					'ActionName', T(11476, --[[XTemplate XIGMenu ActionName]] "Save Game"),
 					'ActionToolbar', "mainmenu",
 					'ActionState', function (self, host)
-return (PlayWithoutStorage() or not not g_Tutorial) and "disabled"
-end,
+						return (PlayWithoutStorage() or not not g_Tutorial) and "disabled"
+					end,
 					'OnActionEffect', "mode",
 					'OnActionParam', "Save",
 				}),
@@ -71,8 +71,8 @@ end,
 					'ActionName', T(1009, --[[XTemplate XIGMenu ActionName]] "Load Game"),
 					'ActionToolbar', "mainmenu",
 					'ActionState', function (self, host)
-return IsLoadButtonDisabled(host.context) and "disabled"
-end,
+						return IsLoadButtonDisabled(host.context) and "disabled"
+					end,
 					'OnActionEffect', "mode",
 					'OnActionParam', "Load",
 				}),
@@ -88,9 +88,9 @@ end,
 					'ActionName', T(11478, --[[XTemplate XIGMenu ActionName]] "Photo Mode"),
 					'ActionToolbar', "mainmenu",
 					'OnAction', function (self, host, source)
-CloseIngameMainMenu()
-OpenPhotoMode()
-end,
+						CloseIngameMainMenu()
+						StartPhotoMode()
+					end,
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'__template', "CrashTest",
@@ -116,58 +116,58 @@ end,
 					'ActionName', T(1136, --[[XTemplate XIGMenu ActionName]] "Restart Map"),
 					'ActionToolbar', "mainmenu",
 					'OnAction', function (self, host, source)
-CreateRealTimeThread(function()
-	if WaitMarsQuestion(nil, T(1136, "Restart Map"), T(1137, "Are you sure you want to restart the map?"), T(1138, "Yes"), T(1139, "No"), "UI/Messages/space.tga") == "ok" then
-		LoadingScreenOpen("idLoadingScreen", "restart map")
-		host:Close()
-		TelemetryRestartSession()
-		g_SessionSeed = g_InitialSessionSeed
-		if g_Tutorial then
-			CreateRealTimeThread(StartTutorial, g_Tutorial.Map)
-		elseif g_InitialRocketCargo and g_InitialCargoCost ~= 0 and g_InitialCargoWeight ~= 0 then
-			g_RocketCargo = g_InitialRocketCargo
-			g_CargoCost = g_InitialCargoCost
-			g_CargoWeight = g_InitialCargoWeight
-			GenerateCurrentRandomMap()
-		else
-			--premade maps
-			ReloadMap()
-		end
-		LoadingScreenClose("idLoadingScreen", "restart map")
-	end
-end)
-end,
+						CreateRealTimeThread(function()
+							if WaitMarsQuestion(nil, T(1136, "Restart Map"), T(1137, "Are you sure you want to restart the map?"), T(1138, "Yes"), T(1139, "No"), "UI/Messages/space.tga") == "ok" then
+								LoadingScreenOpen("idLoadingScreen", "restart map")
+								host:Close()
+								TelemetryRestartSession()
+								g_SessionSeed = g_InitialSessionSeed
+								if g_Tutorial then
+									CreateRealTimeThread(StartTutorial, g_Tutorial.Map)
+								elseif g_InitialRocketCargo and g_InitialCargoCost ~= 0 and g_InitialCargoWeight ~= 0 then
+									g_RocketCargo = g_InitialRocketCargo
+									g_CargoCost = g_InitialCargoCost
+									g_CargoWeight = g_InitialCargoWeight
+									GenerateCurrentRandomMap()
+								else
+									--premade maps
+									ReloadMap()
+								end
+								LoadingScreenClose("idLoadingScreen", "restart map")
+							end
+						end)
+					end,
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "idMainMenu",
 					'ActionName', T(1010, --[[XTemplate XIGMenu ActionName]] "Main Menu"),
 					'ActionToolbar', "mainmenu",
 					'OnAction', function (self, host, source)
-CreateRealTimeThread(function()
-	if WaitMarsQuestion(nil, T(6779, "Warning"), T(1141, "Exit to the main menu?"), T(1138, "Yes"), T(1139, "No"), "UI/Messages/space.tga") == "ok" then
-		LoadingScreenOpen("idLoadingScreen", "main menu")
-		host:Close()
-		OpenPreGameMainMenu()
-		LoadingScreenClose("idLoadingScreen", "main menu")
-	end
-end)
-end,
+						CreateRealTimeThread(function()
+							if WaitMarsQuestion(nil, T(6779, "Warning"), T(1141, "Exit to the main menu?"), T(1138, "Yes"), T(1139, "No"), "UI/Messages/space.tga") == "ok" then
+								LoadingScreenOpen("idLoadingScreen", "main menu")
+								host:Close()
+								OpenPreGameMainMenu()
+								LoadingScreenClose("idLoadingScreen", "main menu")
+							end
+						end)
+					end,
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "idQuit",
 					'ActionName', T(11479, --[[XTemplate XIGMenu ActionName]] "Quit"),
 					'ActionToolbar', "mainmenu",
 					'OnAction', function (self, host, source)
-QuitGame()
-end,
+						QuitGame()
+					end,
 					'__condition', function (parent, context) return not Platform.console end,
 				}),
 				PlaceObj('XTemplateForEachAction', {
 					'toolbar', "mainmenu",
 					'run_after', function (child, context, action, n)
-child:SetText(action.ActionName)
-child.action = action
-end,
+						child:SetText(action.ActionName)
+						child.action = action
+					end,
 				}, {
 					PlaceObj('XTemplateTemplate', {
 						'__template', "MenuEntrySmall",

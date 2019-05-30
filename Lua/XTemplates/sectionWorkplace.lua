@@ -9,14 +9,14 @@ PlaceObj('XTemplate', {
 		'__template', "InfopanelButton",
 		'OnPressParam', "ToggleSpecialistEnforce",
 		'OnPress', function (self, gamepad)
-self.context:ToggleSpecialistEnforce(not gamepad and IsMassUIModifierPressed())
-end,
+			self.context:ToggleSpecialistEnforce(not gamepad and IsMassUIModifierPressed())
+		end,
 		'AltPress', true,
 		'OnAltPress', function (self, gamepad)
-if gamepad then
-	self.context:ToggleSpecialistEnforce(true)
-end
-end,
+			if gamepad then
+				self.context:ToggleSpecialistEnforce(true)
+			end
+		end,
 		'Icon', "UI/Icons/IPButtons/specialization_all.tga",
 	}),
 })

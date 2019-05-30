@@ -9,8 +9,8 @@ PlaceObj('XTemplate', {
 		'__template', "InfopanelSection",
 		'RolloverText', T(459, --[[XTemplate sectionStorageWarning RolloverText]] "Storage facilities cannot discharge until they are charged with a minimum amount of their stored resource."),
 		'OnContextUpdate', function (self, context, ...)
-self:SetVisible(ResolveValue(context, "UIDischargeStr") and true)
-end,
+			self:SetVisible(ResolveValue(context, "UIDischargeStr") and true)
+		end,
 		'Title', T(277, --[[XTemplate sectionStorageWarning Title]] "Attention"),
 		'Icon', "UI/Icons/Sections/attention.tga",
 	}, {

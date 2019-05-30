@@ -21,24 +21,24 @@ PlaceObj('XTemplate', {
 			PlaceObj('XTemplateFunc', {
 				'name', "OnXButtonDown(self, button)",
 				'func', function (self, button)
-if button == "ButtonY" then
-	return self:OnButtonDown(false)
-elseif button == "ButtonX" then
-	return self:OnButtonDown(true)
-end
-return (button == "ButtonA") and "break"
-end,
+					if button == "ButtonY" then
+						return self:OnButtonDown(false)
+					elseif button == "ButtonX" then
+						return self:OnButtonDown(true)
+					end
+					return (button == "ButtonA") and "break"
+				end,
 			}),
 			PlaceObj('XTemplateFunc', {
 				'name', "OnXButtonUp(self, button)",
 				'func', function (self, button)
-if button == "ButtonY" then
-	return self:OnButtonUp(false)
-elseif button == "ButtonX" then
-	return self:OnButtonUp(true)
-end
-return (button == "ButtonA") and "break"
-end,
+					if button == "ButtonY" then
+						return self:OnButtonUp(false)
+					elseif button == "ButtonX" then
+						return self:OnButtonUp(true)
+					end
+					return (button == "ButtonA") and "break"
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {

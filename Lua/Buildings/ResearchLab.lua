@@ -75,7 +75,7 @@ function ResearchBuilding:GetCollaborationLoss()
 	local count = 1
 	for i=1,#blds do
 		local bld = blds[i]
-		if bld ~= self and bld.working then
+		if bld ~= self and (bld.working or (not bld:TechId() and not ElectricityConsumer.GetWorkNotPossibleReason(bld))) then
 			count = count + 1
 		end
 	end

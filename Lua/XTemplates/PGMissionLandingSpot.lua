@@ -26,8 +26,8 @@ PlaceObj('XTemplate', {
 			PlaceObj('XTemplateFunc', {
 				'name', "DrawContent(self)",
 				'func', function (self)
-self.parent.context:DrawSelector(self)
-end,
+					self.parent.context:DrawSelector(self)
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateWindow', {
@@ -40,8 +40,8 @@ end,
 			PlaceObj('XTemplateFunc', {
 				'name', "DrawContent(self)",
 				'func', function (self)
-self.parent.context:DrawSpot(self)
-end,
+					self.parent.context:DrawSpot(self)
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateLayer', {
@@ -99,56 +99,56 @@ end,
 		PlaceObj('XTemplateFunc', {
 			'name', "OnMouseButtonDown(self, pos, button)",
 			'func', function (self, pos, button)
-self.context:MouseButtonDown(pos, button)
-end,
+				self.context:MouseButtonDown(pos, button)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnMouseButtonUp(self, pos, button)",
 			'func', function (self, pos, button)
-self.context:MouseButtonUp(pos, button)
-end,
+				self.context:MouseButtonUp(pos, button)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnMousePos(self, pos)",
 			'func', function (self, pos)
-self.context:MousePos(pos)
-end,
+				self.context:MousePos(pos)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnKbdKeyDown(self, virtual_key, repeated)",
 			'func', function (self, virtual_key, repeated)
-self.context:KbdKeyDown(virtual_key, repeated)
-end,
+				self.context:KbdKeyDown(virtual_key, repeated)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnKbdKeyUp(self, char, virtual_key, repeated)",
 			'func', function (self, char, virtual_key, repeated)
-self.context:KbdKeyUp(char, virtual_key, repeated)
-end,
+				self.context:KbdKeyUp(char, virtual_key, repeated)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnDelete",
 			'func', function (self, ...)
-self:DeleteThread("drag")
-self:DeleteThread("spin")
-self:DeleteThread("easing")
-self:DeleteThread("visibility")
-self:DeleteThread("gamepad")
-g_SelectedSpotChallengeMods = false
-end,
+				self:DeleteThread("drag")
+				self:DeleteThread("spin")
+				self:DeleteThread("easing")
+				self:DeleteThread("visibility")
+				self:DeleteThread("gamepad")
+				g_SelectedSpotChallengeMods = false
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-g_SelectedSpotChallengeMods = {}
-g_CurrentMissionParams.SelectedSpotChallengeMods = g_SelectedSpotChallengeMods
-XDialog.Open(self, ...)
-self.context:InitData(self)
-local padding = GetSafeMargins(self:GetPadding())
-self:SetPadding(padding)
-self.idHint:SetMargins(box(-300-padding:minx(), -padding:miny(), 0, 0))
-self.idtxtCoord:SetMargins(box(-150-padding:minx(), -padding:miny()+30, 0, 0))
-end,
+				g_SelectedSpotChallengeMods = {}
+				g_CurrentMissionParams.SelectedSpotChallengeMods = g_SelectedSpotChallengeMods
+				XDialog.Open(self, ...)
+				self.context:InitData(self)
+				local padding = GetSafeMargins(self:GetPadding())
+				self:SetPadding(padding)
+				self.idHint:SetMargins(box(-300-padding:minx(), -padding:miny(), 0, 0))
+				self.idtxtCoord:SetMargins(box(-150-padding:minx(), -padding:miny()+30, 0, 0))
+			end,
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "back",
@@ -165,8 +165,8 @@ end,
 			'ActionToolbar', "ActionBar",
 			'ActionGamepad', "LeftTrigger",
 			'OnAction', function (self, host, source)
-host.context:Custom()
-end,
+				host.context:Custom()
+			end,
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "random",
@@ -174,9 +174,9 @@ end,
 			'ActionToolbar', "ActionBar",
 			'ActionGamepad', "ButtonY",
 			'OnAction', function (self, host, source)
-host.context:Random()
-PlayFX("SelectRandomColonySite", "start")
-end,
+				host.context:Random()
+				PlayFX("SelectRandomColonySite", "start")
+			end,
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "start",
@@ -184,15 +184,18 @@ end,
 			'ActionToolbar', "ActionBar",
 			'ActionGamepad', "ButtonX",
 			'ActionState', function (self, host)
-if not g_CurrentMapParams.latitude
-	or not g_CurrentMapParams.longitude then
-	return "disabled"
-end
-end,
+				if not g_CurrentMapParams.latitude
+					or not g_CurrentMapParams.longitude then
+					return "disabled"
+				end
+			end,
 			'OnAction', function (self, host, source)
-MarkNameAsUsed("Rocket", g_CurrentMapParams.rocket_name_base)
-GenerateCurrentRandomMap()
-end,
+				CreateRealTimeThread(function()
+					WaitWarnAboutSkippedMods()
+					MarkNameAsUsed("Rocket", g_CurrentMapParams.rocket_name_base)
+					GenerateCurrentRandomMap()
+				end)
+			end,
 			'FXPress', "StartGameButtonClick",
 		}),
 		PlaceObj('XTemplateTemplate', {
@@ -238,8 +241,8 @@ end,
 					'HandleMouse', false,
 					'TextStyle', "PGChallengeDescription",
 					'OnContextUpdate', function (self, context, ...)
-self:SetVisible(not context.lat)
-end,
+						self:SetVisible(not context.lat)
+					end,
 					'Translate', true,
 					'Text', T(563905386684, --[[XTemplate PGMissionLandingSpot Text]] "Map topology, threats and available resources will be determined by the chosen site. You can replay a game on the same map by entering the same custom coordinates."),
 					'HideOnEmpty', true,
@@ -252,8 +255,8 @@ end,
 					'FoldWhenHidden', true,
 					'ContextUpdateOnOpen', true,
 					'OnContextUpdate', function (self, context, ...)
-self:SetVisible(not context.lat)
-end,
+						self:SetVisible(not context.lat)
+					end,
 				}),
 				PlaceObj('XTemplateWindow', {
 					'Id', "idContent",
@@ -373,9 +376,9 @@ end,
 									'condition', function (parent, context, item, i) return (not item.filter or item.filter()) and item.category == "Threats" end,
 									'item_in_context', "prop_meta",
 									'run_after', function (child, context, item, i, n)
-child:SetRolloverTitle(item.rollover.title)
-child:SetRolloverText(item.rollover.descr)
-end,
+										child:SetRolloverTitle(item.rollover.title)
+										child:SetRolloverText(item.rollover.descr)
+									end,
 								}, {
 									PlaceObj('XTemplateTemplate', {
 										'__template', "PropLandingParam",
@@ -413,9 +416,9 @@ end,
 									'condition', function (parent, context, item, i) return (not item.filter or item.filter()) and item.category == "Resources" end,
 									'item_in_context', "prop_meta",
 									'run_after', function (child, context, item, i, n)
-child:SetRolloverTitle(item.rollover.title)
-child:SetRolloverText(item.rollover.descr)
-end,
+										child:SetRolloverTitle(item.rollover.title)
+										child:SetRolloverText(item.rollover.descr)
+									end,
 								}, {
 									PlaceObj('XTemplateTemplate', {
 										'__template', "PropLandingParam",

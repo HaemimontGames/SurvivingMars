@@ -24,34 +24,34 @@ PlaceObj('XTemplate', {
 			PlaceObj('XTemplateFunc', {
 				'name', "OnShortcut(self, shortcut, source)",
 				'func', function (self, shortcut, source)
-if shortcut == "ButtonA" then
-	self:OpenControllerTextInput()
-	return "break"
-end
-return XEdit.OnShortcut(self, shortcut, source)
-end,
+					if shortcut == "ButtonA" then
+						self:OpenControllerTextInput()
+						return "break"
+					end
+					return XEdit.OnShortcut(self, shortcut, source)
+				end,
 			}),
 			PlaceObj('XTemplateFunc', {
 				'name', "OnTextChanged",
 				'func', function (self, ...)
-XEdit.OnTextChanged(self, ...)
-local text = self:GetText()
-if text == _InternalTranslate(T(10485, "Search mods...")) then
-	text = ""
-end
-local dlg = GetDialog(self)
-local context = ResolvePropObj(dlg.context)
-context.temp_query = text
-end,
+					XEdit.OnTextChanged(self, ...)
+					local text = self:GetText()
+					if text == _InternalTranslate(T(10485, "Search mods...")) then
+						text = ""
+					end
+					local dlg = GetDialog(self)
+					local context = ResolvePropObj(dlg.context)
+					context.temp_query = text
+				end,
 			}),
 			PlaceObj('XTemplateFunc', {
 				'name', "Open",
 				'func', function (self, ...)
-XEdit.Open(self, ...)
-CreateRealTimeThread(function()
-	self:OnMouseButtonDown(nil, "L")
-end)
-end,
+					XEdit.Open(self, ...)
+					CreateRealTimeThread(function()
+						self:OnMouseButtonDown(nil, "L")
+					end)
+				end,
 			}),
 			}),
 		}),

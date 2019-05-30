@@ -2,6 +2,7 @@ DefineClass.SolarPanelBase = {
 	__parents = { "Object" },
 	artificial_sun = false,
 	panel_obj = false,
+	counter_atmosphere_modifier = false,
 }
 
 function SolarPanelBase:GameInit()
@@ -12,8 +13,42 @@ function SolarPanelBase:GameInit()
 	self:UpdateProduction()
 end
 
+function SolarPanelBase:UpdateCounterAtmosphereModifier()
+	local atm_modifier = self:FindModifier("TP Boost Atmosphere", "electricity_production")
+	local ca_modifier = self.counter_atmosphere_modifier
+	if not atm_modifier or not self:IsAffectedByArtificialSun() then
+		if ca_modifier and (ca_modifier.amount ~= 0 or ca_modifier.percent ~= 0) then
+			ca_modifier:Change(0, 0)
+		end
+		return false
+	end
+	if not ca_modifier then
+		self.counter_atmosphere_modifier = ObjectModifier:new{
+			target = self,
+			prop = "electricity_production", 
+			amount = -atm_modifier.amount,
+			percent = -atm_modifier.percent,
+		}
+	else
+		ca_modifier:Change(-atm_modifier.amount, -atm_modifier.percent)
+	end
+end
+
+function SolarPanelBase:GetTPBoostAtmosphere()
+	local percent = 0
+	local atm_modifier = self:FindModifier("TP Boost Atmosphere", "electricity_production")
+	if atm_modifier then
+		percent = percent + atm_modifier.percent
+	end
+	if self.counter_atmosphere_modifier then
+		percent = percent + self.counter_atmosphere_modifier.percent
+	end
+	return percent
+end
+
 function SolarPanelBase:UpdateProduction()
 	local new_base_production = self:CanBeOpened() and self:GetClassValue("electricity_production") or 0
+	self:UpdateCounterAtmosphereModifier()
 	if self.base_electricity_production ~= new_base_production then
 		self:SetBase("electricity_production", new_base_production)
 		RebuildInfopanel(self)
@@ -42,6 +77,14 @@ end
 DefineClass.SolarPanelBuilding = {
 	__parents = { "SolarPanelBase", "ElectricityProducer" },
 }
+
+function SolarPanelBuilding:Init()
+	self.city:AddToLabel("SolarPanelBuilding", self)
+end
+
+function SolarPanelBuilding:Done()
+	self.city:RemoveFromLabel("SolarPanelBuilding", self)
+end
 
 function SolarPanelBuilding:GameInit()
 	self:OnChangeState()
@@ -188,6 +231,7 @@ function SolarPanelsOrientToSun(anim_time)
 				else
 					panel:OrientToSun(azi, anim_time)
 				end
+				panel:UpdateCounterAtmosphereModifier()
 			elseif panel_state == opening_state and panel_obj:TimeToAnimEnd() < 2 then
 				panel_obj:SetAnim(1, "idleOpened")
 			end
@@ -226,3 +270,10 @@ function SolarPanelTop:SelectionPropagate()
 end
 
 DefineClass("SolarPanelBigTop", "SolarPanelTop")
+
+function OnMsg.TerraformParamChanged(name, value, old_value)
+	if name ~= "Atmosphere" then return end
+	for _, panel in ipairs(UICity.labels.SolarPanel or {}) do
+		panel:UpdateCounterAtmosphereModifier()
+	end
+end

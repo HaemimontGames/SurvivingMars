@@ -21,7 +21,7 @@ function OnMsg.DataLoaded()
 	setmetatable(MapDataClass.properties, {})
 	for i = 1, #class_names do
 		local class = class_names[i]
-		table.append(MapDataClass.properties, {
+		table.iappend(MapDataClass.properties, {
 			{ category = "Game", id = class, editor = "dropdownlist", default = "default", items = function() return DataInstanceCombo(class, "{name}") end, },
 		})
 	end

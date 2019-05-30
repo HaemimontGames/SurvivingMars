@@ -4,7 +4,8 @@ end
 
 --config.DebugWaypoints = true
 
-local ChainTypes = {
+ChainTypes =
+{	-- [spotname] = chain type
 	["Door"] = "entrance",
 	["Doorentrance1"] = "entrance",
 	["Doorentrance2"] = "entrance",
@@ -71,7 +72,7 @@ function GetEntityWaypointChains(entity)
 		end
 		if spot_chains then
 			for spot_name, chains in sorted_pairs(spot_chains) do
-				table.append(waypoint_chains, chains)
+				table.iappend(waypoint_chains, chains)
 			end
 		end
 	end
@@ -223,7 +224,7 @@ function WaypointsObj:GetEntranceFallback()
 	return fallback, fallback[2]
 end
 
-function WaypointsObj:GetEntrance(target, entrance_type, spot_name)
+function WaypointsObj:GetEntrance(target, entrance_type, spot_name, unit)
 	if not IsValid(self) or not self:IsValidPos() then
 		return
 	end
@@ -231,7 +232,14 @@ function WaypointsObj:GetEntrance(target, entrance_type, spot_name)
 	if self:HasSpot("Yard") then
 		return nil, nil, "Yard"
 	end
-	local entrance = self:NearestWaypoints2D(target, entrance_type or "entrance", spot_name)
+	local entrance
+	entrance_type = entrance_type or "entrance"
+	if entrance_type == "entrance" then
+		entrance = self:NearestPassableWaypoints2D(target, entrance_type, spot_name, nil, unit and unit.pfclass or 0)
+	end
+	if not entrance then
+		entrance = self:NearestWaypoints2D(target, entrance_type, spot_name)
+	end
 	if entrance then
 		return entrance, entrance[#entrance]
 	end
@@ -268,23 +276,20 @@ function WaypointsObj:GetEntrancePoints(entrance_type, spot_name)
 	end
 end
 
-function GetBestWaypointsChain(target, eval, waypoint_chains, chain_type, spot_name, eval_idx, range_dist, target_in_range, idx_in_range)
-	local best
+local function FindNearestWaypoints(waypoint_chains, chain_type, spot_name, eval, ...)
+	local best, best_value
 	chain_type = chain_type or spot_name and ChainTypes[spot_name]
 	if chain_type then
 		waypoint_chains = waypoint_chains and waypoint_chains[chain_type]
 	end
 	if waypoint_chains then
-		local obj_in_range = IsValid(target_in_range) and target_in_range
 		for i = 1, #waypoint_chains do
 			local chain = waypoint_chains[i]
-			if (not spot_name or chain.name == spot_name) and 
-				(not target_in_range or
-					(obj_in_range and obj_in_range:GetVisualDist(idx_in_range and chain[idx_in_range] or chain[#chain]) or
-					target_in_range:Dist(idx_in_range and chain[idx_in_range] or chain[#chain])) <= range_dist) and
-				(not best or eval(target, eval_idx and chain[eval_idx] or chain[#chain], eval_idx and best[eval_idx] or best[#best]))
-			then
-				best = chain
+			if not spot_name or chain.name == spot_name then
+				local value = eval(chain, ...)
+				if value and (not best or value < best_value) then
+					best, best_value = chain, value
+				end
 			end
 		end
 	end
@@ -292,18 +297,47 @@ function GetBestWaypointsChain(target, eval, waypoint_chains, chain_type, spot_n
 end
 
 function WaypointsObj:NearestWaypoints(target, chain_type, spot_name, chain_idx)
-	return GetBestWaypointsChain(target, IsCloser, self.waypoint_chains, chain_type, spot_name, chain_idx)
+	local function eval(chain, fDist, target, chain_idx)
+		return fDist(target, chain_idx and chain[chain_idx] or chain[#chain])
+	end
+	local fDist = IsValid(target) and target.GetVisualDist or target.Dist
+	return FindNearestWaypoints(self.waypoint_chains, chain_type, spot_name, eval, fDist, target, chain_idx)
 end
 
 function WaypointsObj:NearestWaypoints2D(target, chain_type, spot_name, chain_idx)
-	return GetBestWaypointsChain(target, IsCloser2D, self.waypoint_chains, chain_type, spot_name, chain_idx)
+	local function eval(chain, fDist, target, chain_idx)
+		return fDist(target, chain_idx and chain[chain_idx] or chain[#chain])
+	end
+	local fDist = IsValid(target) and target.GetVisualDist2D or target.Dist2D
+	return FindNearestWaypoints(self.waypoint_chains, chain_type, spot_name, eval, fDist, target, chain_idx)
+end
+
+function WaypointsObj:NearestPassableWaypoints2D(target, chain_type, spot_name, chain_idx, pfClass)
+	local function eval(chain, fDist, target, chain_idx, pfClass)
+		local pt = chain_idx and chain[chain_idx] or chain[#chain]
+		return terrain.IsPassable(pt, pfClass) and fDist(target, pt)
+	end
+	local fDist = IsValid(target) and target.GetVisualDist2D or target.Dist2D
+	return FindNearestWaypoints(self.waypoint_chains, chain_type, spot_name, eval, fDist, target, chain_idx, pfClass)
 end
 
 function WaypointsObj:FindWaypointsInRange(spot_name, first_range, first_target, last_range, last_target)
+	local fFirstDist = first_target and (IsValid(first_target) and first_target.GetVisualDist or first_target.Dist)
+	local fLastDist = last_target and (IsValid(last_target) and last_target.GetVisualDist or last_target.Dist)
 	if first_range == "Nearest" then
-		return GetBestWaypointsChain(first_target, IsCloser, self.waypoint_chains, nil, spot_name, 1, last_range, last_target)
+		local function eval(chain, fDist, target, fRange, range_target, range)
+			if not fRange or fRange(range_target, chain[#chain]) <= range then
+				return fDist(target, chain[1])
+			end
+		end
+		return FindNearestWaypoints(self.waypoint_chains, nil, spot_name, eval, fFirstDist, first_target, fLastDist, last_target, last_range)
 	elseif last_range == "Nearest" then
-		return GetBestWaypointsChain(last_target, IsCloser, self.waypoint_chains, nil, spot_name, nil, first_range, first_target, 1)
+		local function eval(chain, fDist, target, fRange, range_target, range)
+			if not fRange or fRange(range_target, chain[1]) <= range then
+				return fDist(target, chain[#chain])
+			end
+		end
+		return FindNearestWaypoints(self.waypoint_chains, nil, spot_name, eval, fLastDist, last_target, fFirstDist, first_target, first_range)
 	end
 	local chain_type = spot_name and ChainTypes[spot_name]
 	local waypoint_chains = self.waypoint_chains
@@ -311,17 +345,49 @@ function WaypointsObj:FindWaypointsInRange(spot_name, first_range, first_target,
 		waypoint_chains = waypoint_chains and waypoint_chains[chain_type]
 	end
 	if waypoint_chains then
-		local target1 = IsValid(first_target) and first_target
-		local target2 = IsValid(last_target) and last_target
 		for i = 1, #waypoint_chains do
 			local chain = waypoint_chains[i]
-			if (not spot_name or chain.name == spot_name) and
-				(not first_target or (target1 and target1:GetVisualDist(chain[1]) or first_target:Dist(chain[1])) <= first_range) and
-				(not last_target or (target2 and target2:GetVisualDist(chain[#chain]) or last_target:Dist(chain[#chain])) <= last_range)
-			then
-				return chain
+			if not spot_name or chain.name == spot_name then
+				if (not fFirstDist or fFirstDist(first_target, chain[1]) <= first_range) and
+					(not fLastDist or fLastDist(last_target, chain[#chain]) <= last_range)
+				then
+					return chain
+				end
 			end
 		end
+	end
+end
+
+function WaypointsObj:NearestPassableSpot(spot_type, unit)
+	local first, last = self:GetSpotRange(spot_type)
+	local best, best_dist
+	for spot = first, last do
+		local pt = self:GetSpotLocPos(spot)
+		if terrain.IsPassable(pt, unit.pfclass) then
+			local dist = unit:GetDist(pt)
+			if not best_dist or dist < best_dist then
+				best, best_dist = spot, dist
+			end
+		end
+	end
+	return best
+end
+
+function WaypointsObj:RandomPassableSpot(spot_type, unit)
+	local first, last = self:GetSpotRange(spot_type)
+	local count = 0
+	for spot = first, last do
+		local pt = self:GetSpotLocPos(spot)
+		if terrain.IsPassable(pt, unit.pfclass) then
+			count = count + 1
+		end
+	end
+	if count == 0 then
+		return
+	elseif count == 1 then
+		return first
+	else
+		return first + AsyncRand(count)
 	end
 end
 
@@ -394,6 +460,7 @@ function WaypointsObj:LeadOut(unit, entrance)
 	assert(type(entrance) == "table")
 	if not entrance then return end
 	unit.lead_in_out = self
+	self:OnExitStart(unit)
 	unit:PushDestructor(function(unit)
 		if not unit:IsValidPos() then
 			unit:SetPos(entrance[#entrance])
@@ -411,17 +478,19 @@ function WaypointsObj:LeadOut(unit, entrance)
 end
 
 function WaypointsObj:OnEnterUnit(unit)
-	assert(unit.current_dome == self.parent_dome)
 	unit:SetHolder(self)
 	unit:ShowAttachedSigns(false)
 	unit:SetOutsideEffects(false)
+end
+
+function WaypointsObj:OnExitStart(unit)
+	unit:SetOutsideVisuals(not self.parent_dome)
 end
 
 function WaypointsObj:OnExitUnit(unit)
 	if unit.holder == self then
 		unit:SetHolder(false)
 	end
-	unit:ValidateCurrentDomeOnExit(self)
 	unit:ShowAttachedSigns(true)
 	unit:SetOutside(not self.parent_dome)
 end

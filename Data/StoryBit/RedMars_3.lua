@@ -43,7 +43,11 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	Image = "UI/Messages/Events/22_collapsing_building.tga",
-	Prerequisites = {},
+	Prerequisites = {
+		PlaceObj('CheckColonistCount', {
+			'Amount', 15,
+		}),
+	},
 	ScriptDone = true,
 	Text = T(902333701631, --[[StoryBit RedMars_3 Text]] "The ground is shaking and the people look in terror and uncertainty towards the horizon as the black columns of smoke quickly rise towards the bleak skies. You don’t need to look there to know what’s going on – the damage and casualty report says everything.\n\nYou can't shake the feeling that this is somehow related to the recent activities of your expedition team.\n\n<effect>The punitive sabotage strike has destroyed <buildings_lost> buildings. <colonists_lost> colonists have died and <colonists_injured> have been injured."),
 	TextReadyForValidation = true,
@@ -52,6 +56,15 @@ PlaceObj('StoryBit', {
 	VoicedText = T(818818581469, --[[voice:narrator]] "Alarms follow the series of explosions throughout the colony."),
 	group = "Expeditions",
 	id = "RedMars_3",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1554802104,
+				user = "Momchil",
+			},
+		},
+	}),
 	PlaceObj('StoryBitParamNumber', {
 		'Name', "buildings_lost",
 		'Value', 5,

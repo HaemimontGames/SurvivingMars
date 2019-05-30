@@ -4,38 +4,52 @@ PlaceObj('XTemplate', {
 	group = "InGame",
 	id = "Infobar",
 	PlaceObj('XTemplateWindow', {
+		'__context', function (parent, context) return CreateInfobarContextObject() end,
 		'__class', "Infobar",
 		'ZOrder', 150,
+		'VAlign', "top",
+		'LayoutMethod', "VList",
 		'FocusOnOpen', "",
 	}, {
+		PlaceObj('XTemplateFunc', {
+			'name', "GetRelativeFocus(self, order, relation)",
+			'func', function (self, order, relation)
+				local res = Infobar.GetRelativeFocus(self, order, relation)
+				if not res then
+					if relation == "left" then
+						local bar = self:ResolveId("idTerraformingBar")
+						if bar then
+							res = bar:GetRelativeFocus(point(1000,1), relation)
+						end
+					end
+				end
+				return res
+			end,
+		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "close",
 			'ActionTranslate', false,
 			'ActionShortcut', "Escape",
 			'ActionGamepad', "ButtonB",
 			'OnAction', function (self, host, source)
-host:SetFocus(false, true)
-XDestroyRolloverWindow()
-end,
+				host:SetFocus(false, true)
+				XDestroyRolloverWindow()
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
-			'Margins', box(-50, 0, -50, 0),
 			'HAlign', "center",
 			'VAlign', "top",
 		}, {
 			PlaceObj('XTemplateWindow', {
-				'__context', function (parent, context)  end,
 				'__class', "XFrame",
 				'Id', "idPad",
 				'Padding', box(50, 0, 50, 0),
 				'HAlign', "center",
 				'VAlign', "top",
-				'MaxHeight', 30,
-				'LayoutMethod', "HList",
+				'LayoutMethod', "HWrap",
 				'HandleMouse', true,
 				'Image', "UI/CommonNew/resources.tga",
-				'FrameBox', box(42, 0, 42, 30),
-				'TileFrame', true,
+				'FrameBox', box(42, 0, 42, 0),
 				'SqueezeX', false,
 			}, {
 				PlaceObj('XTemplateWindow', {
@@ -73,9 +87,9 @@ end,
 					PlaceObj('XTemplateFunc', {
 						'name', "OnSetFocus",
 						'func', function (self, ...)
-XCreateRolloverWindow(self, true)
-XText.OnSetFocus(self, ...)
-end,
+							XCreateRolloverWindow(self, true)
+							XText.OnSetFocus(self, ...)
+						end,
 					}),
 					}),
 				PlaceObj('XTemplateWindow', {
@@ -113,9 +127,9 @@ end,
 					PlaceObj('XTemplateFunc', {
 						'name', "OnSetFocus",
 						'func', function (self, ...)
-XCreateRolloverWindow(self, true)
-XText.OnSetFocus(self, ...)
-end,
+							XCreateRolloverWindow(self, true)
+							XText.OnSetFocus(self, ...)
+						end,
 					}),
 					}),
 				PlaceObj('XTemplateWindow', {
@@ -139,8 +153,8 @@ end,
 					'FocusedBackground', RGBA(0, 0, 0, 0),
 					'DisabledBorderColor', RGBA(0, 0, 0, 0),
 					'OnPress', function (self, gamepad)
-ToggleElectricityOverlay()
-end,
+						ToggleElectricityOverlay()
+					end,
 					'RolloverBackground', RGBA(0, 0, 0, 0),
 					'PressedBackground', RGBA(0, 0, 0, 0),
 				}, {
@@ -182,8 +196,8 @@ end,
 					'FocusedBackground', RGBA(0, 0, 0, 0),
 					'DisabledBorderColor', RGBA(0, 0, 0, 0),
 					'OnPress', function (self, gamepad)
-ToggleWaterOverlay()
-end,
+						ToggleWaterOverlay()
+					end,
 					'RolloverBackground', RGBA(0, 0, 0, 0),
 					'PressedBackground', RGBA(0, 0, 0, 0),
 				}, {
@@ -213,9 +227,9 @@ end,
 					PlaceObj('XTemplateFunc', {
 						'name', "OnSetFocus",
 						'func', function (self, ...)
-XCreateRolloverWindow(self, true)
-XContextWindow.OnSetFocus(self, ...)
-end,
+							XCreateRolloverWindow(self, true)
+							XContextWindow.OnSetFocus(self, ...)
+						end,
 					}),
 					PlaceObj('XTemplateWindow', {
 						'comment', "centers the texts",
@@ -241,8 +255,8 @@ end,
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'DisabledBorderColor', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-self.context:CycleResources("Metals")
-end,
+								self.context:CycleResources("Metals")
+							end,
 							'RolloverBackground', RGBA(0, 0, 0, 0),
 							'PressedBackground', RGBA(0, 0, 0, 0),
 						}, {
@@ -282,8 +296,8 @@ end,
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'DisabledBorderColor', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-self.context:CycleResources("Concrete")
-end,
+								self.context:CycleResources("Concrete")
+							end,
 							'RolloverBackground', RGBA(0, 0, 0, 0),
 							'PressedBackground', RGBA(0, 0, 0, 0),
 						}, {
@@ -323,8 +337,8 @@ end,
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'DisabledBorderColor', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-self.context:CycleResources("Food")
-end,
+								self.context:CycleResources("Food")
+							end,
 							'RolloverBackground', RGBA(0, 0, 0, 0),
 							'PressedBackground', RGBA(0, 0, 0, 0),
 						}, {
@@ -364,8 +378,8 @@ end,
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'DisabledBorderColor', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-self.context:CycleResources("PreciousMetals")
-end,
+								self.context:CycleResources("PreciousMetals")
+							end,
 							'RolloverBackground', RGBA(0, 0, 0, 0),
 							'PressedBackground', RGBA(0, 0, 0, 0),
 						}, {
@@ -397,9 +411,9 @@ end,
 					PlaceObj('XTemplateFunc', {
 						'name', "OnSetFocus",
 						'func', function (self, ...)
-XCreateRolloverWindow(self, true)
-XContextWindow.OnSetFocus(self, ...)
-end,
+							XCreateRolloverWindow(self, true)
+							XContextWindow.OnSetFocus(self, ...)
+						end,
 					}),
 					PlaceObj('XTemplateWindow', {
 						'comment', "centers the texts",
@@ -425,8 +439,8 @@ end,
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'DisabledBorderColor', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-self.context:CycleResources("Polymers")
-end,
+								self.context:CycleResources("Polymers")
+							end,
 							'RolloverBackground', RGBA(0, 0, 0, 0),
 							'PressedBackground', RGBA(0, 0, 0, 0),
 						}, {
@@ -466,8 +480,8 @@ end,
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'DisabledBorderColor', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-self.context:CycleResources("MachineParts")
-end,
+								self.context:CycleResources("MachineParts")
+							end,
 							'RolloverBackground', RGBA(0, 0, 0, 0),
 							'PressedBackground', RGBA(0, 0, 0, 0),
 						}, {
@@ -507,8 +521,8 @@ end,
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'DisabledBorderColor', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-self.context:CycleResources("Fuel")
-end,
+								self.context:CycleResources("Fuel")
+							end,
 							'RolloverBackground', RGBA(0, 0, 0, 0),
 							'PressedBackground', RGBA(0, 0, 0, 0),
 						}, {
@@ -548,8 +562,8 @@ end,
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'DisabledBorderColor', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-self.context:CycleResources("Electronics")
-end,
+								self.context:CycleResources("Electronics")
+							end,
 							'RolloverBackground', RGBA(0, 0, 0, 0),
 							'PressedBackground', RGBA(0, 0, 0, 0),
 						}, {
@@ -573,6 +587,142 @@ end,
 						}),
 					}),
 				PlaceObj('XTemplateWindow', {
+					'__dlc', "armstrong",
+					'__class', "XContextControl",
+					'Id', "idSeedsResources",
+					'IdNode', false,
+					'Padding', box(16, 0, 16, 0),
+					'Visible', false,
+					'FoldWhenHidden', true,
+					'RolloverOnFocus', true,
+				}, {
+					PlaceObj('XTemplateFunc', {
+						'name', "OnSetFocus",
+						'func', function (self, ...)
+							XCreateRolloverWindow(self, true)
+							XContextWindow.OnSetFocus(self, ...)
+						end,
+					}),
+					PlaceObj('XTemplateWindow', {
+						'comment', "centers the texts",
+						'HAlign', "center",
+						'LayoutMethod', "HList",
+					}, {
+						PlaceObj('XTemplateWindow', {
+							'__class', "XButton",
+							'RolloverTemplate', "Rollover",
+							'RolloverAnchor', "bottom",
+							'RolloverText', T(12108, --[[XTemplate Infobar RolloverText]] "<SeedsRollover>"),
+							'RolloverTitle', T(563862740772, --[[XTemplate Infobar RolloverTitle]] "Seeds"),
+							'RolloverHint', T(846761005248, --[[XTemplate Infobar RolloverHint]] "<left_click> Cycle stored resources"),
+							'RolloverHintGamepad', T(910237457414, --[[XTemplate Infobar RolloverHintGamepad]] "<ButtonA> Cycle stored resources<newline><DPad> Navigate <DPadDown> Close"),
+							'Id', "idSeedsText",
+							'MinWidth', 25,
+							'BorderColor', RGBA(0, 0, 0, 0),
+							'Background', RGBA(0, 0, 0, 0),
+							'MouseCursor', "UI/Cursors/Rollover.tga",
+							'RelativeFocusOrder', "next-in-line",
+							'FXMouseIn', "UIButtonMouseIn",
+							'FXPress', "BuildMenuButtonClick",
+							'FocusedBorderColor', RGBA(0, 0, 0, 0),
+							'FocusedBackground', RGBA(0, 0, 0, 0),
+							'DisabledBorderColor', RGBA(0, 0, 0, 0),
+							'OnPress', function (self, gamepad)
+								self.context:CycleResources("Seeds")
+							end,
+							'OnAltPress', function (self, gamepad)
+								if self.action and self.action.OnAltAction then
+										local host = GetActionsHost(self, true)
+										if host then
+											self.action:OnAltAction(host, self)
+										end
+									end
+							end,
+							'RolloverBackground', RGBA(0, 0, 0, 0),
+							'PressedBackground', RGBA(0, 0, 0, 0),
+						}, {
+							PlaceObj('XTemplateWindow', {
+								'__class', "XImage",
+								'Id', "idRollover",
+								'Dock', "box",
+								'Visible', false,
+								'Image', "UI/Common/row_shine_2.tga",
+								'ImageFit', "stretch",
+							}),
+							PlaceObj('XTemplateWindow', {
+								'__class', "XText",
+								'Id', "idSeeds",
+								'Padding', box(3, 4, 3, 4),
+								'TextStyle', "Infobar",
+								'Translate', true,
+								'Text', T(12109, --[[XTemplate Infobar Text]] "<SeedsText>"),
+							}),
+							}),
+						}),
+					}),
+				PlaceObj('XTemplateWindow', {
+					'__class', "XContextControl",
+					'Id', "idWasteRockResources",
+					'IdNode', false,
+					'Padding', box(16, 0, 16, 0),
+					'RolloverOnFocus', true,
+				}, {
+					PlaceObj('XTemplateFunc', {
+						'name', "OnSetFocus",
+						'func', function (self, ...)
+							XCreateRolloverWindow(self, true)
+							XContextWindow.OnSetFocus(self, ...)
+						end,
+					}),
+					PlaceObj('XTemplateWindow', {
+						'comment', "centers the texts",
+						'HAlign', "center",
+						'LayoutMethod', "HList",
+					}, {
+						PlaceObj('XTemplateWindow', {
+							'__class', "XButton",
+							'RolloverTemplate', "Rollover",
+							'RolloverAnchor', "bottom",
+							'RolloverText', T(12408, --[[XTemplate Infobar RolloverText]] "<WasteRockRollover>"),
+							'RolloverTitle', T(12409, --[[XTemplate Infobar RolloverTitle]] "Waste Rock"),
+							'RolloverHint', T(846761005248, --[[XTemplate Infobar RolloverHint]] "<left_click> Cycle stored resources"),
+							'RolloverHintGamepad', T(238973917718, --[[XTemplate Infobar RolloverHintGamepad]] "<ButtonA> Cycle stored resources<newline><DPad> Navigate <DPadDown> Close"),
+							'MinWidth', 25,
+							'BorderColor', RGBA(0, 0, 0, 0),
+							'Background', RGBA(0, 0, 0, 0),
+							'MouseCursor', "UI/Cursors/Rollover.tga",
+							'RelativeFocusOrder', "next-in-line",
+							'FXMouseIn', "UIButtonMouseIn",
+							'FXPress', "BuildMenuButtonClick",
+							'FocusedBorderColor', RGBA(0, 0, 0, 0),
+							'FocusedBackground', RGBA(0, 0, 0, 0),
+							'DisabledBorderColor', RGBA(0, 0, 0, 0),
+							'OnPress', function (self, gamepad)
+								self.context:CycleResources("WasteRock")
+							end,
+							'RolloverBackground', RGBA(0, 0, 0, 0),
+							'PressedBackground', RGBA(0, 0, 0, 0),
+						}, {
+							PlaceObj('XTemplateWindow', {
+								'__class', "XImage",
+								'Id', "idRollover",
+								'Dock', "box",
+								'Visible', false,
+								'Image', "UI/Common/row_shine_2.tga",
+								'ImageFit', "stretch",
+							}),
+							PlaceObj('XTemplateWindow', {
+								'__class', "XText",
+								'Id', "idWasteRock",
+								'Padding', box(3, 4, 3, 4),
+								'TextStyle', "Infobar",
+								'Translate', true,
+								'Text', T(12410, --[[XTemplate Infobar Text]] "<WasteRockText>"),
+							}),
+							}),
+						}),
+					}),
+				PlaceObj('XTemplateWindow', {
 					'__class', "XContextControl",
 					'Id', "idColonists",
 					'MinWidth', 150,
@@ -582,9 +732,9 @@ end,
 					PlaceObj('XTemplateFunc', {
 						'name', "OnSetFocus",
 						'func', function (self, ...)
-XCreateRolloverWindow(self, true)
-XContextWindow.OnSetFocus(self, ...)
-end,
+							XCreateRolloverWindow(self, true)
+							XContextWindow.OnSetFocus(self, ...)
+						end,
 					}),
 					PlaceObj('XTemplateWindow', {
 						'comment', "centers the texts",
@@ -610,8 +760,8 @@ end,
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'DisabledBorderColor', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-self.context:CycleDroneControl()
-end,
+								self.context:CycleDroneControl()
+							end,
 							'RolloverBackground', RGBA(0, 0, 0, 0),
 							'PressedBackground', RGBA(0, 0, 0, 0),
 						}, {
@@ -687,8 +837,8 @@ end,
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'DisabledBorderColor', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-self.context:CycleLabel("Homeless")
-end,
+								self.context:CycleLabel("Homeless")
+							end,
 							'RolloverBackground', RGBA(0, 0, 0, 0),
 							'PressedBackground', RGBA(0, 0, 0, 0),
 						}, {
@@ -728,8 +878,8 @@ end,
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'DisabledBorderColor', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-self.context:CycleLabel("Unemployed")
-end,
+								self.context:CycleLabel("Unemployed")
+							end,
 							'RolloverBackground', RGBA(0, 0, 0, 0),
 							'PressedBackground', RGBA(0, 0, 0, 0),
 						}, {
@@ -753,15 +903,67 @@ end,
 						}),
 					}),
 				}),
-			PlaceObj('XTemplateWindow', {
-				'__class', "XImage",
-				'Id', "idGamepadHint",
-				'Padding', box(209, 23, 0, 0),
-				'Dock', "box",
-				'HAlign', "left",
-				'VAlign', "top",
-				'ImageScale', point(700, 700),
 			}),
+		PlaceObj('XTemplateWindow', {
+			'__class', "XImage",
+			'Id', "idGamepadHint",
+			'Margins', box(0, 0, 0, -50),
+			'Padding', box(-960, 23, 0, 0),
+			'Dock', "ignore",
+			'HAlign', "center",
+			'VAlign', "top",
+			'Visible', false,
+			'FoldWhenHidden', true,
+			'ImageScale', point(700, 700),
+		}),
+		PlaceObj('XTemplateWindow', {
+			'__dlc', "armstrong",
+			'__condition', function (parent, context) return not g_NoTerraforming and not g_Tutorial end,
+		}, {
+			PlaceObj('XTemplateTemplate', {
+				'__template', "TerraformingParamsBarDlg",
+				'Id', "idTerraformingBar",
+				'RelativeFocusOrder', "next-in-line",
+				'InInfobar', true,
+			}, {
+				PlaceObj('XTemplateFunc', {
+					'name', "GetRelativeFocus(self, order, relation)",
+					'func', function (self, order, relation)
+						local res = TerraformingParamsBar.GetRelativeFocus(self, order, relation)
+						if not res then
+							if relation == "right" then
+								res = GetDialog(self.parent):GetRelativeFocus(point(0,0), relation)
+							elseif relation == "left" then
+								res = GetDialog(self.parent):GetRelativeFocus(self:GetFocusOrder(), relation)
+							end
+						end
+						return res
+					end,
+				}),
+				PlaceObj('XTemplateFunc', {
+					'name', "SetFocus",
+					'func', function (self, ...)
+						local focus = self:GetRelativeFocus(point(0,0), "nearest")
+						if focus then
+							CreateRealTimeThread(function(focus, ...)
+								focus:SetFocus(...)
+							end, focus, ...)
+							return
+						end
+						TerraformingParamsBar.SetFocus(self, ...)
+					end,
+				}),
+				PlaceObj('XTemplateFunc', {
+					'name', "OnShortcut(self, shortcut, source)",
+					'func', function (self, shortcut, source)
+						if shortcut == "DPadDown" or shortcut == "ButtonB" then
+							GetDialog(self.parent):SetFocus(false, true)
+							return "break"
+						end
+						return TerraformingParamsBar.OnShortcut(self, shortcut, source)
+					end,
+				}),
+				}),
 			}),
 		}),
 })

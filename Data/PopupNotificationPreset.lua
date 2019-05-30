@@ -1,13 +1,21 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 PlaceObj('PopupNotificationPreset', {
+	group = "Default",
+	id = "AllMilestonesCompleted",
+	text = T(676455960275, --[[PopupNotificationPreset AllMilestonesCompleted text]] "Through the devotion and self-sacrifice of our Colonists and your vision and leadership, Commander, the dream has come true. \nThanks to you, humanity has a new future, a new path to follow."),
+	title = T(569680890599, --[[PopupNotificationPreset AllMilestonesCompleted title]] "A dream fulfilled"),
+	voiced_text = T(554780175922, --[[voice:narrator]] "In the beginning, it was just a dream - setting foot on another planet, surviving it, building a new future for humanity."),
+})
+
+PlaceObj('PopupNotificationPreset', {
 	SortKey = 1000100,
 	choice1 = T(5685, --[[PopupNotificationPreset AnomalyAnalyzed choice1]] "Open Research Screen"),
 	choice2 = T(1011, --[[PopupNotificationPreset AnomalyAnalyzed choice2]] "Close"),
 	group = "Default",
 	id = "AnomalyAnalyzed",
 	image = "UI/Messages/exploration.tga",
-	text = T(12125, --[[PopupNotificationPreset AnomalyAnalyzed text]] "Even the tiniest, simply-looking rock can contain the answers to mysteries which perplexed the human mind for generations. Sometimes it takes just a simple discovery to assure us of the vastness of the Universe, an encouragement to make us look beyond the boundaries of our existence and into the future.\n\n<effect> The following Techs have been revealed on the Research screen:\n<list_text>"),
+	text = T(5684, --[[PopupNotificationPreset AnomalyAnalyzed text]] "Even the tiniest, simple-looking rock can contain the answers to mysteries which perplexed the human mind for generations. Sometimes it takes just a simple discovery to assure us of the vastness of the Universe, an encouragement to make us look beyond the boundaries of our existence and into the future.\n\n<effect> The following Techs have been revealed on the Research screen:\n<list_text>"),
 	title = T(5683, --[[PopupNotificationPreset AnomalyAnalyzed title]] "New Techs Available for Research"),
 	voiced_text = T(7073, --[[voice:narrator]] "There's more to the barren environs of the Red Planet than meets the eye - a veritable treasure trove of undiscovered knowledge and wonder… So long as you know where to look."),
 })
@@ -88,11 +96,71 @@ PlaceObj('PopupNotificationPreset', {
 })
 
 PlaceObj('PopupNotificationPreset', {
+	SortKey = 1000200,
+	group = "Disaster",
+	id = "Disaster_DustStorm",
+	text = T(10477, --[[PopupNotificationPreset Disaster_DustStorm text]] "A Dust Storm is set to hit the colony soon. It will cause damage to Pipes and Cables and also will place a serious strain on all buildings – pushing them towards needing maintenance sooner than usual. \n\nStocking up on Power, Water and Oxygen in batteries and tanks is a wise precaution. Disabling non-vital buildings that consume these resources prior and during a Dust Storm will help get by on the available reserves. \n\nThe following buildings do not function during Dust Storms:\n- MOXIEs\n- Moisture Vaporators\n- Solar Panels outside Domes"),
+	title = T(4250, --[[PopupNotificationPreset Disaster_DustStorm title]] "Dust Storm"),
+})
+
+PlaceObj('PopupNotificationPreset', {
+	SortKey = 1000300,
+	group = "Disaster",
+	id = "Disaster_MeteorStorm",
+	text = T(10478, --[[PopupNotificationPreset Disaster_MeteorStorm text]] "The region is about to experience a Meteor Storm. Buildings directly hit by meteors will be in need of repairs in order to function again while Pipes and Cables will get destroyed. Rovers hit by meteors will also need repairs while Drones may become irreversibly damaged. \n\nMeteor Storms cannot be avoided but some good practices may minimize their damage potential, such as not clustering vital buildings next to each other, Pipe and Cable redundancy and researching the tech for MDS Lasers from the Physics field."),
+	title = T(5620, --[[PopupNotificationPreset Disaster_MeteorStorm title]] "Meteor Storm"),
+})
+
+PlaceObj('PopupNotificationPreset', {
+	SortKey = 1000400,
+	group = "Disaster",
+	id = "Disaster_ColdWave",
+	text = T(10479, --[[PopupNotificationPreset Disaster_ColdWave text]] "A Cold Wave is imminent. While most of our machinery is designed and able to function in such low temperatures, if a building outside stops working for more than a Sol, it will freeze and may not be repaired until after the Cold Wave has lifted.\n\nCold Waves put an extra strain on the electrical grid and buildings will consume more electricity. One way to negate the effects of a Cold Wave is to place Subsurface Heaters (researched from the Physics field) near vulnerable buildings.\n\nThe following buildings will freeze during a Cold Wave:\n- Water Tanks\n- Outside buildings that are not operational for more than a Sol"),
+	title = T(4149, --[[PopupNotificationPreset Disaster_ColdWave title]] "Cold Wave"),
+})
+
+PlaceObj('PopupNotificationPreset', {
+	group = "POI",
+	id = "CompletedCaptureMeteors",
+	minimized_notification_priority = "CriticalBlue",
+	text = T(768080004870, --[[PopupNotificationPreset CompletedCaptureMeteors text]] "Although this is a controlled operation, the exact impact locations are outside our control and may endanger our colony.\n"),
+	title = T(195953271943, --[[PopupNotificationPreset CompletedCaptureMeteors title]] "Capture Meteors"),
+	voiced_text = T(443985878555, --[[voice:narrator]] "We have succeeded in capturing and diverting meteors towards our general vicinity in a gambit to bring precious resources and even scientific insight withing our reach."),
+})
+
+PlaceObj('PopupNotificationPreset', {
+	group = "POI",
+	id = "CompletedHeighSpeedComSatellite",
+	minimized_notification_priority = "CriticalBlue",
+	text = T(491282077872, --[[PopupNotificationPreset CompletedHeighSpeedComSatellite text]] "The resulting speed at which data is now transferred makes everyone wonder how we got anything done before."),
+	title = T(201673496950, --[[PopupNotificationPreset CompletedHeighSpeedComSatellite title]] "High-speed Comm Satellite"),
+	voiced_text = T(12146, --[[voice:narrator]] "Our high-speed Comm Satellite is now online."),
+})
+
+PlaceObj('PopupNotificationPreset', {
+	group = "POI",
+	id = "CompletedSETISatellite",
+	minimized_notification_priority = "CriticalBlue",
+	text = T(392168173764, --[[PopupNotificationPreset CompletedSETISatellite text]] "It is now operational and will contribute towards the decades old mission of finding signs of intelligent life elsewhere in the galaxy."),
+	title = T(311475854684, --[[PopupNotificationPreset CompletedSETISatellite title]] "SETI Satellite"),
+	voiced_text = T(439602669281, --[[voice:narrator]] "Our very own SETI Satellite has been delivered and launched into Martian orbit."),
+})
+
+PlaceObj('PopupNotificationPreset', {
+	group = "POI",
+	id = "CompletedStoryBit_ContractExplorationAccess",
+	minimized_notification_priority = "CriticalTerraforming",
+	text = T(622650641152, --[[PopupNotificationPreset CompletedStoryBit_ContractExplorationAccess text]] "Our partners on Earth are delighted by the fulfillment of the contract and have expressed their gratitude in a hefty amount of Funding."),
+	title = T(949945570603, --[[PopupNotificationPreset CompletedStoryBit_ContractExplorationAccess title]] "Contract Exploration Access"),
+	voiced_text = T(948001628351, --[[voice:narrator]] "The remote scientific outpost is set and has started transmitting intriguing data from the Red Planet."),
+})
+
+PlaceObj('PopupNotificationPreset', {
 	group = "System",
 	id = "NewFeatures",
 	image = "UI/Messages/hints.tga",
 	no_ccc_button = true,
-	text = T(160485577816, --[[PopupNotificationPreset NewFeatures text]] "Free update (Gagarin)\n- <em>Supply Pods</em> - an alternative way to bring cargo from Earth. Pods arrive faster, but each can be used only once.\n- <em>Sponsor Goals</em> - pursue objectives set by your sponsor.\n- <em>Planetary View</em> - inspect anomalies and send expeditions to other locations on Mars.\n- <em>Events</em> - hundreds of story bits will shake up the daily routine in your Colony.\n\nSpace Race Expansion\n- <em>New Sponsors</em> - try new approaches to colonization with Japan and Brazil.\n- <em>Sponsor Buildings</em> - a new unique structure for each sponsor.\n- <em>Sponsor Vehicles</em> - a new unique Rover, Rocket or Pod for each sponsor.\n- <em>Rival Colonies</em> - trade, cooperate and compete with AI controlled colonies.\n- <em>New Decorations and Dome skins</em> - colonize Mars in style."),
+	text = T(12420, --[[PopupNotificationPreset NewFeatures text]] "Free Update (Armstrong)\n- <em>Landscaping tools</em> - projects in <em>Landscaping</em> build menu for terrain modification.\n- <em>Self-Sufficient Dome</em> - a set of pre-arranged Basic dome and life-support buildings; 1 prefab available for <em>IMM</em>.\n- <em>Events</em> - new events for early game.\n\nGreen Planet Expansion\n- <em>Terraforming Research</em> - new field that unlocks a resource and buildings for terraforming Mars.\n- <em>Terraforming Parameters</em> - <em>Atmosphere</em>, <em>Temperature</em>, <em>Water</em> and <em>Vegetation</em> represent key elements of the Martian environment. Increase them above threshold levels for global terraforming changes.\n- <em>Seeds</em> - a new resource to grow vegetation once the <em>Terraforming parameters</em> allow it. Choose what plants to grow depending on local <em>Soil Quality</em>.\n- <em>Disasters</em> - disasters will change as the terraforming of Mars advances.\n- <em>Breathe in the air</em> - terraform Mars and open your domes."),
 	title = T(428742818526, --[[PopupNotificationPreset NewFeatures title]] "New Update"),
 	voiced_text = T(562110201672, --[[voice:narrator]] "Surviving Mars has been recently updated. You can check the full patch notes online, but here are few highlights:"),
 })
@@ -276,30 +344,6 @@ PlaceObj('PopupNotificationPreset', {
 	start_minimized = false,
 	text = T(7827, --[[PopupNotificationPreset LegalAgreement text]] "Welcome to Surviving Mars!\n\nBefore you get started, please take a moment to read our Terms of Use and Privacy Policy."),
 	title = T(7826, --[[PopupNotificationPreset LegalAgreement title]] "Legal Agreements"),
-})
-
-PlaceObj('PopupNotificationPreset', {
-	SortKey = 1000200,
-	group = "Disaster",
-	id = "Disaster_DustStorm",
-	text = T(10477, --[[PopupNotificationPreset Disaster_DustStorm text]] "A Dust Storm is set to hit the colony soon. It will cause damage to Pipes and Cables and also will place a serious strain on all buildings – pushing them towards needing maintenance sooner than usual. \n\nStocking up on Power, Water and Oxygen in batteries and tanks is a wise precaution. Disabling non-vital buildings that consume these resources prior and during a Dust Storm will help get by on the available reserves. \n\nThe following buildings do not function during Dust Storms:\n- MOXIEs\n- Moisture Vaporators\n- Solar Panels outside Domes"),
-	title = T(4250, --[[PopupNotificationPreset Disaster_DustStorm title]] "Dust Storm"),
-})
-
-PlaceObj('PopupNotificationPreset', {
-	SortKey = 1000300,
-	group = "Disaster",
-	id = "Disaster_MeteorStorm",
-	text = T(10478, --[[PopupNotificationPreset Disaster_MeteorStorm text]] "The region is about to experience a Meteor Storm. Buildings directly hit by meteors will be in need of repairs in order to function again while Pipes and Cables will get destroyed. Rovers hit by meteors will also need repairs while Drones may become irreversibly damaged. \n\nMeteor Storms cannot be avoided but some good practices may minimize their damage potential, such as not clustering vital buildings next to each other, Pipe and Cable redundancy and researching the tech for MDS Lasers from the Physics field."),
-	title = T(5620, --[[PopupNotificationPreset Disaster_MeteorStorm title]] "Meteor Storm"),
-})
-
-PlaceObj('PopupNotificationPreset', {
-	SortKey = 1000400,
-	group = "Disaster",
-	id = "Disaster_ColdWave",
-	text = T(10479, --[[PopupNotificationPreset Disaster_ColdWave text]] "A Cold Wave is imminent. While most of our machinery is designed and able to function in such low temperatures, if a building outside stops working for more than a Sol, it will freeze and may not be repaired until after the Cold Wave has lifted.\n\nCold Waves put an extra strain on the electrical grid and buildings will consume more electricity. One way to negate the effects of a Cold Wave is to place Subsurface Heaters (researched from the Physics field) near vulnerable buildings.\n\nThe following buildings will freeze during a Cold Wave:\n- Water Tanks\n- Outside buildings that are not operational for more than a Sol"),
-	title = T(4149, --[[PopupNotificationPreset Disaster_ColdWave title]] "Cold Wave"),
 })
 
 PlaceObj('PopupNotificationPreset', {
@@ -736,6 +780,7 @@ PlaceObj('PopupNotificationPreset', {
 	group = "Mystery",
 	id = "MysteryLog",
 	image = "UI/Messages/space.tga",
+	no_ccc_button = true,
 	text = T(5760, --[[PopupNotificationPreset MysteryLog text]] "...."),
 	title = T(5661, --[[PopupNotificationPreset MysteryLog title]] "Mystery Log"),
 })

@@ -63,8 +63,6 @@ DefineClass.RangeRadius =
 {
 	__parents = { "CObject" },
 	entity = "RangeRadius_01",
-	class_flags = { cfConstructible = false },
-	game_flags = { gofAlwaysRenderable = true },
-	enum_flags = { efSelectable = false },
+	flags = { efSelectable = false, gofAlwaysRenderable = true, cfConstructible = false },
 	ScaleMember = "GetSelectionRadiusScale",
 }

@@ -21,7 +21,7 @@ PrgAmbientLife["VisitSchool"] = function(unit, bld)
 		end
 	end)
 
-	__placed = PlaceObject("Tablet", nil, const.cfComponentEx + const.cfComponentAttach)
+	__placed = PlaceObject("Tablet", nil, const.cofComponentAttach)
 	NetTempObject(__placed)
 	unit:Attach(__placed, unit:GetRandomSpot("Tablet"))
 	_spot, _obj, _slot_desc, _slot, _slotname = PrgGetObjRandomSpotFromGroup(bld, nil, "A", _slots, unit)

@@ -2,19 +2,17 @@ DefineClass.Unit =
 {
 	__parents = { "Movable", "CommandObject", "UngridedObstacle", "DoesNotObstructConstruction", "SyncObject", "Renamable", "CameraFollowObject" },
 	encyclopedia_id = false,
-	enum_flags = { efUnit = true, efWalkable = false, efCollision = false, efApplyToGrids = false, efSelectable = true, },
-	class_flags = { cfComponentSound = true },
+	flags = { cofComponentSound = true, efUnit = true, efWalkable = false, efCollision = false, efApplyToGrids = false, efSelectable = true, },
 	ShadowBias = "Units",
 
 	fx = false,
 	fx_actor = false,
 	fx_target = false,
+	prg_class = false,
 	goto_target = false,
 	last_spot_tried = false,
 	holder = false,
 	always_renderable = false,
-	current_dome = false, -- the dome the unit is physically inside, not "home dome"
-	dome_version = 0,
 	entrance_type = false, -- means any
 	lead_in_out = false,      -- current lead in/out object
 	lead_interrupted = false, -- used to gracefully interrupt visit
@@ -32,6 +30,7 @@ DefineClass.Unit =
 	camera_follow_disabled = false,
 	selection_dir_arrow = false,
 	selection_scale_uniform = 110, -- use this to control how close/far is the arrow without having to adjust all unit classes
+	move_speed = false,
 }
 
 function Unit:GameInit()
@@ -101,13 +100,8 @@ end
 function Unit:OnCommandStart()
 	self:StopFX()
 	self.goto_target = false
-end
-
-function Unit:OnCommandDestructors()
-	self:StopFX()
 	if IsValid(self) then
 		self:StopMoving()
-		self.goto_target = false
 		self:ClearPath()
 	end
 	local door = self.visit_door_opened
@@ -136,8 +130,12 @@ function Unit:Goto(...)
 	if status < 0 and status ~= pfTunnel then
 		return status == pfFinished
 	end
-	self.goto_target = ...
-	self:StartMoving()
+	local start_moving
+	if not self.goto_target then
+		start_moving = true
+		self.goto_target = ...
+		self:StartMoving()
+	end
 	local pfSleep = self.MoveSleep
 	while true do
 		if status > 0 then
@@ -156,9 +154,11 @@ function Unit:Goto(...)
 		end
 		status = pfStep(self, ...)
 	end
-	self:StopMoving()
-	self.goto_target = false
-	self.last_spot_tried = false
+	if start_moving then
+		self:StopMoving()
+		self.goto_target = false
+		self.last_spot_tried = false
+	end
 	return status == pfFinished
 end
 
@@ -176,9 +176,9 @@ function Unit:OnStrandedFallback(dest, ...)
 		return
 	end
 	local dome1 = developer and GetDomeAtPoint(self:GetPos())
-	self:MoveSleep(status)
+	Sleep(status)
 	local dome2 = developer and GetDomeAtPoint(self:GetPos())
-	assert(dome1 == dome2)
+	assert(dome1 == dome2 or OpenAirBuildings)
 	return true
 end
 
@@ -234,14 +234,12 @@ function Unit:SetOutsideEffects(outside)
 end
 
 function Unit:OnEnterDome(dome)
-	assert(not self.current_dome or self.current_dome == dome)
-	self.current_dome = dome
+	-- savegame compatibility
 	self:SetOutside(false)
 end
 
 function Unit:OnExitDome(dome)
-	assert(not self.current_dome or self.current_dome == dome)
-	self.current_dome = false
+	-- savegame compatibility
 	self:SetOutside(true)
 end
 
@@ -255,7 +253,8 @@ function Unit:WaitDoorOpening(door)
 end
 
 function Unit:KickFromBuilding(building, entrance_type)
-	local entrance, pos, spot_type = building:GetEntrance(nil, entrance_type)
+	local target = RotateRadius(100*guim, AsyncRand(360*60), building:GetPos())
+	local entrance, pos, spot_type = building:GetEntrance(target, entrance_type, nil, self)
 	pos = spot_type and building:GetSpotPos(building:GetRandomSpot(spot_type)) or pos or building:GetPos()
 	self:Detach()
 	self:ClearPath()
@@ -268,16 +267,6 @@ end
 function Unit:ShowAttachedSigns(shown)
 end
 
-function Unit:FixCurrentDome(dome)
-	if self.current_dome == dome then return end
-	if self.current_dome then
-		self:OnExitDome(self.current_dome)
-	end
-	if dome then
-		self:OnEnterDome(dome)
-	end
-end
-
 function Unit:EnterBuilding(building, entrance_type, spot_name) -- works only if unit/building are both outside or inside the same dome
 	if not IsValid(building) or not building:IsValidPos() then
 		return false
@@ -285,17 +274,17 @@ function Unit:EnterBuilding(building, entrance_type, spot_name) -- works only if
 		return true
 	elseif not self:ExitHolder(building) then
 		return false
-	elseif not IsValid(building) or not building:IsValidPos() then
+	end
+	if not IsValid(building) or not building:IsValidPos() then
 		--retest after goto.
 		return false
 	elseif IsKindOf(building, "Dome") then
-		if self.current_dome == building then
-			assert(GetDomeAtPoint(self:GetPos()) == self.current_dome)
+		if IsUnitInDome(self) == building then
 			return true
 		end
 		local entrance_points = building:GetEntrancePoints() -- inner exit points
-		self:Goto_NoDestlock(entrance_points or building:GetPos())
-		if self.current_dome ~= building then
+		local dest_pt = entrance_points or building:GetPos()
+		if not self:Goto_NoDestlock(dest_pt) and IsUnitInDome(self) ~= building then
 			self:OnEnterDomeFail(building)
 			return false
 		end
@@ -304,23 +293,22 @@ function Unit:EnterBuilding(building, entrance_type, spot_name) -- works only if
 		return false
 	end
 	-- approach one of the building entrances
-	local entrance_points = building:GetEntrancePoints(entrance_type or self.entrance_type, spot_name)
+	entrance_type = entrance_type or self.entrance_type or "entrance"
+	local entrance_points = building:GetEntrancePoints(entrance_type, spot_name)
 	if entrance_points then
 		if self:IsValidPos() then
 			self:Goto_NoDestlock(entrance_points)
 			if not IsValid(building) then return false end
 		else
-			self:FixCurrentDome(building.parent_dome)
 			self:SetPos(type(entrance_points) == "table" and entrance_points[self:Random(1, #entrance_points)] or entrance_points)
 		end
 	end
 	-- enter closest entrance
-	local entrance, pos, entrance_spot = building:GetEntrance(self, entrance_type or self.entrance_type, spot_name)
+	local entrance, pos, entrance_spot = building:GetEntrance(self, entrance_type, spot_name, self)
 	if entrance_spot then
 		local force_place = not self:IsValidPos() or not self:Goto(building, entrance_spot)
 		if not IsValid(building) then return false end
 		if force_place then
-			self:FixCurrentDome(building.parent_dome)
 			if self:IsValidPos() then
 				self:SetPos(building:GetSpotPos(building:GetNearestSpot(entrance_spot, self)))
 			else
@@ -332,7 +320,6 @@ function Unit:EnterBuilding(building, entrance_type, spot_name) -- works only if
 	end
 	if pos then
 		if not self:IsValidPos() or not IsCloser2D(self, pos, guim/2) and not self:Goto_NoDestlock(pos) then
-			self:FixCurrentDome(building.parent_dome)
 			self:SetPos(pos)
 		end
 	end
@@ -350,14 +337,20 @@ function Unit:ExitBuilding(building, target, entrance_type, spot_name)
 	if not building:IsValidPos() then
 		return
 	end
-	local entrance, pos, entrance_spot = building:GetEntrance(target or self, entrance_type or self.entrance_type, spot_name)
+	entrance_type = entrance_type or self.entrance_type or "entrance"
+	if not target then
+		target = self:IsValidPos() and self or RotateRadius(100*guim, AsyncRand(360*60), building:GetPos())
+	end
+	local entrance, pos, entrance_spot = building:GetEntrance(target, entrance_type, spot_name, self)
 	if entrance_spot then
 		if not self:IsValidPos() then
-			if IsValid(target) then
-				self:SetPos(building:GetSpotPos(building:GetNearestSpot(entrance_spot, target)))
+			local spot
+			if IsValid(target) and target:IsValidPos() or IsPoint(target) then
+				spot = building:GetNearestSpot(entrance_spot, target)
 			else
-				self:SetPos(building:GetSpotPos(building:GetRandomSpot(entrance_spot)))
+				spot = building:GetRandomSpot(entrance_spot)
 			end
+			self:SetPos(building:GetSpotPos(spot))
 		end
 		building:OnExitUnit(self)
 		return true
@@ -366,38 +359,17 @@ function Unit:ExitBuilding(building, target, entrance_type, spot_name)
 	if not entrance then
 		return
 	end
+	if self:IsValidPos() and terrain.IsPassable(entrance[1], self.pfclass) then
+		self:Goto_NoDestlock(entrance[1])
+	end
 	building:LeadOut(self, entrance)
+	self:ExitImpassable(building.parent_dome)
 	return true
 end
 
--- recalc current dome when exit from outside buildings. We need to recalc current dome when the building's exit is too close to any dome.
-function Unit:ValidateCurrentDomeOnExit(building)
-	if not IsObjInDome(building) then
-		self.dome_version = 0
-	end
-end
-
-function Unit:UpdateCurrentDome()
-	if self.dome_version == g_DomeVersion then
-		return self.current_dome
-	end
-	self.dome_version = g_DomeVersion
-	local dome, pos
-	if self.holder then
-		dome = IsObjInDome(self.holder)
-	elseif self:IsValidPos() then
-		pos = GetPassablePointNearby(GetTopmostParent(self):GetPos(), self.pfclass)
-	end
-	dome = dome or pos and GetDomeAtPoint(pos) or false
-	if self.current_dome ~= dome then
-		if self.current_dome then
-			self:OnExitDome(self.current_dome)
-		end
-		if dome then
-			self:OnEnterDome(dome)
-		end
-	end
-	return dome
+function Unit:UpdateOutside()
+	local is_outside = not self.holder and not IsUnitInDome(self)
+	self:SetOutside(is_outside)
 end
 
 function Unit:ExitHolder(target)
@@ -429,9 +401,9 @@ function Unit:GotoUnitSpot(unit, spot)
 end
 
 function Unit:GotoBuildingsSpot(buildings, spot)
-	local result = self:Goto(buildings, spot)
+	local result = self:ExitHolder(AveragePoint2D(buildings)) and self:Goto(buildings, spot)
 	if result then
-		local building = FindNearestObject(buildings, self:GetPos())
+		local building = FindNearestObject(buildings, self)
 		local idx = spot and building:GetNearestSpot("idle", spot, self)
 		if idx then
 			local angle = building:GetSpotRotation(idx)
@@ -443,7 +415,7 @@ function Unit:GotoBuildingsSpot(buildings, spot)
 	return result
 end
 
-function Unit:GotoBuildingSpot(building, spot, force_teleport, dest_tolerance)
+function Unit:GotoBuildingSpot(building, spot, force_teleport, dest_tolerance, min_z, max_z)
 	if not self:ExitHolder(building) or not IsValid(building) then
 		return false
 	end
@@ -455,12 +427,27 @@ function Unit:GotoBuildingSpot(building, spot, force_teleport, dest_tolerance)
 	else
 		goto_a1, goto_a2 = building, spot
 	end
-	
-	local result = goto_a2 and self:Goto(goto_a1, goto_a2) or not goto_a2 and self:Goto(goto_a1)
-	
+	local result
+	if goto_a2 then
+		if min_z and max_z then
+			result = self:Goto(goto_a1, goto_a2, min_z, max_z)
+		else
+			result = self:Goto(goto_a1, goto_a2)
+		end
+	else
+		result = self:Goto(goto_a1)
+	end
 	if not result and IsValid(building) then
 		-- if can't reach a free spot then allow colliding with other units
-		result = goto_a2 and self:Goto_NoDestlock(goto_a1, goto_a2) or not goto_a2 and self:Goto_NoDestlock(goto_a1)
+		if goto_a2 then
+			if min_z and max_z then
+				result = self:Goto_NoDestlock(goto_a1, goto_a2, min_z, max_z)
+			else
+				result = self:Goto_NoDestlock(goto_a1, goto_a2)
+			end
+		else
+			result = self:Goto_NoDestlock(goto_a1)
+		end
 	end
 	if not IsValid(building) then
 		return false
@@ -482,28 +469,37 @@ function Unit:GotoBuildingSpot(building, spot, force_teleport, dest_tolerance)
 end
 
 function Unit:GoToRandomPosInDome(dome)
-	dome = dome or self.current_dome
+	dome = dome or IsUnitInDome(self)
 	assert(dome)
 	if not dome then
 		return
 	end
 	self:ExitHolder()
+	local pt
 	local pts = dome.walkable_points
-	local idx = self:Random(1, #pts)
+	if #pts == 0 then
+		pt = dome:PickColonistSpawnPt()
+	else
+		local idx = self:Random(1, #pts)
+		pt = pts[idx]
+	end
 	if not self:IsValidPos() then
-		self:SetPos(pts[idx])
+		self:SetPos(pt)
 		return
 	end
-	return self:Goto(pts[idx])
+	return self:Goto(pt)
 end
 
 function Unit:GoToRandomPos(max_radius, min_radius, center, filter, ...)
 	self:ExitHolder()
-	center = center or self:GetVisualPos()
 	min_radius = min_radius or 0
-	local mw, mh = terrain.GetMapSize()
-	if center == InvalidPos() then
-		center = point(mw / 2, mh / 2)
+	if not center or not center:IsValid() then
+		if self:IsValidPos() then
+			center = self:GetVisualPos2D()
+		else
+			local mw, mh = terrain.GetMapSize()
+			center = point(mw / 2, mh / 2)
+		end
 	end
 	local pt
 	if type(filter) ~= "function" then
@@ -517,9 +513,39 @@ function Unit:GoToRandomPos(max_radius, min_radius, center, filter, ...)
 	end
 end
 
-function Unit:ExitImpassable()
-	local pt = GetPassablePointNearby(self:GetVisualPos(), self.pfclass)
-	self:Goto(pt)
+local HexGridGetObject = HexGridGetObject
+local WorldToHex = WorldToHex
+function FilterDontExitDome(x, y, dome)
+	local q, r = WorldToHex(x, y)
+	local domei = HexGridGetObject(ObjectGrid, q, r, "DomeInterior")
+	return dome == (domei and domei.dome)
+end
+function FilterDontEnterDome(x, y)
+	local q, r = WorldToHex(x, y)
+	return not HexGridGetObject(ObjectGrid, q, r, "DomeInterior") and not HexGridGetObject(ObjectGrid, q, r, "Dome")
+end
+
+function Unit:ExitImpassable(dome)
+	local open_domes = OpenAirBuildings
+	if terrain.IsPassable(self) then
+		if open_domes or dome == nil then
+			return
+		end
+	end
+	local pt
+	if not open_domes then
+		if dome == nil then
+			dome = IsUnitInDome(self)
+		end
+		local filter = dome and FilterDontExitDome or FilterDontEnterDome
+		pt = GetPassablePointNearby(self, -1, -1, filter, dome)
+	else
+		pt = GetPassablePointNearby(self)
+	end
+	if not pt then
+		return
+	end
+	return self:Goto(pt, "sl")
 end
 
 --[[if config.TraceEnabled then
@@ -689,12 +715,15 @@ function SavegameFixups.DeleteStuckArrows()
 	end)
 end
 
-function OnMsg.SelectedObjChange(obj, prev)
-	if obj and obj:IsKindOf("Unit") then
+function OnMsg.SelectionAdded(obj)
+	if IsKindOf(obj, "Unit") then
 		obj:CreateSelectionArrow()
 	end
-	if prev and prev:IsKindOf("Unit") then
-		prev:RemoveSelectionArrow()
+end
+
+function OnMsg.SelectionRemoved(obj)
+	if IsKindOf(obj, "Unit") then
+		obj:RemoveSelectionArrow()
 	end
 end
 
@@ -732,9 +761,10 @@ function Unit:CreateSelectionArrow()
 	
 	self:UpdateSelectionArrow()
 	
-	CreateRealTimeThread(function(obj, arrow)
-		while SelectedObj == self and IsValid(self.selection_dir_arrow) do
-			self:UpdateSelectionArrow()
+	CreateRealTimeThread(function(obj)
+		local is_selected = SelectedObj == obj or (IsKindOf(SelectedObj, "MultiSelectionWrapper") and SelectedObj.objects_set[obj])
+		while is_selected and IsValid(obj.selection_dir_arrow) do
+			obj:UpdateSelectionArrow()
 			Sleep(50)
 		end
 	end, self)
@@ -744,7 +774,7 @@ end
 
 DefineClass.Vehicle = {
 	__parents = { "Unit" },
-	game_flags = { gofSpecialOrientMode = true },
+	flags = { gofSpecialOrientMode = true },
 	orient_mode = "terrain",
 }
 
@@ -868,9 +898,7 @@ end
 
 function Unit:Disappear(keep_in_holder)
 	self:OnPreDisappear()
-	if SelectedObj == self then
-		SelectObj(false)
-	end
+	SelectionRemove(self)
 	local pinned
 	if self:IsPinned() then
 		pinned = true
@@ -891,10 +919,8 @@ function Unit:Disappear(keep_in_holder)
 	end
 	
 	local pos = self:GetPos()
+	local dome = IsUnitInDome(self)
 	self:DetachFromMap()
-	local dome = self.current_dome
-	self.current_dome = nil
-	self.dome_version = nil
 	self.disappeared = true
 	self.appear_location = nil
 	self:OnDisappear()
@@ -927,34 +953,33 @@ function Unit:WaitToAppear(holder, pos, dome, pinned)
 			if pinned then
 				self:TogglePin()
 			end
-			self:UpdateCurrentDome()
-			return
-		end
-		
-		local preset = AppearLocationPresets[self.appear_location]
-		local location = preset and preset.resolve(self) or holder or pos
-		if not IsValid(self) or IsBeingDestructed(self) then
-			return
-		end
-		
-		self:AddToLabels()
-		self:OnAppear()
-		self.disappeared = nil
-		self.appear_location = nil
-		if pinned then
-			self:TogglePin()
-		end
-
-		if IsValid(location) then
-			self:SetHolder(location)
-		elseif IsPoint(location) and location ~= InvalidPos() then
-			self:SetPos(location)
-		elseif dome then
-			self:GoToRandomPosInDome(dome)
 		else
-			self:SetPos(GetRandomPassable())
+			local preset = AppearLocationPresets[self.appear_location]
+			local location = preset and preset.resolve(self) or holder or pos
+			if not IsValid(self) or IsBeingDestructed(self) then
+				return
+			end
+			
+			self:AddToLabels()
+			self:OnAppear()
+			self.disappeared = nil
+			self.appear_location = nil
+			if pinned then
+				self:TogglePin()
+			end
+
+			if IsValid(location) then
+				self:SetHolder(location)
+			elseif IsPoint(location) and location ~= InvalidPos() then
+				self:SetPos(location)
+			elseif IsValid(dome) then
+				self:SetOutside(false)
+				self:GoToRandomPosInDome(dome)
+			else
+				self:SetPos(GetRandomPassable())
+			end
 		end
-		self:UpdateCurrentDome()
+		self:UpdateOutside()
 	end)
 	self:PopAndCallDestructor()
 	self:PopDestructor()
@@ -981,3 +1006,6 @@ function SavegameFixups.UndisappearStuckDrones()
 		end
 	end)
 end
+
+Unit.FixCurrentDome = empty_func -- compatibility
+Unit.UpdateCurrentDome = empty_func -- compatibility

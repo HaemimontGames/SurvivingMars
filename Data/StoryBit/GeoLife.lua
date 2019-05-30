@@ -22,6 +22,9 @@ PlaceObj('StoryBit', {
 			'Condition', ">",
 			'Amount', 0,
 		}),
+		PlaceObj('AreDomesOpen', {
+			'Negate', true,
+		}),
 	},
 	ScriptDone = true,
 	Text = T(220760797492, --[[StoryBit GeoLife Text]] "The flourishing gardens mixed with the unavoidable exposure to particles of dust and radiation despite our best shielding efforts has helped certain bacteria that followed us on Mars to evolve in a completely new direction.\n\nThe new organism is harmless but standard decontamination protocols suggest that it should be removed."),
@@ -31,6 +34,15 @@ PlaceObj('StoryBit', {
 	VoicedText = T(418142763479, --[[voice:narrator]] "The unique mixture of habitat conditions within the Geoscape Dome has resulted in a new kind of bacterial life form evolving."),
 	group = "Wonders",
 	id = "GeoLife",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1551087980,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitParamNumber', {
 		'Name', "comfort_loss",
 		'Value', -20,

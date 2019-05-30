@@ -9,9 +9,7 @@ DefineClass.InfopanelObj = {
 }
 
 function InfopanelObj:Done()
-	if self == SelectedObj then
-		SelectObj()
-	end
+	SelectionRemove(self)
 end
 
 function InfopanelObj:GetInfopanelTemplate()
@@ -89,8 +87,8 @@ function InfopanelDlg:Open(...)
 		self:AddInterpolation{
 			type = const.intRect,
 			duration = 100,
-			startRect = box(0, 0, 100, 100),
-			endRect = box(400, 0, 500, 100),
+			originalRect = box(0, 0, 100, 100),
+			targetRect = box(400, 0, 500, 100),
 			flags = const.intfInverse,
 			autoremove = true,
 		}
@@ -162,6 +160,13 @@ function InfopanelDlg:OnKillFocus()
 	end
 	self.desktop:RemoveKeyboardFocus(self, true)
 	XDialog.OnKillFocus(self)
+end
+
+function InfopanelDlg:OnMouseButtonUp(pt, button)
+	if button ~= "L" then return end
+	local mode_dlg = GetInGameInterfaceModeDlg()
+	if not IsKindOf(mode_dlg, "SelectionModeDialog") then return end
+	mode_dlg:CancelMultiselection()
 end
 
 function InfopanelDlg:OnMouseEnter(pos)

@@ -66,7 +66,7 @@ function NightLightLight:GetColor()
 end
 
 DefineClass.NightLightPointLight = {
-	--game_flags = { gofRealTimeAnim = false },
+	--flags = { gofRealTimeAnim = false },
 	__parents = { "PointLight", "NightLightLight" },
 }
 
@@ -74,7 +74,7 @@ NightLightPointLight.GetIntensity = NightLightLight.GetIntensity
 NightLightPointLight.GetColor = NightLightLight.GetColor
 
 DefineClass.NightLightSpotLight = {
-	--game_flags = { gofRealTimeAnim = false },
+	--flags = { gofRealTimeAnim = false },
 	__parents = { "SpotLight", "NightLightLight" },
 }
 
@@ -82,7 +82,7 @@ NightLightSpotLight.GetIntensity = NightLightLight.GetIntensity
 NightLightSpotLight.GetColor = NightLightLight.GetColor
 
 DefineClass.NightLightObject = {
-	game_flags = { gofNightLightsEnabled = true },
+	flags = { gofNightLightsEnabled = true },
 	__parents = { "CObject" },
 }
 
@@ -122,7 +122,7 @@ function NightLightObject:NightLightOffEmissive(att)
 	self:SetSIModulation(0)
 end
 
-function NightLightObject:NightLightOnAttaches(att)
+function NightLightObject:NightLightOnAttaches(att, rebind)
 	local default_specifications = NightLightDefaultSpecifications
 	local cl = att.class
 	local light = PlaceObject(cl)
@@ -138,6 +138,27 @@ function NightLightObject:NightLightOnAttaches(att)
 	light:SetColor(0)
 	light:SetIntensity(0)
 	
+	if rebind then
+		-- NOTE: there is some randomized delay for turning on lights so the cached state for an attach
+		-- may be changed(several times) making spot indices out of range - find new available ones
+		local spot_name = self:GetSpotName(att.spot)
+		local first, last = self:GetSpotRange(spot_name)
+		if att.spot < first or att.spot > last then
+			local used_spot = {}
+			local attaches = self:GetAttaches()
+			if attaches then
+				for __, attach in ipairs(attaches) do
+					used_spot[attach:GetAttachSpot()] = true
+				end
+			end
+			for spot = first, last do
+				if not used_spot[spot] then
+					att.spot = spot
+					break
+				end
+			end
+		end
+	end
 	self:Attach(light, att.spot)
 	light:Fade(att.color, att.intensity or default_specifications.intensity, 300)
 	
@@ -169,9 +190,12 @@ function NightLightObject:NightLightEnable(all_lights)
 
 	--Fetch night light specs for this entity
 	local specs = NightLightSpecs[self:GetEntity()]
+	if not specs then return end
+	specs = specs[self:GetState()]
+	if not specs then return end
 	
 	--Turn on
-	for i=1,#(specs or "") do
+	for i=1,#specs do
 		local att = specs[i]
 		if att.emissive then
 			self:NightLightOnEmissive(att)
@@ -225,10 +249,13 @@ function GetNightLightObjectsAttaches()
 	local exec = function(obj)
 		local spec = NightLightSpecs[obj:GetEntity()]
 		if spec then
-			for j=1,#spec do
-				nlattaches[n] = obj
-				nlattaches[n+1] = spec[j]
-				n = n + 2
+			spec = spec[obj:GetState()]
+			if spec then
+				for j=1,#spec do
+					nlattaches[n] = obj
+					nlattaches[n+1] = spec[j]
+					n = n + 2
+				end
 			end
 		end
 	end
@@ -309,7 +336,7 @@ function NightLightsOn(total_delay)
 						obj:NightLightOnEmissive(att)
 					elseif att.class then
 						if att.important or remaining > 0 then
-							obj:NightLightOnAttaches(att)
+							obj:NightLightOnAttaches(att, "rebind")
 							remaining = remaining - 1
 						end
 					end
@@ -468,14 +495,21 @@ function RebuildNightLightSpecs()
 	for entity,_ in pairs(GetAllEntities()) do	
 		local spec = { }
 		
-		--Prase both light spot names
-		local first, last = GetSpotRange(entity, EntityStates["idle"], "Autolight")
-		for spot=first,last do
-			spec[#spec + 1] = ProcessNightLightSpot(entity, spot)
-		end
-		local first, last = GetSpotRange(entity, EntityStates["idle"], "L")
-		for spot=first,last do
-			spec[#spec + 1] = ProcessNightLightSpot(entity, spot)
+		local states = GetStates(entity)
+		for _, state in ipairs(states) do
+			local spec_state = {}
+			--Prase both light spot names
+			local first, last = GetSpotRange(entity, EntityStates[state], "Autolight")
+			for spot=first,last do
+				spec_state[#spec_state + 1] = ProcessNightLightSpot(entity, spot)
+			end
+			local first, last = GetSpotRange(entity, EntityStates[state], "L")
+			for spot=first,last do
+				spec_state[#spec_state + 1] = ProcessNightLightSpot(entity, spot)
+			end
+			if next(spec_state) then
+				spec[EntityStates[state]] = spec_state
+			end
 		end
 		
 		if next(spec) then

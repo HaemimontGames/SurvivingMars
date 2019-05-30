@@ -10,16 +10,16 @@ PlaceObj('XTemplate', {
 			'comment', "alllow/forbid export",
 			'__template', "InfopanelButton",
 			'OnContextUpdate', function (self, context, ...)
-if context.allow_export then
-	self:SetIcon("UI/Icons/IPButtons/forbid_exports_on.tga")
-	self:SetRolloverTitle(T(7818, "Forbid Exports"))
-	self:SetRolloverText(T(7819, "Forbid the export of Rare Metals."))
-else
-	self:SetIcon("UI/Icons/IPButtons/forbid_exports_off.tga")
-	self:SetRolloverTitle(T(7820, "Allow Exports"))
-	self:SetRolloverText(T(7821, "Allow the export of Rare Metals."))
-end
-end,
+				if context.allow_export then
+					self:SetIcon("UI/Icons/IPButtons/forbid_exports_on.tga")
+					self:SetRolloverTitle(T(7818, "Forbid Exports"))
+					self:SetRolloverText(T(7819, "Forbid the export of Rare Metals."))
+				else
+					self:SetIcon("UI/Icons/IPButtons/forbid_exports_off.tga")
+					self:SetRolloverTitle(T(7820, "Allow Exports"))
+					self:SetRolloverText(T(7821, "Allow the export of Rare Metals."))
+				end
+			end,
 			'OnPressParam', "ToggleAllowExport",
 		}),
 		PlaceObj('XTemplateTemplate', {

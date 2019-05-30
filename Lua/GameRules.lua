@@ -53,19 +53,34 @@ function CalcGameRulesChallengeMod(new_rule)
 	return mod + new_rule_mod
 end
 
-function GetIncompatibleGameRulesNames(id)
-	local names = {} 
+function GetGameRuleIncompatibleText(id)
+	local preset = GameRulesMap[id]
+	local disabled_text = preset:GetDisabledText()
+	if (disabled_text or "") ~= "" then
+		return "\n\n" .. disabled_text
+	end
+	local names = {}
 	local rules = g_CurrentMissionParams.idGameRules
 	for rule_id,_ in pairs(GameRulesMap or empty_table) do
 		local exclusions = GameRulesMap[rule_id].exclusionlist or ""
 		if rule_id ~= id then
 			if string.match(exclusions, "^.*" .. id .. ".*$") then
-					names[rule_id] = GameRulesMap[rule_id].display_name
+				names[rule_id] = GameRulesMap[rule_id].display_name
 			end
 		else
 			for exclusion in string.gmatch(exclusions, "%a+") do
 				names[exclusion] = GameRulesMap[exclusion] and GameRulesMap[exclusion].display_name
 			end
+		end
+	end
+	for _, sponsor in ipairs(Presets.MissionSponsorPreset.Default or empty_table) do
+		if table.find(sponsor.incompatible_game_rules, id) then
+			names[sponsor.id] = T(3474, "Mission Sponsor") .. ": " .. sponsor.display_name
+		end
+	end
+	for _, commander in ipairs(Presets.CommanderProfilePreset.Default or empty_table) do
+		if table.find(commander.incompatible_game_rules, id) then
+			names[commander.id] = T(3478, "Commander Profile") .. ": " .. commander.display_name
 		end
 	end
 	local all_names = table.concat(table.values(names), "\n")
@@ -86,8 +101,8 @@ function GetGameRulesNames()
 end
 
 function IsGameRuleActive(rule)
-	assert(GameRulesMap[rule])
-	return g_CurrentMissionParams.idGameRules and g_CurrentMissionParams.idGameRules[rule]
+	assert(DbgAreDlcsMissing() or GameRulesMap[rule])
+	return g_CurrentMissionParams.idGameRules and g_CurrentMissionParams.idGameRules[rule] and true or false
 end
 
 function GetActiveGameRules()

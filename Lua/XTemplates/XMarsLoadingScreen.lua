@@ -29,9 +29,9 @@ PlaceObj('XTemplate', {
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
 					'func', function (self, ...)
-XImage.Open(self, ...)
-self:SetMargins(GetSafeMargins(self:GetMargins()))
-end,
+						XImage.Open(self, ...)
+						self:SetMargins(GetSafeMargins(self:GetMargins()))
+					end,
 				}),
 				}),
 			}),

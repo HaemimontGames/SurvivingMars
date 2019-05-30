@@ -10,7 +10,9 @@ PlaceObj('StoryBit', {
 			'description', T(11398, --[[StoryBit WindsOfChange_0 description]] "A Dome is gradually built here without any personnel or machines nearby."),
 			'required_crew', 5,
 			'required_rover', "ExplorerRover",
+			'required_resources', {},
 			'reward', "custom",
+			'outcome_text', T(960095148443, --[[StoryBit WindsOfChange_0 outcome_text]] "Unknown"),
 		}),
 	},
 	Enabled = true,
@@ -39,5 +41,14 @@ PlaceObj('StoryBit', {
 	VoicedText = T(266324616837, --[[voice:narrator]] "We have detected a Dome construction within several clicks of the colony site. No vehicles or personnel are to be found at the location, yet the Dome gradually emerges from thin air."),
 	group = "Breakthroughs",
 	id = "WindsOfChange_0",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1553175324,
+				user = "Radomir",
+			},
+		},
+	}),
 })
 

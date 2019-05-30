@@ -119,6 +119,8 @@ function MeteorsDisaster(meteors, meteors_type, pos)
 			meteor.pause = UICity:Random(meteors.multispawn_delay_min, meteors.multispawn_delay_max)
 		end
 	elseif meteors_type == "storm" then
+		g_MeteorStorm = true
+		Msg("MeteorStorm")
 		--DbgClearVectors()
 		local dir, angle = GenerateDir()
 		pos = pos or GetRandomPassable()
@@ -205,6 +207,8 @@ function MeteorsDisaster(meteors, meteors_type, pos)
 	end
 	if meteors_type == "storm" then
 		PlayFX("MeteorStorm", "end")
+		Msg("MeteorStormEnded")
+		g_MeteorStorm = false
 	end
 end
 
@@ -215,7 +219,8 @@ local function GetMeteorsDescr()
 	
 	local data = DataInstances.MapSettings_Meteor
 	
-	return data[mapdata.MapSettings_Meteor] or data["Meteor_VeryLow"]
+	local orig_data = data[mapdata.MapSettings_Meteor] or data["Meteor_VeryLow"]
+	return OverrideDisasterDescriptor(orig_data)
 end
 
 -- Single Meteor or Multi Spawn meteors
@@ -242,6 +247,13 @@ GlobalGameTimeThread("Meteors", function()
 		local hit_time = Min(spawn_time, warning_time)
 		Sleep(hit_time)
 		MeteorsDisaster(meteors, meteors_type)
+		
+		local new_meteors = GetMeteorsDescr()
+		while not new_meteors do
+			Sleep(const.DayDuration)
+			new_meteors = GetMeteorsDescr()
+		end
+		meteors = new_meteors
 	end
 end)
 
@@ -257,22 +269,32 @@ GlobalGameTimeThread("MeteorStorm", function()
 		-- wait and show the notification
 		local start_time = GameTime()
 		local last_check_time = GameTime()
-		while GameTime() - start_time < wait_time do
-			local warning_time = GetDisasterWarningTime(meteors)
-			if GameTime() - start_time > wait_time - warning_time then
-				AddOnScreenNotification("MeteorStorm2", nil, {start_time = GameTime(), expiration = warning_time, early_warning = GetEarlyWarningText(warning_time) , num_of_sensors = GetTowerCountText()})
-				ShowDisasterDescription("MeteorStorm")
-				break
+		while MeteorStormsDisabled or GameTime() - start_time < wait_time do
+			if MeteorStormsDisabled then
+				start_time = GameTime()
+			else
+				local warning_time = GetDisasterWarningTime(meteors)
+				if GameTime() - start_time > wait_time - warning_time then
+					AddOnScreenNotification("MeteorStorm2", nil, {start_time = GameTime(), expiration = warning_time, early_warning = GetEarlyWarningText(warning_time) , num_of_sensors = GetTowerCountText()})
+					ShowDisasterDescription("MeteorStorm")
+					break
+				end
 			end
 			Sleep(5000)
 		end
 		Sleep(Max(wait_time - (GameTime() - start_time), 0))
-		g_MeteorStorm = true
-		Msg("MeteorStorm")
-		RemoveOnScreenNotification("MeteorStorm")
-		MeteorsDisaster(meteors, "storm")
-		g_MeteorStorm = false
-		Msg("MeteorStormEnded")
+		
+		RemoveOnScreenNotification("MeteorStorm2")
+		if not MeteorStormsDisabled then
+			MeteorsDisaster(meteors, "storm")
+		end
+		
+		local new_meteors = GetMeteorsDescr()
+		while not new_meteors do
+			Sleep(const.DayDuration)
+			new_meteors = GetMeteorsDescr()
+		end
+		meteors = new_meteors
 		wait_time = UICity:Random(meteors.storm_spawntime, meteors.storm_spawntime + meteors.storm_spawntime_random)
 	end
 end)
@@ -280,7 +302,7 @@ end)
 local meteor_pos = false
 local meteor_range = 0
 local function filter(obj)
-	return obj:IsCloser2D(meteor_pos, meteor_range + obj:GetRadius())
+	return obj:IsCloser(meteor_pos, meteor_range + obj:GetRadius())
 	and not IsObjInDome(obj)
 	and (IsKindOf(obj, "ResourceStockpileBase") or not obj:GetParent())
 end
@@ -305,7 +327,7 @@ DefineClass.BaseMeteor =
 {
 	__parents = { "Object" },
 	entity = "RocksLight_01",
-	enum_flags = { efShadow = false, efSunShadow = false, efSelectable = false, efWalkable = false, efCollision = false, efApplyToGrids = false },
+	flags = { efShadow = false, efSunShadow = false, efSelectable = false, efWalkable = false, efCollision = false, efApplyToGrids = false },
 	crack_type = "Small",
 	
 	range = false,
@@ -340,6 +362,25 @@ function BaseMeteor:GetQuery()
 	meteor_pos = self.dest or self:GetVisualPos()
 	meteor_range = self.range
 	return meteor_pos, meteor_range + GetEntityMaxSurfacesRadius() , "Drone", "Colonist", "Building", "BaseRover", "ResourceStockpileBase", "ElectricityGridElement", "LifeSupportGridElement", "PassageGridElement" , filter
+end
+
+OnSoilGridChanged = empty_func
+KillVegetationInCircle = empty_func
+SoilAdd = empty_func
+local meteors_sq_degrade_val = -40 * const.SoilGridScale
+function BaseMeteor:KillVegetation()
+	KillVegetationInCircle(self.dest or self:GetVisualPos(), self.range)
+	local shape
+	if self.range <= 10*guim then
+		shape = HexSurroundingsCheckShape
+	elseif self.range <= 20*guim then
+		shape = HexSurroundingsCheckShapeMedium
+	else
+		shape = HexSurroundingsCheckShapeLarge
+	end
+	local q, r = WorldToHex(self)
+	SoilAdd(q, r, meteors_sq_degrade_val, shape)
+	OnSoilGridChanged()
 end
 
 function BaseMeteor:Predict()
@@ -509,48 +550,50 @@ function BaseMeteorSmall:Explode()
 	local cablesnpipes = {}
 	for i=1,#objects do
 		local obj = objects[i]
-		if IsKindOf(obj, "Drone") then
-			if not obj:IsDead() then
-				PlayFX("MeteorMalfunction", "start", obj)
-				obj:SetCommand("Dead", false, true)
+		if IsValid(obj) then --deleting objs from objects may cause other objs to also get deleted!
+			if IsKindOf(obj, "Drone") then
+				if not obj:IsDead() then
+					PlayFX("MeteorMalfunction", "start", obj)
+					obj:SetCommand("Dead", false, true)
+				end
+			elseif IsKindOf(obj, "Colonist") then
+				PlayFX("MeteorDestruction", "start", obj)
+				obj:ChangeHealth( -self.health_damage, "meteor_colonist")
+			elseif IsKindOf(obj, "BaseRover") then
+				if not obj:IsDead() then
+					PlayFX("MeteorMalfunction", "start", obj)
+					obj:SetCommand("Malfunction")
+				end
+			elseif IsKindOf(obj, "UniversalStorageDepot") then
+				if not IsKindOf(obj, "SupplyRocket") and obj:GetStoredAmount("Fuel") > 0 then
+					PlayFX("FuelExplosion", "start", obj)
+					obj:CheatEmpty()
+					AddOnScreenNotification("FuelDestroyed", nil, {}, {obj})
+				end
+				if IsKindOf(obj, "MechanizedDepot") then
+					obj:SetMalfunction()
+				end
+			elseif IsKindOf(obj, "ResourceStockpileBase") then
+				local amount = obj:GetStoredAmount()
+				if obj.resource == "Fuel" and amount > 0 then
+					PlayFX("FuelExplosion", "start", obj)
+					obj:AddResourceAmount(-amount, true)
+					AddOnScreenNotification("FuelDestroyed", nil, {}, {obj})
+				end
+			elseif IsKindOf(obj, "PassageGridElement") then
+				if not passages_fractured[obj.passage_obj] then
+					obj:AddFracture(self:GetPos())
+					passages_fractured[obj.passage_obj] = true
+				end
+			elseif obj:IsKindOf("Building") then
+				if not IsKindOfClasses(obj, "Dome", "StorageDepot", "ConstructionSite") then
+					PlayFX("MeteorMalfunction", "start", obj)
+					table.insert(buildings_hit, { pos = obj:GetPos(), radius = obj:GetRadius() * 150 / 100 })
+					obj:SetMalfunction()
+				end
+			elseif IsKindOfClasses(obj, "ElectricityGridElement", "LifeSupportGridElement") then
+				cablesnpipes[#cablesnpipes + 1] = obj
 			end
-		elseif IsKindOf(obj, "Colonist") then
-			PlayFX("MeteorDestruction", "start", obj)
-			obj:ChangeHealth( -self.health_damage, "meteor_colonist")
-		elseif IsKindOf(obj, "BaseRover") then
-			if not obj:IsDead() then
-				PlayFX("MeteorMalfunction", "start", obj)
-				obj:SetCommand("Malfunction")
-			end
-		elseif IsKindOf(obj, "UniversalStorageDepot") then
-			if not IsKindOf(obj, "SupplyRocket") and obj:GetStoredAmount("Fuel") > 0 then
-				PlayFX("FuelExplosion", "start", obj)
-				obj:CheatEmpty()
-				AddOnScreenNotification("FuelDestroyed", nil, {}, {obj})
-			end
-			if IsKindOf(obj, "MechanizedDepot") then
-				obj:SetMalfunction()
-			end
-		elseif IsKindOf(obj, "ResourceStockpileBase") then
-			local amount = obj:GetStoredAmount()
-			if obj.resource == "Fuel" and amount > 0 then
-				PlayFX("FuelExplosion", "start", obj)
-				obj:AddResourceAmount(-amount, true)
-				AddOnScreenNotification("FuelDestroyed", nil, {}, {obj})
-			end
-		elseif IsKindOf(obj, "PassageGridElement") then
-			if not passages_fractured[obj.passage_obj] then
-				obj:AddFracture(self:GetPos())
-				passages_fractured[obj.passage_obj] = true
-			end
-		elseif obj:IsKindOf("Building") then
-			if not IsKindOfClasses(obj, "Dome", "StorageDepot", "ConstructionSite") then
-				PlayFX("MeteorMalfunction", "start", obj)
-				table.insert(buildings_hit, { pos = obj:GetPos(), radius = obj:GetRadius() * 150 / 100 })
-				obj:SetMalfunction()
-			end
-		elseif IsKindOfClasses(obj, "ElectricityGridElement", "LifeSupportGridElement") then
-			cablesnpipes[#cablesnpipes + 1] = obj
 		end
 	end
 	
@@ -565,11 +608,11 @@ function BaseMeteorSmall:Explode()
 				if not IsKindOf(obj, "ConstructionSite") then
 					if not is_pipe and not table.find(destroyed_cables, 4, obj) then
 						local t = GatherSupplyGridObjectsToBeDestroyed(obj, destroyed_cables)
-						table.append(destroyed_cables, t)
+						table.iappend(destroyed_cables, t)
 					elseif is_pipe and not table.find(destroyed_pipes, 4, obj) then
 						local t
 						t, chain_id_counter = GatherSupplyGridObjectsToBeDestroyed(obj, destroyed_pipes, chain_id_counter)
-						table.append(destroyed_pipes, t)
+						table.iappend(destroyed_pipes, t)
 					end
 				end
 				
@@ -600,6 +643,7 @@ function BaseMeteorSmall:Explode()
 	end
 	
 	KillCablesAndPipesAndRebuildThem(cablesnpipes_to_kill, destroyed_cables, destroyed_pipes)
+	self:KillVegetation()
 	ResumePassEdits("MeteorSmallExplode")
 end
 
@@ -632,41 +676,43 @@ function BaseMeteorLarge:Explode()
 	local cablesnpipes = {}
 	for i=1,#objects do
 		local obj = objects[i]
-		if IsKindOfClasses(obj, "Drone", "BaseRover") then
-			if not obj:IsDead() then
-				PlayFX("MeteorDestruction", "start", obj)
-				obj:SetCommand("Dead", false, true)
-			end
-		elseif IsKindOf(obj, "Colonist") then
-			PlayFX("MeteorDestruction", "start", obj)
-			obj:SetCommand("Die", "meteor")
-		elseif IsKindOf(obj, "UniversalStorageDepot") then
-			if not IsKindOf(obj, "SupplyRocket") and obj:GetStoredAmount("Fuel") > 0 then
-				PlayFX("FuelExplosion", "start", obj)
-				obj:CheatEmpty()
-				AddOnScreenNotification("FuelDestroyed", nil, {}, {obj})
-			end
-		elseif IsKindOf(obj, "ResourceStockpileBase") then
-			local amount = obj:GetStoredAmount()
-			if obj.resource == "Fuel" and amount > 0 then
-				PlayFX("FuelExplosion", "start", obj)
-				obj:AddResourceAmount(-amount, true)
-			end
-		elseif IsKindOf(obj, "PassageGridElement") then
-			if not passages_fractured[obj.passage_obj] then
-				obj:AddFracture(self:GetPos())
-				passages_fractured[obj.passage_obj] = true
-			end
-		elseif IsKindOf(obj, "Building") then
-			if not IsKindOfClasses(obj, "Dome", "ConstructionSite") then
-				local pos, radius = obj:GetPos(), obj:GetRadius() * 150 / 100
-				if DestroyBuildingImmediate(obj) then
-					PlayFX("MeteorDestruction", "start", obj, nil, pos)
-					table.insert(buildings_hit, { pos = pos, radius = radius})
+		if IsValid(obj) then --deleting objs from objects may cause other objs to also get deleted!
+			if IsKindOfClasses(obj, "Drone", "BaseRover") then
+				if not obj:IsDead() then
+					PlayFX("MeteorDestruction", "start", obj)
+					obj:SetCommand("Dead", false, true)
 				end
+			elseif IsKindOf(obj, "Colonist") then
+				PlayFX("MeteorDestruction", "start", obj)
+				obj:SetCommand("Die", "meteor")
+			elseif IsKindOf(obj, "UniversalStorageDepot") then
+				if not IsKindOf(obj, "SupplyRocket") and obj:GetStoredAmount("Fuel") > 0 then
+					PlayFX("FuelExplosion", "start", obj)
+					obj:CheatEmpty()
+					AddOnScreenNotification("FuelDestroyed", nil, {}, {obj})
+				end
+			elseif IsKindOf(obj, "ResourceStockpileBase") then
+				local amount = obj:GetStoredAmount()
+				if obj.resource == "Fuel" and amount > 0 then
+					PlayFX("FuelExplosion", "start", obj)
+					obj:AddResourceAmount(-amount, true)
+				end
+			elseif IsKindOf(obj, "PassageGridElement") then
+				if not passages_fractured[obj.passage_obj] then
+					obj:AddFracture(self:GetPos())
+					passages_fractured[obj.passage_obj] = true
+				end
+			elseif IsKindOf(obj, "Building") then
+				if not IsKindOfClasses(obj, "Dome", "ConstructionSite") then
+					local pos, radius = obj:GetPos(), obj:GetRadius() * 150 / 100
+					if DestroyBuildingImmediate(obj) then
+						PlayFX("MeteorDestruction", "start", obj, nil, pos)
+						table.insert(buildings_hit, { pos = pos, radius = radius})
+					end
+				end
+			elseif IsKindOfClasses(obj, "ElectricityGridElement", "LifeSupportGridElement") then
+				cablesnpipes[#cablesnpipes + 1] = obj			
 			end
-		elseif IsKindOfClasses(obj, "ElectricityGridElement", "LifeSupportGridElement") then
-			cablesnpipes[#cablesnpipes + 1] = obj			
 		end
 	end
 	
@@ -681,11 +727,11 @@ function BaseMeteorLarge:Explode()
 				if not IsKindOf(obj, "ConstructionSite") then
 					if not is_pipe and not table.find(destroyed_cables, 4, obj) then
 						local t = GatherSupplyGridObjectsToBeDestroyed(obj, destroyed_cables)
-						table.append(destroyed_cables, t)
+						table.iappend(destroyed_cables, t)
 					elseif is_pipe and not table.find(destroyed_pipes, 4, obj) then
 						local t
 						t, chain_id_counter = GatherSupplyGridObjectsToBeDestroyed(obj, destroyed_pipes, chain_id_counter)
-						table.append(destroyed_pipes, t)
+						table.iappend(destroyed_pipes, t)
 					end
 				end
 				
@@ -716,6 +762,7 @@ function BaseMeteorLarge:Explode()
 	end
 	
 	KillCablesAndPipesAndRebuildThem(cablesnpipes_to_kill, destroyed_cables, destroyed_pipes)
+	self:KillVegetation()
 	ResumePassEdits("MeteorLargeExplode")
 end
 
@@ -907,6 +954,11 @@ function StopMeteorStorm()
 	g_MeteorStormStop = true
 end
 
+function OnMsg.CheatStopDisaster()
+	if not g_MeteorStorm then return end
+	StopMeteorStorm()
+end
+
 if Platform.developer then
 	function TestMeteor()
 		CreateGameTimeThread(function()
@@ -959,7 +1011,7 @@ local function helper_pick_table(t1, tnew)
 		t1 = tnew
 	else
 		if IsValid(t1[1]) then
-			table.append_unique(t1, tnew)
+			table.iappend_unique(t1, tnew)
 		else
 			append_data(t1, tnew)
 		end

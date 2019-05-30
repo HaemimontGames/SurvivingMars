@@ -28,8 +28,8 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnChange(self, toggled)",
 			'func', function (self, toggled)
-self:SetRow(toggled and 2 or 1)
-end,
+				self:SetRow(toggled and 2 or 1)
+			end,
 		}),
 		}),
 	PlaceObj('XTemplateProperty', {
@@ -37,8 +37,8 @@ end,
 		'id', "Title",
 		'editor', "text",
 		'Set', function (self, value)
-self.idTitle:SetText(value)
-end,
+			self.idTitle:SetText(value)
+		end,
 	}),
 })
 

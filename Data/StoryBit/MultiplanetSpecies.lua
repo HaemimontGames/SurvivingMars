@@ -9,8 +9,7 @@ PlaceObj('StoryBit', {
 			'Filters', {},
 			'RandomPercent', 20,
 			'Effects', {
-				PlaceObj('ModifyLabel', {
-					'Label', "Colonist",
+				PlaceObj('ModifyObject', {
 					'Prop', "base_morale",
 					'Amount', "<morale_boost>",
 					'Sols', "<morale_boost_duration>",
@@ -45,6 +44,15 @@ PlaceObj('StoryBit', {
 	VoicedText = T(680814829271, --[[voice:narrator]] "Thanks to your ongoing efforts, humanity's foothold on Mars has been cemented. "),
 	group = "Sponsor",
 	id = "MultiplanetSpecies",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1552477358,
+				user = "Momchil",
+			},
+		},
+	}),
 	PlaceObj('StoryBitReply', {
 		'Text', T(107842659681, --[[StoryBit MultiplanetSpecies Text]] "This honor is not my own. All our brave colonists routinely risk their lives to make our dream a reality."),
 	}),

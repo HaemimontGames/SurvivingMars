@@ -31,6 +31,12 @@ int border
 : optional, if specified the function will shrink the map boundaries by this amount for the purpose of the clamp.
 
 
+## terrain.ClearWater
+
+Clears all water from the map.<br>
+
+void **terrain.ClearWater**()
+
 ## terrain.GetAreaHeight
 
 Returns the average height of the specified circle area. If no parameters are specified, then the average for the whole map is computed.<br>
@@ -45,18 +51,18 @@ int radius
 
 ## terrain.GetHeight
 
+Returns the maximum possible height value.<br>
+
+int **terrain.GetHeight**()
+
+## terrain.GetHeight
+
 Returns the terrain height at given position.<br>
 
 int **terrain.GetHeight**(pos)
 point pos
 : position to check.
 
-
-## terrain.GetHeight
-
-Returns the maximum possible height value.<br>
-
-int **terrain.GetHeight**()
 
 ## terrain.GetIntersection
 
@@ -139,6 +145,15 @@ Returns the number of available terrain types.<br>
 
 int **terrain.GetTerrainsCount**()
 
+## terrain.GetWaterHeight
+
+Returns the water height at given position.<br>
+
+int **terrain.GetWaterHeight**(pos)
+point pos
+: position to check.
+
+
 ## terrain.HeightMapSize
 
 Returns the x and y sizes of the heightmap grid.<br>
@@ -190,6 +205,18 @@ point pos
 : position to check.
 
 
+## terrain.IsWaterNearby
+
+Checks for water in a given radius.<br>
+
+bool **terrain.IsWaterNearby**(pos, radius)
+point pos
+: position to check.
+
+int radius
+: check radius.
+
+
 ## terrain.ScaleHeight
 
 Scales all values in the height grid by given nominator and denominator.<br>
@@ -216,6 +243,24 @@ int height
 
 ## terrain.SetHeightCircle
 
+Calculates the average height in the given circle, then modifies it by the given value<br>
+
+void **terrain.SetHeightCircle**(pt, nInnerRadius, nOuterRadius, nHeightDiff)
+point pt
+: the center of the circle area to alter.
+
+int nInnerRadius
+: radius of the inner circle, where the desired height will be set without smoothing.
+
+int nOuterRadius
+: radius of the outer ring, where the new height will be smoothed toward the current values.
+
+int nHeightDiff
+: value to add to the computed average height.
+
+
+## terrain.SetHeightCircle
+
 Sets the height values in the given circle, smoothing the height in the outer ring toward the existing values<br>
 
 void **terrain.SetHeightCircle**(pt, nInnerRadius, nOuterRadius, nHeight, mode)
@@ -233,24 +278,6 @@ int nHeight
 
 int mode
 : optional, can be const.hsDefault (default, set target values directly), const.hsMin (new_height = Min(new_height, current)) or const.hsMax (new_height = Max(new_height, current)).
-
-
-## terrain.SetHeightCircle
-
-Calculates the average height in the given circle, then modifies it by the given value<br>
-
-void **terrain.SetHeightCircle**(pt, nInnerRadius, nOuterRadius, nHeightDiff)
-point pt
-: the center of the circle area to alter.
-
-int nInnerRadius
-: radius of the inner circle, where the desired height will be set without smoothing.
-
-int nOuterRadius
-: radius of the outer ring, where the new height will be smoothed toward the current values.
-
-int nHeightDiff
-: value to add to the computed average height.
 
 
 ## terrain.SetTerrainType
@@ -306,6 +333,15 @@ int, int **terrain.TypeMapSize**()
 Returns the size of the typemap tile.<br>
 
 int **terrain.TypeTileSize**()
+
+## terrain.UpdateWaterGridFromObject
+
+Sets the water height from the position of a given object.<br>
+
+void **terrain.UpdateWaterGridFromObject**(obj)
+object obj
+: object to use (or it's position).
+
 
 
 

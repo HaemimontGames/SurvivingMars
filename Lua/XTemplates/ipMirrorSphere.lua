@@ -33,23 +33,23 @@ PlaceObj('XTemplate', {
 			'ActionId', "Freeze",
 			'ActionToolbar', "cheats",
 			'OnAction', function (self, host, source)
-host.context:SetCommand("ColdWaveCmd")
-end,
+				host.context:SetCommand("ColdWaveCmd")
+			end,
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "Split",
 			'ActionToolbar', "cheats",
 			'OnAction', function (self, host, source)
-host.context:SetCommand("SplitCmd")
-end,
+				host.context:SetCommand("SplitCmd")
+			end,
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "Charge 10%",
 			'ActionToolbar', "cheats",
 			'OnAction', function (self, host, source)
-host.context:SetCharge(host.context.sphere_charge + MulDivRound(host.context.max_progress, 10, 100))
-ObjModified(host.context)
-end,
+				host.context:SetCharge(host.context.sphere_charge + MulDivRound(host.context.max_progress, 10, 100))
+				ObjModified(host.context)
+			end,
 		}),
 		}),
 })

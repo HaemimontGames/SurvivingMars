@@ -1,6 +1,6 @@
 DefineClass.FakeAttackRover = {
 	__parents = { "Object" },
-	enum_flags = { efWalkable = false, efCollision = false, efApplyToGrids = false },
+	flags = { efWalkable = false, efCollision = false, efApplyToGrids = false },
 	entity = "CombatRover",
 	fx_actor_class = "AttackRover",
 }
@@ -8,13 +8,14 @@ DefineClass.FakeAttackRover = {
 DefineClass.AttackRover = {
 	__parents = { "BaseRover" },
 	entity = "CombatRover",
-
+	SelectionClass = "AttackRover",
 	properties = {
 		{ id = "can_repair",	editor = "bool", default = true, no_edit = true }, -- to forbid repair individually when it is globally allowed
 		{ template = true, category = "Attack Rover", name = T(673, "Protect Range"),	id = "protect_range",	editor = "number", default = 20, help = "If meteors would fall within dist range it can be destroyed by the rocket (in hexes)" },
 	},
 	
 	display_name = T(6921, "Experimental Vehicle"),
+	display_name_pl = T(12088, "Experimental Vehicles"),
 	description = T(6922, "A remote-controlled vehicle, property of EsoCorp."),
 	reclaimed_description = T(6923, "A remote-controlled combat vehicle, reclaimed by the Colony. Protects against meteor strikes and EsoCorp vehicles."),
 	display_icon = "UI/Icons/Buildings/rover_combat.tga",
@@ -144,7 +145,7 @@ function AttackRover:Spawn()
 			local y = city:Random(miny, maxy)
 			local pt = point(x, y)
 					
-			if IsPlayablePoint(pt) and not GetDomeAtPoint(pt) then
+			if IsPlayablePoint(pt) and not GetDomeAtHex(WorldToHex(pt)) then
 				pt = pt:SetStepZ()
 				if not DomeCollisionCheck(pt, pt + dir) then
 					spawn_pos = pt
@@ -225,7 +226,7 @@ function AttackRover:RoamTick()
 		local angle = city:Random(360*60)
 		
 		local pt = RotateRadius(dist, angle, pos)
-		if IsPlayablePoint(pt) and not GetDomeAtPoint(pt) then
+		if IsPlayablePoint(pt) and not GetDomeAtHex(WorldToHex(pt)) then
 			roam_target = pt
 			break
 		end
@@ -283,7 +284,7 @@ function AttackRover:PickTarget()
 			for i = 1,#list do
 				local obj = list[(offset + i)% count + 1]
 				local is_building = obj:IsKindOf("Building")
-				if (is_building and not obj.destroyed and not obj.parent_dome) or (not is_building and not obj:IsDead()) then
+				if (is_building and not obj.destroyed and not obj.parent_dome) or (not is_building and not obj:IsMalfunctioned() and not obj:IsDead()) then
 					target = obj
 					break
 				end
@@ -553,7 +554,7 @@ function AttackRover:ToggleRepair_Update(button)
 end
 
 function AttackRover:GetSelectionRadiusScale()	
-	if self == WorkRadiusShownForRover then
+	if WorkRadiusShownForRover[self] then
 		return self.protect_range
 	else
 		return 0
@@ -561,21 +562,29 @@ function AttackRover:GetSelectionRadiusScale()
 end
 
 function AttackRover:ShowWorkRadius(show, reason)
+	local reasons = WorkRadiusShownForRoverReasons[self] or { }
+	
 	if show then
-		if next(WorkRadiusShownForRoverReasons) == nil then
-			WorkRadiusShownForRover = self
+		if next(reasons) == nil then
+			WorkRadiusShownForRover[self] = true
 			PlayFX("ShowWorkRadius", "start", self)
 		end
 		
-		WorkRadiusShownForRoverReasons[reason] = true
+		reasons[reason] = true
 	else
-		if WorkRadiusShownForRover == self then
-			WorkRadiusShownForRoverReasons[reason] = nil
-			if next(WorkRadiusShownForRoverReasons) == nil then
+		if WorkRadiusShownForRover[self] then
+			reasons[reason] = nil
+			if next(reasons) == nil then
 				PlayFX("ShowWorkRadius", "end", self)
-				WorkRadiusShownForRover = false
+				WorkRadiusShownForRover[self] = nil
 			end
 		end
+	end
+	
+	if next(reasons) then
+		WorkRadiusShownForRoverReasons[self] = reasons
+	else
+		WorkRadiusShownForRoverReasons[self] = nil
 	end
 end
 
@@ -647,16 +656,19 @@ function AttackRover:Track(meteor)
 	end, self, meteor, target_pt, t_impact)
 end
 
-function OnMsg.SelectedObjChange(obj, prev)
-	if IsKindOf(prev, "AttackRover") then
-		WorkRadiusShownForRoverReasons = {} --when rover loses selection clean all other reasons, needed for when button corresponding handler doesn't fire.
-		prev:ShowWorkRadius(false, "protect")
-	end
-	
+function OnMsg.SelectionAdded(obj)
 	if IsKindOf(obj, "AttackRover") then
 		if obj.reclaimed then
 			obj:ShowWorkRadius(true, "protect")
 		end
+	end
+end
+
+function OnMsg.SelectionRemoved(obj)
+	if IsKindOf(obj, "AttackRover") then
+		--when rover loses selection clean all other reasons, needed for when button corresponding handler doesn't fire.
+		WorkRadiusShownForRoverReasons = {}
+		obj:ShowWorkRadius(false, "protect")
 	end
 end
 

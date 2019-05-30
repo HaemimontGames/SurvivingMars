@@ -2,7 +2,7 @@ GlobalVar("g_BoostWorkersInWorkshopsCount", 0)
 
 DefineClass.Workshop = {
 	__parents = { "ElectricityConsumer", "Workplace" },
-	enum_flags = { efWalkable = true },
+	flags = { efWalkable = true },
 }
 
 function Workshop:UpdateWorkerMorale(worker)
@@ -19,7 +19,7 @@ end
 function Workshop:OnChangeWorkshift(old, new)
 	local working = self.working
 	if old then
-		self:Consume_Workshop(old)
+		self:Consume_Workshop(old, new)
 		local workers = self.workers[old]
 		local comfort_boost = Min(MulDivRound(g_Consts.WorkInWorkshopComfortBoost, self.performance, 100), 100*const.Scale.Stat)
 		for _, worker in ipairs(workers) do
@@ -38,11 +38,11 @@ function Workshop:GetWorkersConsumption(shift)
 	return  MulDivRound(workers_percent,self.consumption_amount, 100)
 end
 
-function Workshop:CanConsume()
-	return HasConsumption.CanConsume(self) and self:GetWorkersConsumption()<=self.consumption_stored_resources
+function Workshop:CanConsume(shift)
+	return HasConsumption.CanConsume(self) and self:GetWorkersConsumption(shift)<= self.consumption_stored_resources
 end
 
-function Workshop:Consume_Workshop(shift)
+function Workshop:Consume_Workshop(shift, new_shift)
 	if self:DoesHaveConsumption() and self.consumption_type == g_ConsumptionType.Workshop then
 		local amount_to_consume = self:GetWorkersConsumption(shift)
 		if self.consumption_stored_resources>= amount_to_consume then
@@ -54,6 +54,9 @@ function Workshop:Consume_Workshop(shift)
 			self:UpdateRequestConnectivity()
 		else
 			--self:SetWorking(false) --we ran out of resources.
+		end
+		if not self:CanConsume(new_shift) then
+			self:AttachSign(true, "SignNoConsumptionResource")
 		end
 		if SelectedObj == self then
 			RebuildInfopanel(self)

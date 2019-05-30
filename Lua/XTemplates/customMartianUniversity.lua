@@ -19,8 +19,8 @@ PlaceObj('XTemplate', {
 			'name', "OnActivate(self, context)",
 			'parent', function (parent, context) return parent.parent end,
 			'func', function (self, context)
-OpenInfopanelItems(context, self)
-end,
+				OpenInfopanelItems(context, self)
+			end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "InfopanelText",

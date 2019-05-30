@@ -9,7 +9,11 @@ PlaceObj('StoryBit', {
 	},
 	Image = "UI/Messages/Events/18_moxie.tga",
 	InheritsObject = false,
-	Prerequisites = {},
+	Prerequisites = {
+		PlaceObj('AreDomesOpen', {
+			'Negate', true,
+		}),
+	},
 	ScriptDone = true,
 	Text = T(164476060825, --[[StoryBit BadMOXIE_SecondTime Text]] "Once again, a MOXIE unit has shut down and stopped producing Oxygen. Drones report that many of the internal parts of the MOXIE have suffered structural damage much earlier than expected."),
 	TextReadyForValidation = true,
@@ -17,6 +21,15 @@ PlaceObj('StoryBit', {
 	VoicedText = T(536896361272, --[[voice:narrator]] "A yellow light starts flashing on your terminal. Sure enough it is one of those damned MOXIE units again."),
 	group = "Disasters",
 	id = "BadMOXIE_SecondTime",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1550844439,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitReply', {
 		'Text', T(335704931889, --[[StoryBit BadMOXIE_SecondTime Text]] "Reinforce the failing parts."),
 		'OutcomeText', "custom",

@@ -19,7 +19,7 @@ function CloningVats:BuildingUpdate(dt, ...)
 				colonist_table.traits["Dreamer"] = true
 			end
 			local colonist = Colonist:new(colonist_table)
-			colonist:OnEnterDome(self.parent_dome)
+			colonist:SetOutside(false)
 			self:OnEnterUnit(colonist)
 			Msg("ColonistBorn", colonist, "cloned")
 			self.progress = 0

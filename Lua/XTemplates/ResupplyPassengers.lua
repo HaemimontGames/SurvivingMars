@@ -14,22 +14,22 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-self.context:SetDialog(self)
-XDialog.Open(self, ...)
-if HintsEnabled then
-	ContextAwareHintShow("HintPassengerRocket", true)
-end
-self:SetPadding(GetSafeMargins(self:GetPadding()))
-end,
+				self.context:SetDialog(self)
+				XDialog.Open(self, ...)
+				if HintsEnabled then
+					ContextAwareHintShow("HintPassengerRocket", true)
+				end
+				self:SetPadding(GetSafeMargins(self:GetPadding()))
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnDelete",
 			'func', function (self, ...)
-if HintsEnabled then
-	ContextAwareHintShow("HintPassengerRocket", false)
-end
-RefundPassenger()
-end,
+				if HintsEnabled then
+					ContextAwareHintShow("HintPassengerRocket", false)
+				end
+				RefundPassenger()
+			end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "ActionBarNew",
@@ -52,7 +52,8 @@ end,
 				'RespawnOnContext', false,
 			}, {
 				PlaceObj('XTemplateWindow', {
-					'Margins', box(15, 30, 0, 0),
+					'comment', "rocket info",
+					'Margins', box(15, 0, 0, 0),
 					'Dock', "top",
 				}, {
 					PlaceObj('XTemplateWindow', {
@@ -68,11 +69,11 @@ end,
 					}),
 					PlaceObj('XTemplateCode', {
 						'run', function (self, parent, context)
-local hint = parent:ResolveId("idGamepadRenameHint")
-if hint then
-	hint:SetImage(GetPlatformSpecificImagePath("RSPress"))
-end
-end,
+							local hint = parent:ResolveId("idGamepadRenameHint")
+							if hint then
+								hint:SetImage(GetPlatformSpecificImagePath("RSPress"))
+							end
+						end,
 					}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XText",
@@ -90,9 +91,9 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "OnHyperLink(self, hyperlink, argument, hyperlink_box, pos, button)",
 							'func', function (self, hyperlink, argument, hyperlink_box, pos, button)
-local host = GetDialog(self)
-host.context:RenameRocket(host)
-end,
+								local host = GetDialog(self)
+								host.context:RenameRocket(host)
+							end,
 						}),
 						}),
 					}),
@@ -104,8 +105,8 @@ end,
 					'LayoutHSpacing', 70,
 					'ContextUpdateOnOpen', true,
 					'OnContextUpdate', function (self, context, ...)
-context:SetUIResupplyParams(self)
-end,
+						context:SetUIResupplyParams(self)
+					end,
 				}, {
 					PlaceObj('XTemplateWindow', {
 						'MinWidth', 300,
@@ -169,6 +170,92 @@ end,
 						}),
 						}),
 					}),
+				PlaceObj('XTemplateWindow', {
+					'comment', "specialist",
+					'Margins', box(15, 0, 0, 0),
+					'Dock', "top",
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XText",
+						'Padding', box(0, 0, 0, 0),
+						'HAlign', "left",
+						'MaxHeight', 50,
+						'HandleMouse', false,
+						'MouseCursor', "UI/Cursors/Rollover.tga",
+						'TextStyle', "LandingPosName",
+						'Translate', true,
+						'Text', T(386907088421, --[[XTemplate ResupplyPassengers Text]] "Specialists on board"),
+						'Shorten', true,
+						'TextHAlign', "right",
+					}),
+					}),
+				PlaceObj('XTemplateWindow', {
+					'__class', "XContextWindow",
+					'Margins', box(55, 0, 0, 0),
+					'Dock', "top",
+					'LayoutMethod', "HList",
+					'LayoutHSpacing', 70,
+					'ContextUpdateOnOpen', true,
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'LayoutMethod', "Grid",
+						'LayoutHSpacing', 120,
+						'UniformColumnWidth', true,
+						'UniformRowHeight', true,
+					}, {
+						PlaceObj('XTemplateForEach', {
+							'array', function (parent, context) local t = table.keys2(const.ColonistSpecialization, true) table.remove_entry(t, "none")  table.insert(t, 1, "none") return t end,
+							'item_in_context', "spec",
+							'run_after', function (child, context, item, i, n)
+								--(child, context, item, i, n)
+								local data= const.ColonistSpecialization[item]
+								child.idSpecialization:SetText(data.display_name)
+								child.idValue:SetText(T{12312, "<approved>/<all>",approved = context:GetApprovedSpecialist(item), all = context:GetMatchingSpecialist(item)})
+								child:SetGridX((i-1)/4+1)
+								child:SetGridY((i-1)%4+1)
+							end,
+						}, {
+							PlaceObj('XTemplateWindow', {
+								'__class', "XContextWindow",
+								'RolloverTemplate', "Rollover",
+								'RolloverTitle', T(223702992751, --[[XTemplate ResupplyPassengers RolloverTitle]] "Specialists"),
+								'IdNode', true,
+								'LayoutHSpacing', 70,
+								'UniformColumnWidth', true,
+								'HandleMouse', true,
+								'ContextUpdateOnOpen', true,
+								'OnContextUpdate', function (self, context, ...)
+									--(child, context, item, i, n)
+									local data= const.ColonistSpecialization[context.spec]
+									self.idSpecialization:SetText(data.display_name)
+									self.idValue:SetText(T{12312, "<approved>/<all>",approved = context:GetApprovedSpecialist(context.spec), all = context:GetMatchingSpecialist(context.spec)})
+									local open_positions = GetNeededSpecialistAround(false, context.spec)
+									self:SetRolloverText(T{12313, "Selected Applicants / All Matching Specialist Amount<newline>Open positions<right><open_positions>", open_positions = open_positions})
+								end,
+							}, {
+								PlaceObj('XTemplateWindow', {
+									'__class', "XText",
+									'RolloverTitle', T(456723473249, --[[XTemplate ResupplyPassengers RolloverTitle]] "Specialists"),
+									'Id', "idSpecialization",
+									'Padding', box(0, 0, 0, 0),
+									'MinWidth', 250,
+									'MaxWidth', 250,
+									'TextStyle', "PGLandingPosDetails",
+									'Translate', true,
+								}),
+								PlaceObj('XTemplateWindow', {
+									'__class', "XText",
+									'RolloverTitle', T(382874395470, --[[XTemplate ResupplyPassengers RolloverTitle]] "Specialists"),
+									'Id', "idValue",
+									'Padding', box(0, 0, 0, 0),
+									'TextStyle', "PGChallengeDescription",
+									'Translate', true,
+									'TextHAlign', "right",
+								}),
+								}),
+							}),
+						}),
+					}),
 				PlaceObj('XTemplateMode', {
 					'mode', "traitCategories",
 				}, {
@@ -178,8 +265,8 @@ end,
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "LeftTrigger",
 						'OnAction', function (self, host, source)
-BuyApplicants(host)
-end,
+							BuyApplicants(host)
+						end,
 						'__condition', function (parent, context) return GetMissionSponsor().applicants_price > 0 end,
 					}),
 					PlaceObj('XTemplateAction', {
@@ -196,16 +283,26 @@ end,
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonY",
 						'ActionState', function (self, host)
-if not host.context:CanClearFilter() then
-	return "disabled"
-end
-end,
+							if not host.context:CanClearFilter() then
+								return "disabled"
+							end
+						end,
 						'OnAction', function (self, host, source)
-host.context:ClearTraits()
-end,
+							host.context:ClearTraits()
+						end,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "rename",
+						'ActionName', T(12462, --[[XTemplate ResupplyPassengers ActionName]] "RENAME"),
+						'ActionToolbar', "ActionBar",
+						'ActionGamepad', "RightThumbClick",
+						'OnAction', function (self, host, source)
+							host.context:RenameRocket(host)
+						end,
+						'__condition', function (parent, context) return not UICity or UICity.launch_mode ~= "passenger_pod" end,
 					}),
 					PlaceObj('XTemplateWindow', {
-						'Margins', box(55, 20, 0, 0),
+						'Margins', box(55, 0, 0, 0),
 						'Dock', "top",
 						'HAlign', "left",
 					}, {
@@ -231,7 +328,6 @@ end,
 						}),
 						}),
 					PlaceObj('XTemplateWindow', {
-						'Margins', box(0, 10, 0, 20),
 						'Dock', "top",
 					}, {
 						PlaceObj('XTemplateWindow', {
@@ -239,7 +335,7 @@ end,
 							'Id', "idList",
 							'BorderWidth', 0,
 							'Padding', box(15, 2, 2, 2),
-							'LayoutVSpacing', 8,
+							'LayoutVSpacing', 6,
 							'UniformRowHeight', true,
 							'Clip', false,
 							'Background', RGBA(0, 0, 0, 0),
@@ -250,22 +346,22 @@ end,
 						}, {
 							PlaceObj('XTemplateCode', {
 								'run', function (self, parent, context)
-parent:ResolveId("idTitle"):SetText(T(1117, "CATEGORIES"))
-end,
+									parent:ResolveId("idTitle"):SetText(T(1117, "CATEGORIES"))
+								end,
 							}),
 							PlaceObj('XTemplateForEach', {
 								'comment', "category",
 								'array', function (parent, context) return context:GetProperties() end,
 								'item_in_context', "prop_meta",
 								'run_after', function (child, context, item, i, n)
-local rollover = context:GetCategoryRollover(item)
-if rollover then
-	child:SetRolloverTitle(rollover.title)
-	child:SetRolloverText(rollover.descr)
-	child:SetRolloverHint(rollover.hint)
-	child:SetRolloverHintGamepad(rollover.gamepad_hint)
-end
-end,
+									local rollover = context:GetCategoryRollover(item)
+									if rollover then
+										child:SetRolloverTitle(rollover.title)
+										child:SetRolloverText(rollover.descr)
+										child:SetRolloverHint(rollover.hint)
+										child:SetRolloverHintGamepad(rollover.gamepad_hint)
+									end
+								end,
 							}, {
 								PlaceObj('XTemplateTemplate', {
 									'__template', "PropTrait",
@@ -304,24 +400,43 @@ end,
 						'OnActionEffect', "back",
 					}),
 					PlaceObj('XTemplateAction', {
+						'ActionId', "apply",
+						'ActionName', T(713086923946, --[[XTemplate ResupplyPassengers ActionName]] "APPLY"),
+						'ActionToolbar', "ActionBar",
+						'ActionShortcut', "Enter",
+						'ActionGamepad', "ButtonA",
+						'OnActionEffect', "mode",
+						'OnActionParam', "review",
+					}),
+					PlaceObj('XTemplateAction', {
 						'ActionId', "clear",
 						'ActionName', T(5448, --[[XTemplate ResupplyPassengers ActionName]] "CLEAR"),
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonY",
 						'ActionState', function (self, host)
-local prop_meta = GetDialogModeParam(host)
-local category = prop_meta and prop_meta.id or nil
-if not host.context:CanClearFilter(category) then
-	return "disabled"
-end
-end,
+							local prop_meta = GetDialogModeParam(host)
+							local category = prop_meta and prop_meta.id or nil
+							if not host.context:CanClearFilter(category) then
+								return "disabled"
+							end
+						end,
 						'OnAction', function (self, host, source)
-local prop_meta = GetDialogModeParam(host)
-host.context:ClearTraits(prop_meta)
-end,
+							local prop_meta = GetDialogModeParam(host)
+							host.context:ClearTraits(prop_meta)
+						end,
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "rename",
+						'ActionName', T(12462, --[[XTemplate ResupplyPassengers ActionName]] "RENAME"),
+						'ActionToolbar', "ActionBar",
+						'ActionGamepad', "RightThumbClick",
+						'OnAction', function (self, host, source)
+							host.context:RenameRocket(host)
+						end,
+						'__condition', function (parent, context) return not UICity or UICity.launch_mode ~= "passenger_pod" end,
 					}),
 					PlaceObj('XTemplateWindow', {
-						'Margins', box(55, 20, 0, 0),
+						'Margins', box(55, 10, 0, 0),
 						'Dock', "top",
 						'HAlign', "left",
 					}, {
@@ -347,7 +462,7 @@ end,
 						}),
 						}),
 					PlaceObj('XTemplateWindow', {
-						'Margins', box(0, 10, 0, 20),
+						'Margins', box(0, 10, 0, 10),
 						'Dock', "top",
 					}, {
 						PlaceObj('XTemplateWindow', {
@@ -366,26 +481,26 @@ end,
 						}, {
 							PlaceObj('XTemplateCode', {
 								'run', function (self, parent, context)
-local title = parent:ResolveId("idTitle")
-local param = GetDialogModeParam(parent)
-if title and param then
-	title:SetText(param.name)
-end
-end,
+									local title = parent:ResolveId("idTitle")
+									local param = GetDialogModeParam(parent)
+									if title and param then
+										title:SetText(param.name)
+									end
+								end,
 							}),
 							PlaceObj('XTemplateForEach', {
 								'comment', "item",
 								'array', function (parent, context) return GetDialogModeParam(parent).items(context) end,
 								'item_in_context', "prop_meta",
 								'run_after', function (child, context, item, i, n)
-local rollover = item.rollover
-if rollover then
-	child:SetRolloverTitle(rollover.title)
-	child:SetRolloverText(rollover.descr)
-	child:SetRolloverHint(rollover.hint)
-	child:SetRolloverHintGamepad(rollover.gamepad_hint)
-end
-end,
+									local rollover = item.rollover
+									if rollover then
+										child:SetRolloverTitle(rollover.title)
+										child:SetRolloverText(rollover.descr)
+										child:SetRolloverHint(rollover.hint)
+										child:SetRolloverHintGamepad(rollover.gamepad_hint)
+									end
+								end,
 							}, {
 								PlaceObj('XTemplateTemplate', {
 									'__template', "PropTrait",
@@ -438,13 +553,22 @@ end,
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonX",
 						'OnAction', function (self, host, source)
-LaunchPassengerRocket(host)
-end,
+							LaunchPassengerRocket(host)
+						end,
 						'FXPress', "LaunchSupplyRocketClick",
+					}),
+					PlaceObj('XTemplateAction', {
+						'ActionId', "rename",
+						'ActionName', T(12462, --[[XTemplate ResupplyPassengers ActionName]] "RENAME"),
+						'ActionToolbar', "ActionBar",
+						'ActionGamepad', "RightThumbClick",
+						'OnAction', function (self, host, source)
+							host.context:RenameRocket(host)
+						end,
+						'__condition', function (parent, context) return not UICity or UICity.launch_mode ~= "passenger_pod" end,
 					}),
 					PlaceObj('XTemplateWindow', {
 						'Id', "idListsWrapper",
-						'Margins', box(0, 20, 0, 0),
 						'Dock', "top",
 					}, {
 						PlaceObj('XTemplateWindow', {
@@ -477,15 +601,14 @@ end,
 								'Text', T(914430779802, --[[XTemplate ResupplyPassengers Text]] "SELECTED <ApprovedColonists>/<PassengerCapacity>"),
 							}),
 							PlaceObj('XTemplateWindow', {
-								'Margins', box(0, 30, 0, 20),
+								'Margins', box(0, 10, 0, 10),
 							}, {
 								PlaceObj('XTemplateWindow', {
 									'__class', "XContentTemplateList",
 									'Id', "idRightList",
-									'Margins', box(0, 0, 30, 0),
+									'Margins', box(0, 5, 30, 0),
 									'BorderWidth', 0,
 									'Padding', box(0, 0, 0, 0),
-									'LayoutVSpacing', 2,
 									'UniformRowHeight', true,
 									'Clip', false,
 									'Background', RGBA(0, 0, 0, 0),
@@ -495,47 +618,47 @@ end,
 									'MouseScroll', true,
 									'GamepadInitialSelection', false,
 									'OnContextUpdate', function (self, context, ...)
-local focus = self.focused_item
-XContentTemplateList.OnContextUpdate(self, context, ...)
-if focus and self:IsFocused(true) then
-	self:DeleteThread("select")
-	self:CreateThread("select", function(focus)
-		local list = self
-		if #self <= 0 then
-			list =  self:ResolveId("idLeftList")
-			self:SetFocus(false, true)
-			list:SetFocus()
-		end
-		list:SetSelection(false)
-		list:ScrollTo(0,0, "force")
-		list:SetSelection(Min(#list, focus))
-	end, focus)
-end
-end,
+										local focus = self.focused_item
+										XContentTemplateList.OnContextUpdate(self, context, ...)
+										if focus and self:IsFocused(true) then
+											self:DeleteThread("select")
+											self:CreateThread("select", function(focus)
+												local list = self
+												if #self <= 0 then
+													list =  self:ResolveId("idLeftList")
+													self:SetFocus(false, true)
+													list:SetFocus()
+												end
+												list:SetSelection(false)
+												list:ScrollTo(0,0, "force")
+												list:SetSelection(Min(#list, focus))
+											end, focus)
+										end
+									end,
 								}, {
 									PlaceObj('XTemplateFunc', {
 										'name', "OnShortcut(self, shortcut, source)",
 										'func', function (self, shortcut, source)
-if shortcut == "DPadLeft" or shortcut == "LeftThumbLeft" then
-	local list = self:ResolveId("idLeftList")
-	if list and #list > 0 then
-		local right_top = self.focused_item or 1
-		while self[right_top-1] and not self[right_top-1].outside_parent do
-			right_top = right_top - 1
-		end
-		local diff = (self.focused_item or 1) - right_top
-		local left_top = list.focused_item or 1
-		while list[left_top-1] and not list[left_top-1].outside_parent do
-			left_top = left_top - 1
-		end
-		self:SetFocus(false, true)
-		list:SetFocus()
-		list:SetSelection(Min(#list, left_top + diff))
-	end
-	return "break"
-end
-return XContentTemplateList.OnShortcut(self, shortcut, source)
-end,
+											if shortcut == "DPadLeft" or shortcut == "LeftThumbLeft" then
+												local list = self:ResolveId("idLeftList")
+												if list and #list > 0 then
+													local right_top = self.focused_item or 1
+													while self[right_top-1] and not self[right_top-1].outside_parent do
+														right_top = right_top - 1
+													end
+													local diff = (self.focused_item or 1) - right_top
+													local left_top = list.focused_item or 1
+													while list[left_top-1] and not list[left_top-1].outside_parent do
+														left_top = left_top - 1
+													end
+													self:SetFocus(false, true)
+													list:SetFocus()
+													list:SetSelection(Min(#list, left_top + diff))
+												end
+												return "break"
+											end
+											return XContentTemplateList.OnShortcut(self, shortcut, source)
+										end,
 									}),
 									PlaceObj('XTemplateMode', {
 										'mode', "review",
@@ -545,8 +668,8 @@ end,
 											'array', function (parent, context) return context:GetApprovedApplicantsList() end,
 											'item_in_context', "prop_meta",
 											'run_before', function (parent, context, item, i, n)
-NewXVirtualContent(parent, context, "PropApplicantSelected", 322, 35)
-end,
+												NewXVirtualContent(parent, context, "PropApplicantSelected", 322, 35)
+											end,
 										}),
 										}),
 									}),
@@ -575,16 +698,15 @@ end,
 								'Text', T(794457706937, --[[XTemplate ResupplyPassengers Text]] "MATCHING APPLICANTS <MatchingColonistsCount>"),
 							}),
 							PlaceObj('XTemplateWindow', {
-								'Margins', box(0, 30, 0, 20),
+								'Margins', box(0, 10, 0, 0),
 							}, {
 								PlaceObj('XTemplateWindow', {
 									'__class', "XContentTemplateList",
 									'Id', "idLeftList",
-									'Margins', box(39, 0, 0, 0),
+									'Margins', box(39, 5, 0, 0),
 									'BorderWidth', 0,
 									'Padding', box(0, 0, 0, 0),
 									'MinWidth', 300,
-									'LayoutVSpacing', 2,
 									'UniformRowHeight', true,
 									'Clip', false,
 									'Background', RGBA(0, 0, 0, 0),
@@ -594,58 +716,58 @@ end,
 									'MouseScroll', true,
 									'GamepadInitialSelection', false,
 									'OnContextUpdate', function (self, context, ...)
-local focus = self.focused_item
-XContentTemplateList.OnContextUpdate(self, context, ...)
-if focus and self:IsFocused(true) then
-	self:DeleteThread("select")
-	self:CreateThread("select", function(focus)
-		local list = self
-		if #self <= 0 then
-			list =  self:ResolveId("idRightList")
-			self:SetFocus(false, true)
-			list:SetFocus()
-		end
-		list:SetSelection(false)
-		list:ScrollTo(0,0, "force")
-		list:SetSelection(Min(#list, focus))
-	end, focus)
-end
-end,
+										local focus = self.focused_item
+										XContentTemplateList.OnContextUpdate(self, context, ...)
+										if focus and self:IsFocused(true) then
+											self:DeleteThread("select")
+											self:CreateThread("select", function(focus)
+												local list = self
+												if #self <= 0 then
+													list =  self:ResolveId("idRightList")
+													self:SetFocus(false, true)
+													list:SetFocus()
+												end
+												list:SetSelection(false)
+												list:ScrollTo(0,0, "force")
+												list:SetSelection(Min(#list, focus))
+											end, focus)
+										end
+									end,
 								}, {
 									PlaceObj('XTemplateFunc', {
 										'name', "Open",
 										'func', function (self, ...)
-local list = #self > 0 and self or self:ResolveId("idRightList")
-list:SetFocus()
-if GetUIStyleGamepad() then
-	list:SetSelection(1)
-end
-XContentTemplateList.Open(self, ...)
-end,
+											local list = #self > 0 and self or self:ResolveId("idRightList")
+											list:SetFocus()
+											if GetUIStyleGamepad() then
+												list:SetSelection(1)
+											end
+											XContentTemplateList.Open(self, ...)
+										end,
 									}),
 									PlaceObj('XTemplateFunc', {
 										'name', "OnShortcut(self, shortcut, source)",
 										'func', function (self, shortcut, source)
-if shortcut == "DPadRight" or shortcut == "LeftThumbRight" then
-	local list = self:ResolveId("idRightList")
-	if list and #list > 0 then
-		local left_top = self.focused_item or 1
-		while self[left_top-1] and not self[left_top-1].outside_parent do
-			left_top = left_top - 1
-		end
-		local diff = (self.focused_item or 1) - left_top
-		local right_top = list.focused_item or 1
-		while list[right_top-1] and not list[right_top-1].outside_parent do
-			right_top = right_top - 1
-		end
-		self:SetFocus(false, true)
-		list:SetFocus()
-		list:SetSelection(Min(#list, right_top + diff))
-	end
-	return "break"
-end
-return XContentTemplateList.OnShortcut(self, shortcut, source)
-end,
+											if shortcut == "DPadRight" or shortcut == "LeftThumbRight" then
+												local list = self:ResolveId("idRightList")
+												if list and #list > 0 then
+													local left_top = self.focused_item or 1
+													while self[left_top-1] and not self[left_top-1].outside_parent do
+														left_top = left_top - 1
+													end
+													local diff = (self.focused_item or 1) - left_top
+													local right_top = list.focused_item or 1
+													while list[right_top-1] and not list[right_top-1].outside_parent do
+														right_top = right_top - 1
+													end
+													self:SetFocus(false, true)
+													list:SetFocus()
+													list:SetSelection(Min(#list, right_top + diff))
+												end
+												return "break"
+											end
+											return XContentTemplateList.OnShortcut(self, shortcut, source)
+										end,
 									}),
 									PlaceObj('XTemplateMode', {
 										'mode', "review",
@@ -655,8 +777,8 @@ end,
 											'array', function (parent, context) return context:GetMatchingApplicantsList() end,
 											'item_in_context', "prop_meta",
 											'run_before', function (parent, context, item, i, n)
-NewXVirtualContent(parent, context, "PropApplicant", 300, 35)
-end,
+												NewXVirtualContent(parent, context, "PropApplicant", 300, 35)
+											end,
 										}),
 										}),
 									}),

@@ -374,3 +374,25 @@ function Effect_GrantTech:OnApplyEffect(city, parent)
 	end
 	city:SetTechResearched(self.Research)
 end
+
+----
+
+DefineClass.Effect_GrantPrefab = {
+	__parents = { "Tech_Effect" },
+	properties = {
+		{ category = "General", id = "Prefab", name = "Prefab", editor = "choice", default = "", items = function() return BuildingsCombo() end, editor_update = true },
+		{ category = "General", id = "Amount", name = "Amount", editor = "number", default = 1, editor_update = true },
+	},
+	EditorName = "Grant Prefabs",
+	Description = T(12291, "<Amount> <Prefab>"),
+}
+
+function Effect_GrantPrefab:OnApplyEffect(city)
+	local amount = self.Amount
+	local prefab = self.Prefab
+	if prefab == "DronePrefab" then
+		city.drone_prefabs = UICity.drone_prefabs + amount
+	else
+		city:AddPrefabs(prefab, amount, false)
+	end
+end

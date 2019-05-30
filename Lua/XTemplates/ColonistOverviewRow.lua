@@ -10,9 +10,9 @@ PlaceObj('XTemplate', {
 		'RolloverHint', T(115984499466, --[[XTemplate ColonistOverviewRow RolloverHint]] "<left_click><left_click> Select"),
 		'RolloverHintGamepad', T(764097870353, --[[XTemplate ColonistOverviewRow RolloverHintGamepad]] "<ButtonA> Select"),
 		'OnContextUpdate', function (self, context, ...)
-UpdateUICommandCenterRow(self, context, "colonist")
-XContextControl.OnContextUpdate(self, context, ...)
-end,
+			UpdateUICommandCenterRow(self, context, "colonist")
+			XContextControl.OnContextUpdate(self, context, ...)
+		end,
 	}, {
 		PlaceObj('XTemplateWindow', {
 			'comment', "name",
@@ -32,10 +32,10 @@ end,
 			'comment', "stats",
 			'array', function (parent, context) return ColonistStatList end,
 			'run_after', function (child, context, item, i, n)
-child.OnContextUpdate = function(self, context)
-	context:UICommandCenterStatUpdate(self, item)
-end
-end,
+				child.OnContextUpdate = function(self, context)
+					context:UICommandCenterStatUpdate(self, item)
+				end
+			end,
 		}, {
 			PlaceObj('XTemplateWindow', {
 				'__class', "XContextWindow",

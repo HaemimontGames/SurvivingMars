@@ -8,9 +8,13 @@ PlaceObj('XTemplate', {
 		'ActionName', T(11628, --[[XTemplate CrashTest ActionName]] "CRASH TEST"),
 		'ActionToolbar', "mainmenu",
 		'OnAction', function (self, host, source)
-CloseIngameMainMenu()
-StartCrashTest()
-end,
+			CloseIngameMainMenu()
+			if CrashTestMode then
+				StopCrashTest()
+			else
+				StartCrashTest()
+			end
+		end,
 		'__condition', function (parent, context) return config.CrashTestEnabled end,
 	}),
 })

@@ -19,30 +19,30 @@ PlaceObj('XTemplate', {
 			'Margins', box(24, 6, 24, 6),
 			'LayoutMethod', "VList",
 			'OnContextUpdate', function (self, context, ...)
-local control = context.control
-local enabled = control:GetEnabled()
-local title = not enabled and context.RolloverDisabledTitle ~= "" and context.RolloverDisabledTitle or context.RolloverTitle ~= "" and context.RolloverTitle or control:GetRolloverTitle()
-self.idTitle:SetText(title)
-local show = self.idTitle.text ~= ""
-self.idTitle:SetVisible(show)
-
-self.idText:SetText(not enabled and context.RolloverDisabledText ~= "" and context.RolloverDisabledText or context.RolloverText ~= "" and context.RolloverText or control:GetRolloverText())
-
-if enabled then
-	local hint = context.gamepad and control:GetRolloverHintGamepad() or ""
-	if hint == "" then
-		hint = control:GetRolloverHint() or ""
-	end
-	self.idHint:SetText(context.gamepad and context.RolloverHintGamepad ~= "" and context.RolloverHintGamepad or context.RolloverHint ~= "" and context.RolloverHint or hint)
-else
-	self.idHint:SetText("")
-end
-show = self.idHint.text ~= ""
-self.idHint:SetVisible(show)
-if not show then
-	self.idText:SetMargins(box(0, 0, 0, 15))
-end
-end,
+				local control = context.control
+				local enabled = control:GetEnabled()
+				local title = not enabled and context.RolloverDisabledTitle ~= "" and context.RolloverDisabledTitle or context.RolloverTitle ~= "" and context.RolloverTitle or control:GetRolloverTitle()
+				self.idTitle:SetText(title)
+				local show = self.idTitle.text ~= ""
+				self.idTitle:SetVisible(show)
+				
+				self.idText:SetText(not enabled and context.RolloverDisabledText ~= "" and context.RolloverDisabledText or context.RolloverText ~= "" and context.RolloverText or control:GetRolloverText())
+				
+				if enabled then
+					local hint = context.gamepad and control:GetRolloverHintGamepad() or ""
+					if hint == "" then
+						hint = control:GetRolloverHint() or ""
+					end
+					self.idHint:SetText(context.gamepad and context.RolloverHintGamepad ~= "" and context.RolloverHintGamepad or context.RolloverHint ~= "" and context.RolloverHint or hint)
+				else
+					self.idHint:SetText("")
+				end
+				show = self.idHint.text ~= ""
+				self.idHint:SetVisible(show)
+				if not show then
+					self.idText:SetMargins(box(0, 0, 0, 15))
+				end
+			end,
 		}, {
 			PlaceObj('XTemplateWindow', {
 				'__class', "XText",
@@ -57,6 +57,8 @@ end,
 			PlaceObj('XTemplateTemplate', {
 				'__template', "RolloverText",
 				'Id', "idText",
+				'HAlign', "left",
+				'MinWidth', 400,
 				'MaxWidth', 400,
 			}),
 			PlaceObj('XTemplateWindow', {

@@ -7,6 +7,9 @@ PlaceObj('StoryBit', {
 	Enabled = true,
 	Image = "UI/Messages/Events/22_collapsing_building.tga",
 	Prerequisites = {
+		PlaceObj('AreDomesOpen', {
+			'Negate', true,
+		}),
 		PlaceObj('CheckObjectCount', {
 			'Label', "Rover",
 			'Filters', {},
@@ -23,6 +26,15 @@ PlaceObj('StoryBit', {
 	VoicedText = T(447842355156, --[[voice:narrator]] 'After suffering a Sanity breakdown, the victim ran to the hatch of the dome, quickly put on a space suit and hijacked a Rover. "Show me the enemy, Important Joe, and I’ll bring it fury!"'),
 	group = "Sanity Breakdown",
 	id = "WitnessMe",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1550837539,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitReply', {
 		'Text', T(558858165297, --[[StoryBit WitnessMe Text]] "That building, you see it? Charge!"),
 	}),
@@ -36,9 +48,7 @@ PlaceObj('StoryBit', {
 				'Filters', {},
 				'RandomCount', 1,
 				'Effects', {
-					PlaceObj('DestroyBuilding', {
-						'KillColonists', false,
-					}),
+					PlaceObj('DestroyBuilding', nil),
 				},
 			}),
 		},

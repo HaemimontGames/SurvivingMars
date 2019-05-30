@@ -52,6 +52,7 @@ function StartTutorial(id)
 		TutorialCleanup()
 	end
 
+	WaitWarnAboutSkippedMods()
 	-- change map	
 	LoadingScreenOpen("idLoadingScreen", "Tutorial")
 	
@@ -64,6 +65,7 @@ function StartTutorial(id)
 		Map = def.map,
 		MapMarkers = {},
 	}
+	g_CurrentMissionParams.GameSessionID = g_CurrentMissionParams.GameSessionID or srp.random_encode64(96)
 	ChangeMap(def.map)
 	
 	
@@ -205,7 +207,7 @@ function TutorialUIArrow:Init()
 		while true do
 			-- update anchor
 			local target
-			if not GetDialog("IGMainMenu") then
+			if not GetInGameMainMenu() then
 				target = self:FindTarget()
 			end
 			if target and target:IsVisible() then
@@ -220,10 +222,10 @@ function TutorialUIArrow:Init()
 					self:AddInterpolation{
 						id = "bounce",
 						type = const.intRect,
-						startRect = self.box,
-						startRectAutoZoom = 1000,
-						endRect = self.box + anim_offset,
-						endRectAutoZoom = 1000,
+						originalRect = self.box,
+						originalRectAutoZoom = 1000,
+						targetRect = self.box + anim_offset,
+						targetRectAutoZoom = 1000,
 						duration = 600,
 						--start = 0,
 						flags = const.intfPingPong + const.intfLooping,
@@ -265,8 +267,7 @@ DefineClass.TutorialMarker = {
 
 DefineClass.ArrowTutorialBase = {
 	__parents = { "AnimatedTextureObject" },
-	enum_flags = { efSelectable = false, efShadow = false, efSunShadow = false },
-	game_flags = { gofSpecialOrientMode = true, gofRealTimeAnim = true },
+	flags = { gofSpecialOrientMode = true, gofRealTimeAnim = true, efSelectable = false, efShadow = false, efSunShadow = false },
 	orient_mode = "facing_vertical",
 	entity = "ArrowTutorial",
 }
@@ -313,17 +314,13 @@ end
 
 DefineClass.TutorialGhostObj = {
 	__parents = { "SpawnFXObject", "AutoAttachObject" },
-	class_flags = { cfConstructible = true, cfComponentCustomData = true },
+	flags = { cfConstructible = true, cofComponentCustomData = true },
 }
 
 function TutorialGhostObj:ChangeEntity(...)
 	SpawnFXObject.ChangeEntity(self, ...)
 	AutoAttachObjectsToShapeshifter(self)
-	local function AddCustomData(obj)
-		obj:AddCustomData()
-		obj:ForEachAttach(AddCustomData)
-	end
-	AddCustomData(self)
+	PrepareForConstruction(self)
 	self:SetConstruction(0, 2, self:GetBBox())
 end
 
@@ -335,7 +332,7 @@ function TutorialGhostObj:GetBBox()
 		local attach = attaches[i]
 		if attach:GetClassFlags(const.cfConstructible) ~= 0 and attach:GetEnumFlags(const.efVisible) ~= 0 then
 			bbox = Extend(bbox, attach:GetEntityBBox())			
-			table.append(attaches, attach:GetAttaches())
+			table.iappend(attaches, attach:GetAttaches())
 		end
 		i = i + 1
 	end
@@ -592,7 +589,7 @@ function WaitResearchQueued(tech_id, close, wait_any_tech)
 				end
 			end
 			if table.find(UICity.research_queue, tech_id) and close then
-				return dlg and dlg.idOverlayDlg.idToolbar.idclose or false
+				return dlg and dlg.idToolBar.idclose or false
 			end
 			
 			--TODO: should the arrow change it's anchor type at this point?

@@ -27,67 +27,67 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnPropUpdate(self, context, prop_meta, value)",
 			'func', function (self, context, prop_meta, value)
-local items = prop_meta.items
-if type(items) == "function" then
-	items = items(context, prop_meta.id)
-end
-local text
-if type(value) == "table" then
-	local count = 0
-	for k,v in pairs(value) do
-		if v ~= "none" then
-			count = count + 1
-		end
-	end
-	if count == 0 then
-		text = T(9813, "None selected")
-	elseif count == 1 and value["random"] then
-		text = T(3490, "Random")
-	else
-		text = Untranslated("x" .. count)
-	end
-else
-	local entry = items and table.find_value(items, "value", value)
-	text = entry and entry.text or ""
-end
-
-self.idValue:SetText(text)
-end,
+				local items = prop_meta.items
+				if type(items) == "function" then
+					items = items(context, prop_meta.id)
+				end
+				local text
+				if type(value) == "table" then
+					local count = 0
+					for k,v in pairs(value) do
+						if v ~= "none" then
+							count = count + 1
+						end
+					end
+					if count == 0 then
+						text = T(9813, "None selected")
+					elseif count == 1 and value["random"] then
+						text = T(3490, "Random")
+					else
+						text = Untranslated("x" .. count)
+					end
+				else
+					local entry = items and table.find_value(items, "value", value)
+					text = entry and entry.text or ""
+				end
+				
+				self.idValue:SetText(text)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnMouseButtonDown(self, pos, button)",
 			'func', function (self, pos, button)
-XPropControl.OnMouseButtonDown(self, pos, button)
-if button == "L" then
-  SetDialogMode(self, "items", self.prop_meta)
-end
-end,
+				XPropControl.OnMouseButtonDown(self, pos, button)
+				if button == "L" then
+				  SetDialogMode(self, "items", self.prop_meta)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnShortcut(self, shortcut, source)",
 			'func', function (self, shortcut, source)
-if shortcut == "ButtonA" then
-  self:OnMouseButtonDown(nil, "L")
-end
-end,
+				if shortcut == "ButtonA" then
+				  self:OnMouseButtonDown(nil, "L")
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnSetRollover(self, rollover)",
 			'func', function (self, rollover)
-XPropControl.OnSetRollover(self, rollover)
-local arrow = self:ResolveId("idArrow")
-if arrow then
-	arrow:OnSetRollover(rollover)
-end
-end,
+				XPropControl.OnSetRollover(self, rollover)
+				local arrow = self:ResolveId("idArrow")
+				if arrow then
+					arrow:OnSetRollover(rollover)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "SetSelected(self, selected)",
 			'func', function (self, selected)
-if GetUIStyleGamepad() then
-	self:SetFocus(selected)
-end
-end,
+				if GetUIStyleGamepad() then
+					self:SetFocus(selected)
+				end
+			end,
 		}),
 		}),
 })

@@ -21,16 +21,16 @@ PlaceObj('XTemplate', {
 			'__template', "MenuEntry",
 			'Id', "idTitle",
 			'OnPress', function (self, gamepad)
-SetBackDialogMode(GetDialog(self))
-end,
+				SetBackDialogMode(GetDialog(self))
+			end,
 		}),
 		}),
 	PlaceObj('XTemplateProperty', {
 		'id', "Title",
 		'editor', "text",
 		'Set', function (self, value)
-self.idTitle:SetText(value)
-end,
+			self.idTitle:SetText(value)
+		end,
 	}),
 })
 

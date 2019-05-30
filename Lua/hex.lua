@@ -118,7 +118,7 @@ function RebuildHexShapes()
 		else
 			HexOutlineShapes[entity] = outline
 			HexInteriorShapes[entity] = interior
-			HexCombinedShapes[entity] = table.append(table.copy(outline), interior)
+			HexCombinedShapes[entity] = table.iappend(table.copy(outline), interior)
 			table.sort(HexCombinedShapes[entity])
 			HexOutlineByHash[hash] = entity
 			HexPeripheralShapes[entity] = GetPeripheralHexShape(outline, interior)
@@ -136,7 +136,7 @@ function RebuildHexShapes()
 	
 	ProcessHexSurfaces("Build", function(entity, state_idx, outline, interior, hash)
 		if not outline then return "continue" end
-		local referenced_entity = HexOutlineByHash[hash]
+		local referenced_entity = HexBuildShapes[hash]
 		if referenced_entity then
 			HexBuildShapesInversed[entity] = HexBuildShapesInversed[referenced_entity]
 			HexBuildShapes[entity] = HexBuildShapes[referenced_entity]
@@ -161,11 +161,9 @@ function RebuildHexShapes()
 	Msg("HexShapesRebuilt")
 end
 
-DefineClass.DecRange_01 = { __parents = { "TerrainDecal" }, entity = "DecRange_01", }
-DefineClass.DecRange_02 = { __parents = { "TerrainDecal" }, entity = "DecRange_02", }
-DefineClass.DecRange_03 = { __parents = { "TerrainDecal" }, entity = "DecRange_03", }
-DefineClass.DecRange_04 = { __parents = { "TerrainDecal" }, entity = "DecRange_04", }
-DefineClass.DecRange_05 = { __parents = { "TerrainDecal" }, entity = "DecRange_05", }
+function HexToWorldList(q, r, list)
+	list[#list + 1] = point(HexToWorld(q, r))
+end
 
 -- object to use as a parent for the decals when the target object can move and therefore 
 -- we don't want to attach decals directly to keep them aligned to the grid.
@@ -215,7 +213,9 @@ function RangeHexRadius:Done()
 		parent:ClearGameFlags(const.gofAlwaysRenderable)
 	end
 	g_HexRanges[self] = nil
-	DoneObject(self.container)
+	if IsValid(self.container) then
+		DoneObject(self.container)
+	end
 end
 
 function RangeHexRadius:SetVisible(visible)
@@ -330,6 +330,11 @@ DefineClass.RangeHexMultiSelectRadius = {
 	__parents = { "RangeHexRadius" },
 }
 
+DefineClass.RangeHexEntityClass = {
+	__parents = { "EntityClass" },
+	flags = { cfConstructible = false },
+}
+
 function RangeHexMultiSelectRadius:GetDecalClassBase()
 	local parent = g_HexRanges[self]
 	local active = IsValid(parent) and (parent == SelectedObj or parent:IsKindOf("CursorBuilding"))
@@ -342,6 +347,7 @@ if Platform.developer then
 	local build_grid_debug_range = 10
 	GlobalVar("build_grid_debug_objs", false)
 	GlobalVar("build_grid_debug_thread", false)
+	GlobalVar("build_grid_debug_mode", "build_grid")
 
 	function debug_build_grid()
 		if build_grid_debug_thread then
@@ -369,10 +375,19 @@ if Platform.developer then
 										local c = build_grid_debug_objs[idx] or Circle:new()
 										c:SetRadius(const.GridSpacing/2)
 										c:SetPos(point(HexToWorld(q_i, r_i)))
-										if HexGridGetObject(ObjectGrid, q_i, r_i) then
-											c:SetColor(RGBA(255, 0, 0, 0))
-										else
-											c:SetColor(RGBA(0, 255, 0, 0))
+										if build_grid_debug_mode == "build_grid" then
+											if HexGridGetObject(ObjectGrid, q_i, r_i) then
+												c:SetColor(RGBA(255, 0, 0, 0))
+											else
+												c:SetColor(RGBA(0, 255, 0, 0))
+											end
+										elseif build_grid_debug_mode == "veg_grid" then
+											local x, y = HexToStorage(q_i, r_i)
+											if VegetationGrid:get(x, y) & forbid_growth == forbid_growth then
+												c:SetColor(RGBA(255, 0, 0, 0))
+											else
+												c:SetColor(RGBA(0, 255, 0, 0))
+											end
 										end
 										build_grid_debug_objs[idx] = c
 										idx = idx + 1
@@ -620,30 +635,14 @@ if Platform.developer then
 		end
 	end
 	
-	function ForEachHexInShape(shape, pos, angle, callback)
-		if IsValid(pos) then
-			callback = angle
-			angle = pos:GetAngle()
-			pos = pos:GetPos()
-		end
-		local q, r = WorldToHex(pos)
-		local dir = HexAngleToDirection(angle)
-		for i, shape_pt in ipairs(shape) do
-			local qi, ri = HexRotate(shape_pt, dir)
-			qi = qi + q
-			ri = ri + r
-			local x, y = HexToWorld(qi, ri)
-			callback(x, y, qi, ri, i)
-		end
-	end
-	
 	function DbgShowShape(shape, obj, color, dz)
 		color = color or RGB(255, 255, 255)
 		dz = dz or guim
 		local objs = {}
-		ForEachHexInShape(shape, obj, function(x, y)
+		HexShapeForEach(shape, obj, function(q, r)
 			local obj = Circle:new()
 			obj:SetRadius(const.GridSpacing/2)
+			local x, y = HexToWorld(q, r)
 			obj:SetPos(x, y, terrain.GetHeight(x, y) + dz)				
 			obj:SetColor(color)
 			objs[#objs + 1] = obj

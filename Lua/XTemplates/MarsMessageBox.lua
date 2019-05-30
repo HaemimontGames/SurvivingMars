@@ -66,21 +66,21 @@ PlaceObj('XTemplate', {
 						'ActionId', "actionScrollAreaDown",
 						'ActionGamepad', "RightThumbDown",
 						'OnAction', function (self, host, source)
-local text_area = host:ResolveId("idScrollArea")
-if text_area:GetVisible() then
-	return text_area:OnMouseWheelBack()
-end
-end,
+							local text_area = host:ResolveId("idScrollArea")
+							if text_area:GetVisible() then
+								return text_area:OnMouseWheelBack()
+							end
+						end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "actionScrollAreaUp",
 						'ActionGamepad', "RightThumbUp",
 						'OnAction', function (self, host, source)
-local text_area = host:ResolveId("idScrollArea")
-if text_area:GetVisible() then
-	return text_area:OnMouseWheelForward()
-end
-end,
+							local text_area = host:ResolveId("idScrollArea")
+							if text_area:GetVisible() then
+								return text_area:OnMouseWheelForward()
+							end
+						end,
 					}),
 					}),
 				PlaceObj('XTemplateWindow', {
@@ -102,29 +102,29 @@ end,
 						'__template', "HUDButtonTemplate",
 						'RolloverText', T(8980, --[[XTemplate MarsMessageBox RolloverText]] "Provides historical stats and tools to inspect and manage Buildings, Domes, Colonists and transportation."),
 						'RolloverTitle', T(137542936955, --[[XTemplate MarsMessageBox RolloverTitle]] "Command Center"),
-						'RolloverHint', T(568152691543, --[[XTemplate MarsMessageBox RolloverHint]] "<em><ShortcutName('actionColonyControlCenter')></em> Тoggle Command Center"),
+						'RolloverHint', T(12305, --[[XTemplate MarsMessageBox RolloverHint]] "<em><ShortcutName('actionColonyControlCenter')></em> Toggle Command Center"),
 						'Id', "idCommandControlCenter",
 						'Dock', "right",
 						'Image', "UI/HUD/command_center.tga",
 						'ImageShine', "UI/HUD/command_center_shine.tga",
 						'FXPress', "ColonyControlCenterButtonClick",
 						'OnPress', function (self, gamepad)
-HUD.idColonyControlCenterOnPress()
-end,
+							HUD.idColonyControlCenterOnPress()
+						end,
 					}, {
 						PlaceObj('XTemplateFunc', {
 							'name', "OnPress(self)",
 							'func', function (self)
-CreateRealTimeThread(function()
-	local dlg = OpenCommandCenter()
-	dlg:SetModal()
-	WaitMsg("CommandCenterClosed")
-	local dialog = self:ResolveId("node")
-	if dialog then
-		dialog:SetModal()
-	end
-end)
-end,
+								CreateRealTimeThread(function()
+									local dlg = OpenCommandCenter()
+									dlg:SetModal()
+									WaitMsg("CommandCenterClosed")
+									local dialog = self:ResolveId("node")
+									if dialog then
+										dialog:SetModal()
+									end
+								end)
+							end,
 						}),
 						}),
 					PlaceObj('XTemplateWindow', {
@@ -136,8 +136,8 @@ end,
 					}, {
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-parent:SetImage(GetPlatformSpecificImagePath("ButtonY"))
-end,
+								parent:SetImage(GetPlatformSpecificImagePath("ButtonY"))
+							end,
 						}),
 						}),
 					}),
@@ -157,27 +157,27 @@ end,
 					PlaceObj('XTemplateForEachAction', {
 						'toolbar', "MessageButtons",
 						'run_after', function (child, context, action, n)
-local gamepad_visuals = GetUIStyleGamepad() or (context and context.force_ui_style == "gamepad")
-child.idGamepadSelectedIcon:SetImage(GetPlatformSpecificImagePath("ButtonA"))
-if gamepad_visuals and action.ActionGamepad ~= "" then
-	child.idGamepadButtonIcon:SetImage(GetPlatformSpecificImagePath(action.ActionGamepad))
-	child.idGamepadButtonIcon:SetVisible(true)
-elseif action.ActionIcon ~= "" then
-	child.idButtonIcon:SetImage(action.ActionIcon)
-end
-child:SetText(action.ActionName)
-if action.RolloverText ~= "" then
-	child:SetRolloverTitle(action.RolloverTitle)
-	child:SetRolloverText(action.RolloverText)
-	child:SetRolloverHint(action.RolloverHint)
-	child:SetRolloverHintGamepad(action.RolloverHintGamepad)
-end
-child.OnPress = function()
-	action:OnAction(GetDialog(child), child)
-end
-local enabled = action:ActionState(GetActionsHost(child)) ~= "disabled"
-child:SetEnabled(enabled)
-end,
+							local gamepad_visuals = GetUIStyleGamepad() or (context and context.force_ui_style == "gamepad")
+							child.idGamepadSelectedIcon:SetImage(GetPlatformSpecificImagePath("ButtonA"))
+							if gamepad_visuals and action.ActionGamepad ~= "" then
+								child.idGamepadButtonIcon:SetImage(GetPlatformSpecificImagePath(action.ActionGamepad))
+								child.idGamepadButtonIcon:SetVisible(true)
+							elseif action.ActionIcon ~= "" then
+								child.idButtonIcon:SetImage(action.ActionIcon)
+							end
+							child:SetText(action.ActionName)
+							if action.RolloverText ~= "" then
+								child:SetRolloverTitle(action.RolloverTitle)
+								child:SetRolloverText(action.RolloverText)
+								child:SetRolloverHint(action.RolloverHint)
+								child:SetRolloverHintGamepad(action.RolloverHintGamepad)
+							end
+							child.OnPress = function()
+								action:OnAction(GetDialog(child), child)
+							end
+							local enabled = action:ActionState(GetActionsHost(child)) ~= "disabled"
+							child:SetEnabled(enabled)
+						end,
 					}, {
 						PlaceObj('XTemplateTemplate', {
 							'__template', "MarsMessageButton",
@@ -185,12 +185,12 @@ end,
 							PlaceObj('XTemplateFunc', {
 								'name', "OnSetRollover(self, rollover)",
 								'func', function (self, rollover)
-XImage.OnSetRollover(self, rollover)
-local idRollover = self:ResolveValue("idRollover")
-	if idRollover and not self:GetEnabled() then
-		idRollover:SetVisible(false)
-	end
-end,
+									XImage.OnSetRollover(self, rollover)
+									local idRollover = self:ResolveValue("idRollover")
+										if idRollover and not self:GetEnabled() then
+											idRollover:SetVisible(false)
+										end
+								end,
 							}),
 							}),
 						}),

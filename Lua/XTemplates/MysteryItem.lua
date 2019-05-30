@@ -15,13 +15,13 @@ PlaceObj('XTemplate', {
 		'FXPressDisabled', "UIDisabledButtonPressed",
 		'FocusedBackground', RGBA(0, 0, 0, 0),
 		'OnPress', function (self, gamepad)
-local obj = GetDialogContext(self)
-local new_val = self.context.value
-SetProperty(obj, "idMystery", new_val)
-g_CurrentMissionParams.idMystery = new_val
-ObjModified(obj)
-SetBackDialogMode(self)
-end,
+			local obj = GetDialogContext(self)
+			local new_val = self.context.value
+			SetProperty(obj, "idMystery", new_val)
+			g_CurrentMissionParams.idMystery = new_val
+			ObjModified(obj)
+			SetBackDialogMode(self)
+		end,
 		'RolloverBackground', RGBA(0, 0, 0, 0),
 		'PressedBackground', RGBA(0, 0, 0, 0),
 		'TextStyle', "PGListItemName",
@@ -46,8 +46,8 @@ end,
 		}, {
 			PlaceObj('XTemplateCode', {
 				'run', function (self, parent, context)
-parent:SetVisible(AccountStorage and AccountStorage.FinishedMysteries and AccountStorage.FinishedMysteries[context.value])
-end,
+					parent:SetVisible(AccountStorage and AccountStorage.FinishedMysteries and AccountStorage.FinishedMysteries[context.value])
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateWindow', {
@@ -68,46 +68,46 @@ end,
 			PlaceObj('XTemplateFunc', {
 				'name', "CalcTextColor",
 				'func', function (self, ...)
-local list = GetDialog(self):ResolveId("idList")
-return self.enabled and 
-			((self.parent.rollover or (list and list.focused_item == ResolveValue(self.context, "number")))
-				and self.RolloverTextColor or self.TextColor)
-				or self.DisabledTextColor
-end,
+					local list = GetDialog(self):ResolveId("idList")
+					return self.enabled and 
+								((self.parent.rollover or (list and list.focused_item == ResolveValue(self.context, "number")))
+									and self.RolloverTextColor or self.TextColor)
+									or self.DisabledTextColor
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnXButtonDown",
 			'func', function (self, ...)
-local button = ...
-if button == "ButtonA" then
-	return self:OnButtonDown(false)
-end
-end,
+				local button = ...
+				if button == "ButtonA" then
+					return self:OnButtonDown(false)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnXButtonUp",
 			'func', function (self, ...)
-local button = ...
-if button == "ButtonA" then
-	return self:OnButtonUp(false)
-end
-end,
+				local button = ...
+				if button == "ButtonA" then
+					return self:OnButtonUp(false)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnShortcut(self, shortcut, source)",
 			'func', function (self, shortcut, source)
-if shortcut == "Enter" or shortcut == "Space" or shortcut == "ButtonA" then
-	self:Press(false)
-	return "break"
-end
-end,
+				if shortcut == "Enter" or shortcut == "Space" or shortcut == "ButtonA" then
+					self:Press(false)
+					return "break"
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "SetSelected(self, selected)",
 			'func', function (self, selected)
-self:SetFocus(selected)
-end,
+				self:SetFocus(selected)
+			end,
 		}),
 		}),
 })

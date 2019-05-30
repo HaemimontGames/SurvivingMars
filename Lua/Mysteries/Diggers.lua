@@ -28,7 +28,7 @@ DefineClass.AlienDigger = {
 	
 	entity = "AlienDiggerSmall",
 	--spawn
-	enum_flags = { efVisible = false }, --so we are invisible if spawned on the ground
+	flags = { efVisible = false }, --so we are invisible if spawned on the ground
 	initial_height = 700 * guim,
 	--destruction
 	is_being_destroyed = false,
@@ -371,7 +371,7 @@ end
 
 DefineClass.AlienDiggerMarker = {
 	__parents = { "SpawnFXObject", "GridObject" },
-	enum_flags = { efVisible = false, },
+	flags = { efVisible = false, },
 	is_tall = true, --so SA_PlaceObj's buildable tests, test correctly for pipes when placing those
 	entity = "AlienDiggerSmall",
 }

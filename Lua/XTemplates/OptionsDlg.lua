@@ -10,22 +10,22 @@ PlaceObj('XTemplate', {
 		'__class', "XDialog",
 		'HandleMouse', true,
 		'InitialMode', "options",
-		'InternalModes', "options,properties,items,controller, credits",
+		'InternalModes', "options,properties,items,controller, credits,mod_options,mod_choice",
 	}, {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnDelete",
 			'func', function (self, ...)
-OptionsObj = false
-OptionsObjOriginal = false
-end,
+				OptionsObj = false
+				OptionsObjOriginal = false
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnDialogModeChange",
 			'func', function (self, ...)
-local mode = ...
-self.idTitle:SetVisible(mode ~= "controller" and mode ~= "credits")
-self.idActionBar:SetVisible(mode ~= "credits")
-end,
+				local mode = ...
+				self.idTitle:SetVisible(mode ~= "controller" and mode ~= "credits")
+				self.idActionBar:SetVisible(mode ~= "credits")
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XAspectWindow",
@@ -42,9 +42,9 @@ end,
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
 					'func', function (self, ...)
-XWindow.Open(self, ...)
-self:SetMargins(GetSafeMargins(self:GetMargins()))
-end,
+						XWindow.Open(self, ...)
+						self:SetMargins(GetSafeMargins(self:GetMargins()))
+					end,
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'__template', "DialogTitleNew",
@@ -67,14 +67,14 @@ end,
 		'__template', "NewOverlayDlg",
 		'HandleMouse', true,
 		'InitialMode', "options",
-		'InternalModes', "options,properties,items",
+		'InternalModes', "options,properties,items,mod_options,mod_choice",
 	}, {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnDelete",
 			'func', function (self, ...)
-OptionsObj = false
-OptionsObjOriginal = false
-end,
+				OptionsObj = false
+				OptionsObjOriginal = false
+			end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "DialogTitleNew",

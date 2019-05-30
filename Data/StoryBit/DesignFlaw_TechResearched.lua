@@ -12,6 +12,9 @@ PlaceObj('StoryBit', {
 		PlaceObj('LockUnlockBuildingFromBuildMenu', {
 			'Building', "WindTurbine",
 		}),
+		PlaceObj('LockUnlockBuildingFromBuildMenu', {
+			'Building', "WindTurbine_Large",
+		}),
 	},
 	Prerequisites = {
 		PlaceObj('IsTechId', {

@@ -14,13 +14,21 @@ PlaceObj('StoryBit', {
 	VoicedText = T(253719320060, --[[voice:narrator]] "Inspired by your act of genuine nobility, the Eternal Summer's lead scientist, Satoshi Nisei, has requested permission to join your colony."),
 	group = "Earth",
 	id = "TheDoorToSummer_LetNoNobleDeed",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1550845065,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitParamFunding', {
 		'Name', "alternative_funding",
 		'Value', 750000000,
 	}),
 	PlaceObj('StoryBitReply', {
 		'Text', T(861880941581, --[[StoryBit TheDoorToSummer_LetNoNobleDeed Text]] "Welcome, Nisei-sama!"),
-		'OutcomeText', "custom",
 	}),
 	PlaceObj('StoryBitOutcome', {
 		'Prerequisites', {},

@@ -23,9 +23,10 @@ PlaceObj('XTemplate', {
 			PlaceObj('XTemplateFunc', {
 				'name', "OnDelete",
 				'func', function (self, ...)
-self.context:SaveToTables()
-SaveAccountStorage(5000)
-end,
+					self.context:SaveToTables()
+					SaveAccountStorage(5000) --save radio station
+					SaveEngineOptions() --save music volume
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {
@@ -60,25 +61,25 @@ end,
 				'ShowPartialItems', false,
 				'MouseScroll', true,
 				'OnContextUpdate', function (self, context, ...)
-local focus = self.focused_item
-XContentTemplate.OnContextUpdate(self, context, ...)
-if focus then
-	self:SetSelection(focus)
-end
-end,
+					local focus = self.focused_item
+					XContentTemplate.OnContextUpdate(self, context, ...)
+					if focus then
+						self:SetSelection(focus)
+					end
+				end,
 			}, {
 				PlaceObj('XTemplateFunc', {
 					'name', "OnShortcut(self, shortcut, source)",
 					'func', function (self, shortcut, source)
-local prev_item = self.focused_item
-local ret = XList.OnShortcut(self, shortcut, source)
-if shortcut == "Down" and prev_item == #self then
-	local dlg = GetDialog(self)
-	dlg.idVolume:SetFocus()
-	return "break"
-end
-return ret
-end,
+						local prev_item = self.focused_item
+						local ret = XList.OnShortcut(self, shortcut, source)
+						if shortcut == "Down" and prev_item == #self then
+							local dlg = GetDialog(self)
+							dlg.idVolume:SetFocus()
+							return "break"
+						end
+						return ret
+					end,
 				}),
 				PlaceObj('XTemplateForEach', {
 					'comment', "radio station",
@@ -88,8 +89,8 @@ end,
 					PlaceObj('XTemplateTemplate', {
 						'__template', "MenuEntrySmall",
 						'OnPress', function (self, gamepad)
-GetDialog(self).context:SetRadioStation(self.context.id)
-end,
+							GetDialog(self).context:SetRadioStation(self.context.id)
+						end,
 						'TextStyle', "ListItem3",
 						'Text', T(460245435559, --[[XTemplate RadioStationDlg Text]] "<display_name>"),
 					}, {
@@ -154,12 +155,12 @@ end,
 					PlaceObj('XTemplateFunc', {
 						'name', "CalcTextColor",
 						'func', function (self, ...)
-local list = GetDialog(self):ResolveId("idList")
-return self.enabled and 
-			((self.parent.rollover or (list and list.focused_item == ResolveValue(self.context, "number")))
-				and self.RolloverTextColor or self.TextColor)
-				or self.DisabledTextColor
-end,
+							local list = GetDialog(self):ResolveId("idList")
+							return self.enabled and 
+										((self.parent.rollover or (list and list.focused_item == ResolveValue(self.context, "number")))
+											and self.RolloverTextColor or self.TextColor)
+											or self.DisabledTextColor
+						end,
 					}),
 					}),
 				PlaceObj('XTemplateTemplate', {
@@ -174,31 +175,31 @@ end,
 				PlaceObj('XTemplateFunc', {
 					'name', "OnSetFocus",
 					'func', function (self, ...)
-XCreateRolloverWindow(self, true)
-XTextButton.OnSetFocus(self, ...)
-end,
+						XCreateRolloverWindow(self, true)
+						XTextButton.OnSetFocus(self, ...)
+					end,
 				}),
 				PlaceObj('XTemplateFunc', {
 					'name', "SetSelected(self, selected)",
 					'func', function (self, selected)
-self:SetFocus(selected)
-end,
+						self:SetFocus(selected)
+					end,
 				}),
 				PlaceObj('XTemplateFunc', {
 					'name', "OnShortcut(self, shortcut, source)",
 					'func', function (self, shortcut, source)
-if shortcut == "DPadUp" or shortcut == "LeftThumbUp" then
-	local obj = GetDialog(self)
-	obj.idList:SetFocus()
-	obj.idList:SetSelection(#obj.idList)
-elseif shortcut == "DPadLeft" or shortcut == "LeftThumbLeft" then
-	local slider = self.idSlider
-	slider:ScrollTo(slider.Scroll - slider.StepSize)
-elseif shortcut == "DPadRight" or shortcut == "LeftThumbRight" then
-	local slider = self.idSlider
-	slider:ScrollTo(slider.Scroll + slider.StepSize)
-end
-end,
+						if shortcut == "DPadUp" or shortcut == "LeftThumbUp" then
+							local obj = GetDialog(self)
+							obj.idList:SetFocus()
+							obj.idList:SetSelection(#obj.idList)
+						elseif shortcut == "DPadLeft" or shortcut == "LeftThumbLeft" then
+							local slider = self.idSlider
+							slider:ScrollTo(slider.Scroll - slider.StepSize)
+						elseif shortcut == "DPadRight" or shortcut == "LeftThumbRight" then
+							local slider = self.idSlider
+							slider:ScrollTo(slider.Scroll + slider.StepSize)
+						end
+					end,
 				}),
 				}),
 			}),

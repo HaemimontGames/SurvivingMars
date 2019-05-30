@@ -15,115 +15,116 @@ PlaceObj('XTemplate', {
 		'RolloverOnFocus', true,
 		'HandleMouse', true,
 		'OnContextUpdate', function (self, context, ...)
-XListItem.OnContextUpdate(self, context, ...)
-self.idModTitle:SetText(context.DisplayName or "")
-self.idAuthor:SetText(context.Author or "")
-local mod_id = context.ModID
-self.idListSpinner:SetVisible(not next(context) or g_PopsDownloadingMods[mod_id])
-local obj = GetDialog(self).context
-if next(context) then
-	if context.Thumbnail then
-		self.idImage:SetImage(context.Thumbnail)
-	end
-	if obj.installed_retrieved then
-		local enabled = obj.enabled[mod_id]
-		local installed = obj.installed[mod_id] and not g_PopsDownloadingMods[mod_id]
-		if installed then
-			local corrupted, warning = context.Corrupted, context.Warning
-			if corrupted == nil then
-				local mod_def = obj.mod_defs[mod_id]
-				if mod_def then
-					corrupted, warning = ModsUIGetModCorruptedStatus(mod_def)
-					context.Corrupted, context.Warning = corrupted, warning
+			XListItem.OnContextUpdate(self, context, ...)
+			self.idModTitle:SetText(context.DisplayName or "")
+			self.idAuthor:SetText(context.Author or "")
+			local mod_id = context.ModID
+			local uninstalling = g_PopsUninstallingMods[mod_id]
+			self.idListSpinner:SetVisible(not context.InfoRetrieved or g_PopsDownloadingMods[mod_id] or uninstalling)
+			local obj = GetDialog(self).context
+			if context.InfoRetrieved then
+				if context.Thumbnail then
+					self.idImage:SetImage(context.Thumbnail)
 				end
-			end
-			self.idWarning:SetText(warning or "")
-			self.idWarning:SetVisible((warning or "") ~= "")
-			if not corrupted then
-				if rawget(self, "idEnabledTick") then
-					self.idEnabledTick:SetVisible(enabled)
-					self.idEnabled:SetVisible(enabled)
-					self.idDisabled:SetVisible(not enabled)
-				else
-					self.idEnabled:SetCheck(enabled)
-					self.idEnabled:SetVisible(true)
-					self.idEnabled.idEnabled:SetVisible(enabled)
-					self.idEnabled.idDisabled:SetVisible(not enabled)
+				if obj.installed_retrieved then
+					local enabled = obj.enabled[mod_id]
+					local installed = obj.installed[mod_id] and not g_PopsDownloadingMods[mod_id]
+					if installed then
+						local corrupted, warning, warning_id = context.Corrupted, context.Warning, context.Warning_id
+						if corrupted == nil then
+							local mod_def = obj.mod_defs[mod_id]
+							if mod_def then
+								corrupted, warning, warning_id = ModsUIGetModCorruptedStatus(mod_def)
+								context.Corrupted, context.Warning, context.Warning_id = corrupted, warning, warning_id
+							end
+						end
+						self.idWarning:SetText(warning or "")
+						self.idWarning:SetVisible((warning or "") ~= "")
+						if not corrupted then
+							if rawget(self, "idEnabledTick") then
+								self.idEnabledTick:SetVisible(enabled)
+								self.idEnabled:SetVisible(enabled)
+								self.idDisabled:SetVisible(not enabled)
+							else
+								self.idEnabled:SetCheck(enabled)
+								self.idEnabled:SetVisible(not uninstalling)
+								self.idEnabled.idEnabled:SetVisible(enabled)
+								self.idEnabled.idDisabled:SetVisible(not enabled)
+							end
+						end
+					end
+					if rawget(self, "idInstall") then
+						self.idInstall:SetVisible(not installed and not g_PopsDownloadingMods[mod_id])
+						self.idRemove:SetVisible(installed and not uninstalling)
+					end
 				end
+				if self.selected and self:IsFocused() and obj.selected_mod_id ~= mod_id then
+					self:SetSelected(true)
+				end
+				local current_rating_win = self:ResolveId("idCurrentRating")
+				if context.Rating and current_rating_win then
+					for i = 1, context.Rating do
+						current_rating_win[i]:SetImage("UI/Mods/rate-orange.tga")
+					end
+					current_rating_win:SetVisible(true)
+					local ratings_total = self:ResolveId("idRatingsTotal")
+					ratings_total:SetText("(" .. context.RatingsTotal .. ")")
+					ratings_total:SetVisible(true)
+				end
+				local size = self:ResolveId("idFileSize")
+				if size then
+					local context = self.context
+					size:SetVisible(context.FileSize)
+					if context.FileSize then
+						size:SetText(T(10487, "<FormatSize(FileSize, 2)>"))
+					end
+				end
+			elseif obj.counted then
+				ModsUILoadModInfo(context.ModPosition)
 			end
-		end
-		if rawget(self, "idInstall") then
-			self.idInstall:SetVisible(not installed and not g_PopsDownloadingMods[mod_id])
-			self.idRemove:SetVisible(installed)
-		end
-	end
-	if self.selected and self:IsFocused() and obj.selected_mod_id ~= mod_id then
-		self:SetSelected(true)
-	end
-	local current_rating_win = self:ResolveId("idCurrentRating")
-	if context.Rating and current_rating_win then
-		for i = 1, context.Rating do
-			current_rating_win[i]:SetImage("UI/Mods/rate-orange.tga")
-		end
-		current_rating_win:SetVisible(true)
-		local ratings_total = self:ResolveId("idRatingsTotal")
-		ratings_total:SetText("(" .. context.RatingsTotal .. ")")
-		ratings_total:SetVisible(true)
-	end
-	local size = self:ResolveId("idFileSize")
-	if size then
-		local context = self.context
-		size:SetVisible(context.FileSize)
-		if context.FileSize then
-			size:SetText(T(10487, "<FormatSize(FileSize, 2)>"))
-		end
-	end
-elseif obj.counted then
-	ModsUILoadModInfo((self.parent.GridY -1)*3 + self.parent.GridX)
-end
-end,
+		end,
 		'SelectionBackground', RGBA(0, 0, 0, 0),
 	}, {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnSetRollover(self, rollover)",
 			'func', function (self, rollover)
-self.idBorder:SetVisible(rollover)
-XListItem.OnSetRollover(self, rollover)
-self.idGradient:SetVisible(rollover)
-self.idDarkOverlay:SetVisible(not rollover)
-end,
+				self.idBorder:SetVisible(rollover)
+				XListItem.OnSetRollover(self, rollover)
+				self.idGradient:SetVisible(rollover)
+				self.idDarkOverlay:SetVisible(not rollover or g_PopsDownloadingMods[self.context.ModID])
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "SetSelected(self, selected)",
 			'func', function (self, selected)
-XListItem.SetSelected(self, selected)
-if selected then
-	local changed = ModsUISetSelectedMod(self.context.ModID)
-	if changed and GetUIStyleGamepad() then
-		local dlg = GetDialog(self)
-		dlg:UpdateActionViews(dlg)
-	end
-	if not self:IsFocused() then
-		self:SetFocus()
-	end
-end
-end,
+				XListItem.SetSelected(self, selected)
+				if selected then
+					local changed = ModsUISetSelectedMod(self.context.ModID)
+					if changed and GetUIStyleGamepad() then
+						local dlg = GetDialog(self)
+						dlg:UpdateActionViews(dlg)
+					end
+					if not self:IsFocused() then
+						self:SetFocus()
+					end
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-XListItem.Open(self, ...)
-self.idDarkOverlay:SetVisible(true, true)
-end,
+				XListItem.Open(self, ...)
+				self.idDarkOverlay:SetVisible(true, true)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnMouseButtonDown(self, pos, button)",
 			'func', function (self, pos, button)
-if button == "L" and not GetUIStyleGamepad() then
-	ModsUISetDialogMode(GetDialog(self), "details", self.context)
-	return "break"
-end
-end,
+				if button == "L" and not GetUIStyleGamepad() then
+					ModsUISetDialogMode(GetDialog(self), "details", self.context)
+					return "break"
+				end
+			end,
 		}),
 		PlaceObj('XTemplateWindow', nil, {
 			PlaceObj('XTemplateWindow', {
@@ -228,9 +229,15 @@ end,
 						'MouseCursor', "UI/Cursors/Rollover.tga",
 						'FocusedBackground', RGBA(0, 0, 0, 0),
 						'OnPress', function (self, gamepad)
-ModsUIInstallMod(self.context)
-self:SetVisible(false)
-end,
+							if not g_ParadoxAccountLoggedIn then
+								local host = GetDialog(self)
+								ModsUIOpenLoginPopup(host.idContentWrapper)
+							else
+								ModsUIInstallMod(self.context)
+								self:SetVisible(false)
+								self:ResolveId("idDarkOverlay"):SetVisible(true)
+							end
+						end,
 						'RolloverBackground', RGBA(0, 0, 0, 0),
 						'PressedBackground', RGBA(0, 0, 0, 0),
 						'Icon', "UI/Mods/install_mod.tga",
@@ -246,8 +253,8 @@ end,
 						'FoldWhenHidden', true,
 						'MouseCursor', "UI/Cursors/Rollover.tga",
 						'OnPress', function (self, gamepad)
-ModsUIToggleEnabled(self.context, self)
-end,
+							ModsUIToggleEnabled(self.context, self)
+						end,
 						'Rows', 2,
 						'SqueezeY', true,
 						'Icon', "UI/Mods/enable_disable.tga",
@@ -258,9 +265,9 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "OnChange(self, check)",
 							'func', function (self, check)
-self.idEnabled:SetVisible(check)
-self.idDisabled:SetVisible(not check)
-end,
+								self.idEnabled:SetVisible(check)
+								self.idDisabled:SetVisible(not check)
+							end,
 						}),
 						PlaceObj('XTemplateWindow', {
 							'__class', "XLabel",
@@ -300,8 +307,8 @@ end,
 						'MouseCursor', "UI/Cursors/Rollover.tga",
 						'FocusedBackground', RGBA(0, 0, 0, 0),
 						'OnPress', function (self, gamepad)
-ModsUIUninstallMod(self.context)
-end,
+							ModsUIUninstallMod(self.context)
+						end,
 						'RolloverBackground', RGBA(0, 0, 0, 0),
 						'PressedBackground', RGBA(0, 0, 0, 0),
 						'Icon', "UI/Mods/remove.tga",

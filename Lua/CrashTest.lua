@@ -15,12 +15,18 @@ local function SuspendCrashTest()
 end
 
 function StopCrashTest()
-	CrashTestMode = false
+	if CrashTestMode then
+		CrashTestMode = false
+		print("Crash test stopped.")
+	end
 	SuspendCrashTest()
 end
 
 function StartCrashTest()
-	CrashTestMode = true
+	if not CrashTestMode then
+		CrashTestMode = true
+		print("Crash test started.")
+	end
 	SuspendCrashTest()
 	CrashTestThread = CreateRealTimeThread(function()
 		assert = empty_func

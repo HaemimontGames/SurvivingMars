@@ -71,6 +71,7 @@ function Encyclopedia:Init(parent, context)
 		ShowPartialItems = false,
 		UniformRowHeight = true,
 		VScroll = "idScroll",
+		WorkUnfocused = true,
 	}, window_left)
 	ctrl = XTemplateSpawn("ScrollbarNew", window_left, self.context)
 	ctrl:SetId("idScroll")
@@ -200,7 +201,18 @@ function Encyclopedia:RespawnListContent()
 				end
 			end,
 		}, list)
-		button:SetText(v.title_text)
+		local text = XText:new({
+			Translate = true,
+			TextStyle = "ListItem2",
+			Padding = box(2, 0, 2, 0),
+			VAlign = "center",
+			CalcTextColor = function (self, ...)
+				return self.enabled and 
+							(self.parent.rollover and self.RolloverTextColor or self.TextColor)
+							or self.DisabledTextColor
+			end,
+		}, button)
+		text:SetText(v.title_text)
 		if is_category then
 			XTextButton:new({
 				Id = "idArrow",

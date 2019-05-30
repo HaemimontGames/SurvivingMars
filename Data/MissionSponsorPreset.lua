@@ -11,12 +11,13 @@ PlaceObj('MissionSponsorPreset', {
 	Polymers = 15,
 	RCRover = 1,
 	RCTransport = 1,
+	SelfSufficientDome = 1,
 	SortKey = 1000,
 	StirlingGenerator = 2,
 	cargo = 70000,
 	difficulty = T(758823386664, --[[MissionSponsorPreset Default IMM difficulty]] "Very Easy"),
 	display_name = T(7021, --[[MissionSponsorPreset Default IMM display_name]] "International Mars Mission"),
-	effect = T(7022, --[[MissionSponsorPreset Default IMM effect]] "Research per Sol: <research(SponsorResearch)>\nRare Metals price: $<ExportPricePreciousMetals> M\n\n- Large Rocket payload (<cargo> kg)\n- Colonists never get Earthsick\n- Food supply from Passenger Rockets increased (x10)\n- Rockets synthesize Fuel\n\n"),
+	effect = T(12230, --[[MissionSponsorPreset Default IMM effect]] "Research per Sol: <research(SponsorResearch)>\nRare Metals price: $<ExportPricePreciousMetals> M\n\n- Large Rocket payload (<cargo> kg)\n- Colonists never get Earthsick\n- Food supply from Passenger Rockets increased (x10)\n- Rockets synthesize Fuel\n- Start with a Self-Sufficient Dome prefab"),
 	flavor = T(7023, --[[MissionSponsorPreset Default IMM flavor]] "Recommended for first-time players"),
 	funding = 30000,
 	goal_1_param_1 = "30",
@@ -84,6 +85,9 @@ PlaceObj('MissionSponsorPreset', {
 		Amount = 9000,
 		Label = "Consts",
 		Prop = "FoodPerRocketPassenger",
+	}),
+	PlaceObj('Effect_GrantPrefab', {
+		Prefab = "SelfSufficientDome",
 	}),
 })
 
@@ -480,6 +484,7 @@ PlaceObj('MissionSponsorPreset', {
 	initial_techs_unlocked = 2,
 	lock_name1 = "RCSensor",
 	lock_value1 = "unlocked",
+	name = "ESA",
 	pod_class = "SupplyPod",
 	precious_metals_export_price = 22,
 	research_points = 400,

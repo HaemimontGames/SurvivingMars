@@ -7,7 +7,7 @@ DefineClass.MapSettings_ColdWave =
 		{ id = "temp_drop",                                      editor = "number",  default = -55, no_edit = true, dont_save = true, help = "Unused"},
 		{ id = "min_temp_drop",   name = "Min Temperature Drop", editor = "number",  default = -100, min = -100, max = -30, help = "Unused"},
 		{ id = "max_temp_drop",   name = "Max Temperature Drop", editor = "number",  default = -30, min = -100, max = -30, help = "Unused"},
-		{ id = "seasonal",        name = "Seasonal",             editor = "bool",    default = false, object_update = true},
+		{ id = "seasonal",        name = "Seasonal",             editor = "bool",    default = false,},
 		{ id = "seasonal_sols",   name = "Seasonal Sols",        editor = "number",  default = 13, no_edit = function(self) return not self.seasonal end },
 		{ id = "min_duration",    name = "Min Duration",         editor = "number",  default = 25 * const.HourDuration, scale = const.HourDuration, help = "In Hours" },
 		{ id = "max_duration",    name = "Max Duration",         editor = "number",  default = 75 * const.HourDuration, scale = const.HourDuration, help = "In Hours" },
@@ -39,7 +39,8 @@ local function GetColdWaveDescr()
 	local data = DataInstances.MapSettings_ColdWave
 	local cold_wave = data[mapdata.MapSettings_ColdWave] or data["ColdWave_VeryLow"]
 	
-	return cold_wave and not cold_wave.forbidden and cold_wave
+	local orig_data = cold_wave and not cold_wave.forbidden and cold_wave
+	return OverrideDisasterDescriptor(orig_data)
 end
 
 function ExtendColdWave(time)
@@ -126,10 +127,10 @@ GlobalGameTimeThread("ColdWave", function()
 		-- wait and show the notification
 		local start_time = GameTime()
 		local last_check_time = GameTime()
-		while IsDisasterPredicted() or IsDisasterActive() or (GameTime() - start_time < wait_time) do
+		while ColdWavesDisabled or IsDisasterPredicted() or IsDisasterActive() or (GameTime() - start_time < wait_time) do
 			local dt = GameTime() - last_check_time
 			last_check_time = GameTime()
-			if IsDisasterPredicted() or IsDisasterActive() then
+			if ColdWavesDisabled or IsDisasterPredicted() or IsDisasterActive() then
 				wait_time = wait_time + dt
 			else
 				local warn_time = GetDisasterWarningTime(cold_wave)
@@ -149,8 +150,17 @@ GlobalGameTimeThread("ColdWave", function()
 			end
 		end
 		first = false
-		wait_time = 0		
-		StartColdWave(cold_wave)
+		wait_time = 0	
+		if not ColdWavesDisabled then
+			StartColdWave(cold_wave)
+		end
+		
+		local new_cold_wave = GetColdWaveDescr()
+		while not new_cold_wave do
+			Sleep(const.DayDuration)
+			new_cold_wave = GetColdWaveDescr()
+		end
+		cold_wave = new_cold_wave
 	end
 end)
 
@@ -161,7 +171,7 @@ DefineClass.ColdWaveInstance =
 	__parents = { "BaseHeater" },
 	settings = false,
 	temp_drop = 0,
-	heat = -const.MaxHeat,
+	heat = -2*const.MaxHeat,
 	GetHeatRange = empty_func,
 	GetHeatBorder = empty_func,
 	GetHeatCenter = empty_func,
@@ -228,7 +238,7 @@ function ColdArea:ApplyForm(grid, heat, center_x, center_y, radius, border, map_
 		StoreErrorSource(self, "Missing cloud form preset")
 		return
 	end
-	local seed = xxhash(GetMap(), center_x, center_y)
+	local seed = xxhash64(GetMap(), center_x, center_y)
 	local pattern = form_obj:GetNoise(noise_size, seed)
 	if pattern:get(0, 0) ~= 0 then
 		pattern:lnot_i()
@@ -283,4 +293,9 @@ end
 
 function StopColdWave()
 	Msg("ColdWaveCancel")
+end
+
+function OnMsg.CheatStopDisaster()
+	if not g_ColdWave then return end
+	StopColdWave()
 end

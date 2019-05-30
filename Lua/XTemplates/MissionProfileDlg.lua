@@ -94,21 +94,21 @@ PlaceObj('XTemplate', {
 								'ActionId', "actionScrollAreaDown",
 								'ActionGamepad', "RightThumbDown",
 								'OnAction', function (self, host, source)
-local text_area = host:ResolveId("idEffectsTextArea")
-if text_area:GetVisible() then
-	return text_area:OnMouseWheelBack()
-end
-end,
+									local text_area = host:ResolveId("idEffectsTextArea")
+									if text_area:GetVisible() then
+										return text_area:OnMouseWheelBack()
+									end
+								end,
 							}),
 							PlaceObj('XTemplateAction', {
 								'ActionId', "actionScrollAreaUp",
 								'ActionGamepad', "RightThumbUp",
 								'OnAction', function (self, host, source)
-local text_area = host:ResolveId("idEffectsTextArea")
-if text_area:GetVisible() then
-	return text_area:OnMouseWheelForward()
-end
-end,
+									local text_area = host:ResolveId("idEffectsTextArea")
+									if text_area:GetVisible() then
+										return text_area:OnMouseWheelForward()
+									end
+								end,
 							}),
 							}),
 						}),

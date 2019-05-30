@@ -9,15 +9,15 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "SetMode(self, mode, mode_param)",
 			'func', function (self, mode, mode_param)
-if self.Mode == mode or mode ~= "" then
-	XDialog.SetMode(self, mode, mode_param)
-	return
-end
-CreateRealTimeThread(function(self, mode, mode_param)
-	self.context.savegame_count = WaitCountSaveGames()
-	XDialog.SetMode(self, mode, mode_param)
-end, self, mode, mode_param)
-end,
+				if self.Mode == mode or mode ~= "" then
+					XDialog.SetMode(self, mode, mode_param)
+					return
+				end
+				CreateRealTimeThread(function(self, mode, mode_param)
+					self.context.savegame_count = WaitCountSaveGames()
+					XDialog.SetMode(self, mode, mode_param)
+				end, self, mode, mode_param)
+			end,
 		}),
 		PlaceObj('XTemplateLayer', {
 			'__condition', function (parent, context) return GameState.gameplay end,
@@ -35,9 +35,9 @@ end,
 					PlaceObj('XTemplateFunc', {
 						'name', "Open",
 						'func', function (self, ...)
-XOpenLayer.Open(self, ...)
-self.dialog.idContent:SetMargins(box(175, 0, 0, 0))
-end,
+							XOpenLayer.Open(self, ...)
+							self.dialog.idContent:SetMargins(box(175, 0, 0, 0))
+						end,
 					}),
 					}),
 				PlaceObj('XTemplateTemplate', {

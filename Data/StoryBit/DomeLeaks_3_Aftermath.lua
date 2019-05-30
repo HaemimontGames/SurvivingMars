@@ -37,7 +37,6 @@ PlaceObj('StoryBit', {
 		'Text', T(358231154594, --[[StoryBit DomeLeaks_3_Aftermath Text]] "We need to fix the issue asap. Tell them to hurry up!"),
 		'OutcomeText', "custom",
 		'CustomOutcomeText', T(121583731094, --[[StoryBit DomeLeaks_3_Aftermath CustomOutcomeText]] "repairs will take <reapair_time_fast> hours, additional damage may be caused"),
-		'Comment', "fix parameter when effect is done",
 	}),
 	PlaceObj('StoryBitParamResource', {
 		'Name', "penalty",

@@ -11,16 +11,16 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-XCameraLockLayer.Open(self, ...)
-SetPlanetCamera("PlanetEarthCloseup")
-end,
+				XCameraLockLayer.Open(self, ...)
+				SetPlanetCamera("PlanetEarthCloseup")
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "Close",
 			'func', function (self, ...)
-ClosePlanetCamera("PlanetEarthCloseup")
-XLayer.Close(self, ...)
-end,
+				ClosePlanetCamera("PlanetEarthCloseup")
+				XLayer.Close(self, ...)
+			end,
 		}),
 		}),
 })

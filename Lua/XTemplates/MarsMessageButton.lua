@@ -13,8 +13,8 @@ PlaceObj('XTemplate', {
 		'MouseCursor', "UI/Cursors/Rollover.tga",
 		'RelativeFocusOrder', "new-line",
 		'OnContextUpdate', function (self, context, ...)
-self.idText:SetZOrder(2)
-end,
+			self.idText:SetZOrder(2)
+		end,
 		'FXMouseIn', "PopupChoiceHover",
 		'FXPress', "PopupChoiceClick",
 		'FocusedBackground', RGBA(0, 0, 0, 0),
@@ -25,27 +25,27 @@ end,
 		PlaceObj('XTemplateFunc', {
 			'name', "SetText",
 			'func', function (self, ...)
-self.idText:SetText(...)
-end,
+				self.idText:SetText(...)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "SetSelected(self, selected)",
 			'func', function (self, selected)
-if GetUIStyleGamepad() or (self.context and self.context.force_ui_style == "gamepad") then
-	self:SetFocus(selected)
-	self.idGamepadSelectedIcon:SetVisible(selected)
-	self.idGamepadButtonIcon:SetVisible(not selected)
-	local current = self.idButtonIcon:GetImage()
-	self.idButtonIcon:SetImage(self.idButtonSelectedIcon:GetImage())
-	self.idButtonSelectedIcon:SetImage(current)
-end
-end,
+				if GetUIStyleGamepad() or (self.context and self.context.force_ui_style == "gamepad") then
+					self:SetFocus(selected)
+					self.idGamepadSelectedIcon:SetVisible(selected)
+					self.idGamepadButtonIcon:SetVisible(not selected)
+					local current = self.idButtonIcon:GetImage()
+					self.idButtonIcon:SetImage(self.idButtonSelectedIcon:GetImage())
+					self.idButtonSelectedIcon:SetImage(current)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "IsSelectable",
 			'func', function (self, ...)
-return self:GetEnabled()
-end,
+				return self:GetEnabled()
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XImage",
@@ -107,10 +107,10 @@ end,
 			PlaceObj('XTemplateFunc', {
 				'name', "CalcTextColor",
 				'func', function (self, ...)
-return self.enabled and 
-				(self.parent.rollover and self.RolloverTextColor or self.TextColor)
-				or self.DisabledTextColor
-end,
+					return self.enabled and 
+									(self.parent.rollover and self.RolloverTextColor or self.TextColor)
+									or self.DisabledTextColor
+				end,
 			}),
 			}),
 		}),

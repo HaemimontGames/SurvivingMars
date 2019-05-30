@@ -71,7 +71,7 @@ g_TutorialScenarios.Tutorial4 = function()
 						if not Dialogs.Resupply or Dialogs.Resupply.Mode ~= "passengers" or Dialogs.Resupply.idTemplate.idPassengers.Mode == "traitCategories" then 
 							return false
 						end
-						return Dialogs.Resupply.idTemplate.idPassengers.idToolBar.idlaunch
+						return Dialogs.Resupply.idTemplate.idPassengers.idToolBar:ResolveId("idlaunch")
 					end,
 				}, terminal.desktop)
 			end

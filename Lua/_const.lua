@@ -1,5 +1,7 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
+LoadCommonConsts()
+
 DefineConst{
 	group = "Buildings",
 	help = T(4698, --[[ConstDef Buildings BuildingDailyDustAccumulation help]] "Dust accumulation per Sol"),
@@ -334,6 +336,13 @@ DefineConst{
 }
 DefineConst{
 	group = "Cost",
+	id = "RocketPrice",
+	name = T(744485829662, --[[ConstDef Cost RocketPrice name]] "Rocket Price"),
+	scale = "mil",
+	value = 3000000000,
+}
+DefineConst{
+	group = "Cost",
 	help = T(4738, --[[ConstDef Cost rebuild_cost_modifier help]] "All building rebuild construction costs will be modified by this percent"),
 	id = "rebuild_cost_modifier",
 	name = T(4739, --[[ConstDef Cost rebuild_cost_modifier name]] "Rebuild cost modifier"),
@@ -499,6 +508,14 @@ DefineConst{
 	id = "DroneResourceCarryAmount",
 	name = T(6980, --[[ConstDef Drone DroneResourceCarryAmount name]] "Drone resource carry amount"),
 	value = 1,
+}
+DefineConst{
+	group = "Drone",
+	help = T(388847875487, --[[ConstDef Drone DroneTimeToWorkOnLandscapeMultiplier help]] "The time drones take to work on landscaping is modified by this value."),
+	id = "DroneTimeToWorkOnLandscapeMultiplier",
+	name = T(726969378565, --[[ConstDef Drone DroneTimeToWorkOnLandscapeMultiplier name]] "Time To Work On Landscape Multiplier"),
+	scale = 100,
+	value = 100,
 }
 DefineConst{
 	group = "Drone",
@@ -783,6 +800,12 @@ DefineConst{
 }
 DefineConst{
 	group = "Research",
+	id = "PlanetaryBreakthroughCount",
+	name = T(222544894200, --[[ConstDef Research PlanetaryBreakthroughCount name]] "Number of Breakthroughs reserved for Planetary Anomalies"),
+	value = 4,
+}
+DefineConst{
+	group = "Research",
 	help = T(4627, --[[ConstDef Research SponsorResearch help]] "Sponsor Funding gained per Sol"),
 	id = "SponsorResearch",
 	name = T(4628, --[[ConstDef Research SponsorResearch name]] "Sponsor Research per Sol"),
@@ -844,6 +867,11 @@ DefineConst{
 }
 DefineConst{
 	group = "Scale",
+	id = "Terraforming",
+	value = 1000,
+}
+DefineConst{
+	group = "Scale",
 	id = "degrees",
 	value = 60,
 }
@@ -868,6 +896,11 @@ DefineConst{
 	id = "sols",
 	scale = "hours",
 	value = 720000,
+}
+DefineConst{
+	group = "Scale",
+	id = "SoilQuality",
+	value = 100,
 }
 DefineConst{
 	group = "Stat",
@@ -1029,6 +1062,14 @@ DefineConst{
 }
 DefineConst{
 	group = "Stat",
+	help = T(12338, --[[ConstDef Stat WaterMaxOutsideTime help]] "This is the time it takes for Colonists outside of Domes to become dehydrated"),
+	id = "WaterMaxOutsideTime",
+	name = T(12339, --[[ConstDef Stat WaterMaxOutsideTime name]] "Water max outside time"),
+	scale = "hours",
+	value = 180000,
+}
+DefineConst{
+	group = "Stat",
 	id = "PerformanceEffectOnServiceComfort",
 	name = T(359628595078, --[[ConstDef Stat PerformanceEffectOnServiceComfort name]] "Max effect of worker performance on Service Quality"),
 	scale = "Stat",
@@ -1091,15 +1132,23 @@ DefineConst{
 }
 DefineConst{
 	group = "StoryBits",
-	help = T(939854144179, --[[ConstDef StoryBits MaxCooldown help]] "Each StoryBits category is assigned a random cooldown between MinCoolDown and MaxCoolDown when a StoryBit triggers"),
+	help = T(589776447693, --[[ConstDef StoryBits ExtraCooldown help]] "Cooldown added to a category whenever a StoryBit from THAT category is activated"),
+	id = "ExtraCooldown",
+	name = T(435983609557, --[[ConstDef StoryBits ExtraCooldown name]] "Category Extra Cooldown"),
+	scale = "sols",
+	value = 10800000,
+}
+DefineConst{
+	group = "StoryBits",
+	help = T(12317, --[[ConstDef StoryBits MaxCooldown help]] "Each StoryBit category is assigned a random cooldown between MinCooldown and MaxCooldown when a StoryBit triggers"),
 	id = "MaxCooldown",
-	name = T(234981181428, --[[ConstDef StoryBits MaxCooldown name]] "Maximum Cooldown"),
+	name = T(12318, --[[ConstDef StoryBits MaxCooldown name]] "Max Cooldown"),
 	scale = "sols",
 	value = 8640000,
 }
 DefineConst{
 	group = "StoryBits",
-	help = T(316584207221, --[[ConstDef StoryBits MinCooldown help]] "Each StoryBits category is assigned a random cooldown between MinCoolDown and MaxCoolDown when a StoryBit triggers"),
+	help = T(12319, --[[ConstDef StoryBits MinCooldown help]] "Each StoryBit category is assigned a random cooldown between MinCooldown and MaxCooldown when a StoryBit triggers"),
 	id = "MinCooldown",
 	name = T(136932901153, --[[ConstDef StoryBits MinCooldown name]] "Min Cooldown"),
 	scale = "sols",
@@ -1120,6 +1169,42 @@ DefineConst{
 	name = T(942145509228, --[[ConstDef StoryBits TickDuration name]] "Tick Duration"),
 	scale = "hours",
 	value = 30000,
+}
+DefineConst{
+	group = "Terraforming",
+	help = T(103173269581, --[[ConstDef Terraforming LandscapeMaxBoundary help]] "Maximum Size of a Landscape Construction Site Bounding Box (hexes)"),
+	id = "LandscapeMaxBoundary",
+	name = T(121765804687, --[[ConstDef Terraforming LandscapeMaxBoundary name]] "Max Landscape Boundary"),
+	value = 120,
+}
+DefineConst{
+	group = "Terraforming",
+	help = T(883272456922, --[[ConstDef Terraforming LandscapeMaxHexes help]] "Maximum Count of Hexes In a Single Landscape Construction Site"),
+	id = "LandscapeMaxHexes",
+	name = T(567490170117, --[[ConstDef Terraforming LandscapeMaxHexes name]] "Max Landscape Hexes"),
+	value = 8000,
+}
+DefineConst{
+	group = "Terraforming",
+	help = T(901111064055, --[[ConstDef Terraforming LandscapeSoilDamageAmount help]] "A constant soil fixed damage"),
+	id = "LandscapeSoilDamageAmount",
+	name = T(548625953751, --[[ConstDef Terraforming LandscapeSoilDamageAmount name]] "Landscape Soil Damage Amount"),
+	value = 0,
+}
+DefineConst{
+	group = "Terraforming",
+	help = T(376198663861, --[[ConstDef Terraforming LandscapeSoilDamagePct help]] "A constant soil damage expressed in percents of the current target soil quality"),
+	id = "LandscapeSoilDamagePct",
+	name = T(379962151980, --[[ConstDef Terraforming LandscapeSoilDamagePct name]] "Landscape Soil Damage Percent"),
+	value = 20,
+}
+DefineConst{
+	group = "Terraforming",
+	help = T(274940180966, --[[ConstDef Terraforming WasteRockPerHexCube help]] "WasteRock needed per cubic hex (10 m height)"),
+	id = "WasteRockPerHexCube",
+	name = T(298846244549, --[[ConstDef Terraforming WasteRockPerHexCube name]] "WasteRock per Cubic Hex"),
+	scale = "Resources",
+	value = 100,
 }
 DefineConst{
 	group = "Traits",

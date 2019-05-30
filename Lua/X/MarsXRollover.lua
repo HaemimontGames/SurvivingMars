@@ -1,4 +1,4 @@
-table.append(XRollover.properties, {
+table.iappend(XRollover.properties, {
 	{ category = "Rollover", id = "RolloverTitle", editor = "text", default = "", translate = true, },
 	{ category = "Rollover", id = "RolloverDisabledTitle", editor = "text", default = "", translate = true, },
 	{ category = "Rollover", id = "RolloverHint", editor = "text", default = "", translate = true, },

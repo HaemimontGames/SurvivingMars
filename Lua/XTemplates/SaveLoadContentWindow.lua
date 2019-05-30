@@ -11,9 +11,9 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-XWindow.Open(self, ...)
-self:SetMargins(GetSafeMargins(self:GetMargins()))
-end,
+				XWindow.Open(self, ...)
+				self:SetMargins(GetSafeMargins(self:GetMargins()))
+			end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "ActionBarNew",
@@ -59,60 +59,60 @@ end,
 							'Id', "idNewSave",
 							'Margins', box(22, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-local obj = GetDialogContext(self)
-local dlg = GetDialog(self)
-obj:ShowNewSavegameNamePopup(dlg)
-end,
+								local obj = GetDialogContext(self)
+								local dlg = GetDialog(self)
+								obj:ShowNewSavegameNamePopup(dlg)
+							end,
 						}, {
 							PlaceObj('XTemplateFunc', {
 								'name', "OnSetRollover(self, rollover)",
 								'func', function (self, rollover)
-XTextButton.OnSetRollover(self, rollover)
-if rollover then
-	ShowSavegameDescription(self.context, GetDialog(self))
-end
-end,
+									XTextButton.OnSetRollover(self, rollover)
+									if rollover then
+										ShowSavegameDescription(self.context, GetDialog(self))
+									end
+								end,
 							}),
 							PlaceObj('XTemplateFunc', {
 								'name', "OnMouseEnter",
 								'func', function (self, ...)
-self.parent:ResolveId("idList"):SetSelection(self.context.id)
-XTextButton.OnMouseEnter(self, ...)
-end,
+									self.parent:ResolveId("idList"):SetSelection(self.context.id)
+									XTextButton.OnMouseEnter(self, ...)
+								end,
 							}),
 							PlaceObj('XTemplateFunc', {
 								'name', "OnMouseLeft",
 								'func', function (self, ...)
-return "break"
-end,
+									return "break"
+								end,
 							}),
 							PlaceObj('XTemplateFunc', {
 								'name', "OnShortcut(self, shortcut, source)",
 								'func', function (self, shortcut, source)
-if shortcut == "DPadDown" or shortcut == "LeftThumbDown" then
-	local dlg = GetDialog(self)
-	local list = dlg:ResolveId("idList")
-	if list and #list > 0 then
-		list:SetFocus()
-		list:SetSelection(1)
-		dlg:UpdateActionViews(dlg.idActionBar)
-	end
-	return "break"
-end
-return XTextButton.OnShortcut(self, shortcut, source)
-end,
+									if shortcut == "DPadDown" or shortcut == "LeftThumbDown" then
+										local dlg = GetDialog(self)
+										local list = dlg:ResolveId("idList")
+										if list and #list > 0 then
+											list:SetFocus()
+											list:SetSelection(1)
+											dlg:UpdateActionViews(dlg.idActionBar)
+										end
+										return "break"
+									end
+									return XTextButton.OnShortcut(self, shortcut, source)
+								end,
 							}),
 							}),
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-local dlg = GetDialog(parent)
-dlg.idTitle:SetTitle(T(1133, "SAVE GAME"))
-parent.idNewSave.idValue:SetText(T(4182, "<<< New Savegame >>>"))
-parent.idNewSave:SetFocus()
-dlg.idList:SetSelection(false)
-dlg.idList:SetGamepadInitialSelection(false)
-dlg.idList:SetForceInitialSelection(false)
-end,
+								local dlg = GetDialog(parent)
+								dlg.idTitle:SetTitle(T(1133, "SAVE GAME"))
+								parent.idNewSave.idValue:SetText(T(4182, "<<< New Savegame >>>"))
+								parent.idNewSave:SetFocus()
+								dlg.idList:SetSelection(false)
+								dlg.idList:SetGamepadInitialSelection(false)
+								dlg.idList:SetForceInitialSelection(false)
+							end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "save",
@@ -120,13 +120,13 @@ end,
 							'ActionToolbar', "ActionBar",
 							'ActionGamepad', "ButtonA",
 							'OnAction', function (self, host, source)
-local focused_item = host.idList.focused_item
-if focused_item then
-	host.idList[focused_item]:Press()
-else
-	host.idTopContent.idNewSave:Press()
-end
-end,
+								local focused_item = host.idList.focused_item
+								if focused_item then
+									host.idList[focused_item]:Press()
+								else
+									host.idTopContent.idNewSave:Press()
+								end
+							end,
 							'__condition', function (parent, context) return GetUIStyleGamepad() end,
 						}),
 						PlaceObj('XTemplateAction', {
@@ -135,9 +135,9 @@ end,
 							'ActionToolbar', "ActionBar",
 							'ActionGamepad', "ButtonY",
 							'ActionState', function (self, host)
-local items = host.context.items
-return (GetUIStyleGamepad() and not host.idList.focused_item or not items or #items <= 0) and "disabled"
-end,
+								local items = host.context.items
+								return (GetUIStyleGamepad() and not host.idList.focused_item or not items or #items <= 0) and "disabled"
+							end,
 							'OnActionEffect', "mode",
 							'OnActionParam', "delete",
 						}),
@@ -155,8 +155,8 @@ end,
 					}, {
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-parent:ResolveId("idTitle"):SetTitle(T(1128, "LOAD GAME"))
-end,
+								parent:ResolveId("idTitle"):SetTitle(T(1128, "LOAD GAME"))
+							end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "load",
@@ -164,12 +164,12 @@ end,
 							'ActionToolbar', "ActionBar",
 							'ActionGamepad', "ButtonA",
 							'ActionState', function (self, host)
-local items = host.context.items
-return (not items or #items == 0) and "disabled"
-end,
+								local items = host.context.items
+								return (not items or #items == 0) and "disabled"
+							end,
 							'OnAction', function (self, host, source)
-LoadSaveGame(host)
-end,
+								LoadSaveGame(host)
+							end,
 							'__condition', function (parent, context) return GetUIStyleGamepad() end,
 						}),
 						PlaceObj('XTemplateAction', {
@@ -178,9 +178,9 @@ end,
 							'ActionToolbar', "ActionBar",
 							'ActionGamepad', "ButtonY",
 							'ActionState', function (self, host)
-local items = host.context.items
-return (not items or #items == 0) and "disabled"
-end,
+								local items = host.context.items
+								return (not items or #items == 0) and "disabled"
+							end,
 							'OnActionEffect', "mode",
 							'OnActionParam', "delete",
 						}),
@@ -198,11 +198,11 @@ end,
 					}, {
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-parent:ResolveId("idTitle"):SetTitle(T(5471, "DELETE GAME"))
-local dlg = GetDialog(parent)
-dlg.idList:SetGamepadInitialSelection(true)
-dlg.idList:SetForceInitialSelection(true)
-end,
+								parent:ResolveId("idTitle"):SetTitle(T(5471, "DELETE GAME"))
+								local dlg = GetDialog(parent)
+								dlg.idList:SetGamepadInitialSelection(true)
+								dlg.idList:SetForceInitialSelection(true)
+							end,
 						}),
 						PlaceObj('XTemplateAction', {
 							'ActionId', "delete",
@@ -210,12 +210,12 @@ end,
 							'ActionToolbar', "ActionBar",
 							'ActionGamepad', "ButtonA",
 							'ActionState', function (self, host)
-local items = host.context.items
-return (not items or #items == 0) and "disabled"
-end,
+								local items = host.context.items
+								return (not items or #items == 0) and "disabled"
+							end,
 							'OnAction', function (self, host, source)
-DeleteSaveGame(host)
-end,
+								DeleteSaveGame(host)
+							end,
 							'__condition', function (parent, context) return GetUIStyleGamepad() end,
 						}),
 						PlaceObj('XTemplateAction', {
@@ -250,80 +250,80 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "OnShortcut(self, shortcut, source)",
 							'func', function (self, shortcut, source)
-if shortcut == "Delete" or shortcut == "ButtonY" then
-	DeleteSaveGame(GetDialog(self))
-	return "break"
-elseif shortcut == "Up" and self.focused_item == 1 then
-	local dlg = GetDialog(self)
-	if dlg.Mode == "save" then
-		self:SetSelection(false)
-		dlg.idTopContent.idNewSave:SetFocus()
-		dlg:UpdateActionViews(dlg.idActionBar)
-		return "break"
-	end
-end
-return XContentTemplateList.OnShortcut(self, shortcut, source)
-end,
+								if shortcut == "Delete" or shortcut == "ButtonY" then
+									DeleteSaveGame(GetDialog(self))
+									return "break"
+								elseif shortcut == "Up" and self.focused_item == 1 then
+									local dlg = GetDialog(self)
+									if dlg.Mode == "save" then
+										self:SetSelection(false)
+										dlg.idTopContent.idNewSave:SetFocus()
+										dlg:UpdateActionViews(dlg.idActionBar)
+										return "break"
+									end
+								end
+								return XContentTemplateList.OnShortcut(self, shortcut, source)
+							end,
 						}),
 						PlaceObj('XTemplateForEach', {
 							'comment', "item",
 							'array', function (parent, context) return context.items end,
 							'__context', function (parent, context, item, i, n) return item end,
 							'run_after', function (child, context, item, i, n)
-child.idValue:SetText(context.text)
-local metadata = context.metadata
-if metadata and (metadata.corrupt or metadata.incompatible) then
-	child.idCorrupted:SetVisible(true)
-elseif PopsCloudSavesAllowed() then
-	if metadata.paradox_user_hash and metadata.paradox_user_hash == g_ParadoxHashedUserId then
-		local local_save = table.find_value(SaveStateData, "local_name", context.savename)
-		local synced = local_save and local_save.is_synchronized
-		child.idSynced:SetVisible(synced)
-		child.idNotSynced:SetVisible(not synced)
-		child.idDoNotSync:SetVisible(false)
-	else
-		child.idDoNotSync:SetVisible(true)
-	end
-end
-end,
+								child.idValue:SetText(context.text)
+								local metadata = context.metadata
+								if metadata and (metadata.corrupt or metadata.incompatible) then
+									child.idCorrupted:SetVisible(true)
+								elseif PopsCloudSavesAllowed() then
+									if metadata.paradox_user_hash and metadata.paradox_user_hash == g_ParadoxHashedUserId then
+										local local_save = table.find_value(SaveStateData, "local_name", context.savename)
+										local synced = local_save and local_save.is_synchronized
+										child.idSynced:SetVisible(synced)
+										child.idNotSynced:SetVisible(not synced)
+										child.idDoNotSync:SetVisible(false)
+									else
+										child.idDoNotSync:SetVisible(true)
+									end
+								end
+							end,
 						}, {
 							PlaceObj('XTemplateTemplate', {
 								'__template', "SaveItem",
 								'OnPress', function (self, gamepad)
-local dlg = GetDialog(self)
-local mode = dlg.Mode
-if mode == "load" then
-	LoadSaveGame(dlg)
-elseif mode == "save" then
-	local obj = GetDialogContext(dlg)
-	obj:ShowNewSavegameNamePopup(dlg, self.context)
-elseif mode == "delete" then
-	DeleteSaveGame(dlg)
-end
-end,
+									local dlg = GetDialog(self)
+									local mode = dlg.Mode
+									if mode == "load" then
+										LoadSaveGame(dlg)
+									elseif mode == "save" then
+										local obj = GetDialogContext(dlg)
+										obj:ShowNewSavegameNamePopup(dlg, self.context)
+									elseif mode == "delete" then
+										DeleteSaveGame(dlg)
+									end
+								end,
 							}, {
 								PlaceObj('XTemplateFunc', {
 									'name', "OnSetRollover(self, rollover)",
 									'func', function (self, rollover)
-XTextButton.OnSetRollover(self, rollover)
-if rollover then
-	ShowSavegameDescription(self.context, GetDialog(self))
-end
-end,
+										XTextButton.OnSetRollover(self, rollover)
+										if rollover then
+											ShowSavegameDescription(self.context, GetDialog(self))
+										end
+									end,
 								}),
 								PlaceObj('XTemplateFunc', {
 									'name', "OnMouseEnter",
 									'func', function (self, ...)
-local id = self.context.id
-local list = self.parent
-if list.focused_item ~= id then
-	list:SetSelection(id)
-	local dlg = GetDialog(self)
-	if dlg.Mode == "save" then
-		XTextButton.OnMouseLeft(dlg.idTopContent.idNewSave)
-	end
-end
-end,
+										local id = self.context.id
+										local list = self.parent
+										if list.focused_item ~= id then
+											list:SetSelection(id)
+											local dlg = GetDialog(self)
+											if dlg.Mode == "save" then
+												XTextButton.OnMouseLeft(dlg.idTopContent.idNewSave)
+											end
+										end
+									end,
 								}),
 								}),
 							}),
@@ -432,134 +432,145 @@ end,
 						}),
 						}),
 					PlaceObj('XTemplateWindow', {
-						'LayoutMethod', "HList",
+						'Padding', box(17, 0, 0, 0),
+						'LayoutMethod', "Grid",
 					}, {
 						PlaceObj('XTemplateWindow', {
-							'Margins', box(17, 0, 0, 0),
-							'Padding', box(0, 0, 50, 0),
-							'LayoutMethod', "VList",
-						}, {
-							PlaceObj('XTemplateWindow', {
-								'__class', "XText",
-								'Id', "idCoordinates",
-								'MaxWidth', 400,
-								'MaxHeight', 40,
-								'HandleMouse', false,
-								'TextStyle', "SaveLoadDescr1",
-								'Translate', true,
-								'HideOnEmpty', true,
-							}),
-							PlaceObj('XTemplateWindow', {
-								'__class', "XText",
-								'Id', "idSols",
-								'MaxWidth', 400,
-								'MaxHeight', 40,
-								'HandleMouse', false,
-								'TextStyle', "SaveLoadDescr1",
-								'Translate', true,
-								'HideOnEmpty', true,
-							}),
-							PlaceObj('XTemplateWindow', {
-								'__class', "XText",
-								'Id', "idSponsor",
-								'MaxWidth', 400,
-								'MaxHeight', 40,
-								'HandleMouse', false,
-								'TextStyle', "SaveLoadDescr1",
-								'Translate', true,
-								'HideOnEmpty', true,
-							}),
-							PlaceObj('XTemplateWindow', {
-								'__class', "XText",
-								'Id', "idCommanderProfile",
-								'MaxWidth', 400,
-								'MaxHeight', 40,
-								'HandleMouse', false,
-								'TextStyle', "SaveLoadDescr1",
-								'Translate', true,
-								'HideOnEmpty', true,
-							}),
-							PlaceObj('XTemplateWindow', {
-								'__class', "XText",
-								'Id', "idActiveMods",
-								'MaxWidth', 400,
-								'MaxHeight', 40,
-								'HandleMouse', false,
-								'TextStyle', "SaveLoadDescr1",
-								'Translate', true,
-								'HideOnEmpty', true,
-							}),
-							PlaceObj('XTemplateWindow', {
-								'__class', "XText",
-								'Id', "idActiveGameRules",
-								'MaxWidth', 400,
-								'MaxHeight', 40,
-								'HandleMouse', false,
-								'TextStyle', "SaveLoadDescr1",
-								'Translate', true,
-								'HideOnEmpty', true,
-							}),
-							}),
+							'__class', "XText",
+							'Id', "idCoordinates",
+							'MaxWidth', 400,
+							'MaxHeight', 40,
+							'HandleMouse', false,
+							'TextStyle', "SaveLoadDescr1",
+							'Translate', true,
+							'HideOnEmpty', true,
+						}),
 						PlaceObj('XTemplateWindow', {
-							'Margins', box(17, 0, 0, 0),
-							'LayoutMethod', "VList",
-						}, {
-							PlaceObj('XTemplateWindow', {
-								'__class', "XText",
-								'Id', "idCoordinatesVal",
-								'MaxWidth', 600,
-								'HandleMouse', false,
-								'TextStyle', "SaveLoadDescr2",
-								'Translate', true,
-								'HideOnEmpty', true,
-							}),
-							PlaceObj('XTemplateWindow', {
-								'__class', "XText",
-								'Id', "idSolsVal",
-								'MaxWidth', 600,
-								'HandleMouse', false,
-								'TextStyle', "SaveLoadDescr2",
-								'Translate', true,
-								'HideOnEmpty', true,
-							}),
-							PlaceObj('XTemplateWindow', {
-								'__class', "XText",
-								'Id', "idSponsorVal",
-								'MaxWidth', 600,
-								'HandleMouse', false,
-								'TextStyle', "SaveLoadDescr2",
-								'Translate', true,
-								'HideOnEmpty', true,
-							}),
-							PlaceObj('XTemplateWindow', {
-								'__class', "XText",
-								'Id', "idCommanderProfileVal",
-								'MaxWidth', 600,
-								'HandleMouse', false,
-								'TextStyle', "SaveLoadDescr2",
-								'Translate', true,
-								'HideOnEmpty', true,
-							}),
-							PlaceObj('XTemplateWindow', {
-								'__class', "XText",
-								'Id', "idActiveModsVal",
-								'MaxWidth', 600,
-								'HandleMouse', false,
-								'TextStyle', "SaveLoadDescr2",
-								'Translate', true,
-								'HideOnEmpty', true,
-							}),
-							PlaceObj('XTemplateWindow', {
-								'__class', "XText",
-								'Id', "idActiveGameRulesVal",
-								'HAlign', "left",
-								'MaxWidth', 600,
-								'HandleMouse', false,
-								'TextStyle', "SaveLoadDescr2",
-								'Translate', true,
-								'HideOnEmpty', true,
-							}),
-							}),
+							'__class', "XText",
+							'Id', "idSols",
+							'MaxWidth', 400,
+							'MaxHeight', 40,
+							'GridY', 2,
+							'HandleMouse', false,
+							'TextStyle', "SaveLoadDescr1",
+							'Translate', true,
+							'HideOnEmpty', true,
+						}),
+						PlaceObj('XTemplateWindow', {
+							'__class', "XText",
+							'Id', "idSponsor",
+							'MaxWidth', 400,
+							'MaxHeight', 40,
+							'GridY', 3,
+							'HandleMouse', false,
+							'TextStyle', "SaveLoadDescr1",
+							'Translate', true,
+							'HideOnEmpty', true,
+						}),
+						PlaceObj('XTemplateWindow', {
+							'__class', "XText",
+							'Id', "idCommanderProfile",
+							'MaxWidth', 400,
+							'MaxHeight', 40,
+							'GridY', 4,
+							'HandleMouse', false,
+							'TextStyle', "SaveLoadDescr1",
+							'Translate', true,
+							'HideOnEmpty', true,
+						}),
+						PlaceObj('XTemplateWindow', {
+							'__class', "XText",
+							'Id', "idActiveMods",
+							'MaxWidth', 400,
+							'MaxHeight', 40,
+							'GridY', 5,
+							'HandleMouse', false,
+							'TextStyle', "SaveLoadDescr1",
+							'Translate', true,
+							'HideOnEmpty', true,
+						}),
+						PlaceObj('XTemplateWindow', {
+							'__class', "XText",
+							'Id', "idActiveGameRules",
+							'MaxWidth', 400,
+							'MaxHeight', 40,
+							'GridY', 6,
+							'HandleMouse', false,
+							'TextStyle', "SaveLoadDescr1",
+							'Translate', true,
+							'HideOnEmpty', true,
+						}),
+						PlaceObj('XTemplateWindow', {
+							'__class', "XText",
+							'Id', "idCoordinatesVal",
+							'Margins', box(67, 0, 0, 0),
+							'MaxWidth', 600,
+							'GridX', 2,
+							'HandleMouse', false,
+							'TextStyle', "SaveLoadDescr2",
+							'Translate', true,
+							'HideOnEmpty', true,
+						}),
+						PlaceObj('XTemplateWindow', {
+							'__class', "XText",
+							'Id', "idSolsVal",
+							'Margins', box(67, 0, 0, 0),
+							'MaxWidth', 600,
+							'GridX', 2,
+							'GridY', 2,
+							'HandleMouse', false,
+							'TextStyle', "SaveLoadDescr2",
+							'Translate', true,
+							'HideOnEmpty', true,
+						}),
+						PlaceObj('XTemplateWindow', {
+							'__class', "XText",
+							'Id', "idSponsorVal",
+							'Margins', box(67, 0, 0, 0),
+							'MaxWidth', 600,
+							'GridX', 2,
+							'GridY', 3,
+							'HandleMouse', false,
+							'TextStyle', "SaveLoadDescr2",
+							'Translate', true,
+							'HideOnEmpty', true,
+						}),
+						PlaceObj('XTemplateWindow', {
+							'__class', "XText",
+							'Id', "idCommanderProfileVal",
+							'Margins', box(67, 0, 0, 0),
+							'MaxWidth', 600,
+							'GridX', 2,
+							'GridY', 4,
+							'HandleMouse', false,
+							'TextStyle', "SaveLoadDescr2",
+							'Translate', true,
+							'HideOnEmpty', true,
+						}),
+						PlaceObj('XTemplateWindow', {
+							'__class', "XText",
+							'Id', "idActiveModsVal",
+							'Margins', box(67, 0, 0, 0),
+							'MaxWidth', 600,
+							'GridX', 2,
+							'GridY', 5,
+							'HandleMouse', false,
+							'TextStyle', "SaveLoadDescr2",
+							'Translate', true,
+							'HideOnEmpty', true,
+						}),
+						PlaceObj('XTemplateWindow', {
+							'__class', "XText",
+							'Id', "idActiveGameRulesVal",
+							'Margins', box(67, 0, 0, 0),
+							'MaxWidth', 600,
+							'GridX', 2,
+							'GridY', 6,
+							'HandleMouse', false,
+							'TextStyle', "SaveLoadDescr2",
+							'Translate', true,
+							'HideOnEmpty', true,
+						}),
 						}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XText",

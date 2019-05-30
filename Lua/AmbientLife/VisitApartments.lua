@@ -59,6 +59,19 @@ local _slots = {
 	},
 	{
 		flags_missing = 1,
+		goto_spot = "Teleport",
+		groups = {
+			["A"] = true,
+		},
+		move_end = "TeleportToExit",
+		pet_only = true,
+		spots = {
+			"Petlay",
+		},
+		usable_by_child = false,
+	},
+	{
+		flags_missing = 1,
 		goto_spot = "LeadToSpot",
 		groups = {
 			["A"] = true,

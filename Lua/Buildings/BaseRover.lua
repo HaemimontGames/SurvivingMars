@@ -1,9 +1,12 @@
 --container for common stuffs between RC Commander and workshop rover.
 DefineClass.BaseRover = {
 	__parents = { "DroneBase", "Demolishable", "TaskRequester", "SkinChangeable", "PinnableObject" },
+	SelectionClass = "BaseRover",
+	display_name_pl = T(12081, "Rovers"),
 
 	move_speed = 1000,
 	scale = 100,
+	follow_camera_vertical_offset = 26 * guim,
 
 	pfclass = 1,
 	radius = 6*guim,
@@ -124,6 +127,9 @@ end
 function BaseRover:ShowUISectionElectricityGrid()
 end
 
+function BaseRover:GetSelectorItems()
+end
+
 function BaseRover:GetRefundResources()
 	local data = self.on_demolish_resource_refund or empty_table
 	local t = {}
@@ -140,12 +146,24 @@ function BaseRover:AddDust(dust)
 	self:SetDust(normalized_dust, const.DustMaterialExterior)
 end
 
-function OnMsg.SelectedObjChange(obj, prev)
-	if IsKindOf(prev, "BaseRover") then
-		SetSubsurfaceDepositsVisible(false)
-	end
+function OnMsg.SelectionAdded(obj)
 	if IsKindOf(obj, "BaseRover") then
 		SetSubsurfaceDepositsVisible(true)
+	end
+end
+
+function OnMsg.SelectionRemoved(obj)
+	if IsKindOf(obj, "BaseRover") then
+		local no_rovers = true
+		for i=1,#Selection do
+			if IsKindOf(Selection[i], "BaseRover") then
+				no_rovers = false
+				break
+			end
+		end
+		if no_rovers then
+			SetSubsurfaceDepositsVisible(false)
+		end
 	end
 end
 
@@ -204,6 +222,11 @@ function BaseRover:SetMalfunction()
 	self:SetCommand("Malfunction")
 end
 
+function BaseRover:CheatRepair()
+	self.command = ""
+	self:SetCommand("Repair")
+end
+
 function BaseRover:Repair()
 	if not self:IsMalfunctioned() or not IsValid(self) then return end
 	
@@ -248,10 +271,16 @@ function BaseRover:GetMalfunctionRepairProgress()
 	return self.command == "Malfunction" and 100 - MulDivRound(self.repair_work_request:GetActualAmount(), 100, self.repair_work_amount_on_malfunction) or 0
 end
 
+function BaseRover:SetCommandUserInteraction(...)
+	GetCommandFunc(self)(self, ...)
+end
+
 function BaseRover:SetCommand(command, ...)
 	if command == "Malfunction" and self.command == "Malfunction" then
+		self.dont_clear_queue = nil
 		return
 	elseif command and self.command == "Malfunction" then --don't interrupt "Malfunction", wait for it to end on its own
+		self.dont_clear_queue = nil
 		return
 	end
 	
@@ -335,7 +364,7 @@ function BaseRover:InteractWithObject(obj, interaction_mode)
 	
 	if self.interaction_mode == false or self.interaction_mode == "default" or self.interaction_mode == "move" then --the 3 move modes..
 		if IsKindOf(obj, "Tunnel") and obj.working then
-			self:SetCommand("UseTunnel", obj)
+			GetCommandFunc(self)(self, "UseTunnel", obj)
 			SetUnitControlInteractionMode(self, false) --toggle button
 		end
 	end
@@ -363,6 +392,8 @@ function BaseRover:GetUIWarning()
 end
 
 function BaseRover:OperationInterrupted(reason)
+	if self:HasMoreCommandsAfterThis() then return end --dont halt in err state if there are things to do
+	
 	self:SetState("idle")
 	self.operation_interrupted_reason = reason
 	RebuildInfopanel(self)
@@ -438,21 +469,42 @@ RoverCommands = {
 	UseTunnel = T(6723, "Going through a tunnel"),
 	LoadingComplete = T(8490, "Loading complete"),
 	OperationInterrupted = T(9827, "Command interrupted"),
+	CleaningObstructors = T(12151, "Removing obstructing objects"),
+	GatheringWasteRock = T(12329, "Gathering Waste Rock for landscape project"),
+	DeliveringWasteRock = T(12330, "Delivering Waste Rock to landscape project"),
 	-- attack rover commands
 	Roam = T(6724, "Roaming"),
 	Attack = T(6725, "Attacking"),
 	Reload = T(6726, "Reloading"),
 	GotoAndEmbark =  T(11216, "Boarding Rocket"),
+	Landscaping = T(12424, "Landscaping"),
 }
 
-function BaseRover:Getui_command()
-	local ui_command = self.override_ui_status and RoverCommands[self.override_ui_status] and self.override_ui_status or self.command
+function BaseRover:Getui_command(for_cmd)
+	local ui_command = for_cmd or self.override_ui_status and RoverCommands[self.override_ui_status] and self.override_ui_status or self.command
 	
 	if ui_command == "Malfunction" and self:GetMalfunctionRepairProgress() > 0 then
 		ui_command = "BeingRepaired"		
 	end
 	
 	return RoverCommands[ui_command] or T(77, "Unknown")
+end
+
+function BaseRover:Getui_command_queue()
+	local lines = {}
+	local q = self.command_queue
+	local count = Min(#(q or ""), 10)
+	for i = 1, count do
+		local cmd = type(q[i] == "table") and q[i][1] or q[i]
+		local cmd_str = self:Getui_command(cmd)
+		table.insert(lines, cmd_str)
+	end
+	
+	return table.concat(lines, "\n")
+end
+
+function BaseRover:Getui_command_queue_title()
+	return T{12260, "Queued tasks<right><number>", number = self.auto_mode_on and T(12259, "Automated") or #(self.command_queue or "")}
 end
 
 local function SelectRover(dir)
@@ -595,7 +647,7 @@ end
 
 function BaseRover:ToggleAutoMode(broadcast)
 	if broadcast then
-		MapForEach("map", "BaseRover", function(o, val)
+		MapForEach("map", self.class, function(o, val)
 			o.auto_mode_on = val
 			o:ToggleAutoMode()
 		end, self.auto_mode_on)
@@ -654,7 +706,12 @@ function BaseRover:GotoAndEmbark(rocket)
 	self:SetCommand("Disappear", "keep in holder")
 end
 
-function OnMsg.PFTunnelChanged()
+function BaseRover:IsDisabled()
+	return not self:IsMalfunctioned() and self.command == "Dead"
+end
+
+
+local function InvalidateAllRoverUnreachables()
 	MapForEach("map", "BaseRover", function(r)
 		if r.has_auto_mode then
 			r:Notify("UnreachableObjectsInvalidated")
@@ -662,10 +719,5 @@ function OnMsg.PFTunnelChanged()
 	end)
 end
 
----- gagarin stubs
-
-DefineClass.RCConstructor = { __parents = {  "Object", }, }
-DefineClass.RCDriller = { __parents = {  "Object", }, }
-DefineClass.RCHarvester = { __parents = {  "Object", }, }
-DefineClass.RCSensor = { __parents = {  "Object", }, }
-DefineClass.RCSolar = { __parents = {  "Object", }, }
+OnMsg.PFTunnelChanged = InvalidateAllRoverUnreachables
+OnMsg.LandscapeCompleted = InvalidateAllRoverUnreachables

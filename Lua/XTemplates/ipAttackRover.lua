@@ -29,38 +29,38 @@ PlaceObj('XTemplate', {
 			'RolloverTitle', T(3973, --[[XTemplate ipAttackRover RolloverTitle]] "Salvage"),
 			'RolloverHintGamepad', T(7657, --[[XTemplate ipAttackRover RolloverHintGamepad]] "<ButtonY> Activate"),
 			'OnContextUpdate', function (self, context, ...)
-local refund = context:GetRefundResources() or empty_table
-local rollover = T(7825, "Destroy this Rover.")
-if #refund > 0 then
-	rollover = rollover .. "<newline><newline>" .. T(7823, "<UIRefundRes> will be refunded upon salvage.")
-end
-self:SetRolloverText(rollover)
-context:ToggleDemolish_Update(self)
-end,
+				local refund = context:GetRefundResources() or empty_table
+				local rollover = T(7825, "Destroy this Rover.")
+				if #refund > 0 then
+					rollover = rollover .. "<newline><newline>" .. T(7823, "<UIRefundRes> will be refunded upon salvage.")
+				end
+				self:SetRolloverText(rollover)
+				context:ToggleDemolish_Update(self)
+			end,
 			'OnPressParam', "ToggleDemolish",
 			'Icon', "UI/Icons/IPButtons/salvage_1.tga",
 		}, {
 			PlaceObj('XTemplateFunc', {
 				'name', "OnXButtonDown(self, button)",
 				'func', function (self, button)
-if button == "ButtonY" then
-	return self:OnButtonDown(false)
-elseif button == "ButtonX" then
-	return self:OnButtonDown(true)
-end
-return (button == "ButtonA") and "break"
-end,
+					if button == "ButtonY" then
+						return self:OnButtonDown(false)
+					elseif button == "ButtonX" then
+						return self:OnButtonDown(true)
+					end
+					return (button == "ButtonA") and "break"
+				end,
 			}),
 			PlaceObj('XTemplateFunc', {
 				'name', "OnXButtonUp(self, button)",
 				'func', function (self, button)
-if button == "ButtonY" then
-	return self:OnButtonUp(false)
-elseif button == "ButtonX" then
-	return self:OnButtonUp(true)
-end
-return (button == "ButtonA") and "break"
-end,
+					if button == "ButtonY" then
+						return self:OnButtonUp(false)
+					elseif button == "ButtonX" then
+						return self:OnButtonUp(true)
+					end
+					return (button == "ButtonA") and "break"
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateTemplate', {

@@ -11,7 +11,7 @@ DefineClass.RefugeeRocket = {
 	launch_fuel = 0,
 	launch_after_unload = true,
 
-	rocket_palette = { "rocket_base", "rocket_base", "outside_dark", "outside_dark" }, --"RocketTrade",
+	rocket_palette = { "rocket_base", "rocket_refugee", "rocket_refugee", "outside_dark" }, --"RocketTrade",
 	show_logo = false,
 	rename_allowed = false,
 	can_fly_colonists = false,
@@ -71,6 +71,10 @@ function RefugeeRocket:GetUIExportStatus()
 	return
 end
 
+function RefugeeRocket:GetPinIcon()
+	return "UI/Icons/Buildings/rocket_trade.tga"
+end
+
 function RefugeeRocket:Unload(...)
 	g_RefugeeOutcome[self.custom_id] = "success"
 	SupplyRocket.Unload(self, ...)
@@ -92,4 +96,12 @@ function RefugeeRocket:LeaveForever()
 		self:SetCommand("Countdown")
 		RebuildInfopanel(self)
 	end
+end
+
+function RefugeeRocket:GetRocketPalette()
+	return self.rocket_palette
+end
+
+function RefugeeRocket:GetColorScheme()
+	return ColonyColorSchemes["default"]
 end

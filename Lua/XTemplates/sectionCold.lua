@@ -21,15 +21,15 @@ PlaceObj('XTemplate', {
 					'Image', "UI/Infopanel/progress_bar.tga",
 					'FrameBox', box(5, 0, 5, 0),
 					'OnContextUpdate', function (self, context, ...)
-XFrameProgress.OnContextUpdate(self, context, ...)
-local image = "UI/Infopanel/progress_bar_green.tga"
-if self.Progress > 66 then
-  image = "UI/Infopanel/progress_bar_red.tga"
-elseif self.Progress > 33 then
-	image = "UI/Infopanel/progress_bar_orange.tga"
-end
-self:SetProgressImage(image)
-end,
+						XFrameProgress.OnContextUpdate(self, context, ...)
+						local image = "UI/Infopanel/progress_bar_green.tga"
+						if self.Progress > 66 then
+						  image = "UI/Infopanel/progress_bar_red.tga"
+						elseif self.Progress > 33 then
+							image = "UI/Infopanel/progress_bar_orange.tga"
+						end
+						self:SetProgressImage(image)
+					end,
 					'BindTo', "FreezeProgress",
 					'MinProgressSize', 8,
 					'ProgressImage', "UI/Infopanel/progress_bar_green.tga",

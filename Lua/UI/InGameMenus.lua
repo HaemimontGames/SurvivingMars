@@ -1,7 +1,7 @@
 function OpenIngameMainMenu()
 	--don't open this over the pregame menu
 	if GameState.gameplay then
-		local menu = GetDialog("IGMainMenu")
+		local menu = GetInGameMainMenu()
 		if menu then
 			CloseIngameMainMenu()
 		else
@@ -16,6 +16,10 @@ function OpenIngameMainMenu()
 			end
 		end
 	end
+end
+
+function GetInGameMainMenu()
+	return GetDialog("IGMainMenu")
 end
 
 function CloseIngameMainMenu()

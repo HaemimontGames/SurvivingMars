@@ -35,55 +35,55 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnPropUpdate(self, context, prop_meta, value)",
 			'func', function (self, context, prop_meta, value)
-if prop_meta.on_value ~= nil then
-	self.idOn:SetVisible(value == prop_meta.on_value)
-else
-	self.idOn:SetVisible(value)
-end
-if prop_meta.off_value ~= nil then
-	self.idOff:SetVisible(value == prop_meta.off_value)
-else
-	self.idOff:SetVisible(not value)
-end
-end,
+				if prop_meta.on_value ~= nil then
+					self.idOn:SetVisible(value == prop_meta.on_value)
+				else
+					self.idOn:SetVisible(value)
+				end
+				if prop_meta.off_value ~= nil then
+					self.idOff:SetVisible(value == prop_meta.off_value)
+				else
+					self.idOff:SetVisible(not value)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnMouseButtonDown(self, pos, button)",
 			'func', function (self, pos, button)
-XPropControl.OnMouseButtonDown(self, pos, button)
-if button == "L" then
-	local id = self.prop_meta.id
-	local value = ResolveValue(self.context, id)
-	local on_value, off_value = self.prop_meta.on_value, self.prop_meta.off_value
-	if on_value ~= nil and value == on_value and off_value ~= nil then
-		value = off_value
-	elseif off_value ~= nil and value == off_value and on_value ~= nil then
-		value = on_value
-	else
-		value = not value
-	end
-	
-	local obj = ResolvePropObj(self.context)
-	SetProperty(obj, id, value)
-	self:OnPropUpdate(self.context, self.prop_meta, value)
-end
-end,
+				XPropControl.OnMouseButtonDown(self, pos, button)
+				if button == "L" then
+					local id = self.prop_meta.id
+					local value = ResolveValue(self.context, id)
+					local on_value, off_value = self.prop_meta.on_value, self.prop_meta.off_value
+					if on_value ~= nil and value == on_value and off_value ~= nil then
+						value = off_value
+					elseif off_value ~= nil and value == off_value and on_value ~= nil then
+						value = on_value
+					else
+						value = not value
+					end
+					
+					local obj = ResolvePropObj(self.context)
+					SetProperty(obj, id, value)
+					self:OnPropUpdate(self.context, self.prop_meta, value)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnShortcut(self, shortcut, source)",
 			'func', function (self, shortcut, source)
-if shortcut == "ButtonA" then
-  self:OnMouseButtonDown(nil, "L")
-end
-end,
+				if shortcut == "ButtonA" then
+				  self:OnMouseButtonDown(nil, "L")
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "SetSelected(self, selected)",
 			'func', function (self, selected)
-if GetUIStyleGamepad() then
-	self:SetFocus(selected)
-end
-end,
+				if GetUIStyleGamepad() then
+					self:SetFocus(selected)
+				end
+			end,
 		}),
 		}),
 })

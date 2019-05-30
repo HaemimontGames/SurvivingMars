@@ -52,37 +52,37 @@ PlaceObj('XTemplate', {
 		'id', "Title",
 		'editor', "text",
 		'Set', function (self, value)
-self.idTitle:SetText(value)
-end,
+			self.idTitle:SetText(value)
+		end,
 	}),
 	PlaceObj('XTemplateProperty', {
 		'id', "Subtitle",
 		'editor', "text",
 		'Set', function (self, value)
-self.idSubtitle:SetText(value)
-end,
+			self.idSubtitle:SetText(value)
+		end,
 	}),
 	PlaceObj('XTemplateProperty', {
 		'id', "BigImage",
 		'Set', function (self, value)
-if value then
-	local frame = self:ResolveId("idFrame")
-	frame:SetImage("UI/CommonNew/pg_header_big_tall.tga")
-	frame:SetMinHeight(193)
-	frame:SetFrameBox(box(55, 0, 495, 0))
-end
-end,
+			if value then
+				local frame = self:ResolveId("idFrame")
+				frame:SetImage("UI/CommonNew/pg_header_big_tall.tga")
+				frame:SetMinHeight(193)
+				frame:SetFrameBox(box(55, 0, 495, 0))
+			end
+		end,
 	}),
 	PlaceObj('XTemplateProperty', {
 		'id', "SmallImage",
 		'Set', function (self, value)
-if value then
-	local frame = self:ResolveId("idFrame")
-	frame:SetImage("UI/CommonNew/pg_header_big1.tga")
-	frame:SetMinHeight(121)
-	frame:SetFrameBox(box(55, 0, 495, 0))
-end
-end,
+			if value then
+				local frame = self:ResolveId("idFrame")
+				frame:SetImage("UI/CommonNew/pg_header_big1.tga")
+				frame:SetMinHeight(121)
+				frame:SetFrameBox(box(55, 0, 495, 0))
+			end
+		end,
 	}),
 })
 

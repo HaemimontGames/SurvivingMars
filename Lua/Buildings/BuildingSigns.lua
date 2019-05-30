@@ -1,8 +1,6 @@
 DefineClass.BuildingSign = {
 	__parents = { "EntityClass", "UIAttach" },
-	class_flags = { cfConstructible = false },
-	enum_flags = { efSelectable = true, efShadow = false, efSunShadow = false },
-	game_flags = { gofSpecialOrientMode = true, gofRealTimeAnim = true },
+	flags = { gofSpecialOrientMode = true, gofRealTimeAnim = true, cfConstructible = false, efSelectable = true, efShadow = false, efSunShadow = false },
 	orient_mode = "facing_vertical",
 	entity = false,
 	priority = 0,
@@ -106,14 +104,13 @@ DefineClass.SignExpeditionRocket = {
 
 DefineClass.SignTradeRocket = {
 	__parents = { "BuildingSign" },
-	entity = "SignAutomatedMode",
+	entity = "SignAutomatedTrade",
 	priority = 50,
 }
 
 DefineClass.UnitSign = {
 	__parents = { "EntityClass", "UIAttach" },
-	enum_flags = { efSelectable = true },
-	game_flags = { gofSpecialOrientMode = true, gofRealTimeAnim = true },
+	flags = { efSelectable = true, gofSpecialOrientMode = true, gofRealTimeAnim = true },
 	orient_mode = "facing_vertical",
 	entity = false,
 }
@@ -238,7 +235,7 @@ end
 
 function SetSignsVisible(visible)
 	if visible and not g_SignsVisible then
-		MapSetEnumFlags( const.efVisible,"map","BuildingSign", "UnitSign", "ArrowTutorialBase")
+		MapSetEnumFlags( const.efVisible,"map","BuildingSign", "UnitSign", "ArrowTutorialBase", "SelectionArrow")
 		if not g_ResourceIconsTurnedOff then
 			MapSetEnumFlags( const.efVisible,"map","TerrainDeposit","SubsurfaceDeposit")
 			g_ResourceIconsVisible = true
@@ -246,7 +243,7 @@ function SetSignsVisible(visible)
 		g_SignsVisible = true
 	end
 	if not visible and g_SignsVisible then
-		MapClearEnumFlags( const.efVisible,"map","BuildingSign", "UnitSign", "ArrowTutorialBase","TerrainDeposit","SubsurfaceDeposit")
+		MapClearEnumFlags( const.efVisible,"map","BuildingSign", "UnitSign", "ArrowTutorialBase","TerrainDeposit","SubsurfaceDeposit", "SelectionArrow")
 		g_ResourceIconsVisible = false
 		g_SignsVisible = false
 	end

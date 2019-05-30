@@ -135,6 +135,31 @@ function TraitsObject:GetApprovedColonists()
 	return #(self.approved_applicants or "")
 end
 
+function TraitsObject:CountApplicantsSpecialist(applicants, spec)
+	local count = 0
+	for _, applicant_table in ipairs(applicants or empty_table) do	
+		if applicant_table[1].specialist == spec then
+			count = count + 1
+		end	
+	end	
+	return count
+end
+
+function TraitsObject:GetApprovedSpecialist(spec)
+	if self.applicants_invalid then
+		return 0
+	end
+	
+	return self:CountApplicantsSpecialist(self.approved_applicants, spec)
+end
+
+function TraitsObject:GetMatchingSpecialist(spec)
+	if not self.matching_applicants  then
+		return 0
+	end
+	return self:CountApplicantsSpecialist(self.matching_applicants, spec) + self:GetApprovedSpecialist(spec)
+end
+
 function TraitsObject:GetPassengerCapacity(launch_mode)
 	launch_mode = launch_mode or UICity and UICity.launch_mode
 	return launch_mode == "passenger_pod" and g_Consts.MaxColonistsPerPod or g_Consts.MaxColonistsPerRocket
@@ -458,7 +483,10 @@ function TraitsObject:IsApplicantLocked(prop_meta)
 end
 
 function TraitsObject:UpdateRocketName(host)
-	host.idTop.idRocketName:SetText(self:GetRocketName())
+	local ctrl = host:ResolveId("idRocketName")
+	if ctrl then
+		ctrl:SetText(self:GetRocketName())
+	end	
 end
 
 function TraitsObject:RenameRocket(host)
@@ -553,10 +581,16 @@ function TraitsObject:GetPassengerRocketLaunchIssue()
 	end
 end
 
+if FirstLoad then
+	g_UITraitsObject = false
+end
+
 function TraitsObjectCreateAndLoad(context)
-	local obj = TraitsObject:new()
-	obj:InitData(context)
-	return obj
+	if not g_UITraitsObject then 
+		g_UITraitsObject = TraitsObject:new()
+		g_UITraitsObject:InitData(context)
+	end
+	return g_UITraitsObject
 end
 
 function BuyApplicants(host)
@@ -659,7 +693,7 @@ local function PostprocessTraits()
 			g_HiddenTraitsDefault[trait.id] = true
 		end
 
-		-- save compatiblity
+		-- save compatibility
 		trait.name = trait.id
 		trait.category = trait.group
 	end)
@@ -697,9 +731,23 @@ local function GenerateBuildingTraitLists()
 		
 		--Mark as 'hidden' trait
 		if trait.hidden_on_start then
-			g_HiddenTraits[trait.id] = true
+			(g_HiddenTraits or g_HiddenTraitsDefault)[trait.id] = true
 		end
 	end)
+end
+
+function SchoolTraitsCombo(object)
+	if not g_SchoolTraits then
+		GenerateBuildingTraitLists()
+	end
+	return BuildingTraitsCombo(object, g_SchoolTraits)
+end
+
+function SanatoriumTraitsCombo(object)
+	if not g_SanatoriumTraits then
+		GenerateBuildingTraitLists()
+	end
+	return BuildingTraitsCombo(object, g_SanatoriumTraits)
 end
 
 function OnMsg.NewMapLoaded()
@@ -710,6 +758,23 @@ function OnMsg.LoadGame()
 	if not (g_SchoolTraits and g_SanatoriumTraits) then
 		GenerateBuildingTraitLists()
 	end
+end
+
+function AreCompatible(traits)
+	local t1, t2
+	for i = 1, #traits - 1 do
+		t1 = TraitPresets[traits[i]]
+		for j = i + 1, #traits do
+			local t2 = TraitPresets[traits[j]]
+			if t1 and t1.incompatible[traits[j]] then
+				return false, traits[i], traits[j]
+			end
+			if t2 and t2.incompatible[traits[i]] then
+				return false, traits[j], traits[i]
+			end
+		end
+	end
+	return true
 end
 
 -- rare and none rare are changed after execution
@@ -1064,7 +1129,7 @@ DefineClass.ModItemTrait = { --Kept for backwards compatibility (mods with DataI
 		{ id = "display_name",name = T(1000067, "Display Name"), editor = "text", translate = true, default = "" },		
 		{ id = "category",    name = T(1000097, "Category"),     editor = "combo" , items = GetTraitCategoriesCombo , default = "" },
 		{ id = "description", name = T(1000017, "Description"),  editor = "text", translate = true, default = "" },
-		{ id = "display_icon",name = T(94, "Icon"),         editor = "browse",folder = {"UI/", "CommonAssets/UI/"}, object_update = true,  default = "" },
+		{ id = "display_icon",name = T(94, "Icon"),         editor = "browse",folder = {"UI/", "CommonAssets/UI/"},  default = "" },
 		{ id = "rare",        name = T(3940, "Rare"),         editor = "bool", default = false},
 		{ id = "weight",      name = T(3941, "Rarity weight"),editor = "number", default = 300},
 		{ id = "_incompatible",name = T(3942, "Incompatible"),editor = "text", default = "", help = "Comma separated traits this one is incompatible with (like Lazy and Workaholic)"},

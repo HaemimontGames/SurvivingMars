@@ -24,44 +24,45 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnMouseButtonDoubleClick(self, pos, button)",
 			'func', function (self, pos, button)
-if button == "L" then
-	ViewObjectMars(self.context)
-	SelectObj(self.context)
-	CloseCommandCenter()
-	return "break"
-end
-end,
+				if button == "L" then
+					if GetDialog("PlanetaryView") then return end
+					ViewObjectMars(self.context)
+					SelectObj(self.context)
+					CloseCommandCenter()
+					return "break"
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "SetSelected(self, selected)",
 			'func', function (self, selected)
-self:SetFocus(selected)
-end,
+				self:SetFocus(selected)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnShortcut(self, shortcut, source)",
 			'func', function (self, shortcut, source)
-if shortcut == "ButtonA" then
-	self:OnMouseButtonDoubleClick(nil, "L")
-	return "break"
-elseif XShortcutToRelation[shortcut] == "right" or XShortcutToRelation[shortcut] == "left" then
-	local focus = self.desktop and self.desktop.keyboard_focus
-	local order = point(0,0)
-	while focus and focus ~= self do
-		order = focus:GetFocusOrder() or order
-		focus = focus.parent
-	end
-	focus = self:GetRelativeFocus(order, XShortcutToRelation[shortcut])
-	if focus then
-		focus:SetFocus()
-	elseif not focus and XShortcutToRelation[shortcut] == "left" then
-		self:SetFocus()
-		XCreateRolloverWindow(self, true)
-	end
-	return "break"
-end
-return XContextControl.OnShortcut(self, shortcut, source)
-end,
+				if shortcut == "ButtonA" then
+					self:OnMouseButtonDoubleClick(nil, "L")
+					return "break"
+				elseif XShortcutToRelation[shortcut] == "right" or XShortcutToRelation[shortcut] == "left" then
+					local focus = self.desktop and self.desktop.keyboard_focus
+					local order = point(0,0)
+					while focus and focus ~= self do
+						order = focus:GetFocusOrder() or order
+						focus = focus.parent
+					end
+					focus = self:GetRelativeFocus(order, XShortcutToRelation[shortcut])
+					if focus then
+						focus:SetFocus()
+					elseif not focus and XShortcutToRelation[shortcut] == "left" then
+						self:SetFocus()
+						XCreateRolloverWindow(self, true)
+					end
+					return "break"
+				end
+				return XContextControl.OnShortcut(self, shortcut, source)
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'comment', "background",

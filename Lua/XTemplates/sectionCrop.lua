@@ -16,8 +16,8 @@ PlaceObj('XTemplate', {
 				'RolloverHint', T(369967558050, --[[XTemplate sectionCrop RolloverHint]] "<left_click> Select new crop<newline><em>Ctrl + <left_click> on crop</em> Select in all <display_name_pl>"),
 				'RolloverHintGamepad', T(764818637741, --[[XTemplate sectionCrop RolloverHintGamepad]] "<ButtonA> Select new crop<newline><em><ButtonX> on crop</em> Select in all <display_name_pl>"),
 				'OnContextUpdate', function (self, context, ...)
-UICropUpdate(self, ResolvePropObj(context), context.crop_index)
-end,
+					UICropUpdate(self, ResolvePropObj(context), context.crop_index)
+				end,
 				'Title', T(495262708189, --[[XTemplate sectionCrop Title]] "Select new crop"),
 				'TitleHAlign', "left",
 			}, {

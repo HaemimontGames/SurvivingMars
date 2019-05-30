@@ -10,12 +10,25 @@ PlaceObj('StoryBit', {
 	Enables = {
 		"DomeLeaks_1_DelayFix",
 	},
-	Prerequisites = {},
+	Prerequisites = {
+		PlaceObj('AreDomesOpen', {
+			'Negate', true,
+		}),
+	},
 	ScriptDone = true,
 	SuppressTime = 180000,
 	TextReadyForValidation = true,
 	TextsDone = true,
 	group = "Disasters",
 	id = "DomeLeaks_1_DelayFix",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1550837046,
+				user = "Radomir",
+			},
+		},
+	}),
 })
 

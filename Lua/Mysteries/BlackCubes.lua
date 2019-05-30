@@ -64,7 +64,7 @@ end
 --                   BlackCubeStockpile
 -----------------------------------------------------------------------------------
 DefineClass.BlackCubeStockpileBase = {
-	game_flags = { gofPermanent = false },
+	flags = { gofPermanent = false },
 	__parents = {"WasteRockStockpileBase", "InfopanelObj"},
 	--black cube specific stuff	
 	city = false,

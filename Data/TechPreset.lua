@@ -1,442 +1,6 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 PlaceObj('TechPreset', {
-	description = T(207831279529, --[[TechPreset AnomalousGenomeResequencing description]] "Discover the reason behind the unexpected overnight gene re-writing of your colonists."),
-	display_name = T(11400, --[[TechPreset AnomalousGenomeResequencing display_name]] "Anomalous Genome Resequencing"),
-	group = "Storybits",
-	icon = "UI/Icons/Research/story_bit.tga",
-	id = "AnomalousGenomeResequencing",
-})
-
-PlaceObj('TechPreset', {
-	description = T(243039926162, --[[TechPreset Cure4Cancer description]] "Dedicate your research towards the initiative for discovering a Cure for cancer."),
-	display_name = T(11062, --[[TechPreset Cure4Cancer display_name]] "Cancer Research Initiative"),
-	group = "Storybits",
-	icon = "UI/Icons/Research/story_bit.tga",
-	id = "Cure4Cancer",
-})
-
-PlaceObj('TechPreset', {
-	description = T(113438988242, --[[TechPreset DustSicknessCure description]] "The Dust Sickness is affecting more and more colonists we need to find a cure as soon as possible. Once the cure is found afflicted colonists will lose the Dust Sickness trait."),
-	display_name = T(11401, --[[TechPreset DustSicknessCure display_name]] "Dust Sickness Cure"),
-	group = "Storybits",
-	icon = "UI/Icons/Research/story_bit.tga",
-	id = "DustSicknessCure",
-})
-
-PlaceObj('TechPreset', {
-	description = T(914208702775, --[[TechPreset GeneForging description]] "Increases the chance that a Colonist will have or gain a <em>rare trait</em>."),
-	display_name = T(11402, --[[TechPreset GeneForging display_name]] "Gene Forging"),
-	group = "Storybits",
-	icon = "UI/Icons/Research/story_bit.tga",
-	id = "GeneForging",
-	param1 = 50,
-	param1comment = "bonus chance for rare traits",
-})
-
-PlaceObj('TechPreset', {
-	description = T(786770300927, --[[TechPreset MOXIE_2 description]] "Redesign the MOXIE unit from the ground up to remove all design flaws and patchworks and increase air production by <param1>."),
-	display_name = T(11212, --[[TechPreset MOXIE_2 display_name]] "MOXIE 2.0"),
-	group = "Storybits",
-	icon = "UI/Icons/Research/story_bit.tga",
-	id = "MOXIE_2",
-	param1 = 2,
-	param1comment = "air production",
-	PlaceObj('Effect_ModifyLabel', {
-		Amount = 2,
-		Label = "MOXIE",
-		Prop = "air_production",
-	}),
-})
-
-PlaceObj('TechPreset', {
-	display_name = T(11213, --[[TechPreset Nero_Antidote display_name]] "Nero Antidote"),
-	group = "Storybits",
-	icon = "UI/Icons/Research/story_bit.tga",
-	id = "Nero_Antidote",
-})
-
-PlaceObj('TechPreset', {
-	description = T(435746095458, --[[TechPreset RogueNaniteDeactivation description]] "Deactivate the Rogue Nanites to stop their destructive effect on your Colony."),
-	display_name = T(11403, --[[TechPreset RogueNaniteDeactivation display_name]] "Rogue Nanite Deactivation"),
-	group = "Storybits",
-	icon = "UI/Icons/Research/story_bit.tga",
-	id = "RogueNaniteDeactivation",
-})
-
-PlaceObj('TechPreset', {
-	description = T(217591992579, --[[TechPreset RogueNanitesAnalysis description]] "Analyze the abnormal behavior of the Rogue Nanites and the reasons for the glitch."),
-	display_name = T(11404, --[[TechPreset RogueNanitesAnalysis display_name]] "Rogue Nanites Analysis"),
-	group = "Storybits",
-	icon = "UI/Icons/Research/story_bit.tga",
-	id = "RogueNanitesAnalysis",
-})
-
-PlaceObj('TechPreset', {
-	description = T(200121853016, --[[TechPreset SurveyOffer description]] "Complete this research to immediately discover several new metal and rare metal deposits."),
-	display_name = T(11063, --[[TechPreset SurveyOffer display_name]] "Geo-Crust Scanner"),
-	group = "Storybits",
-	icon = "UI/Icons/Research/story_bit.tga",
-	id = "SurveyOffer",
-})
-
-PlaceObj('TechPreset', {
-	description = T(857507799905, --[[TechPreset TheCypher description]] "Decipher the secret contents of a strange message discovered in a strange probe on the surface of Mars."),
-	display_name = T(11405, --[[TechPreset TheCypher display_name]] "The Cypher"),
-	group = "Storybits",
-	icon = "UI/Icons/Research/story_bit.tga",
-	id = "TheCypher",
-})
-
-PlaceObj('TechPreset', {
-	description = T(857527054258, --[[TechPreset TheIncident description]] "Investigate the reason behind the critical malfunction of one of our Fusion Reactors. You won't be able to construct new Fusion Reactors until this tech has been researched."),
-	display_name = T(11064, --[[TechPreset TheIncident display_name]] "The Incident"),
-	group = "Storybits",
-	icon = "UI/Icons/Research/story_bit.tga",
-	id = "TheIncident",
-})
-
-PlaceObj('TechPreset', {
-	description = T(485387209053, --[[TechPreset ViolentUrges description]] "Investigates the inexplicable crimes committed by Arcology residents."),
-	display_name = T(11406, --[[TechPreset ViolentUrges display_name]] "Violent Urges"),
-	group = "Storybits",
-	icon = "UI/Icons/Research/story_bit.tga",
-	id = "ViolentUrges",
-})
-
-PlaceObj('TechPreset', {
-	description = T(917722138254, --[[TechPreset WindTurbineRedesign description]] "Our initial design for Wind Turbines is underperforming. We need a better one taking into account the real Martian conditions."),
-	display_name = T(11099, --[[TechPreset WindTurbineRedesign display_name]] "Wind Turbine Redesign"),
-	group = "Storybits",
-	icon = "UI/Icons/Research/story_bit.tga",
-	id = "WindTurbineRedesign",
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 1,
-	description = T(6321, --[[TechPreset HygroscopicVaporators description]] "Moisture Vaporator Upgrade (<em>Hygroscopic Coating</em>) - Water production increased by <param1>%.\n\n<grey>With its mechanical simplicity and applicability to any point on Mars's surface, the Water-Vapor Adsorption Reactor technology can extract water directly from the Martian atmosphere.</grey>"),
-	display_name = T(6320, --[[TechPreset HygroscopicVaporators display_name]] "Hygroscopic Vaporators"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/hygroscopic_vaporators.tga",
-	id = "HygroscopicVaporators",
-	param1 = 50,
-	param1comment = "Production Bonus %",
-	position = range(1, 5),
-	PlaceObj('Effect_UnlockUpgrade', {
-		Upgrade = "MoistureVaporator_HygroscopicCoating",
-	}),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 2,
-	description = T(6323, --[[TechPreset SoilAdaptation description]] "New Building: <em>Farm</em> (<buildinginfo('Farm')>) - Produces Food. Large in-Dome building which is more work-efficient and requires no Power.\n\n<grey>\"They say once you grow crops somewhere you’ve officially colonized it.\"\n<right>Andy Weir – The Martian</grey><left>"),
-	display_name = T(6322, --[[TechPreset SoilAdaptation display_name]] "Soil Adaptation"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/soil_adaptation.tga",
-	id = "SoilAdaptation",
-	position = range(1, 5),
-	PlaceObj('Effect_TechUnlockBuilding', {
-		Building = "Farm",
-	}),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 3,
-	description = T(6344, --[[TechPreset LowGFungi description]] "New Building: <em>Fungal Farm</em> (<buildinginfo('FungalFarm')>) -  An out-Dome building that produces Food.\n\n<grey>\"All fungi are edible. Some fungi are only edible once.\" \n<right>Terry Pratchett</grey><left>"),
-	display_name = T(6343, --[[TechPreset LowGFungi display_name]] "Low-G Fungi"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/low-g_fungi.tga",
-	id = "LowGFungi",
-	position = range(1, 5),
-	PlaceObj('Effect_TechUnlockBuilding', {
-		Building = "FungalFarm",
-	}),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 4,
-	description = T(6326, --[[TechPreset MagneticFiltering description]] "MOXIE Upgrade (<em>Magnetic Filtering</em>) - Oxygen production increased by <param1>%.\n\n<grey>Magnetic filters block ferromagnetic metal contaminants as well as weakly magnetic particles from the Martian atmosphere when inhaled by our MOXIEs, greatly increasing their efficiencies.</grey>"),
-	display_name = T(5125, --[[TechPreset MagneticFiltering display_name]] "Magnetic Filtering"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/magnetic_filtering.tga",
-	id = "MagneticFiltering",
-	param1 = 50,
-	param1comment = "Production Bonus %",
-	position = range(1, 5),
-	PlaceObj('Effect_UnlockUpgrade', {
-		Upgrade = "MOXIE_MagneticFiltering",
-	}),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 5,
-	description = T(6328, --[[TechPreset WaterReclamation description]] "New Spire Building: <em>Water Reclamation System</em> (<buildinginfo('WaterReclamationSystem')>) - drastically reduces the Water consumption of the Dome.\n\n<grey>Water on Mars is abundant, yet it is mostly underground and in a frozen state – making it, while within reach, still difficult and expensive to mine. This makes recycling necessary to ensure a steady water supply.</grey>"),
-	display_name = T(6327, --[[TechPreset WaterReclamation display_name]] "Water Reclamation"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/water_reclamation.tga",
-	id = "WaterReclamation",
-	position = range(1, 5),
-	PlaceObj('Effect_TechUnlockBuilding', {
-		Building = "WaterReclamationSystem",
-	}),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 6,
-	description = T(6330, --[[TechPreset UtilityCrops description]] "Unlock <em>new crops</em> in Farms and Hydroponic Farms that provide Oxygen and improve soil quality.\n\n<grey>From the salad you eat to the air you breathe, plants have a fundamental role to play for humanity well beyond Earth.</grey>"),
-	display_name = T(6329, --[[TechPreset UtilityCrops display_name]] "Utility Crops"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/utility_crops.tga",
-	id = "UtilityCrops",
-	position = range(6, 6),
-	PlaceObj('Effect_Code', {
-		OnApplyEffect = function (self, city, parent)
-UnlockCrop("Algae", parent.id)
-UnlockCrop("Cover Crops", parent.id)
-end,
-		OnInitEffect = function (self, city, parent)
-LockCrop("Algae", parent.id)
-LockCrop("Cover Crops", parent.id)
-end,
-	}),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 7,
-	description = T(6332, --[[TechPreset MartianbornAdaptability description]] "<em>Martianborn</em> Colonists graduate faster in Universities and Sanatoriums and have higher chance to gain Perks from Schools.\n\n<grey>Certain restrictions that still persist on Earth derived from religion and general conservatism are absent here on Mars. As a result, we have the freedom to genetically enhance our newborns and hone their already-sharp minds to a sharp point.</grey>"),
-	display_name = T(6331, --[[TechPreset MartianbornAdaptability display_name]] "Martianborn Adaptability"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/martianborn_adaptability.tga",
-	id = "MartianbornAdaptability",
-	param1 = 100,
-	position = range(7, 10),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 8,
-	description = T(6325, --[[TechPreset BiomeEngineering description]] "<em>Farms</em> increase the Comfort of all residences in the Dome.\n\n<grey>Seeing something green against the endless reddish barrens of Mars can be quite therapeutic.</grey>"),
-	display_name = T(6324, --[[TechPreset BiomeEngineering display_name]] "Biome Engineering"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/biome_engineering.tga",
-	id = "BiomeEngineering",
-	position = range(7, 10),
-	PlaceObj('Effect_ModifyLabel', {
-		Amount = 5,
-		Label = "Farm",
-		Prop = "dome_comfort",
-	}),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 9,
-	description = T(6336, --[[TechPreset DomeBioscaping description]] "Residences in <em>Basic Domes, Micro Domes and Barrel Domes</em> have improved Comfort.\n\n<grey>“One touch of nature makes the whole world kin.”\n<right>William Shakespeare</grey><left>"),
-	display_name = T(6335, --[[TechPreset DomeBioscaping display_name]] "Dome Bioscaping"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/dome_bioscaping.tga",
-	id = "DomeBioscaping",
-	position = range(7, 10),
-	PlaceObj('Effect_ModifyLabel', {
-		Amount = 15,
-		Label = "DomeBasic",
-		Prop = "dome_comfort",
-	}),
-	PlaceObj('Effect_ModifyLabel', {
-		Amount = 15,
-		Label = "DomeMicro",
-		Prop = "dome_comfort",
-	}),
-	PlaceObj('Effect_ModifyLabel', {
-		Amount = 15,
-		Label = "DomeHexa",
-		Prop = "dome_comfort",
-	}),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 10,
-	description = T(6338, --[[TechPreset MicrogravityMedicine description]] "New Spire Building: <em>Medical Center</em> (<buildinginfo('MedicalCenter')>) - has larger capacity and is more effective than the Infirmary.\n\n<grey>“The good physician treats the disease; the great physician treats the patient who has the disease.” \n<right>William Osler</grey><left>"),
-	display_name = T(6337, --[[TechPreset MicrogravityMedicine display_name]] "Microgravity Medicine"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/microgravity_medicine.tga",
-	id = "MicrogravityMedicine",
-	position = range(7, 10),
-	PlaceObj('Effect_TechUnlockBuilding', {
-		Building = "MedicalCenter",
-	}),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 11,
-	description = T(6340, --[[TechPreset GeneAdaptation description]] "Unlock <em>new crops</em> in Farms and Hydroponic Farms that provide better Food yields.\n\n<grey>The overall reputation of GMO grown foods has increased dramatically when the only other alternative for food is red dirt.</grey>"),
-	display_name = T(6339, --[[TechPreset GeneAdaptation display_name]] "Gene Adaptation"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/gene_adaptation.tga",
-	id = "GeneAdaptation",
-	position = range(11, 11),
-	PlaceObj('Effect_Code', {
-		OnApplyEffect = function (self, city, parent)
-UnlockCrop("Rice", parent.id)
-UnlockCrop("Vegetables", parent.id)
-UnlockCrop("Kelp", parent.id)
-UnlockCrop("Corn", parent.id)
-UnlockCrop("Fruit Trees", parent.id)
-UnlockCrop("Quinoa", parent.id)
-UnlockCrop("Giant Corn", parent.id)
-UnlockCrop("Giant Rice", parent.id)
-end,
-		OnInitEffect = function (self, city, parent)
-LockCrop("Rice", parent.id)
-LockCrop("Vegetables", parent.id)
-LockCrop("Kelp", parent.id)
-LockCrop("Corn", parent.id)
-LockCrop("Fruit Trees", parent.id)
-LockCrop("Quinoa", parent.id)
-LockCrop("Giant Corn", parent.id)
-LockCrop("Giant Rice", parent.id)
-end,
-	}),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 12,
-	description = T(8859, --[[TechPreset CreativeBiorobotics description]] "New Building: <em>Biorobotics Workshop</em> (<buildinginfo('BioroboticsWorkshop')>) - a vocation building that allows colonists to experiment with biorobots (counts towards the workshop milestone). Consumes Machine Parts.\n\n<grey>\"We are fascinated with robots because they are reflections of ourselves.\"\n<right>Ken Goldberg</grey><left>"),
-	display_name = T(8858, --[[TechPreset CreativeBiorobotics display_name]] "Creative Biorobotics"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/creative_biorobotics.tga",
-	id = "CreativeBiorobotics",
-	position = range(12, 19),
-	PlaceObj('Effect_TechUnlockBuilding', {
-		Building = "BioroboticsWorkshop",
-	}),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 13,
-	description = T(7294, --[[TechPreset WaterCoservationSystem description]] 'Water consumption of <em>Domes</em> reduced by <param1>%.\n\n<grey>"No water, no life. No blue, no green."\n<right>Sylvia Earle</grey><left>'),
-	display_name = T(7293, --[[TechPreset WaterCoservationSystem display_name]] "Water Conservation System"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/water_conservation_system.tga",
-	id = "WaterCoservationSystem",
-	param1 = 50,
-	param1comment = "Water Reduction %",
-	position = range(12, 19),
-	PlaceObj('Effect_ModifyLabel', {
-		Label = "Dome",
-		Percent = -50,
-		Prop = "water_consumption",
-	}),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 14,
-	description = T(6334, --[[TechPreset FarmAutomation  description]] "<em>Farm, Hydroponic Farm & Fungal Farm</em> Upgrade: <em>Automation</em> - Decreases number of workers.\n\n<grey>Now that we have adapted crops to the Martian environment we can mechanize some procedures.</grey>"),
-	display_name = T(6333, --[[TechPreset FarmAutomation  display_name]] "Farm Automation"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/farm_automation.tga",
-	id = "FarmAutomation ",
-	position = range(12, 19),
-	PlaceObj('Effect_UnlockUpgrade', {
-		Upgrade = "Farm_Automation",
-	}),
-	PlaceObj('Effect_UnlockUpgrade', {
-		Upgrade = "FungalFarm_Automation",
-	}),
-	PlaceObj('Effect_UnlockUpgrade', {
-		Upgrade = "HydroponicFarm_Automation",
-	}),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 15,
-	description = T(6345, --[[TechPreset HangingGardens description]] "New Spire Building: <em>Hanging Gardens</em> (<buildinginfo('HangingGardens')>) - a beautiful park complex that greatly improves the Comfort of all Residences in the Dome.\n\n<grey>One of humanity’s most enduring and fanciful legends from the ancient past is made a reality on Mars.</grey>"),
-	display_name = T(3535, --[[TechPreset HangingGardens display_name]] "Hanging Gardens"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/hanging_gardens.tga",
-	id = "HangingGardens",
-	position = range(12, 19),
-	PlaceObj('Effect_TechUnlockBuilding', {
-		Building = "HangingGardens",
-	}),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 16,
-	description = T(6347, --[[TechPreset HolographicScanning description]] "<em>Medical Center</em> Upgrade (Holographic Scanner) - Increases birth rate in the Dome.\n\n<grey>Holographic technologies can significantly improve medical diagnostics and monitoring procedures.</grey>"),
-	display_name = T(6346, --[[TechPreset HolographicScanning display_name]] "Holographic Scanning"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/holographic_scanning.tga",
-	id = "HolographicScanning",
-	position = range(12, 19),
-	PlaceObj('Effect_UnlockUpgrade', {
-		Upgrade = "MedicalCenter_HolographicScanner",
-	}),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 17,
-	description = T(6349, --[[TechPreset MoistureFarming description]] "New Building: <em>Moisture Vaporator</em> (<buildinginfo('MoistureVaporator')>) - Produces Water from the atmosphere. Doesn't produce during Dust Storms.\n\n<grey>\"What I really need is a drone that understands the binary language of moisture vaporators.\"\n<right>Unknown Martian Colonist</grey><left>"),
-	display_name = T(6348, --[[TechPreset MoistureFarming display_name]] "Moisture Farming"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/moisture_farming.tga",
-	id = "MoistureFarming",
-	position = range(12, 19),
-	PlaceObj('Effect_TechUnlockBuilding', {
-		Building = "MoistureVaporator",
-	}),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 18,
-	description = T(6350, --[[TechPreset RejuvenationTreatment description]] "Infirmary & Medical Center Upgrade (<em>Rejuvenation Treatment</em>) - Improves Service Comfort and provides Relaxation, allowing Colonists to visit and gain Comfort.\n\n<grey>You haven’t truly colonized a planet until you build the first Spa center on it.</grey>"),
-	display_name = T(5103, --[[TechPreset RejuvenationTreatment display_name]] "Rejuvenation Treatment"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/rejuvenation_treatment.tga",
-	id = "RejuvenationTreatment",
-	param1 = 10,
-	position = range(12, 19),
-	PlaceObj('Effect_UnlockUpgrade', {
-		Upgrade = "Infirmary_RejuvenationTreatment",
-	}),
-	PlaceObj('Effect_UnlockUpgrade', {
-		Upgrade = "MedicalCenter_RejuvenationTreatment",
-	}),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 19,
-	description = T(6354, --[[TechPreset StemReconstruction description]] "<em>Retirement age</em> and <em>death</em> from old age happen later in the Colonists' lifespan.\n\n<grey>\"Live long and prosper\"\n<right>Vulcan Salute</grey><left>"),
-	display_name = T(6353, --[[TechPreset StemReconstruction display_name]] "Stem Reconstruction"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/stem_reconstruction.tga",
-	id = "StemReconstruction",
-	position = range(12, 19),
-	PlaceObj('Effect_ModifyLabel', {
-		Amount = 20,
-		Label = "Colonist",
-		Prop = "MinAge_Senior",
-	}),
-	PlaceObj('Effect_ModifyLabel', {
-		Amount = 20,
-		Label = "Colonist",
-		Prop = "death_age",
-	}),
-})
-
-PlaceObj('TechPreset', {
-	SortKey = 20,
-	description = T(6356, --[[TechPreset LocalizedTerraforming description]] "New Wonder: <em>Geoscape Dome</em> (<buildinginfo('GeoscapeDome')>)  - A slice of Earth on Mars, this Dome has high Comfort and increases the Sanity of its inhabitants on every Sol.\n\n<grey>\"It's a fixer-upper of a planet but we could make it work.\" \n<right>Elon Musk</grey><left>"),
-	display_name = T(6355, --[[TechPreset LocalizedTerraforming display_name]] "Localized Terraforming"),
-	group = "Biotech",
-	icon = "UI/Icons/Research/localized_terraforming.tga",
-	id = "LocalizedTerraforming",
-	position = range(20, 20),
-	PlaceObj('Effect_TechUnlockBuilding', {
-		Building = "GeoscapeDome",
-		HideBuilding = true,
-	}),
-})
-
-PlaceObj('TechPreset', {
 	SortKey = 1,
 	description = T(6522, --[[TechPreset ConstructionNanites description]] "<em>Buildings</em> construct themselves slowly without Drones. Nanites will seek out resources from nearby resource depots.\n\n<grey>With a payload of several molecules and an electronic instrument used for both navigating and knowing its purpose, Construction Nanites form slightly saturated winds which to the casual observer would seem to erect buildings as if by magic.</grey>"),
 	display_name = T(6521, --[[TechPreset ConstructionNanites display_name]] "Construction Nanites"),
@@ -831,6 +395,11 @@ PlaceObj('TechPreset', {
 	}),
 	PlaceObj('Effect_ModifyLabel', {
 		Label = "HydroponicFarm",
+		Percent = -50,
+		Prop = "water_consumption",
+	}),
+	PlaceObj('Effect_ModifyLabel', {
+		Label = "OpenFarm",
 		Percent = -50,
 		Prop = "water_consumption",
 	}),
@@ -1285,6 +854,26 @@ PlaceObj('TechPreset', {
 		Prop = "production_per_day",
 		Upgrade = "WasteRockProcessor_Amplify",
 	}),
+	PlaceObj('Effect_ModifyUpgrade', {
+		Percent = 20,
+		Prop = "decay_atmosphere_reduct",
+		Upgrade = "MagneticFieldGenerator_Amplify",
+	}),
+	PlaceObj('Effect_ModifyUpgrade', {
+		Percent = 20,
+		Prop = "terraforming_boost_sol",
+		Upgrade = "GHGFactory_Amplify",
+	}),
+	PlaceObj('Effect_ModifyUpgrade', {
+		Percent = 20,
+		Prop = "terraforming_boost_sol",
+		Upgrade = "CarbonateProcessor_Amplify",
+	}),
+	PlaceObj('Effect_ModifyUpgrade', {
+		Percent = 20,
+		Prop = "terraforming_boost_sol",
+		Upgrade = "CoreHeatConvector_Amplify",
+	}),
 })
 
 PlaceObj('TechPreset', {
@@ -1395,6 +984,451 @@ PlaceObj('TechPreset', {
 	id = "GemArchitecture",
 	PlaceObj('Effect_TechUnlockBuilding', {
 		Building = "DomeDiamond",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	description = T(207831279529, --[[TechPreset AnomalousGenomeResequencing description]] "Discover the reason behind the unexpected overnight gene re-writing of your colonists."),
+	display_name = T(11400, --[[TechPreset AnomalousGenomeResequencing display_name]] "Anomalous Genome Resequencing"),
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "AnomalousGenomeResequencing",
+})
+
+PlaceObj('TechPreset', {
+	description = T(243039926162, --[[TechPreset Cure4Cancer description]] "Dedicate your research towards the initiative for discovering a Cure for cancer."),
+	display_name = T(11062, --[[TechPreset Cure4Cancer display_name]] "Cancer Research Initiative"),
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "Cure4Cancer",
+})
+
+PlaceObj('TechPreset', {
+	description = T(113438988242, --[[TechPreset DustSicknessCure description]] "The Dust Sickness is affecting more and more colonists we need to find a cure as soon as possible. Once the cure is found afflicted colonists will lose the Dust Sickness trait."),
+	display_name = T(11401, --[[TechPreset DustSicknessCure display_name]] "Dust Sickness Cure"),
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "DustSicknessCure",
+})
+
+PlaceObj('TechPreset', {
+	description = T(914208702775, --[[TechPreset GeneForging description]] "Increases the chance that a Colonist will have or gain a <em>rare trait</em>."),
+	display_name = T(11402, --[[TechPreset GeneForging display_name]] "Gene Forging"),
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "GeneForging",
+	param1 = 50,
+	param1comment = "bonus chance for rare traits",
+})
+
+PlaceObj('TechPreset', {
+	description = T(786770300927, --[[TechPreset MOXIE_2 description]] "Redesign the MOXIE unit from the ground up to remove all design flaws and patchworks and increase air production by <param1>."),
+	display_name = T(11212, --[[TechPreset MOXIE_2 display_name]] "MOXIE 2.0"),
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "MOXIE_2",
+	param1 = 2,
+	param1comment = "air production",
+	PlaceObj('Effect_ModifyLabel', {
+		Amount = 2,
+		Label = "MOXIE",
+		Prop = "air_production",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	description = T(777719724496, --[[TechPreset ResearchCooperation description]] "Help Lambda Industries analyze the data from their space telescope deployed near Mars."),
+	display_name = T(12241, --[[TechPreset ResearchCooperation display_name]] "Analyze Space Telescope Data"),
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "ResearchCooperation",
+})
+
+PlaceObj('TechPreset', {
+	description = T(435746095458, --[[TechPreset RogueNaniteDeactivation description]] "Deactivate the Rogue Nanites to stop their destructive effect on your Colony."),
+	display_name = T(11403, --[[TechPreset RogueNaniteDeactivation display_name]] "Rogue Nanite Deactivation"),
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "RogueNaniteDeactivation",
+})
+
+PlaceObj('TechPreset', {
+	description = T(217591992579, --[[TechPreset RogueNanitesAnalysis description]] "Analyze the abnormal behavior of the Rogue Nanites and the reasons for the glitch."),
+	display_name = T(11404, --[[TechPreset RogueNanitesAnalysis display_name]] "Rogue Nanites Analysis"),
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "RogueNanitesAnalysis",
+})
+
+PlaceObj('TechPreset', {
+	description = T(904185155252, --[[TechPreset StirlingGeneratorFault description]] "Discover what is causing the cable faults related to Stirling Generators and fix the issue."),
+	display_name = T(12242, --[[TechPreset StirlingGeneratorFault display_name]] "Stirling Generator Cable Faults"),
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "StirlingGeneratorFault",
+})
+
+PlaceObj('TechPreset', {
+	description = T(200121853016, --[[TechPreset SurveyOffer description]] "Complete this research to immediately discover several new metal and rare metal deposits."),
+	display_name = T(11063, --[[TechPreset SurveyOffer display_name]] "Geo-Crust Scanner"),
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "SurveyOffer",
+})
+
+PlaceObj('TechPreset', {
+	description = T(857507799905, --[[TechPreset TheCypher description]] "Decipher the secret contents of a strange message discovered in a strange probe on the surface of Mars."),
+	display_name = T(11405, --[[TechPreset TheCypher display_name]] "The Cypher"),
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "TheCypher",
+})
+
+PlaceObj('TechPreset', {
+	description = T(857527054258, --[[TechPreset TheIncident description]] "Investigate the reason behind the critical malfunction of one of our Fusion Reactors. You won't be able to construct new Fusion Reactors until this tech has been researched."),
+	display_name = T(11064, --[[TechPreset TheIncident display_name]] "The Incident"),
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "TheIncident",
+})
+
+PlaceObj('TechPreset', {
+	description = T(485387209053, --[[TechPreset ViolentUrges description]] "Investigates the inexplicable crimes committed by Arcology residents."),
+	display_name = T(11406, --[[TechPreset ViolentUrges display_name]] "Violent Urges"),
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "ViolentUrges",
+})
+
+PlaceObj('TechPreset', {
+	description = T(917722138254, --[[TechPreset WindTurbineRedesign description]] "Our initial design for Wind Turbines is underperforming. We need a better one taking into account the real Martian conditions."),
+	display_name = T(11099, --[[TechPreset WindTurbineRedesign display_name]] "Wind Turbine Redesign"),
+	group = "Storybits",
+	icon = "UI/Icons/Research/story_bit.tga",
+	id = "WindTurbineRedesign",
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 1,
+	description = T(6321, --[[TechPreset HygroscopicVaporators description]] "Moisture Vaporator Upgrade (<em>Hygroscopic Coating</em>) - Water production increased by <param1>%.\n\n<grey>With its mechanical simplicity and applicability to any point on Mars's surface, the Water-Vapor Adsorption Reactor technology can extract water directly from the Martian atmosphere.</grey>"),
+	display_name = T(6320, --[[TechPreset HygroscopicVaporators display_name]] "Hygroscopic Vaporators"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/hygroscopic_vaporators.tga",
+	id = "HygroscopicVaporators",
+	param1 = 50,
+	param1comment = "Production Bonus %",
+	position = range(1, 5),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "MoistureVaporator_HygroscopicCoating",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 2,
+	description = T(6323, --[[TechPreset SoilAdaptation description]] "New Building: <em>Farm</em> (<buildinginfo('Farm')>) - Produces Food. Large in-Dome building which is more work-efficient and requires no Power.\n\n<grey>\"They say once you grow crops somewhere you’ve officially colonized it.\"\n<right>Andy Weir – The Martian</grey><left>"),
+	display_name = T(6322, --[[TechPreset SoilAdaptation display_name]] "Soil Adaptation"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/soil_adaptation.tga",
+	id = "SoilAdaptation",
+	position = range(1, 5),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "Farm",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 3,
+	description = T(6344, --[[TechPreset LowGFungi description]] "New Building: <em>Fungal Farm</em> (<buildinginfo('FungalFarm')>) -  An out-Dome building that produces Food.\n\n<grey>\"All fungi are edible. Some fungi are only edible once.\" \n<right>Terry Pratchett</grey><left>"),
+	display_name = T(6343, --[[TechPreset LowGFungi display_name]] "Low-G Fungi"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/low-g_fungi.tga",
+	id = "LowGFungi",
+	position = range(1, 5),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "FungalFarm",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 4,
+	description = T(6326, --[[TechPreset MagneticFiltering description]] "MOXIE Upgrade (<em>Magnetic Filtering</em>) - Oxygen production increased by <param1>%.\n\n<grey>Magnetic filters block ferromagnetic metal contaminants as well as weakly magnetic particles from the Martian atmosphere when inhaled by our MOXIEs, greatly increasing their efficiencies.</grey>"),
+	display_name = T(5125, --[[TechPreset MagneticFiltering display_name]] "Magnetic Filtering"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/magnetic_filtering.tga",
+	id = "MagneticFiltering",
+	param1 = 50,
+	param1comment = "Production Bonus %",
+	position = range(1, 5),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "MOXIE_MagneticFiltering",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 5,
+	description = T(6328, --[[TechPreset WaterReclamation description]] "New Spire Building: <em>Water Reclamation System</em> (<buildinginfo('WaterReclamationSystem')>) - drastically reduces the Water consumption of the Dome.\n\n<grey>Water on Mars is abundant, yet it is mostly underground and in a frozen state – making it, while within reach, still difficult and expensive to mine. This makes recycling necessary to ensure a steady water supply.</grey>"),
+	display_name = T(6327, --[[TechPreset WaterReclamation display_name]] "Water Reclamation"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/water_reclamation.tga",
+	id = "WaterReclamation",
+	position = range(1, 5),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "WaterReclamationSystem",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 6,
+	description = T(6330, --[[TechPreset UtilityCrops description]] "Unlock <em>new crops</em> in Farms and Hydroponic Farms that provide Oxygen and improve soil quality.\n\n<grey>From the salad you eat to the air you breathe, plants have a fundamental role to play for humanity well beyond Earth.</grey>"),
+	display_name = T(6329, --[[TechPreset UtilityCrops display_name]] "Utility Crops"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/utility_crops.tga",
+	id = "UtilityCrops",
+	position = range(6, 6),
+	PlaceObj('Effect_Code', {
+		OnApplyEffect = function (self, city, parent)
+UnlockCrop("Algae", parent.id)
+UnlockCrop("Cover Crops", parent.id)
+end,
+		OnInitEffect = function (self, city, parent)
+LockCrop("Algae", parent.id)
+LockCrop("Cover Crops", parent.id)
+end,
+	}),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 7,
+	description = T(6332, --[[TechPreset MartianbornAdaptability description]] "<em>Martianborn</em> Colonists graduate faster in Universities and Sanatoriums and have higher chance to gain Perks from Schools.\n\n<grey>Certain restrictions that still persist on Earth derived from religion and general conservatism are absent here on Mars. As a result, we have the freedom to genetically enhance our newborns and hone their already-sharp minds to a sharp point.</grey>"),
+	display_name = T(6331, --[[TechPreset MartianbornAdaptability display_name]] "Martianborn Adaptability"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/martianborn_adaptability.tga",
+	id = "MartianbornAdaptability",
+	param1 = 100,
+	position = range(7, 10),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 8,
+	description = T(6325, --[[TechPreset BiomeEngineering description]] "<em>Farms</em> increase the Comfort of all residences in the Dome.\n\n<grey>Seeing something green against the endless reddish barrens of Mars can be quite therapeutic.</grey>"),
+	display_name = T(6324, --[[TechPreset BiomeEngineering display_name]] "Biome Engineering"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/biome_engineering.tga",
+	id = "BiomeEngineering",
+	position = range(7, 10),
+	PlaceObj('Effect_ModifyLabel', {
+		Amount = 5,
+		Label = "Farm",
+		Prop = "dome_comfort",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 9,
+	description = T(6336, --[[TechPreset DomeBioscaping description]] "Residences in <em>Basic Domes, Micro Domes and Barrel Domes</em> have improved Comfort.\n\n<grey>“One touch of nature makes the whole world kin.”\n<right>William Shakespeare</grey><left>"),
+	display_name = T(6335, --[[TechPreset DomeBioscaping display_name]] "Dome Bioscaping"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/dome_bioscaping.tga",
+	id = "DomeBioscaping",
+	position = range(7, 10),
+	PlaceObj('Effect_ModifyLabel', {
+		Amount = 15,
+		Label = "DomeBasic",
+		Prop = "dome_comfort",
+	}),
+	PlaceObj('Effect_ModifyLabel', {
+		Amount = 15,
+		Label = "DomeMicro",
+		Prop = "dome_comfort",
+	}),
+	PlaceObj('Effect_ModifyLabel', {
+		Amount = 15,
+		Label = "DomeHexa",
+		Prop = "dome_comfort",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 10,
+	description = T(6338, --[[TechPreset MicrogravityMedicine description]] "New Spire Building: <em>Medical Center</em> (<buildinginfo('MedicalCenter')>) - has larger capacity and is more effective than the Infirmary.\n\n<grey>“The good physician treats the disease; the great physician treats the patient who has the disease.” \n<right>William Osler</grey><left>"),
+	display_name = T(6337, --[[TechPreset MicrogravityMedicine display_name]] "Microgravity Medicine"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/microgravity_medicine.tga",
+	id = "MicrogravityMedicine",
+	position = range(7, 10),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "MedicalCenter",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 11,
+	description = T(6340, --[[TechPreset GeneAdaptation description]] "Unlock <em>new crops</em> in Farms and Hydroponic Farms that provide better Food yields.\n\n<grey>The overall reputation of GMO grown foods has increased dramatically when the only other alternative for food is red dirt.</grey>"),
+	display_name = T(6339, --[[TechPreset GeneAdaptation display_name]] "Gene Adaptation"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/gene_adaptation.tga",
+	id = "GeneAdaptation",
+	position = range(11, 11),
+	PlaceObj('Effect_Code', {
+		OnApplyEffect = function (self, city, parent)
+UnlockCrop("Rice", parent.id)
+UnlockCrop("Vegetables", parent.id)
+UnlockCrop("Kelp", parent.id)
+UnlockCrop("Corn", parent.id)
+UnlockCrop("Fruit Trees", parent.id)
+UnlockCrop("Quinoa", parent.id)
+UnlockCrop("Giant Corn", parent.id)
+UnlockCrop("Giant Rice", parent.id)
+end,
+		OnInitEffect = function (self, city, parent)
+LockCrop("Rice", parent.id)
+LockCrop("Vegetables", parent.id)
+LockCrop("Kelp", parent.id)
+LockCrop("Corn", parent.id)
+LockCrop("Fruit Trees", parent.id)
+LockCrop("Quinoa", parent.id)
+LockCrop("Giant Corn", parent.id)
+LockCrop("Giant Rice", parent.id)
+end,
+	}),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 12,
+	description = T(8859, --[[TechPreset CreativeBiorobotics description]] "New Building: <em>Biorobotics Workshop</em> (<buildinginfo('BioroboticsWorkshop')>) - a vocation building that allows colonists to experiment with biorobots (counts towards the workshop milestone). Consumes Machine Parts.\n\n<grey>\"We are fascinated with robots because they are reflections of ourselves.\"\n<right>Ken Goldberg</grey><left>"),
+	display_name = T(8858, --[[TechPreset CreativeBiorobotics display_name]] "Creative Biorobotics"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/creative_biorobotics.tga",
+	id = "CreativeBiorobotics",
+	position = range(12, 19),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "BioroboticsWorkshop",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 13,
+	description = T(7294, --[[TechPreset WaterCoservationSystem description]] 'Water consumption of <em>Domes</em> reduced by <param1>%.\n\n<grey>"No water, no life. No blue, no green."\n<right>Sylvia Earle</grey><left>'),
+	display_name = T(7293, --[[TechPreset WaterCoservationSystem display_name]] "Water Conservation System"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/water_conservation_system.tga",
+	id = "WaterCoservationSystem",
+	param1 = 50,
+	param1comment = "Water Reduction %",
+	position = range(12, 19),
+	PlaceObj('Effect_ModifyLabel', {
+		Label = "Dome",
+		Percent = -50,
+		Prop = "water_consumption",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 14,
+	description = T(6334, --[[TechPreset FarmAutomation  description]] "<em>Farm, Hydroponic Farm & Fungal Farm</em> Upgrade: <em>Automation</em> - Decreases number of workers.\n\n<grey>Now that we have adapted crops to the Martian environment we can mechanize some procedures.</grey>"),
+	display_name = T(6333, --[[TechPreset FarmAutomation  display_name]] "Farm Automation"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/farm_automation.tga",
+	id = "FarmAutomation ",
+	position = range(12, 19),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "Farm_Automation",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "FungalFarm_Automation",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "HydroponicFarm_Automation",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 15,
+	description = T(6345, --[[TechPreset HangingGardens description]] "New Spire Building: <em>Hanging Gardens</em> (<buildinginfo('HangingGardens')>) - a beautiful park complex that greatly improves the Comfort of all Residences in the Dome.\n\n<grey>One of humanity’s most enduring and fanciful legends from the ancient past is made a reality on Mars.</grey>"),
+	display_name = T(3535, --[[TechPreset HangingGardens display_name]] "Hanging Gardens"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/hanging_gardens.tga",
+	id = "HangingGardens",
+	position = range(12, 19),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "HangingGardens",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 16,
+	description = T(6347, --[[TechPreset HolographicScanning description]] "<em>Medical Center</em> Upgrade (Holographic Scanner) - Increases birth rate in the Dome.\n\n<grey>Holographic technologies can significantly improve medical diagnostics and monitoring procedures.</grey>"),
+	display_name = T(6346, --[[TechPreset HolographicScanning display_name]] "Holographic Scanning"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/holographic_scanning.tga",
+	id = "HolographicScanning",
+	position = range(12, 19),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "MedicalCenter_HolographicScanner",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 17,
+	description = T(6349, --[[TechPreset MoistureFarming description]] "New Building: <em>Moisture Vaporator</em> (<buildinginfo('MoistureVaporator')>) - Produces Water from the atmosphere. Doesn't produce during Dust Storms.\n\n<grey>\"What I really need is a drone that understands the binary language of moisture vaporators.\"\n<right>Unknown Martian Colonist</grey><left>"),
+	display_name = T(6348, --[[TechPreset MoistureFarming display_name]] "Moisture Farming"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/moisture_farming.tga",
+	id = "MoistureFarming",
+	position = range(12, 19),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "MoistureVaporator",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 18,
+	description = T(6350, --[[TechPreset RejuvenationTreatment description]] "Infirmary & Medical Center Upgrade (<em>Rejuvenation Treatment</em>) - Improves Service Comfort and provides Relaxation, allowing Colonists to visit and gain Comfort.\n\n<grey>You haven’t truly colonized a planet until you build the first Spa center on it.</grey>"),
+	display_name = T(5103, --[[TechPreset RejuvenationTreatment display_name]] "Rejuvenation Treatment"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/rejuvenation_treatment.tga",
+	id = "RejuvenationTreatment",
+	param1 = 10,
+	position = range(12, 19),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "Infirmary_RejuvenationTreatment",
+	}),
+	PlaceObj('Effect_UnlockUpgrade', {
+		Upgrade = "MedicalCenter_RejuvenationTreatment",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 19,
+	description = T(6354, --[[TechPreset StemReconstruction description]] "<em>Retirement age</em> and <em>death</em> from old age happen later in the Colonists' lifespan.\n\n<grey>\"Live long and prosper\"\n<right>Vulcan Salute</grey><left>"),
+	display_name = T(6353, --[[TechPreset StemReconstruction display_name]] "Stem Reconstruction"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/stem_reconstruction.tga",
+	id = "StemReconstruction",
+	position = range(12, 19),
+	PlaceObj('Effect_ModifyLabel', {
+		Amount = 20,
+		Label = "Colonist",
+		Prop = "MinAge_Senior",
+	}),
+	PlaceObj('Effect_ModifyLabel', {
+		Amount = 20,
+		Label = "Colonist",
+		Prop = "death_age",
+	}),
+})
+
+PlaceObj('TechPreset', {
+	SortKey = 20,
+	description = T(6356, --[[TechPreset LocalizedTerraforming description]] "New Wonder: <em>Geoscape Dome</em> (<buildinginfo('GeoscapeDome')>)  - A slice of Earth on Mars, this Dome has high Comfort and increases the Sanity of its inhabitants on every Sol.\n\n<grey>\"It's a fixer-upper of a planet but we could make it work.\" \n<right>Elon Musk</grey><left>"),
+	display_name = T(6355, --[[TechPreset LocalizedTerraforming display_name]] "Localized Terraforming"),
+	group = "Biotech",
+	icon = "UI/Icons/Research/localized_terraforming.tga",
+	id = "LocalizedTerraforming",
+	position = range(20, 20),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "GeoscapeDome",
+		HideBuilding = true,
 	}),
 })
 
@@ -1684,8 +1718,8 @@ PlaceObj('TechPreset', {
 
 PlaceObj('TechPreset', {
 	SortKey = 16,
-	description = T(6384, --[[TechPreset AdvancedPassengerModule description]] "<em>Passenger Rockets</em> carry <param1> more Colonists.\n\n<grey>Cutting edge methods in space optimization and Comfort-centric designs make for a more practical Passenger Module.</grey>"),
-	display_name = T(6383, --[[TechPreset AdvancedPassengerModule display_name]] "Advanced Passenger Module"),
+	description = T(12375, --[[TechPreset AdvancedPassengerModule description]] "Allows the <em>construction</em> of Rockets on Mars. <em>Passenger Rockets</em> carry <param1> more Colonists.\n\n<grey>Cutting edge methods in space optimization and Comfort-centric designs make for a more practical Passenger Module.</grey>"),
+	display_name = T(12376, --[[TechPreset AdvancedPassengerModule display_name]] "Advanced Rocketry"),
 	group = "Engineering",
 	icon = "UI/Icons/Research/advanced_passenger_module.tga",
 	id = "AdvancedPassengerModule",
@@ -1696,6 +1730,9 @@ PlaceObj('TechPreset', {
 		Amount = 10,
 		Label = "Consts",
 		Prop = "MaxColonistsPerRocket",
+	}),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "SupplyRocketBuilding",
 	}),
 })
 
@@ -2439,6 +2476,9 @@ PlaceObj('TechPreset', {
 	}),
 	PlaceObj('Effect_TechUnlockBuilding', {
 		Building = "MechanizedDepotMysteryResource",
+	}),
+	PlaceObj('Effect_TechUnlockBuilding', {
+		Building = "MechanizedDepotSeeds",
 	}),
 })
 

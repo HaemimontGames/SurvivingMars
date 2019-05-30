@@ -21,6 +21,15 @@ PlaceObj('StoryBit', {
 	VoicedText = T(713961405371, --[[voice:narrator]] "You are contacted by Douglas Quaid, a strong-built Earthling with a thick accent. His request seems nonsensical, but somehow you feel that you trust the guy."),
 	group = "Breakthroughs",
 	id = "TotalRecall_0",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1553175300,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitReply', {
 		'Text', T(253414308741, --[[StoryBit TotalRecall_0 Text]] "Accept their proposal"),
 	}),
@@ -38,6 +47,7 @@ PlaceObj('StoryBit', {
 				'description', T(11392, --[[StoryBit TotalRecall_0 description]] "Rendezvous with Douglas Quaid to help him follow his sixth sense."),
 				'required_crew', 5,
 				'reward', "custom",
+				'outcome_text', T(611417832484, --[[StoryBit TotalRecall_0 outcome_text]] "Unknown"),
 			}),
 		},
 	}),

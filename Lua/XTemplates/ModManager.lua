@@ -13,9 +13,9 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-XDialog.Open(self, ...)
-ModManagerStart(self)
-end,
+				XDialog.Open(self, ...)
+				ModManagerStart(self)
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XAspectWindow",
@@ -37,9 +37,9 @@ end,
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
 					'func', function (self, ...)
-XWindow.Open(self, ...)
-self:SetMargins(GetSafeMargins(self:GetMargins()))
-end,
+						XWindow.Open(self, ...)
+						self:SetMargins(GetSafeMargins(self:GetMargins()))
+					end,
 				}),
 				PlaceObj('XTemplateTemplate', {
 					'__template', "ActionBarNew",
@@ -91,11 +91,11 @@ end,
 							}, {
 								PlaceObj('XTemplateCode', {
 									'run', function (self, parent, context)
-local mode_param = GetDialogModeParam(parent)
-if mode_param then
-	parent:ResolveId("idTitleSmall"):SetTitle(T{1125, "TAG: <tag>", tag = mode_param.display_name})
-end
-end,
+										local mode_param = GetDialogModeParam(parent)
+										if mode_param then
+											parent:ResolveId("idTitleSmall"):SetTitle(T{1125, "TAG: <tag>", tag = mode_param.display_name})
+										end
+									end,
 								}),
 								PlaceObj('XTemplateAction', {
 									'ActionId', "filter",
@@ -112,8 +112,8 @@ end,
 									'ActionToolbar', "ActionBar",
 									'ActionGamepad', "LeftTrigger",
 									'OnAction', function (self, host, source)
-AllModsOn(host)
-end,
+										AllModsOn(host)
+									end,
 									'__condition', function (parent, context) return not GetDialogModeParam(parent) end,
 								}),
 								PlaceObj('XTemplateAction', {
@@ -122,8 +122,8 @@ end,
 									'ActionToolbar', "ActionBar",
 									'ActionGamepad', "RightTrigger",
 									'OnAction', function (self, host, source)
-AllModsOff(host)
-end,
+										AllModsOff(host)
+									end,
 									'__condition', function (parent, context) return not GetDialogModeParam(parent) end,
 								}),
 								PlaceObj('XTemplateAction', {
@@ -133,12 +133,12 @@ end,
 									'ActionShortcut', "Escape",
 									'ActionGamepad', "ButtonB",
 									'OnAction', function (self, host, source)
-if not GetDialogModeParam(host) then
-	ModManagerEnd(host)
-else
-	SetBackDialogMode(host)
-end
-end,
+										if not GetDialogModeParam(host) then
+											ModManagerEnd(host)
+										else
+											SetBackDialogMode(host)
+										end
+									end,
 								}),
 								}),
 							PlaceObj('XTemplateMode', {
@@ -146,10 +146,10 @@ end,
 							}, {
 								PlaceObj('XTemplateCode', {
 									'run', function (self, parent, context)
-local host = GetDialog(parent)
-host.idTitleSmall:SetTitle(T(5460, "FILTER"))
-host.idModInfo:SetVisible(false)
-end,
+										local host = GetDialog(parent)
+										host.idTitleSmall:SetTitle(T(5460, "FILTER"))
+										host.idModInfo:SetVisible(false)
+									end,
 								}),
 								PlaceObj('XTemplateAction', {
 									'ActionId', "back",
@@ -187,19 +187,19 @@ end,
 										'array', function (parent, context) local param = GetDialogModeParam(parent) return GetModsListForTag(param and param.id) end,
 										'__context', function (parent, context, item, i, n) return item end,
 										'run_before', function (parent, context, item, i, n)
-item.number = n
-end,
+											item.number = n
+										end,
 										'run_after', function (child, context, item, i, n)
-child.idValue:SetText(item.title)
-if item.corrupted then
-	child.idCorrupted:SetVisible(true)
-	child.idValue:SetTextStyle("PGListItemValueCorrupted")
-else
-	local found = table.find(AccountStorage.LoadMods, item.id)
-	child.idCheckbox:SetImage(GetCheckboxImage(found))
-	child.idCheckbox:SetVisible(true)
-end
-end,
+											child.idValue:SetText(item.title)
+											if item.corrupted then
+												child.idCorrupted:SetVisible(true)
+												child.idValue:SetTextStyle("PGListItemValueCorrupted")
+											else
+												local found = table.find(AccountStorage.LoadMods, item.id)
+												child.idCheckbox:SetImage(GetCheckboxImage(found))
+												child.idCheckbox:SetVisible(true)
+											end
+										end,
 									}, {
 										PlaceObj('XTemplateTemplate', {
 											'__template', "ModItem",
@@ -207,11 +207,11 @@ end,
 											PlaceObj('XTemplateFunc', {
 												'name', "OnSetRollover(self, rollover)",
 												'func', function (self, rollover)
-XTextButton.OnSetRollover(self, rollover)
-if rollover then
-	ShowModDescription(self.context, GetDialog(self))
-end
-end,
+													XTextButton.OnSetRollover(self, rollover)
+													if rollover then
+														ShowModDescription(self.context, GetDialog(self))
+													end
+												end,
 											}),
 											}),
 										}),
@@ -224,11 +224,11 @@ end,
 										'array', function (parent, context) return GetModTags() end,
 										'__context', function (parent, context, item, i, n) return item end,
 										'run_before', function (parent, context, item, i, n)
-item.number = n
-end,
+											item.number = n
+										end,
 										'run_after', function (child, context, item, i, n)
-child.idValue:SetText(item.text)
-end,
+											child.idValue:SetText(item.text)
+										end,
 									}, {
 										PlaceObj('XTemplateTemplate', {
 											'__template', "ModItem",
@@ -236,8 +236,8 @@ end,
 											PlaceObj('XTemplateFunc', {
 												'name', "OnPress(self)",
 												'func', function (self)
-SetDialogMode(self, "mods", self.context)
-end,
+													SetDialogMode(self, "mods", self.context)
+												end,
 											}),
 											}),
 										}),

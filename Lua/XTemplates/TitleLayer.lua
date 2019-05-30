@@ -11,8 +11,8 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnDelete",
 			'func', function (self, ...)
-g_TitleObj = false
-end,
+				g_TitleObj = false
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'Margins', box(0, 58, 0, 0),
@@ -24,11 +24,11 @@ end,
 			PlaceObj('XTemplateFunc', {
 				'name', "Open",
 				'func', function (self, ...)
-XWindow.Open(self, ...)
-local margins = self:GetMargins()
-local safe_margins = GetSafeMargins(margins)
-self:SetMargins(box(margins:minx(), safe_margins:miny(), margins:maxx(), margins:maxy()))
-end,
+					XWindow.Open(self, ...)
+					local margins = self:GetMargins()
+					local safe_margins = GetSafeMargins(margins)
+					self:SetMargins(box(margins:minx(), safe_margins:miny(), margins:maxx(), margins:maxy()))
+				end,
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XFrame",

@@ -1,5 +1,14 @@
 -- game-specific implementations for StoryBits.lua
 
+function OnMsg.ClassesPreprocess()
+	local prop = table.find_value(StoryBit.properties, "id", "SuppressTime")
+	prop.scale = "hours"
+	prop.name = "Suppress for (hours)"
+	prop = table.find_value(StoryBit.properties, "id", "Delay")
+	prop.scale = "hours"
+	prop.name = "Delay (hours)"
+end
+
 DefineStoryBitTrigger("Building constructed", "ConstructionComplete")
 DefineStoryBitTrigger("Colonist became Youth", "ColonistBecameYouth")
 DefineStoryBitTrigger("Tech researched", "TechResearchedTrigger")
@@ -22,7 +31,7 @@ DefineStoryBitTrigger("Rocket Landing Attempt", "RocketLandAttempt")
 DefineStoryBitTrigger("Repaired", "Repaired")
 
 function IsStoryBitsDisabled()
-	return g_Tutorial or IsGameRuleActive("StoryBitsDisabled")
+	return g_Tutorial or IsGameRuleActive("StoryBitsDisabled") or (Platform.developer and config.DisableStoryBits)
 end
 
 function IsStoryBitObjectValid(obj)
@@ -39,7 +48,7 @@ function IsStoryBitObjectValid(obj)
 end
 
 function AddStoryBitNotification(id, title, text, dismissable, callback)
-	AddCustomOnScreenNotification(id, title, text, nil, callback, { dismissable = dismissable })
+	AddCustomOnScreenNotification(id, title, text, nil, callback, { dismissable = dismissable, priority = "CriticalBlue" })
 end
 
 function RemoveStoryBitNotification(id)
@@ -58,7 +67,6 @@ function WaitStoryBitPopup(title, voiced_text, text, actor, image, choices, choi
 		disallow_escape = #(choices or empty_table) > 1,
 		disabled = {},
 	}
-	local choices_count = #(choices or empty_table)
 	for i, choice in ipairs(choices or empty_table) do
 		context["choice" .. i] = T{10551, "<choice><newline><extra_text>", choice = choices[i], extra_text = choice_extra_texts[i]}
 		context.disabled[i] = not choice_enabled[i]
@@ -74,6 +82,11 @@ function OnStoryBitStateActivated(storybit_state)
 	local storybit_id = storybit_state.id
 	local storybit = StoryBits[storybit_id]
 	TelemetryStoryBitTriggered(storybit_id, storybit.Category)
+end
+
+function OnStoryBitReplyActivated(storybit_state, reply_number)
+	local storybit_id = storybit_state.id
+	TelemetryStoryBitReply(storybit_id, reply_number)
 end
 
 function StoryBitFormatCost(cost)
@@ -176,13 +189,14 @@ function ColonistSpecializationCombo()
 	return ColonistSpecializationComboList
 end
 
-local RoverTypesComboList
 function RoverTypesCombo()
-	if not RoverTypesComboList then
-		RoverTypesComboList = GetAvailableRovers()
-		table.insert(RoverTypesComboList, 1, false)
-	end
-	return RoverTypesComboList
+	local list = {}
+	ForEachPresetInGroup("Cargo", "Rovers", function(preset)
+		list[#list + 1] = preset.id
+	end)
+	table.sort(list)
+	table.insert(list, 1, false)
+	return list
 end
 
 function GetRandomResearchableTech(field, only_discovered, include_repeatables)
@@ -217,3 +231,46 @@ function GetRandomDiscoverableTechField()
 	end
 	return table.rand(fields)
 end
+
+----- display notification about story bit testing mode
+
+function UpdateStoryBitTestingUI()
+	local id = "StoryBitTesting"
+	if g_StoryBitTesting then
+		local title = Untranslated("Testing StoryBits")
+		OnScreenNotificationPresets[id] = OnScreenNotificationPresets[id] or OnScreenNotificationPreset:new{
+			title = title,
+			text = Untranslated("Show Details"),
+			dismissable = false,
+			id = id,
+			close_on_read = false,
+			priority = "Critical",
+			ShowVignette = true,
+			VignetteImage = "UI/Onscreen/onscreen_gradient_red.tga",
+			VignettePulseDuration = 2000,
+		}
+		AddOnScreenNotification(id, function()
+			local params = {
+				title = title,
+				text = Untranslated("In this debug mode the events trigger more frequently with relaxed prerequisites."),
+				start_minimized = false,
+				choice1 = Untranslated("OK"),
+				choice1_img = "UI/CommonNew/message_box_ok.tga",
+				choice2 = Untranslated("Turn OFF"),
+				choice2_img = "UI/CommonNew/message_box_cancel.tga",
+			}
+			CreateRealTimeThread(function()
+				local res = WaitPopupNotification(false, params, false, terminal.desktop)
+				if res == 2 then
+					g_StoryBitTesting = false
+					UpdateStoryBitTestingUI()
+				end
+			end)
+		end)
+	else
+		RemoveOnScreenNotification(id)
+	end
+end
+
+OnMsg.NewMapLoaded = UpdateStoryBitTestingUI
+OnMsg.LoadGame = UpdateStoryBitTestingUI

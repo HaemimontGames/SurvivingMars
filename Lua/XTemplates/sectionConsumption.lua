@@ -9,8 +9,8 @@ PlaceObj('XTemplate', {
 		'__template', "InfopanelSection",
 		'RolloverText', T(792334033908, --[[XTemplate sectionConsumption RolloverText]] "<UISectionConsumptionRollover>"),
 		'OnContextUpdate', function (self, context, ...)
-context:UpdateUISectionConsumption(self)
-end,
+			context:UpdateUISectionConsumption(self)
+		end,
 		'Title', T(425713963756, --[[XTemplate sectionConsumption Title]] "Consumption"),
 		'Icon', "UI/Icons/Sections/grid.tga",
 	}, {

@@ -97,6 +97,20 @@ PlaceObj('XTemplate', {
 			'Icon', "UI/Icons/Sections/workshifts_active.tga",
 			'TitleHAlign', "stretch",
 		}),
+		PlaceObj('XTemplateTemplate', {
+			'__condition', function (parent, context) return context:DoesAcceptResource("Seeds") end,
+			'__template', "InfopanelSection",
+			'RelativeFocusOrder', "",
+			'Title', T(11719, --[[XTemplate sectionStorage Title]] "Terraforming"),
+			'Icon', "",
+		}),
+		PlaceObj('XTemplateTemplate', {
+			'__context', function (parent, context) return SubContext(context, {res = "Seeds"}) end,
+			'__template', "sectionStorageRow",
+			'Title', T(615073837286, --[[XTemplate sectionStorage Title]] "<resource(res)><right><resource(GetStoredAmount(res),GetMaxStorage(res),res)>"),
+			'Icon', "UI/Icons/Sections/workshifts_active.tga",
+			'TitleHAlign', "stretch",
+		}),
 		}),
 })
 

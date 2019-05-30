@@ -14,6 +14,15 @@ PlaceObj('StoryBit', {
 	VoicedText = T(317649281591, --[[voice:narrator]] "The expedition team returns and you diligently and dutifully file in the report about the discovery. It’s not too long before you get the call."),
 	group = "Expeditions",
 	id = "RedMars_2",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1553175195,
+				user = "Radomir",
+			},
+		},
+	}),
 	PlaceObj('StoryBitReply', {
 		'Text', T(617235319542, --[[StoryBit RedMars_2 Text]] "I don’t like being threatened!"),
 	}),
@@ -47,6 +56,7 @@ PlaceObj('StoryBit', {
 				'required_crew_specialization', "security",
 				'required_rover', "RCTransport",
 				'reward', "custom",
+				'outcome_text', T(101937911549, --[[StoryBit RedMars_2 outcome_text]] "Funding"),
 			}),
 		},
 	}),

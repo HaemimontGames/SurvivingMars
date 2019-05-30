@@ -14,9 +14,9 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-XLayer.Open(self, ...)
-self:SetMargins(GetSafeMargins(self:GetMargins()))
-end,
+				XLayer.Open(self, ...)
+				self:SetMargins(GetSafeMargins(self:GetMargins()))
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XImage",
@@ -36,10 +36,10 @@ end,
 			PlaceObj('XTemplateFunc', {
 				'name', "OnMouseButtonDown(self, pos, button)",
 				'func', function (self, pos, button)
-if button == "L" then
-	OpenUrl("http://steamcommunity.com/app/464920/workshop/")
-end
-end,
+					if button == "L" then
+						OpenUrl("http://steamcommunity.com/app/464920/workshop/")
+					end
+				end,
 			}),
 			}),
 		}),

@@ -3,7 +3,6 @@ DefineClass.MissionProfileDlg = {
 	__parents = { "XDialog" },
 }
 function MissionProfileDlg:Init(...)
-	self:SetModal()
 	XPauseLayer:new(nil, self)
 	XCameraLockLayer:new(nil, self)
 	XSuppressInputLayer:new(nil, self)

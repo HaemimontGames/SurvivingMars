@@ -11,14 +11,14 @@ PlaceObj('XTemplate', {
 			'__template', "InfopanelButton",
 			'RolloverTitle', T(448, --[[XTemplate customPowerDecoy RolloverTitle]] "Turn into Metals"),
 			'OnContextUpdate', function (self, context, ...)
-local enabled, reason = context:IsActionEnabled()
-self:SetEnabled(enabled)
-if enabled then
-	self:SetRolloverText(T(449, "Convert the Mirror Sphere into Metals."))
-else
-	self:SetRolloverText(reason)
-end
-end,
+				local enabled, reason = context:IsActionEnabled()
+				self:SetEnabled(enabled)
+				if enabled then
+					self:SetRolloverText(T(449, "Convert the Mirror Sphere into Metals."))
+				else
+					self:SetRolloverText(reason)
+				end
+			end,
 			'OnPressParam', "ActionTurnToMetal",
 			'Icon', "UI/Icons/IPButtons/metals.tga",
 		}),
@@ -27,14 +27,14 @@ end,
 			'__template', "InfopanelButton",
 			'RolloverTitle', T(450, --[[XTemplate customPowerDecoy RolloverTitle]] "Turn into Rare Metals"),
 			'OnContextUpdate', function (self, context, ...)
-local enabled, reason = context:IsActionEnabled()
-self:SetEnabled(enabled)
-if enabled then
-	self:SetRolloverText(T(451, "Convert the Mirror Sphere into Rare Metals."))
-else
-	self:SetRolloverText(reason)
-end
-end,
+				local enabled, reason = context:IsActionEnabled()
+				self:SetEnabled(enabled)
+				if enabled then
+					self:SetRolloverText(T(451, "Convert the Mirror Sphere into Rare Metals."))
+				else
+					self:SetRolloverText(reason)
+				end
+			end,
 			'OnPressParam', "ActionTurnToRareMetals",
 			'Icon', "UI/Icons/IPButtons/rare_metals.tga",
 		}),
@@ -43,14 +43,14 @@ end,
 			'__template', "InfopanelButton",
 			'RolloverTitle', T(452, --[[XTemplate customPowerDecoy RolloverTitle]] "Turn into Polymers"),
 			'OnContextUpdate', function (self, context, ...)
-local enabled, reason = context:IsActionEnabled()
-self:SetEnabled(enabled)
-if enabled then
-	self:SetRolloverText(T(453, "Convert the Mirror Sphere into Polymers."))
-else
-	self:SetRolloverText(reason)
-end
-end,
+				local enabled, reason = context:IsActionEnabled()
+				self:SetEnabled(enabled)
+				if enabled then
+					self:SetRolloverText(T(453, "Convert the Mirror Sphere into Polymers."))
+				else
+					self:SetRolloverText(reason)
+				end
+			end,
 			'OnPressParam', "ActionTurnToPolymer",
 			'Icon', "UI/Icons/IPButtons/polymers.tga",
 		}),

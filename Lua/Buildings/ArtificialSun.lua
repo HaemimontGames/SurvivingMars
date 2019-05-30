@@ -10,7 +10,8 @@ DefineClass.ArtificialSun = {
 		{ id = "work_state", name = T(34, "Work State"), editor = "text", default = "", no_edit = true },
 	},
 	is_tall = true,
-	heat = 2*const.MaxHeat,
+	heat = 10*const.MaxHeat,
+	use_shape_selection = false,
 }
 
 function TestSunPanelRange(sun, panel)

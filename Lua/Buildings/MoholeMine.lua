@@ -11,6 +11,8 @@ DefineClass.MoholeMine = {
 		priority = 2,
 		additional_supply_flags = const.rfSpecialDemandPairing
 	},
+	
+	use_shape_selection = false,
 }
 
 function MoholeMine:GetHeatRange()

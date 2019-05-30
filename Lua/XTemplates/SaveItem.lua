@@ -35,18 +35,18 @@ PlaceObj('XTemplate', {
 			PlaceObj('XTemplateFunc', {
 				'name', "CalcTextColor",
 				'func', function (self, ...)
-return self.enabled and 
-			((self.parent.rollover or self.parent.parent:ResolveId("idList").focused_item == self.context.id)
-				and self.RolloverTextColor or self.TextColor)
-				or self.DisabledTextColor
-end,
+					return self.enabled and 
+								((self.parent.rollover or self.parent.parent:ResolveId("idList").focused_item == self.context.id)
+									and self.RolloverTextColor or self.TextColor)
+									or self.DisabledTextColor
+				end,
 			}),
 			PlaceObj('XTemplateFunc', {
 				'name', "Open",
 				'func', function (self, ...)
-self:SetTextStyle(self.parent.TextStyle)
-XText.Open(self, ...)
-end,
+					self:SetTextStyle(self.parent.TextStyle)
+					XText.Open(self, ...)
+				end,
 			}),
 			}),
 		PlaceObj('XTemplateWindow', {
@@ -121,15 +121,15 @@ end,
 		PlaceObj('XTemplateFunc', {
 			'name', "OnSetFocus",
 			'func', function (self, ...)
-XCreateRolloverWindow(self, true)
-XTextButton.OnSetFocus(self, ...)
-end,
+				XCreateRolloverWindow(self, true)
+				XTextButton.OnSetFocus(self, ...)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "SetSelected(self, selected)",
 			'func', function (self, selected)
-self:SetFocus(selected)
-end,
+				self:SetFocus(selected)
+			end,
 		}),
 		}),
 })

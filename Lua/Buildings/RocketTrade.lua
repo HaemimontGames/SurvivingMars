@@ -11,7 +11,7 @@ DefineClass.TradeRocket = {
 	show_service_area = false,
 	owned = false,
 	
-	rocket_palette = { "rocket_base", "rocket_base", "outside_dark", "outside_dark" },--"RocketTrade",
+	rocket_palette = { "rocket_base", "rocket_accent", "rocket_accent", "outside_dark" },--"RocketTrade",
 	show_logo = false,
 	rename_allowed = false,
 	can_fly_colonists = false,
@@ -125,5 +125,10 @@ function TradeRocket:LeaveForever()
 	end
 end
 
+function TradeRocket:GetRocketPalette()
+	return self.rocket_palette
+end
 
-
+function TradeRocket:GetColorScheme()
+	return ColonyColorSchemes["default"]
+end

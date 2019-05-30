@@ -12,26 +12,26 @@ PlaceObj('XTemplate', {
 	}, {
 		PlaceObj('XTemplateCode', {
 			'run', function (self, parent, context)
-local dlg = GetDialog(parent)
-if dlg then
-	dlg.OnShortcut = function(dlg, shortcut, source)
-		if shortcut == "RightShoulder" and rawget(dlg, "idList") then
-			if not dlg.idList:IsFocused(true) then
-				dlg.idList:SetFocus()
-				dlg.idList:SetSelection(rawget(dlg, "last_list_focus") or 1)
-				return "break"
-			end
-		elseif shortcut == "LeftShoulder" and rawget(dlg, "idButtons") then
-			if not dlg.idButtons:IsFocused(true) then
-				rawset(dlg, "last_list_focus", dlg.idList.focused_item)
-				dlg.idButtons[1]:SetFocus()
-				return "break"
-			end
-		end
-		return XDialog.OnShortcut(dlg, shortcut, source)
-	end
-end
-end,
+				local dlg = GetDialog(parent)
+				if dlg then
+					dlg.OnShortcut = function(dlg, shortcut, source)
+						if shortcut == "RightShoulder" and rawget(dlg, "idList") then
+							if not dlg.idList:IsFocused(true) then
+								dlg.idList:SetFocus()
+								dlg.idList:SetSelection(rawget(dlg, "last_list_focus") or 1)
+								return "break"
+							end
+						elseif shortcut == "LeftShoulder" and rawget(dlg, "idButtons") then
+							if not dlg.idButtons:IsFocused(true) then
+								rawset(dlg, "last_list_focus", dlg.idList.focused_item)
+								dlg.idButtons[1]:SetFocus()
+								return "break"
+							end
+						end
+						return XDialog.OnShortcut(dlg, shortcut, source)
+					end
+				end
+			end,
 		}),
 		PlaceObj('XTemplateTemplate', {
 			'__template', "CommandCenterTitle",
@@ -66,17 +66,17 @@ end,
 						'Margins', box(12, 0, 0, 0),
 						'LayoutMethod', "VList",
 						'OnContextUpdate', function (self, context, ...)
-for _, child in ipairs(self) do
-	child:OnContextUpdate(context, ...)
-end
-XContextWindow.OnContextUpdate(self, context, ...)
-end,
+							for _, child in ipairs(self) do
+								child:OnContextUpdate(context, ...)
+							end
+							XContextWindow.OnContextUpdate(self, context, ...)
+						end,
 					}, {
 						PlaceObj('XTemplateFunc', {
 							'name', "OnShortcut(self, shortcut, source)",
 							'func', function (self, shortcut, source)
-return CCC_ButtonListOnShortcut(self, shortcut, source)
-end,
+								return CCC_ButtonListOnShortcut(self, shortcut, source)
+							end,
 						}),
 						PlaceObj('XTemplateTemplate', {
 							'__template', "CommandCenterDomeFilter",
@@ -87,19 +87,19 @@ end,
 							'RolloverTitle', T(367336674138, --[[XTemplate BuildingsOverview RolloverTitle]] "Inside Buildings"),
 							'Margins', box(-12, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
-local dlg = GetDialog(self)
-local inside = dlg.context.inside_buildings
-self:SetIcon(inside == false and "UI/Icons/ColonyControlCenter/inside_buildings_off.tga" or "UI/Icons/ColonyControlCenter/inside_buildings_on.tga")
-self:SetRolloverText(GetBuildingsFilterRollover(context, T(642090198735, "Toggle filtering of inside buildings.")))
-self:SetRolloverHint(inside ~= false and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
-local hint_gamepad = inside ~= false and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
-hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
-self:SetRolloverHintGamepad(hint_gamepad)
-self:SetToggled(inside ~= false)
-end,
+								local dlg = GetDialog(self)
+								local inside = dlg.context.inside_buildings
+								self:SetIcon(inside == false and "UI/Icons/ColonyControlCenter/inside_buildings_off.tga" or "UI/Icons/ColonyControlCenter/inside_buildings_on.tga")
+								self:SetRolloverText(GetBuildingsFilterRollover(context, T(642090198735, "Toggle filtering of inside buildings.")))
+								self:SetRolloverHint(inside ~= false and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+								local hint_gamepad = inside ~= false and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+								hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
+								self:SetRolloverHintGamepad(hint_gamepad)
+								self:SetToggled(inside ~= false)
+							end,
 							'OnPress', function (self, gamepad)
-ToggleCommandCenterFilter(self, "inside_buildings", true)
-end,
+								ToggleCommandCenterFilter(self, "inside_buildings", true)
+							end,
 							'Icon', "UI/Icons/ColonyControlCenter/inside_buildings_off.tga",
 							'Text', T(367336674138, --[[XTemplate BuildingsOverview Text]] "Inside Buildings"),
 						}),
@@ -109,19 +109,19 @@ end,
 							'RolloverTitle', T(885971788025, --[[XTemplate BuildingsOverview RolloverTitle]] "Outside Buildings"),
 							'Margins', box(-12, 0, 0, 20),
 							'OnContextUpdate', function (self, context, ...)
-local dlg = GetDialog(self)
-local outside = dlg.context.outside_buildings
-self:SetIcon(outside == false and "UI/Icons/ColonyControlCenter/outside_buildings_off.tga" or "UI/Icons/ColonyControlCenter/outside_buildings_on.tga")
-self:SetRolloverText(GetBuildingsFilterRollover(context, T(658497084041, "Toggle filtering of outside buildings.")))
-self:SetRolloverHint(outside ~= false and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
-local hint_gamepad = outside ~= false and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
-hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
-self:SetRolloverHintGamepad(hint_gamepad)
-self:SetToggled(outside ~= false)
-end,
+								local dlg = GetDialog(self)
+								local outside = dlg.context.outside_buildings
+								self:SetIcon(outside == false and "UI/Icons/ColonyControlCenter/outside_buildings_off.tga" or "UI/Icons/ColonyControlCenter/outside_buildings_on.tga")
+								self:SetRolloverText(GetBuildingsFilterRollover(context, T(658497084041, "Toggle filtering of outside buildings.")))
+								self:SetRolloverHint(outside ~= false and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+								local hint_gamepad = outside ~= false and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+								hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
+								self:SetRolloverHintGamepad(hint_gamepad)
+								self:SetToggled(outside ~= false)
+							end,
 							'OnPress', function (self, gamepad)
-ToggleCommandCenterFilter(self, "outside_buildings", true)
-end,
+								ToggleCommandCenterFilter(self, "outside_buildings", true)
+							end,
 							'Icon', "UI/Icons/ColonyControlCenter/outside_buildings_off.tga",
 							'Text', T(885971788025, --[[XTemplate BuildingsOverview Text]] "Outside Buildings"),
 						}),
@@ -131,21 +131,51 @@ end,
 							'RolloverTitle', T(435618535856, --[[XTemplate BuildingsOverview RolloverTitle]] "Decorations"),
 							'Margins', box(-12, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
-local dlg = GetDialog(self)
-local decorations = dlg.context.decorations
-self:SetIcon(not decorations and "UI/Icons/ColonyControlCenter/decorations_off.tga" or "UI/Icons/ColonyControlCenter/decorations_on.tga")
-self:SetRolloverText(GetBuildingsFilterRollover(context, T(405185817379, "Toggle filtering of Decorations.")))
-self:SetRolloverHint(decorations and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
-local hint_gamepad = decorations and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
-hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
-self:SetRolloverHintGamepad(hint_gamepad)
-self:SetToggled(not not decorations)
-end,
+								local dlg = GetDialog(self)
+								local decorations = dlg.context.decorations
+								self:SetIcon(not decorations and "UI/Icons/ColonyControlCenter/decorations_off.tga" or "UI/Icons/ColonyControlCenter/decorations_on.tga")
+								self:SetRolloverText(GetBuildingsFilterRollover(context, T(405185817379, "Toggle filtering of Decorations.")))
+								self:SetRolloverHint(decorations and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+								local hint_gamepad = decorations and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+								hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
+								self:SetRolloverHintGamepad(hint_gamepad)
+								self:SetToggled(not not decorations)
+							end,
 							'OnPress', function (self, gamepad)
-ToggleCommandCenterFilter(self, "decorations")
-end,
+								ToggleCommandCenterFilter(self, "decorations")
+							end,
 							'Icon', "UI/Icons/ColonyControlCenter/decorations_off.tga",
 							'Text', T(435618535856, --[[XTemplate BuildingsOverview Text]] "Decorations"),
+						}),
+						PlaceObj('XTemplateTemplate', {
+							'comment', "storages",
+							'__template', "CommandCenterButton",
+							'RolloverTitle', T(82, --[[XTemplate BuildingsOverview RolloverTitle]] "Storages"),
+							'Margins', box(-12, 0, 0, -14),
+							'OnContextUpdate', function (self, context, ...)
+								local dlg = GetDialog(self)
+								local storages = dlg.context.storages
+								self:SetIcon(not storages and "UI/Icons/ColonyControlCenter/metals_off.tga" or "UI/Icons/ColonyControlCenter/metals_on.tga")
+								self:SetRolloverText(GetBuildingsFilterRollover(context, T(12105, "Toggle filtering of Storages.")))
+								self:SetRolloverHint(storages and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+								local hint_gamepad = storages and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+								hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
+								self:SetRolloverHintGamepad(hint_gamepad)
+								self:SetToggled(not not storages)
+							end,
+							'OnPress', function (self, gamepad)
+								ToggleCommandCenterFilter(self, "storages")
+							end,
+							'OnAltPress', function (self, gamepad)
+								if self.action and self.action.OnAltAction then
+										local host = GetActionsHost(self, true)
+										if host then
+											self.action:OnAltAction(host, self)
+										end
+									end
+							end,
+							'Icon', "UI/Icons/ColonyControlCenter/decorations_off.tga",
+							'Text', T(704779059549, --[[XTemplate BuildingsOverview Text]] "Storages"),
 						}),
 						PlaceObj('XTemplateTemplate', {
 							'comment', "power producers",
@@ -153,19 +183,19 @@ end,
 							'RolloverTitle', T(416682488997, --[[XTemplate BuildingsOverview RolloverTitle]] "Power Producers"),
 							'Margins', box(-12, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
-local dlg = GetDialog(self)
-local power_producers = dlg.context.power_producers
-self:SetIcon(power_producers == false and "UI/Icons/ColonyControlCenter/power_producers_off.tga" or "UI/Icons/ColonyControlCenter/power_producers_on.tga")
-self:SetRolloverText(GetBuildingsFilterRollover(context, T(430474379281, "Toggle filtering of Power producers.")))
-self:SetRolloverHint(power_producers ~= false and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
-local hint_gamepad = power_producers ~= false and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
-hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
-self:SetRolloverHintGamepad(hint_gamepad)
-self:SetToggled(power_producers ~= false)
-end,
+								local dlg = GetDialog(self)
+								local power_producers = dlg.context.power_producers
+								self:SetIcon(power_producers == false and "UI/Icons/ColonyControlCenter/power_producers_off.tga" or "UI/Icons/ColonyControlCenter/power_producers_on.tga")
+								self:SetRolloverText(GetBuildingsFilterRollover(context, T(430474379281, "Toggle filtering of Power producers.")))
+								self:SetRolloverHint(power_producers ~= false and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+								local hint_gamepad = power_producers ~= false and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+								hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
+								self:SetRolloverHintGamepad(hint_gamepad)
+								self:SetToggled(power_producers ~= false)
+							end,
 							'OnPress', function (self, gamepad)
-ToggleCommandCenterFilter(self, "power_producers", true)
-end,
+								ToggleCommandCenterFilter(self, "power_producers", true)
+							end,
 							'Icon', "UI/Icons/ColonyControlCenter/power_producers_off.tga",
 							'Text', T(416682488997, --[[XTemplate BuildingsOverview Text]] "Power Producers"),
 						}),
@@ -175,19 +205,19 @@ end,
 							'RolloverTitle', T(932771917833, --[[XTemplate BuildingsOverview RolloverTitle]] "Production Buildings"),
 							'Margins', box(-12, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
-local dlg = GetDialog(self)
-local production_buildings = dlg.context.production_buildings
-self:SetIcon(production_buildings == false and "UI/Icons/ColonyControlCenter/production_buildings_off.tga" or "UI/Icons/ColonyControlCenter/production_buildings_on.tga")
-self:SetRolloverText(GetBuildingsFilterRollover(context, T(250629220868, "Toggle filtering of Production buildings.")))
-self:SetRolloverHint(production_buildings ~= false and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
-local hint_gamepad = production_buildings ~= false and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
-hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
-self:SetRolloverHintGamepad(hint_gamepad)
-self:SetToggled(production_buildings ~= false)
-end,
+								local dlg = GetDialog(self)
+								local production_buildings = dlg.context.production_buildings
+								self:SetIcon(production_buildings == false and "UI/Icons/ColonyControlCenter/production_buildings_off.tga" or "UI/Icons/ColonyControlCenter/production_buildings_on.tga")
+								self:SetRolloverText(GetBuildingsFilterRollover(context, T(250629220868, "Toggle filtering of Production buildings.")))
+								self:SetRolloverHint(production_buildings ~= false and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+								local hint_gamepad = production_buildings ~= false and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+								hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
+								self:SetRolloverHintGamepad(hint_gamepad)
+								self:SetToggled(production_buildings ~= false)
+							end,
 							'OnPress', function (self, gamepad)
-ToggleCommandCenterFilter(self, "production_buildings", true)
-end,
+								ToggleCommandCenterFilter(self, "production_buildings", true)
+							end,
 							'Icon', "UI/Icons/ColonyControlCenter/production_buildings_off.tga",
 							'Text', T(932771917833, --[[XTemplate BuildingsOverview Text]] "Production Buildings"),
 						}),
@@ -197,19 +227,19 @@ end,
 							'RolloverTitle', T(133797343482, --[[XTemplate BuildingsOverview RolloverTitle]] "Services"),
 							'Margins', box(-12, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
-local dlg = GetDialog(self)
-local services = dlg.context.services
-self:SetIcon(services == false and "UI/Icons/ColonyControlCenter/services_off.tga" or "UI/Icons/ColonyControlCenter/services_on.tga")
-self:SetRolloverText(GetBuildingsFilterRollover(context, T(869705792928, "Toggle filtering of Services.")))
-self:SetRolloverHint(services ~= false and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
-local hint_gamepad = services ~= false and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
-hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
-self:SetRolloverHintGamepad(hint_gamepad)
-self:SetToggled(services ~= false)
-end,
+								local dlg = GetDialog(self)
+								local services = dlg.context.services
+								self:SetIcon(services == false and "UI/Icons/ColonyControlCenter/services_off.tga" or "UI/Icons/ColonyControlCenter/services_on.tga")
+								self:SetRolloverText(GetBuildingsFilterRollover(context, T(869705792928, "Toggle filtering of Services.")))
+								self:SetRolloverHint(services ~= false and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+								local hint_gamepad = services ~= false and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+								hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
+								self:SetRolloverHintGamepad(hint_gamepad)
+								self:SetToggled(services ~= false)
+							end,
 							'OnPress', function (self, gamepad)
-ToggleCommandCenterFilter(self, "services", true)
-end,
+								ToggleCommandCenterFilter(self, "services", true)
+							end,
 							'Icon', "UI/Icons/ColonyControlCenter/services_off.tga",
 							'Text', T(133797343482, --[[XTemplate BuildingsOverview Text]] "Services"),
 						}),
@@ -219,21 +249,53 @@ end,
 							'RolloverTitle', T(316855249043, --[[XTemplate BuildingsOverview RolloverTitle]] "Residential Buildings"),
 							'Margins', box(-12, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
-local dlg = GetDialog(self)
-local residential = dlg.context.residential
-self:SetIcon(not residential and "UI/Icons/ColonyControlCenter/residential_off.tga" or "UI/Icons/ColonyControlCenter/residential_on.tga")
-self:SetRolloverText(GetBuildingsFilterRollover(context, T(954444172223, "Toggle filtering of residential buildings.")))
-self:SetRolloverHint(residential and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
-local hint_gamepad = residential and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
-hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
-self:SetRolloverHintGamepad(hint_gamepad)
-self:SetToggled(not not residential)
-end,
+								local dlg = GetDialog(self)
+								local residential = dlg.context.residential
+								self:SetIcon(not residential and "UI/Icons/ColonyControlCenter/residential_off.tga" or "UI/Icons/ColonyControlCenter/residential_on.tga")
+								self:SetRolloverText(GetBuildingsFilterRollover(context, T(954444172223, "Toggle filtering of residential buildings.")))
+								self:SetRolloverHint(residential and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+								local hint_gamepad = residential and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+								hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
+								self:SetRolloverHintGamepad(hint_gamepad)
+								self:SetToggled(not not residential)
+							end,
 							'OnPress', function (self, gamepad)
-ToggleCommandCenterFilter(self, "residential")
-end,
+								ToggleCommandCenterFilter(self, "residential")
+							end,
 							'Icon', "UI/Icons/ColonyControlCenter/residential_off.tga",
 							'Text', T(316855249043, --[[XTemplate BuildingsOverview Text]] "Residential Buildings"),
+						}),
+						PlaceObj('XTemplateTemplate', {
+							'comment', "terraforming",
+							'__dlc', "armstrong",
+							'__condition', function (parent, context) return not g_NoTerraforming end,
+							'__template', "CommandCenterButton",
+							'RolloverTitle', T(12095, --[[XTemplate BuildingsOverview RolloverTitle]] "Terraforming Buildings"),
+							'Margins', box(-12, 0, 0, -14),
+							'OnContextUpdate', function (self, context, ...)
+								local dlg = GetDialog(self)
+								local terraforming = dlg.context.terraforming
+								self:SetIcon(not terraforming and "UI/Icons/ColonyControlCenter/vegetation_off.tga" or "UI/Icons/ColonyControlCenter/vegetation_on.tga")
+								self:SetRolloverText(GetBuildingsFilterRollover(context, T(12107, "Toggle filtering of terraforming buildings.")))
+								self:SetRolloverHint(terraforming and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+								local hint_gamepad = terraforming and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+								hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
+								self:SetRolloverHintGamepad(hint_gamepad)
+								self:SetToggled(not not terraforming)
+							end,
+							'OnPress', function (self, gamepad)
+								ToggleCommandCenterFilter(self, "terraforming")
+							end,
+							'OnAltPress', function (self, gamepad)
+								if self.action and self.action.OnAltAction then
+										local host = GetActionsHost(self, true)
+										if host then
+											self.action:OnAltAction(host, self)
+										end
+									end
+							end,
+							'Icon', "UI/Icons/ColonyControlCenter/residential_off.tga",
+							'Text', T(463557679237, --[[XTemplate BuildingsOverview Text]] "Terraforming Buildings"),
 						}),
 						PlaceObj('XTemplateTemplate', {
 							'comment', "other",
@@ -241,33 +303,33 @@ end,
 							'RolloverTitle', T(814424953825, --[[XTemplate BuildingsOverview RolloverTitle]] "Other Buildings"),
 							'Margins', box(-12, 0, 0, -14),
 							'OnContextUpdate', function (self, context, ...)
-local dlg = GetDialog(self)
-local other = dlg.context.other
-self:SetIcon(not other and "UI/Icons/ColonyControlCenter/other_off.tga" or "UI/Icons/ColonyControlCenter/other_on.tga")
-self:SetRolloverText(GetBuildingsFilterRollover(context, T(707674085585, "Toggle filtering of Other buildings, not fitting the criteria of the rest of the filters in this group.")))
-self:SetRolloverHint(other and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
-local hint_gamepad = other and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
-hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
-self:SetRolloverHintGamepad(hint_gamepad)
-self:SetToggled(not not other)
-end,
+								local dlg = GetDialog(self)
+								local other = dlg.context.other
+								self:SetIcon(not other and "UI/Icons/ColonyControlCenter/other_off.tga" or "UI/Icons/ColonyControlCenter/other_on.tga")
+								self:SetRolloverText(GetBuildingsFilterRollover(context, T(707674085585, "Toggle filtering of Other buildings, not fitting the criteria of the rest of the filters in this group.")))
+								self:SetRolloverHint(other and T(9787, "<left_click> Hide filtered objects") or T(9788, "<left_click> Show filtered objects"))
+								local hint_gamepad = other and T(9789, "<ButtonA> Hide filtered objects") or T(9790, "<ButtonA> Show filtered objects")
+								hint_gamepad = hint_gamepad .. " " .. T(9802, "<RB> Inspect")
+								self:SetRolloverHintGamepad(hint_gamepad)
+								self:SetToggled(not not other)
+							end,
 							'OnPress', function (self, gamepad)
-ToggleCommandCenterFilter(self, "other")
-end,
+								ToggleCommandCenterFilter(self, "other")
+							end,
 							'Icon', "UI/Icons/ColonyControlCenter/other_off.tga",
 							'Text', T(814424953825, --[[XTemplate BuildingsOverview Text]] "Other Buildings"),
 						}),
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-if GetUIStyleGamepad() then
-	local first = parent[1]
-	CreateRealTimeThread(function(first)
-		if first.window_state ~= "destroying" then
-			first:SetFocus()
-		end
-	end, first)
-end
-end,
+								if GetUIStyleGamepad() then
+									local first = parent[1]
+									CreateRealTimeThread(function(first)
+										if first.window_state ~= "destroying" then
+											first:SetFocus()
+										end
+									end, first)
+								end
+							end,
 						}),
 						}),
 					}),
@@ -298,8 +360,8 @@ end,
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "LeftTrigger",
 						'OnAction', function (self, host, source)
-SelectCommandCenterNextDome(host, -1)
-end,
+							SelectCommandCenterNextDome(host, -1)
+						end,
 						'__condition', function (parent, context) return #(GetCommandCenterDomesList()) > 1 end,
 					}),
 					PlaceObj('XTemplateAction', {
@@ -308,8 +370,8 @@ end,
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "RightTrigger",
 						'OnAction', function (self, host, source)
-SelectCommandCenterNextDome(host, 1)
-end,
+							SelectCommandCenterNextDome(host, 1)
+						end,
 						'__condition', function (parent, context) return #(GetCommandCenterDomesList()) > 1 end,
 					}),
 					PlaceObj('XTemplateAction', {
@@ -318,12 +380,12 @@ end,
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonY",
 						'ActionState', function (self, host)
-return host.context.shifts and "hidden"
-end,
+							return host.context.shifts and "hidden"
+						end,
 						'OnAction', function (self, host, source)
-ToggleBuildingsShiftsEffects(host)
-host:UpdateActionViews(host.idActionBar)
-end,
+							ToggleBuildingsShiftsEffects(host)
+							host:UpdateActionViews(host.idActionBar)
+						end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "effects",
@@ -331,12 +393,12 @@ end,
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonY",
 						'ActionState', function (self, host)
-return not host.context.shifts and "hidden"
-end,
+							return not host.context.shifts and "hidden"
+						end,
 						'OnAction', function (self, host, source)
-ToggleBuildingsShiftsEffects(host)
-host:UpdateActionViews(host.idActionBar)
-end,
+							ToggleBuildingsShiftsEffects(host)
+							host:UpdateActionViews(host.idActionBar)
+						end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "reset",
@@ -344,17 +406,17 @@ end,
 						'ActionToolbar', "ActionBar",
 						'ActionGamepad', "ButtonX",
 						'OnAction', function (self, host, source)
-host.context.dome = nil
-host.context.inside_buildings = nil
-host.context.outside_buildings = nil
-host.context.decorations = nil
-host.context.power_producers = nil
-host.context.production_buildings = nil
-host.context.services = nil
-host.context.residential = nil
-host.context.other = nil
-host:ResolveId("idContent"):RespawnContent()
-end,
+							host.context.dome = nil
+							host.context.inside_buildings = nil
+							host.context.outside_buildings = nil
+							host.context.decorations = nil
+							host.context.power_producers = nil
+							host.context.production_buildings = nil
+							host.context.services = nil
+							host.context.residential = nil
+							host.context.other = nil
+							host:ResolveId("idContent"):RespawnContent()
+						end,
 					}),
 					PlaceObj('XTemplateWindow', {
 						'comment', "column titles",
@@ -368,9 +430,9 @@ end,
 							'FoldWhenHidden', true,
 							'ContextUpdateOnOpen', true,
 							'OnContextUpdate', function (self, context, ...)
-self:SetVisible(not context.shifts)
-XContextWindow.OnContextUpdate(self, context, ...)
-end,
+								self:SetVisible(not context.shifts)
+								XContextWindow.OnContextUpdate(self, context, ...)
+							end,
 						}, {
 							PlaceObj('XTemplateWindow', {
 								'__class', "XText",
@@ -439,9 +501,9 @@ end,
 							'FoldWhenHidden', true,
 							'ContextUpdateOnOpen', true,
 							'OnContextUpdate', function (self, context, ...)
-self:SetVisible(context.shifts)
-XContextWindow.OnContextUpdate(self, context, ...)
-end,
+								self:SetVisible(context.shifts)
+								XContextWindow.OnContextUpdate(self, context, ...)
+							end,
 						}, {
 							PlaceObj('XTemplateWindow', {
 								'__class', "XText",
@@ -499,9 +561,9 @@ end,
 						'MouseScroll', true,
 						'GamepadInitialSelection', false,
 						'OnContextUpdate', function (self, context, ...)
-XContentTemplateList.OnContextUpdate(self, context, ...)
-self:ResolveId("idNoResults"):SetVisible(#self == 0)
-end,
+							XContentTemplateList.OnContextUpdate(self, context, ...)
+							self:ResolveId("idNoResults"):SetVisible(#self == 0)
+						end,
 					}, {
 						PlaceObj('XTemplateMode', {
 							'mode', "buildings",
@@ -511,8 +573,8 @@ end,
 								'array', function (parent, context) local buildings = GetCommandCenterBuildings(context); parent:ResolveId("idTitle"):SetTitle(T{9810, "<white><count></white> BUILDINGS", count = #buildings}) return buildings end,
 								'__context', function (parent, context, item, i, n) return item end,
 								'run_before', function (parent, context, item, i, n)
-NewXVirtualContent(parent, context, "BuildingOverviewRow", 1169, 46)
-end,
+									NewXVirtualContent(parent, context, "BuildingOverviewRow", 1169, 46)
+								end,
 							}),
 							}),
 						}),
@@ -530,9 +592,9 @@ end,
 					}),
 					PlaceObj('XTemplateCode', {
 						'run', function (self, parent, context)
-local list = parent:ResolveId("idList")
-parent:ResolveId("idNoResults"):SetVisible(#list == 0)
-end,
+							local list = parent:ResolveId("idList")
+							parent:ResolveId("idNoResults"):SetVisible(#list == 0)
+						end,
 					}),
 					}),
 				PlaceObj('XTemplateMode', {

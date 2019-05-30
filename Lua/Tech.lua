@@ -16,15 +16,12 @@ function OnMsg.DataLoaded()
 end
 
 function OnMsg.GenerateDocs(project_folder, empty_name)
-	local output = {
-		"# Documentation for *Technology Names*\n",		
-		}
-	local outputFileName = project_folder.."LuaFunctionDoc_TechnologyNames.md.html"
+	local output = { "# Documentation for *Technology Names*\n" }
 	local fields = Presets.TechFieldPreset.Default
 	for i = 1 , #fields do
 		local field = fields[i]
 		local field_id = field.id
-		if field_id~="Mysteries" then
+		if field_id ~= "Mysteries" then
 			output[#output+1] = "##  "..field_id
 			if field.description then
 				output[#output+1] = TDevModeGetEnglishText(field.description)
@@ -43,35 +40,26 @@ function OnMsg.GenerateDocs(project_folder, empty_name)
 					end
 					for i = 1, 5 do
 						local current_param = "param"..i
-						local text1, text2 = tech_info.desc:match("(.* %+*)<"..current_param..">(.*)")
+						local text1, text2 = tech_info.desc:match("(.* %+*)<" .. current_param .. ">(.*)")
 						if text2 and tech[current_param] then
-							tech_info.desc = text1..tech[current_param]..text2
+							tech_info.desc = text1 .. tech[current_param] .. text2
 						end	
 					end
 				end
 				tech_info.pos = tech.position or range(1, 100)
 				techs_by_name[#techs_by_name +1] = tech_info
 			end
-			table.sort(techs_by_name, function(a, b) return a.name<b.name end)
+			table.sort(techs_by_name, function(a, b) return a.name < b.name end)
 			for _, single_tech in ipairs(techs_by_name) do
-				output[#output+1] = "###  "..single_tech.name
+				output[#output+1] = "###  " .. single_tech.name
 				output[#output+1] = single_tech.desc
-				output[#output+1] = "Internal ID\n: "..single_tech.id
-				output[#output+1] = "Position in range\n: "..single_tech.pos.from.." to "..single_tech.pos.to
+				output[#output+1] = "Internal ID\n: " .. single_tech.id
+				output[#output+1] = "Position in range\n: " .. single_tech.pos.from .. " to " .. single_tech.pos.to
 			end
 		end
 	end
-	local filename = project_folder .. empty_name
-	local err, suffix = AsyncFileToString(filename)
-	if err then 
-		print("Failed to open", filename, err)
-	else
-		output[#output+1] = suffix
-		err = AsyncStringToFile(outputFileName, table.concat(output, "\n"))
-		if err then
-			print("Failed to save", filename, err)
-		end
-	end
+	
+	OutputDocsFile("LuaFunctionDoc_TechnologyNames.md.html", output)
 end
 
 ----
@@ -88,7 +76,7 @@ end
 DefineClass.TechEffect = {
 	__parents = { "PropertyObject" },
 	properties = {
-		{ category = "Effect", id = "Type", name = "Type", editor = "dropdownlist", default = false, items = tech_effect_classes, object_update = true, dont_save = true },
+		{ category = "Effect", id = "Type", name = "Type", editor = "dropdownlist", default = false, items = tech_effect_classes, dont_save = true },
 	},
 	PropEditorCopy = true,
 }

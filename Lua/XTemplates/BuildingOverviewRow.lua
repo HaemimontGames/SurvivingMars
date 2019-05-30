@@ -12,17 +12,17 @@ PlaceObj('XTemplate', {
 		'RolloverHint', T(115984499466, --[[XTemplate BuildingOverviewRow RolloverHint]] "<left_click><left_click> Select"),
 		'RolloverHintGamepad', T(764097870353, --[[XTemplate BuildingOverviewRow RolloverHintGamepad]] "<ButtonA> Select"),
 		'OnContextUpdate', function (self, context, ...)
-UpdateUICommandCenterRow(self, context, "building")
-XContextControl.OnContextUpdate(self, context, ...)
-end,
+			UpdateUICommandCenterRow(self, context, "building")
+			XContextControl.OnContextUpdate(self, context, ...)
+		end,
 	}, {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-local upgrade_win = self.idUpgrades
-UICreateUpgradeButtons(upgrade_win, self.context, true)
-XContextControl.Open(self, ...)
-end,
+				local upgrade_win = self.idUpgrades
+				UICreateUpgradeButtons(upgrade_win, self.context, true)
+				XContextControl.Open(self, ...)
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'Id', "idEffects",
@@ -149,25 +149,25 @@ end,
 						'map', function (parent, context, array, i) return i end,
 						'item_in_context', "shift",
 						'run_after', function (child, context, item, i, n)
-child:SetRelativeFocusOrder("next-in-line")
-CreateRealTimeThread(function(child)
-	if child.window_state == "destroying" then return end
-	for _, win in ipairs(child.idWorkers) do
-		win:SetRolloverAnchor("right")
-		win:SetRolloverAnchorId("idRow")
-	end
-	child.idOvertime:SetRolloverAnchor("right")
-	child.idOvertime:SetRolloverAnchorId("idRow")
-	
-	local has_shifts = context:IsKindOf("ShiftsBuilding")
-	child.idBackground:SetVisible(not has_shifts)
-end, child)
-end,
+							child:SetRelativeFocusOrder("next-in-line")
+							CreateRealTimeThread(function(child)
+								if child.window_state == "destroying" then return end
+								for _, win in ipairs(child.idWorkers) do
+									win:SetRolloverAnchor("bottom")
+									win:SetRolloverAnchorId("idRow")
+								end
+								child.idOvertime:SetRolloverAnchor("bottom")
+								child.idOvertime:SetRolloverAnchorId("idRow")
+								
+								local has_shifts = context:IsKindOf("ShiftsBuilding")
+								child.idBackground:SetVisible(not has_shifts)
+							end, child)
+						end,
 					}, {
 						PlaceObj('XTemplateTemplate', {
 							'__template', "sectionWorkshiftsRow",
-							'RolloverAnchor', "right",
-							'RolloverAnchorId', "node",
+							'RolloverAnchor', "bottom",
+							'RolloverAnchorId', "idRow",
 							'MinWidth', 372,
 							'MaxWidth', 372,
 						}),
@@ -187,12 +187,12 @@ end,
 						PlaceObj('XTemplateFunc', {
 							'name', "Open",
 							'func', function (self, ...)
-XContextControl.Open(self, ...)
-for _, win in ipairs(self) do
-	win:SetRolloverAnchor("left")
-	win:SetRolloverAnchorId("idRow")
-end
-end,
+								XContextControl.Open(self, ...)
+								for _, win in ipairs(self) do
+									win:SetRolloverAnchor("bottom")
+									win:SetRolloverAnchorId("idRow")
+								end
+							end,
 						}),
 						}),
 					}),

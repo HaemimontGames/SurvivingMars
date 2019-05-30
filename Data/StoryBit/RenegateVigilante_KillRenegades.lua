@@ -33,10 +33,20 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	ScriptDone = true,
+	SelectObject = false,
 	SuppressTime = 600000,
 	TextReadyForValidation = true,
 	TextsDone = true,
 	group = "Renegades",
 	id = "RenegateVigilante_KillRenegades",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1552918144,
+				user = "Lina",
+			},
+		},
+	}),
 })
 

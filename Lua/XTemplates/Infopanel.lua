@@ -23,6 +23,7 @@ PlaceObj('XTemplate', {
 				'__class', "XFrame",
 				'IdNode', false,
 				'LayoutMethod', "VList",
+				'HandleMouse', true,
 				'Image', "UI/CommonNew/ip.tga",
 				'FrameBox', box(35, 45, 35, 35),
 			}, {
@@ -51,12 +52,12 @@ PlaceObj('XTemplate', {
 					PlaceObj('XTemplateFunc', {
 						'name', "OnMouseButtonDown(self, pos, button)",
 						'func', function (self, pos, button)
-if button == "L" then
-	ViewObjectMars(self:GetContext())
-	return "break"
-end
-return "continue"
-end,
+							if button == "L" then
+								ViewObjectMars(self:GetContext())
+								return "break"
+							end
+							return "continue"
+						end,
 					}),
 					}),
 				PlaceObj('XTemplateWindow', {
@@ -91,8 +92,8 @@ end,
 						'comment', "include InfopanelHeader",
 						'array', function (parent, context) return Presets.XTemplate.InfopanelHeader end,
 						'run_before', function (parent, context, item, i, n)
-item:Eval(parent, context)
-end,
+							item:Eval(parent, context)
+						end,
 					}),
 					}),
 				}),
@@ -100,13 +101,14 @@ end,
 				'comment', "mid",
 				'Id', "idContent",
 				'LayoutMethod', "VList",
+				'HandleMouse', true,
 			}, {
 				PlaceObj('XTemplateForEach', {
 					'comment', "include InfopanelContent",
 					'array', function (parent, context) return Presets.XTemplate.InfopanelContent end,
 					'run_before', function (parent, context, item, i, n)
-item:Eval(parent, context)
-end,
+						item:Eval(parent, context)
+					end,
 				}),
 				}),
 			PlaceObj('XTemplateWindow', {
@@ -114,9 +116,9 @@ end,
 				'__class', "XContextWindow",
 				'ContextUpdateOnOpen', true,
 				'OnContextUpdate', function (self, context, ...)
-local actionButtons = self:ResolveId("idActionButtons")
-actionButtons:SetVisible(#actionButtons > 1)
-end,
+					local actionButtons = self:ResolveId("idActionButtons")
+					actionButtons:SetVisible(#actionButtons >= 1)
+				end,
 			}, {
 				PlaceObj('XTemplateWindow', {
 					'comment', "actions",
@@ -125,6 +127,7 @@ end,
 					'HAlign', "right",
 					'LayoutMethod', "HList",
 					'LayoutHSpacing', 3,
+					'HandleMouse', true,
 				}, {
 					PlaceObj('XTemplateTemplate', {
 						'comment', "rename",
@@ -136,16 +139,16 @@ end,
 						'Margins', box(-12, -12, -12, 0),
 						'RelativeFocusOrder', "next-in-line",
 						'OnContextUpdate', function (self, context, ...)
-local shortcuts = GetShortcuts("actionRenameSelected")
-local hint = ""
-if shortcuts and (shortcuts[1] or shortcuts[2]) then
-	hint = T(10946, " / <em><ShortcutName('actionRenameSelected', 'keyboard')></em>")
-end
-self:SetRolloverHint(T{10947, "<left_click><hint> Activate", hint = hint})
-end,
+							local shortcuts = GetShortcuts("actionRenameSelected")
+							local hint = ""
+							if shortcuts and (shortcuts[1] or shortcuts[2]) then
+								hint = T(10946, " / <em><ShortcutName('actionRenameSelected', 'keyboard')></em>")
+							end
+							self:SetRolloverHint(T{10947, "<left_click><hint> Activate", hint = hint})
+						end,
 						'OnPress', function (self, gamepad)
-self.context:ShowRenameUI(gamepad)
-end,
+							self.context:ShowRenameUI(gamepad)
+						end,
 						'Icon', "UI/Infopanel/rename.tga",
 						'IconRows', 2,
 						'IconColumns', 2,
@@ -160,8 +163,8 @@ end,
 						'Margins', box(-12, -12, -12, 0),
 						'RelativeFocusOrder', "next-in-line",
 						'OnPress', function (self, gamepad)
-self.context:CycleSkin()
-end,
+							self.context:CycleSkin()
+						end,
 						'Icon', "UI/Infopanel/infopanel_skin.tga",
 						'IconRows', 2,
 						'IconColumns', 2,
@@ -176,16 +179,16 @@ end,
 						'Margins', box(-12, -12, -12, 0),
 						'RelativeFocusOrder', "next-in-line",
 						'OnContextUpdate', function (self, context, ...)
-local shortcuts = GetShortcuts("actionFollowCamera")
-local hint = ""
-if shortcuts and (shortcuts[1] or shortcuts[2]) then
-	hint = T(10948, " / <em><ShortcutName('actionFollowCamera', 'keyboard')></em>")
-end
-self:SetRolloverHint(T{10947, "<left_click><hint> Activate", hint = hint})
-end,
+							local shortcuts = GetShortcuts("actionFollowCamera")
+							local hint = ""
+							if shortcuts and (shortcuts[1] or shortcuts[2]) then
+								hint = T(10948, " / <em><ShortcutName('actionFollowCamera', 'keyboard')></em>")
+							end
+							self:SetRolloverHint(T{10947, "<left_click><hint> Activate", hint = hint})
+						end,
 						'OnPress', function (self, gamepad)
-Camera3pFollow(self.context)
-end,
+							Camera3pFollow(self.context)
+						end,
 						'Icon', "UI/Infopanel/camera_follow.tga",
 						'IconRows', 2,
 						'IconColumns', 2,
@@ -198,26 +201,26 @@ end,
 						'Margins', box(-12, -12, -12, 0),
 						'RelativeFocusOrder', "next-in-line",
 						'OnContextUpdate', function (self, context, ...)
-local shortcuts = GetShortcuts("actionTogglePin")
-local hint = ""
-if shortcuts and (shortcuts[1] or shortcuts[2]) then
-	hint = T(10949, " / <em><ShortcutName('actionTogglePin', 'keyboard')></em>")
-end
-self:SetRolloverHint(T{10947, "<left_click><hint> Activate", hint = hint})
-if context:IsPinned() then
-	self.idIcon:SetRow(2)
-	self:SetRolloverTitle(T(4043, "Pinned"))
-	self:SetRolloverText(T(4044, "Unpin this item from the quick bar."))
-else
-	self.idIcon:SetRow(1)
-	self:SetRolloverTitle(T(4045, "Unpinned"))
-	self:SetRolloverText(T(4046, "Pin this item to the quick bar."))
-end
-end,
+							local shortcuts = GetShortcuts("actionTogglePin")
+							local hint = ""
+							if shortcuts and (shortcuts[1] or shortcuts[2]) then
+								hint = T(10949, " / <em><ShortcutName('actionTogglePin', 'keyboard')></em>")
+							end
+							self:SetRolloverHint(T{10947, "<left_click><hint> Activate", hint = hint})
+							if context:IsPinned() then
+								self.idIcon:SetRow(2)
+								self:SetRolloverTitle(T(4043, "Pinned"))
+								self:SetRolloverText(T(4044, "Unpin this item from the quick bar."))
+							else
+								self.idIcon:SetRow(1)
+								self:SetRolloverTitle(T(4045, "Unpinned"))
+								self:SetRolloverText(T(4046, "Pin this item to the quick bar."))
+							end
+						end,
 						'OnPress', function (self, gamepad)
-self.context:TogglePin()
-ObjModified(self.context)
-end,
+							self.context:TogglePin()
+							ObjModified(self.context)
+						end,
 						'Icon', "UI/Infopanel/pin.tga",
 						'IconRows', 2,
 						'IconColumns', 2,
@@ -231,20 +234,20 @@ end,
 						'Margins', box(-12, -12, -12, 0),
 						'RelativeFocusOrder', "next-in-line",
 						'OnPress', function (self, gamepad)
-OpenEncyclopedia(self.context.encyclopedia_id)
-end,
+							OpenEncyclopedia(self.context.encyclopedia_id)
+						end,
 						'Icon', "UI/Infopanel/encyclopedia.tga",
 						'IconColumns', 2,
 					}),
 					PlaceObj('XTemplateCode', {
 						'comment', "first button image",
 						'run', function (self, parent, context)
-local first_btn = rawget(parent, 1)
-if first_btn then
-	first_btn:SetRelativeFocusOrder("new-line")
-	first_btn:SetImage("UI/CommonNew/ip_button_1.tga")
-end
-end,
+							local first_btn = rawget(parent, 1)
+							if first_btn then
+								first_btn:SetRelativeFocusOrder("new-line")
+								first_btn:SetImage("UI/CommonNew/ip_button_1.tga")
+							end
+						end,
 					}),
 					}),
 				}),
@@ -256,8 +259,8 @@ end,
 		'editor', "text",
 		'default', T(7412, --[[XTemplate Infopanel default]] "<DisplayName>"),
 		'Set', function (self, value)
-self.idTitle:SetText(value)
-end,
+			self.idTitle:SetText(value)
+		end,
 	}),
 	PlaceObj('XTemplateProperty', {
 		'category', "General",
@@ -265,12 +268,12 @@ end,
 		'editor', "text",
 		'default', T(957712410031, --[[XTemplate Infopanel default]] "<IPDescription>"),
 		'Set', function (self, value)
-self.idDescription:SetText(value)
-if value == "" then
-	self.idDescription:SetDock("ignore")
-	self.idDescription:SetVisible(false)
-end
-end,
+			self.idDescription:SetText(value)
+			if value == "" then
+				self.idDescription:SetDock("ignore")
+				self.idDescription:SetVisible(false)
+			end
+		end,
 	}),
 })
 

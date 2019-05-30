@@ -52,7 +52,7 @@ PlaceObj('StoryBit', {
 		'Value', -10,
 	}),
 	PlaceObj('StoryBitParamNumber', {
-		'Name', "health",
+		'Name', "morale",
 		'Value', -10,
 	}),
 	PlaceObj('StoryBitReply', {
@@ -67,9 +67,9 @@ PlaceObj('StoryBit', {
 				'Stat', "Sanity",
 				'Amount', "<sanity>",
 			}),
-			PlaceObj('ModifyColonistStat', {
-				'Stat', "Health",
-				'Amount', "<health>",
+			PlaceObj('ModifyObject', {
+				'Prop', "base_morale",
+				'Amount', "<morale>",
 			}),
 		},
 	}),
@@ -95,7 +95,9 @@ PlaceObj('StoryBit', {
 			"OverworkedGenius_GrantTech",
 		},
 		'Effects', {
-			PlaceObj('ModifyStatus', nil),
+			PlaceObj('ModifyStatus', {
+				'Status', "StatusEffect_UnableToWork",
+			}),
 		},
 	}),
 	PlaceObj('StoryBitReply', {

@@ -1,11 +1,11 @@
 DefineClass.StorageDepot = {
 	__parents = { "Building", "ResourceStockpileBase", "ShuttleLanding", "AutoTransportStateUIProps", },
-	game_flags = { gofPermanent = true },
+	flags = { gofPermanent = true },
 
 	properties = {
 		-- add dont_save specifically for this class, as it has a Get function 
 		{ template = true, name = T(765, "Pin Rollover"), id = "pin_rollover", category = "Pin",  editor = "text", default = "", translate = true, dont_save = true},
-		{ template = true, category = "Demolish", name = T(175, "Use demolished state?"), id = "use_demolished_state", editor = "bool", default = false, object_update = true },
+		{ template = true, category = "Demolish", name = T(175, "Use demolished state?"), id = "use_demolished_state", editor = "bool", default = false, },
 		{ template = true, category = "Storage Space", name = T(8054, "Ignored by shuttles"), id = "exclude_from_lr_transportation", editor = "bool", default = false },
 	},
 	entity = false,
@@ -119,7 +119,7 @@ function StorageDepot:PairRequests()
 	end
 end
 
-function StorageDepot:AddDepotResource(resource, amount)
+function StorageDepot:AddDepotResource(amount, resource)
 	self.supply[resource]:AddAmount(amount)
 	self.demand[resource]:AddAmount(-amount)
 	self:SetCount(self.supply[resource]:GetActualAmount())
@@ -367,6 +367,24 @@ function UniversalStorageDepot:SetCount(new_count, resource)
 	return self:SetCountInternal(new_count, count, resource, placed_cubes, self.placement_offset[resource], -90*60, 0)
 end
 
+function UniversalStorageDepot:RegiterResourceRequest(resource_name)
+	local amount = (self.stockpiled_amount[resource_name] or 0)
+	local supply = self:AddSupplyRequest(resource_name, amount, bor(self.supply_r_flags, self.additional_supply_flags), nil, self.desired_amount)
+	local demand = self:AddDemandRequest(resource_name, self.max_storage_per_resource - amount, self.demand_r_flags + self.additional_demand_flags, nil, self.max_storage_per_resource - self.desired_amount)
+	self.supply[resource_name] = supply
+	self.demand[resource_name] = demand
+	supply:SetReciprocalRequest(demand)
+	self.auto_transportation_states[resource_name] = ResourceStates[1]
+	self.visual_cubes[resource_name] = {} --use name as key, in case we need the arr part of the table for something clever
+	
+	self["GetStored_"..resource_name]=  function(self)
+		return self.supply[resource_name]:GetActualAmount()
+	end	
+	self["GetMaxAmount_"..resource_name] = function(self)
+		return self.max_storage_per_resource
+	end
+end
+
 function UniversalStorageDepot:CreateResourceRequests()
 	Building.CreateResourceRequests(self)
 	local storable_resources = self.storable_resources
@@ -376,27 +394,8 @@ function UniversalStorageDepot:CreateResourceRequests()
 	self.visual_cubes = { }
 	self.auto_transportation_states = {}
 	self.stockpiled_amount = self.stockpiled_amount or {}
-	local total_stored = 0
-	
-	for i = 1, #storable_resources do
-		local resource_name = storable_resources[i]
-		
-		local amount = (self.stockpiled_amount[resource_name] or 0)
-		local supply = self:AddSupplyRequest(resource_name, amount, bor(self.supply_r_flags, self.additional_supply_flags), nil, self.desired_amount)
-		local demand = self:AddDemandRequest(resource_name, self.max_storage_per_resource - amount, self.demand_r_flags + self.additional_demand_flags, nil, self.max_storage_per_resource - self.desired_amount)
-		self.supply[resource_name] = supply
-		self.demand[resource_name] = demand
-		supply:SetReciprocalRequest(demand)
-		self.auto_transportation_states[resource_name] = ResourceStates[1]
-		self.visual_cubes[resource_name] = {} --use name as key, in case we need the arr part of the table for something clever
-		total_stored = total_stored + amount
-		self["GetStored_"..resource_name]=  function(self)
-			return self.supply[resource_name]:GetActualAmount()
-		end
-		
-		self["GetMaxAmount_"..resource_name] = function(self)
-			return self.max_storage_per_resource
-		end
+	for _, resource_name in ipairs(storable_resources) do
+		self:RegiterResourceRequest(resource_name)
 	end
 end
 
@@ -572,7 +571,7 @@ function UniversalStorageDepot:GetEmptyStorage(resource)
 	if not resource then
 		return self:GetMaxStorage() - self:GetStoredAmount()
 	else
-		return	self.demand[resource] and self.demand[resource]:GetActualAmount() or 0
+		return	self.demand and self.demand[resource] and self.demand[resource]:GetActualAmount() or 0
 	end
 end
 
@@ -689,6 +688,7 @@ DefineClass.MechanizedDepot = {
 	func_after_anim_end = false,
 	
 	is_unloading = false,
+	demolish_wait_unload_thread = false,
 }
 
 function MechanizedDepot:ToggleLRTService(broadcast)
@@ -893,7 +893,7 @@ function MechanizedDepot:DroneLoadResource(drone, request, resource, amount)
 end
 
 function MechanizedDepot:WakupDemolishThread()
-	Wakeup(self.demolishing_thread)
+	Wakeup(self.demolish_wait_unload_thread)
 end
 
 function MechanizedDepot:DroneUnloadResource(drone, request, resource, amount)
@@ -1341,13 +1341,53 @@ end
 
 --demolishion
 local allow_demolish_below = 50 * const.ResourceScale
-function MechanizedDepot:OnDemolish()
-	self.demolishing = true
-	local f = self["GetStored_" .. self.resource]
-	while f(self) > allow_demolish_below do
-		WaitWakeup(9999999999)
+function MechanizedDepot:ShouldShowUnloadWarning()
+	return self.demolish_wait_unload_thread
+end
+
+function MechanizedDepot:ToggleDemolish()
+	if self.demolishing then
+		Demolishable.ToggleDemolish(self)
+		return
 	end
 	
+	local is_currently_unloading = IsValidThread(self.demolish_wait_unload_thread)
+	if is_currently_unloading then
+		DeleteThread(self.demolish_wait_unload_thread)
+		self.demolish_wait_unload_thread = false
+		self:OnSetDemolishing(false)
+		self:DestroyAttaches("RotatyThing")
+		return
+	end
+	
+	local f = self["GetStored_" .. self.resource]
+	if f(self) > allow_demolish_below then
+		self.demolish_wait_unload_thread = CreateGameTimeThread(function(self, f)
+			if self:HasSpot("Top") then
+				self:Attach(PlaceObject("RotatyThing"), self:GetSpotBeginIndex("Top"))
+			end
+			self:OnSetDemolishing(true)
+			while f(self) > allow_demolish_below do
+				if Platform.developer then
+					WaitWakeup(5000)
+					assert(self.is_unloading)
+				else
+					WaitWakeup()
+				end
+			end
+			Demolishable.ToggleDemolish(self)
+		end, self, f)
+	else
+		Demolishable.ToggleDemolish(self)
+	end
+end
+
+function MechanizedDepot:ToggleDemolish_Update(button)
+	Demolishable.ToggleDemolish_Update(self, button)
+	button:SetIcon((self.demolishing or self.demolish_wait_unload_thread) and "UI/Icons/IPButtons/cancel.tga" or "UI/Icons/IPButtons/salvage_1.tga")
+end
+
+function MechanizedDepot:OnDemolish()
 	self:ReturnResources()
 end
 
@@ -1370,7 +1410,7 @@ function MechanizedDepot:GetRefundResources()
 end
 
 function MechanizedDepot:OnSetDemolishing(val)
-	if self.demolishing then
+	if val then
 		if not self.is_unloading then
 			self:ToggleAcceptResource()
 		end
@@ -1408,7 +1448,7 @@ function MechanizedDepot:IsStoring()
 	local io_stockpile = self.stockpiles[1]
 	local s_req = io_stockpile.supply[resource]
 	local req = io_stockpile.demand[resource]
-	return table.find(self.task_requests, req) and true or false
+	return table.find(io_stockpile.task_requests, req) and true or false
 end
 
 function SavegameFixups.ClearMechDepotTaskRequests()
@@ -1425,14 +1465,14 @@ function SavegameFixups.ClearMechDepotTaskRequests()
 end
 
 function MechanizedDepot:SetAcceptResource(res_id, toggle, to_store)
-	if self.demolishing and self.is_unloading then return end
+	if (self.demolishing or self.demolish_wait_unload_thread) and self.is_unloading then return end
 	local resource = self.resource
 	local io_stockpile = self.stockpiles[1]
 	local s_req = io_stockpile.supply[resource]
 	local req = io_stockpile.demand[resource]
 	local task_requests = io_stockpile.task_requests
 	local is_storing = table.find(task_requests, req)
-	if not io_stockpile.user_include_in_lrt then
+	if io_stockpile.user_include_in_lrt then
 		LRManagerInstance:RemoveBuilding(io_stockpile)
 	end
 	if is_storing and (toggle or not to_store) then
@@ -1449,7 +1489,7 @@ function MechanizedDepot:SetAcceptResource(res_id, toggle, to_store)
 		s_req:AddFlags(const.rfStorageDepot)
 		self.is_unloading = false
 	end
-	if not io_stockpile.user_include_in_lrt then
+	if io_stockpile.user_include_in_lrt then
 		LRManagerInstance:AddBuilding(io_stockpile)
 	end
 	io_stockpile:ConnectToCommandCenters()

@@ -1,11 +1,31 @@
-local function AreAllDronesAssigned()
+local function NumberOfUnassignedDrones()
+	local result = 0
 	local drones_label = UICity.labels.Drone
-	local drone_hub = UICity.labels.DroneHub[1]
 	for i,drone in ipairs(drones_label) do
 		if not drone.command_center then
-			return false
+			result = result + 1
 		end
 	end
+	return result
+end
+
+local function AreAllDronesAssigned()
+	return NumberOfUnassignedDrones() == 0
+end
+
+function AreAllUnassignedDronesSelected()
+	local unassigned = NumberOfUnassignedDrones()
+	if unassigned > 1 then
+		if not IsKindOf(SelectedObj, "MultiSelectionWrapper") then return end
+		if not SelectedObj:IsClassSupported("Drone") then return end
+		if SelectedObj:GetObjectsCount() ~= unassigned then return end
+		for i,subobj in ipairs(SelectedObj.objects) do
+			if subobj.command_center then return end
+		end
+	elseif unassigned == 1 then
+		if not IsKindOf(SelectedObj, "Drone") then return end
+	end
+	
 	return true
 end
 
@@ -160,6 +180,7 @@ g_TutorialScenarios.Tutorial2 = function()
 	WaitTutorialPopup("Tutorial2_Popup4_OrphanedDrones")
 	TutorialNextHint("Tutorial_2_OrphanedDrones")
 	--wait until all drones are assigned
+	g_Tutorial.DisableReassignButtons = true
 	if not AreAllDronesAssigned() then
 		--get all drones
 		local drones_label = UICity.labels.Drone
@@ -171,7 +192,22 @@ g_TutorialScenarios.Tutorial2 = function()
 			end
 		end
 		ShowTutorialArrow(drone_hub, "ArrowTutorialBase", "ArrowTutorial_03")
-		WaitInfopanelAction("Drone", "ToggleReassignAllInteractionMode", function(arrow) return arrow.button_pressed or AreAllDronesAssigned() end)
+		
+		local find_target = function(self)
+			if not Dialogs.Infopanel then return false end
+			if not AreAllUnassignedDronesSelected() then return false end
+			
+			for i,button in ipairs(Dialogs.Infopanel.idMainButtons) do
+				if button.OnPressParam == "ToggleReassignInteractionMode" then
+					return button
+				end
+			end
+			return false
+		end
+		WaitCustomUIButtonPressed(find_target, function(arrow)
+			return arrow.button_pressed or AreAllDronesAssigned()
+		end, "left-center")
+		
 		ViewObjectMars(drone_hub)
 		while true do
 			if AreAllDronesAssigned() then
@@ -181,6 +217,7 @@ g_TutorialScenarios.Tutorial2 = function()
 		end
 		RemoveAllTutorialArrows()
 	end
+	g_Tutorial.DisableReassignButtons = false
 	Sleep(2500)
 	
 	
@@ -414,7 +451,7 @@ g_TutorialScenarios.Tutorial2 = function()
 		AnchorType = "center-top",
 		FindTarget = function(self)
 			local dlg = Dialogs.ResearchDlg
-			return dlg and dlg.idOverlayDlg.idToolbar.idclose or false
+			return dlg and dlg.idToolBar.idclose or false
 		end,
 	}, terminal.desktop)
 	while Dialogs.ResearchDlg do

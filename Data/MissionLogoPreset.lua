@@ -161,7 +161,7 @@ PlaceObj('MissionLogoPreset', {
 
 PlaceObj('MissionLogoPreset', {
 	SortKey = 25000,
-	display_name = T(524835759283, --[[MissionLogoPreset IMM display_name]] "IMM"),
+	display_name = T(7021, --[[MissionLogoPreset IMM display_name]] "International Mars Mission"),
 	entity_name = "DecLogoGagarin_06",
 	group = "Default",
 	id = "IMM",

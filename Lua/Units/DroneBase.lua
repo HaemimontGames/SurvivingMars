@@ -1,8 +1,7 @@
 DefineClass.DroneBase =
 {
 	__parents = { "Vehicle", "CityObject", "NightLightObject", "InfopanelObj" },
-	game_flags = { gofPermanent = true },
-	class_flags = { cfComponentSound = true },
+	flags = { gofPermanent = true, cofComponentSound = true },
 
 	moving = false,
 	fx_moving_target = false,
@@ -30,6 +29,9 @@ DefineClass.DroneBase =
 	
 	embark_target = false,
 	embark_rocket_spot = false,	
+	
+	rotaty_spot = "Origin",
+	rotaty_offset = point(0, 0, 12*guim),
 }
 
 function DroneBase:Done()
@@ -65,7 +67,7 @@ function DroneBase:UpdateMoving()
 		return
 	end
 	if moving then
-		local fx_moving_target = self.current_dome and "Dome" or "Outside"
+		local fx_moving_target = IsUnitInDome(self) and "Dome" or "Outside"
 		self.fx_moving_target = fx_moving_target
 		PlayFX("Moving", "start", self, fx_moving_target)
 	else
@@ -99,7 +101,7 @@ function DroneBase:IsDead()
 end
 
 function DroneBase:CanBeControlled()
-	return not self.control_override and self.command ~= "Malfunction" and self.command ~= "Dead"
+	return not self.control_override and self.command ~= "Malfunction" and self.command ~= "Dead" and not self.disappeared
 end
 
 function DroneBase:ToggleControlMode()
@@ -161,7 +163,7 @@ end
 function DroneBase:AddDust(dust)
 	if not self.accumulate_dust or self:IsDead() or self:GetParent() then return end
 	local dust_max = self:GetDustMax()
-	self.dust = Min(dust_max, self.dust + dust)
+	self.dust = Max(Min(dust_max, self.dust + dust), 0)
 	self:SetDustVisuals()
 	if self.dust >= dust_max and self.command ~= "Malfunction" then
 		self:SetDisablingCommand("Malfunction")
@@ -253,7 +255,7 @@ function DroneBase:RepairDrone(drone, power)
 			self:StopFX()
 			self:UseBattery(power)
 			self:PopAndCallDestructor()
-		elseif drone.command == "Malfunction" or (drone.command == "Freeze" and not g_ColdWave) then
+		elseif drone.command == "Malfunction" or (drone.command == "Freeze" and drone:CanBeThawed()) then
 			if not self:GotoUnitSpot(drone, self.work_spot_drone_repair) then
 				break
 			end

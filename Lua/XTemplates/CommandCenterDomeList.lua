@@ -21,10 +21,10 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateTemplate', {
 			'__template', "MenuEntrySmall",
 			'OnPress', function (self, gamepad)
-local dlg = GetDialog(self)
-dlg.context.dome = nil
-SetBackDialogMode(self)
-end,
+				local dlg = GetDialog(self)
+				dlg.context.dome = nil
+				SetBackDialogMode(self)
+			end,
 			'Text', T(596159635934, --[[XTemplate CommandCenterDomeList Text]] "Entire Colony"),
 		}),
 		PlaceObj('XTemplateForEach', {
@@ -35,10 +35,10 @@ end,
 			PlaceObj('XTemplateTemplate', {
 				'__template', "MenuEntrySmall",
 				'OnPress', function (self, gamepad)
-local dlg = GetDialog(self)
-dlg.context.dome = self.context
-SetBackDialogMode(self)
-end,
+					local dlg = GetDialog(self)
+					dlg.context.dome = self.context
+					SetBackDialogMode(self)
+				end,
 				'Text', T(7412, --[[XTemplate CommandCenterDomeList Text]] "<DisplayName>"),
 			}),
 			}),
@@ -53,8 +53,8 @@ end,
 		}),
 	PlaceObj('XTemplateCode', {
 		'run', function (self, parent, context)
-parent:ResolveId("idScroll"):SetMargins(box(99,0,0,0))
-end,
+			parent:ResolveId("idScroll"):SetMargins(box(99,0,0,0))
+		end,
 	}),
 })
 

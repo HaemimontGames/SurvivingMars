@@ -49,6 +49,12 @@ function GetBuildingLabels(ret, used)
 	return ret
 end
 
+function OnMsg.GatherLabels(labels)
+	for _, label in ipairs(DataInstances.Label) do
+		labels[label.name] = true
+	end
+end
+
 function GetBuildingLabelsCombo()
 	local ret = GetBuildingLabels()
 	SortLabelsByText(ret)
@@ -107,16 +113,16 @@ function GetObjectsByLabel(label)
 	if label == "Working-age" then
 		local ret = {}
 		for _, dome in ipairs(UICity.labels.Dome or empty_table) do
-			table.append(ret, dome.labels.Youth)
-			table.append(ret, dome.labels.Adult)
-			table.append(ret, dome.labels["Middle Aged"])
+			table.iappend(ret, dome.labels.Youth)
+			table.iappend(ret, dome.labels.Adult)
+			table.iappend(ret, dome.labels["Middle Aged"])
 		end
 		return ret
 	elseif label:starts_with(trait_prefix) then
 		label = label:sub(#trait_prefix + 1)
 		local ret = {}
 		for _, dome in ipairs(UICity.labels.Dome or empty_table) do
-			table.append(ret, dome.labels[label])
+			table.iappend(ret, dome.labels[label])
 		end
 		return ret
 	else
@@ -844,10 +850,16 @@ function SA_GrantTechBoost:ShortDescription()
 end
 
 function SA_GrantTechBoost:Exec(seq_player, ip, seq, registers)
-	if self.Research == "" then
-		UICity.TechBoostPerField[self.Field] = (UICity.TechBoostPerField[self.Field] or 0) + self.Amount
+	if self.Field == "All Fields" then
+		for field in pairs(TechFields) do
+			UICity.TechBoostPerField[field] = (UICity.TechBoostPerField[field] or 0) + self.Amount
+		end
 	else
-		UICity.TechBoostPerTech[self.Research] = (UICity.TechBoostPerTech[self.Research] or 0) + self.Amount
+		if self.Research == "" then
+			UICity.TechBoostPerField[self.Field] = (UICity.TechBoostPerField[self.Field] or 0) + self.Amount
+		else
+			UICity.TechBoostPerTech[self.Research] = (UICity.TechBoostPerTech[self.Research] or 0) + self.Amount
+		end
 	end
 end
 
@@ -1038,11 +1050,12 @@ function SA_CustomNotification:UpdateNotification(seq_player, ip, seq, registers
 	
 	local pos = self.pos_reg ~= "" and registers[self.pos_reg] or nil
 	expiration = expiration ~= 0 and expiration or nil
-	local params = { reg_param1 = reg_param1, reg_param2 = reg_param2, value = value, override_text = text, expiration = expiration, override_popup_text = popup_text }
-	AddOnScreenNotification(self.id, nil, params, pos and {pos} or nil)
+	local dismissable = GetOnScreenNotificationDismissable(self.id)
 	if self.dismissable ~= "no change" then
-		SetOnScreenNotificationDismissable(self.id, self.dismissable == "dismissable")
+		dismissable = self.dismissable == "dismissable"
 	end
+	local params = { reg_param1 = reg_param1, reg_param2 = reg_param2, value = value, override_text = text, expiration = expiration, override_popup_text = popup_text,dismissable = dismissable }
+	AddOnScreenNotification(self.id, nil, params, pos and {pos} or nil)
 end
 
 function SA_CustomNotification:Exec(seq_player, ip, seq, registers)
@@ -1359,7 +1372,7 @@ function PositionFinder:TestPos(pt_pos, q, r, angle, class_def, building_shape, 
 				x, y = HexRotate(x, y, dir)
 				x, y = x + q, y + r
 				if check_terran_deposit then
-					local t_d = MapGet(point(x, y), MaxTerrainDepositRadius, "TerrainDeposit")
+					local t_d = MapGet(x, y, MaxTerrainDepositRadius, "TerrainDeposit")
 					if #t_d > 0 then
 						return
 					end
@@ -1391,8 +1404,9 @@ function PositionFinder:TestPos(pt_pos, q, r, angle, class_def, building_shape, 
 					end
 				end
 				if check_dome then
-					if check_dome == "inside" and not GetDomeAtPoint(pt_x, pt_y)
-					or check_dome == "outside" and GetDomeAtPoint(pt_x, pt_y) then
+					local dome, interior = GetDomeAtHex(WorldToHex(pt_x, pt_y))
+					if check_dome == "inside" and not interior
+					or check_dome == "outside" and dome then
 						return
 					end
 				end
@@ -1849,7 +1863,7 @@ end
 function SA_DestroyObjects:Exec(seq_player, ip, seq, registers)
 	local city = UICity
 	local objects = self:GatherObjects(seq_player, ip, seq, registers)
-	local fx_func = self.fx_action ~= "" and self.fx_moment ~= "" and SA_DestroyObjects.PlayFX or __empty_function__
+	local fx_func = self.fx_action ~= "" and self.fx_moment ~= "" and SA_DestroyObjects.PlayFX or empty_func
 	
 	local store = self.store_pos ~= ""
 	if #(objects or "") <= 0 then
@@ -1895,12 +1909,27 @@ local function obj_label_combo()
 	return t
 end
 
-function IsInRangeOfLabel(obj, label_name, dist)
+function IsInRangeOfLabel(obj, label_name, radius, ...)
 	local label = IsValid(obj) and UICity.labels[label_name] or empty_table
-	for j = 1, #label do
-		if obj:IsCloser2D(label[j], dist) then
-			return true
+	if type(radius) == "string" then
+		for j = 1, #label do
+			local el = label[j]
+			if el.working then
+				local func = el[radius]
+				assert(func)
+				if obj:IsCloser2D(el, func(el, ...)) then
+					return true
+				end
+			end
 		end
+	elseif type(radius) == "number" then
+		for j = 1, #label do
+			if obj:IsCloser2D(label[j], radius) then
+				return true
+			end
+		end
+	else
+		assert(false, "Radius type must be string or number.")
 	end
 end
 

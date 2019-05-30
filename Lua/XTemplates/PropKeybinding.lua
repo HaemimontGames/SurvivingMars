@@ -36,24 +36,24 @@ PlaceObj('XTemplate', {
 				PlaceObj('XTemplateFunc', {
 					'name', "OnMouseButtonDown(self, pos, button)",
 					'func', function (self, pos, button)
-if button == "L" then
-	self.desktop:SetMouseCapture(self)
-	self.binding = true
-	return "break"
-end
-end,
+						if button == "L" then
+							self.desktop:SetMouseCapture(self)
+							self.binding = true
+							return "break"
+						end
+					end,
 				}),
 				PlaceObj('XTemplateFunc', {
 					'name', "OnMouseButtonUp(self, pos, button)",
 					'func', function (self, pos, button)
-if button == "L" then
-	self.desktop:SetMouseCapture(false)
-	if self.binding then
-		RebindKeys(1, self.parent.parent)
-	end
-	return "break"
-end
-end,
+						if button == "L" then
+							self.desktop:SetMouseCapture(false)
+							if self.binding then
+								RebindKeys(1, self.parent.parent)
+							end
+							return "break"
+						end
+					end,
 				}),
 				PlaceObj('XTemplateProperty', {
 					'id', "binding",
@@ -71,24 +71,24 @@ end,
 				PlaceObj('XTemplateFunc', {
 					'name', "OnMouseButtonDown(self, pos, button)",
 					'func', function (self, pos, button)
-if button == "L" then
-	self.desktop:SetMouseCapture(self)
-	self.binding = true
-	return "break"
-end
-end,
+						if button == "L" then
+							self.desktop:SetMouseCapture(self)
+							self.binding = true
+							return "break"
+						end
+					end,
 				}),
 				PlaceObj('XTemplateFunc', {
 					'name', "OnMouseButtonUp(self, pos, button)",
 					'func', function (self, pos, button)
-if button == "L" then
-	self.desktop:SetMouseCapture(false)
-	if self.binding then
-		RebindKeys(2, self.parent.parent)
-	end
-	return "break"
-end
-end,
+						if button == "L" then
+							self.desktop:SetMouseCapture(false)
+							if self.binding then
+								RebindKeys(2, self.parent.parent)
+							end
+							return "break"
+						end
+					end,
 				}),
 				PlaceObj('XTemplateProperty', {
 					'id', "binding",
@@ -98,43 +98,43 @@ end,
 		PlaceObj('XTemplateFunc', {
 			'name', "OnPropUpdate(self, context, prop_meta, value)",
 			'func', function (self, context, prop_meta, value)
-self.idBinding1:SetText(KeybindingName(value and value[1]) or T(7875, "(  )"))
-self.idBinding2:SetText(KeybindingName(value and value[2]) or T(7875, "(  )"))
-end,
+				self.idBinding1:SetText(KeybindingName(value and value[1]) or T(7875, "(  )"))
+				self.idBinding2:SetText(KeybindingName(value and value[2]) or T(7875, "(  )"))
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnMouseButtonDown(self, pos, button)",
 			'func', function (self, pos, button)
-XPropControl.OnMouseButtonDown(self, pos, button)
-if button == "L" then
-	return self.idBinding1:OnMouseButtonDown(pos, button)
-end
-end,
+				XPropControl.OnMouseButtonDown(self, pos, button)
+				if button == "L" then
+					return self.idBinding1:OnMouseButtonDown(pos, button)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnMouseButtonUp(self, pos, button)",
 			'func', function (self, pos, button)
-if button == "L" then
-	return self.idBinding1:OnMouseButtonUp(pos, button)
-end
-end,
+				if button == "L" then
+					return self.idBinding1:OnMouseButtonUp(pos, button)
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnShortcut(self, shortcut, source)",
 			'func', function (self, shortcut, source)
-if shortcut == "ButtonA" then
-  self:OnMouseButtonDown(nil, "L")
-  self:OnMouseButtonUp(nil, "L")
-end
-end,
+				if shortcut == "ButtonA" then
+				  self:OnMouseButtonDown(nil, "L")
+				  self:OnMouseButtonUp(nil, "L")
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "SetSelected(self, selected)",
 			'func', function (self, selected)
-if GetUIStyleGamepad() then
-	self:SetFocus(selected)
-end
-end,
+				if GetUIStyleGamepad() then
+					self:SetFocus(selected)
+				end
+			end,
 		}),
 		}),
 })

@@ -70,24 +70,31 @@ function RechargeStationBase:IsRechargerWorking()
 end
 
 local recharger_pulse_tick = 1000
+local recharger_started = false
+local function recharger_proc(drone, recharger)
+	local battery_max = drone.battery_max
+	if drone.battery >= battery_max*3/4 then
+		return
+	end
+	recharger_started = true
+	--fx
+	PlayFX("DroneRechargeCoilArc", "start", recharger, drone)
+	--actual recharge
+	drone.battery = battery_max
+	local command = drone.command
+	if command == "EmergencyPower" or command == "Charge" or command == "NoBattery" then
+		drone:SetCommand("Idle")
+	end
+end
+
 --can be in bldupdate, but then the update timer needs to be real low even when tech is not researched :/
 function RechargerAoePulse(self)
 	Sleep(AsyncRand(recharger_pulse_tick))
 	while IsValid(self) and self.working do
-		local drones = MapGet(self, "hex", TechDef.WirelessPower.param1, "Drone" , function(d) return d.battery < d.battery_max*3/4 end )
-		if #drones > 0 then
+		recharger_started = false
+		MapForEach(self, "hex", TechDef.WirelessPower.param1, "Drone", recharger_proc, self)
+		if recharger_started then
 			PlayFX("DroneRechargePulse", "start", self)
-		end
-		
-		for i = 1, #drones do
-			local drone = drones[i]
-			--fx
-			PlayFX("DroneRechargeCoilArc", "start", self, drone)
-			--actual recharge
-			drone.battery = drone.battery_max
-			if drone.command == "EmergencyPower" or drone.command == "Charge" or drone.command == "NoBattery" then
-				drone:SetCommand("Idle")
-			end
 		end
 		Sleep(recharger_pulse_tick)
 	end

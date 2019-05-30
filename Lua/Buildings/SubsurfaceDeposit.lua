@@ -170,11 +170,12 @@ end
 
 ----------------------SubsurfaceDeposit-------------------------------------------------
 
-local DeepResourceEnableFlags = {
+DeepResourceEnableFlags = {
 	Water = "IsDeepWaterExploitable",
 	Metals = "IsDeepMetalsExploitable",
 	PreciousMetals = "IsDeepPreciousMetalsExploitable",
 }
+local DeepResourceEnableFlags = DeepResourceEnableFlags
 
 function IsDeepExploitable(res)
 	local flag_name = DeepResourceEnableFlags[res]
@@ -183,9 +184,7 @@ end
 
 DefineClass.SubsurfaceDeposit = {
 	__parents = { "PropertyObject", "ExplorableObject", "Deposit"},
-	enum_flags = { efVisible = false, efWalkable = false, efCollision = false, efApplyToGrids = false, efShadow = false, efSunShadow = false },
-	game_flags = { gofRealTimeAnim = true },
-	class_flags = { cfConstructible = false },
+	flags = { gofRealTimeAnim = true, cfConstructible = false, efVisible = false, efWalkable = false, efCollision = false, efApplyToGrids = false, efShadow = false, efSunShadow = false },
 	properties = {
 		{ category = "Deposit", name = T(782, "Max amount"),  id = "max_amount",  editor = "number",       default = 50000, scale = const.ResourceScale},	 --quantity
 		{ category = "Deposit", name = T(16, "Grade"),       id = "grade",       editor = "dropdownlist", default = "Average", items = DepositGradesTable}, --grade
@@ -208,14 +207,11 @@ DefineClass.SubsurfaceDeposit = {
 	ip_template = "ipSubsurfaceDeposit",
 }
 
-GlobalVar( "g_CurrentDepositScale", const.SignsOverviewCameraScaleDown )
 function SubsurfaceDeposit:Init()
 	self.amount = self.max_amount
 end
 
 function SubsurfaceDeposit:GameInit()
-	self:SetZ(terrain.GetHeight(self:GetPos()))
-	self:SetScale(g_CurrentDepositScale)
 	self:UpdateEntity()
 	self:PickVisibilityState()
 end

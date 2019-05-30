@@ -125,6 +125,10 @@ end
 
 g_DisastersSettings = false
 
+function OverrideDisasterDescriptor(original)
+	return original
+end
+
 function StartGame(map, map_settings)
 	g_DisastersSettings = map_settings
 	ChangeMap(map)
@@ -170,8 +174,10 @@ function GetTowerCountText()
 	return towers
 end
 
+GlobalVar("g_RainDisaster", false)
+
 function IsDisasterActive()
-	return not not (g_ColdWave or g_DustStorm or g_MysteryDream)
+	return not not (g_ColdWave or g_DustStorm or g_MysteryDream or g_RainDisaster)
 end
 
 GlobalVar("g_DisastersPredicted", {})
@@ -209,6 +215,12 @@ function IsDisasterPredicted()
 	end
 end
 
+function WaitCurrentDisaster()
+	while IsDisasterPredicted() or IsDisasterActive() do
+		Sleep(const.HourDuration)
+	end
+end
+
 function GetDisasterLightmodelList()
 	if g_MysteryDream then
 		return "Dreamers"
@@ -218,6 +230,11 @@ function GetDisasterLightmodelList()
 	end
 	if g_DustStorm then
 		return (g_DustStorm and g_DustStorm.type == "great") and "GreatDustStorm" or "DustStorm"
+	end
+	if g_RainDisaster == "toxic" then
+		return "ToxicRain"
+	elseif g_RainDisaster == "normal" then
+		return "WaterRain"
 	end
 	return false
 end
@@ -367,14 +384,16 @@ function GetRandomPassable(city)
 	return GetRandomPassablePoint(seed)
 end
 
-function GetRandomPassableAwayFromLargeBuilding(min_dist, city)
+function GetRandomPassableAwayFromBuilding(city)
 	local pfClass = 0
-	local city =  city or UICity
+	city = type(city) ~= "number" and city or UICity --backward compat, first arg used to be a number
 	local seed = city:Random()
-	return GetRandomPassablePoint(seed, pfClass, function(x, y, min_dist)
-		return IsPointNearLargeBuildingAndBuildable(x, y, min_dist)
-	end, min_dist)
+	return GetRandomPassablePoint(seed, pfClass, function(x, y)
+		return IsBuildableZone(x, y) and not IsPointNearBuilding(x, y)
+	end)
 end
+
+GetRandomPassableAwayFromLargeBuilding = GetRandomPassableAwayFromBuilding -- compatibility
 
 function GetRandomPassableAround(center, max_radius, min_radius, city, filter, ...)
 	local pfClass = 0

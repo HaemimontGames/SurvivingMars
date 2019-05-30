@@ -54,6 +54,7 @@ const.OmegaTelescopeBreakthroughsCount = 3
 const.OmegaTelescopeBoostPercent = 20
 const.MoholeMineHeatRadius = 8 --in hexes
 const.AdvancedStirlingGeneratorHeatRadius = 6
+const.DroneRestrictRadius = const.CommandCenterMaxRadius * 2 * const.GridSpacing -- twice the hex distance in game units
 
 const.RCRoverDefaultRadius = 20
 const.RCRoverMaxRadius = 20
@@ -84,6 +85,12 @@ const.MaxDomeDist = 300*guim
 const.MinTradeAmount = 5 --amounts for resources that can be traded with rival colonies
 const.MaxTradeAmount = 50
 const.DistressCallCooldown = 5 --in Sols
+
+-- Planetary view POI
+const.POIMinLat = -70 * 60
+const.POIMaxLat =  70 * 60
+const.POIMaxLongDist = 180
+const.POISameSideMaxDist = 65
 
 const.ScanTick = 1000
 const.SectorCount = 10 -- per dimension
@@ -126,6 +133,7 @@ ResourceDescription = {
 	{ name = "Colonist",        display_name = T(4290, "Colonist"),         display_icon = "UI/Icons/Buildings/res_fuel.tga", unit_amount = const.ResourceScale, color = RGB(255, 128, 0), entity = "ResourceFuel" },	
 	{ name = "MysteryResource", display_name = T(8064, "Mystery Resource"), display_icon = "UI/Icons/Buildings/res_mystery_resource.tga", unit_amount = const.ResourceScale, color = RGB(128, 255, 0), entity = "ResourceMystery", description = T(8065, "Mystery Resource Description") },
 	{ name = "ResearchPoints",  display_name = T(9755, "Research Points"),  display_icon = "UI/Icons/res_experimental_research.tga", unit_amount = const.ResourceScale, color = RGB(128, 255, 0), entity = "ResourceFuel", description = T(9755, "Research Points") },
+	{ name = "Seeds",           display_name = T(11843, "Seeds"),           display_icon = "UI/Icons/Buildings/res_seeds.tga",    unit_amount = const.ResourceScale, color = RGB(128, 255, 0), entity = "ResourceSeeds", description = T(12053, "Seeds are required for planting vegetation on Mars."), dlc = "armstrong" },
 }
 
 Resources = {}
@@ -134,11 +142,16 @@ for i, desc in ipairs(ResourceDescription) do
 	Resources[desc.name] = desc
 end
 
+function IsDlcAvailableForResource(resource)
+	local dsc = Resources[resource]
+	return IsDlcAvailable(dsc and dsc.dlc)
+end
+
 --when adding a new category, add its name to AllResourceListNames below
-ConstructionResourceList = {"Concrete", "Metals", "Polymers", "BlackCube", "Electronics", "MachineParts", "PreciousMetals" }
+ConstructionResourceList = {"Concrete", "Metals", "Polymers", "BlackCube", "Electronics", "MachineParts", "PreciousMetals", "WasteRock" }
 DepositResources = {"Concrete", "Metals", "Polymers", "Water", "PreciousMetals" }
 LifeSupportResourceList = { "Food" }
-OtherResourceList = { "WasteRock", "Fuel", "MysteryResource" }
+OtherResourceList = { "WasteRock", "Fuel", "MysteryResource", "Seeds" }
 StockpileResourceList = { "Metals", "Concrete", "Food", "PreciousMetals", "Polymers", "Electronics", "MachineParts", "Fuel" }
 
 
@@ -218,6 +231,7 @@ const.TagLookupTable["icon_BlackCube"]    = "<image UI/Icons/res_black_box.tga 1
 const.TagLookupTable["icon_Electronics"]    = "<image UI/Icons/res_electronics.tga 1300>"
 const.TagLookupTable["icon_MachineParts"]    = "<image UI/Icons/res_machine_parts.tga 1300>"
 const.TagLookupTable["icon_PreciousMetals"]    = "<image UI/Icons/res_precious_metals.tga 1300>"
+const.TagLookupTable["icon_Seeds"] 		   = "<image UI/Icons/res_seeds.tga 1300>"
 const.TagLookupTable["icon_Fuel"]    		= "<image UI/Icons/res_fuel.tga 1300>"
 const.TagLookupTable["icon_Food"]         = "<image UI/Icons/res_food.tga 1300>"
 const.TagLookupTable["icon_Power"]        = "<image UI/Icons/res_electricity.tga 1300>"
@@ -233,6 +247,16 @@ const.TagLookupTable["icon_Unemployed"]   = "<image UI/Icons/res_unemployed.tga 
 const.TagLookupTable["icon_Research"]     = "<image UI/Icons/res_experimental_research.tga 1300>"
 const.TagLookupTable["icon_MetalsDeep"]   = "<image UI/Icons/res_metal_undergrounds.tga 1300>"
 const.TagLookupTable["icon_MysteryResource"]= "<image UI/Icons/res_mystery_resource.tga 1300>"
+const.TagLookupTable["icon_AtmosphereTP"] = "%<image UI/Icons/res_atmosphere.tga 1300>"
+const.TagLookupTable["icon_TemperatureTP"]= "%<image UI/Icons/res_temperature.tga 1300>"
+const.TagLookupTable["icon_WaterTP"]      = "%<image UI/Icons/res_water_2.tga 1300>"
+const.TagLookupTable["icon_VegetationTP"] = "%<image UI/Icons/res_vegetation.tga 1300>"
+const.TagLookupTable["icon_OverallTP"]    = "%<image UI/Icons/res_overall_terraforming.tga 1300>"
+
+const.TagLookupTable["icon_AtmosphereTP_alt"] = "<image UI/Icons/res_atmosphere.tga 1300>"
+const.TagLookupTable["icon_TemperatureTP_alt"]= "<image UI/Icons/res_temperature.tga 1300>"
+const.TagLookupTable["icon_WaterTP_alt"]      = "<image UI/Icons/res_water_2.tga 1300>"
+const.TagLookupTable["icon_VegetationTP_alt"] = "<image UI/Icons/res_vegetation.tga 1300>"
 
 const.TagLookupTable["icon_Concrete_orig"]        = "<image UI/Icons/res_concrete.tga>"
 const.TagLookupTable["icon_Metals_orig"]          = "<image UI/Icons/res_metal.tga>"
@@ -242,6 +266,7 @@ const.TagLookupTable["icon_BlackCube_orig"]       = "<image UI/Icons/res_black_b
 const.TagLookupTable["icon_Electronics_orig"]     = "<image UI/Icons/res_electronics.tga>"
 const.TagLookupTable["icon_MachineParts_orig"]    = "<image UI/Icons/res_machine_parts.tga>"
 const.TagLookupTable["icon_PreciousMetals_orig"]  = "<image UI/Icons/res_precious_metals.tga>"
+const.TagLookupTable["icon_Seeds_orig"]  			= "<image UI/Icons/res_seeds.tga>"
 const.TagLookupTable["icon_Fuel_orig"]            = "<image UI/Icons/res_fuel.tga>"
 const.TagLookupTable["icon_Food_orig"]            = "<image UI/Icons/res_food.tga>"
 const.TagLookupTable["icon_Power_orig"]           = "<image UI/Icons/res_electricity.tga>"
@@ -268,6 +293,7 @@ const.TagLookupTable["icon_BlackCube_small"]  = "<image UI/Icons/res_black_box.t
 const.TagLookupTable["icon_Electronics_small"]     = "<image UI/Icons/res_electronics.tga 800>"
 const.TagLookupTable["icon_MachineParts_small"]    = "<image UI/Icons/res_machine_parts.tga 800>"
 const.TagLookupTable["icon_PreciousMetals_small"]  = "<image UI/Icons/res_precious_metals.tga 800>"
+const.TagLookupTable["icon_Seeds_small"]			 = "<image UI/Icons/res_seeds.tga 800>"
 const.TagLookupTable["icon_Fuel_small"]    = "<image UI/Icons/res_fuel.tga 800>"
 const.TagLookupTable["icon_Drone_small"]      = "<image UI/Icons/res_drone.tga 800>"
 const.TagLookupTable["icon_Colonist_small"]   = "<image UI/Icons/res_colonist.tga 800>"
@@ -290,6 +316,9 @@ const.TagLookupTable["icon_no_maintenance"] = ""
 const.TagLookupTable["effect"] = T(7697, "<em>Effect:</em> ")
 const.TagLookupTable["hint"] = T(4774, "<em>Hint:</em> ")
 const.TagLookupTable["goal"] = T(4773, "<em>Goal:</em> ")
+
+const.TagLookupTable["commander_profile"] = function() return GetCommanderProfile().display_name end
+const.TagLookupTable["sponsor_name"] = function() return GetMissionSponsor().display_name end
 
 const.HyperlinkColors["InfopanelSelect"] = RGB(186, 131, 249)
 const.HyperlinkColors["Rename"] = RGB(255, 255, 255)
@@ -344,7 +373,7 @@ FarmPerformanceEffects =
 DeathReasons = 
 {
 	["meteor"]              = T(4791, "Meteor Impact"),
-	["lighting strike"]     = T(7879, "Struck by lighting"),
+	["lighting strike"]     = T(12316, "Struck by lightning"),
 	["fuel explosion"]      = T(7880, "Fuel explosion"),
 	["low health"]          = T(4792, "Low Health"),
 	["Old age"]             = T(4793, "Old Age"),
@@ -353,9 +382,7 @@ DeathReasons =
 	["suicide"]             = T(4795, "Suicide (Low Sanity)"),
 	["rogue drone"]         = T(4796, "Killed by a rogue machine"),
 	
-	["StatusEffect_Suffocating"]         = T(4797, "Suffocating"),
-	["StatusEffect_Suffocating_Outside"] = T(4797, "Suffocating"),
-	
+	["StatusEffect_Suffocating"]= T(4797, "Suffocating"),
 	["StatusEffect_Dehydrated"] = T(4798, "Dehydrated"),
 	["StatusEffect_Freezing"]   = T(3875, "Freezing"),
 	["StatusEffect_Starving"]   = T(3877, "Starving"),
@@ -363,6 +390,9 @@ DeathReasons =
 	["StoryBit"]     = T(10995, "Extenuating circumstances"),
 	["DustSickness"] = T(924901666901, "Dust Sickness"),
 }
+
+DeathReasons.StatusEffect_Suffocating_Outside = DeathReasons.StatusEffect_Suffocating
+DeathReasons.StatusEffect_Dehydrated_Outside = DeathReasons.StatusEffect_Dehydrated
 
 NaturalDeathReasons = 
 {
@@ -389,6 +419,7 @@ const.PrefabMinPlayRadius = 40*guim -- defines the minimum radius inside a zone 
 const.PrefabInvalidTerrain = "Prefab_Yellow" -- default prefab invalid terrain texture
 const.PrefabMinObjRadius = 6 * guim -- controls the maximum allowed object density in the prefabs
 const.PrefabRasterParallelDiv = 8 -- controls the number of map quadrants for parallel prefab rasterization
+const.PrefabMaxMapSize = (2^13) * guim
 -- number of characteristics spawned in a feature zone according to its radius
 const.PrefabFeatureDensity = {
 	{ radius = 0,        count = 1 },
@@ -407,6 +438,8 @@ const.PrefabVersionOverride = false
 const.ConstructiongGridElementsGroupSize = 5
 const.SignsOverviewCameraScaleUp = 550
 const.SignsOverviewCameraScaleDown = 100
+const.SignsOverviewCameraOpacityUp = 100
+const.SignsOverviewCameraOpacityDown = 100
 const.ElevatorRopesOverviewCameraScaleUp = 350
 const.ElevatorRopesOverviewCameraScaleDown = 100
 
@@ -479,16 +512,18 @@ const.SanityBreakdownTraits = {
 	"Melancholic",
 }
 
-AddConstGroupAsModifiableProperties(Consts, "Gameplay")
-AddConstGroupAsModifiableProperties(Consts, "Research")
-AddConstGroupAsModifiableProperties(Consts, "Rover")
-AddConstGroupAsModifiableProperties(Consts, "Drone")
-AddConstGroupAsModifiableProperties(Consts, "Workplace")
-AddConstGroupAsModifiableProperties(Consts, "Buildings")
-AddConstGroupAsModifiableProperties(Consts, "Cost")
-AddConstGroupAsModifiableProperties(Consts, "Colonist")
-AddConstGroupAsModifiableProperties(Consts, "Traits")
-AddConstGroupAsModifiableProperties(Consts, "Stat")
+function OnMsg.ClassesGenerate()
+	AddConstGroupAsModifiableProperties(Consts, "Gameplay")
+	AddConstGroupAsModifiableProperties(Consts, "Research")
+	AddConstGroupAsModifiableProperties(Consts, "Rover")
+	AddConstGroupAsModifiableProperties(Consts, "Drone")
+	AddConstGroupAsModifiableProperties(Consts, "Workplace")
+	AddConstGroupAsModifiableProperties(Consts, "Buildings")
+	AddConstGroupAsModifiableProperties(Consts, "Cost")
+	AddConstGroupAsModifiableProperties(Consts, "Colonist")
+	AddConstGroupAsModifiableProperties(Consts, "Traits")
+	AddConstGroupAsModifiableProperties(Consts, "Stat")
+end
 
 function OnMsg.GatherLabels(labels)
 	labels.Consts = true

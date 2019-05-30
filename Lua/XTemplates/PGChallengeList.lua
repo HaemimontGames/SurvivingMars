@@ -8,6 +8,15 @@ PlaceObj('XTemplate', {
 		'IdNode', true,
 		'HandleMouse', true,
 	}, {
+		PlaceObj('XTemplateFunc', {
+			'name', "OnDelete",
+			'func', function (self, ...)
+				XWindow.OnDelete(self, ...)
+				CreateRealTimeThread(function()
+					Savegame.Unmount()
+				end)
+			end,
+		}),
 		PlaceObj('XTemplateWindow', {
 			'__class', "XImage",
 			'Dock', "box",
@@ -51,9 +60,9 @@ PlaceObj('XTemplate', {
 			PlaceObj('XTemplateFunc', {
 				'name', "Open",
 				'func', function (self, ...)
-XWindow.Open(self, ...)
-self:SetMargins(GetSafeMargins(self:GetMargins()))
-end,
+					XWindow.Open(self, ...)
+					self:SetMargins(GetSafeMargins(self:GetMargins()))
+				end,
 			}),
 			PlaceObj('XTemplateWindow', nil, {
 				PlaceObj('XTemplateTemplate', {
@@ -83,30 +92,30 @@ end,
 							'array', function (parent, context) return Presets.Challenge.Default end,
 							'__context', function (parent, context, item, i, n) return item end,
 							'run_after', function (child, context, item, i, n)
-local completed = item:Completed()
-if completed and completed.time <= item.time_perfected then
-	child.idStar:SetImage("UI/Common/star_gold.tga")
-end
-child.idStar:SetVisible(not not completed)
-end,
+								local completed = item:Completed()
+								if completed and completed.time <= item.time_perfected then
+									child.idStar:SetImage("UI/Common/star_gold.tga")
+								end
+								child.idStar:SetVisible(not not completed)
+							end,
 						}, {
 							PlaceObj('XTemplateTemplate', {
 								'__template', "ChallengeListItem",
 								'RolloverTemplate', "Rollover",
 								'OnPress', function (self, gamepad)
-GetDialog(self):SetMode("landing")
-GetDialog(self).context.select_spot = self.context.id
-end,
+									GetDialog(self):SetMode("landing")
+									GetDialog(self).context.select_spot = self.context.id
+								end,
 							}, {
 								PlaceObj('XTemplateFunc', {
 									'name', "OnSetRollover(self, rollover)",
 									'func', function (self, rollover)
-XTextButton.OnSetRollover(self, rollover)
-if rollover and GalleryList then
-	local item = table.find_value(GalleryList, "displayname", self.context.id)
-	RequestGalleryScreenshotLoad(self:ResolveId("node"):ResolveId("node"), item and item.savename)
-end
-end,
+										XTextButton.OnSetRollover(self, rollover)
+										if rollover and GalleryList then
+											local item = table.find_value(GalleryList, "displayname", self.context.id)
+											RequestGalleryScreenshotLoad(self:ResolveId("node"):ResolveId("node"), item and item.savename)
+										end
+									end,
 								}),
 								}),
 							}),

@@ -40,16 +40,16 @@ PlaceObj('XTemplate', {
 		'id', "Title",
 		'editor', "text",
 		'Set', function (self, value)
-self.idTitle:SetText(value)
-end,
+			self.idTitle:SetText(value)
+		end,
 	}),
 	PlaceObj('XTemplateProperty', {
 		'id', "BigImage",
 		'Set', function (self, value)
-if value then
-	self.idFrame:SetImage("UI/CommonNew/pg_header_small_tall.tga")
-end
-end,
+			if value then
+				self.idFrame:SetImage("UI/CommonNew/pg_header_small_tall.tga")
+			end
+		end,
 	}),
 })
 

@@ -19,8 +19,30 @@ local IsFlagSet    = IsFlagSet
 local rfRestrictorRocket = const.rfRestrictorRocket
 local rfRestrictorWasteRockDump = const.rfRestrictorWasteRockDump
 
+local function FindClosest(list, pt)
+	local dist_func = "GetDist2D"
+	
+	local min_obj = nil
+	local min_dist = nil
+	local idx = nil
+	local invalid_pos = InvalidPos()
+	for i = 1, #list do
+		local obj = list[i]
+		if IsValid(obj) and obj:IsValidPos() then
+			local dist = obj[dist_func](obj, pt)
+			if not min_dist or min_dist > dist then
+				min_obj = obj
+				min_dist = dist
+				idx = i
+			end
+		end
+	end
+
+	return min_obj, min_dist, idx
+end
+
 DefineClass.DroneControl = {
-	__parents = { "SyncObject" }, --or object?
+	__parents = { "TaskRequestHub" },
 	properties = {
 		{template = true,id = "starting_drones",  name = T(642, "Starting Drones"),editor = "number", default = 4, modifiable = true},
 		-- make sure UIWorkRadius and work_radius share the same default value
@@ -37,15 +59,7 @@ DefineClass.DroneControl = {
 	under_construction = false,
 	update_constructions_thread = false,
 	surface_deposits = false,
-	priority_queue = false,
-	supply_queues = false,
-	demand_queues = false,
-	
-	are_requesters_connected = false,
-	auto_connect_requesters_at_start = false,
-	accept_requester_connects = false,
-	
-	connected_task_requesters = false, --all connected task requesters, so we can disconnect gracefully to requesters outside of our work range.
+
 	no_requests_time = 0,
 	
 	serviced_rockets = false,
@@ -57,11 +71,11 @@ DefineClass.DroneControl = {
 	deficit_table = false, --sums up total deficits so shuttles know what to deliver
 	deficit_thread = false,
 
-	lap_start = 0,
-	lap_time = 0,
-	
 	unreachable_buildings = false,
 	can_control_drones = true,
+	
+	promoted_trees = false,
+	veg_management_thread = false,
 }
 
 function DroneControl:UpdateDeficits()
@@ -146,34 +160,17 @@ end
 function DroneControl:Init()
 	self.drones = {}
 	self.constructions = {}
-	self.connected_task_requesters = {}
-	self.under_construction = {}
 	
 	self:InitRocketRestrictors()
 	self:InitDumpRestrictors()
-	
-	--  priority queue lists requests per priority
-	self.priority_queue = {}
-	--  queues are per priority per resource (priorities include 0 for StorageDepot)
-	self.supply_queues = {}
-	self.demand_queues = {}
-	for priority = -1, MaxBuildingPriority do
-		self.priority_queue[priority] = {}
-		self.supply_queues[priority] = {}
-		self.demand_queues[priority] = {}
-	end
 end
 
 function DroneControl:GameInit()
-	self.lap_start = GameTime() --so first lap is not == GameTime() - 0
 	self.city:AddToLabel("DroneControl", self)
 
 	--delay until GameInit is completed
 	--we need this so any descendant in a label can modify the number
 	self:Notify("SpawnDrones")
-	if self.auto_connect_requesters_at_start then
-		self:Notify("ConnectTaskRequesters")
-	end
 end
 
 function DroneControl:SpawnDrones()
@@ -186,7 +183,7 @@ function DroneControl:GatherOrphanedDrones()
 	if not self.working then return end
 	
 	while self:CanHaveMoreDrones() do
-		local drone, _, idx = g_OrphanedDrones:FindClosest(self)
+		local drone, _, idx = FindClosest(g_OrphanedDrones, self)
 		if not drone then return end
 		
 		table.remove(g_OrphanedDrones, idx)
@@ -259,12 +256,16 @@ function SavegameFixups.zzConstructionSiteCleanupReconnectTaskRequesters()
 	MapForEach("map", "DroneControl", DroneControl.ReconnectTaskRequesters)
 end
 
+PromoteTrees = empty_func
 function DroneControl:ConnectTaskRequesters()
 	if self.are_requesters_connected then return end
 	local resource_search = function (building, center)
 		--SetConstructionSiteSign(building, false, "SignNoPower")
 		if building.auto_connect and not GameInitThreads[building] then
 			building:AddCommandCenter(center)
+			building:ForEachAttach("ResourceStockpileBase", function(stock)
+				stock:AddCommandCenter(center)
+			end)
 		elseif not building.auto_connect and IsKindOf(building, "ConstructionSite") and building.working then
 			local l = building.waste_rocks_underneath or ""
 			for i = 1, #l do
@@ -277,8 +278,93 @@ function DroneControl:ConnectTaskRequesters()
 		end
 	end
 	MapForEach(self, "hex", self.work_radius , "TaskRequester", resource_search, self)
-
+	
+	if self.city:IsTechResearched("MartianVegetation") and #(self.promoted_trees or empty_table) <= 0 then
+		local twidth, theight = terrain.GetMapSize()
+		PromoteTrees(self, twidth, theight, max_int)
+	end
+	
+	self:ConnectLandscapeConstructions()
+	if #(self.city.labels.ToxicPool or "") > 0 then
+		self:ConnectToxicPools()
+	end
+	
 	self.are_requesters_connected = true
+end
+
+local function HexConnectLandscapeConstructions(q, r, self, passed, qq, rr)
+	local mark = LandscapeCheck(q, r, true)
+	if not mark or HexAxialDistance(qq, rr, q, r) > self.work_radius or passed[mark] then
+		return
+	end
+	passed[mark] = true
+	local ls = Landscapes[mark]
+	local cs = ls and ls.site
+	if cs and cs.auto_connect and not table.find(cs.command_centers, self) then
+		cs:AddCommandCenter(self)
+	end
+end
+
+function DroneControl:ConnectLandscapeConstructions()
+	if not self.accept_requester_connects then return false end
+	local passed = {}
+	local x, y = self:GetVisualPosXYZ()
+	local hs = const.HexSize + self.work_radius * const.GridSpacing
+	local box = box(x - hs, y - hs, x + hs, y + hs)
+	local qq, rr = WorldToHex(x, y)
+	return LandscapeForEachHex(box, HexConnectLandscapeConstructions, self, passed, qq, rr)
+end
+
+function DroneControl:ConnectToxicPools()
+	if not self.accept_requester_connects then return false end
+	local p = self:GetPos()
+	if p ~= InvalidPos() then
+		local twidth, theight = terrain.GetMapSize()
+		local margin = 100 * guim
+		local passed = {}
+		ForEachHexInHexCircle(p, self.work_radius, function(q, r, self, twidth, theight, margin, passed, ObjectGrid)
+			local wx, wy = HexToWorld(q, r)
+			if not (wx < margin or wy < margin 
+				or (twidth - wx) < margin or (theight - wy) < margin) then
+				local o = HexGridGetObject(ObjectGrid, q, r, "ToxicPool")
+				if not o or passed[o] then
+					return
+				end
+				passed[o] = true
+				if o.auto_connect and not table.find(o.command_centers, self) then
+					o:AddCommandCenter(self)
+				end
+			end
+		end, self, twidth, theight, margin, passed, ObjectGrid)
+	end
+end
+
+function DroneControl:DelayedPromotedTreeManagement()
+	if IsValidThread(self.veg_management_thread) then
+		DeleteThread(self.veg_management_thread)
+	end
+	if self.promoted_trees and #(self.promoted_trees or "") > 0 then
+		self.veg_management_thread = CreateGameTimeThread(function(self)
+			Sleep(1000)
+			for i = #self.promoted_trees, 1, -1 do
+				local pt = self.promoted_trees[i]
+				if #pt.command_centers <= 0 then
+					DoneObject(pt)
+				elseif not table.find(pt.command_centers, self) then
+					for j = 1, #pt.command_centers do
+						local cc = pt.command_centers[j]
+						if #(cc.promoted_trees or "") < max_promoted_trees_per_hub then
+							pt:Repossess(cc, i)
+							break
+						end
+					end
+					if pt.cc == self then
+						DoneObject(pt)
+					end
+				end
+			end
+		end, self)
+	end
 end
 
 function DroneControl:DisconnectTaskRequesters()
@@ -286,9 +372,9 @@ function DroneControl:DisconnectTaskRequesters()
 		local bld = self.connected_task_requesters[#self.connected_task_requesters]
 		if bld then
 			bld:RemoveCommandCenter(self)
-			--SetConstructionSiteSign(bld, true, "SignNoPower")
 		end
 	end
+	self:DelayedPromotedTreeManagement()
 	self.are_requesters_connected = false
 end
 
@@ -307,28 +393,53 @@ function DroneControl:UpdateConstructions()
 	end
 end
 
+function DroneControl:ForEachDrone(func, ...)
+	for i = 1, #self.drones do
+		if func(self.drones[i], ...) == "break" then
+			break
+		end
+	end
+end
+
+function DroneControl:IsConstructionUnreachableByDrones(construction, n)
+	n = n or 2
+	local c = 0
+	self:ForEachDrone(function(drone, construction)
+		if drone.unreachable_buildings and drone.unreachable_buildings[construction] then
+			c = c + 1
+			if c >= n then
+				return "break"
+			end
+		end
+	end, construction)
+	
+	return c >= n
+end
+
 function DroneControl:UpdateConstructionsInternal()
 	local supply_queues = self.supply_queues
 	local under_construction = {}
 	self.under_construction = under_construction
 	for _, construction in ipairs(self.constructions) do
 		local construction_found
-		for resource, request in pairs(construction.construction_resources) do
-			if request:GetTargetAmount() > 0 and not under_construction[resource] then
-				under_construction[resource] = request
-				if not construction_found then
-					-- check if the construction resource is available
-					-- if so do not consider lower priority construction sites until all resources are brought to this one
-					for j = -1, MaxBuildingPriority do
-						local supply_requests = supply_queues[j][resource] or empty_table
-						for k = 1,#supply_requests do
-							if supply_requests[k]:GetTargetAmount() > (band(supply_requests[k]:GetFlags(), const.rfWaitToFill) == const.rfWaitToFill and const.ResourceScale - 1 or 0) then
-								construction_found = true
+		if not self:IsConstructionUnreachableByDrones(construction) then
+			for resource, request in pairs(construction.construction_resources) do
+				if request:GetTargetAmount() > 0 and not under_construction[resource] then
+					under_construction[resource] = request
+					if not construction_found then
+						-- check if the construction resource is available
+						-- if so do not consider lower priority construction sites until all resources are brought to this one
+						for j = -1, MaxBuildingPriority do
+							local supply_requests = supply_queues[j][resource] or empty_table
+							for k = 1,#supply_requests do
+								if supply_requests[k]:GetTargetAmount() > (band(supply_requests[k]:GetFlags(), const.rfWaitToFill) == const.rfWaitToFill and const.ResourceScale - 1 or 0) then
+									construction_found = true
+									break
+								end
+							end
+							if construction_found then
 								break
 							end
-						end
-						if construction_found then
-							break
 						end
 					end
 				end
@@ -341,6 +452,9 @@ function DroneControl:UpdateConstructionsInternal()
 end
 
 function DroneControl:AddConstruction(construction)
+	if not construction.use_control_construction_logic then
+		return
+	end
 	local priority = construction.priority
 	local counter = construction.counter
 	local constructions = self.constructions
@@ -353,6 +467,9 @@ function DroneControl:AddConstruction(construction)
 end
 
 function DroneControl:RemoveConstruction(construction)
+	if not construction.use_control_construction_logic then
+		return
+	end
 	local idx = remove_entry(self.constructions, construction)
 	assert(idx)
 	self:UpdateConstructions()
@@ -454,7 +571,12 @@ function DroneControl:UpdateRocketsInternal()
 	for i = 1, #(self.serviced_rockets or "") do
 		local r = self.serviced_rockets[i]
 		local rr = r.refuel_request
-		if rr:GetTargetAmount() > 0 then
+		if rr and rr:GetTargetAmount() > 0 then
+			r_t["Fuel"] = rr
+			break
+		end
+		local rr = r:GetExportRequest(r, "Fuel")
+		if rr and rr:GetTargetAmount() > 0 then
 			r_t["Fuel"] = rr
 			break
 		end
@@ -505,7 +627,7 @@ function DroneControl:AddBuilding(building)
 	local demand_queues = self.demand_queues
 	local priority_queue = self.priority_queue
 	for _, request in ipairs(building.task_requests or empty_table) do
-		assert(building == request:GetBuilding())
+		assert(request and building == request:GetBuilding())
 		local resource = request:GetResource()
 		local priority = building:GetPriorityForRequest(request)
 		if request:IsAnyFlagSet(rfSupplyDemand) then
@@ -527,12 +649,16 @@ function DroneControl:AddBuilding(building)
 	self:UpdateDeficits()
 	
 	if IsKindOf(building, "WasteRockDumpSite") then
+		self.serviced_wasterock_dumps = self.serviced_wasterock_dumps or {}
 		table.insert(self.serviced_wasterock_dumps, building)
 		self:UpdateDumps()
 	end
 end
 
-function DroneControl:OnRemoveBuilding(building)
+function DroneControl:OnRemoveBuilding(building, oldp, newp)
+	if oldp and newp and newp > oldp then
+		return
+	end
 	for _, drone in ipairs(self.drones) do
 		if BuildingFromGotoTarget(drone.goto_target) == building then
 			drone:SetCommand("Idle")
@@ -540,8 +666,8 @@ function DroneControl:OnRemoveBuilding(building)
 	end
 end
 
-function DroneControl:RemoveBuilding(building)
-	self:OnRemoveBuilding(building)
+function DroneControl:RemoveBuilding(building, oldp, newp)
+	self:OnRemoveBuilding(building, oldp, newp)
 	
 	local task_requests = building.task_requests or empty_table
 	for priority = -1, MaxBuildingPriority do
@@ -549,7 +675,7 @@ function DroneControl:RemoveBuilding(building)
 		local d_requests = self.demand_queues[priority]
 		local priority_queue = self.priority_queue[priority]
 		for _, request in ipairs(task_requests) do
-			local resource = request:GetResource()
+			local resource = request and request:GetResource()
 			remove_entry(s_requests[resource] or empty_table, request)
 			remove_entry(d_requests[resource] or empty_table, request)
 			remove_entry(priority_queue, request)
@@ -561,197 +687,11 @@ function DroneControl:RemoveBuilding(building)
 	self:UpdateDeficits()
 	
 	if IsKindOf(building, "WasteRockDumpSite") then
-		table.remove_entry(self.serviced_wasterock_dumps, building)
+		if self.serviced_wasterock_dumps then
+			table.remove_entry(self.serviced_wasterock_dumps, building)
+		end
 		self:UpdateDumps()
 	end
-end
-
-local Request_FindDemand_C = Request_FindDemand
---[[
-function Request_FindDemand_Lua(demand_queues, under_construction, restrictor_t, resource, amount, min_priority, ignore_flags, required_flags, requestor_prio, exclude_building)
-	requestor_prio = requestor_prio or MaxBuildingPriority + 1
-	required_flags = required_flags or 0
-	ignore_flags = ignore_flags or 0
-	min_priority = min_priority or -1
-	
-	for j = MaxBuildingPriority, (min_priority or -1), -1 do
-		local requests = demand_queues[j][resource]
-		if requests then
-			local index = requests.index or 1
-			for _ = 1, #requests do
-				if index > #requests then index = 1 end
-				local request = requests[index]
-				index = index + 1
-				local r_amount, flags = request:GetTargetAmount(), request:GetFlags()
-				if r_amount>0 and request:GetFreeUnitSlots() > 0 and exclude_building ~= request:GetBuilding()
-					and r_amount >= amount
- 					and (not IsFlagSet(flags, rfConstruction) or under_construction[resource] == request)
-					and (not IsFlagSet(flags, rfRestrictorRocket) or (restrictor_t[rfRestrictorRocket] and restrictor_t[rfRestrictorRocket][resource] == request))
-					and (not IsFlagSet(flags, rfPairWithHigher) or requestor_prio > j)
-					and band(required_flags, flags) == required_flags
-					and band(ignore_flags, flags) == 0
-				then
-					--requests.index = index
-					return request, Min(r_amount, amount)
-				end
-			end
-			--requests.index = index
-		end
-	end
-end
-local function Request_FindDemand(demand_queues, under_construction, restrictor_t, resource, amount, ...)
-	local r1, a1 = Request_FindDemand_Lua(demand_queues, under_construction, restrictor_t, resource, amount, ...)
-	local r2, a2 = Request_FindDemand_C(demand_queues, under_construction, restrictor_t, resource, amount, ...)
-	assert(r1 == r2)
-	return r2, a2
-end
---]]
-
-function DroneControl:FindDemandRequest(drone, resource, amount, min_priority, ignore_flags, required_flags, requestor_prio, exclude_building)
-	min_priority = min_priority or -1
-	requestor_prio = requestor_prio or MaxBuildingPriority + 1
-	required_flags = required_flags or 0
-	ignore_flags = ignore_flags or 0
-	assert(self.under_construction)
-	return Request_FindDemand_C(drone, self.demand_queues, self.under_construction or empty_table, self.restrictor_tables or empty_table, resource, amount,
-		min_priority, ignore_flags, required_flags, requestor_prio, exclude_building, drone.unreachable_buildings)
-end
-
-local Request_FindSupply_C = Request_FindSupply
---[[
-local dist_thres = 20*guim -- add this much dist to compensate for very short distances
-function Request_FindSupply_Lua(supply_queues, requester, resource, amount, min_priority, ignore_flags, required_flags, threshold_amount, exclude_building)
-	local best_dist
-	local best_request
-	
-	for j = MaxBuildingPriority, (min_priority or -1), -1 do
-		for _, request in ipairs(supply_queues[j][resource] or empty_table) do
-			local r_amount, flags, building = request:GetTargetAmount(), request:GetFlags(), request:GetBuilding()
-			if r_amount > 0 and request:GetFreeUnitSlots() > 0 and exclude_building ~= building
-				and (not IsFlagSet(flags, rfWaitToFill) or r_amount >= amount)
-				and (not IsFlagSet(flags, rfStorageDepot) or r_amount > threshold_amount)
-				and band(required_flags, flags) == required_flags
-				and band(ignore_flags, flags) == 0
-			then
-				local dist = MulDivRound(Max(dist_thres, requester:GetDist2D(building)), building.supply_dist_modifier, 1000)
-				if not best_dist or dist < best_dist then
-					best_dist = dist
-					best_request = request
-				end
-			end
-		end
-		if best_request then
-			return best_request, Min(best_request:GetTargetAmount(), amount)
-		end
-	end
-end
-local function Request_FindSupply(supply_queues, requester, resource, amount, ...)
-	local r1, a1 = Request_FindSupply_Lua(supply_queues, requester, resource, amount, ...)
-	local r2, a2 = Request_FindSupply_C(supply_queues, requester, resource, amount, ...)
-	assert(r1 == r2 or r1:GetBuilding():GetDist2D(requester) == r2:GetBuilding():GetDist2D(requester))
-	return r2, a2
-end
---]]
-
-function DroneControl:FindSupplyRequest(requester, resource, amount, min_priority, ignore_flags, required_flags, threshold_amount, exclude_building)
-	min_priority = min_priority or -1
-	required_flags = required_flags or 0
-	ignore_flags = ignore_flags or 0
-	threshold_amount = threshold_amount or 0
-	return Request_FindSupply_C(self.supply_queues, requester, resource, amount, min_priority, ignore_flags, required_flags, threshold_amount, exclude_building)
-end
-
-local Request_FindDroneTask_C = Request_FindDroneTask
---[[
-local StoragePropagationThreshold = const.StoragePropagationThreshold
-local function Request_FindDroneTask_Lua(self, dbg_request, dbg_pair_request)
-	local under_construction = self.under_construction
-	local restrictor_t = self.restrictor_tables or empty_table
-	local priority_queue = self.priority_queue
-	local supply_queues = self.supply_queues
-	local demand_queues = self.demand_queues
-	for j = MaxBuildingPriority, -1, -1 do
-		local requests = priority_queue[j]
-		local index = requests.index or 1
-		for _ = 1, #requests do
-			if index > #requests then index = 1 end
-			local request = requests[index]
-			index = index + 1
-			local building, resource, amount, flags = request:GetBuilding(), request:GetResource(), request:GetTargetAmount(), request:GetFlags()
-			if amount > 0 and request:GetFreeUnitSlots() > 0 then
-				-- max assigned drones not reached
-				if (not IsFlagSet(flags, rfConstruction) or under_construction[resource] == request)
-					and (not IsFlagSet(flags, rfRestrictorRocket) or (restrictor_t[rfRestrictorRocket] and restrictor_t[rfRestrictorRocket][resource] == request)) then
-					local drone_amount = DroneResourceUnits[resource]
-					if IsFlagSet(flags, rfWork) then -- work request
-						--requests.index = index
-						return request, nil, resource, Min(amount, drone_amount)
-					elseif IsFlagSet(flags, rfSupply) and (not IsFlagSet(flags, rfWaitToFill) or amount >= drone_amount) or IsFlagSet(flags, rfDemand) then -- supply or demand request
-						amount = Min(amount, drone_amount)
-						
-						local lookup_min_prio = IsFlagSet(flags, rfPairWithHigher) and (not IsFlagSet(flags, rfStorageDepot) and building.priority + 1 or 1) or -1
-						
-						local pair_request, r_amount
-						if IsFlagSet(flags, rfSupply) then
-							local ignore_flags = band(flags, rfSpecialSupplyPairing + rfStorageDepot) + (band(flags, rfSpecialDemandPairing) == 0 and rfSpecialDemandPairing or 0)
-							local required_flags = 0
-							local requestor_prio = j
-							pair_request, r_amount = Request_FindDemand(
-								demand_queues, under_construction,
-								resource, amount, lookup_min_prio,
-								ignore_flags, required_flags, requestor_prio, building)
-						else
-							local threshold_amount = 0
-							if IsFlagSet(flags, rfStorageDepot) then
-								threshold_amount = building.min_threshold_amount
-								if threshold_amount < max_int then
-									local s_request = building.supply[resource]
-									local d_request = building.demand[resource]
-									local assigned = s_request:GetTargetAmount() + (d_request:GetActualAmount() - d_request:GetTargetAmount())
-									local threshold = drone_amount * StoragePropagationThreshold
-									threshold_amount = Max(threshold_amount, assigned < threshold and assigned + drone_amount or max_int)
-								end
-							end
-							local ignore_flags = band(flags, rfSpecialSupplyPairing)
-							local required_flags = band(flags, rfSpecialDemandPairing)
-							pair_request, r_amount = Request_FindSupply(
-								supply_queues, building,
-								resource, amount, lookup_min_prio,
-								ignore_flags, required_flags, threshold_amount, building)
-						end
-						
-						if pair_request or IsFlagSet(flags, rfCanExecuteAlone) then
-							--requests.index = index
-							if IsFlagSet(flags, rfSupply) then
-								return request, pair_request, resource, r_amount or amount
-							else
-								return pair_request, request, resource, r_amount or amount
-							end
-						end
-					end
-				end
-			end
-		end
-		--requests.index = index
-	end
-end
-local function Request_FindDroneTask(self)
-	local request1, pair_request1, resource1, amount1 = Request_FindDroneTask_Lua(self)
-	local request2, pair_request2, resource2, amount2 = Request_FindDroneTask_C(self)
-	assert(request1 == request2 and pair_request1 == pair_request2 and resource1 == resource2 and amount1 == amount2)
-	return request2, pair_request2, resource2, amount2
-end
---]]
-
-function DroneControl:FindTask(drone)
-	self.unreachable_buildings = drone and drone.unreachable_buildings
-	return Request_FindDroneTask_C(self)
-end
-
-function DroneControl:RequestsLap()
-	local time = GameTime()
-	self.lap_time = time - self.lap_start
-	self.lap_start = time
 end
 
 -- radius
@@ -841,9 +781,9 @@ function DroneControl:FindDroneToConvertToPrefab()
 	end
 	
 	if #idles > 0 then
-		return FindNearestObject(idles, self:GetPos())
+		return FindNearestObject(idles, self)
 	elseif #all > 0 then
-		return FindNearestObject(all, self:GetPos())
+		return FindNearestObject(all, self)
 	end
 end
 

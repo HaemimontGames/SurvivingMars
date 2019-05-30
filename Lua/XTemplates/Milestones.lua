@@ -23,7 +23,7 @@ PlaceObj('XTemplate', {
 			'BigImage', true,
 		}, {
 			PlaceObj('XTemplateWindow', {
-				'__context', function (parent, context) return Presets.Milestone.Default end,
+				'__context', function (parent, context) return GetAvailablePresets(Presets.Milestone.Default) end,
 				'__class', "XText",
 				'Padding', box(0, 0, 0, 0),
 				'HandleMouse', false,
@@ -39,6 +39,26 @@ PlaceObj('XTemplate', {
 			'ActionShortcut', "Escape",
 			'ActionGamepad', "ButtonB",
 			'OnActionEffect', "close",
+		}),
+		PlaceObj('XTemplateAction', {
+			'ActionId', "actionScrollAreaDown",
+			'ActionGamepad', "LeftThumbDown",
+			'OnAction', function (self, host, source)
+				local list = host:ResolveId("idList")
+				if list:GetVisible() then
+					return list:OnMouseWheelBack()
+				end
+			end,
+		}),
+		PlaceObj('XTemplateAction', {
+			'ActionId', "actionScrollAreaUp",
+			'ActionGamepad', "LeftThumbUp",
+			'OnAction', function (self, host, source)
+				local list = host:ResolveId("idList")
+				if list:GetVisible() then
+					return list:OnMouseWheelForward()
+				end
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'Margins', box(60, 20, 0, 20),
@@ -59,22 +79,31 @@ PlaceObj('XTemplate', {
 			}, {
 				PlaceObj('XTemplateCode', {
 					'run', function (self, parent, context)
-ForEachPreset("Milestone", function(preset, group, self, parent)
-	self:EvalChildren(parent, preset)
-end, self, parent)
-end,
+						local available_milestones = GetAvailablePresets(Presets.Milestone.Default)
+						for _, preset in ipairs(available_milestones) do
+							local child = self:EvalChildren(parent, preset)
+							if (preset.description or "") ~= "" then
+								child:SetRolloverTitle(preset.display_name)
+								child:SetRolloverText(preset.description)
+							end
+						end
+					end,
 				}, {
 					PlaceObj('XTemplateWindow', {
 						'comment', "milestone item",
+						'RolloverTemplate', "Rollover",
+						'RolloverAnchor', "right",
 						'IdNode', true,
 						'RolloverZoom', 1050,
+						'HandleMouse', true,
 					}, {
 						PlaceObj('XTemplateWindow', {
-							'__class', "XLabel",
+							'__class', "XText",
 							'Id', "idName",
 							'Padding', box(0, 0, 0, 0),
 							'VAlign', "center",
 							'MinWidth', 200,
+							'HandleMouse', false,
 							'TextStyle', "MilestoneName",
 							'Translate', true,
 							'Text', T(611518845262, --[[XTemplate Milestones Text]] "<CompleteText>"),
@@ -86,14 +115,14 @@ end,
 						}, {
 							PlaceObj('XTemplateCode', {
 								'run', function (self, parent, context)
-local sol = context:CompleteSol()
-if sol == false then
-	parent:SetImage("UI/Common/mission_no.tga")
-elseif sol then
-	parent:ResolveId("idName"):SetTextStyle("MilestoneNameCompleted")
-end
-parent:SetVisible(sol ~= nil)
-end,
+									local sol = context:CompleteSol()
+									if sol == false then
+										parent:SetImage("UI/Common/mission_no.tga")
+									elseif sol then
+										parent:ResolveId("idName"):SetTextStyle("MilestoneNameCompleted")
+									end
+									parent:SetVisible(sol ~= nil)
+								end,
 							}),
 							}),
 						PlaceObj('XTemplateWindow', {

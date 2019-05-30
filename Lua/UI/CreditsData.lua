@@ -3,10 +3,17 @@ CreditContents = {
 company_name = Untranslated [[Haemimont Games]],
 
 Untranslated [[
+CREATIVE DIRECTOR
+
+Gabriel Dobrev
+
+
+
 LEAD DESIGNERS
 
 Boyan "Chimera" Ivanov
 Boian "Blizzard" Spasov
+Ivan Grozev
 
 
 
@@ -60,7 +67,6 @@ Bisser Dyankov]],
 Untranslated [[
 DESIGNERS
 
-Ivan Grozev
 Momchil Dilov
 Radomir "Gadina" Mirchev
 Vladimir Pachev]],
@@ -96,6 +102,7 @@ Yavor Krastyovski
 ADDITIONAL PROGRAMMERS
 
 Georgi Rakidov
+Zdravko "Zero Effect" Velinov
 ]],
 
 Untranslated [[
@@ -258,6 +265,7 @@ PRODUCT MARKETING MANAGER
 
 Sebastian Forsström
 Jakob Jorstedt
+Sean Greaney
 Anusha Nayar
 Daniela Sjunnesson
 
@@ -287,12 +295,14 @@ DEVOPS
 
 Mikael Berg
 Simon Haggren
+Oleg Lindvin
 
 
 
 USER RESEARCH
 
 Henrik Edlund
+Celestia Koh
 Jean-Luc Potte
 Anna Ström
 Tobias Viklund
@@ -305,15 +315,17 @@ Kayle Sneed
 
 
 
-SENIOR COMMUNITY MANAGER
+COMMUNITY MANAGEMENT
 
 Susie McBeth
+Jonathan Whitley
 
 
 
 PARTNER MANAGEMENT
 
 Fang Chen
+Josef Öst
 Andreas Walther
 
 
@@ -328,6 +340,7 @@ Adam Skarin
 PERFORMANCE MARKETING
 
 Stefan Wallin
+Hampus Erlandsson
 
 
 
@@ -348,6 +361,7 @@ Paula Thelin
 PR LEAD
 
 Jesse Henning
+Blane Humphries
 
 
 
@@ -366,6 +380,7 @@ Mats Wall
 CONTENT MANAGER
 
 Daniel Lagergren
+Alexander Nordkvist
 
 
 
@@ -383,93 +398,108 @@ Emma Jonnerhag
 
 PARADOX INTERACTIVE MANAGEMENT
 
-CEO
+CHIEF EXECUTIVE OFFICER
 
 Ebba Ljungerud
 
 
 
-CFO
+CHIEF FINANCIAL OFFICER
 
 Alexander Bricca
 
 
 
-CPO
+CHIEF OPERATIONS OFFICER
 
 Mattias Lilja
 
 
 
-CIO
+CHIEF PRODUCT OFFICER
 
-John Hargelid
+Julien Wera
+
+
+
+CHIEF BUSINESS DEVELOPMENT OFFICER
+
+Shams Jorjani
+
+
+
+CHIEF HR OFFICER
+
+Marina Hedman
+
+
+
+CHIEF STRATEGY OFFICER
+
+Kim Nordstrom
 
 
 
 PRODUCT MANAGEMENT TEAM
 
-VICE PRESIDENT PRODUCT MANAGEMENT
+PRODUCT SEGMENT OWNERS
 
-Julien Wéra
+Bevan Davies
+Jakob Munthe
+Sandra Neudinger
 
 
 
 PRODUCT MANAGERS
 
 Marco Behrmann
-Bevan Davies
 Stefan Eld
-Jakob Munthe
-Sandra Neudinger
 Florian Schwarzer
 Gustav Groth
+Erika Kling
+Steacy McIlwham
+Doru Apreotesei
+Simon Stackmann
+Kenneth Mei
+Heikki Joas
+
+
+
+BUSINESS DEVELOPERS 
+
+Nils Brolin
+Robert Przybylski
+Maria Cornelius
 
 
 
 PRODUCTION TEAM
 
-VICE PRESIDENT PRODUCTION
-
+Vice President Production
 Jörgen Carlström
 
 
 
-PRODUCTION MANAGER
+SEGMENT LEAD PRODUCERS
 
-Robin Cederholm
-
-
-
-SENIOR PRODUCERS
-
-Staffan Berglén
-Joseph Borthwick
+Nils Hallberg
+Ashkan Namousi
+Christian Schlütter
 
 
 
 PRODUCERS
 
 Nikhat Ali
-Nils Hallberg
+Staffan Berglén
+Joseph Borthwick
+Robin Cederholm
 Tristan Lefranc
 Niklas Lundström
-Ashkan Namousi
 Loke Norman
-Christian Schlütter
+Véronique Rattaire
 Angelica Uhlan
-
-
-
-ASSOCIATE PRODUCERS
-
 Roeland Weckx
-
-
-
-RELEASE MANAGER
-
-Amelia White
 
 
 
@@ -545,51 +575,77 @@ Sean Greaney
 Luca Kling
 Jakob Jorstedt
 Christian Daflos
+Jon Anning
+Christoffer Ring
+Pontus Rundqvist
 
 
 
-CREATIVE & CONTENT PRODUCTION 
+HEAD OF MARKETING CREATIVE
+
+Matias Civit
+
+
+
+MARKETING CREATIVE & CONTENT PRODUCTION
 
 Steven K Wells
 Anders Carlsson
-Matias Civit
 Max Collin
 Marcus Herbertsson
 Niklas Johansson
 Adam Skarin
+Katrina Betina
+Oskar Petrén
+Simon Zickbauer
 
 
  
 EVENTS 
 
 Paula Thelin
+Cissi Ramsby
 Veronica Gunlycke
+
+
+
+HEAD OF PERFORMANCE
+
+Stefan Wallin
 
 
 
 PERFORMANCE MARKETING
 
-Luciana Oliveira
 Michiel Van Loo
-Stefan Wallin
 Vilius Lampickas
+Hampus Erlandsson
+Rania Samara
+
+
+
+HEAD OF COMMUNITY
+
+Loïc Fontaine
 
 
 
 COMMUNITY MANAGEMENT
 
-Susie McBeth
 Dale Emasiri
 Zeke Lugmair
-Emma Kujansuu
 Björn Blomberg
+Emma Kujansuu
 Rodrigue Delrue
+Jonathan Whitley
+Jimmy Tisell
 
 
 
 CUSTOMER SUPPORT
 
-Christian Arvidsson 
+Christian Arvidsson
+Debbie Lane
 
 
 
@@ -599,17 +655,19 @@ Jesse Henning
 
 
 
-CUSTOMER RELATIONSHIP MANAGEMENT & COMMERCE
+PLAYER SERVICES & CRM
 
-PRODUCT MANAGER - COMMERCE
-
-Mats Wall
-
-
-
-PRODUCT MANAGER - CRM & LOYALTY
+HEAD OF PLAYER SERVICES & CRM
 
 Emma Jonnerhag
+
+
+
+PRODUCT MANAGERS
+
+Anders Törlind
+Mats Wall
+Margaret Wanjeri Githinji
 
 
 
@@ -628,12 +686,6 @@ David Zardini
 PROJECT MANAGER
 
 Katherine Traver
-
-
-
-DISTRIBUTION MANAGER
-
-Anders Törlind
 
 
 
@@ -676,14 +728,12 @@ DATA SCIENTISTS
 
 Kamilla Csonka
 Alexander Hofverberg
-Steacy Mcilwham
 Kayle Sneed
-
 Viktor Stenström
 
 
 
-PARTNER MANAGEMENT 
+SALES
 
 VICE PRESIDENT SALES
 
@@ -697,6 +747,12 @@ Fang Chen
 Viktor Stadler
 Andreas Walther
 James Gardiner
+
+
+
+E-COMMERCE MANAGER
+
+Luciana Oliveira
 
 
 
@@ -714,26 +770,17 @@ Alan Mahmodian
 
 BUSINESS DEVELOPMENT
 
-VICE PRESIDENT BUSINESS DEVELOPMENT
+BUSINESS DEVELOPMENT MANAGER
 
-Shams Jorjani
+Magnus Lysell
 
 
 
 BUSINESS DEVELOPERS 
 
-ACQUISITION
-
-Nils Brolin
-Robert Przybylski
-Maria Cornelius
-
-
-
-NEW BUSINESS
-
-Magnus Lysell
 Mats Karlöf
+Dhaunae De Vir
+Daniel Grigorov
 
 
 
@@ -743,9 +790,29 @@ Tobias Gustavsson
 
 
 
+BRAND MANAGEMENT - WORLD OF DARKNESS
+
+EDITOR
+
+Karim Muammar
+
+
+
+ART DIRECTOR
+
+Tomas Arfert
+
+
+
+MARKETING
+
+Jason Carl
+
+
+
 DEVOPS & DATA
 
-PLATFORM DIRECTOR
+VICE PRESIDENT TECHNOLOGY
 
 Kristian Laustsen
 
@@ -765,6 +832,7 @@ Natalie Selin
 
 PROGRAMMING MANAGER
 
+Mehdi Dadashpour
 Ciaran Kelly
 
 
@@ -772,19 +840,20 @@ Ciaran Kelly
 PROJECT MANAGER
 
 Ida Hedberg
+Andrew Gomes
 
 
 
 SENIOR SOFTWARE ENGINEER
 
 Daan Broekhof
-Robert Brewitz
 Dirk de la Hunt
 
 
 
 SENIOR AUTOMATION ENGINEER
 
+Philip Adams
 Todd Daugherty
 Christian Rothe
 
@@ -806,6 +875,8 @@ Mikael Berg
 Virginia Carrasco
 William Goh
 Simon Haggren
+Adalberto Aucar Kutuxidis
+Mai-Khanh Lê
 Oleg Lindvin
 Matthew Price
 Tomas Veršekys
@@ -813,14 +884,13 @@ Anton Wermelin
 
 
 
-DATA SCIENTISTS
+DATA SCIENTIST
 
-Alessandro Festante
+Kamilla Csonka
+Jason Guldbrandsen
 Olof Lundberg
-Anabel Silva Rojas
-Per Spetz
-    
 
+    
 
 IT 
 
@@ -828,6 +898,7 @@ Thomas Ekholm
 Johannes Ek
 Richard Lindkvist
 Rick Wacey
+Sarah Lager
 
 
 
@@ -837,6 +908,7 @@ FINANCE
 
 Gabriel Andersson
 Angelica Halme
+Daniel Barkenäs
 
 
 
@@ -844,23 +916,11 @@ LEGAL
 
 Juliette Auverny-Bennetot
 Måns Byröd
+Denis Ilecic
 
 
 
 MOBILE & EXPERIMENT TEAM
-
-SENIOR VICE PRESIDENT MOBILE
-
-Kim Nordström
-
-
-
-PRODUCT MANAGERS MOBILE
-
-Simon Stackmann
-Kenneth Mei
-
-
 
 PRODUCT MANAGER EXPERIMENT
 
@@ -1100,6 +1160,35 @@ LinkinPrime
 Konstantin
 Matthew Myers
 Alexey Demchuk]],
+
+},
+{
+company_name = Untranslated [[Kokku]],
+
+Untranslated [[
+CEO
+
+Thiago De Freitas
+
+
+
+COO
+
+Alberto Lopes
+
+
+
+PROGRAM COORDINATOR
+
+Felipe Carvalho (Pancho)
+
+
+
+ARTISTS
+
+Felipe Alves
+Izaldo Caetano
+Igor Silva]],
 
 },
 

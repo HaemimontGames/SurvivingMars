@@ -1,6 +1,6 @@
 DefineClass.BaseBlinds =
 {
-	__parents = { "WaypointsObj", "ComponentAttach", "ComponentEx" },
+	__parents = { "WaypointsObj", "ComponentAttach", "ComponentAnim" },
 	anim_open = "idleOpened",
 	anim_opening = "opening",
 	anim_closing = "closing",

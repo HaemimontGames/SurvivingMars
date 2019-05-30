@@ -6,9 +6,10 @@ PlaceObj('XTemplate', {
 	id = "PowerGridsOverviewRow",
 	PlaceObj('XTemplateTemplate', {
 		'__template', "CommandCenterRow",
-		'RolloverTitle', "",
-		'RolloverHint', T(115984499466, --[[XTemplate PowerGridsOverviewRow RolloverHint]] "<left_click><left_click> Select"),
-		'RolloverHintGamepad', T(764097870353, --[[XTemplate PowerGridsOverviewRow RolloverHintGamepad]] "<ButtonA> Select"),
+		'RolloverText', T(543129469882, --[[XTemplate PowerGridsOverviewRow RolloverText]] "Total production, consumption and storage of Power in the grid."),
+		'RolloverTitle', T(79, --[[XTemplate PowerGridsOverviewRow RolloverTitle]] "Power"),
+		'RolloverHint', T(12113, --[[XTemplate PowerGridsOverviewRow RolloverHint]] "<left_click><left_click> Show all buildings in the grid"),
+		'RolloverHintGamepad', T(12114, --[[XTemplate PowerGridsOverviewRow RolloverHintGamepad]] "<ButtonA> Show all buildings in the grid"),
 		'Id', "",
 	}, {
 		PlaceObj('XTemplateWindow', {
@@ -77,15 +78,15 @@ PlaceObj('XTemplate', {
 			'TextStyle', "OverviewItemValue",
 			'ContextUpdateOnOpen', true,
 			'OnContextUpdate', function (self, context, ...)
-local delta = context:GetCurrentProduction() - context:GetCurrentConsumption()
-if delta < 0 then
-	self:SetText(T{11690, "<red><power(delta)></red>", delta = delta})
-elseif delta > 0 then
-	self:SetText(T{11691, "+<power(delta)>", delta = delta})
-else
-	self:SetText(T{11692, "<power(delta)>", delta = delta}) --zero
-end
-end,
+				local delta = context:GetCurrentProduction() - context:GetCurrentConsumption()
+				if delta < 0 then
+					self:SetText(T{11690, "<red><power(delta)></red>", delta = delta})
+				elseif delta > 0 then
+					self:SetText(T{11691, "+<power(delta)>", delta = delta})
+				else
+					self:SetText(T{11692, "<power(delta)>", delta = delta}) --zero
+				end
+			end,
 			'Translate', true,
 			'Text', T(616338099613, --[[XTemplate PowerGridsOverviewRow Text]] "<power(0)>"),
 			'WordWrap', false,
@@ -95,28 +96,29 @@ end,
 		PlaceObj('XTemplateFunc', {
 			'name', "OnMouseButtonDoubleClick(self, pos, button)",
 			'func', function (self, pos, button)
-if button == "L" then
-	local bld = CommandCenterChooseGridBuilding(self.context)
-	ViewObjectMars(bld)
-	SelectObj(bld)
-	DelayedCall(1, ShowElectricityOverlay)
-	CloseCommandCenter()
-	return "break"
-end
-end,
+				if button == "L" then
+					if GetDialog("PlanetaryView") then return end
+					local bld = CommandCenterChooseGridBuilding(self.context)
+					ViewObjectMars(bld)
+					SelectObj(bld)
+					DelayedCall(1, ShowElectricityOverlay)
+					CloseCommandCenter()
+					return "break"
+				end
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "SetSelected(self, selected)",
 			'func', function (self, selected)
-self:SetFocus(selected)
-end,
+				self:SetFocus(selected)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "OnSetFocus",
 			'func', function (self, ...)
-XCreateRolloverWindow(self, true)
-XTextButton.OnSetFocus(self, ...)
-end,
+				XCreateRolloverWindow(self, true)
+				XTextButton.OnSetFocus(self, ...)
+			end,
 		}),
 		}),
 })

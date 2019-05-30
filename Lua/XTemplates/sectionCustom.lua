@@ -6,11 +6,9 @@ PlaceObj('XTemplate', {
 	PlaceObj('XTemplateCode', {
 		'comment', "building ip_section",
 		'run', function (self, parent, context)
-if IsKindOf(context, "Building") then
-	local template = XTemplates["custom" .. context.template_name]
-	return template and template:Eval(parent, context)
-end
-end,
+			local template = XTemplates["custom" .. context.template_name] or XTemplates["custom" .. context.class]
+			return template and template:Eval(parent, context)
+		end,
 	}),
 })
 

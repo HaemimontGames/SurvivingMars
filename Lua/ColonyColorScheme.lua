@@ -1,4 +1,4 @@
-local DefaultCM = ColorizationMaterialEncode(RGB(128,128,128), 0, 0)
+DefaultCM = ColorizationMaterialEncode(RGB(128,128,128), 0, 0)
 
 GlobalVar("g_CurrentCCS", function() return ColonyColorSchemes.default end)
 GlobalVar("g_OverrideCCS", false)
@@ -88,9 +88,14 @@ function ReapplyPalettes()
 	local ccs = GetCurrentColonyColorScheme()
 	MapForEach("map", "BaseRover", "CargoShuttle" , SetPaletteFromClassMember)
 	MapForEach("map", "Building", function(obj)
-		if not obj:IsKindOfClasses("ElectricityGridElement", "LifeSupportGridElement", "ConstructionSite") then
+		if not obj:IsKindOfClasses("ElectricityGridElement", "LifeSupportGridElement", "ConstructionSite", "SupplyRocket") then
 			local skin, palette = obj:GetCurrentSkin()
 			obj:SetPalette(DecodePalette(palette, ccs))
+		end
+	end)
+	MapForEach(true, "SupplyRocket", function(obj)
+		if not obj:IsKindOfClasses("ForeignTradeRocket", "ForeignAidRocket", "TradeRocket", "RefugeeRocket") then
+			obj:SetPalette(DecodePalette(obj:GetRocketPalette(ccs), ccs))
 		end
 	end)
 	local ccm1, ccm2, ccm3, ccm4 = GetCablesPalette()

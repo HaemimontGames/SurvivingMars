@@ -82,9 +82,23 @@ function GetInterests(unit)
 	local interests = unit_traits.Child and {} or table.copy(BaseInterests)
 	local to_remove = { }
 	
+	-- specializations interests first
+	local specialist = unit.specialist
+	local trait = TraitPresets[specialist]
+	if trait then
+		local add = trait.add_interest
+		if add~="" then
+			table.insert_unique(interests, add)
+		end
+		local remove = trait.remove_interest
+		if remove~="" then
+			table.remove_entry(interests, remove)
+		end
+	end
+	-- other traits
 	for trait_id in pairs(unit_traits) do
 		local trait = TraitPresets[trait_id]
-		if trait then
+		if trait and trait.group ~= "Specialization" then
 			local add = trait.add_interest
 			if add ~= "" then
 				table.insert_unique(interests, add)
@@ -119,7 +133,6 @@ ColonistStatReasons =
 	["dust_devil"]               = T(1028, "<red>Damage from a Dust Devil <amount></red>"),
 	["meteor_colonist"]          = T(7536, "<red>Injured by a meteor <amount></red>"),
 	["StatusEffect_Suffocating"] = T(1029, "<red>Suffocating <amount></red>"),
-	["StatusEffect_Suffocating_Outside"] = T(1029, "<red>Suffocating <amount></red>"),
 	["StatusEffect_Dehydrated"]  = T(1030, "<red>Dehydrated <amount></red>"),
 	["StatusEffect_Freezing"]    = T(1031, "<red>Freezing <amount></red>"),
 	["StatusEffect_Starving"]    = T(1032, "<red>Starving <amount></red>"),
@@ -143,9 +156,9 @@ ColonistStatReasons =
 	["dust storm"]            = T(1043, "<red>A Dust Storm is raging <amount></red>"),
 	["meteor"]                = T(6775, "<red>My Dome was hit by a meteor <amount></red>"),
 	["dream"]                 = T(1044, "<red>Experiencing vivid hallucinations <amount></red>"),
-	["cold wave with securitystation"] = T(12130, "<red>Cold wave, don't panic! <amount> (Security Station)</red>"),
-	["dust storm with securitystation"]= T(12131, "<red>Dust storm, don't panic! <amount> (Security Station)</red>"),
-	["meteor with securitystation"] = T(12132, "<red>Meteor strike, don't panic! <amount> (Security Station)</red>"),
+	["cold wave with securitystation"] = T(6776, "<red>Cold wave, don't panic! <amount> (penalty reduced by Security Station)</red>"),
+	["dust storm with securitystation"]= T(6777, "<red>Dust storm, don't panic! <amount> (penalty reduced by Security Station)</red>"),
+	["meteor with securitystation"] = T(6778, "<red>Meteor strike, don't panic! <amount> (penalty reduced by Security Station)</red>"),
 	["work in dark hours"]    = T(1045, "<red>Working during the dark hours <amount></red>"),
 	["Whiner"]                = T(1046, "<red>My Comfort is too low <amount> (Whiner)</red>"), -- Whiner trait effect
 	["Gambler"]               = T(1047, "<red>Ran out of luck in the Casino <amount> (Gambler)</red>"), -- Gambler effect
@@ -172,3 +185,6 @@ ColonistStatReasons =
 	
 	["hive mind"]				 = T(7369, "One with the collective <amount>"),
 }
+
+ColonistStatReasons.StatusEffect_Dehydrated_Outside = ColonistStatReasons.StatusEffect_Dehydrated
+ColonistStatReasons.StatusEffect_Suffocating_Outside = ColonistStatReasons.StatusEffect_Suffocating

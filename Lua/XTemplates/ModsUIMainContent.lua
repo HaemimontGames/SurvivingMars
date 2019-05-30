@@ -28,20 +28,20 @@ PlaceObj('XTemplate', {
 				'LayoutHSpacing', 30,
 			}, {
 				PlaceObj('XTemplateWindow', {
-					'__condition', function (parent, context) return not Platform.steam and not (Platform.durango and not DurangoAllowUserCreatedContent) and GetUIStyleGamepad() end,
+					'__condition', function (parent, context) return not (Platform.durango and not DurangoAllowUserCreatedContent) and GetUIStyleGamepad() end,
 					'__class', "XTextButton",
 					'Id', "idLeftTrigger",
 					'Background', RGBA(0, 0, 0, 0),
 					'MouseCursor', "UI/Cursors/Rollover.tga",
 					'FocusedBackground', RGBA(0, 0, 0, 0),
 					'OnPress', function (self, gamepad)
-self:ResolveId("idBrowse"):Press()
-end,
+						self:ResolveId("idBrowse"):Press()
+					end,
 					'RolloverBackground', RGBA(0, 0, 0, 0),
 					'PressedBackground', RGBA(0, 0, 0, 0),
 				}),
 				PlaceObj('XTemplateWindow', {
-					'__condition', function (parent, context) return not Platform.steam and not (Platform.durango and not DurangoAllowUserCreatedContent) end,
+					'__condition', function (parent, context) return not (Platform.durango and not DurangoAllowUserCreatedContent) end,
 				}, {
 					PlaceObj('XTemplateMode', {
 						'mode', "browse",
@@ -54,8 +54,8 @@ end,
 							'MouseCursor', "UI/Cursors/Rollover.tga",
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-ModsUISetDialogMode(self, "browse")
-end,
+								ModsUISetDialogMode(self, "browse")
+							end,
 							'RolloverBackground', RGBA(0, 0, 0, 0),
 							'PressedBackground', RGBA(0, 0, 0, 0),
 							'TextStyle', "ModsUITabBold",
@@ -82,8 +82,8 @@ end,
 							'MouseCursor', "UI/Cursors/Rollover.tga",
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-ModsUISetDialogMode(self, "browse")
-end,
+								ModsUISetDialogMode(self, "browse")
+							end,
 							'RolloverBackground', RGBA(0, 0, 0, 0),
 							'PressedBackground', RGBA(0, 0, 0, 0),
 							'TextStyle', "ModsUITab",
@@ -104,8 +104,8 @@ end,
 							'MouseCursor', "UI/Cursors/Rollover.tga",
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-ModsUISetDialogMode(self, "installed")
-end,
+								ModsUISetDialogMode(self, "installed")
+							end,
 							'RolloverBackground', RGBA(0, 0, 0, 0),
 							'PressedBackground', RGBA(0, 0, 0, 0),
 							'TextStyle', "ModsUITab",
@@ -155,65 +155,42 @@ end,
 							'MouseCursor', "UI/Cursors/Rollover.tga",
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'OnPress', function (self, gamepad)
-ModsUISetDialogMode(self, "installed")
-end,
+								ModsUISetDialogMode(self, "installed")
+							end,
 							'RolloverBackground', RGBA(0, 0, 0, 0),
 							'PressedBackground', RGBA(0, 0, 0, 0),
 							'TextStyle', "ModsUITabBold",
 							'Translate', true,
 							'Text', T(10126, --[[XTemplate ModsUIMainContent Text]] "Installed Mods"),
-						}, {
-							PlaceObj('XTemplateWindow', {
-								'Margins', box(15, 0, 10, 0),
-								'VAlign', "center",
-							}, {
-								PlaceObj('XTemplateWindow', {
-									'__class', "XFrame",
-									'Margins', box(-10, 0, -10, 0),
-									'Image', "UI/Mods/pad_red.tga",
-									'FrameBox', box(12, 0, 12, 0),
-									'SqueezeX', false,
-								}),
-								PlaceObj('XTemplateWindow', {
-									'__class', "XText",
-									'Padding', box(0, 0, 0, 0),
-									'HAlign', "center",
-									'VAlign', "center",
-									'HandleMouse', false,
-									'TextStyle', "ModsUIInstalledCount",
-									'Translate', true,
-									'Text', T(150610842665, --[[XTemplate ModsUIMainContent Text]] "<InstalledModsCount>"),
-								}),
-								}),
-							}),
+						}),
 						}),
 					}),
 				PlaceObj('XTemplateWindow', {
-					'__condition', function (parent, context) return not Platform.steam and not (Platform.durango and not DurangoAllowUserCreatedContent) and GetUIStyleGamepad() end,
+					'__condition', function (parent, context) return not (Platform.durango and not DurangoAllowUserCreatedContent) and GetUIStyleGamepad() end,
 					'__class', "XTextButton",
 					'Id', "idRightTrigger",
 					'Background', RGBA(0, 0, 0, 0),
 					'MouseCursor', "UI/Cursors/Rollover.tga",
 					'FocusedBackground', RGBA(0, 0, 0, 0),
 					'OnPress', function (self, gamepad)
-self:ResolveId("idInstalled"):Press()
-end,
+						self:ResolveId("idInstalled"):Press()
+					end,
 					'RolloverBackground', RGBA(0, 0, 0, 0),
 					'PressedBackground', RGBA(0, 0, 0, 0),
 				}),
 				PlaceObj('XTemplateCode', {
 					'run', function (self, parent, context)
-if GetUIStyleGamepad() then
-	local left = parent:ResolveId("idLeftTrigger")
-	if left then
-		left:SetIcon(GetPlatformSpecificImagePath("LT"))
-	end
-	local right = parent:ResolveId("idRightTrigger")
-	if right then
-		right:SetIcon(GetPlatformSpecificImagePath("RT"))
-	end
-end
-end,
+						if GetUIStyleGamepad() then
+							local left = parent:ResolveId("idLeftTrigger")
+							if left then
+								left:SetIcon(GetPlatformSpecificImagePath("LT"))
+							end
+							local right = parent:ResolveId("idRightTrigger")
+							if right then
+								right:SetIcon(GetPlatformSpecificImagePath("RT"))
+							end
+						end
+					end,
 				}),
 				PlaceObj('XTemplateWindow', {
 					'comment', "close button",
@@ -226,8 +203,8 @@ end,
 					'MouseCursor', "UI/Cursors/Rollover.tga",
 					'FocusedBackground', RGBA(0, 0, 0, 0),
 					'OnPress', function (self, gamepad)
-ModsUIDialogEnd(GetDialog(self))
-end,
+						ModsUIDialogEnd(GetDialog(self))
+					end,
 					'RolloverBackground', RGBA(0, 0, 0, 0),
 					'PressedBackground', RGBA(0, 0, 0, 0),
 					'Icon', "UI/Mods/x_large.tga",
@@ -239,17 +216,17 @@ end,
 					'ActionName', T(4165, --[[XTemplate ModsUIMainContent ActionName]] "Back"),
 					'ActionShortcut', "Escape",
 					'OnAction', function (self, host, source)
-local shown = ModsUIIsPopupShown(host)
-if shown then
-	if shown == "sort" and not GetUIStyleGamepad() then
-		ModsUIToggleSortPC(host)
-	else
-		ModsUIClosePopup(host)
-	end
-else
-	ModsUIDialogEnd(host)
-end
-end,
+						local shown = ModsUIIsPopupShown(host)
+						if shown then
+							if shown == "sort" and not GetUIStyleGamepad() then
+								ModsUIToggleSortPC(host)
+							else
+								ModsUIClosePopup(host)
+							end
+						else
+							ModsUIDialogEnd(host)
+						end
+					end,
 					'__condition', function (parent, context) return not GetUIStyleGamepad() end,
 				}),
 				}),
@@ -277,6 +254,7 @@ end,
 						}, {
 							PlaceObj('XTemplateWindow', {
 								'Padding', box(0, 30, 0, 0),
+								'LayoutMethod', "HList",
 							}, {
 								PlaceObj('XTemplateWindow', {
 									'comment', "line",
@@ -289,6 +267,16 @@ end,
 								PlaceObj('XTemplateMode', {
 									'mode', "installed",
 								}, {
+									PlaceObj('XTemplateWindow', {
+										'__condition', function (parent, context) return context:GetInstalledFilterCount() > 0 end,
+										'__class', "XText",
+										'VAlign', "center",
+										'FoldWhenHidden', true,
+										'HandleMouse', false,
+										'TextStyle', "ModsUIText",
+										'Translate', true,
+										'Text', T(917981462859, --[[XTemplate ModsUIMainContent Text]] "<InstalledFilterCount> active filters,"),
+									}),
 									PlaceObj('XTemplateWindow', {
 										'__class', "XText",
 										'Id', "idTextInstalled",
@@ -304,6 +292,16 @@ end,
 									'mode', "browse",
 								}, {
 									PlaceObj('XTemplateWindow', {
+										'__condition', function (parent, context) return context:GetFilterCount() > 0 end,
+										'__class', "XText",
+										'VAlign', "center",
+										'FoldWhenHidden', true,
+										'HandleMouse', false,
+										'TextStyle', "ModsUIText",
+										'Translate', true,
+										'Text', T(150562922571, --[[XTemplate ModsUIMainContent Text]] "<FilterCount> active filters,"),
+									}),
+									PlaceObj('XTemplateWindow', {
 										'__class', "XText",
 										'Id', "idTextAvailable",
 										'VAlign', "center",
@@ -313,6 +311,39 @@ end,
 										'Translate', true,
 										'Text', T(10128, --[[XTemplate ModsUIMainContent Text]] "<ModsCount> mods available"),
 									}),
+									}),
+								PlaceObj('XTemplateMode', {
+									'mode', "installed",
+								}, {
+									PlaceObj('XTemplateWindow', {
+										'__condition', function (parent, context) return not GetUIStyleGamepad() end,
+										'__class', "XCheckButton",
+										'Id', "idAllToggleEnabled",
+										'Margins', box(40, 0, 25, 0),
+										'Dock', "right",
+										'HAlign', "right",
+										'VAlign', "center",
+										'FoldWhenHidden', true,
+										'MouseCursor', "UI/Cursors/Rollover.tga",
+										'OnContextUpdate', function (self, context, ...)
+											XCheckButton.OnContextUpdate(self, context, ...)
+											self:Update()
+										end,
+										'OnPress', function (self, gamepad)
+											ModsUISetAllModsEnabledState(GetDialog(self), not self:GetCheck())
+											XCheckButton.OnPress(self, gamepad)
+										end,
+										'Icon', "UI/Mods/enable_disable.tga",
+										'IconScale', point(1000, 1000),
+										'IconColor', RGBA(255, 255, 255, 255),
+									}, {
+										PlaceObj('XTemplateFunc', {
+											'name', "Update",
+											'func', function (self, ...)
+												self:SetCheck(ModsUIGetEnableAllButtonState())
+											end,
+										}),
+										}),
 									}),
 								PlaceObj('XTemplateWindow', {
 									'comment', "sort",
@@ -352,9 +383,9 @@ end,
 												'MouseCursor', "UI/Cursors/Rollover.tga",
 												'FocusedBackground', RGBA(0, 0, 0, 0),
 												'OnPress', function (self, gamepad)
-local dlg = GetDialog(self)
-ModsUIToggleSortPC(dlg.idContentWrapper)
-end,
+													local dlg = GetDialog(self)
+													ModsUIToggleSortPC(dlg.idContentWrapper)
+												end,
 												'RolloverBackground', RGBA(0, 0, 0, 0),
 												'PressedBackground', RGBA(0, 0, 0, 0),
 												'TextStyle', "ModsUISortText",
@@ -381,9 +412,9 @@ end,
 												'MouseCursor', "UI/Cursors/Rollover.tga",
 												'FocusedBackground', RGBA(0, 0, 0, 0),
 												'OnPress', function (self, gamepad)
-local dlg = GetDialog(self)
-ModsUIToggleSortPC(dlg.idContentWrapper)
-end,
+													local dlg = GetDialog(self)
+													ModsUIToggleSortPC(dlg.idContentWrapper)
+												end,
 												'RolloverBackground', RGBA(0, 0, 0, 0),
 												'PressedBackground', RGBA(0, 0, 0, 0),
 												'TextStyle', "ModsUISortText",
@@ -465,45 +496,61 @@ end,
 							'FocusedBackground', RGBA(0, 0, 0, 0),
 							'VScroll', "idScroll",
 							'MouseScroll', true,
+							'GamepadInitialSelection', false,
 							'OnContextUpdate', function (self, context, ...)
-local mode = GetDialogMode(self)
-if mode == "browse" then
-	self:ResolveId("idListSpinner"):SetVisible(not context.counted)
-	if g_ParadoxAccountLoggedIn then
-		self:ResolveId("idNoResults"):SetVisible(context.counted and context:GetModsCount() == 0)
-	end
-	self:ResolveId("idLoginPrompt"):SetVisible(not g_ParadoxAccountLoggedIn and not g_PopsAttemptingLogin)
-elseif mode == "installed" then
-	self:ResolveId("idListSpinner"):SetVisible(not context.installed_retrieved)
-	self:ResolveId("idNoInstalledMods"):SetVisible(context.installed_retrieved and context:GetInstalledModsCount() == 0)
-end
-XContentTemplateList.OnContextUpdate(self, context, ...)
-if #self == 0 then
-	ModsUISetSelectedMod(false)
-end
-end,
+								local mode = GetDialogMode(self)
+								if mode == "browse" then
+									self:ResolveId("idListSpinner"):SetVisible(not context.counted)
+									self:ResolveId("idNoResults"):SetVisible(not context.offline and context.counted and context:GetModsCount() == 0)
+									self:ResolveId("idOffline"):SetVisible(context.counted and context.offline and context:GetModsCount() == 0)
+								elseif mode == "installed" then
+									self:ResolveId("idListSpinner"):SetVisible(not context.installed_retrieved)
+									self:ResolveId("idNoInstalledMods"):SetVisible(context.installed_retrieved and context:GetInstalledModsCount() == 0)
+								end
+								XContentTemplateList.OnContextUpdate(self, context, ...)
+								if #self == 0 then
+									ModsUISetSelectedMod(false)
+								end
+							end,
 						}, {
 							PlaceObj('XTemplateFunc', {
 								'name', "Open",
 								'func', function (self, ...)
-if GetUIStyleGamepad() then
-	self:SetMinWidth(1584)
-	self:SetMaxWidth(1584)
-	self:SetMinHeight(620)
-	self:SetMaxHeight(620)
-end
-XContentTemplateList.Open(self, ...)
-local context = self.context
-local mode = GetDialogMode(self)
-if mode == "browse" then
-	self:ResolveId("idListSpinner"):SetVisible(not context.counted)
-	self:ResolveId("idNoResults"):SetVisible(g_ParadoxAccountLoggedIn and context.counted and context:GetModsCount() == 0)
-	self:ResolveId("idLoginPrompt"):SetVisible(not g_ParadoxAccountLoggedIn and not g_PopsAttemptingLogin)
-elseif mode == "installed" then
-	self:ResolveId("idListSpinner"):SetVisible(not context.installed_retrieved)
-	self:ResolveId("idNoInstalledMods"):SetVisible(context.installed_retrieved and context:GetInstalledModsCount() == 0)
-end
-end,
+									if GetUIStyleGamepad() then
+										self:SetMinWidth(1584)
+										self:SetMaxWidth(1584)
+										self:SetMinHeight(620)
+										self:SetMaxHeight(620)
+									end
+									XContentTemplateList.Open(self, ...)
+									local context = self.context
+									local mode = GetDialogMode(self)
+									local selection = 1
+									local scroll_y = 0
+									if mode == "browse" then
+										selection = context.last_browse_item or 1
+										scroll_y = context.last_browse_y or 0
+									elseif mode == "installed" then
+										selection = context.last_installed_item or 1
+										scroll_y = context.last_installed_y or 0
+									end
+									self:DeleteThread("scrolling")
+									self:CreateThread("scrolling", function(self, selection, scroll_y)
+										if GetUIStyleGamepad() then
+											self:SetSelection(selection)
+										else
+											self:ScrollTo(0, scroll_y)
+										end
+									end, self, selection, scroll_y)
+									if mode == "browse" then
+										self:ResolveId("idListSpinner"):SetVisible(not context.counted)
+										self:ResolveId("idNoResults"):SetVisible(not context.offline and context.counted and context:GetModsCount() == 0)
+										self:ResolveId("idOffline"):SetVisible(context.counted and context.offline and context:GetModsCount() == 0)
+									elseif mode == "installed" then
+										self:ResolveId("idListSpinner"):SetVisible(not context.installed_retrieved)
+										self:ResolveId("idNoInstalledMods"):SetVisible(context.installed_retrieved and context:GetInstalledModsCount() == 0)
+									end
+								end,
 							}),
 							PlaceObj('XTemplateMode', {
 								'mode', "browse",
@@ -511,15 +558,15 @@ end,
 								PlaceObj('XTemplateForEach', {
 									'array', function (parent, context) return context.mods end,
 									'run_before', function (parent, context, item, i, n)
-local width, height = 387, 269
-if GetUIStyleGamepad() then
-	width, height = 524,367
-end
-local child = NewXVirtualContent(parent, item, "ModsUIBrowseListItem", width, height)
-child:SetGridX((i-1)%3 + 1)
-child:SetGridY((i-1)/3 + 1)
-child:SetHAlign("left")
-end,
+										local width, height = 387, 269
+										if GetUIStyleGamepad() then
+											width, height = 524,367
+										end
+										local child = NewXVirtualContent(parent, item, "ModsUIBrowseListItem", width, height)
+										child:SetGridX((i-1)%3 + 1)
+										child:SetGridY((i-1)/3 + 1)
+										child:SetHAlign("left")
+									end,
 								}),
 								}),
 							PlaceObj('XTemplateMode', {
@@ -528,14 +575,14 @@ end,
 								PlaceObj('XTemplateForEach', {
 									'array', function (parent, context) return context.installed_mods end,
 									'run_before', function (parent, context, item, i, n)
-local width, height = 1174, 92
-if GetUIStyleGamepad() then
-	width, height = 1583,100
-end
-local child = NewXVirtualContent(parent, item, "ModsUIInstalledMod", width, height)
-child:SetGridX(1)
-child:SetGridY(i)
-end,
+										local width, height = 1174, 92
+										if GetUIStyleGamepad() then
+											width, height = 1583,100
+										end
+										local child = NewXVirtualContent(parent, item, "ModsUIInstalledMod", width, height)
+										child:SetGridX(1)
+										child:SetGridY(i)
+									end,
 								}),
 								}),
 							}),
@@ -593,50 +640,20 @@ end,
 							'TextVAlign', "center",
 						}),
 						PlaceObj('XTemplateWindow', {
-							'Id', "idLoginPrompt",
+							'__class', "XText",
+							'Id', "idOffline",
 							'Dock', "box",
 							'HAlign', "center",
 							'VAlign', "center",
-							'LayoutMethod', "VList",
-							'LayoutVSpacing', 10,
 							'Visible', false,
 							'FoldWhenHidden', true,
-						}, {
-							PlaceObj('XTemplateWindow', {
-								'__class', "XText",
-								'HAlign', "center",
-								'VAlign', "center",
-								'LayoutMethod', "VList",
-								'HandleMouse', false,
-								'TextStyle', "ModsUITabSelected",
-								'Translate', true,
-								'Text', T(961541164547, --[[XTemplate ModsUIMainContent Text]] "You need to be logged in to browse mods."),
-								'TextHAlign', "center",
-								'TextVAlign', "center",
-							}),
-							PlaceObj('XTemplateWindow', {
-								'__condition', function (parent, context) return not GetUIStyleGamepad() end,
-								'__class', "XTextButton",
-								'Id', "idLogIn",
-								'Padding', box(18, 0, 18, 0),
-								'HAlign', "center",
-								'VAlign', "center",
-								'RolloverOnFocus', false,
-								'MouseCursor', "UI/Cursors/Rollover.tga",
-								'OnPress', function (self, gamepad)
-local host = GetDialog(self)
-ModsUIOpenLoginPopup(host.idContentWrapper)
-host:UpdateActionViews(host)
-end,
-								'Image', "UI/Mods/green_button.tga",
-								'FrameBox', box(18, 18, 18, 18),
-								'Columns', 2,
-								'TextStyle', "LightButtons",
-								'Translate', true,
-								'Text', T(507473038910, --[[XTemplate ModsUIMainContent Text]] "LOGIN"),
-								'ColumnsUse', "abaaa",
-							}),
-							}),
+							'HandleMouse', false,
+							'TextStyle', "ModsUITabSelected",
+							'Translate', true,
+							'Text', T(12452, --[[XTemplate ModsUIMainContent Text]] "Mod info could not be retrieved from the server. Check your network connection."),
+							'TextHAlign', "center",
+							'TextVAlign', "center",
+						}),
 						}),
 					}),
 				PlaceObj('XTemplateWindow', {
@@ -678,12 +695,12 @@ end,
 							PlaceObj('XTemplateFunc', {
 								'name', "OnShortcut(self, shortcut, source)",
 								'func', function (self, shortcut, source)
-if shortcut == "Enter" then
-	self:ResolveId("idSearchButton"):Press()
-	return "break"
-end
-return XEdit.OnShortcut(self, shortcut, source)
-end,
+									if shortcut == "Enter" then
+										self:ResolveId("idSearchButton"):Press()
+										return "break"
+									end
+									return XEdit.OnShortcut(self, shortcut, source)
+								end,
 							}),
 							}),
 						PlaceObj('XTemplateWindow', {
@@ -693,34 +710,74 @@ end,
 							'VAlign', "center",
 							'MouseCursor', "UI/Cursors/Rollover.tga",
 							'OnPress', function (self, gamepad)
-local mode = GetDialogMode(self)
-local context = self.context
-local text = self:ResolveId("idSearch"):GetText()
-if text == _InternalTranslate(T(10485, "Search mods...")) then
-	text = ""
-end
-local old_query = mode == "browse" and context.query or context.installed_query
-if old_query ~= text then
-	if mode == "browse" then
-		context.query = text
-		context:GetMods()
-	else
-		context.installed_query = text
-		context:GetInstalledMods()
-	end
-end
-end,
+								local mode = GetDialogMode(self)
+								local context = self.context
+								local text = self:ResolveId("idSearch"):GetText()
+								if text == _InternalTranslate(T(10485, "Search mods...")) then
+									text = ""
+								end
+								local old_query = mode == "browse" and context.query or context.installed_query
+								if old_query ~= text then
+									if mode == "browse" then
+										context.query = text
+										context:GetMods()
+									else
+										context.installed_query = text
+										context:GetInstalledMods()
+									end
+								end
+							end,
 							'Image', "UI/Mods/magnifying_glass.tga",
 						}),
 						PlaceObj('XTemplateCode', {
 							'run', function (self, parent, context)
-local mode = GetDialogMode(parent)
-local query = mode == "browse" and context.query or context.installed_query
-query = query ~= "" and query or _InternalTranslate(T(10485, "Search mods..."))
-parent:ResolveId("idSearch"):SetText(query)
-end,
+								local mode = GetDialogMode(parent)
+								local query = mode == "browse" and context.query or context.installed_query
+								query = query ~= "" and query or _InternalTranslate(T(10485, "Search mods..."))
+								parent:ResolveId("idSearch"):SetText(query)
+							end,
 						}),
 						}),
+					PlaceObj('XTemplateWindow', {
+						'comment', "clear tags",
+						'__class', "XTextButton",
+						'Margins', box(0, 8, 0, 0),
+						'Dock', "box",
+						'HAlign', "right",
+						'VAlign', "top",
+						'Background', RGBA(0, 0, 0, 0),
+						'MouseCursor', "UI/Cursors/Rollover.tga",
+						'OnContextUpdate', function (self, context, ...)
+							XTextButton.OnContextUpdate(self, context, ...)
+							local mode = GetDialogMode(self)
+							local t = mode == "browse" and "temp_tags" or "temp_installed_tags"
+							t = context[t]
+							local compatible = mode == "browse" and "only_compatible" or "only_compatible_installed"
+							compatible = context[compatible]
+							self:SetVisible(not not next(t) or compatible)
+						end,
+						'FocusedBackground', RGBA(0, 0, 0, 0),
+						'OnPress', function (self, gamepad)
+							local dlg = GetDialog(self)
+							local mode = dlg:GetMode()
+							local changed = ModsUIClearFilter(mode)
+							if changed then
+								local obj = ResolvePropObj(dlg.context)
+								if mode == "installed" then
+									ModsUISetInstalledTags()
+									obj:GetInstalledMods()
+								else
+									ModsUISetTags()
+									obj:GetMods()
+								end
+							end
+						end,
+						'RolloverBackground', RGBA(0, 0, 0, 0),
+						'PressedBackground', RGBA(0, 0, 0, 0),
+						'TextStyle', "ModsUITagsTitle",
+						'Translate', true,
+						'Text', T(250892778239, --[[XTemplate ModsUIMainContent Text]] "Clear all tags"),
+					}),
 					PlaceObj('XTemplateWindow', {
 						'__class', "XLabel",
 						'Margins', box(0, 8, 0, 20),
@@ -744,27 +801,64 @@ end,
 						}, {
 							PlaceObj('XTemplateForEach', {
 								'array', function (parent, context) return PredefinedModTags end,
+								'__context', function (parent, context, item, i, n) return item end,
 								'run_after', function (child, context, item, i, n)
-local mode = GetDialogMode(child)
-local temp_table = (mode == "installed") and "temp_installed_tags" or "temp_tags"
-local tags_table = (mode == "installed") and "set_installed_tags" or "set_tags"
-local name = item.display_name
-child.idCheck:SetText(name)
-child.idCheck:SetCheck(context[tags_table][name])
-child.idCheck.OnChange = function(self, check)
-	context[temp_table][name] = check or nil
-	if mode == "installed" then
-		ModsUISetInstalledTags()
-		context:GetInstalledMods()
-	else
-		ModsUISetTags()
-		context:GetMods()
-	end
-end
-end,
+									local dlg = GetDialog(child)
+									local mode = dlg:GetMode()
+									local obj = ResolvePropObj(dlg.context)
+									local temp_table = (mode == "installed") and "temp_installed_tags" or "temp_tags"
+									local tags_table = (mode == "installed") and "set_installed_tags" or "set_tags"
+									local name = context.display_name
+									child.idCheck:SetText(name)
+									child.idCheck:SetCheck(obj[tags_table][name])
+									child.idCheck.OnChange = function(self, check)
+										obj[temp_table][name] = check or nil
+										if mode == "installed" then
+											ModsUISetInstalledTags()
+											obj:GetInstalledMods()
+										else
+											ModsUISetTags()
+											obj:GetMods()
+										end
+									end
+								end,
 							}, {
 								PlaceObj('XTemplateTemplate', {
 									'__template', "ModsUITagListItem",
+									'OnContextUpdate', function (self, context, ...)
+										local temp_table = (GetDialog(self):GetMode() == "installed") and "temp_installed_tags" or "temp_tags"
+										self.idCheck:SetCheck(g_ParadoxModsContextObj[temp_table][context.display_name])
+									end,
+								}),
+								}),
+							PlaceObj('XTemplateTemplate', {
+								'__context', function (parent, context) return ModsUIGameCompatibleTagContext end,
+								'__template', "ModsUITagListItem",
+								'OnContextUpdate', function (self, context, ...)
+									local value = (GetDialog(self):GetMode() == "installed") and "only_compatible_installed" or "only_compatible"
+									self.idCheck:SetCheck(g_ParadoxModsContextObj[value])
+								end,
+							}, {
+								PlaceObj('XTemplateFunc', {
+									'name', "Open",
+									'func', function (self, ...)
+										XListItem.Open(self, ...)
+										self.idCheck:SetText(_InternalTranslate(T(12427, "Game version compatible")))
+										local dlg = GetDialog(self)
+										local mode = dlg:GetMode()
+										local obj = ResolvePropObj(dlg.context)
+										local value = (mode == "installed") and "temp_only_compatible_installed" or "temp_only_compatible"
+										self.idCheck.OnChange = function(self, check)
+											obj[value] = check or nil
+											if mode == "installed" then
+												ModsUISetInstalledTags()
+												obj:GetInstalledMods()
+											else
+												ModsUISetTags()
+												obj:GetMods()
+											end
+										end
+									end,
 								}),
 								}),
 							}),

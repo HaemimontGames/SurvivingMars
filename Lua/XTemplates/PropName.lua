@@ -21,10 +21,10 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "CalcTextColor",
 			'func', function (self, ...)
-return self.enabled and 
-				(self.parent.rollover and self.RolloverTextColor or self.TextColor)
-				or self.DisabledTextColor
-end,
+				return self.enabled and 
+								(self.parent.rollover and self.RolloverTextColor or self.TextColor)
+								or self.DisabledTextColor
+			end,
 		}),
 		}),
 })

@@ -206,6 +206,13 @@ function GetBuildingTechsStatus(building, category)
 end
 
 function GetAdditionalBuildingLock(template)
+	local locks = {}
+	Msg("GetAdditionalBuildingLocks", template, locks)
+	for reason, lock in pairs(locks) do
+		if lock then
+			return reason
+		end
+	end
 end
 
 function GetGridElementConstructionCost(class_name, is_passage, multiplier)
@@ -273,7 +280,13 @@ local maintenance_props = {
 function GetConstructionDescription(class, cost1, dont_modify) --class is a building template and not a class
 	local modifier_obj = GetModifierObject(class)
 	-- stage 1
-	local texts
+	local texts = {}
+	
+	local template_class = ClassTemplates.Building[class.id]
+	if class.id == "SelfSufficientDome" then
+		return GetLayoutConstructionControllerBMDescription(template_class, texts, dont_modify)
+	end
+	
 	if IsGameRuleActive("FreeConstruction") then
 		texts = {T(10540, "Cost: Nothing (Free Construction rule)")}
 	else
@@ -294,10 +307,9 @@ function GetConstructionDescription(class, cost1, dont_modify) --class is a buil
 		end
 	end
 	-- stage 2
-	local template_class = ClassTemplates.Building[class.id]
-	local properties = template_class.properties
-	
+
 	-- electricity, air, water
+	local properties = template_class.properties
 	local consumption = {}
 	for i = 1, #maintenance_props do
 		local prop = table.find_value(properties, "id", maintenance_props[i][1])
@@ -320,6 +332,11 @@ function GetConstructionDescription(class, cost1, dont_modify) --class is a buil
 	end
 	if next(consumption) then
 		texts[#texts+1] = T(3959, "Consumption: ") .. table.concat(consumption, " ")
+	end
+	
+	-- secondary consumption
+	if IsDlcAvailable("armstrong") and IsKindOf(template_class, "LandscapeLake") then
+		texts[#texts+1] = T{12094, "Refill: <water(irrigation)>", template_class} .. "\n"
 	end
 	
 	--- maintenance
@@ -352,9 +369,19 @@ function GetConstructionDescription(class, cost1, dont_modify) --class is a buil
 		end
 	end
 	
+	-- terraforming
+	if IsDlcAvailable("armstrong") and IsKindOf(template_class, "TerraformingBuildingBase") then
+		texts[#texts+1] = T{12001, "<em>Terraforming effect: +<resource(number, res)> per Sol.</em>",
+			number = template_class:GetTerraformingBoostSol(),
+			res = template_class["terraforming_param"]..const.TerraformingParamSuffix,
+		}
+	end
+	
 	-- electricity, air, water production
-	if IsKindOf(template_class, "Farm") then
-		texts[#texts+1] = T(3966, "Base production: <icon_Food> based on crop")
+	if IsKindOfClasses(template_class, "Farm", "OpenFarm") then
+		texts[#texts+1] = T(12186, "Base production: <icon_Food> <if_all(has_dlc('armstrong'),has_researched('MartianVegetation'))>or <icon_Seeds></if> based on crop")
+	elseif IsKindOf(template_class, "Pasture") then
+		texts[#texts+1] = T(12471, "Base production: <icon_Food> based on breed")
 	else
 		local production = {}
 		for i = 1, #production_props do
@@ -462,7 +489,16 @@ function UICountItemMenu(category_id)
 				show, prefabs, can_build, action, description = UIGetBuildingPrerequisites("MechanizedDepots", building_template)
 			end
 		end
+		if not show and category_id == "LandscapeTextureBuildings" then
+			show, prefabs, can_build, action, description = UIGetBuildingPrerequisites("LandscapeTextureBuildings", building_template)
+		end
 		if show then count = count + 1 end
+	end
+	
+	for _, preset in ipairs(Presets.BuildMenuSubcategory.Default) do
+		if preset.category == category_id then
+			count = count + UICountItemMenu(preset.id)
+		end
 	end
 	
 	if category_id == "Power" then
@@ -487,9 +523,13 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems, ignore_check
 	local prefab_item = template.require_prefab and RocketPayload_GetMeta(template.id)
 	local require_prefab = not tech_enabled and prefab_item and not prefab_item.locked
 
-	if not tech_shown and not require_prefab and available_prefabs == 0 or GetAdditionalBuildingLock(template) then
+	if not tech_shown and not require_prefab and available_prefabs == 0 then
 		return false
-	end	
+	end
+	
+	if GetAdditionalBuildingLock(template) then
+		return false
+	end
 	
 	local wonder_exists
 	if template.wonder then
@@ -561,6 +601,16 @@ function UIGetBuildingPrerequisites(cat_id, template, bCreateItems, ignore_check
 		can_build = false
 	else
 		can_build = true
+	end
+	
+	if can_build then
+		local reasons = { }
+		--@@@msg GatherUIBuildingPrerequisites,template, reasons - Insert strings into the `reasons` table to indicate why a specific building is not buildable at the moment (if any).
+		Msg("GatherUIBuildingPrerequisites", template, reasons)
+		if next(reasons) then
+			description = table.concat(reasons, "\n")
+			can_build = false
+		end
 	end
 	
 	local prefab_disabled
@@ -643,8 +693,8 @@ function XBuildMenu:EaseInButton(button, start_time, open)
 	button:AddInterpolation{
 		id = "move_up",
 		type = const.intRect,
-		startRect = Offset(button.box, point(0, -35)),
-		endRect = button.box,
+		originalRect = Offset(button.box, point(0, -35)),
+		targetRect = button.box,
 		start = start_time,
 		duration = button_ease_duration,
 		flags = open and const.intfInverse or nil,
@@ -736,33 +786,28 @@ function XBuildMenu:GetSubCategoryTemplates()
 	if not self.parent_category then 
 		return 
 	end
+	local subcategory = BuildMenuSubcategories[self.category_id]
+	if subcategory and not subcategory.allow_template_variants then
+		return
+	end
 	local variants = {}
 	for _, item in ipairs(self.items) do
-		variants[#variants + 1] = item.name
+		if item.enabled then
+			variants[#variants + 1] = item.name
+		end
 	end
 	return variants
-end
-
-local subcategories = {
-	["Depots"] = false, 
-	["MechanizedDepots"] = false,
-	}
-	
-function GetBuildMenuSubcategories()
-	return subcategories
 end
 
 function UIItemMenu(category_id, bCreateItems)
 	local items = {}
 	local count = 0
-	for cat, val in pairs(subcategories) do
-		subcategories[cat] = false
-	end	
+	local subcategories = {}
 	for _, building_template in pairs(BuildingTemplates) do
 		local show, prefabs, can_build, action, description = UIGetBuildingPrerequisites(category_id, building_template, bCreateItems)
 		local template_category = building_template.build_category
-		if category_id ~= template_category and subcategories[template_category]~=nil and UIGetBuildingPrerequisites(template_category, building_template) then
-			subcategories[template_category]  = true 
+		if category_id ~= template_category and BuildMenuSubcategories[template_category] and UIGetBuildingPrerequisites(template_category, building_template) then
+			subcategories[template_category]  = true
 		end
  		if show then
 			count = count + 1
@@ -775,6 +820,22 @@ function UIItemMenu(category_id, bCreateItems)
 				if shortcuts and (shortcuts[1] or shortcuts[2]) then
 					hint = T{10930, "Shortcut - <em><ShortcutName(shortcut, 'keyboard')></em>", shortcut = binding}
 				end
+				
+				local _, tech_enabled = GetBuildingTechsStatus(building_template.id, building_template.build_category)
+				local available_prefabs = UICity:GetPrefabs(building_template.id)
+				
+				local gamepad_hint, open_research_ui
+				if not g_Tutorial and not tech_enabled and available_prefabs == 0 then
+					local hint_research = T(12604, "<left_click><left_click> Open Research Screen")
+					if (hint or "") == "" then
+						hint = hint_research
+					else
+						hint = table.concat({hint, hint_research}, "\n")
+					end
+					gamepad_hint = T(12605, "<ButtonX> Open Research Screen")
+					open_research_ui = true
+				end
+				
 				table.insert(items, {
 					name = building_template.id,
 					construction_mode = building_template.construction_mode,
@@ -782,6 +843,8 @@ function UIItemMenu(category_id, bCreateItems)
 					icon = building_template.display_icon,
 					description = description,
 					hint = hint,
+					gamepad_hint = gamepad_hint,
+					open_research_ui = open_research_ui,
 					build_pos = building_template.build_pos,
 					enabled = can_build or false,
 					prefabs = prefabs or false,
@@ -792,41 +855,23 @@ function UIItemMenu(category_id, bCreateItems)
 			end
 		end
 	end
-
-	if category_id == "Storages" then
-		count = count + 2
-		if bCreateItems then
-			if subcategories["Depots"] then
-				items[#items + 1] ={
-					name = "Depots",
-					display_name = T(8878, "Depot"),
-					icon = "UI/Icons/Buildings/depots.tga",
-					description = T(10420, "Resource-specific Depots"),
-					build_pos = 2,
-					category = "Storage",
-					close_parent = false,
-					action = function(obj, data)
-						local parent = GetDialog(data)
-						parent:SelectSubCategory(data, category_id)
-					end,
-					Id = "Depots",
-				}
-			end
-			if subcategories["MechanizedDepots"] then
-				items[#items + 1] ={
-					name = "MechanizedDepots",
-					display_name = T(519, "Storage"),
-					icon = "UI/Icons/Buildings/storages.tga",
-					description = T(10421, "Resource-specific Storages"),
-					build_pos = 3,
-					category = "Storage",
-					close_parent = false,
-					action = function(obj, data)
-						local parent = GetDialog(data)
-						parent:SelectSubCategory(data, category_id)
-					end
-				}
-			end
+	
+	for _, preset in ipairs(Presets.BuildMenuSubcategory.Default) do
+		if preset.category == category_id and subcategories[preset.id] then
+			items[#items + 1] = {
+				Id = preset.id,
+				name = preset.category_name,
+				display_name = preset.display_name,
+				icon = preset.icon,
+				description = preset.description,
+				build_pos = preset.build_pos,
+				category = preset.category,
+				close_parent = preset.close_parent,
+				action = function(context, button)
+					preset.action(preset, context, button)
+				end,
+			}
+			count = count + 1
 		end
 	end
 	
@@ -1019,6 +1064,7 @@ function UIItemMenu(category_id, bCreateItems)
 		}
 		count = count + 2
 	end
+	
 	table.sortby(items, "build_pos")
 	if bCreateItems then
 		return items, count
@@ -1093,7 +1139,7 @@ end
 
 function RefreshXBuildMenu()
 	local build_menu = GetDialog("XBuildMenu")
-	if not build_menu then return end
+	if not build_menu or build_menu.window_state == "destroying" then return end
 	
 	--a thread is needed here, because buildings add themselves to labels in their GameInit()
 	--this way `wonder` buildings are taken into account when refreshing
@@ -1141,4 +1187,8 @@ function OnMsg.SelectionChange()
 	if SelectedObj then
 		CloseXBuildMenu()
 	end
+end
+
+function OnMsg.TechResearched()
+	RefreshXBuildMenu()
 end

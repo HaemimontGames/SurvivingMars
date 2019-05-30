@@ -19,7 +19,7 @@ PlaceObj('AmbientLife', {
 		'group', "A",
 	}),
 	PlaceObj('XPrgLeadTo', {
-		'loc', "Exit",
+		'loc', "PassableExit",
 		'unit', "unit",
 		'spot_obj', "bld",
 	}),

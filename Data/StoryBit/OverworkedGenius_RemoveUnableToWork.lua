@@ -7,7 +7,6 @@ PlaceObj('StoryBit', {
 			'Apply', false,
 		}),
 	},
-	Comment = "should remove Unable to Work status",
 	Effects = {},
 	Prerequisites = {},
 	ScriptDone = true,
@@ -16,5 +15,14 @@ PlaceObj('StoryBit', {
 	TextsDone = true,
 	group = "Colonists",
 	id = "OverworkedGenius_RemoveUnableToWork",
+	qa_info = PlaceObj('PresetQAInfo', {
+		data = {
+			{
+				action = "Modified",
+				time = 1549631942,
+				user = "Radomir",
+			},
+		},
+	}),
 })
 

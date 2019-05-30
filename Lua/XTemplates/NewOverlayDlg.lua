@@ -18,11 +18,11 @@ PlaceObj('XTemplate', {
 			PlaceObj('XTemplateFunc', {
 				'name', "Open",
 				'func', function (self, ...)
-XFrame.Open(self, ...)
-local pad = self:GetPadding()
-local margin = GetSafeMargins(pad)
-self:SetPadding(margin)
-end,
+					XFrame.Open(self, ...)
+					local pad = self:GetPadding()
+					local margin = GetSafeMargins(pad)
+					self:SetPadding(margin)
+				end,
 			}),
 			PlaceObj('XTemplateTemplate', {
 				'__template', "ActionBarNew",

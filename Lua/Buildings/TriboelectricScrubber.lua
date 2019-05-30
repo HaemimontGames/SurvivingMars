@@ -18,11 +18,15 @@ function TriboelectricScrubberBase:OnSetWorking(working)
 	self:UpdateSphereRotation()
 end
 
+function TriboelectricScrubberBase:GetDemolishObjs(list)
+	list[#list + 1] = self.sphere or nil
+end
+
 ----
 
 DefineClass.TriboelectricScrubber =
 {
-	__parents = {"UIRangeBuilding", "ElectricityConsumer", "OutsideBuildingWithShifts", "TriboelectricScrubberBase"  },
+	__parents = {"RangeElConsumer", "OutsideBuildingWithShifts", "TriboelectricScrubberBase"  },
 
 	properties =
 	{
@@ -53,16 +57,8 @@ function TriboelectricScrubber:Done()
 	DoneObject(self.sphere)
 end
 
-function TriboelectricScrubber:UpdateElectricityConsumption()
-	local range = self.UIRange
-	local prop_meta = self:GetPropertyMetadata("UIRange")
-	local min_range = prop_meta.min
-	local template = ClassTemplates.Building[self.template_name]
-	self:SetBase("electricity_consumption", MulDivRound(range * range, template.electricity_consumption, min_range * min_range))
-end
-
-function TriboelectricScrubber:ForEachBuildingInRange(exec, ...)
-	MapForEach(self, "hex", self.UIRange, "Building", "DustGridElement", exec, ...)
+function TriboelectricScrubber:ForEachDirtyInRange(exec, ...)
+	MapForEach(self, "hex", self.UIRange, "Building", "DustGridElement", "DroneBase", exec, ...)
 end
 
 function TriboelectricScrubber:OnPostChangeRange()
@@ -109,24 +105,22 @@ function TriboelectricScrubber:ResetCharging()
 	end, self)
 end
 
-function TriboelectricScrubber:GetDemolishObjs(list)
-	Building.GetDemolishObjs(self, list)
-	list[#list + 1] = self.sphere or nil
-end
-
 function TriboelectricScrubber:CleanBuildings()
 	if not self.working then
 		return
 	end
 	
-	self:ForEachBuildingInRange(function(building, self)
-		if building ~= self then
-			if building:IsKindOf("DustGridElement") then
-				building:AddDust(-self.dust_clean)
-			elseif not building.parent_dome then --outside of dome
-				building:AccumulateMaintenancePoints(-self.dust_clean)
+	self:ForEachDirtyInRange(function(dirty, self)
+		if dirty:IsKindOf("Building") then
+			if dirty ~= self then				
+				if dirty:IsKindOf("DustGridElement") then
+					dirty:AddDust(-self.dust_clean)
+				elseif not dirty.parent_dome then --outside of dome
+					dirty:AccumulateMaintenancePoints(-self.dust_clean)
+				end
 			end
-			PlayFX("ChargedCleanBuilding", "start", self.sphere, building)
+		elseif dirty:IsKindOf("DroneBase") then
+			dirty:AddDust(-self.dust_clean)
 		end
 	end, self)
 end

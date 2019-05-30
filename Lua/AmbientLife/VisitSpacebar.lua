@@ -8,6 +8,7 @@ local _slots = {
 		groups = {
 			["A"] = true,
 		},
+		spot_state = "idle",
 		spots = {
 			"Visitbarchair",
 		},

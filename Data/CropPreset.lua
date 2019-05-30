@@ -12,13 +12,13 @@ PlaceObj('CropPreset', {
 	OxygenProduction = 500,
 	Priority = 9,
 	SortKey = 100010,
-	group = "Default",
+	group = "Hydroponic Farm",
 	icon = "UI/Icons/Buildings/crops_rice_giant.tga",
 	id = "Mystery9_GanymedeRice",
 })
 
 PlaceObj('CropPreset', {
-	CropEntity = "CropRice",
+	CropEntity = "CropRiceGiant",
 	Desc = T(7008, --[[CropPreset Giant Rice Desc]] "Great yield but grows slowly and requires more Water"),
 	DisplayName = T(7009, --[[CropPreset Giant Rice DisplayName]] "Giant Rice"),
 	FarmClass = "FarmHydroponic",
@@ -27,9 +27,152 @@ PlaceObj('CropPreset', {
 	Priority = 8,
 	SortKey = 100020,
 	WaterDemand = 900,
-	group = "Default",
+	group = "Hydroponic Farm",
 	icon = "UI/Icons/Buildings/crops_rice_giant.tga",
 	id = "Giant Rice",
+})
+
+PlaceObj('CropPreset', {
+	CropEntity = "CropRice",
+	Desc = T(7008, --[[CropPreset Rice Desc]] "Great yield but grows slowly and requires more Water"),
+	DisplayName = T(7007, --[[CropPreset Rice DisplayName]] "Rice"),
+	FarmClass = "FarmHydroponic",
+	FoodOutput = 15000,
+	OxygenProduction = 100,
+	Priority = 7,
+	SortKey = 100030,
+	WaterDemand = 900,
+	group = "Hydroponic Farm",
+	icon = "UI/Icons/Buildings/crops_rice.tga",
+	id = "Rice",
+})
+
+PlaceObj('CropPreset', {
+	CropEntity = "CropWheatGrass",
+	Desc = T(6993, --[[CropPreset Wheat Grass Desc]] "Low yield but grows very fast"),
+	DisplayName = T(6992, --[[CropPreset Wheat Grass DisplayName]] "Wheat Grass"),
+	FarmClass = "FarmHydroponic",
+	FoodOutput = 2500,
+	GrowthTime = 720000,
+	InitialGrowthTime = 720000,
+	OxygenProduction = 100,
+	SortKey = 100030,
+	WaterDemand = 600,
+	group = "Hydroponic Farm",
+	icon = "UI/Icons/Buildings/crops_wheat_grass.tga",
+	id = "Wheat Grass",
+})
+
+PlaceObj('CropPreset', {
+	CropEntity = "CropSpinachGiant",
+	Desc = T(6988, --[[CropPreset Giant Leaf Crops Desc]] "Good yield but slow growth"),
+	DisplayName = T(6989, --[[CropPreset Giant Leaf Crops DisplayName]] "Giant Leaf Crops"),
+	FarmClass = "FarmHydroponic",
+	FoodOutput = 16000,
+	OxygenProduction = 100,
+	Priority = 6,
+	SortKey = 100040,
+	WaterDemand = 600,
+	group = "Hydroponic Farm",
+	icon = "UI/Icons/Buildings/crops_leaf_giant.tga",
+	id = "Giant Leaf Crops",
+})
+
+PlaceObj('CropPreset', {
+	CropEntity = "CropLettuce",
+	Desc = T(6988, --[[CropPreset Leaf Crops Desc]] "Good yield but slow growth"),
+	DisplayName = T(6987, --[[CropPreset Leaf Crops DisplayName]] "Leaf Crops"),
+	FarmClass = "FarmHydroponic",
+	FoodOutput = 12000,
+	OxygenProduction = 100,
+	Priority = 5,
+	SortKey = 100050,
+	WaterDemand = 600,
+	group = "Hydroponic Farm",
+	icon = "UI/Icons/Buildings/crops_leaf.tga",
+	id = "Leaf Crops",
+})
+
+PlaceObj('CropPreset', {
+	CropEntity = "CropHerb",
+	Desc = T(6991, --[[CropPreset Microgreens Desc]] "Low yield and slow growth, but require less Water"),
+	DisplayName = T(6990, --[[CropPreset Microgreens DisplayName]] "Microgreens"),
+	FarmClass = "FarmHydroponic",
+	FoodOutput = 10000,
+	OxygenProduction = 100,
+	Priority = 3,
+	SortKey = 100070,
+	WaterDemand = 300,
+	group = "Hydroponic Farm",
+	icon = "UI/Icons/Buildings/crops_herbs.tga",
+	id = "Microgreens",
+})
+
+PlaceObj('CropPreset', {
+	CropEntity = "CropCucumber",
+	Desc = T(7011, --[[CropPreset Vegetables Desc]] "Good yield and grows slowly but requires less Water"),
+	DisplayName = T(7010, --[[CropPreset Vegetables DisplayName]] "Vegetables"),
+	FarmClass = "FarmHydroponic",
+	FoodOutput = 12500,
+	GrowthSequence = "idle3,idle4",
+	InitialGrowthSequence = "idle,idle2,idle3,idle4",
+	OxygenProduction = 100,
+	Priority = 3,
+	SortKey = 100070,
+	WaterDemand = 500,
+	group = "Hydroponic Farm",
+	icon = "UI/Icons/Buildings/crops_cucumber.tga",
+	id = "Vegetables",
+})
+
+PlaceObj('CropPreset', {
+	CropEntity = "CropWheatGrassGiant",
+	Desc = T(6993, --[[CropPreset Giant Wheat Grass Desc]] "Low yield but grows very fast"),
+	DisplayName = T(6994, --[[CropPreset Giant Wheat Grass DisplayName]] "Giant Wheat Grass"),
+	FarmClass = "FarmHydroponic",
+	FoodOutput = 3500,
+	GrowthTime = 720000,
+	InitialGrowthTime = 720000,
+	OxygenProduction = 100,
+	Priority = 1,
+	SortKey = 100090,
+	WaterDemand = 600,
+	group = "Hydroponic Farm",
+	icon = "UI/Icons/Buildings/crops_wheat_grass_giant.tga",
+	id = "Giant Wheat Grass",
+})
+
+PlaceObj('CropPreset', {
+	CropEntity = "CropAlgae",
+	Desc = T(7004, --[[CropPreset Algae Desc]] "Very low yield but produces Oxygen"),
+	DisplayName = T(7003, --[[CropPreset Algae DisplayName]] "Algae"),
+	FarmClass = "FarmHydroponic",
+	FoodOutput = 2000,
+	GrowthTime = 720000,
+	InitialGrowthTime = 720000,
+	SortKey = 100100,
+	WaterDemand = 600,
+	group = "Hydroponic Farm",
+	icon = "UI/Icons/Buildings/crops_algae.tga",
+	id = "Algae",
+})
+
+PlaceObj('CropPreset', {
+	CropEntity = "CropKelp",
+	Desc = T(7013, --[[CropPreset Kelp Desc]] "Average yield but grows very fast and produces Oxygen"),
+	DisplayName = T(7012, --[[CropPreset Kelp DisplayName]] "Kelp"),
+	FarmClass = "FarmHydroponic",
+	FoodOutput = 3200,
+	GrowthSequence = "idle2,idle3",
+	GrowthTime = 720000,
+	InitialGrowthSequence = "idle,idle2,idle3",
+	InitialGrowthTime = 720000,
+	OxygenProduction = 500,
+	SortKey = 100100,
+	WaterDemand = 600,
+	group = "Hydroponic Farm",
+	icon = "UI/Icons/Buildings/crops_kelp.tga",
+	id = "Kelp",
 })
 
 PlaceObj('CropPreset', {
@@ -44,39 +187,9 @@ PlaceObj('CropPreset', {
 	Priority = 7,
 	SortKey = 100030,
 	WaterDemand = 1600,
-	group = "Default",
+	group = "Farm",
 	icon = "UI/Icons/Buildings/crops_quinoa.tga",
 	id = "Quinoa",
-})
-
-PlaceObj('CropPreset', {
-	CropEntity = "CropRice",
-	Desc = T(7008, --[[CropPreset Rice Desc]] "Great yield but grows slowly and requires more Water"),
-	DisplayName = T(7007, --[[CropPreset Rice DisplayName]] "Rice"),
-	FarmClass = "FarmHydroponic",
-	FoodOutput = 15000,
-	OxygenProduction = 100,
-	Priority = 7,
-	SortKey = 100030,
-	WaterDemand = 900,
-	group = "Default",
-	icon = "UI/Icons/Buildings/crops_rice.tga",
-	id = "Rice",
-})
-
-PlaceObj('CropPreset', {
-	CropEntity = "CropSpinachGiant",
-	Desc = T(6988, --[[CropPreset Giant Leaf Crops Desc]] "Good yield but slow growth"),
-	DisplayName = T(6989, --[[CropPreset Giant Leaf Crops DisplayName]] "Giant Leaf Crops"),
-	FarmClass = "FarmHydroponic",
-	FoodOutput = 16000,
-	OxygenProduction = 100,
-	Priority = 6,
-	SortKey = 100040,
-	WaterDemand = 600,
-	group = "Default",
-	icon = "UI/Icons/Buildings/crops_leaf_giant.tga",
-	id = "Giant Leaf Crops",
 })
 
 PlaceObj('CropPreset', {
@@ -91,7 +204,7 @@ PlaceObj('CropPreset', {
 	Priority = 6,
 	SortKey = 100040,
 	WaterDemand = 1600,
-	group = "Default",
+	group = "Farm",
 	icon = "UI/Icons/Buildings/crops_wheat_giant.tga",
 	id = "Giant Wheat",
 })
@@ -109,24 +222,9 @@ PlaceObj('CropPreset', {
 	SoilEffect = -10,
 	SortKey = 100050,
 	WaterDemand = 3000,
-	group = "Default",
+	group = "Farm",
 	icon = "UI/Icons/Buildings/crops_corn_giant.tga",
 	id = "Giant Corn",
-})
-
-PlaceObj('CropPreset', {
-	CropEntity = "CropLettuce",
-	Desc = T(6988, --[[CropPreset Leaf Crops Desc]] "Good yield but slow growth"),
-	DisplayName = T(6987, --[[CropPreset Leaf Crops DisplayName]] "Leaf Crops"),
-	FarmClass = "FarmHydroponic",
-	FoodOutput = 12000,
-	OxygenProduction = 100,
-	Priority = 5,
-	SortKey = 100050,
-	WaterDemand = 600,
-	group = "Default",
-	icon = "UI/Icons/Buildings/crops_leaf.tga",
-	id = "Leaf Crops",
 })
 
 PlaceObj('CropPreset', {
@@ -141,7 +239,7 @@ PlaceObj('CropPreset', {
 	Priority = 5,
 	SortKey = 100050,
 	WaterDemand = 1600,
-	group = "Default",
+	group = "Farm",
 	icon = "UI/Icons/Buildings/crops_wheat.tga",
 	id = "Wheat",
 })
@@ -159,7 +257,7 @@ PlaceObj('CropPreset', {
 	SoilEffect = -10,
 	SortKey = 100060,
 	WaterDemand = 3000,
-	group = "Default",
+	group = "Farm",
 	icon = "UI/Icons/Buildings/crops_corn.tga",
 	id = "Corn",
 })
@@ -177,41 +275,9 @@ PlaceObj('CropPreset', {
 	SoilEffect = -10,
 	SortKey = 100070,
 	WaterDemand = 2400,
-	group = "Default",
+	group = "Farm",
 	icon = "UI/Icons/Buildings/crops_potato_giant.tga",
 	id = "Giant Potatoes",
-})
-
-PlaceObj('CropPreset', {
-	CropEntity = "CropHerb",
-	Desc = T(6991, --[[CropPreset Microgreens Desc]] "Low yield and slow growth, but require less Water"),
-	DisplayName = T(6990, --[[CropPreset Microgreens DisplayName]] "Microgreens"),
-	FarmClass = "FarmHydroponic",
-	FoodOutput = 10000,
-	OxygenProduction = 100,
-	Priority = 3,
-	SortKey = 100070,
-	WaterDemand = 300,
-	group = "Default",
-	icon = "UI/Icons/Buildings/crops_herbs.tga",
-	id = "Microgreens",
-})
-
-PlaceObj('CropPreset', {
-	CropEntity = "CropCucumber",
-	Desc = T(7011, --[[CropPreset Vegetables Desc]] "Good yield and grows slowly but requires less Water"),
-	DisplayName = T(7010, --[[CropPreset Vegetables DisplayName]] "Vegetables"),
-	FarmClass = "FarmHydroponic",
-	FoodOutput = 12500,
-	GrowthSequence = "idle3,idle4",
-	InitialGrowthSequence = "idle,idle2,idle3,idle4",
-	OxygenProduction = 100,
-	Priority = 3,
-	SortKey = 100070,
-	WaterDemand = 500,
-	group = "Default",
-	icon = "UI/Icons/Buildings/crops_cucumber.tga",
-	id = "Vegetables",
 })
 
 PlaceObj('CropPreset', {
@@ -229,7 +295,7 @@ PlaceObj('CropPreset', {
 	SoilEffect = -30,
 	SortKey = 100080,
 	WaterDemand = 2400,
-	group = "Default",
+	group = "Farm",
 	icon = "UI/Icons/Buildings/crops_cure_crop.tga",
 	id = "Cure",
 })
@@ -248,7 +314,7 @@ PlaceObj('CropPreset', {
 	SoilEffect = 10,
 	SortKey = 100080,
 	WaterDemand = 2400,
-	group = "Default",
+	group = "Farm",
 	icon = "UI/Icons/Buildings/crops_apples.tga",
 	id = "Fruit Trees",
 })
@@ -266,41 +332,9 @@ PlaceObj('CropPreset', {
 	SoilEffect = -10,
 	SortKey = 100080,
 	WaterDemand = 2400,
-	group = "Default",
+	group = "Farm",
 	icon = "UI/Icons/Buildings/crops_potato.tga",
 	id = "Potatoes",
-})
-
-PlaceObj('CropPreset', {
-	CropEntity = "CropWheatGrassGiant",
-	Desc = T(6993, --[[CropPreset Giant Wheat Grass Desc]] "Low yield but grows very fast"),
-	DisplayName = T(6994, --[[CropPreset Giant Wheat Grass DisplayName]] "Giant Wheat Grass"),
-	FarmClass = "FarmHydroponic",
-	FoodOutput = 3500,
-	GrowthTime = 720000,
-	InitialGrowthTime = 720000,
-	OxygenProduction = 100,
-	Priority = 1,
-	SortKey = 100090,
-	WaterDemand = 600,
-	group = "Default",
-	icon = "UI/Icons/Buildings/crops_wheat_grass_giant.tga",
-	id = "Giant Wheat Grass",
-})
-
-PlaceObj('CropPreset', {
-	CropEntity = "CropAlgae",
-	Desc = T(7004, --[[CropPreset Algae Desc]] "Very low yield but produces Oxygen"),
-	DisplayName = T(7003, --[[CropPreset Algae DisplayName]] "Algae"),
-	FarmClass = "FarmHydroponic",
-	FoodOutput = 2000,
-	GrowthTime = 720000,
-	InitialGrowthTime = 720000,
-	SortKey = 100100,
-	WaterDemand = 600,
-	group = "Default",
-	icon = "UI/Icons/Buildings/crops_algae.tga",
-	id = "Algae",
 })
 
 PlaceObj('CropPreset', {
@@ -315,27 +349,9 @@ PlaceObj('CropPreset', {
 	SoilEffect = 40,
 	SortKey = 100100,
 	WaterDemand = 2400,
-	group = "Default",
+	group = "Farm",
 	icon = "UI/Icons/Buildings/crops_silk_trees.tga",
 	id = "Cover Crops",
-})
-
-PlaceObj('CropPreset', {
-	CropEntity = "CropKelp",
-	Desc = T(7013, --[[CropPreset Kelp Desc]] "Average yield but grows very fast and produces Oxygen"),
-	DisplayName = T(7012, --[[CropPreset Kelp DisplayName]] "Kelp"),
-	FarmClass = "FarmHydroponic",
-	FoodOutput = 3200,
-	GrowthSequence = "idle2,idle3",
-	GrowthTime = 720000,
-	InitialGrowthSequence = "idle,idle2,idle3",
-	InitialGrowthTime = 720000,
-	OxygenProduction = 500,
-	SortKey = 100100,
-	WaterDemand = 600,
-	group = "Default",
-	icon = "UI/Icons/Buildings/crops_kelp.tga",
-	id = "Kelp",
 })
 
 PlaceObj('CropPreset', {
@@ -350,24 +366,8 @@ PlaceObj('CropPreset', {
 	SoilEffect = 10,
 	SortKey = 100100,
 	WaterDemand = 2000,
-	group = "Default",
+	group = "Farm",
 	icon = "UI/Icons/Buildings/crops_soybeans.tga",
 	id = "Soybeans",
-})
-
-PlaceObj('CropPreset', {
-	CropEntity = "CropWheatGrass",
-	Desc = T(6993, --[[CropPreset Wheat Grass Desc]] "Low yield but grows very fast"),
-	DisplayName = T(6992, --[[CropPreset Wheat Grass DisplayName]] "Wheat Grass"),
-	FarmClass = "FarmHydroponic",
-	FoodOutput = 2500,
-	GrowthTime = 720000,
-	InitialGrowthTime = 720000,
-	OxygenProduction = 100,
-	SortKey = 100100,
-	WaterDemand = 600,
-	group = "Default",
-	icon = "UI/Icons/Buildings/crops_wheat_grass.tga",
-	id = "Wheat Grass",
 })
 

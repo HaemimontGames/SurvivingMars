@@ -12,20 +12,21 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "Open",
 			'func', function (self, ...)
-ViewAndSelectDome(self.context.dome)
-self.context:SetDialog(self)
-XDialog.Open(self, ...)
-end,
+				ViewAndSelectDome(self.context.dome)
+				self.context:SetDialog(self)
+				XDialog.Open(self, ...)
+			end,
 		}),
 		PlaceObj('XTemplateFunc', {
 			'name', "Close",
 			'func', function (self, ...)
-if DomeTraitsCameraParams then
-	SetCamera(table.unpack(DomeTraitsCameraParams))
-	DomeTraitsCameraParams = false
-end
-XDialog.Close(self, ...)
-end,
+				if DomeTraitsCameraParams then
+					SetCamera(table.unpack(DomeTraitsCameraParams))
+					DomeTraitsCameraParams = false
+				end
+				g_UITraitsObject = false
+				XDialog.Close(self, ...)
+			end,
 		}),
 		PlaceObj('XTemplateWindow', {
 			'HAlign', "right",
@@ -55,11 +56,11 @@ end,
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
 					'func', function (self, ...)
-XFrame.Open(self, ...)
-local pad = self:GetPadding()
-local margin = GetSafeMargins(pad)
-self:SetPadding(box(pad:minx(), margin:miny(), margin:maxx(), margin:maxy()))
-end,
+						XFrame.Open(self, ...)
+						local pad = self:GetPadding()
+						local margin = GetSafeMargins(pad)
+						self:SetPadding(box(pad:minx(), margin:miny(), margin:maxx(), margin:maxy()))
+					end,
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XText",
@@ -120,15 +121,15 @@ end,
 						'ShowPartialItems', false,
 						'MouseScroll', true,
 						'OnContextUpdate', function (self, context, ...)
-XContentTemplateList.OnContextUpdate(self, context, ...)
-if self.focused_item then
-	self.focused_item =  Min(self.focused_item, #self)
-	self:DeleteThread("select")
-	self:CreateThread("select", function()
-		self:SetSelection(self.focused_item)
-	end)
-end
-end,
+							XContentTemplateList.OnContextUpdate(self, context, ...)
+							if self.focused_item then
+								self.focused_item =  Min(self.focused_item, #self)
+								self:DeleteThread("select")
+								self:CreateThread("select", function()
+									self:SetSelection(self.focused_item)
+								end)
+							end
+						end,
 						'RespawnOnContext', false,
 					}, {
 						PlaceObj('XTemplateMode', {
@@ -136,23 +137,23 @@ end,
 						}, {
 							PlaceObj('XTemplateCode', {
 								'run', function (self, parent, context)
-parent:ResolveId("idTitle"):SetText(T(1117, "CATEGORIES"))
-end,
+									parent:ResolveId("idTitle"):SetText(T(1117, "CATEGORIES"))
+								end,
 							}),
 							PlaceObj('XTemplateForEach', {
 								'comment', "category",
 								'array', function (parent, context) return context:GetProperties() end,
 								'item_in_context', "prop_meta",
 								'run_after', function (child, context, item, i, n)
-local rollover = context:GetCategoryRollover(item)
-if rollover then
-	child:SetRolloverTitle(rollover.title)
-	child:SetRolloverText(rollover.descr)
-	child:SetRolloverHint(rollover.hint)
-	child:SetRolloverHintGamepad(rollover.gamepad_hint)
-	child:SetId(item.id)
-end
-end,
+									local rollover = context:GetCategoryRollover(item)
+									if rollover then
+										child:SetRolloverTitle(rollover.title)
+										child:SetRolloverText(rollover.descr)
+										child:SetRolloverHint(rollover.hint)
+										child:SetRolloverHintGamepad(rollover.gamepad_hint)
+										child:SetId(item.id)
+									end
+								end,
 							}, {
 								PlaceObj('XTemplateTemplate', {
 									'__template', "PropTrait",
@@ -176,23 +177,23 @@ end,
 						}, {
 							PlaceObj('XTemplateCode', {
 								'run', function (self, parent, context)
-parent:ResolveId("idTitle"):SetText(GetDialogModeParam(parent).name)
-end,
+									parent:ResolveId("idTitle"):SetText(GetDialogModeParam(parent).name)
+								end,
 							}),
 							PlaceObj('XTemplateForEach', {
 								'comment', "item",
 								'array', function (parent, context) return GetDialogModeParam(parent).items(context) end,
 								'item_in_context', "prop_meta",
 								'run_after', function (child, context, item, i, n)
-local rollover = item.rollover
-if rollover then
-	child:SetRolloverTitle(rollover.title)
-	child:SetRolloverText(rollover.descr)
-	child:SetRolloverHint(rollover.hint)
-	child:SetRolloverHintGamepad(rollover.gamepad_hint)
-	child:SetId(item.value)
-end
-end,
+									local rollover = item.rollover
+									if rollover then
+										child:SetRolloverTitle(rollover.title)
+										child:SetRolloverText(rollover.descr)
+										child:SetRolloverHint(rollover.hint)
+										child:SetRolloverHintGamepad(rollover.gamepad_hint)
+										child:SetId(item.value)
+									end
+								end,
 							}, {
 								PlaceObj('XTemplateTemplate', {
 									'__template', "PropTrait",
@@ -228,9 +229,9 @@ end,
 				PlaceObj('XTemplateFunc', {
 					'name', "Open",
 					'func', function (self, ...)
-XWindow.Open(self, ...)
-self:SetMargins(GetSafeMargins(self:GetMargins()))
-end,
+						XWindow.Open(self, ...)
+						self:SetMargins(GetSafeMargins(self:GetMargins()))
+					end,
 				}),
 				PlaceObj('XTemplateWindow', {
 					'__class', "XFrame",
@@ -260,13 +261,13 @@ end,
 				'ActionToolbar', "ActionBar",
 				'ActionGamepad', "LeftTrigger",
 				'OnAction', function (self, host, source)
-host:CreateThread("close_dialog", function()
-	local prop_meta = GetDialogModeParam(host)
-	local category = prop_meta and prop_meta.id or nil
-	host.context:WaitAskToApplyTraitsFilter()
-	CycleFilterTraits(host.context, -1, category)
-end)
-end,
+					host:CreateThread("close_dialog", function()
+						local prop_meta = GetDialogModeParam(host)
+						local category = prop_meta and prop_meta.id or nil
+						host.context:WaitAskToApplyTraitsFilter()
+						CycleFilterTraits(host.context, -1, category)
+					end)
+				end,
 				'__condition', function (parent, context) return UICity and #(UICity.labels.Dome or "") > 1 end,
 			}),
 			PlaceObj('XTemplateAction', {
@@ -275,13 +276,13 @@ end,
 				'ActionToolbar', "ActionBar",
 				'ActionGamepad', "RightTrigger",
 				'OnAction', function (self, host, source)
-host:CreateThread("close_dialog", function()
-	local prop_meta = GetDialogModeParam(host)
-	local category = prop_meta and prop_meta.id or nil
-	host.context:WaitAskToApplyTraitsFilter()
-	CycleFilterTraits(host.context, 1, category)
-end)
-end,
+					host:CreateThread("close_dialog", function()
+						local prop_meta = GetDialogModeParam(host)
+						local category = prop_meta and prop_meta.id or nil
+						host.context:WaitAskToApplyTraitsFilter()
+						CycleFilterTraits(host.context, 1, category)
+					end)
+				end,
 				'__condition', function (parent, context) return UICity and #(UICity.labels.Dome or "") > 1 end,
 			}),
 			PlaceObj('XTemplateAction', {
@@ -290,16 +291,16 @@ end,
 				'ActionToolbar', "ActionBar",
 				'ActionGamepad', "ButtonY",
 				'ActionState', function (self, host)
-local prop_meta = GetDialogModeParam(host)
-local category = prop_meta and prop_meta.id or nil
-if not host.context:CanClearFilter(category) then
-	return "disabled"
-end
-end,
+					local prop_meta = GetDialogModeParam(host)
+					local category = prop_meta and prop_meta.id or nil
+					if not host.context:CanClearFilter(category) then
+						return "disabled"
+					end
+				end,
 				'OnAction', function (self, host, source)
-local prop_meta = GetDialogModeParam(host)
-host.context:ClearTraits(prop_meta)
-end,
+					local prop_meta = GetDialogModeParam(host)
+					host.context:ClearTraits(prop_meta)
+				end,
 			}),
 			PlaceObj('XTemplateAction', {
 				'ActionId', "apply",
@@ -307,16 +308,16 @@ end,
 				'ActionToolbar', "ActionBar",
 				'ActionGamepad', "ButtonA",
 				'ActionState', function (self, host)
-local prop_meta = GetDialogModeParam(host)
-local category = prop_meta and prop_meta.id or nil
-if not host.context:CanApplyFilter(category) then
-	return "disabled"
-end
-end,
+					local prop_meta = GetDialogModeParam(host)
+					local category = prop_meta and prop_meta.id or nil
+					if not host.context:CanApplyFilter(category) then
+						return "disabled"
+					end
+				end,
 				'OnAction', function (self, host, source)
-local param = GetDialogModeParam(host)
-host.context:ApplyDomeFilter(param and param.id)
-end,
+					local param = GetDialogModeParam(host)
+					host.context:ApplyDomeFilter(param and param.id)
+				end,
 			}),
 			PlaceObj('XTemplateWindow', {
 				'__class', "XContentTemplate",
@@ -332,11 +333,11 @@ end,
 						'ActionShortcut', "Escape",
 						'ActionGamepad', "ButtonB",
 						'OnAction', function (self, host, source)
-host:CreateThread("close_dialog", function()
-	host.context:WaitAskToApplyTraitsFilter()
-	host:Close()
-end)
-end,
+							host:CreateThread("close_dialog", function()
+								host.context:WaitAskToApplyTraitsFilter()
+								host:Close()
+							end)
+						end,
 					}),
 					}),
 				PlaceObj('XTemplateMode', {

@@ -27,6 +27,9 @@ function CleanupHexRanges(obj, bind_func)
 end
 
 function ShowBuildingHexes(bld, hex_range_class, bind_func)
+	if not IsKindOf(bld, "Building") then
+		return false
+	end
 	if bld:IsValidPos() and not bld.destroyed then
 		CleanupHexRanges(bld, bind_func)
 		local obj = PlaceObject(hex_range_class)
@@ -49,6 +52,8 @@ local function ShowConstructionSiteHexes(site, bind_func)
 	update_hex_range(site)
 end
 
+local s_ConstructionLabels = {"ConstructionSite", "ConstructionSiteWithHeightSurfaces"}
+
 function ShowHexRanges(city, class, cursor_obj, bind_func, single_obj)
 	city = city or UICity
 	
@@ -57,15 +62,25 @@ function ShowHexRanges(city, class, cursor_obj, bind_func, single_obj)
 		return
 	end	
 	if single_obj and not class then
-		if single_obj.class == "ConstructionSite" then
+		if IsKindOf(single_obj, "ConstructionSite") then
 			ShowConstructionSiteHexes(single_obj, bind_func)
 		else
-			ShowBuildingHexes(single_obj, "RangeHexMovableRadius", bind_func)
+			ShowBuildingHexes(single_obj, single_obj == SelectedObj and "RangeHexMovableRadius" or "RangeHexMultiSelectRadius", bind_func)
 		end
 	end
 	if class and city.labels[class] then
 		for _, bld in ipairs(city.labels[class]) do
 			ShowBuildingHexes(bld, bld == SelectedObj and "RangeHexMovableRadius" or "RangeHexMultiSelectRadius", bind_func)
+		end
+		for _, label in ipairs(s_ConstructionLabels) do
+			local constructions = city.labels[label]
+			if constructions then
+				for _, site in ipairs(constructions) do
+					if site.building_class_proto:IsKindOf(class) then
+						ShowConstructionSiteHexes(site, bind_func)
+					end
+				end
+			end
 		end
 	end
 	if class and city.labels.ConstructionSite then
@@ -100,21 +115,27 @@ function HideHexRanges(city, class)
 	if city.labels[class] then
 		for _, bld in ipairs(city.labels[class]) do
 			for _, hex in ipairs(g_HexRanges[bld] or empty_table) do
-				DoneObject(hex)
-				g_HexRanges[bld] = nil
+				if IsValid(hex) then
+					DoneObject(hex)
+				end
 			end
+			g_HexRanges[bld] = nil
 		end
 	end
-	if city.labels.ConstructionSite then
-		for _, site in ipairs(city.labels.ConstructionSite) do
-			if IsKindOf(site.building_class_proto, class) then
-				for _, hex in ipairs(g_HexRanges[site] or empty_table) do
-					DoneObject(hex)
+	for _, label in ipairs(s_ConstructionLabels) do
+		if city.labels[label] then
+			for _, site in ipairs(city.labels[label]) do
+				if IsKindOf(site.building_class_proto, class) then
+					for _, hex in ipairs(g_HexRanges[site] or empty_table) do
+						if IsValid(hex) then
+							DoneObject(hex)
+						end
+					end
 					g_HexRanges[site] = nil
 				end
 			end
-		end
-	end	
+		end	
+	end
 end
 
 function UpdateHexRanges(city, class)
@@ -149,8 +170,10 @@ function OnMsg.SelectedObjChange(obj, prev)
 		-- ignore 'prev' so "end" is not fired twice
 		g_FXBuildingType = false
 	end
-	for _, hex in ipairs(g_HexRanges[prev] or empty_table) do
-		DoneObject(hex)
+	for _, hex_range in ipairs(g_HexRanges[prev] or empty_table) do
+		if IsValid(hex_range) then
+			DoneObject(hex_range)
+		end
 		g_HexRanges[prev] = nil
 	end
 	
@@ -214,7 +237,7 @@ function ViewAndSelectDome(obj)
 	SelectObj(obj)
 	
 	local cur_pos, cur_la = cameraRTS.GetPosLookAt()
-	local radius = obj:GetRadius()
+	local radius = ObjectHierarchyBSphere(obj)
 	local dx, dy = (cur_la - cur_pos):xy()
 	local norm = SetLen(point(-dy, dx, 0), radius)
 	local la = obj:GetVisualPos() + norm
@@ -225,10 +248,11 @@ end
 
 IGIModeClasses = {}
 function OnMsg.ClassesBuilt()
-	local classes = ClassDescendantsList("InterfaceModeDialog")
-	for i=1,#classes do
-		IGIModeClasses[g_Classes[classes[i]].mode_name] = classes[i]
-	end
+	ClassDescendantsList("InterfaceModeDialog", function(class, classdef)
+		if classdef.mode_name then
+			IGIModeClasses[classdef.mode_name] = class
+		end
+	end)
 end
 
 DefineClass.InGameInterface = {
@@ -403,7 +427,7 @@ function InGameInterface:RecalcWindowScale()
 	self:SetWindowScale(GetUIScale())
 end
 
-function InGameInterface:SetMode(mode, params)
+function InGameInterface:SetMode(mode, context)
 	self.switching_mode = true
 	if self.mode_dialog then
 		self.mode_dialog:Close()
@@ -411,11 +435,16 @@ function InGameInterface:SetMode(mode, params)
 	local class_name = IGIModeClasses[mode]
 	local class = class_name and g_Classes[class_name]
 	assert(class and class:IsKindOf("InterfaceModeDialog"))
-	self.mode_dialog = OpenDialog(class_name, self, params)
+	self.mode_dialog = OpenDialog(class_name, self, context)
 	self.mode = mode
 	InGameInterfaceMode = mode
-	if IsKindOfClasses(SelectedObj, "DroneBase", "Colonist") and self.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
-		self.mode_dialog:ActivateUnitControl(SelectedObj, SelectedObj.start_player_controllable)
+	if self.mode_dialog:IsKindOf("UnitDirectionModeDialog") then
+		if IsKindOfClasses(SelectedObj, "DroneBase", "Colonist") or
+			(IsKindOf(SelectedObj, "MultiSelectionWrapper") and
+			(SelectedObj:IsClassSupported("DroneBase") or SelectedObj:IsClassSupported("Colonist")))
+		then
+			self.mode_dialog:ActivateUnitControl(SelectedObj, SelectedObj.start_player_controllable)
+		end
 	end
 	if self.mode == "selection" then
 		--resurrect infopanel
@@ -612,7 +641,7 @@ end
 function OnMsg.SelectionChange()
 	local dlg = GetInGameInterfaceModeDlg()
 	if IsKindOf(dlg, "UnitDirectionModeDialog") then
-		if IsKindOfClasses(SelectedObj, "DroneBase", "Colonist") then
+		if IsKindOfClasses(SelectedObj, "DroneBase", "Colonist", "MultiSelectionWrapper") then
 			if SelectedObj ~= dlg.unit then
 				if dlg.mode_name == "overview" then
 					dlg.saved_camera = nil
@@ -688,7 +717,7 @@ function RestoreInGameInterfaceOnLoadGame()
 end
 
 function CloseMenuDialogs()
-	local menu = GetDialog("IGMainMenu") or GetDialog("PGMainMenu")
+	local menu = GetPreGameMainMenu() or GetInGameMainMenu()
 	if menu and menu.window_state ~= "destroying" then
 		CloseDialog(menu)
 	end
@@ -800,3 +829,7 @@ function AddModifiersRolloverInfo(infopanel, obj)
 end
 
 end -- Platform.developer
+
+function SavegameFixups.RemoveHangedHexRanges()
+	MapForEach("map", "RangeHexRadius", function(o) if IsValid(o) then DoneObject(o) end end)
+end

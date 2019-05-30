@@ -46,6 +46,8 @@ function GetLoadedModsSavegameData()
 		active_mods[idx] = {
 			id = mod.id,
 			title = mod.title,
+			version_major = mod.version_major,
+			version_minor = mod.version_minor,
 			version = mod.version,
 			lua_revision = mod.lua_revision,
 		}
@@ -61,7 +63,7 @@ function GetMissingMods(active_mods, max_mods)
 		local local_mod = table.find_value(ModsLoaded, "id", mod.id or mod) or (Mods and Mods[mod.id or mod])
 		if (mod.lua_revision or 0) > LuaRevision or (mod.lua_revision or 9999999) < ModMinLuaRevision
 			or not local_mod or not table.find(AccountStorage.LoadMods, mod.id or mod)
-			or (local_mod and local_mod.version < (mod.version or 0)) then
+			or (local_mod and local_mod:CompareVersion(mod) < 0) then
 			if #mods_list >= max_mods then
 				more = true
 				break
@@ -139,6 +141,7 @@ end
 GlobalVar("SavegameBroken", false)
 
 local function LoadCallback(folder)
+	local interactive = not (Platform.developer and GetIgnoreDebugErrors())
 	local broken = false
 	local err, metadata = LoadMetadata(folder)
 	if not err then
@@ -146,11 +149,13 @@ local function LoadCallback(folder)
 			for _, dlc in ipairs(metadata.dlcs) do
 				if not IsDlcAvailable(dlc.id) then
 					if Platform.developer then
-						if WaitMarsQuestion(GetLoadingScreenDialog() or terminal.desktop, 
-							T(6851, "Warning"), T(8081, "The game can not be loaded because some required downloadable content is not installed."),
-							T(3686, "Load anyway"),
-							T(3687, "Cancel")) == "cancel" then
-							return "user cancelled"
+						if interactive then
+							if WaitMarsQuestion(GetLoadingScreenDialog() or terminal.desktop, 
+								T(6851, "Warning"), T(8081, "The game can not be loaded because some required downloadable content is not installed."),
+								T(3686, "Load anyway"),
+								T(3687, "Cancel")) == "cancel" then
+								return "user cancelled"
+							end
 						end
 						broken = true
 					else
@@ -161,27 +166,52 @@ local function LoadCallback(folder)
 			end
 		end
 		if (metadata.lua_revision or 0) < config.SupportedSavegameLuaRevision then
-			if WaitMarsQuestion(GetLoadingScreenDialog() or terminal.desktop, 
-				T(6851, "Warning"), T(3685, "This savegame is from an old version and may not function properly."),
-				T(3686, "Load anyway"),
-				T(3687, "Cancel")) == "cancel" then
-				return "user cancelled"
+			if interactive then
+				if WaitMarsQuestion(GetLoadingScreenDialog() or terminal.desktop, 
+					T(6851, "Warning"), T(3685, "This savegame is from an old version and may not function properly."),
+					T(3686, "Load anyway"),
+					T(3687, "Cancel")) == "cancel" then
+					return "user cancelled"
+				end
 			end
 			broken = true
 		end
 		local mods_list, more = GetMissingMods(metadata.active_mods, 3)
+		-- check for hard mod dep.
+		local all_mods = AccountStorage and AccountStorage.LoadMods
+		local skipped_mods = {}
+		for _, id in ipairs(all_mods or empty_table) do
+			local dependency_data = ModDependencyGraph[id]
+			if dependency_data then
+				for _, dep in ipairs(dependency_data.outgoing or empty_table) do
+					if dep.required and not table.find(AccountStorage.LoadMods, dep.id) then
+						table.insert_unique(skipped_mods, dep.own_mod.title)
+					end
+				end
+				for _, dep in ipairs(dependency_data.outgoing_failed or empty_table) do
+					if dep.required then
+						table.insert_unique(skipped_mods, dep.own_mod.title)
+					end
+				end
+			end
+		end
+		local mods_string
 		if #mods_list > 0 then
-			local mods_string = table.concat(mods_list, "\n")
+			mods_string = table.concat(mods_list, "\n")
 			if more then
 				mods_string = mods_string .. "\n..."
 			end
-			if WaitMarsQuestion(GetLoadingScreenDialog() or terminal.desktop, 
-				T(6851, "Warning"), T{8082, "The following mods are missing or incompatible:\n\n<mods>\n\nSome features may not work.", mods = Untranslated(mods_string)},
-				T(3686, "Load anyway"),
-				T(3687, "Cancel")) == "cancel" then
-				return "user cancelled"
-			end
 			broken = true
+		end
+		if mods_string or #(skipped_mods or "") > 0 then
+			if interactive then
+				if WaitMarsQuestion(GetLoadingScreenDialog() or terminal.desktop, 
+					T(6851, "Warning"), T{12444, "<if(mods)>The following mods are missing or incompatible:\n\n<mods>\n\n</if><if(skipped)>The following mods will not be loaded because of missing or incompatible dependencies:\n\n<skipped>\n\n</if>Some features may not work.", mods = Untranslated(mods_string), skipped = Untranslated(table.concat(skipped_mods, "\n"))},
+					T(3686, "Load anyway"),
+					T(3687, "Cancel")) == "cancel" then
+					return "user cancelled"
+				end
+			end
 		end
 		local sponsor = metadata.mission_sponsor_id and Presets.MissionSponsorPreset.Default[metadata.mission_sponsor_id]
 		if sponsor then
@@ -255,11 +285,13 @@ function CanSaveGame()
 end
 
 local function SetNextAutosaveSol()
+	g_AutosaveInterval = AccountStorage.Options.AutosaveInterval
 	g_NextAutosaveSol = UICity.day + AccountStorage.Options.AutosaveInterval
 end
 
+GlobalVar("g_AutosaveInterval", 0)
 function OnMsg.GameOptionsChanged(category)
-	if GameState.gameplay and category == "Gameplay" and g_NextAutosaveSol > UICity.day + AccountStorage.Options.AutosaveInterval then
+	if GameState.gameplay and category == "Gameplay" and g_AutosaveInterval ~= AccountStorage.Options.AutosaveInterval then
 		SetNextAutosaveSol()
 	end
 end

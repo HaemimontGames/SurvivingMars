@@ -1176,9 +1176,9 @@ function Colonist:GetFired()
 	if not self.workplace then
 		return
 	end
-	self:SetWorkplace(false)
 	self.avoid_workplace = self.workplace
 	self.avoid_workplace_start = self.city.day
+	self:SetWorkplace(false)
 	self:ChangeWorkplacePerformance()
 end
 

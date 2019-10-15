@@ -1071,6 +1071,59 @@ function AreDomesConnectedWithPassage(d1, d2)
 	return network1 and network1 == networks[d2]
 end
 
+local function PassageWave(d1, d2)
+	local write, read = {d1}, false
+	local dome_dist = {[d1] = 0}
+	local max_dist = 0
+	while #write > 0 do
+		max_dist = max_dist + 1
+		read = write
+		write = {}
+		for _, dome in ipairs(read) do
+			for d in pairs(dome.connected_domes or empty_table) do
+				assert(d.connected_domes[dome])
+				if d == d2 then
+					return max_dist, dome_dist
+				elseif not dome_dist[d] then
+					dome_dist[d] = max_dist
+					write[#write + 1] = d
+				end
+			end
+		end
+	end
+end
+	
+function GetDomesPassagePath(d1, d2)
+	if not AreDomesConnectedWithPassage(d1, d2) then
+		return
+	end
+	local max_dist, dome_dist = PassageWave(d2, d1)
+	assert(max_dist)
+	if not max_dist then
+		return
+	end
+	local path = {d1}
+	local min_dome = d1
+	local min_dist = max_dist
+	while true do
+		local current_dome = min_dome
+		for d in pairs(min_dome.connected_domes or empty_table) do
+			local dist = dome_dist[d] or max_int
+			if dist < min_dist or dist == min_dist and IsCloser2D(d, min_dome, current_dome) then
+				min_dist = dist
+				min_dome = d
+			end
+		end
+		if min_dome == current_dome then
+			break
+		end
+		path[#path + 1] = min_dome
+	end
+	assert(path[#path] == d2)
+	assert(#path == max_dist + 1)
+	return path
+end
+
 function Passage:Done()
 	if self.domes_connected then
 		DisconnectDomesConnectedWithPassage(self.domes_connected[1], self.domes_connected[2])
@@ -1920,6 +1973,20 @@ function DbgShowDomeNetworks(city)
 				DbgAddVector(pos, posi - pos, color)
 			end
 		end
+	end
+end
+
+function DbgDrawPassagePath(path, color)
+	color = color or RandColor(100, xxhash(path[1]:GetPos(), path[2]:GetPos()))
+	local offset = point(0, 0, 100*guim)
+	local pos = path[1]:GetVisualPos() + offset
+	DbgAddVector(pos, -offset, color)
+	for i = 2,#path do
+		local offset = point(0, 0, 100*guim + i * 10*guim)
+		local pos_i = path[i]:GetVisualPos() + offset
+		DbgAddVector(pos_i, -offset, color)
+		DbgAddVector(pos, pos_i - pos, color)
+		pos = pos_i
 	end
 end
 

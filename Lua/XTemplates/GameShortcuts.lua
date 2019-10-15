@@ -943,7 +943,7 @@ PlaceObj('XTemplate', {
 				end
 			end,
 			'IgnoreRepeated', true,
-			'__condition', function (parent, context) return not Platform.steam and not Platform.console end,
+			'__condition', function (parent, context) return not Platform.steam and not Platform.console and not Platform.windows_store end,
 		}),
 		PlaceObj('XTemplateAction', {
 			'ActionId', "actionNextDome",

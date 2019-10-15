@@ -57,6 +57,7 @@ local IsValidPos = CObject.IsValidPos
 local GetTopmostParent = GetTopmostParent
 local invalid_pos = InvalidPos()
 local GetPassablePointNearby = GetPassablePointNearby
+local min_dist_to_ignore_passage = const.ColonistMinDistToIgnorePassage
 
 
 --[[@@@
@@ -247,7 +248,8 @@ function IsInWalkingDistDome(bld1, bld2)
 	local dist = dist_map and dist_map[bld2]
 	if dist then
 		--only when bld1 and bld2 are domes can there be cache, hence
-		return dist[1] or AreDomesConnectedWithPassage(bld1, bld2), dist[2]
+		return dist[1] or AreDomesConnectedWithPassage(bld1, bld2) 
+			and (OpenAirBuildings or not IsLRTransportAvailable(UICity) or dist[2] <= min_dist_to_ignore_passage), dist[2]
 	end
 	return CheckDist(bld1, bld2)
 end
@@ -894,6 +896,8 @@ end
 function Dome:OnDestroyed()
 	ElectricityConsumer.OnDestroyed(self)
 	LifeSupportConsumer.OnDestroyed(self)
+	
+	Msg("DomeDestroyed", self)
 	
 	--replace non blocking interior with a blocking one
 	local interior = self:GetInteriorShape()

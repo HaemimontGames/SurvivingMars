@@ -109,7 +109,7 @@ PlaceObj('XTemplate', {
 					'ActionToolbar', "mainmenu",
 					'OnActionEffect', "mode",
 					'OnActionParam', "Achievements",
-					'__condition', function (parent, context) return not Platform.steam and not Platform.console end,
+					'__condition', function (parent, context) return not Platform.steam and not Platform.console and not Platform.windows_store end,
 				}),
 				PlaceObj('XTemplateAction', {
 					'ActionId', "idRestartMap",

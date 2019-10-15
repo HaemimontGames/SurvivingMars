@@ -1105,6 +1105,7 @@ DefineModItemPreset("TraitPreset", {
 	properties = {
 		{ id = "school_trait",     name = T(8627, "Is School Trait"),     editor = "bool", default = false, help = "If this trait will be added to the list of traits taught by the School." },
 		{ id = "sanatorium_trait", name = T(8628, "Is Sanatorium Trait"), editor = "bool", default = false, help = "If this trait will be added to the list of traits cured by the Sanatorium." },
+		{ id = "display_icon", name = "Icon", editor = "ui_image", default = false, filter = "All files|*.*", },
 	},
 	EditorName = "Trait",
 })

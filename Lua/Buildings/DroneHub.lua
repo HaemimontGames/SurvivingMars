@@ -584,12 +584,13 @@ function DroneControl:UpdateRocketsInternal()
 end
 
 function DroneControl:AddRocket(rocket)
-	local r_i = table.find(g_LandedRocketsInNeedOfFuel, rocket)
+	local need_fuel = g_LandedRocketsInNeedOfFuel
+	local r_i = table.find(need_fuel, rocket) or max_int
 	local r_p = rocket.priority
 	local rockets = self.serviced_rockets
 	local i = #rockets + 1
 	while i > 1 and (rockets[i - 1].priority < r_p 
-			or rockets[i - 1].priority == r_p and table.find(g_LandedRocketsInNeedOfFuel, rockets[i - 1]) > r_i) do
+			or rockets[i - 1].priority == r_p and (table.find(need_fuel, rockets[i - 1]) or max_int) > r_i) do
 		i = i - 1
 	end
 	table.insert(rockets, i, rocket)

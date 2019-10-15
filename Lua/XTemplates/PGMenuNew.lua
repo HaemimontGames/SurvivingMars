@@ -207,11 +207,19 @@ PlaceObj('XTemplate', {
 						'ActionName', T(12309, --[[XTemplate PGMenuNew ActionName]] "<image UI/Mods/platypus-white.tga 500>   PARADOX MOD MANAGER"),
 						'ActionIcon', "UI/Icons/main_menu_mod_manager.tga",
 						'ActionToolbar', "bottommenu",
+						'ActionState', function (self, host)
+							if Platform.windows_store and not WindowsStoreAllowUserCreatedContent then
+								self.RolloverDisabledText = T(1000931, "Mods are disabled because no Xbox Live user with privilege to see and upload community creations is logged in.")
+								self.RolloverDisabledTitle = T(6884, "Warning")
+								return "disabled"
+							end
+						end,
 						'OnActionParam', "ModManager",
 						'OnAction', function (self, host, source)
-							CreateRealTimeThread(function(self, host)
-								host:SetMode(self.OnActionParam)
-							end, self, host)
+							if Platform.windows_store and not WindowsStoreAllowUserCreatedContent then
+								return
+							end
+							host:SetMode(self.OnActionParam)
 						end,
 						'__condition', function (parent, context) return not Platform.ps4 end,
 					}),
@@ -220,11 +228,19 @@ PlaceObj('XTemplate', {
 						'ActionName', T(1130, --[[XTemplate PGMenuNew ActionName]] "MOD EDITOR"),
 						'ActionIcon', "UI/Icons/main_menu_mod_editor.tga",
 						'ActionToolbar', "bottommenu",
+						'ActionState', function (self, host)
+							if Platform.windows_store and not WindowsStoreAllowUserCreatedContent then
+								self.RolloverDisabledText = T(1000931, "Mods are disabled because no Xbox Live user with privilege to see and upload community creations is logged in.")
+								self.RolloverDisabledTitle = T(6884, "Warning")
+								return "disabled"
+							end
+						end,
 						'OnAction', function (self, host, source)
-							CreateRealTimeThread(function()
-								ModEditorOpen()
-								host:delete()
-							end)
+							if Platform.windows_store and not WindowsStoreAllowUserCreatedContent then
+								return
+							end
+							ModEditorOpen()
+							host:delete()
 						end,
 						'__condition', function (parent, context) return Platform.pc end,
 					}),
@@ -243,7 +259,7 @@ PlaceObj('XTemplate', {
 						'ActionToolbar', "bottommenu",
 						'OnActionEffect', "mode",
 						'OnActionParam', "Achievements",
-						'__condition', function (parent, context) return not Platform.steam and not Platform.console end,
+						'__condition', function (parent, context) return not Platform.steam and not Platform.console and not Platform.windows_store end,
 					}),
 					PlaceObj('XTemplateAction', {
 						'ActionId', "idParadoxAccount",
@@ -251,8 +267,13 @@ PlaceObj('XTemplate', {
 						'ActionIcon', "UI/Icons/main_menu_paradox.tga",
 						'ActionToolbar', "bottommenu",
 						'ActionState', function (self, host)
-							if Platform.durango and (Durango.IsPlayerGuest(XPlayerActive) or not Durango.IsPlayerSigned(XPlayerActive)) 
-								or (Platform.ps4 and not OrbisNetworkFeatures()) then
+							if Platform.durango and (Durango.IsPlayerGuest(XPlayerActive) or not Durango.IsPlayerSigned(XPlayerActive))
+								or (Platform.ps4 and not OrbisNetworkFeatures())
+								or Platform.windows_store and not WindowsStoreAllowUserCreatedContent then
+								if Platform.windows_store then
+									self.RolloverDisabledText = T(1000931, "Mods are disabled because no Xbox Live user with privilege to see and upload community creations is logged in.")
+									self.RolloverDisabledTitle = T(6884, "Warning")
+								end
 								return "disabled"
 							end
 						end,

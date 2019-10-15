@@ -28,7 +28,7 @@ PlaceObj('XTemplate', {
 				'LayoutHSpacing', 30,
 			}, {
 				PlaceObj('XTemplateWindow', {
-					'__condition', function (parent, context) return not (Platform.durango and not DurangoAllowUserCreatedContent) and GetUIStyleGamepad() end,
+					'__condition', function (parent, context) return IsUserCreatedContentAllowed() and GetUIStyleGamepad() end,
 					'__class', "XTextButton",
 					'Id', "idLeftTrigger",
 					'Background', RGBA(0, 0, 0, 0),
@@ -41,7 +41,7 @@ PlaceObj('XTemplate', {
 					'PressedBackground', RGBA(0, 0, 0, 0),
 				}),
 				PlaceObj('XTemplateWindow', {
-					'__condition', function (parent, context) return not (Platform.durango and not DurangoAllowUserCreatedContent) end,
+					'__condition', function (parent, context) return IsUserCreatedContentAllowed() end,
 				}, {
 					PlaceObj('XTemplateMode', {
 						'mode', "browse",
@@ -166,7 +166,7 @@ PlaceObj('XTemplate', {
 						}),
 					}),
 				PlaceObj('XTemplateWindow', {
-					'__condition', function (parent, context) return not (Platform.durango and not DurangoAllowUserCreatedContent) and GetUIStyleGamepad() end,
+					'__condition', function (parent, context) return IsUserCreatedContentAllowed() and GetUIStyleGamepad() end,
 					'__class', "XTextButton",
 					'Id', "idRightTrigger",
 					'Background', RGBA(0, 0, 0, 0),
@@ -537,7 +537,7 @@ PlaceObj('XTemplate', {
 									self:DeleteThread("scrolling")
 									self:CreateThread("scrolling", function(self, selection, scroll_y)
 										if GetUIStyleGamepad() then
-											self:SetSelection(selection)
+											self:SetSelection(Min(#self, selection))
 										else
 											self:ScrollTo(0, scroll_y)
 										end

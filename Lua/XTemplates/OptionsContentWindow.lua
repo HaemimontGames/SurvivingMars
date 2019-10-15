@@ -345,7 +345,48 @@ PlaceObj('XTemplate', {
 						}, {
 							PlaceObj('XTemplateTemplate', {
 								'__template', "PropEntry",
+								'RolloverTranslate', false,
+								'RolloverTemplate', "Rollover",
+								'RolloverAnchor', "right",
 							}, {
+								PlaceObj('XTemplateFunc', {
+									'name', "GetRolloverText(self)",
+									'func', function (self)
+										return self.context.RolloverText or self.RolloverText
+									end,
+								}),
+								PlaceObj('XTemplateFunc', {
+									'name', "GetRolloverTitle(self)",
+									'func', function (self)
+										return self.context.RolloverTitle or self.RolloverTitle
+									end,
+								}),
+								PlaceObj('XTemplateFunc', {
+									'name', "OnXButtonUp(self, button, controller_id)",
+									'func', function (self, button, controller_id)
+										if self.context.prop_meta.editor ~= "number" then return end
+										if button ~= "ButtonA" then return end
+										
+										if self.enabled then
+											local prop_meta = self.prop_meta
+											local obj = ResolvePropObj(self.context)
+											CreateMarsRenameControl(GetDialog(self), prop_meta.name, tostring(obj[prop_meta.id]),
+												function(value)
+													value = value:trim_spaces()
+													local period = string.find(value, "%.")
+													if period then
+														value = string.sub(value, 0, period - 1)
+													end
+													local numeric_value = tonumber(value)
+													if numeric_value then
+														obj:SetProperty(prop_meta.id, numeric_value)
+														self:OnPropUpdate(self.context, prop_meta, numeric_value)
+														self.idSlider:OnPropUpdate(self.idSlider.context, prop_meta, numeric_value)
+													end
+												end, nil, self.context, prop_meta)
+										end
+									end,
+								}),
 								PlaceObj('XTemplateWindow', {
 									'__class', "XFrame",
 									'Id', "idRollover",

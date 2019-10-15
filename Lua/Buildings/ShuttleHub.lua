@@ -338,7 +338,8 @@ end
 function IsLRTransportAvailable(city)
 	for _, hub in ipairs((city or UICity).labels.ShuttleHub or empty_table) do
 		if #(hub.shuttle_infos or "") > 0
-		and (hub.working or hub:GetWorkNotPermittedReason() and not hub:GetWorkNotPossibleReason()) then
+		and (hub.working or hub:GetWorkNotPermittedReason() and not hub:GetWorkNotPossibleReason())
+		and (hub.transport_mode == "all" or hub.transport_mode == "people") then
 			return true
 		end
 	end

@@ -1183,6 +1183,12 @@ function Colonist:GetFired()
 end
 
 ----------------------- Service Buildings, Leisure, Visits -----------------------
+
+local dome_walk_dist = const.ColonistMaxDomeWalkDist
+local dome_passage_dist = const.ColonistMinDistToIgnorePassage
+local GetDomesPassagePath = GetDomesPassagePath
+local IsLRTransportAvailable = IsLRTransportAvailable
+
 function Colonist:TryToEmigrate(current_dome)
 	current_dome = current_dome or IsUnitInDome(self)
 	--- try to recal the dome
@@ -1196,10 +1202,20 @@ function Colonist:TryToEmigrate(current_dome)
 	end
 	
 	if walking then --git goin
-		self:ClearTransportRequest()
-		dest_dome:ReserveResidence(self)
-		self:SetCommand("TransportByFoot", dest_dome)
-		return
+		local passage_path
+		local min_dist = BreathableAtmosphere and dome_passage_dist or dome_walk_dist
+		if dist > min_dist then
+			-- try to lead the colonist through the dome passages if the domes are in the same network
+			passage_path = GetDomesPassagePath(current_dome, dest_dome)
+		end
+		if not passage_path
+		or dist < dome_passage_dist and #passage_path < 10
+		or not IsLRTransportAvailable(self.city) then
+			self:ClearTransportRequest()
+			dest_dome:ReserveResidence(self)
+			self:SetCommand("TransportByFoot", dest_dome, passage_path)
+			return
+		end
 	end
 	
 	if transport_task then
@@ -2051,13 +2067,24 @@ function Colonist:Goto(pos, ...)
 	return Unit.Goto(self, pos, ...)
 end
 
-function Colonist:TransportByFoot(dest_dome)
+function Colonist:TransportByFoot(dest_dome, passage_path)
 	assert(IsInWalkingDist(self, dest_dome))
 	self.emigration_dome = dest_dome
 	self:PushDestructor(function(self)
 		self.emigration_dome = nil
 	end)
+	
 	self:SetDome(dest_dome)
+	
+	if passage_path then
+		--DbgDrawPassagePath(passage_path)
+		-- try to lead the colonist through the dome passages if the domes are in the same network
+		self:EnterBuilding(passage_path[1])
+		for i=2,#passage_path do
+			self:EnterBuilding(passage_path[i])
+		end
+	end
+
 	self:EnterBuilding(dest_dome)
 	self:PopAndCallDestructor()
 end
@@ -2104,8 +2131,6 @@ function Colonist:WaitTransport()
 		end
 		local dest_dome = self.emigration_dome
 		local source_dome = self.dome
-		assert((transport_task.source_dome or source_dome) == source_dome)
-		assert((transport_task.dest_dome or dest_dome) == dest_dome)
 		local state = transport_task.state
 		if IsValid(dest_dome) and (state == "done" or state == "transporting" and IsInWalkingDist(self, dest_dome)) then
 			self:SetDome(dest_dome)

@@ -56,6 +56,7 @@ PlaceObj('XTemplate', {
 			'IdNode', false,
 			'Margins', box(20, 0, 0, 0),
 			'Dock', "right",
+			'MinWidth', 100,
 			'FoldWhenHidden', true,
 			'HandleMouse', false,
 			'TextStyle', "ListItem4",

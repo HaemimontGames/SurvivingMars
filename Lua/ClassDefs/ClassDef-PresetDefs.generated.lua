@@ -1067,7 +1067,7 @@ DefineClass.TechPreset = {
 		{ category = "Tech", id = "display_name", name = "Display Name", help = "Tech Game Name - translated string", 
 			editor = "text", default = T(3900, --[[PresetDef TechPreset default]] "<no name>"), translate = true, },
 		{ category = "Tech", id = "icon", name = "Icon", help = "Tech Game Icon", 
-			editor = "browse", default = "UI/Icons/Research/rm_placeholder.tga", folder = "UI", filter = "Image files|*.tga", },
+			editor = "ui_image", default = "UI/Icons/Research/rm_placeholder.tga", filter = "All files|*.*", },
 		{ category = "Tech", id = "description", name = "Description", help = "Tech Description - translated text", 
 			editor = "text", default = false, translate = true, lines = 3, },
 		{ category = "Tech", id = "position", name = "Unlock Position", help = "Shuffle slot range", 

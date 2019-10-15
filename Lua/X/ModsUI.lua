@@ -164,7 +164,7 @@ function GetPopsModsUISortItems(mode)
 		items[#items + 1] = {id = "enabled_desc",  name = T(10973, "Enabled first"), name_uppercase = T(10991, "ENABLED FIRST")}
 		items[#items + 1] = {id = "enabled_asc", name = T(10974, "Disabled first"), name_uppercase = T(10992, "DISABLED FIRST")}
 	end
-	if not (Platform.durango and not DurangoAllowUserCreatedContent) then
+	if IsUserCreatedContentAllowed() then
 		items[#items + 1] = {id = "created_asc",       name = T(10937, "Oldest first"),         name_uppercase = T(10938, "OLDEST FIRST")}
 		items[#items + 1] = {id = "created_desc",      name = T(10939, "Most recent first"),    name_uppercase = T(12300, "MOST RECENT FIRST")}
 		items[#items + 1] = {id = "rating_asc",        name = T(10941, "Rating (ASC)"),         name_uppercase = T(10942, "RATING (ASC)")}
@@ -694,7 +694,7 @@ function ModsUISetInstalledTags()
 end
 
 function ModsUISetDialogMode(win, mode, mode_param)
-	if mode == "details" and not next(mode_param) then return end
+	if mode == "details" and not next(mode_param or empty_table) then return end
 	local dlg = GetDialog(win)
 	local current_mode = dlg:GetMode()
 	if current_mode ~= mode then
@@ -926,7 +926,7 @@ function PDXModsObject:Init()
 	self.mods_info_queue = PopsQueue:new{push_message = "PopsModGetInfoPush"}
 	self.retrieved_mod_pages = {}
 	self.retrieved_mod_infos = {}
-	if Platform.durango and not DurangoAllowUserCreatedContent then
+	if not IsUserCreatedContentAllowed() then
 		self.set_sort = "displayName_asc"
 		self.set_installed_sort = "displayName_asc"
 	end
@@ -958,7 +958,7 @@ function PDXModsObject:GetFilterCount()
 end
 
 function PDXModsObject:GetMods()
-	if (Platform.durango and not DurangoAllowUserCreatedContent) then return end
+	if not IsUserCreatedContentAllowed() then return end
 	DeleteThread(self.get_mods_thread)
 	self.get_mods_thread = CreateRealTimeThread(function(self)
 		--clear scroll params for browsing
@@ -1170,7 +1170,7 @@ function PDXModsObject:GetInstalledMods(modify_obj, skip_install)
 				seen[mod.ModID] = true
 			end
 		end
-		if g_ParadoxAccountLoggedIn and not (Platform.durango and not DurangoAllowUserCreatedContent) then
+		if g_ParadoxAccountLoggedIn and IsUserCreatedContentAllowed() then
 			local err, pops_installed = AsyncOpWait(PopsAsyncOpTimeout, nil, "AsyncPopsModsGetInstalled", g_PopsModsUISearchPlatform)
 			pops_installed = pops_installed or empty_table
 			for _, m in ipairs(pops_installed) do
@@ -1397,7 +1397,7 @@ end
 function OnMsg.PopsAutoLoginFailed()
 	StartPopsModsDownloadThread()
 	StartPopsModsScreenshotDownloadThread()
-	if Platform.durango and not DurangoAllowUserCreatedContent then return end
+	if not IsUserCreatedContentAllowed() then return end
 	local obj = g_ParadoxModsContextObj
 	if obj then
 		obj:GetMods()
@@ -1408,7 +1408,7 @@ end
 function OnMsg.PopsLogin()
 	StartPopsModsDownloadThread()
 	StartPopsModsScreenshotDownloadThread()
-	if Platform.durango and not DurangoAllowUserCreatedContent then return end
+	if not IsUserCreatedContentAllowed() then return end
 	--check for missing installed mods and download them
 	--if mods are disabled, do not try to update, install or sync any data to mitigate issues
 	if not config.NoMods then
@@ -1548,7 +1548,7 @@ end
 
 function StartPopsModsDownloadThread()
 	if g_PopsDownloadModsQueue then return end
-	if Platform.durango and not DurangoAllowUserCreatedContent then return end
+	if not IsUserCreatedContentAllowed() then return end
 	CreateRealTimeThread(function()
 		g_PopsDownloadModsQueue = PopsQueue:new{push_message = "PopsDownloadModPush"}
 		while true do

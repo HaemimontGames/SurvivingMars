@@ -13,7 +13,6 @@ PlaceObj('XTemplate', {
 			'VAlign', "center",
 			'MaxWidth', 650,
 			'LayoutMethod', "VList",
-			'LayoutVSpacing', 30,
 			'HandleKeyboard', false,
 		}, {
 			PlaceObj('XTemplateFunc', {
@@ -28,6 +27,8 @@ PlaceObj('XTemplate', {
 				end,
 			}),
 			PlaceObj('XTemplateWindow', {
+				'Margins', box(0, 0, 0, 30),
+				'Dock', "top",
 				'LayoutMethod', "VList",
 				'LayoutVSpacing', 10,
 			}, {
@@ -50,68 +51,109 @@ PlaceObj('XTemplate', {
 				}),
 			PlaceObj('XTemplateWindow', {
 				'comment', "reason",
+				'Margins', box(0, 0, 0, 30),
 				'LayoutMethod', "VList",
-				'LayoutVSpacing', 5,
 			}, {
 				PlaceObj('XTemplateWindow', {
 					'__class', "XLabel",
+					'Margins', box(0, 0, 0, 5),
+					'Dock', "top",
 					'TextStyle', "ModsUIDescription",
 					'Translate', true,
 					'Text', T(393143003550, --[[XTemplate ModsUIFlag Text]] "REASON"),
 				}),
-				PlaceObj('XTemplateWindow', {
-					'__class', "XList",
-					'Id', "idReasons",
-					'IdNode', false,
-					'Margins', box(-20, 0, 0, 0),
-					'BorderWidth', 0,
-					'Background', RGBA(255, 255, 255, 0),
-					'FocusedBackground', RGBA(255, 255, 255, 0),
-				}, {
-					PlaceObj('XTemplateForEach', {
-						'array', function (parent, context) return PopsModsUIFlagReasons end,
-						'run_after', function (child, context, item, i, n)
-							child:SetText(item.name)
-							child:SetCheck(item.id == context.flag_reason)
-							child.OnChange = function(this, check)
-								local parent = this.parent
-								for _, ctrl in ipairs(parent) do
-									ctrl:SetCheck(this == ctrl)
-								end
-								local submit_button = this:ResolveId("idSubmit")
-								if submit_button and not submit_button.enabled then
-									submit_button:SetEnabled(true)
-								end
-								local has_reason = context.flag_reason
-								context.flag_reason = item.id
-								if not has_reason then
-									local dlg = GetDialog(this)
-									dlg:UpdateActionViews(dlg)
-								end
-							end
-						end,
+				PlaceObj('XTemplateWindow', nil, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XList",
+						'Id', "idReasons",
+						'IdNode', false,
+						'Margins', box(-20, 0, 0, 0),
+						'BorderWidth', 0,
+						'Background', RGBA(255, 255, 255, 0),
+						'FocusedBackground', RGBA(255, 255, 255, 0),
+						'VScroll', "idScroll",
 					}, {
-						PlaceObj('XTemplateTemplate', {
-							'__template', "ModsUIChecksListItem",
-							'Icon', "UI/Mods/radio_button.tga",
-							'IconScale', point(500, 500),
-							'TextStyle', "ModsUIDescription",
+						PlaceObj('XTemplateForEach', {
+							'array', function (parent, context) return PopsModsUIFlagReasons end,
+							'run_after', function (child, context, item, i, n)
+								child:SetText(item.name)
+								child:SetCheck(item.id == context.flag_reason)
+								child.OnChange = function(this, check)
+									local parent = this.parent
+									for _, ctrl in ipairs(parent) do
+										ctrl:SetCheck(this == ctrl)
+									end
+									local submit_button = this:ResolveId("idSubmit")
+									if submit_button and not submit_button.enabled then
+										submit_button:SetEnabled(true)
+									end
+									local has_reason = context.flag_reason
+									context.flag_reason = item.id
+									if not has_reason then
+										local dlg = GetDialog(this)
+										dlg:UpdateActionViews(dlg)
+									end
+								end
+							end,
+						}, {
+							PlaceObj('XTemplateTemplate', {
+								'__template', "ModsUIChecksListItem",
+								'Icon', "UI/Mods/radio_button.tga",
+								'IconScale', point(500, 500),
+								'TextStyle', "ModsUIDescription",
+							}),
+							}),
+						PlaceObj('XTemplateFunc', {
+							'name', "OnShortcut(self, shortcut, source)",
+							'func', function (self, shortcut, source)
+								if shortcut == "Down" and self.focused_item == #self then
+									self:ResolveId("idComment"):SetFocus()
+									return "break"
+								end
+								return XList.OnShortcut(self, shortcut, source)
+							end,
 						}),
 						}),
-					PlaceObj('XTemplateFunc', {
-						'name', "OnShortcut(self, shortcut, source)",
-						'func', function (self, shortcut, source)
-							if shortcut == "Down" and self.focused_item == #self then
-								self:ResolveId("idComment"):SetFocus()
-								return "break"
-							end
-							return XList.OnShortcut(self, shortcut, source)
-						end,
+					PlaceObj('XTemplateTemplate', {
+						'__template', "Scrollbar",
+						'Id', "idScroll",
+						'Target', "idReasons",
 					}),
 					}),
 				}),
 			PlaceObj('XTemplateWindow', {
+				'__condition', function (parent, context) return not GetUIStyleGamepad() end,
+				'__class', "XTextButton",
+				'Id', "idSubmit",
+				'Padding', box(18, 0, 18, 0),
+				'Dock', "bottom",
+				'HAlign', "center",
+				'RolloverOnFocus', false,
+				'MouseCursor', "UI/Cursors/Rollover.tga",
+				'DisabledBackground', RGBA(255, 255, 255, 255),
+				'OnPress', function (self, gamepad)
+					ModsUIFlagMod(self)
+				end,
+				'Image', "UI/Mods/green_button.tga",
+				'FrameBox', box(18, 18, 18, 18),
+				'Columns', 2,
+				'TextStyle', "LightButtons",
+				'Translate', true,
+				'Text', T(666956815682, --[[XTemplate ModsUIFlag Text]] "SUBMIT"),
+				'ColumnsUse', "abaaa",
+			}, {
+				PlaceObj('XTemplateFunc', {
+					'name', "SetEnabled(self, enabled)",
+					'func', function (self, enabled)
+						XTextButton.SetEnabled(self, enabled)
+						self:SetDesaturation(enabled and 0 or 255)
+					end,
+				}),
+				}),
+			PlaceObj('XTemplateWindow', {
 				'comment', "comment",
+				'Margins', box(0, 0, 0, 30),
+				'Dock', "bottom",
 				'LayoutMethod', "VList",
 				'LayoutVSpacing', 5,
 			}, {
@@ -159,34 +201,6 @@ PlaceObj('XTemplate', {
 						end,
 					}),
 					}),
-				}),
-			PlaceObj('XTemplateWindow', {
-				'__condition', function (parent, context) return not GetUIStyleGamepad() end,
-				'__class', "XTextButton",
-				'Id', "idSubmit",
-				'Padding', box(18, 0, 18, 0),
-				'HAlign', "center",
-				'RolloverOnFocus', false,
-				'MouseCursor', "UI/Cursors/Rollover.tga",
-				'DisabledBackground', RGBA(255, 255, 255, 255),
-				'OnPress', function (self, gamepad)
-					ModsUIFlagMod(self)
-				end,
-				'Image', "UI/Mods/green_button.tga",
-				'FrameBox', box(18, 18, 18, 18),
-				'Columns', 2,
-				'TextStyle', "LightButtons",
-				'Translate', true,
-				'Text', T(666956815682, --[[XTemplate ModsUIFlag Text]] "SUBMIT"),
-				'ColumnsUse', "abaaa",
-			}, {
-				PlaceObj('XTemplateFunc', {
-					'name', "SetEnabled(self, enabled)",
-					'func', function (self, enabled)
-						XTextButton.SetEnabled(self, enabled)
-						self:SetDesaturation(enabled and 0 or 255)
-					end,
-				}),
 				}),
 			}),
 		PlaceObj('XTemplateAction', {

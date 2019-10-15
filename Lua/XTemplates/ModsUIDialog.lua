@@ -24,7 +24,7 @@ PlaceObj('XTemplate', {
 			'name', "Open",
 			'func', function (self, ...)
 				XDialog.Open(self, ...)
-				if Platform.durango and not DurangoAllowUserCreatedContent then
+				if not IsUserCreatedContentAllowed() then
 					self:SetMode("installed")
 				end
 				ModsUIDialogStart()
@@ -48,7 +48,7 @@ PlaceObj('XTemplate', {
 		PlaceObj('XTemplateFunc', {
 			'name', "OnShortcut(self, shortcut, source)",
 			'func', function (self, shortcut, source)
-				if not self.context.popup_shown and self.Mode ~= "details" and not (Platform.durango and not DurangoAllowUserCreatedContent) then
+				if not self.context.popup_shown and self.Mode ~= "details" and IsUserCreatedContentAllowed() then
 					if shortcut == "LeftTrigger" then
 						self:ResolveId("idBrowse"):Press()
 						return "break"

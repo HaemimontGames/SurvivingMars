@@ -15,7 +15,7 @@ PlaceObj('StoryBit', {
 		}),
 	},
 	ScriptDone = true,
-	Text = T(899014718374, --[[StoryBit TheLudditeVibe Text]] 'Transmitting a video stream from inside the building, the angry colonist screams:\n\n"I can’t take it anymore! Machines! Machines! Only bloody, senseless, soulless machines! I will destroy them! ALL OF THEM!"\n\nThen, out of a sudden, the red alert lights flash! <DisplayName> has set the building to self-destruct!'),
+	Text = T(899014718374, --[[StoryBit TheLudditeVibe Text]] 'Transmitting a video stream from inside the building, the angry colonist screams:\n\n"I can’t take it anymore! Machines! Machines! Only bloody, senseless, soulless machines! I will destroy them! ALL OF THEM!"\n\nThen, all of a sudden, the red alert lights flash! <DisplayName> has set the building to self-destruct!'),
 	TextReadyForValidation = true,
 	TextsDone = true,
 	Title = T(208190182578, --[[StoryBit TheLudditeVibe Title]] "Sanity Breakdown - The Luddite Vibe"),

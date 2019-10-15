@@ -243,6 +243,8 @@ function OnMsg.ChangeMap(map)
 			print("Press Enter to execute arbitrary Lua code.")
 			print("Press F9 to clear this log.")
 			ConsoleSetEnabled(true)
+		elseif config.LuaDebugger then
+			ConsoleSetEnabled(true)
 		else
 			ConsoleSetEnabled(false)
 		end

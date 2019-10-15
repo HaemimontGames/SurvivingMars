@@ -995,6 +995,10 @@ function Drone:SetCarriedResource(resource, amount)
 end
 
 function FindStockpileDumpSpot(pos, resource, path_test_obj)
+	assert(pos ~= InvalidPos())
+	if pos == InvalidPos() then
+		return false
+	end
 	local q, r = WorldToHex(pos)
 	local bld = HexGetLowBuilding(q, r)
 	local pipe = HexGetPipe(q, r)
@@ -1024,7 +1028,10 @@ end
 function Drone:CreateDumpingStockpile()
 	local s_req = self.picked_up_from_req
 	local s_bld = s_req and s_req:GetBuilding()
-	local input_pos = IsKindOf(s_bld, "ResourceStockpileBase") and s_bld:GetPos() or self:GetPos()
+	local input_pos = IsKindOf(s_bld, "ResourceStockpileBase") and s_bld:GetPos()
+	if not input_pos or input_pos == InvalidPos() then
+		input_pos = self:GetPos()
+	end
 	local mark = LandscapeCheck(input_pos, false)
 	local ls = mark and Landscapes[mark]
 	local site = ls and ls.site

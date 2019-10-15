@@ -134,25 +134,37 @@ function Infobar:OnSetFocus()
 end
 
 function Infobar:OnKillFocus()
-	self:UpdateGamepadHint()
-	UnlockHRXboxLeftThumb("infobar")
-	XDialog.OnKillFocus(self)	
-	UpdateInfobarVisibility()
+	if self.window_state ~= "destroying" then
+		self:UpdateGamepadHint()
+		UnlockHRXboxLeftThumb("infobar")
+		XDialog.OnKillFocus(self)
+		UpdateInfobarVisibility()
+	end
+end
+
+function Infobar:SetGamepadHintVisible(visible)
+	if visible then
+		self.last_width = false --reset width so that it can be shown correctly
+	end
+	local hint = self:ResolveId("idGamepadHint")
+	if hint then
+		hint:SetVisible(visible)
+	end
 end
 
 function Infobar:UpdateGamepadHint()
 	if not GetUIStyleGamepad() then
-		self.idGamepadHint:SetVisible(false)
+		self:SetGamepadHintVisible(false)
 		return
 	end
 	
 	local focus = GetDialog(self.desktop:GetKeyboardFocus())
 	if IsKindOfClasses(focus, "SelectionModeDialog", "OverviewModeDialog", "InGameInterface") then
-		self.idGamepadHint:SetVisible(true)
+		self:SetGamepadHintVisible(true)
 	elseif IsKindOf(focus, "PopupNotification") then
-		self.idGamepadHint:SetVisible(focus.idList:IsFocused(true) and focus.idList:GetSelection()[1] == 1)
+		self:SetGamepadHintVisible(focus.idList:IsFocused(true) and focus.idList:GetSelection()[1] == 1)
 	else
-		self.idGamepadHint:SetVisible(false)
+		self:SetGamepadHintVisible(false)
 	end
 end
 

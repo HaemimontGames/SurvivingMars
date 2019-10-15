@@ -121,7 +121,7 @@ PlaceObj('Scenario', {
 		PlaceObj('SA_AppendToLog', {
 			'comment', "repeatable research available",
 			'register', "_MysteryLog",
-			'text', T(8373, --[[Scenario Mystery 9 text]] "Rede Goddenberry requests the export of materials for the construction a farm hub on Ganymede."),
+			'text', T(8373, --[[Scenario Mystery 9 text]] "Rede Goddenberry requests the export of materials for the construction of a farm hub on Ganymede."),
 		}),
 		PlaceObj('SA_RunSequence', {
 			'comment', "updates the mystery log notification",
